@@ -34,6 +34,27 @@ var ErrUnsafeInteger = errors.New("integer outside the I-JSON safe range")
 
 const maxSafeInteger = int64(1) << 53 // exclusive bound: |i| must be < 2^53
 
+// maxParseDepth bounds JSON nesting on untrusted input. It is set far below
+// the native stack-overflow point (Go's own encoding/json uses 10000 only as
+// a crash backstop): 128 matches the serde_json floor and is ~20x under any
+// realistic attestation payload, so the counter trips with a normal error
+// before the stack overflows. Without it a crafted deeply-nested corpus
+// manifest or record payload crashes the verifier via uncatchable stack
+// overflow, before any signature is checked.
+const maxParseDepth = 128
+
+// maxParseBytes bounds raw untrusted JSON size before parsing. A depth cap
+// bounds the call stack; a size cap bounds the heap. Both are required (a
+// depth limit alone leaves resource use proportional to input size).
+const maxParseBytes = 20 << 20 // 20 MiB
+
+// ErrInputTooDeep and ErrInputTooLarge report untrusted JSON exceeding the
+// I-JSON resource bounds. Both are fail-closed rejections, never a crash.
+var (
+	ErrInputTooDeep  = errors.New("JSON nesting exceeds the maximum depth")
+	ErrInputTooLarge = errors.New("JSON input exceeds the maximum size")
+)
+
 // jsonObject preserves member order for duplicate detection while allowing
 // canonical (sorted) emission.
 type jsonObject struct {
@@ -44,9 +65,12 @@ type jsonObject struct {
 // parseJSONValue decodes exactly one JSON value from raw, rejecting
 // duplicate members, unsafe integers, and trailing content.
 func parseJSONValue(raw []byte) (any, error) {
+	if len(raw) > maxParseBytes {
+		return nil, fmt.Errorf("%w: %d bytes", ErrInputTooLarge, len(raw))
+	}
 	dec := json.NewDecoder(bytes.NewReader(raw))
 	dec.UseNumber()
-	v, err := decodeValue(dec)
+	v, err := decodeValue(dec, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +80,10 @@ func parseJSONValue(raw []byte) (any, error) {
 	return v, nil
 }
 
-func decodeValue(dec *json.Decoder) (any, error) {
+func decodeValue(dec *json.Decoder, depth int) (any, error) {
+	if depth > maxParseDepth {
+		return nil, ErrInputTooDeep
+	}
 	tok, err := dec.Token()
 	if err != nil {
 		return nil, err
@@ -78,7 +105,7 @@ func decodeValue(dec *json.Decoder) (any, error) {
 				if _, dup := obj.values[key]; dup {
 					return nil, fmt.Errorf("%w: %q", ErrDuplicateMember, key)
 				}
-				val, err := decodeValue(dec)
+				val, err := decodeValue(dec, depth+1)
 				if err != nil {
 					return nil, err
 				}
@@ -92,7 +119,7 @@ func decodeValue(dec *json.Decoder) (any, error) {
 		case '[':
 			var arr []any
 			for dec.More() {
-				val, err := decodeValue(dec)
+				val, err := decodeValue(dec, depth+1)
 				if err != nil {
 					return nil, err
 				}
@@ -141,7 +168,7 @@ func Canonicalize(raw []byte) ([]byte, error) {
 		return nil, err
 	}
 	var buf bytes.Buffer
-	if err := appendCanonical(&buf, v); err != nil {
+	if err := appendCanonical(&buf, v, 0); err != nil {
 		return nil, err
 	}
 	return buf.Bytes(), nil
@@ -155,7 +182,10 @@ func CheckIJSON(raw []byte) error {
 	return err
 }
 
-func appendCanonical(buf *bytes.Buffer, v any) error {
+func appendCanonical(buf *bytes.Buffer, v any, depth int) error {
+	if depth > maxParseDepth {
+		return ErrInputTooDeep
+	}
 	switch t := v.(type) {
 	case nil:
 		buf.WriteString("null")
@@ -179,7 +209,7 @@ func appendCanonical(buf *bytes.Buffer, v any) error {
 			if i > 0 {
 				buf.WriteByte(',')
 			}
-			if err := appendCanonical(buf, el); err != nil {
+			if err := appendCanonical(buf, el, depth+1); err != nil {
 				return err
 			}
 		}
@@ -194,7 +224,7 @@ func appendCanonical(buf *bytes.Buffer, v any) error {
 			}
 			appendJCSString(buf, k)
 			buf.WriteByte(':')
-			if err := appendCanonical(buf, t.values[k]); err != nil {
+			if err := appendCanonical(buf, t.values[k], depth+1); err != nil {
 				return err
 			}
 		}

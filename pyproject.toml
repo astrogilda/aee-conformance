@@ -1,0 +1,41 @@
+# aee-conformance Python tooling.
+#
+# The reference verification RAIL (packaging/run_vectors.py) is deliberately
+# stdlib-only (zero third-party dependency) so a relying party can run the
+# suite against any verifier with nothing but a CPython install. Only the
+# vector GENERATORS (vectors/**/gen_*.py) use the cryptography library, and
+# only at build time. Do not add a runtime dependency to the rail.
+
+[project]
+name = "aee-conformance"
+version = "0.6.0"
+description = "Conformance vectors and reference verifier for the in-toto Adversarial Execution Evidence predicate"
+requires-python = ">=3.13"
+license = { text = "Apache-2.0" }
+dependencies = []
+
+[project.optional-dependencies]
+# Build-time only: the generators sign vectors with real Ed25519 test keys.
+generators = ["cryptography>=43"]
+dev = ["cryptography>=43", "mypy>=1.11", "ruff>=0.6"]
+
+[tool.mypy]
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+show_error_codes = true
+python_version = "3.13"
+files = ["packaging", "vectors"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+# E/W pycodestyle, F pyflakes, I isort, UP pyupgrade, B bugbear, C901 mccabe
+# (complexity governance per the house policy; accepted C+ functions carry a
+# noqa: C901 with a rationale in docs/complexity-rationales.toml).
+select = ["E", "F", "W", "I", "UP", "B", "C901"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10

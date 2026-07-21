@@ -1,0 +1,15 @@
+version: "2"
+
+linters:
+  default: standard
+  enable:
+    # This module is a security verifier over untrusted attestation bytes;
+    # unchecked errors on the verification path are latent fail-open bugs, so
+    # errcheck stays on (the standard set includes it) and gosec is added.
+    - gosec
+    - revive
+  settings:
+    staticcheck:
+      checks:
+        - "all"
+        - "-ST1000" # package-comment style, not load-bearing here

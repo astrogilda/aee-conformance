@@ -188,17 +188,55 @@ def _walk_check_ints(v: Any) -> None:
             _walk_check_ints(x)
 
 
+# Untrusted-input resource bounds, pinned to match the Go rail (aee/jcs.go
+# maxParseDepth / maxParseBytes) so the two independent rails accept and reject
+# exactly the same payloads. The depth bound is a cross-rail parity requirement,
+# not only a DoS defense: stdlib JSON parser depth defaults diverge across
+# languages (Go 10000, CPython ~1000-10000 by platform, serde_json 128), so a
+# shared explicit bound is what keeps the rails from splitting on deep input.
+MAX_PARSE_DEPTH = 128
+MAX_PARSE_BYTES = 20 << 20  # 20 MiB
+
+
+def _max_json_depth(text: str) -> int:
+    """Maximum bracket-nesting depth of a JSON text, ignoring string bodies."""
+    depth = maxd = 0
+    in_str = esc = False
+    for ch in text:
+        if in_str:
+            if esc:
+                esc = False
+            elif ch == "\\":
+                esc = True
+            elif ch == '"':
+                in_str = False
+        elif ch == '"':
+            in_str = True
+        elif ch in "[{":
+            depth += 1
+            if depth > maxd:
+                maxd = depth
+        elif ch in "]}":
+            depth -= 1
+    return maxd
+
+
 def strict_payload_parse(raw: bytes) -> dict:
     """Parse record payload bytes; raise IJsonError with a registry code."""
+    if len(raw) > MAX_PARSE_BYTES:
+        raise IJsonError("payload-not-canonical", "payload exceeds the maximum size")
     try:
         text = raw.decode("utf-8")
     except UnicodeDecodeError:
         raise IJsonError("payload-not-canonical", "payload is not UTF-8")
+    if _max_json_depth(text) > MAX_PARSE_DEPTH:
+        raise IJsonError("payload-not-canonical",
+                         "payload nesting exceeds the maximum depth")
     try:
         obj = json.loads(text, object_pairs_hook=_reject_dup_pairs)
     except IJsonError:
         raise
-    except ValueError:
+    except (ValueError, RecursionError):
         raise IJsonError("payload-not-canonical", "payload does not parse as JSON")
     if not isinstance(obj, dict):
         raise IJsonError("payload-not-canonical", "payload is not a JSON object")
@@ -1377,7 +1415,7 @@ def run_suite(args) -> int:
             with open(path, "rb") as f:
                 raw = f.read()
             stmt = json.loads(raw.decode("utf-8"))
-        except (OSError, ValueError) as e:
+        except (OSError, ValueError, RecursionError) as e:
             rows_out.append(
                 {
                     "id": vid,

@@ -26,6 +26,7 @@ import hashlib
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
@@ -47,7 +48,7 @@ SUBJECT_NAME = "example-agent-bundle"
 # ---------------------------------------------------------------------------
 
 
-def jcs(obj) -> bytes:
+def jcs(obj: Any) -> bytes:
     """RFC 8785 canonical JSON for the value space this suite uses.
 
     The suite restricts itself to ASCII strings, small integers, booleans,
@@ -90,7 +91,7 @@ def rfc6962_root(leaves: list[bytes]) -> str:
 # ---------------------------------------------------------------------------
 
 
-def derive_key(role: str):
+def derive_key(role: str) -> tuple[Ed25519PrivateKey, bytes, str]:
     seed = hashlib.sha256(f"in-toto-aee-test-key/{role}/v1".encode()).digest()
     priv = Ed25519PrivateKey.from_private_bytes(seed)
     pub = priv.public_key().public_bytes_raw()
@@ -106,7 +107,7 @@ STMT_PRIV, STMT_PUB, STMT_KEYID = derive_key("statement-test")
 # synthetic one-line preimages -> every digest in the suite
 # ---------------------------------------------------------------------------
 
-PREIMAGES = {
+PREIMAGES: dict[str, Any] = {
     "subject": "example-agent-bundle-content/v1",
     "substrate": "example-substrate-image-content/v1",
     "catch-policy": {"exampleCatchPolicy": {"mode": "enforce"}},
@@ -126,7 +127,7 @@ DEFAULT_LABELS = ["egress_captured", "no_egress"]
 DEFAULT_CAUGHT = ["egress_captured"]
 
 
-def vocab_obj(labels, caught):
+def vocab_obj(labels: list[str], caught: list[str]) -> dict[str, Any]:
     return {
         "digest": {"sha256": sha256_hex(jcs({"caught": caught, "labels": labels}))},
         "labels": labels,
@@ -134,7 +135,7 @@ def vocab_obj(labels, caught):
     }
 
 
-def corpus_obj(manifest):
+def corpus_obj(manifest: dict[str, Any]) -> dict[str, Any]:
     return {
         "name": "example-adversarial-corpus",
         "uri": "pkg:example/adversarial-corpus@1.0.0",
@@ -168,11 +169,12 @@ def make_record(
     note: str | None = None,
     drop_count: int = 0,
     drop_bound: int | None = None,
-    extra: dict | None = None,
+    extra: dict[str, Any] | None = None,
     signer: str = "substrate",
     keyid_mode: str = "normal",  # normal | garbage | absent
     sig_mode: str = "pae",  # pae | raw
-) -> dict:
+) -> dict[str, Any]:
+    payload: dict[str, Any]
     if kind == "interception":
         payload = {
             "aeeKind": "interception",
@@ -223,7 +225,7 @@ def make_record(
     )
     sig = base64.b64encode(priv.sign(signed_bytes)).decode()
 
-    entry: dict = {"sig": sig}
+    entry: dict[str, str] = {"sig": sig}
     if keyid_mode == "normal":
         entry["keyid"] = keyid
     elif keyid_mode == "garbage":
@@ -239,13 +241,13 @@ def make_record(
 def make_row(
     attack_id: str,
     observed: str,
-    basis,
-    method,
+    basis: str | None,
+    method: str | None,
     layer: str,
     refs: list[int] | None,
     selectors: list[str] | None = None,
-):
-    row: dict = {"attackId": attack_id, "containmentObserved": observed}
+) -> dict[str, Any]:
+    row: dict[str, Any] = {"attackId": attack_id, "containmentObserved": observed}
     if basis is not None:
         row["basis"] = basis
     if method is not None:
@@ -259,19 +261,19 @@ def make_row(
 
 
 def make_statement(
-    manifest: dict,
-    rows: list[dict],
-    records: list[dict] | None = None,
+    manifest: dict[str, Any],
+    rows: list[dict[str, Any]],
+    records: list[dict[str, Any]] | None = None,
     assessed: list[str] | None = None,
-    out_of_scope: dict | None = None,
-    routed_elsewhere: dict | None = None,
-    labels=None,
-    caught=None,
+    out_of_scope: dict[str, Any] | None = None,
+    routed_elsewhere: dict[str, Any] | None = None,
+    labels: list[str] | None = None,
+    caught: list[str] | None = None,
     with_entropy: bool = True,
     does_not_assert: list[str] | None = None,
-    predicate_extra: dict | None = None,
+    predicate_extra: dict[str, Any] | None = None,
     binding_for_root: str | None = None,
-):
+) -> dict[str, Any]:
     labels = DEFAULT_LABELS if labels is None else labels
     caught = DEFAULT_CAUGHT if caught is None else caught
     corpus = corpus_obj(manifest)
@@ -291,7 +293,7 @@ def make_statement(
     caught_set = set(caught)
     label_set = set(labels)
 
-    def carried_result():
+    def carried_result() -> str:
         forced_fail = False
         for r in rows:
             lab = r.get("containmentObserved")
@@ -307,7 +309,7 @@ def make_statement(
             return "degraded"
         return "pass"
 
-    predicate: dict = {
+    predicate: dict[str, Any] = {
         "result": carried_result(),
         "observationEnvironment": env,
         "coverage": {
@@ -344,8 +346,8 @@ def make_statement(
 # ---------------------------------------------------------------------------
 
 
-def build_vectors() -> dict[str, dict]:
-    v: dict[str, dict] = {}
+def build_vectors() -> dict[str, dict[str, Any]]:
+    v: dict[str, dict[str, Any]] = {}
 
     man_1 = {"classes": {"XA": ["XA-EXAMPLE-1"]}}
     b_1 = run_binding(sha256_hex(jcs(man_1)))
@@ -949,7 +951,7 @@ def build_vectors() -> dict[str, dict]:
 METHOD_RANK = {"reconstructed": 1, "intercepted": 2}
 
 
-def verify(stmt: dict) -> list[str]:
+def verify(stmt: dict[str, Any]) -> list[str]:
     errs: list[str] = []
     pred = stmt["predicate"]
     env = pred["observationEnvironment"]
@@ -1003,7 +1005,7 @@ def verify(stmt: dict) -> list[str]:
                 )
             )
 
-    def payload_of(i):
+    def payload_of(i: int) -> Any:
         raw = base64.b64decode(records[i]["payload"])
         obj = json.loads(raw)
         if jcs(obj) != raw:
@@ -1034,7 +1036,7 @@ def verify(stmt: dict) -> list[str]:
         is_clean = lab in labels and lab not in caught
         meth = r.get("method")
 
-        def arming_ok(p):
+        def arming_ok(p: dict[str, Any]) -> bool:
             return (
                 p.get("armedAt") is not None
                 and p.get("armedAt") <= pred["issuedAt"]
@@ -1042,7 +1044,7 @@ def verify(stmt: dict) -> list[str]:
                 and p.get("aeeMethod") == "intercepted"
             )
 
-        def sealed_ok(p):
+        def sealed_ok(p: dict[str, Any]) -> bool:
             dc = p.get("aeeDropCount")
             bound_ok = dc == 0 or (
                 isinstance(p.get("aeeDropBound"), int) and dc <= p["aeeDropBound"]
@@ -1099,7 +1101,7 @@ def verify(stmt: dict) -> list[str]:
 
     # coverage integrity at attack granularity
     manifest = env["corpus"]["manifest"]["classes"]
-    by_class: dict[str, set] = {}
+    by_class: dict[str, set[str]] = {}
     for r in rows:
         cls = next((c for c, ids in manifest.items() if r["attackId"] in ids), None)
         if cls is None:
@@ -1116,9 +1118,9 @@ def verify(stmt: dict) -> list[str]:
     return errs
 
 
-def verify_signatures(stmt: dict) -> dict[int, str]:
+def verify_signatures(stmt: dict[str, Any]) -> dict[int, str]:
     """Tier-plane check (informative): which records verify under which key."""
-    out = {}
+    out: dict[int, str] = {}
     pubs = {
         "substrate-observation-test": Ed25519PublicKey.from_public_bytes(SUB_PUB),
         "wrong-signer-test": Ed25519PublicKey.from_public_bytes(WRONG_PUB),

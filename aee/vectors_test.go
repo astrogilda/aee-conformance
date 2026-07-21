@@ -59,7 +59,7 @@ func suiteDir() string {
 	if dir := os.Getenv("AEE_VECTORS_DIR"); dir != "" {
 		return dir
 	}
-	return filepath.Join("..", "..", "vectors")
+	return filepath.Join("..", "vectors")
 }
 
 func TestConformanceVectors(t *testing.T) {
@@ -74,7 +74,10 @@ func TestConformanceVectors(t *testing.T) {
 		runStagedMode(t, validDir, invalidDir)
 		return
 	}
-	t.Skipf("vector suite not present at %s (set AEE_VECTORS_DIR); skipping conformance replay", dir)
+	if os.Getenv("AEE_SKIP_VECTORS") == "1" {
+		t.Skipf("vector suite not present at %s and AEE_SKIP_VECTORS=1 set; skipping conformance replay", dir)
+	}
+	t.Fatalf("vector suite not present at %s (set AEE_VECTORS_DIR to relocate it, or AEE_SKIP_VECTORS=1 to skip): the conformance gate must not silently no-op", dir)
 }
 
 func statDir(p string) bool {

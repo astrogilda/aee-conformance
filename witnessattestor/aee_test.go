@@ -42,7 +42,7 @@ func TestEmitSeamRefusesSyntheticFaults(t *testing.T) {
 func TestEmitSeamRefusesVectorBodies(t *testing.T) {
 	dir := os.Getenv("AEE_VECTORS_DIR")
 	if dir == "" {
-		dir = filepath.Join("..", "..", "vectors")
+		dir = filepath.Join("..", "vectors")
 	}
 	rejectDir := ""
 	for _, sub := range []string{"reject", "invalid"} {
@@ -52,7 +52,10 @@ func TestEmitSeamRefusesVectorBodies(t *testing.T) {
 		}
 	}
 	if rejectDir == "" {
-		t.Skipf("vector suite not present at %s; skipping vector-driven emit-refusal", dir)
+		if os.Getenv("AEE_SKIP_VECTORS") == "1" {
+			t.Skipf("vector suite not present at %s and AEE_SKIP_VECTORS=1 set; skipping vector-driven emit-refusal", dir)
+		}
+		t.Fatalf("vector suite not present at %s (set AEE_VECTORS_DIR, or AEE_SKIP_VECTORS=1 to skip): the emit-refusal gate must not silently no-op", dir)
 	}
 	entries, err := os.ReadDir(rejectDir)
 	if err != nil {

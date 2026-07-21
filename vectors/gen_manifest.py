@@ -16,6 +16,7 @@ from __future__ import annotations
 import json
 import os
 import re
+from typing import Any
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -50,12 +51,12 @@ def conditions_of(cell: str) -> list[str]:
 
 
 def main() -> int:
-    vectors = []
+    vectors: list[dict[str, Any]] = []
 
     for cells in table_rows(os.path.join(HERE, "accept", "INDEX.md")):
         vid = cells[0].strip("`")
         result = cells[1]
-        expected: dict = {"verdict": "valid", "result": result}
+        expected: dict[str, Any] = {"verdict": "valid", "result": result}
         expected.update(TIER_EXPECTATIONS.get(vid, {}))
         vectors.append(
             {

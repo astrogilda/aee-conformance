@@ -1320,6 +1320,23 @@ vec("bad-807-coverage-attack-superset", "ok-004",
     note="superset direction of exactly-equal coverage")
 
 
+def _b816() -> dict[str, Any]:
+    st = P_degraded()
+    st["predicate"]["coverage"]["outOfScope"] = {}
+    st["predicate"]["result"] = "pass"
+    return st
+
+
+vec("bad-816-coverage-class-dropped", "ok-004",
+    "manifest class XB dropped from all three coverage sets (not assessed, "
+    "not outOfScope, not routedElsewhere), result forced to pass: the "
+    "class-granularity coverage-partition fail-open", [], [82],
+    ["coverage-incomplete"], _b816,
+    spec="L320-325; L350-353",
+    note="distinct from bad-806/807 (attack granularity within an assessed "
+         "class): a whole manifest class left silently unaccounted")
+
+
 def _b808() -> dict[str, Any]:
     st = P_clean()
     del st["predicate"]["coverage"]
@@ -1764,7 +1781,7 @@ def main() -> None:
         with open(path) as f:
             json.load(f)  # every vector parses as JSON
 
-    assert len(VECTORS) == 83, f"expected 83 vectors, built {len(VECTORS)}"
+    assert len(VECTORS) == 84, f"expected 84 vectors, built {len(VECTORS)}"
 
     # 3. index
     write_index()

@@ -215,6 +215,41 @@ func gate0CoverageIntegrity(p *Predicate, env *Environment, codes []Code) []Code
 			inManifest[id] = true
 		}
 	}
+	// Coverage MUST be an exhaustive, disjoint partition of the manifest's
+	// classes across assessedClasses / outOfScope / routedElsewhere, each a
+	// real manifest class (spec:320-325, 350-353). Enforcing this closes a
+	// fail-open: without it a producer drops a failing class from all three
+	// sets (silently omitting it while still reporting pass), or pads
+	// assessedClasses with a fabricated class the manifest never carried.
+	manifestClasses := map[string]bool{}
+	for c := range env.Corpus.Classes {
+		manifestClasses[c] = true
+	}
+	classAcct := map[string]int{}
+	for _, c := range p.Coverage.AssessedClasses {
+		classAcct[c]++
+	}
+	for c := range p.Coverage.OutOfScope {
+		classAcct[c]++
+	}
+	for c := range p.Coverage.RoutedElsewhere {
+		classAcct[c]++
+	}
+	partitionOK := true
+	for c, n := range classAcct {
+		if n != 1 || !manifestClasses[c] { // overlap across the three sets, or not a manifest class
+			partitionOK = false
+		}
+	}
+	for c := range manifestClasses {
+		if classAcct[c] != 1 { // a manifest class left unaccounted, or double-counted
+			partitionOK = false
+		}
+	}
+	if !partitionOK {
+		codes = appendCode(codes, CodeCoverageIncomplete)
+	}
+
 	expected := map[string]bool{}
 	for _, class := range p.Coverage.AssessedClasses {
 		for _, id := range env.Corpus.Classes[class] {

@@ -652,13 +652,35 @@ class ReferenceVerifier:
         elif manifest_classes is not None:
             assessed = coverage.get("assessedClasses")
             assessed = assessed if isinstance(assessed, list) else []
+            oos = coverage.get("outOfScope")
+            oos = oos if isinstance(oos, dict) else {}
+            routed = coverage.get("routedElsewhere")
+            routed = routed if isinstance(routed, dict) else {}
+            # Coverage MUST be an exhaustive, disjoint partition of the
+            # manifest's classes across assessedClasses/outOfScope/
+            # routedElsewhere, each a real manifest class (spec:320-325,
+            # 350-353): without this a whole class is silently dropped from
+            # all three sets (or a fabricated class pads assessedClasses).
+            acct: dict[str, int] = {}
+            for _c in assessed:
+                acct[_c] = acct.get(_c, 0) + 1
+            for _c in oos:
+                acct[_c] = acct.get(_c, 0) + 1
+            for _c in routed:
+                acct[_c] = acct.get(_c, 0) + 1
+            partition_ok = all(
+                n == 1 and c in manifest_classes for c, n in acct.items()
+            ) and all(acct.get(c, 0) == 1 for c in manifest_classes)
+            if not partition_ok:
+                out.add("coverage-incomplete")
             attack_class = {}
             for cls, ids in manifest_classes.items():
                 for aid in ids if isinstance(ids, list) else []:
                     attack_class.setdefault(aid, cls)
             expected_ids = set()
             for cls in assessed:
-                for aid in manifest_classes.get(cls, []) or []:
+                _mc = manifest_classes.get(cls)
+                for aid in _mc if isinstance(_mc, list) else []:
                     expected_ids.add(aid)
             row_ids = set()
             for r in rows:

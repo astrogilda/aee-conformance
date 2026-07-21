@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 116,
-    "pass": 116,
+    "vectors": 117,
+    "pass": 117,
     "fail": 0
   },
   "notes": [],
@@ -2351,7 +2351,7 @@
       "status": "PASS",
       "gates": {
         "gate0": "-",
-        "gate1": "FAIL",
+        "gate1": "PASS",
         "recompute": "-",
         "tier": "-",
         "self-check": "PASS"
@@ -3155,6 +3155,34 @@
         "verdict": "invalid",
         "codes": [
           "statement-type-unsupported"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-816-coverage-class-dropped",
+      "file": "vectors/reject/bad-816-coverage-class-dropped.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "coverage-incomplete"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "coverage-incomplete"
         ]
       },
       "inManifest": true,

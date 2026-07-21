@@ -3,7 +3,7 @@
   "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6",
   "counts": {
     "accept": 33,
-    "reject": 83
+    "reject": 84
   },
   "vectors": [
     {
@@ -1506,6 +1506,20 @@
       "id": "bad-807-coverage-attack-superset",
       "kind": "reject",
       "file": "reject/bad-807-coverage-attack-superset.json",
+      "conditions": [
+        "aee-c-82"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "coverage-incomplete"
+        ]
+      }
+    },
+    {
+      "id": "bad-816-coverage-class-dropped",
+      "kind": "reject",
+      "file": "reject/bad-816-coverage-class-dropped.json",
       "conditions": [
         "aee-c-82"
       ],

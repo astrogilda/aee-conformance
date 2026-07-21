@@ -38,14 +38,27 @@ func DeriveRunBinding(catchPolicy, corpus, networkPosture, runEntropy, subject, 
 // deriveStatementBinding derives the run binding for a substrate-carrying
 // statement whose GATE 0 checks have passed (all six inputs present and
 // lowercase 64-hex).
+// The exported GATE 2 / producer-QA entry points (DeriveTiers,
+// CheckRecordSignatures) are reachable from a library consumer that may pass a
+// statement which has NOT passed GATE 0 (empty subject, absent environment).
+// Fail closed rather than panic: a missing subject or environment yields a
+// binding built from empty inputs, which matches no real record's binding, so
+// substrate rows fall to unattested and the QA check reports a mismatch.
 func deriveStatementBinding(s *Statement) string {
 	env := s.Predicate.Env
+	if env == nil {
+		return DeriveRunBinding("", "", "", "", "", "")
+	}
+	subjectHash := ""
+	if len(s.Subject) > 0 {
+		subjectHash = s.Subject[0].Digest["sha256"]
+	}
 	return DeriveRunBinding(
 		env.CatchPolicy.Sha256(),
 		env.Corpus.Sha256(),
 		env.NetworkPosture.Sha256(),
 		env.RunEntropy.Sha256(),
-		s.Subject[0].Digest["sha256"],
+		subjectHash,
 		env.Substrate.Sha256(),
 	)
 }

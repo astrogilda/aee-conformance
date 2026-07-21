@@ -34,7 +34,8 @@ import copy
 import hashlib
 import json
 import os
-import sys
+from collections.abc import Callable
+from typing import Any
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
@@ -53,7 +54,7 @@ ARMED_AT = "2025-12-31T23:59:00Z"
 
 # ---------------------------------------------------------------- primitives
 
-def jcs(obj) -> bytes:
+def jcs(obj: Any) -> bytes:
     """RFC 8785 canonical JSON for the ASCII/small-int subset used here."""
     return json.dumps(obj, sort_keys=True, separators=(",", ":"),
                       ensure_ascii=False).encode()
@@ -63,7 +64,7 @@ def sha256hex(b: bytes) -> str:
     return hashlib.sha256(b).hexdigest()
 
 
-def jcs_digest(obj) -> str:
+def jcs_digest(obj: Any) -> str:
     return sha256hex(jcs(obj))
 
 
@@ -81,7 +82,7 @@ def pae(payload_type: str, payload: bytes) -> bytes:
             str(len(payload)).encode() + b" " + payload)
 
 
-def record_pae(rec) -> bytes:
+def record_pae(rec: dict[str, Any]) -> bytes:
     return pae(rec["payloadType"], unb64(rec["payload"]))
 
 
@@ -89,11 +90,11 @@ def _h(b: bytes) -> bytes:
     return hashlib.sha256(b).digest()
 
 
-def merkle_root(records) -> str | None:
+def merkle_root(records: list[dict[str, Any]]) -> str | None:
     """RFC 6962: leaf H(0x00||PAE), node H(0x01||l||r), recursive split."""
     leaves = [_h(b"\x00" + record_pae(r)) for r in records]
 
-    def node(ls):
+    def node(ls: list[bytes]) -> bytes:
         if len(ls) == 1:
             return ls[0]
         k = 1
@@ -104,11 +105,11 @@ def merkle_root(records) -> str | None:
     return node(leaves).hex() if leaves else None
 
 
-def merkle_root_no_domain(records) -> str:
+def merkle_root_no_domain(records: list[dict[str, Any]]) -> str:
     """WRONG on purpose (bad-402): no 0x00/0x01 domain separation."""
     leaves = [_h(record_pae(r)) for r in records]
 
-    def node(ls):
+    def node(ls: list[bytes]) -> bytes:
         if len(ls) == 1:
             return ls[0]
         k = 1
@@ -119,7 +120,7 @@ def merkle_root_no_domain(records) -> str:
     return node(leaves).hex()
 
 
-def merkle_root_dup_pad(records) -> str:
+def merkle_root_dup_pad(records: list[dict[str, Any]]) -> str:
     """WRONG on purpose (bad-403): duplicate-last-leaf padding rounds."""
     level = [_h(b"\x00" + record_pae(r)) for r in records]
     while len(level) > 1:
@@ -136,7 +137,7 @@ def hex_tamper(h: str) -> str:
 
 # ---------------------------------------------------------------- test key
 
-def key_for(role: str):
+def key_for(role: str) -> tuple[Ed25519PrivateKey, bytes, str]:
     seed = hashlib.sha256(f"in-toto-aee-test-key/{role}/v1".encode()).digest()
     priv = Ed25519PrivateKey.from_private_bytes(seed)
     pub = priv.public_key().public_bytes(
@@ -177,7 +178,9 @@ M_ALT = {"classes": {"XA": ["XA-EXAMPLE-1"], "XZ": ["XZ-EXAMPLE-9"]}}
 
 # ---------------------------------------------------------------- builders
 
-def environment(manifest, entropy=True, labels=None, caught=None):
+def environment(manifest: dict[str, Any], entropy: bool = True,
+                labels: list[str] | None = None,
+                caught: list[str] | None = None) -> dict[str, Any]:
     labels = ["egress_captured", "no_egress"] if labels is None else labels
     caught = ["egress_captured"] if caught is None else caught
     # Deep-copy the manifest so no built statement aliases a module-level
@@ -206,7 +209,8 @@ def environment(manifest, entropy=True, labels=None, caught=None):
     return env
 
 
-def binding_preimage(env, subject_sha=None, version="1"):
+def binding_preimage(env: dict[str, Any], subject_sha: str | None = None,
+                     version: str = "1") -> dict[str, str]:
     return {
         "aeeBindingVersion": version,
         "catchPolicy": env["catchPolicy"]["digest"]["sha256"],
@@ -218,35 +222,37 @@ def binding_preimage(env, subject_sha=None, version="1"):
     }
 
 
-def binding_for(env, **kw) -> str:
+def binding_for(env: dict[str, Any], **kw: Any) -> str:
     return sha256hex(jcs(binding_preimage(env, **kw)))
 
 
-def sign_bytes(payload: bytes, ptype=PAYLOAD_TYPE):
+def sign_bytes(payload: bytes, ptype: str = PAYLOAD_TYPE) -> dict[str, Any]:
     sig = SUB_PRIV.sign(pae(ptype, payload))
     return {"payload": b64(payload), "payloadType": ptype,
             "signatures": [{"keyid": SUB_KEYID, "sig": b64(sig)}]}
 
 
-def record(payload_obj, ptype=PAYLOAD_TYPE):
+def record(payload_obj: Any, ptype: str = PAYLOAD_TYPE) -> dict[str, Any]:
     return sign_bytes(jcs(payload_obj), ptype)
 
 
-def interception_payload(binding, method="intercepted", commit="intercepted-bytes-1"):
+def interception_payload(binding: str, method: str = "intercepted",
+                         commit: str = "intercepted-bytes-1") -> dict[str, str]:
     return {"aeeKind": "interception", "aeeMethod": method,
             "aeeRunBinding": binding, "commitment": D[commit],
             "producerNote": "example interception"}
 
 
-def arming_payload(binding, armed_at=ARMED_AT, posture=POSTURE_D,
-                   method="intercepted"):
+def arming_payload(binding: str, armed_at: str = ARMED_AT, posture: str = POSTURE_D,
+                   method: str = "intercepted") -> dict[str, str]:
     return {"aeeKind": "arming", "aeeMethod": method,
             "aeeRunBinding": binding, "aeePostureDigest": posture,
             "armedAt": armed_at}
 
 
-def sealed_payload(binding, still=True, drop=0, bound=None,
-                   posture=POSTURE_D, method="intercepted"):
+def sealed_payload(binding: str, still: bool = True, drop: int = 0,
+                   bound: int | None = None, posture: str = POSTURE_D,
+                   method: str = "intercepted") -> dict[str, Any]:
     p = {"aeeKind": "sealed", "aeeMethod": method, "aeeRunBinding": binding,
          "aeePostureDigest": posture, "aeeStillArmed": still,
          "aeeDropCount": drop}
@@ -255,38 +261,44 @@ def sealed_payload(binding, still=True, drop=0, bound=None,
     return p
 
 
-def examination_payload(binding, method="reconstructed"):
+def examination_payload(binding: str, method: str = "reconstructed") -> dict[str, Any]:
     return {"aeeKind": "examination", "aeeMethod": method,
             "aeeRunBinding": binding,
             "statesCompared": ["example-state-a", "example-state-b"]}
 
 
-def caught_row(refs=(0,), attack="XA-EXAMPLE-1", basis="substrate",
-               method="intercepted", layer="policy.egress_sinkhole",
-               label="egress_captured"):
+def caught_row(refs: tuple[int, ...] = (0,), attack: str = "XA-EXAMPLE-1",
+               basis: str = "substrate", method: str = "intercepted",
+               layer: str = "policy.egress_sinkhole",
+               label: str = "egress_captured") -> dict[str, Any]:
     return {"attackId": attack, "containmentObserved": label, "basis": basis,
             "method": method, "actualLayer": layer,
             "observationRefs": list(refs)}
 
 
-def clean_row(refs=(0, 1), attack="XA-EXAMPLE-1", basis="substrate",
-              method="intercepted"):
+def clean_row(refs: tuple[int, ...] = (0, 1), attack: str = "XA-EXAMPLE-1",
+              basis: str = "substrate",
+              method: str = "intercepted") -> dict[str, Any]:
     return {"attackId": attack, "containmentObserved": "no_egress",
             "basis": basis, "method": method, "actualLayer": "none",
             "observationRefs": list(refs)}
 
 
-def artifact_row(attack="XA-EXAMPLE-1", label="egress_captured",
-                 method="intercepted", basis="artifact", layer="none"):
+def artifact_row(attack: str = "XA-EXAMPLE-1", label: str = "egress_captured",
+                 method: str = "intercepted", basis: str = "artifact",
+                 layer: str = "none") -> dict[str, str]:
     # observationRefs intentionally absent: refs on artifact rows are
     # unconstrained by the spec (open question; suite pins spec-literal).
     return {"attackId": attack, "containmentObserved": label, "basis": basis,
             "method": method, "actualLayer": layer}
 
 
-def statement(env, rows, records=None, result="pass", coverage=None,
-              subject=None, batch_root="auto"):
-    pred = {
+def statement(env: dict[str, Any], rows: list[dict[str, Any]],
+              records: list[dict[str, Any]] | None = None, result: str = "pass",
+              coverage: dict[str, Any] | None = None,
+              subject: list[dict[str, Any]] | None = None,
+              batch_root: str = "auto") -> dict[str, Any]:
+    pred: dict[str, Any] = {
         "result": result,
         "observationEnvironment": env,
         "coverage": coverage if coverage is not None else
@@ -306,7 +318,7 @@ def statement(env, rows, records=None, result="pass", coverage=None,
             "predicate": pred}
 
 
-def reroot(st):
+def reroot(st: dict[str, Any]) -> dict[str, Any]:
     st["predicate"]["batchRoot"] = merkle_root(
         st["predicate"]["observationRecords"])
     return st
@@ -316,14 +328,14 @@ def reroot(st):
 # In-memory equivalents of the BUILD accept shapes (the accept suite lands
 # separately); each parent is asserted fully valid by the self-check below.
 
-def P_caught():  # ok-001 shape: caught substrate/intercepted, 1 interception
+def P_caught() -> dict[str, Any]:  # ok-001 shape: caught substrate/intercepted, 1 interception
     env = environment(M1)
     b = binding_for(env)
     return statement(env, [caught_row()], [record(interception_payload(b))],
                      result="fail")
 
 
-def P_clean():  # ok-002 shape: clean pass, arming + sealed(drop 0)
+def P_clean() -> dict[str, Any]:  # ok-002 shape: clean pass, arming + sealed(drop 0)
     env = environment(M1)
     b = binding_for(env)
     return statement(env, [clean_row()],
@@ -331,7 +343,7 @@ def P_clean():  # ok-002 shape: clean pass, arming + sealed(drop 0)
                      result="pass")
 
 
-def P_clean_bounded():  # ok-003 shape: sealed(drop 3, bound 5)
+def P_clean_bounded() -> dict[str, Any]:  # ok-003 shape: sealed(drop 3, bound 5)
     env = environment(M1)
     b = binding_for(env)
     return statement(env, [clean_row()],
@@ -340,7 +352,7 @@ def P_clean_bounded():  # ok-003 shape: sealed(drop 3, bound 5)
                      result="pass")
 
 
-def P_degraded():  # ok-004 shape: clean substrate row + outOfScope class
+def P_degraded() -> dict[str, Any]:  # ok-004 shape: clean substrate row + outOfScope class
     env = environment(MAB)
     b = binding_for(env)
     return statement(env, [clean_row()],
@@ -351,7 +363,7 @@ def P_degraded():  # ok-004 shape: clean substrate row + outOfScope class
                                "routedElsewhere": {}})
 
 
-def P_reconstructed():  # ok-006 shape: caught substrate/reconstructed + exam
+def P_reconstructed() -> dict[str, Any]:  # ok-006 shape: caught substrate/reconstructed + exam
     env = environment(M1)
     b = binding_for(env)
     return statement(env,
@@ -359,25 +371,25 @@ def P_reconstructed():  # ok-006 shape: caught substrate/reconstructed + exam
                      [record(examination_payload(b))], result="fail")
 
 
-def P_artifact():  # ok-007 shape: artifact-only, recordless, no entropy
+def P_artifact() -> dict[str, Any]:  # ok-007 shape: artifact-only, recordless, no entropy
     env = environment(M1, entropy=False)
     return statement(env, [artifact_row()], result="fail")
 
 
-def P_artifact_unknown_method():  # ok-008 shape: fail-closed method, valid
+def P_artifact_unknown_method() -> dict[str, Any]:  # ok-008 shape: fail-closed method, valid
     env = environment(M1, entropy=False)
     return statement(env, [artifact_row(label="no_egress",
                                         method="example.method-x")],
                      result="fail")
 
 
-def P_artifact_oov_label():  # ok-009 shape: fail-closed label, valid
+def P_artifact_oov_label() -> dict[str, Any]:  # ok-009 shape: fail-closed label, valid
     env = environment(M1, entropy=False)
     return statement(env, [artifact_row(label="example_label_x")],
                      result="fail")
 
 
-def P_two_attacks():  # ok-011 shape: two caught rows, two interceptions
+def P_two_attacks() -> dict[str, Any]:  # ok-011 shape: two caught rows, two interceptions
     env = environment(M2)
     b = binding_for(env)
     return statement(env,
@@ -389,7 +401,7 @@ def P_two_attacks():  # ok-011 shape: two caught rows, two interceptions
                      result="fail")
 
 
-def P_three_records():  # ok-014 shape: 3-record odd-split tree
+def P_three_records() -> dict[str, Any]:  # ok-014 shape: 3-record odd-split tree
     env = environment(M1)
     b = binding_for(env)
     return statement(env, [clean_row()],
@@ -398,7 +410,7 @@ def P_three_records():  # ok-014 shape: 3-record odd-split tree
                      result="pass")
 
 
-def P_artifact_with_records():  # ok-029 shape: artifact rows + 2 records
+def P_artifact_with_records() -> dict[str, Any]:  # ok-029 shape: artifact rows + 2 records
     env = environment(M1, entropy=False)
     ub = D["unchecked-binding"]  # no substrate rows => no derived binding
     return statement(env, [artifact_row()],
@@ -408,7 +420,7 @@ def P_artifact_with_records():  # ok-029 shape: artifact rows + 2 records
                      result="fail")
 
 
-def P_multirecord():  # ok-030 shape: caught row covered by TWO interceptions
+def P_multirecord() -> dict[str, Any]:  # ok-030 shape: caught row covered by TWO interceptions
     env = environment(M1)
     b = binding_for(env)
     return statement(env, [caught_row(refs=(0, 1))],
@@ -418,7 +430,7 @@ def P_multirecord():  # ok-030 shape: caught row covered by TWO interceptions
                      result="fail")
 
 
-def P_artifact_degraded():  # ok-033 shape: artifact-only degraded
+def P_artifact_degraded() -> dict[str, Any]:  # ok-033 shape: artifact-only degraded
     env = environment(MAB, entropy=False)
     return statement(env, [artifact_row(label="no_egress")],
                      result="degraded",
@@ -446,34 +458,40 @@ PARENTS = {
 
 # ---------------------------------------------------------------- vectors
 
-VECTORS = []
+VECTORS: list[dict[str, Any]] = []
 
 
-def vec(vid, parent, mutation, rederive, conds, codes, build,
-        compound=False, spec="", note=""):
+def vec(vid: str, parent: str, mutation: str, rederive: list[str],
+        conds: list[int], codes: list[str],
+        build: Callable[[], dict[str, Any]], compound: bool = False,
+        spec: str = "", note: str = "") -> None:
     VECTORS.append({"id": vid, "parent": parent, "mutation": mutation,
                     "rederive": rederive, "conds": conds, "codes": codes,
                     "compound": compound, "spec": spec, "note": note,
                     "build": build})
 
 
-def set_result(parentfn, value):
-    def b():
+def set_result(parentfn: Callable[[], dict[str, Any]],
+               value: str) -> Callable[[], dict[str, Any]]:
+    def b() -> dict[str, Any]:
         st = parentfn()
         st["predicate"]["result"] = value
         return st
     return b
 
 
-def set_refs(parentfn, row_idx, refs):
-    def b():
+def set_refs(parentfn: Callable[[], dict[str, Any]], row_idx: int,
+             refs: list[Any]) -> Callable[[], dict[str, Any]]:
+    def b() -> dict[str, Any]:
         st = parentfn()
         st["predicate"]["attackResults"][row_idx]["observationRefs"] = refs
         return st
     return b
 
 
-def mutate_record_payload(st, idx, mutfn, ptype=None):
+def mutate_record_payload(st: dict[str, Any], idx: int,
+                          mutfn: Callable[[dict[str, Any]], dict[str, Any]],
+                          ptype: str | None = None) -> dict[str, Any]:
     """Rebuild record idx: parse payload, apply mutfn, re-sign, re-root."""
     recs = st["predicate"]["observationRecords"]
     obj = json.loads(unb64(recs[idx]["payload"]))
@@ -482,7 +500,8 @@ def mutate_record_payload(st, idx, mutfn, ptype=None):
     return reroot(st)
 
 
-def raw_record_bytes(st, idx, payload_bytes, ptype=PAYLOAD_TYPE):
+def raw_record_bytes(st: dict[str, Any], idx: int, payload_bytes: bytes,
+                     ptype: str = PAYLOAD_TYPE) -> dict[str, Any]:
     """Rebuild record idx over EXACT raw payload bytes; re-sign, re-root."""
     st["predicate"]["observationRecords"][idx] = sign_bytes(payload_bytes,
                                                             ptype)
@@ -539,7 +558,7 @@ vec("bad-103-ref-negative", "ok-001", "observationRefs: [0, -1]", [],
     spec="L240-241")
 
 
-def _b104():
+def _b104() -> dict[str, Any]:
     st = P_caught()
     b = binding_for(st["predicate"]["observationEnvironment"])
     st["predicate"]["observationRecords"].append(record(arming_payload(b)))
@@ -553,7 +572,7 @@ vec("bad-104-caught-refs-arming-only", "ok-001",
     spec="L242-244")
 
 
-def _b105():
+def _b105() -> dict[str, Any]:
     st = P_reconstructed()
     b = binding_for(st["predicate"]["observationEnvironment"])
     st["predicate"]["observationRecords"].append(
@@ -581,7 +600,7 @@ vec("bad-108-ref-non-integer", "ok-001", "observationRefs: [0, 1.5]", [],
 # --- (b2) covering payload canonicality ----------------------------------
 
 
-def _b201():
+def _b201() -> dict[str, Any]:
     st = P_caught()
     obj = json.loads(unb64(
         st["predicate"]["observationRecords"][0]["payload"]))
@@ -598,7 +617,7 @@ vec("bad-201-payload-unsorted-keys", "ok-001",
          "identical content, non-JCS order")
 
 
-def _b202():
+def _b202() -> dict[str, Any]:
     st = P_caught()
     return mutate_record_payload(
         st, 0, lambda o: {**o, "extraA": 9007199254740993})
@@ -610,7 +629,7 @@ vec("bad-202-payload-bignum", "ok-001",
     _b202, spec="L578-579; L67-70", note="rawBytes")
 
 
-def _b203():
+def _b203() -> dict[str, Any]:
     st = P_caught()
     obj = json.loads(unb64(
         st["predicate"]["observationRecords"][0]["payload"]))
@@ -629,7 +648,7 @@ vec("bad-203-payload-duplicate-member", "ok-001",
     _b203, spec="L578-579", note="rawBytes")
 
 
-def _b204():
+def _b204() -> dict[str, Any]:
     st = P_caught()
     recs = st["predicate"]["observationRecords"]
     return raw_record_bytes(st, 0, unb64(recs[0]["payload"]),
@@ -644,8 +663,8 @@ vec("bad-204-payload-media-type", "ok-001",
          "type is the ONLY fault")
 
 
-def _drop_member(member):
-    def b():
+def _drop_member(member: str) -> Callable[[], dict[str, Any]]:
+    def b() -> dict[str, Any]:
         st = P_caught()
         return mutate_record_payload(
             st, 0, lambda o: {k: v for k, v in o.items() if k != member})
@@ -671,7 +690,7 @@ vec("bad-207-payload-missing-method", "ok-001",
 # --- (b3/b4) binding + method cap ----------------------------------------
 
 
-def _b301():
+def _b301() -> dict[str, Any]:
     st = P_clean()
     env = st["predicate"]["observationEnvironment"]
     alt_env = copy.deepcopy(env)
@@ -690,7 +709,7 @@ vec("bad-301-run-binding-splice", "ok-002",
          "under another run's environment")
 
 
-def _b302():
+def _b302() -> dict[str, Any]:
     st = P_caught()
     return mutate_record_payload(
         st, 0, lambda o: {**o, "aeeMethod": "reconstructed"})
@@ -702,7 +721,7 @@ vec("bad-302-method-inflation", "ok-001",
     ["method-cap-exceeded"], _b302, spec="L253-254")
 
 
-def _b303():
+def _b303() -> dict[str, Any]:
     st = P_clean()
     env = st["predicate"]["observationEnvironment"]
     b2 = sha256hex(jcs(binding_preimage(env, version="2")))
@@ -720,7 +739,7 @@ vec("bad-303-binding-version-2", "ok-002",
          "verifier has exactly one construction and never tries a second")
 
 
-def _b304():
+def _b304() -> dict[str, Any]:
     st = P_multirecord()
     return mutate_record_payload(
         st, 1, lambda o: {**o, "aeeMethod": "reconstructed"})
@@ -736,7 +755,7 @@ vec("bad-304-method-cap-multirecord", "ok-030",
 # --- (b5) batchRoot / RFC 6962 -------------------------------------------
 
 
-def _b401():
+def _b401() -> dict[str, Any]:
     st = P_clean()
     del st["predicate"]["batchRoot"]
     return st
@@ -747,7 +766,7 @@ vec("bad-401-records-no-batchroot", "ok-002",
     [24], ["batch-root-missing"], _b401, spec="L627; L639-641")
 
 
-def _b402():
+def _b402() -> dict[str, Any]:
     st = P_three_records()
     st["predicate"]["batchRoot"] = merkle_root_no_domain(
         st["predicate"]["observationRecords"])
@@ -759,7 +778,7 @@ vec("bad-402-root-no-domain-separation", "ok-014",
     [25], ["batch-root-mismatch"], _b402, spec="L629-632")
 
 
-def _b403():
+def _b403() -> dict[str, Any]:
     st = P_three_records()
     st["predicate"]["batchRoot"] = merkle_root_dup_pad(
         st["predicate"]["observationRecords"])
@@ -772,7 +791,7 @@ vec("bad-403-root-bitcoin-padding", "ok-014",
     spec="L632-634")
 
 
-def _b404():
+def _b404() -> dict[str, Any]:
     st = P_three_records()
     recs = st["predicate"]["observationRecords"]
     st["predicate"]["batchRoot"] = merkle_root([recs[1], recs[0], recs[2]])
@@ -784,7 +803,7 @@ vec("bad-404-root-leaf-order-swapped", "ok-014",
     ["batch-root-mismatch"], _b404, spec="L634")
 
 
-def _b405():
+def _b405() -> dict[str, Any]:
     st = P_clean()
     recs = st["predicate"]["observationRecords"]
     recs.append(copy.deepcopy(recs[0]))
@@ -798,7 +817,7 @@ vec("bad-405-duplicate-records", "ok-002",
     note="single fault: duplicate identity, not root arithmetic")
 
 
-def _b406():
+def _b406() -> dict[str, Any]:
     st = P_clean()
     st["predicate"]["batchRoot"] = hex_tamper(st["predicate"]["batchRoot"])
     return st
@@ -809,7 +828,7 @@ vec("bad-406-root-hex-tamper", "ok-002",
     _b406, spec="L639-641")
 
 
-def _b407():
+def _b407() -> dict[str, Any]:
     st = P_caught()
     del st["predicate"]["observationRecords"]
     del st["predicate"]["batchRoot"]
@@ -824,7 +843,7 @@ vec("bad-407-substrate-row-no-records", "ok-001",
          "absent entirely; ref-out-of-range only when records exist")
 
 
-def _b408():
+def _b408() -> dict[str, Any]:
     st = P_artifact()
     st["predicate"]["batchRoot"] = D["orphan-root"]
     return st
@@ -835,7 +854,7 @@ vec("bad-408-batchroot-without-records", "ok-007",
     [31], ["batch-root-orphaned"], _b408, spec="L644-648; L635")
 
 
-def _b409():
+def _b409() -> dict[str, Any]:
     st = P_artifact_with_records()
     st["predicate"]["batchRoot"] = hex_tamper(st["predicate"]["batchRoot"])
     return st
@@ -850,8 +869,10 @@ vec("bad-409-artifact-records-bad-root", "ok-029",
 # --- (d/e) basis / method / actualLayer ----------------------------------
 
 
-def _row_mut(parentfn, row_idx, mutfn):
-    def b():
+def _row_mut(parentfn: Callable[[], dict[str, Any]], row_idx: int,
+             mutfn: Callable[[dict[str, Any]], dict[str, Any]]
+             ) -> Callable[[], dict[str, Any]]:
+    def b() -> dict[str, Any]:
         st = parentfn()
         rows = st["predicate"]["attackResults"]
         rows[row_idx] = mutfn(rows[row_idx])
@@ -901,7 +922,7 @@ vec("bad-505-substrate-missing-method", "ok-001",
 # --- (f/g) vocabulary + runEntropy + subject -----------------------------
 
 
-def _b601():
+def _b601() -> dict[str, Any]:
     st = P_artifact()
     del st["predicate"]["observationEnvironment"]["observationVocabulary"]
     return st
@@ -913,8 +934,10 @@ vec("bad-601-vocabulary-absent", "ok-007",
     note="artifact-only parent: no digest or binding cascade")
 
 
-def _vocab_mut(labels=None, caught=None, redigest=True, stale=False):
-    def b():
+def _vocab_mut(labels: list[str] | None = None,
+               caught: list[str] | None = None, redigest: bool = True,
+               stale: bool = False) -> Callable[[], dict[str, Any]]:
+    def b() -> dict[str, Any]:
         st = P_clean() if labels != [] else P_caught()
         env = st["predicate"]["observationEnvironment"]
         v = env["observationVocabulary"]
@@ -951,7 +974,7 @@ vec("bad-605-vocabulary-digest-mismatch", "ok-002",
     spec="L306-307")
 
 
-def _b606():
+def _b606() -> dict[str, Any]:
     st = P_clean()
     del st["predicate"]["observationEnvironment"]["runEntropy"]
     return st
@@ -964,7 +987,7 @@ vec("bad-606-missing-runentropy", "ok-002",
          "never run-binding-mismatch")
 
 
-def _b607():
+def _b607() -> dict[str, Any]:
     st = P_clean()
     st["subject"].append({"name": "example-agent-bundle-b",
                           "digest": {"sha256": D["subject-b"]}})
@@ -978,11 +1001,12 @@ vec("bad-607-two-subjects-substrate", "ok-002",
          "cardinality rule is the ONLY fault")
 
 
-def _verbatim_rebind(mutate_env):
+def _verbatim_rebind(mutate_env: Callable[[dict[str, Any]], str | None]
+                     ) -> Callable[[], dict[str, Any]]:
     """Mutate a binding input, then rederive the binding VERBATIM over the
     mutated statement values and re-sign both records with it, so the
     format rule is the only fault (no binding cascade)."""
-    def b():
+    def b() -> dict[str, Any]:
         st = P_clean()
         env = st["predicate"]["observationEnvironment"]
         subj_sha = mutate_env(st)
@@ -994,14 +1018,14 @@ def _verbatim_rebind(mutate_env):
     return b
 
 
-def _m608(st):
+def _m608(st: dict[str, Any]) -> None:
     env = st["predicate"]["observationEnvironment"]
     env["runEntropy"]["digest"]["sha256"] = \
         env["runEntropy"]["digest"]["sha256"].upper()
     return None
 
 
-def _m609(st):
+def _m609(st: dict[str, Any]) -> None:
     env = st["predicate"]["observationEnvironment"]
     env["substrate"]["digest"]["sha256"] = \
         env["substrate"]["digest"]["sha256"][:63]
@@ -1023,7 +1047,7 @@ vec("bad-609-digest-truncated", "ok-002",
     _verbatim_rebind(_m609), spec="L82-86")
 
 
-def _b610():
+def _b610() -> dict[str, Any]:
     st = P_caught()
     env = st["predicate"]["observationEnvironment"]
     v = env["observationVocabulary"]
@@ -1041,7 +1065,7 @@ vec("bad-610-empty-labels-substrate", "ok-001",
          "vacuously a subset); the fault is the fail-closed substrate row")
 
 
-def _b611():
+def _b611() -> dict[str, Any]:
     st = P_clean()
     st["subject"][0]["digest"] = {
         "sha512": hashlib.sha512(
@@ -1058,8 +1082,10 @@ vec("bad-611-subject-no-sha256", "ok-002",
 # --- (h) arming / sealed / examination -----------------------------------
 
 
-def _rec_mut(parentfn, idx, mutfn):
-    def b():
+def _rec_mut(parentfn: Callable[[], dict[str, Any]], idx: int,
+             mutfn: Callable[[dict[str, Any]], dict[str, Any]]
+             ) -> Callable[[], dict[str, Any]]:
+    def b() -> dict[str, Any]:
         return mutate_record_payload(parentfn(), idx, mutfn)
     return b
 
@@ -1145,7 +1171,7 @@ vec("bad-712-examination-method-intercepted", "ok-006",
     spec="L596-598; L601-604")
 
 
-def _b713():
+def _b713() -> dict[str, Any]:
     st = P_clean()
     env = st["predicate"]["observationEnvironment"]
     b = binding_for(env)
@@ -1202,7 +1228,7 @@ vec("bad-717-arming-missing-posture", "ok-002",
 # --- (k) statement-level -------------------------------------------------
 
 
-def _b801():
+def _b801() -> dict[str, Any]:
     st = P_clean()
     st["predicateType"] = ("https://in-toto.io/attestation/"
                            "adversarial-execution-evidence/v0.5")
@@ -1215,8 +1241,8 @@ vec("bad-801-wrong-predicatetype", "ok-002",
     note="a verifier MUST NOT process this as v0.6")
 
 
-def _drop_env(member):
-    def b():
+def _drop_env(member: str) -> Callable[[], dict[str, Any]]:
+    def b() -> dict[str, Any]:
         st = P_artifact()
         del st["predicate"]["observationEnvironment"][member]
         return st
@@ -1230,7 +1256,7 @@ vec("bad-802-missing-catchpolicy", "ok-007", "drop catchPolicy", [],
          "empty-vs-enforcing policy distinguishability")
 
 
-def _b803():
+def _b803() -> dict[str, Any]:
     st = P_artifact()
     env = st["predicate"]["observationEnvironment"]
     env["corpus"]["digest"]["sha256"] = D["stale-corpus"]
@@ -1243,7 +1269,7 @@ vec("bad-803-corpus-digest-mismatch", "ok-007",
     note="statement-side lie, vs bad-301's record-side splice")
 
 
-def _b804():
+def _b804() -> dict[str, Any]:
     st = P_artifact_degraded()
     env = st["predicate"]["observationEnvironment"]
     env["corpus"]["manifest"]["classes"]["XB"].append("XA-EXAMPLE-1")
@@ -1266,7 +1292,7 @@ vec("bad-805-row-unknown-attackid", "ok-001",
     note="precedence pin: row-attack-unknown")
 
 
-def _b806():
+def _b806() -> dict[str, Any]:
     st = P_two_attacks()
     del st["predicate"]["attackResults"][1]
     return st
@@ -1280,7 +1306,7 @@ vec("bad-806-coverage-attack-omitted", "ok-011",
          "records are legal), so the root is untouched: single fault")
 
 
-def _b807():
+def _b807() -> dict[str, Any]:
     st = P_degraded()
     st["predicate"]["attackResults"].append(
         artifact_row(attack="XB-EXAMPLE-1", label="no_egress"))
@@ -1294,7 +1320,7 @@ vec("bad-807-coverage-attack-superset", "ok-004",
     note="superset direction of exactly-equal coverage")
 
 
-def _b808():
+def _b808() -> dict[str, Any]:
     st = P_clean()
     del st["predicate"]["coverage"]
     return st
@@ -1304,7 +1330,7 @@ vec("bad-808-coverage-absent", "ok-002", "drop coverage", [], [83],
     ["coverage-missing"], _b808, spec="L318-322")
 
 
-def _b809():
+def _b809() -> dict[str, Any]:
     st = P_clean()
     st["predicate"]["does_not_assert"] = ["example negative scope"]
     return st
@@ -1316,7 +1342,7 @@ vec("bad-809-snake-case-doesnotassert", "ok-002",
     note="single-canonicalization rule: no alias")
 
 
-def _b810():
+def _b810() -> dict[str, Any]:
     st = P_artifact()
     del st["predicate"]["issuedAt"]
     return st
@@ -1327,7 +1353,7 @@ vec("bad-810-missing-issuedat", "ok-007", "drop issuedAt", [], [85],
     note="artifact-only parent: no armedAt comparison cascade")
 
 
-def _b811():
+def _b811() -> dict[str, Any]:
     st = P_artifact()
     st["predicate"]["issuedAt"] = "yesterday"
     return st
@@ -1344,7 +1370,7 @@ vec("bad-814-missing-substrate", "ok-007", "drop substrate", [], [78],
     ["environment-incomplete"], _drop_env("substrate"), spec="L290-294")
 
 
-def _b815():
+def _b815() -> dict[str, Any]:
     st = P_clean()
     st["_type"] = "https://in-toto.io/Statement/v0.9"
     return st
@@ -1362,7 +1388,7 @@ BASIS_VOCAB = {"substrate", "artifact"}
 METHOD_VOCAB = {"intercepted", "reconstructed"}
 
 
-def recompute_result(st):
+def recompute_result(st: dict[str, Any]) -> str:
     p = st["predicate"]
     v = p["observationEnvironment"]["observationVocabulary"]
     labels, caught = set(v["labels"]), set(v["caught"])
@@ -1378,14 +1404,14 @@ def recompute_result(st):
     return "pass"
 
 
-def verify_record_sigs(st):
+def verify_record_sigs(st: dict[str, Any]) -> None:
     pub = Ed25519PublicKey.from_public_bytes(SUB_PUB)
     for rec in st["predicate"].get("observationRecords", []):
         for s in rec["signatures"]:
             pub.verify(unb64(s["sig"]), record_pae(rec))
 
 
-def parent_gate_check(name, st):
+def parent_gate_check(name: str, st: dict[str, Any]) -> None:
     """Full validity-gate check: parents MUST pass every gate."""
     p = st["predicate"]
     env = p["observationEnvironment"]
@@ -1455,7 +1481,7 @@ def parent_gate_check(name, st):
         assert rank[row["method"]] <= min(rank[m] for m in cover), name
 
 
-def second_fault_absence(v, st):
+def second_fault_absence(v: dict[str, Any], st: dict[str, Any]) -> None:
     """Assert every derived commitment NOT under test still verifies."""
     conds = set(v["conds"])
     p = st["predicate"]
@@ -1562,8 +1588,8 @@ COND = {
 }
 
 
-def write_index():
-    L = []
+def write_index() -> None:
+    L: list[str] = []
     L.append("# INVALID conformance vectors — adversarial-execution-evidence v0.6")
     L.append("")
     L.append("This directory is the conformance suite's `vectors/reject/` layout.")
@@ -1719,13 +1745,13 @@ def write_index():
 
 # ---------------------------------------------------------------- main
 
-def main():
+def main() -> None:
     # 1. parents must be fully valid
     for name, fn in PARENTS.items():
         parent_gate_check(name, fn())
 
     # 2. generate, self-check, write
-    ids = set()
+    ids: set[str] = set()
     for v in VECTORS:
         assert v["id"] not in ids, "duplicate id " + v["id"]
         ids.add(v["id"])
@@ -1747,4 +1773,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

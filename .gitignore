@@ -1,0 +1,3 @@
+# compiled binaries — never commit
+aee-verify
+*.test

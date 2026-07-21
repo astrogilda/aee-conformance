@@ -1,0 +1,1632 @@
+{
+  "suite": "adversarial-execution-evidence-conformance",
+  "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6",
+  "counts": {
+    "accept": 33,
+    "reject": 83
+  },
+  "vectors": [
+    {
+      "id": "ok-001-caught-intercepted-fail",
+      "kind": "accept",
+      "file": "accept/ok-001-caught-intercepted-fail.json",
+      "conditions": [
+        "aee-c-1",
+        "aee-c-3",
+        "aee-c-12",
+        "aee-c-28",
+        "aee-c-50"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-002-clean-pass-armed-sealed",
+      "kind": "accept",
+      "file": "accept/ok-002-clean-pass-armed-sealed.json",
+      "conditions": [
+        "aee-c-7",
+        "aee-c-14",
+        "aee-c-26",
+        "aee-c-48",
+        "aee-c-63",
+        "aee-c-64",
+        "aee-c-65"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "ok-003-clean-pass-bounded-drops",
+      "kind": "accept",
+      "file": "accept/ok-003-clean-pass-bounded-drops.json",
+      "conditions": [
+        "aee-c-65"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "ok-004-degraded-out-of-scope",
+      "kind": "accept",
+      "file": "accept/ok-004-degraded-out-of-scope.json",
+      "conditions": [
+        "aee-c-1",
+        "aee-c-6"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "degraded"
+      }
+    },
+    {
+      "id": "ok-005-degraded-routed-elsewhere",
+      "kind": "accept",
+      "file": "accept/ok-005-degraded-routed-elsewhere.json",
+      "conditions": [
+        "aee-c-6"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "degraded"
+      }
+    },
+    {
+      "id": "ok-006-clean-reconstructed",
+      "kind": "accept",
+      "file": "accept/ok-006-clean-reconstructed.json",
+      "conditions": [
+        "aee-c-13",
+        "aee-c-66"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "ok-007-artifact-only-recordless",
+      "kind": "accept",
+      "file": "accept/ok-007-artifact-only-recordless.json",
+      "conditions": [
+        "aee-c-31",
+        "aee-c-57"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "ok-008-artifact-fail-closed-method",
+      "kind": "accept",
+      "file": "accept/ok-008-artifact-fail-closed-method.json",
+      "conditions": [
+        "aee-c-5",
+        "aee-c-44"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-009-artifact-oov-label-fail",
+      "kind": "accept",
+      "file": "accept/ok-009-artifact-oov-label-fail.json",
+      "conditions": [
+        "aee-c-4"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-010-artifact-retired-basis-fail",
+      "kind": "accept",
+      "file": "accept/ok-010-artifact-retired-basis-fail.json",
+      "conditions": [
+        "aee-c-43"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-011-shared-run-records",
+      "kind": "accept",
+      "file": "accept/ok-011-shared-run-records.json",
+      "conditions": [
+        "aee-c-15"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "ok-012-selectors-present",
+      "kind": "accept",
+      "file": "accept/ok-012-selectors-present.json",
+      "conditions": [
+        "aee-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "ok-013-unknown-kind-extra-record",
+      "kind": "accept",
+      "file": "accept/ok-013-unknown-kind-extra-record.json",
+      "conditions": [
+        "aee-c-32",
+        "aee-c-71"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "ok-014-three-record-odd-split",
+      "kind": "accept",
+      "file": "accept/ok-014-three-record-odd-split.json",
+      "conditions": [
+        "aee-c-26"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-015-four-record-tree",
+      "kind": "accept",
+      "file": "accept/ok-015-four-record-tree.json",
+      "conditions": [
+        "aee-c-26"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-016-caught-actuallayer-none",
+      "kind": "accept",
+      "file": "accept/ok-016-caught-actuallayer-none.json",
+      "conditions": [
+        "aee-c-49"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-017-method-weakening-allowed",
+      "kind": "accept",
+      "file": "accept/ok-017-method-weakening-allowed.json",
+      "conditions": [
+        "aee-c-23"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-018-aee-prefix-ignored",
+      "kind": "accept",
+      "file": "accept/ok-018-aee-prefix-ignored.json",
+      "conditions": [
+        "aee-c-38",
+        "aee-c-61"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "ok-019-wrong-keyid-sig-verifies",
+      "kind": "accept",
+      "file": "accept/ok-019-wrong-keyid-sig-verifies.json",
+      "conditions": [
+        "aee-c-35"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "ok-020-non-pae-signature",
+      "kind": "accept",
+      "file": "accept/ok-020-non-pae-signature.json",
+      "conditions": [
+        "aee-c-36"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-021-producer-extra-members",
+      "kind": "accept",
+      "file": "accept/ok-021-producer-extra-members.json",
+      "conditions": [
+        "aee-c-73"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-022-two-arming-records",
+      "kind": "accept",
+      "file": "accept/ok-022-two-arming-records.json",
+      "conditions": [
+        "aee-c-68"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "ok-023-no-tofu-embedded-key",
+      "kind": "accept",
+      "file": "accept/ok-023-no-tofu-embedded-key.json",
+      "conditions": [
+        "aee-c-34"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "ok-024-mixed-basis-rows",
+      "kind": "accept",
+      "file": "accept/ok-024-mixed-basis-rows.json",
+      "conditions": [
+        "aee-c-33",
+        "aee-c-41"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail",
+        "tierWithPinnedKey": [
+          "attested",
+          "unattested",
+          "declared"
+        ],
+        "tierWithoutKey": [
+          "unattested",
+          "unattested",
+          "declared"
+        ]
+      }
+    },
+    {
+      "id": "ok-025-does-not-assert-present",
+      "kind": "accept",
+      "file": "accept/ok-025-does-not-assert-present.json",
+      "conditions": [
+        "aee-c-84"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "ok-026-five-record-tree",
+      "kind": "accept",
+      "file": "accept/ok-026-five-record-tree.json",
+      "conditions": [
+        "aee-c-26"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-027-artifact-missing-method",
+      "kind": "accept",
+      "file": "accept/ok-027-artifact-missing-method.json",
+      "conditions": [
+        "aee-c-5",
+        "aee-c-42",
+        "aee-c-44"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-028-empty-caught-pass",
+      "kind": "accept",
+      "file": "accept/ok-028-empty-caught-pass.json",
+      "conditions": [
+        "aee-c-3",
+        "aee-c-52"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "ok-029-artifact-with-records",
+      "kind": "accept",
+      "file": "accept/ok-029-artifact-with-records.json",
+      "conditions": [
+        "aee-c-24",
+        "aee-c-29",
+        "aee-c-30",
+        "aee-c-32"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "ok-030-method-min-multirecord",
+      "kind": "accept",
+      "file": "accept/ok-030-method-min-multirecord.json",
+      "conditions": [
+        "aee-c-23",
+        "aee-c-45"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-031-caught-reconstructed",
+      "kind": "accept",
+      "file": "accept/ok-031-caught-reconstructed.json",
+      "conditions": [
+        "aee-c-13"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-032-method-inferred-retired",
+      "kind": "accept",
+      "file": "accept/ok-032-method-inferred-retired.json",
+      "conditions": [
+        "aee-c-5",
+        "aee-c-43"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-033-artifact-degraded",
+      "kind": "accept",
+      "file": "accept/ok-033-artifact-degraded.json",
+      "conditions": [
+        "aee-c-6"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "degraded"
+      }
+    },
+    {
+      "id": "bad-001-result-uppercase",
+      "kind": "reject",
+      "file": "reject/bad-001-result-uppercase.json",
+      "conditions": [
+        "aee-c-1",
+        "aee-c-2"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "result-vocabulary",
+          "result-recompute-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-002-result-mismatch-caught",
+      "kind": "reject",
+      "file": "reject/bad-002-result-mismatch-caught.json",
+      "conditions": [
+        "aee-c-2"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "result-recompute-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-003-result-mismatch-oov-label",
+      "kind": "reject",
+      "file": "reject/bad-003-result-mismatch-oov-label.json",
+      "conditions": [
+        "aee-c-2",
+        "aee-c-4"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "result-recompute-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-004-result-mismatch-failclosed",
+      "kind": "reject",
+      "file": "reject/bad-004-result-mismatch-failclosed.json",
+      "conditions": [
+        "aee-c-2",
+        "aee-c-5"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "result-recompute-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-005-result-mismatch-coverage-gap",
+      "kind": "reject",
+      "file": "reject/bad-005-result-mismatch-coverage-gap.json",
+      "conditions": [
+        "aee-c-2",
+        "aee-c-6"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "result-recompute-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-006-result-fail-on-pass",
+      "kind": "reject",
+      "file": "reject/bad-006-result-fail-on-pass.json",
+      "conditions": [
+        "aee-c-2"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "result-recompute-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-007-result-degraded-on-pass",
+      "kind": "reject",
+      "file": "reject/bad-007-result-degraded-on-pass.json",
+      "conditions": [
+        "aee-c-2"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "result-recompute-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-008-result-unknown-token",
+      "kind": "reject",
+      "file": "reject/bad-008-result-unknown-token.json",
+      "conditions": [
+        "aee-c-1",
+        "aee-c-2"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "result-vocabulary",
+          "result-recompute-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-101-refs-empty",
+      "kind": "reject",
+      "file": "reject/bad-101-refs-empty.json",
+      "conditions": [
+        "aee-c-10",
+        "aee-c-12"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "refs-empty",
+          "caught-row-uncovered"
+        ]
+      }
+    },
+    {
+      "id": "bad-102-ref-out-of-range",
+      "kind": "reject",
+      "file": "reject/bad-102-ref-out-of-range.json",
+      "conditions": [
+        "aee-c-11"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "ref-out-of-range"
+        ]
+      }
+    },
+    {
+      "id": "bad-103-ref-negative",
+      "kind": "reject",
+      "file": "reject/bad-103-ref-negative.json",
+      "conditions": [
+        "aee-c-11"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "ref-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-104-caught-refs-arming-only",
+      "kind": "reject",
+      "file": "reject/bad-104-caught-refs-arming-only.json",
+      "conditions": [
+        "aee-c-12"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "caught-row-uncovered"
+        ]
+      }
+    },
+    {
+      "id": "bad-105-reconstructed-refs-interception",
+      "kind": "reject",
+      "file": "reject/bad-105-reconstructed-refs-interception.json",
+      "conditions": [
+        "aee-c-13"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "reconstructed-row-uncovered"
+        ]
+      }
+    },
+    {
+      "id": "bad-106-clean-missing-sealed",
+      "kind": "reject",
+      "file": "reject/bad-106-clean-missing-sealed.json",
+      "conditions": [
+        "aee-c-14"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "clean-row-uncovered"
+        ]
+      }
+    },
+    {
+      "id": "bad-107-clean-missing-arming",
+      "kind": "reject",
+      "file": "reject/bad-107-clean-missing-arming.json",
+      "conditions": [
+        "aee-c-14"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "clean-row-uncovered"
+        ]
+      }
+    },
+    {
+      "id": "bad-108-ref-non-integer",
+      "kind": "reject",
+      "file": "reject/bad-108-ref-non-integer.json",
+      "conditions": [
+        "aee-c-11"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "ref-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-201-payload-unsorted-keys",
+      "kind": "reject",
+      "file": "reject/bad-201-payload-unsorted-keys.json",
+      "conditions": [
+        "aee-c-17"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "payload-not-canonical"
+        ]
+      }
+    },
+    {
+      "id": "bad-202-payload-bignum",
+      "kind": "reject",
+      "file": "reject/bad-202-payload-bignum.json",
+      "conditions": [
+        "aee-c-18"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "payload-not-ijson"
+        ]
+      }
+    },
+    {
+      "id": "bad-203-payload-duplicate-member",
+      "kind": "reject",
+      "file": "reject/bad-203-payload-duplicate-member.json",
+      "conditions": [
+        "aee-c-18"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "payload-not-ijson"
+        ]
+      }
+    },
+    {
+      "id": "bad-204-payload-media-type",
+      "kind": "reject",
+      "file": "reject/bad-204-payload-media-type.json",
+      "conditions": [
+        "aee-c-19"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "payload-media-type"
+        ]
+      }
+    },
+    {
+      "id": "bad-205-payload-missing-runbinding",
+      "kind": "reject",
+      "file": "reject/bad-205-payload-missing-runbinding.json",
+      "conditions": [
+        "aee-c-20"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "payload-missing-reserved"
+        ]
+      }
+    },
+    {
+      "id": "bad-206-payload-missing-kind",
+      "kind": "reject",
+      "file": "reject/bad-206-payload-missing-kind.json",
+      "conditions": [
+        "aee-c-20"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "payload-missing-reserved"
+        ]
+      }
+    },
+    {
+      "id": "bad-207-payload-missing-method",
+      "kind": "reject",
+      "file": "reject/bad-207-payload-missing-method.json",
+      "conditions": [
+        "aee-c-20"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "payload-missing-reserved"
+        ]
+      }
+    },
+    {
+      "id": "bad-301-run-binding-splice",
+      "kind": "reject",
+      "file": "reject/bad-301-run-binding-splice.json",
+      "conditions": [
+        "aee-c-22",
+        "aee-c-62"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "run-binding-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-302-method-inflation",
+      "kind": "reject",
+      "file": "reject/bad-302-method-inflation.json",
+      "conditions": [
+        "aee-c-23"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "method-cap-exceeded"
+        ]
+      }
+    },
+    {
+      "id": "bad-303-binding-version-2",
+      "kind": "reject",
+      "file": "reject/bad-303-binding-version-2.json",
+      "conditions": [
+        "aee-c-75",
+        "aee-c-22"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "run-binding-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-304-method-cap-multirecord",
+      "kind": "reject",
+      "file": "reject/bad-304-method-cap-multirecord.json",
+      "conditions": [
+        "aee-c-23",
+        "aee-c-45"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "method-cap-exceeded"
+        ]
+      }
+    },
+    {
+      "id": "bad-401-records-no-batchroot",
+      "kind": "reject",
+      "file": "reject/bad-401-records-no-batchroot.json",
+      "conditions": [
+        "aee-c-24"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "batch-root-missing"
+        ]
+      }
+    },
+    {
+      "id": "bad-402-root-no-domain-separation",
+      "kind": "reject",
+      "file": "reject/bad-402-root-no-domain-separation.json",
+      "conditions": [
+        "aee-c-25"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "batch-root-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-403-root-bitcoin-padding",
+      "kind": "reject",
+      "file": "reject/bad-403-root-bitcoin-padding.json",
+      "conditions": [
+        "aee-c-26"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "batch-root-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-404-root-leaf-order-swapped",
+      "kind": "reject",
+      "file": "reject/bad-404-root-leaf-order-swapped.json",
+      "conditions": [
+        "aee-c-27"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "batch-root-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-405-duplicate-records",
+      "kind": "reject",
+      "file": "reject/bad-405-duplicate-records.json",
+      "conditions": [
+        "aee-c-29"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "duplicate-record"
+        ]
+      }
+    },
+    {
+      "id": "bad-406-root-hex-tamper",
+      "kind": "reject",
+      "file": "reject/bad-406-root-hex-tamper.json",
+      "conditions": [
+        "aee-c-30"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "batch-root-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-407-substrate-row-no-records",
+      "kind": "reject",
+      "file": "reject/bad-407-substrate-row-no-records.json",
+      "conditions": [
+        "aee-c-31",
+        "aee-c-11"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "records-absent",
+          "ref-out-of-range"
+        ]
+      }
+    },
+    {
+      "id": "bad-408-batchroot-without-records",
+      "kind": "reject",
+      "file": "reject/bad-408-batchroot-without-records.json",
+      "conditions": [
+        "aee-c-31"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "batch-root-orphaned"
+        ]
+      }
+    },
+    {
+      "id": "bad-409-artifact-records-bad-root",
+      "kind": "reject",
+      "file": "reject/bad-409-artifact-records-bad-root.json",
+      "conditions": [
+        "aee-c-30",
+        "aee-c-24"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "batch-root-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-501-substrate-unknown-method",
+      "kind": "reject",
+      "file": "reject/bad-501-substrate-unknown-method.json",
+      "conditions": [
+        "aee-c-44",
+        "aee-c-5",
+        "aee-c-42"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "fail-closed-substrate-row"
+        ]
+      }
+    },
+    {
+      "id": "bad-502-missing-actual-layer",
+      "kind": "reject",
+      "file": "reject/bad-502-missing-actual-layer.json",
+      "conditions": [
+        "aee-c-47"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "malformed-missing-actual-layer"
+        ]
+      }
+    },
+    {
+      "id": "bad-503-clean-row-layer-not-none",
+      "kind": "reject",
+      "file": "reject/bad-503-clean-row-layer-not-none.json",
+      "conditions": [
+        "aee-c-48"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "clean-row-layer-not-none"
+        ]
+      }
+    },
+    {
+      "id": "bad-504-substrate-oov-label",
+      "kind": "reject",
+      "file": "reject/bad-504-substrate-oov-label.json",
+      "conditions": [
+        "aee-c-4",
+        "aee-c-44"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "fail-closed-substrate-row"
+        ]
+      }
+    },
+    {
+      "id": "bad-505-substrate-missing-method",
+      "kind": "reject",
+      "file": "reject/bad-505-substrate-missing-method.json",
+      "conditions": [
+        "aee-c-5",
+        "aee-c-42",
+        "aee-c-44"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "fail-closed-substrate-row"
+        ]
+      }
+    },
+    {
+      "id": "bad-601-vocabulary-absent",
+      "kind": "reject",
+      "file": "reject/bad-601-vocabulary-absent.json",
+      "conditions": [
+        "aee-c-51"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "vocabulary-missing"
+        ]
+      }
+    },
+    {
+      "id": "bad-602-caught-not-subset",
+      "kind": "reject",
+      "file": "reject/bad-602-caught-not-subset.json",
+      "conditions": [
+        "aee-c-52"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "vocabulary-caught-not-subset"
+        ]
+      }
+    },
+    {
+      "id": "bad-603-labels-unsorted",
+      "kind": "reject",
+      "file": "reject/bad-603-labels-unsorted.json",
+      "conditions": [
+        "aee-c-53"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "vocabulary-not-canonical"
+        ]
+      }
+    },
+    {
+      "id": "bad-604-caught-duplicate",
+      "kind": "reject",
+      "file": "reject/bad-604-caught-duplicate.json",
+      "conditions": [
+        "aee-c-53"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "vocabulary-not-canonical"
+        ]
+      }
+    },
+    {
+      "id": "bad-605-vocabulary-digest-mismatch",
+      "kind": "reject",
+      "file": "reject/bad-605-vocabulary-digest-mismatch.json",
+      "conditions": [
+        "aee-c-54"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "vocabulary-digest-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-606-missing-runentropy",
+      "kind": "reject",
+      "file": "reject/bad-606-missing-runentropy.json",
+      "conditions": [
+        "aee-c-57"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "run-entropy-missing"
+        ]
+      }
+    },
+    {
+      "id": "bad-607-two-subjects-substrate",
+      "kind": "reject",
+      "file": "reject/bad-607-two-subjects-substrate.json",
+      "conditions": [
+        "aee-c-58"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "subject-cardinality"
+        ]
+      }
+    },
+    {
+      "id": "bad-608-digest-uppercase",
+      "kind": "reject",
+      "file": "reject/bad-608-digest-uppercase.json",
+      "conditions": [
+        "aee-c-59"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "digest-not-canonical"
+        ]
+      }
+    },
+    {
+      "id": "bad-609-digest-truncated",
+      "kind": "reject",
+      "file": "reject/bad-609-digest-truncated.json",
+      "conditions": [
+        "aee-c-59"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "digest-not-canonical"
+        ]
+      }
+    },
+    {
+      "id": "bad-610-empty-labels-substrate",
+      "kind": "reject",
+      "file": "reject/bad-610-empty-labels-substrate.json",
+      "conditions": [
+        "aee-c-4",
+        "aee-c-44",
+        "aee-c-53"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "fail-closed-substrate-row"
+        ]
+      }
+    },
+    {
+      "id": "bad-611-subject-no-sha256",
+      "kind": "reject",
+      "file": "reject/bad-611-subject-no-sha256.json",
+      "conditions": [
+        "aee-c-59",
+        "aee-c-60"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "subject-sha256-missing"
+        ]
+      }
+    },
+    {
+      "id": "bad-701-arming-missing-armedat",
+      "kind": "reject",
+      "file": "reject/bad-701-arming-missing-armedat.json",
+      "conditions": [
+        "aee-c-63"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-702-armedat-after-issuedat",
+      "kind": "reject",
+      "file": "reject/bad-702-armedat-after-issuedat.json",
+      "conditions": [
+        "aee-c-63"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-703-arming-posture-mismatch",
+      "kind": "reject",
+      "file": "reject/bad-703-arming-posture-mismatch.json",
+      "conditions": [
+        "aee-c-63",
+        "aee-c-65"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing",
+          "sealed-covers-nothing",
+          "clean-row-uncovered"
+        ]
+      }
+    },
+    {
+      "id": "bad-704-arming-method-reconstructed",
+      "kind": "reject",
+      "file": "reject/bad-704-arming-method-reconstructed.json",
+      "conditions": [
+        "aee-c-63"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-705-sealed-missing-dropcount",
+      "kind": "reject",
+      "file": "reject/bad-705-sealed-missing-dropcount.json",
+      "conditions": [
+        "aee-c-64"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-706-stillarmed-non-boolean",
+      "kind": "reject",
+      "file": "reject/bad-706-stillarmed-non-boolean.json",
+      "conditions": [
+        "aee-c-64"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-707-sealed-stillarmed-false",
+      "kind": "reject",
+      "file": "reject/bad-707-sealed-stillarmed-false.json",
+      "conditions": [
+        "aee-c-65"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-708-sealed-drops-no-bound",
+      "kind": "reject",
+      "file": "reject/bad-708-sealed-drops-no-bound.json",
+      "conditions": [
+        "aee-c-65"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-709-sealed-drops-exceed-bound",
+      "kind": "reject",
+      "file": "reject/bad-709-sealed-drops-exceed-bound.json",
+      "conditions": [
+        "aee-c-65"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-710-sealed-posture-mismatch",
+      "kind": "reject",
+      "file": "reject/bad-710-sealed-posture-mismatch.json",
+      "conditions": [
+        "aee-c-65"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-712-examination-method-intercepted",
+      "kind": "reject",
+      "file": "reject/bad-712-examination-method-intercepted.json",
+      "conditions": [
+        "aee-c-66"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "examination-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-713-only-sealed-ref-noncovering",
+      "kind": "reject",
+      "file": "reject/bad-713-only-sealed-ref-noncovering.json",
+      "conditions": [
+        "aee-c-68"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-714-unknown-kind-sole-cover",
+      "kind": "reject",
+      "file": "reject/bad-714-unknown-kind-sole-cover.json",
+      "conditions": [
+        "aee-c-71"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "record-kind-unknown-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-715-sealed-missing-stillarmed",
+      "kind": "reject",
+      "file": "reject/bad-715-sealed-missing-stillarmed.json",
+      "conditions": [
+        "aee-c-64"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-716-sealed-missing-posture",
+      "kind": "reject",
+      "file": "reject/bad-716-sealed-missing-posture.json",
+      "conditions": [
+        "aee-c-64",
+        "aee-c-65"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-717-arming-missing-posture",
+      "kind": "reject",
+      "file": "reject/bad-717-arming-missing-posture.json",
+      "conditions": [
+        "aee-c-63"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-801-wrong-predicatetype",
+      "kind": "reject",
+      "file": "reject/bad-801-wrong-predicatetype.json",
+      "conditions": [
+        "aee-c-77"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "predicate-type-unsupported"
+        ]
+      }
+    },
+    {
+      "id": "bad-802-missing-catchpolicy",
+      "kind": "reject",
+      "file": "reject/bad-802-missing-catchpolicy.json",
+      "conditions": [
+        "aee-c-78"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "environment-incomplete"
+        ]
+      }
+    },
+    {
+      "id": "bad-803-corpus-digest-mismatch",
+      "kind": "reject",
+      "file": "reject/bad-803-corpus-digest-mismatch.json",
+      "conditions": [
+        "aee-c-79"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "corpus-digest-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-804-attackid-two-classes",
+      "kind": "reject",
+      "file": "reject/bad-804-attackid-two-classes.json",
+      "conditions": [
+        "aee-c-80"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "manifest-duplicate-attack"
+        ]
+      }
+    },
+    {
+      "id": "bad-805-row-unknown-attackid",
+      "kind": "reject",
+      "file": "reject/bad-805-row-unknown-attackid.json",
+      "conditions": [
+        "aee-c-81",
+        "aee-c-82"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "row-attack-unknown",
+          "coverage-incomplete"
+        ]
+      }
+    },
+    {
+      "id": "bad-806-coverage-attack-omitted",
+      "kind": "reject",
+      "file": "reject/bad-806-coverage-attack-omitted.json",
+      "conditions": [
+        "aee-c-82"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "coverage-incomplete"
+        ]
+      }
+    },
+    {
+      "id": "bad-807-coverage-attack-superset",
+      "kind": "reject",
+      "file": "reject/bad-807-coverage-attack-superset.json",
+      "conditions": [
+        "aee-c-82"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "coverage-incomplete"
+        ]
+      }
+    },
+    {
+      "id": "bad-808-coverage-absent",
+      "kind": "reject",
+      "file": "reject/bad-808-coverage-absent.json",
+      "conditions": [
+        "aee-c-83"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "coverage-missing"
+        ]
+      }
+    },
+    {
+      "id": "bad-809-snake-case-doesnotassert",
+      "kind": "reject",
+      "file": "reject/bad-809-snake-case-doesnotassert.json",
+      "conditions": [
+        "aee-c-84"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "member-spelling"
+        ]
+      }
+    },
+    {
+      "id": "bad-810-missing-issuedat",
+      "kind": "reject",
+      "file": "reject/bad-810-missing-issuedat.json",
+      "conditions": [
+        "aee-c-85"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "issued-at-missing"
+        ]
+      }
+    },
+    {
+      "id": "bad-811-issuedat-not-rfc3339",
+      "kind": "reject",
+      "file": "reject/bad-811-issuedat-not-rfc3339.json",
+      "conditions": [
+        "aee-c-85"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "issued-at-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-812-missing-networkposture",
+      "kind": "reject",
+      "file": "reject/bad-812-missing-networkposture.json",
+      "conditions": [
+        "aee-c-78"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "environment-incomplete"
+        ]
+      }
+    },
+    {
+      "id": "bad-813-missing-corpus",
+      "kind": "reject",
+      "file": "reject/bad-813-missing-corpus.json",
+      "conditions": [
+        "aee-c-78"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "environment-incomplete"
+        ]
+      }
+    },
+    {
+      "id": "bad-814-missing-substrate",
+      "kind": "reject",
+      "file": "reject/bad-814-missing-substrate.json",
+      "conditions": [
+        "aee-c-78"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "environment-incomplete"
+        ]
+      }
+    },
+    {
+      "id": "bad-815-wrong-statement-type",
+      "kind": "reject",
+      "file": "reject/bad-815-wrong-statement-type.json",
+      "conditions": [
+        "aee-c-77"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "statement-type-unsupported"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+// Copy to go.work (or run: go work init . ./witnessattestor) to build the
+// go-witness attestor module against the sibling core module without any
+// replace directive. The core module alone builds and tests with no
+// workspace at all.
+go 1.24
+
+use (
+	.
+	./witnessattestor
+)

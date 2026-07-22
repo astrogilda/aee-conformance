@@ -224,6 +224,7 @@ so the declared fault stays the ONLY fault.
 | `bad-806-coverage-attack-omitted` | ok-011 | one of the two rows of a 2-attack assessed class deleted (quiet omission) | — | aee-c-82 | `coverage-incomplete` | L350-353 |
 | `bad-807-coverage-attack-superset` | ok-004 | added artifact-basis clean row for the outOfScope class's attack; result stays degraded | — | aee-c-82 | `coverage-incomplete` | L350-353 |
 | `bad-816-coverage-class-dropped` | ok-004 | manifest class XB dropped from all three coverage sets (not assessed, not outOfScope, not routedElsewhere), result forced to pass: the class-granularity coverage-partition fail-open | — | aee-c-82 | `coverage-incomplete` | L320-325; L350-353 |
+| `bad-817-payload-noncanonical-base64` | ok-001 | covering record payload re-encoded as non-canonical base64 (nonzero trailing bits); the record no longer strict-decodes | — | aee-c-19 | `record-undecodable` | L560-563 |
 | `bad-808-coverage-absent` | ok-002 | drop coverage | — | aee-c-83 | `coverage-missing` | L318-322 |
 | `bad-809-snake-case-doesnotassert` | ok-002 | statement carries the rejected snake_case spelling of doesNotAssert | — | aee-c-84 | `member-spelling` | L650-660 |
 | `bad-810-missing-issuedat` | ok-007 | drop issuedAt | — | aee-c-85 | `issued-at-missing` | L662-664 |
@@ -270,6 +271,7 @@ so the declared fault stays the ONLY fault.
 - **bad-806-coverage-attack-omitted** — the second interception record stays in the tree (unreferenced records are legal), so the root is untouched: single fault.
 - **bad-807-coverage-attack-superset** — superset direction of exactly-equal coverage.
 - **bad-816-coverage-class-dropped** — distinct from bad-806/807 (attack granularity within an assessed class): a whole manifest class left silently unaccounted.
+- **bad-817-payload-noncanonical-base64** — encoding-layer divergence: Go decodes with StdEncoding.Strict() and the Python rail re-encode-compares, so both reject; a lenient decoder would accept. The stale signature and batch root are unreachable because a decode failure short-circuits both checks (validity.go:120).
 - **bad-809-snake-case-doesnotassert** — single-canonicalization rule: no alias.
 - **bad-810-missing-issuedat** — artifact-only parent: no armedAt comparison cascade.
 

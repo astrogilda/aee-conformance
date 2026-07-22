@@ -1337,6 +1337,43 @@ vec("bad-816-coverage-class-dropped", "ok-004",
          "class): a whole manifest class left silently unaccounted")
 
 
+_B64_ALPHABET = (
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+)
+
+
+def _noncanonical_b64(s: str) -> str:
+    """Return a base64 string that a lenient decoder (validate=True) still
+    accepts but that is NOT RFC 4648 canonical: the last pre-padding character
+    is remapped so a trailing bit that must be zero is set. Go's
+    base64.StdEncoding.Strict() (aee/validity.go:108) and the Python rail's
+    re-encode-compare both reject it as record-undecodable, while a lenient
+    decoder would silently accept it -- the divergence this vector pins."""
+    core = s.rstrip("=")
+    pad = len(s) - len(core)
+    assert pad > 0, "payload must carry padding to have slack trailing bits"
+    tampered = _B64_ALPHABET[_B64_ALPHABET.index(core[-1]) | 1]
+    return core[:-1] + tampered + "=" * pad
+
+
+def _b817() -> dict[str, Any]:
+    st = P_caught()
+    recs = st["predicate"]["observationRecords"]
+    recs[0]["payload"] = _noncanonical_b64(recs[0]["payload"])
+    return st
+
+
+vec("bad-817-payload-noncanonical-base64", "ok-001",
+    "covering record payload re-encoded as non-canonical base64 (nonzero "
+    "trailing bits); the record no longer strict-decodes",
+    [], [19], ["record-undecodable"], _b817,
+    spec="L560-563",
+    note="encoding-layer divergence: Go decodes with StdEncoding.Strict() and "
+         "the Python rail re-encode-compares, so both reject; a lenient decoder "
+         "would accept. The stale signature and batch root are unreachable "
+         "because a decode failure short-circuits both checks (validity.go:120)")
+
+
 def _b808() -> dict[str, Any]:
     st = P_clean()
     del st["predicate"]["coverage"]
@@ -1781,7 +1818,7 @@ def main() -> None:
         with open(path) as f:
             json.load(f)  # every vector parses as JSON
 
-    assert len(VECTORS) == 84, f"expected 84 vectors, built {len(VECTORS)}"
+    assert len(VECTORS) == 85, f"expected 85 vectors, built {len(VECTORS)}"
 
     # 3. index
     write_index()

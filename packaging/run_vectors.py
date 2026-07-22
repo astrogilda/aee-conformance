@@ -223,6 +223,21 @@ def _max_json_depth(text: str) -> int:
     return maxd
 
 
+def strict_b64decode(s: str) -> bytes:
+    """Decode standard base64, mirroring Go's base64.StdEncoding.Strict()
+    (aee/validity.go:108, aee/tier.go:93): reject non-alphabet characters
+    (validate=True) AND non-canonical encodings -- trailing bits in the final
+    quantum ("QUJ=" decodes to "AB" only under a lenient decoder), non-standard
+    padding -- that Python's b64decode would otherwise accept. A payload the Go
+    rail rejects as record-undecodable must not decode on the Python rail, or
+    the two rails disagree at the encoding layer. Raises binascii.Error /
+    ValueError on any rejection, matching the callers' existing except clauses."""
+    raw = base64.b64decode(s, validate=True)
+    if base64.b64encode(raw).decode("ascii") != s:
+        raise ValueError("non-canonical base64 (fails re-encode round-trip)")
+    return raw
+
+
 def strict_payload_parse(raw: bytes) -> dict[str, Any]:
     """Parse record payload bytes; raise IJsonError with a registry code."""
     if len(raw) > MAX_PARSE_BYTES:
@@ -497,13 +512,13 @@ class RecordView:
         self.pae: bytes | None = None
         self.payload: dict[str, Any] | None = None
         self.payload_error: str | None = None
+        self.decode_err: bool = False
         if isinstance(rec, dict) and isinstance(rec.get("payload"), str):
             try:
-                self.payload_bytes = base64.b64decode(
-                    rec["payload"], validate=True
-                )
+                self.payload_bytes = strict_b64decode(rec["payload"])
             except (binascii.Error, ValueError):
                 self.payload_bytes = None
+                self.decode_err = True
         if self.payload_bytes is not None and isinstance(self.payload_type, str):
             self.pae = pae(self.payload_type, self.payload_bytes)
         if self.payload_bytes is not None:
@@ -583,7 +598,7 @@ class ReferenceVerifier:
             if not isinstance(sig, dict) or not isinstance(sig.get("sig"), str):
                 continue
             try:
-                sig_bytes = base64.b64decode(sig["sig"], validate=True)
+                sig_bytes = strict_b64decode(sig["sig"])
             except (binascii.Error, ValueError):
                 continue
             for pub in self.pinned_pubs:
@@ -791,20 +806,29 @@ class ReferenceVerifier:
         views: list[RecordView] = []
         if isinstance(records, list) and records:
             views = [RecordView(i, rec) for i, rec in enumerate(records)]
-            root = pred.get("batchRoot")
-            if root is None:
-                out.add("batch-root-missing")
-            elif all(v.pae is not None for v in views):
-                if merkle_root_hex([v.pae for v in views if v.pae is not None]) != root:
-                    out.add("batch-root-mismatch")
+            if any(v.decode_err for v in views):
+                # Mirror Go validity.go:105-120: a record whose payload is not
+                # strict base64 is record-undecodable, and the dup-record and
+                # batch-root checks are then skipped (a bad leaf makes the
+                # recomputed root meaningless), so both rails emit the same
+                # single code instead of the Python rail additionally reporting
+                # batch-root-mismatch.
+                out.add("record-undecodable")
             else:
-                out.add("batch-root-mismatch")
-            seen_leaves: set[bytes] = set()
-            for v in views:
-                key = v.pae if v.pae is not None else jcs_dumps_safe(v.raw)
-                if key in seen_leaves:
-                    out.add("duplicate-record")
-                seen_leaves.add(key)
+                root = pred.get("batchRoot")
+                if root is None:
+                    out.add("batch-root-missing")
+                elif all(v.pae is not None for v in views):
+                    if merkle_root_hex([v.pae for v in views if v.pae is not None]) != root:
+                        out.add("batch-root-mismatch")
+                else:
+                    out.add("batch-root-mismatch")
+                seen_leaves: set[bytes] = set()
+                for v in views:
+                    key = v.pae if v.pae is not None else jcs_dumps_safe(v.raw)
+                    if key in seen_leaves:
+                        out.add("duplicate-record")
+                    seen_leaves.add(key)
         elif pred.get("batchRoot") is not None:
             out.add("batch-root-orphaned")
 
@@ -1032,6 +1056,7 @@ def jcs_dumps_safe(obj: Any) -> bytes:
 # ---------------------------------------------------------------------------
 
 _ROOT_FAULT_CODES = {
+    "record-undecodable",
     "batch-root-mismatch",
     "batch-root-missing",
     "batch-root-orphaned",
@@ -1236,6 +1261,7 @@ CODE_STAGE = {
     "run-entropy-missing": "gate0",
     "digest-not-canonical": "gate0",
     "fail-closed-substrate-row": "gate0",
+    "record-undecodable": "gate0",
     "batch-root-missing": "gate0",
     "batch-root-mismatch": "gate0",
     "batch-root-orphaned": "gate0",

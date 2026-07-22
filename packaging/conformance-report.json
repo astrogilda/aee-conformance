@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 117,
-    "pass": 117,
+    "vectors": 118,
+    "pass": 118,
     "fail": 0
   },
   "notes": [],
@@ -3183,6 +3183,36 @@
         "verdict": "invalid",
         "codes": [
           "coverage-incomplete"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-817-payload-noncanonical-base64",
+      "file": "vectors/reject/bad-817-payload-noncanonical-base64.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "record-undecodable",
+          "payload-not-canonical",
+          "caught-row-uncovered"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "record-undecodable"
         ]
       },
       "inManifest": true,

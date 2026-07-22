@@ -3,7 +3,7 @@
   "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6",
   "counts": {
     "accept": 33,
-    "reject": 84
+    "reject": 85
   },
   "vectors": [
     {
@@ -1527,6 +1527,20 @@
         "verdict": "invalid",
         "codes": [
           "coverage-incomplete"
+        ]
+      }
+    },
+    {
+      "id": "bad-817-payload-noncanonical-base64",
+      "kind": "reject",
+      "file": "reject/bad-817-payload-noncanonical-base64.json",
+      "conditions": [
+        "aee-c-19"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "record-undecodable"
         ]
       }
     },

@@ -273,12 +273,7 @@ func (a *Attestor) locateEvidence(ctx *attestation.AttestationContext) (string, 
 		return "", attestation.Product{}, errors.New("no products recorded for this step; the evidence file must be a step product")
 	}
 	if a.evidencePath != "" {
-		for path, product := range products {
-			if path == a.evidencePath || strings.HasSuffix(path, a.evidencePath) {
-				return path, product, nil
-			}
-		}
-		return "", attestation.Product{}, fmt.Errorf("configured evidence-path %q is not among the step's products", a.evidencePath)
+		return matchConfiguredEvidence(products, a.evidencePath)
 	}
 	paths := make([]string, 0, len(products))
 	for path := range products {
@@ -291,6 +286,35 @@ func (a *Attestor) locateEvidence(ctx *attestation.AttestationContext) (string, 
 	}
 	sort.Strings(paths)
 	return paths[0], products[paths[0]], nil
+}
+
+// matchConfiguredEvidence resolves an operator-configured evidence-path against
+// the step's products. The match is on a path-component boundary: a configured
+// value equals a product path exactly, or is its trailing path segment
+// ("evidence.json" matches "sub/evidence.json"), but never a substring of a
+// filename ("evidence.json" must NOT match "attacker-evidence.json"). A
+// configured value that resolves to more than one product is a misconfiguration;
+// signing an arbitrary map-iteration winner would be nondeterministic and could
+// attest the wrong file, so it fails closed with an ambiguity error rather than
+// guessing.
+func matchConfiguredEvidence(products map[string]attestation.Product, configured string) (string, attestation.Product, error) {
+	want := filepath.ToSlash(configured)
+	var matches []string
+	for path := range products {
+		slashed := filepath.ToSlash(path)
+		if slashed == want || strings.HasSuffix(slashed, "/"+want) {
+			matches = append(matches, path)
+		}
+	}
+	switch len(matches) {
+	case 0:
+		return "", attestation.Product{}, fmt.Errorf("configured evidence-path %q is not among the step's products", configured)
+	case 1:
+		return matches[0], products[matches[0]], nil
+	default:
+		sort.Strings(matches)
+		return "", attestation.Product{}, fmt.Errorf("configured evidence-path %q is ambiguous: it matches %d products (%s); refusing to guess which to sign", configured, len(matches), strings.Join(matches, ", "))
+	}
 }
 
 func (a *Attestor) producerQACheck(statement *aee.Statement) error {

@@ -1,3 +1,7 @@
 # compiled binaries — never commit
 aee-verify
 *.test
+
+# Python bytecode cache
+__pycache__/
+*.pyc

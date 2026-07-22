@@ -2098,6 +2098,28 @@ def self_test() -> int:
     def check(name: str, cond: bool, detail: str = "") -> None:
         checks.append((name, cond, detail))
 
+    # Ed25519 known-answer test: the pure-Python RFC 8032 implementation must
+    # reproduce a reference signature computed by the `cryptography` library for
+    # a fixed seed and message (regenerate the expected value from cryptography
+    # if this vector ever changes).
+    _kat_seed = bytes.fromhex(
+        "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20"
+    )
+    _kat_msg = b"aee-conformance ed25519 known-answer test"
+    _kat_pub = bytes.fromhex(
+        "79b5562e8fe654f94078b112e8a98ba7901f853ae695bed7e0e3910bad049664"
+    )
+    _kat_sig = bytes.fromhex(
+        "fb6b33be7173edac6bbecc0c916806fa15e58360924d26b9c60466f491193f2b"
+        "3aba43873d55404a43649ca8534736ca92941456ac379899dc443f9c2a03f607"
+    )
+    check(
+        "ed25519 known-answer (RFC 8032, vs cryptography)",
+        ed25519_sign(_kat_seed, _kat_msg) == _kat_sig
+        and ed25519_verify(_kat_pub, _kat_msg, _kat_sig),
+        "hand-rolled signature must match the reference",
+    )
+
     o = ref.verify(base)
     check(
         "base statement valid",

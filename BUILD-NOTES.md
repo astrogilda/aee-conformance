@@ -1,7 +1,7 @@
 # BUILD-NOTES: module wiring and verified state
 
-Status at authoring time: everything below was **actually compiled and run**,
-not just written. This file records exactly what is needed to reproduce that.
+Everything below was compiled and run at the time of writing; this file records
+what is needed to reproduce it.
 
 ## Module layout (two modules, zero `replace` directives)
 
@@ -107,9 +107,8 @@ confirmed the blast radius is exactly one file
 (`bad-807-coverage-attack-superset.json`); all 116 vectors then pass the
 strict path. The runner's quarantine mechanism (`knownDefectiveVectors` in
 `aee/vectors_test.go`) is retained but empty, ready for the next
-cross-rail catch. This is the differential harness doing its job: two
-implementations of one spec disagreeing exposed a generator bug that
-neither rail's own tests caught.
+cross-rail catch. The two rails disagreeing is what exposed the generator
+bug; neither rail's own tests had caught it.
 
 ## Deliberate implementation pins (documented, spec-question-adjacent)
 
@@ -142,9 +141,9 @@ error it falls through on a missing `return`, and appends a second
 completed list and still calls `createAndSignEnvelope` for the error-free
 duplicate of a refusing Exporter. Feeding the demo a reject-vector
 evidence file, end to end, produced `failed to sign envelope: ...
-MarshalJSON ...` rather than the seam's own error. Two defenses hold the
-line in this attestor. `MarshalJSON` refuses when no predicate was
-validated, and that backstop is load-bearing, not belt-and-braces.
+MarshalJSON ...` rather than the seam's own error. The attestor guards against
+this in two places. `MarshalJSON` refuses when no predicate was validated, and
+that refusal is what actually stops the signature.
 `Attest` also stores its refusal in `refusalErr`, which the backstop
 names, so the operative failure reads as `attestor refused the evidence
 and will not serialize a predicate: refusing to sign: statement fails

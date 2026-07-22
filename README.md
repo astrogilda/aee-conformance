@@ -124,12 +124,11 @@ witness `VerifyRunType` attestor that re-emits gate outcomes as a signed
 verification summary is named future work (the witness verify CLI is
 currently coupled to its policy attestor).
 
-## Honesty block
+## On independence
 
-Both the Go rails in this tree and the sibling Python rail are written by
-one author. Two implementations are not two parties: the differential
-value is finding bugs, not independent audit. A true independent Rail C
-is the open invitation — the runner's stdin/stdout contract is one
-command to wire in, and a conforming implementation with a different
-evaluation order still passes, because conformance compares verdicts and
-code sets, never evaluation order or message text.
+One author wrote both the Go core here and the sibling Python rail, so they
+catch each other's bugs but do not amount to an independent audit. A third
+implementation from someone else is welcome: wiring one in is roughly a single
+command against the runner's stdin/stdout contract, and a conformant checker
+passes even when it evaluates in a different order, since the suite compares
+verdicts and code sets and ignores both message text and evaluation order.

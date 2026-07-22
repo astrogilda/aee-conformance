@@ -1,8 +1,7 @@
 # Design decisions
 
-Intentional-by-design choices a reader might otherwise flag as duplication,
-complexity, or dead code. Each is deliberate; the rationale lives here so it is
-not "simplified" away.
+Choices a reader might otherwise flag as duplication, complexity, or dead code.
+Each one is deliberate, and this file records why.
 
 ## Two independent verifier rails (do NOT de-duplicate across languages)
 
@@ -12,11 +11,11 @@ re-implement the same primitives -- RFC 8785 JCS canonicalization, DSSE PAE,
 RFC 6962 Merkle, ed25519, and the gate logic -- independently, in different
 languages.
 
-This cross-language duplication is the point, not debt. Byte-for-byte agreement
-between two independent implementations is what makes the corpus a conformance
-authority: a bug or shortcut in one rail is caught by the other. Collapsing them
-onto a shared core would destroy that property. **Only intra-language
-duplication is debt; cross-rail duplication is intentional and must be kept.**
+This cross-language duplication is deliberate. When two independent
+implementations agree byte for byte, that agreement is what lets the corpus act
+as a conformance authority: a bug or shortcut in one rail gets caught by the
+other, and collapsing them onto a shared core would throw that away. Duplication
+_within_ a language is debt worth removing; the cross-rail kind should stay.
 
 ## The generators' own self-verifier (a producer-side second opinion)
 

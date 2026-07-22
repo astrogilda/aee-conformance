@@ -76,6 +76,7 @@ import re
 import subprocess
 import sys
 from collections.abc import Callable
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
@@ -540,6 +541,35 @@ class RecordView:
         return self.payload.get("aeeMethod") if self.payload else None
 
 
+@dataclass
+class _VerifyState:
+    """Mutable holder for the locals shared across ``verify``'s ordered checks.
+
+    Each ``_check_*`` method reads and writes these fields and appends codes to
+    the ``Outcome``; the field types mirror the loosely-typed originals.
+    """
+
+    stmt: Any
+    pred: Any = None
+    result: Any = None
+    issued_at: Any = None
+    env: dict[str, Any] = field(default_factory=dict)
+    vocab: dict[str, Any] | None = None
+    labels: list[Any] | None = None
+    caught: list[Any] | None = None
+    corpus: Any = None
+    manifest_classes: dict[str, Any] | None = None
+    rows: list[dict[str, Any]] = field(default_factory=list)
+    has_substrate: bool = False
+    coverage: Any = None
+    fail_closed_rows: set[int] = field(default_factory=set)
+    has_records: bool = False
+    views: list[RecordView] = field(default_factory=list)
+    derived_binding: str | None = None
+    pinned_posture: Any = None
+    row_covering: dict[int, list[RecordView]] = field(default_factory=dict)
+
+
 class ReferenceVerifier:
     def __init__(self, pinned_pubs: list[bytes]):
         self.pinned_pubs = pinned_pubs
@@ -610,9 +640,31 @@ class ReferenceVerifier:
 
     def verify(self, stmt: Any) -> Outcome:
         out = Outcome()
+        st = _VerifyState(stmt=stmt)
+        if self._check_statement_type(st, out):
+            return out
+        self._check_gate0_wellformed(st, out)
+        self._check_vocabulary(st, out)
+        self._check_corpus(st, out)
+        self._check_rows_setup(st, out)
+        self._check_coverage(st, out)
+        self._check_per_row_statements(st, out)
+        self._check_substrate_binding_inputs(st, out)
+        self._check_fail_closed_rows(st, out)
+        self._check_records(st, out)
+        self._check_run_binding(st, out)
+        self._check_gate1_coverage(st, out)
+        self._check_result_recompute(st, out)
+        if out.codes:
+            return out  # invalid: no result, no tiers (behavior assertion 2)
+        self._check_gate2_tiers(st, out)
+        return out
+
+    def _check_statement_type(self, st: _VerifyState, out: Outcome) -> bool:
+        stmt = st.stmt
         if not isinstance(stmt, dict):
             out.add("statement-type-unsupported")
-            return out
+            return True
 
         if stmt.get("_type") != STATEMENT_TYPE:
             out.add("statement-type-unsupported")
@@ -622,137 +674,200 @@ class ReferenceVerifier:
         pred = stmt.get("predicate")
         if not isinstance(pred, dict):
             out.add("predicate-type-unsupported")
-            return out
+            return True
+        st.pred = pred
+        return False
 
-        # ---- GATE 0: statement well-formedness --------------------------
+    # ---- GATE 0: statement well-formedness ------------------------------
+
+    def _check_gate0_wellformed(self, st: _VerifyState, out: Outcome) -> None:
+        pred = st.pred
         if "does_not_assert" in pred:
             out.add("member-spelling")
 
         result = pred.get("result")
         if result not in ("pass", "degraded", "fail"):
             out.add("result-vocabulary")
+        st.result = result
 
         issued_at = pred.get("issuedAt")
         if issued_at is None:
             out.add("issued-at-missing")
         elif not _rfc3339_ok(issued_at):
             out.add("issued-at-malformed")
+        st.issued_at = issued_at
 
         env = pred.get("observationEnvironment")
         env = env if isinstance(env, dict) else {}
         for member in ("substrate", "corpus", "catchPolicy", "networkPosture"):
             if member not in env:
                 out.add("environment-incomplete")
+        st.env = env
         vocab = env.get("observationVocabulary")
         if not isinstance(vocab, dict):
             out.add("vocabulary-missing")
             vocab = None
+        st.vocab = vocab
 
+    def _check_vocabulary(self, st: _VerifyState, out: Outcome) -> None:
+        vocab = st.vocab
         labels: list[Any] | None = None
         caught: list[Any] | None = None
         if vocab is not None:
             labels = vocab.get("labels")
             caught = vocab.get("caught")
-            shape_ok = True
-            for arr in (labels, caught):
-                if not isinstance(arr, list) or not all(
-                    isinstance(x, str) for x in arr
-                ):
-                    shape_ok = False
-                elif sorted(arr) != arr or len(set(arr)) != len(arr):
-                    shape_ok = False
-            if not shape_ok:
+            if not self._vocab_shape_ok(labels, caught):
                 out.add("vocabulary-not-canonical")
-            if (
-                isinstance(labels, list)
-                and isinstance(caught, list)
-                and not set(caught) <= set(labels)
-            ):
-                out.add("vocabulary-caught-not-subset")
-            if isinstance(labels, list) and isinstance(caught, list):
-                expect = sha256_hex(
-                    jcs_dumps({"caught": caught, "labels": labels})
-                )
-                if _digest_of(vocab) != expect:
-                    out.add("vocabulary-digest-mismatch")
+            self._vocab_check_pairs(out, vocab, labels, caught)
             if not isinstance(labels, list) or not isinstance(caught, list):
                 labels, caught = None, None
+        st.labels = labels
+        st.caught = caught
 
+    @staticmethod
+    def _vocab_shape_ok(labels: Any, caught: Any) -> bool:
+        for arr in (labels, caught):
+            if not isinstance(arr, list) or not all(isinstance(x, str) for x in arr):
+                return False
+            if sorted(arr) != arr or len(set(arr)) != len(arr):
+                return False
+        return True
+
+    def _vocab_check_pairs(
+        self, out: Outcome, vocab: Any, labels: Any, caught: Any
+    ) -> None:
+        if not (isinstance(labels, list) and isinstance(caught, list)):
+            return
+        if not set(caught) <= set(labels):
+            out.add("vocabulary-caught-not-subset")
+        expect = sha256_hex(jcs_dumps({"caught": caught, "labels": labels}))
+        if _digest_of(vocab) != expect:
+            out.add("vocabulary-digest-mismatch")
+
+    def _check_corpus(self, st: _VerifyState, out: Outcome) -> None:
+        env = st.env
         corpus = env.get("corpus")
+        st.corpus = corpus
         manifest_classes: dict[str, Any] | None = None
         if isinstance(corpus, dict):
             manifest = corpus.get("manifest")
             classes = manifest.get("classes") if isinstance(manifest, dict) else None
             if isinstance(manifest, dict):
-                try:
-                    expect = sha256_hex(jcs_dumps(manifest))
-                    if _digest_of(corpus) != expect:
-                        out.add("corpus-digest-mismatch")
-                except JcsError:
-                    out.add("corpus-digest-mismatch")
+                self._corpus_digest(out, corpus, manifest)
             if isinstance(classes, dict):
                 manifest_classes = classes
-                seen: set[str] = set()
-                for ids in classes.values():
-                    for aid in ids if isinstance(ids, list) else []:
-                        if aid in seen:
-                            out.add("manifest-duplicate-attack")
-                        seen.add(aid)
+                self._corpus_dupes(out, classes)
+        st.manifest_classes = manifest_classes
 
-        rows = pred.get("attackResults")
+    @staticmethod
+    def _corpus_digest(out: Outcome, corpus: Any, manifest: Any) -> None:
+        try:
+            expect = sha256_hex(jcs_dumps(manifest))
+            if _digest_of(corpus) != expect:
+                out.add("corpus-digest-mismatch")
+        except JcsError:
+            out.add("corpus-digest-mismatch")
+
+    @staticmethod
+    def _corpus_dupes(out: Outcome, classes: dict[Any, Any]) -> None:
+        seen: set[str] = set()
+        for ids in classes.values():
+            for aid in ids if isinstance(ids, list) else []:
+                if aid in seen:
+                    out.add("manifest-duplicate-attack")
+                seen.add(aid)
+
+    def _check_rows_setup(self, st: _VerifyState, out: Outcome) -> None:
+        rows = st.pred.get("attackResults")
         rows = rows if isinstance(rows, list) else []
         rows = [r for r in rows if isinstance(r, dict)]
-        has_substrate = any(r.get("basis") == "substrate" for r in rows)
+        st.rows = rows
+        st.has_substrate = any(r.get("basis") == "substrate" for r in rows)
 
-        # coverage integrity at attack granularity
-        coverage = pred.get("coverage")
+    # coverage integrity at attack granularity
+
+    def _check_coverage(self, st: _VerifyState, out: Outcome) -> None:
+        coverage = st.pred.get("coverage")
+        st.coverage = coverage
+        manifest_classes = st.manifest_classes
         if not isinstance(coverage, dict):
             out.add("coverage-missing")
-        elif manifest_classes is not None:
-            assessed = coverage.get("assessedClasses")
-            assessed = assessed if isinstance(assessed, list) else []
-            oos = coverage.get("outOfScope")
-            oos = oos if isinstance(oos, dict) else {}
-            routed = coverage.get("routedElsewhere")
-            routed = routed if isinstance(routed, dict) else {}
-            # Coverage MUST be an exhaustive, disjoint partition of the
-            # manifest's classes across assessedClasses/outOfScope/
-            # routedElsewhere, each a real manifest class (spec:320-325,
-            # 350-353): without this a whole class is silently dropped from
-            # all three sets (or a fabricated class pads assessedClasses).
-            acct: dict[str, int] = {}
-            for _c in assessed:
-                acct[_c] = acct.get(_c, 0) + 1
-            for _c in oos:
-                acct[_c] = acct.get(_c, 0) + 1
-            for _c in routed:
-                acct[_c] = acct.get(_c, 0) + 1
-            partition_ok = all(
-                n == 1 and c in manifest_classes for c, n in acct.items()
-            ) and all(acct.get(c, 0) == 1 for c in manifest_classes)
-            if not partition_ok:
-                out.add("coverage-incomplete")
-            attack_class: dict[Any, Any] = {}
-            for cls, ids in manifest_classes.items():
-                for aid in ids if isinstance(ids, list) else []:
-                    attack_class.setdefault(aid, cls)
-            expected_ids = set()
-            for cls in assessed:
-                _mc = manifest_classes.get(cls)
-                for aid in _mc if isinstance(_mc, list) else []:
-                    expected_ids.add(aid)
-            row_ids = set()
-            for r in rows:
-                aid = r.get("attackId")
-                row_ids.add(aid)
-                if aid not in attack_class:
-                    out.add("row-attack-unknown")
-                elif attack_class[aid] not in assessed:
-                    out.add("coverage-incomplete")
-            if expected_ids - {i for i in row_ids if i in attack_class}:
-                out.add("coverage-incomplete")
+            return
+        if manifest_classes is None:
+            return
+        assessed = coverage.get("assessedClasses")
+        assessed = assessed if isinstance(assessed, list) else []
+        oos = coverage.get("outOfScope")
+        oos = oos if isinstance(oos, dict) else {}
+        routed = coverage.get("routedElsewhere")
+        routed = routed if isinstance(routed, dict) else {}
+        if not self._coverage_partition_ok(manifest_classes, assessed, oos, routed):
+            out.add("coverage-incomplete")
+        self._coverage_check_rows(st, out, manifest_classes, assessed)
 
-        # per-row statement checks
+    @staticmethod
+    def _coverage_partition_ok(
+        manifest_classes: dict[str, Any],
+        assessed: list[Any],
+        oos: dict[str, Any],
+        routed: dict[str, Any],
+    ) -> bool:
+        # Coverage MUST be an exhaustive, disjoint partition of the
+        # manifest's classes across assessedClasses/outOfScope/
+        # routedElsewhere, each a real manifest class (spec:320-325,
+        # 350-353): without this a whole class is silently dropped from
+        # all three sets (or a fabricated class pads assessedClasses).
+        acct: dict[str, int] = {}
+        for _c in assessed:
+            acct[_c] = acct.get(_c, 0) + 1
+        for _c in oos:
+            acct[_c] = acct.get(_c, 0) + 1
+        for _c in routed:
+            acct[_c] = acct.get(_c, 0) + 1
+        return all(n == 1 and c in manifest_classes for c, n in acct.items()) and all(
+            acct.get(c, 0) == 1 for c in manifest_classes
+        )
+
+    @staticmethod
+    def _coverage_index(
+        manifest_classes: dict[str, Any], assessed: list[Any]
+    ) -> tuple[dict[Any, Any], set[Any]]:
+        attack_class: dict[Any, Any] = {}
+        for cls, ids in manifest_classes.items():
+            for aid in ids if isinstance(ids, list) else []:
+                attack_class.setdefault(aid, cls)
+        expected_ids: set[Any] = set()
+        for cls in assessed:
+            _mc = manifest_classes.get(cls)
+            for aid in _mc if isinstance(_mc, list) else []:
+                expected_ids.add(aid)
+        return attack_class, expected_ids
+
+    def _coverage_check_rows(
+        self,
+        st: _VerifyState,
+        out: Outcome,
+        manifest_classes: dict[str, Any],
+        assessed: list[Any],
+    ) -> None:
+        attack_class, expected_ids = self._coverage_index(manifest_classes, assessed)
+        row_ids = set()
+        for r in st.rows:
+            aid = r.get("attackId")
+            row_ids.add(aid)
+            if aid not in attack_class:
+                out.add("row-attack-unknown")
+            elif attack_class[aid] not in assessed:
+                out.add("coverage-incomplete")
+        if expected_ids - {i for i in row_ids if i in attack_class}:
+            out.add("coverage-incomplete")
+
+    # per-row statement checks
+
+    def _check_per_row_statements(self, st: _VerifyState, out: Outcome) -> None:
+        rows = st.rows
+        labels = st.labels
+        caught = st.caught
         for r in rows:
             if "actualLayer" not in r:
                 out.add("malformed-missing-actual-layer")
@@ -767,30 +882,45 @@ class ReferenceVerifier:
                 ):
                     out.add("clean-row-layer-not-none")
 
-        # substrate-carrying statements: binding inputs
-        if has_substrate:
-            subject = stmt.get("subject")
-            subject = subject if isinstance(subject, list) else []
-            if len(subject) != 1:
-                out.add("subject-cardinality")
-            subj_digest = _digest_of(subject[0]) if subject else None
-            if subject and subj_digest is None:
-                out.add("subject-sha256-missing")
-            if "runEntropy" not in env:
-                out.add("run-entropy-missing")
-            for val in (
-                subj_digest,
-                _digest_of(env.get("substrate")),
-                _digest_of(env.get("corpus")),
-                _digest_of(env.get("catchPolicy")),
-                _digest_of(env.get("networkPosture")),
-                _digest_of(env.get("runEntropy")),
-            ):
-                if val is not None and not _is_hex64_lower(val):
-                    out.add("digest-not-canonical")
+    # substrate-carrying statements: binding inputs
 
-        # fail-closed substrate rows are invalid (cannot satisfy class-match)
-        fail_closed_rows = set()
+    def _check_substrate_binding_inputs(self, st: _VerifyState, out: Outcome) -> None:
+        if not st.has_substrate:
+            return
+        stmt = st.stmt
+        env = st.env
+        subject = stmt.get("subject")
+        subject = subject if isinstance(subject, list) else []
+        if len(subject) != 1:
+            out.add("subject-cardinality")
+        subj_digest = _digest_of(subject[0]) if subject else None
+        if subject and subj_digest is None:
+            out.add("subject-sha256-missing")
+        if "runEntropy" not in env:
+            out.add("run-entropy-missing")
+        self._binding_digest_canonical(out, env, subj_digest)
+
+    @staticmethod
+    def _binding_digest_canonical(
+        out: Outcome, env: dict[str, Any], subj_digest: Any
+    ) -> None:
+        for val in (
+            subj_digest,
+            _digest_of(env.get("substrate")),
+            _digest_of(env.get("corpus")),
+            _digest_of(env.get("catchPolicy")),
+            _digest_of(env.get("networkPosture")),
+            _digest_of(env.get("runEntropy")),
+        ):
+            if val is not None and not _is_hex64_lower(val):
+                out.add("digest-not-canonical")
+
+    # fail-closed substrate rows are invalid (cannot satisfy class-match)
+
+    def _check_fail_closed_rows(self, st: _VerifyState, out: Outcome) -> None:
+        rows = st.rows
+        labels = st.labels
+        fail_closed_rows: set[int] = set()
         for i, r in enumerate(rows):
             lab_bad = labels is not None and r.get("containmentObserved") not in labels
             basis_bad = r.get("basis") not in ("substrate", "artifact")
@@ -799,8 +929,12 @@ class ReferenceVerifier:
                 fail_closed_rows.add(i)
                 if r.get("basis") == "substrate":
                     out.add("fail-closed-substrate-row")
+        st.fail_closed_rows = fail_closed_rows
 
-        # ---- statement-level record checks ------------------------------
+    # ---- statement-level record checks ----------------------------------
+
+    def _check_records(self, st: _VerifyState, out: Outcome) -> None:
+        pred = st.pred
         records = pred.get("observationRecords")
         has_records = isinstance(records, list) and len(records) > 0
         views: list[RecordView] = []
@@ -815,26 +949,40 @@ class ReferenceVerifier:
                 # batch-root-mismatch.
                 out.add("record-undecodable")
             else:
-                root = pred.get("batchRoot")
-                if root is None:
-                    out.add("batch-root-missing")
-                elif all(v.pae is not None for v in views):
-                    if merkle_root_hex([v.pae for v in views if v.pae is not None]) != root:
-                        out.add("batch-root-mismatch")
-                else:
-                    out.add("batch-root-mismatch")
-                seen_leaves: set[bytes] = set()
-                for v in views:
-                    key = v.pae if v.pae is not None else jcs_dumps_safe(v.raw)
-                    if key in seen_leaves:
-                        out.add("duplicate-record")
-                    seen_leaves.add(key)
+                self._records_batch_root(out, pred, views)
+                self._records_duplicates(out, views)
         elif pred.get("batchRoot") is not None:
             out.add("batch-root-orphaned")
+        st.has_records = has_records
+        st.views = views
 
-        # ---- run binding derivation -------------------------------------
+    @staticmethod
+    def _records_batch_root(out: Outcome, pred: Any, views: list[RecordView]) -> None:
+        root = pred.get("batchRoot")
+        if root is None:
+            out.add("batch-root-missing")
+        elif all(v.pae is not None for v in views):
+            if merkle_root_hex([v.pae for v in views if v.pae is not None]) != root:
+                out.add("batch-root-mismatch")
+        else:
+            out.add("batch-root-mismatch")
+
+    @staticmethod
+    def _records_duplicates(out: Outcome, views: list[RecordView]) -> None:
+        seen_leaves: set[bytes] = set()
+        for v in views:
+            key = v.pae if v.pae is not None else jcs_dumps_safe(v.raw)
+            if key in seen_leaves:
+                out.add("duplicate-record")
+            seen_leaves.add(key)
+
+    # ---- run binding derivation -----------------------------------------
+
+    def _check_run_binding(self, st: _VerifyState, out: Outcome) -> None:
         derived_binding = None
-        if has_substrate:
+        if st.has_substrate:
+            stmt = st.stmt
+            env = st.env
             try:
                 subject0 = stmt["subject"][0]
                 vals = {
@@ -850,142 +998,218 @@ class ReferenceVerifier:
                     derived_binding = sha256_hex(jcs_dumps(vals))
             except (KeyError, IndexError, TypeError):
                 derived_binding = None  # member codes already emitted
+        st.derived_binding = derived_binding
 
-        # ---- GATE 1: per-substrate-row coverage validity ----------------
-        pinned_posture = _digest_of(env.get("networkPosture"))
+    # ---- GATE 1: per-substrate-row coverage validity --------------------
+
+    def _check_gate1_coverage(self, st: _VerifyState, out: Outcome) -> None:
+        pinned_posture = _digest_of(st.env.get("networkPosture"))
+        st.pinned_posture = pinned_posture
         row_covering: dict[int, list[RecordView]] = {}
-        for i, r in enumerate(rows):
-            if r.get("basis") != "substrate" or i in fail_closed_rows:
-                continue
-            if not has_records:
-                out.add("records-absent")
-                continue
-            refs = r.get("observationRefs")
-            if not isinstance(refs, list) or len(refs) == 0:
-                out.add("refs-empty")
-                # an uncovered caught row is the immediate consequence
-                lab = r.get("containmentObserved")
-                if caught is not None and lab in caught:
-                    out.add("caught-row-uncovered")
-                continue
-            ref_views: list[RecordView] = []
-            refs_ok = True
-            for ref in refs:
-                if isinstance(ref, bool) or not isinstance(ref, int) or ref < 0:
-                    out.add("ref-malformed")
-                    refs_ok = False
-                elif ref >= len(views):
-                    out.add("ref-out-of-range")
-                    refs_ok = False
-                else:
-                    ref_views.append(views[ref])
-            if not refs_ok and not ref_views:
-                continue
+        for i, r in enumerate(st.rows):
+            self._gate1_row(st, out, i, r, pinned_posture, row_covering)
+        st.row_covering = row_covering
 
-            # payload validity of every referenced record
-            for rv in ref_views:
-                if not rv.media_ok:
-                    out.add("payload-media-type")
-                if rv.payload_error is not None:
-                    out.add(rv.payload_error)
-                    continue
-                if rv.payload is None:
-                    out.add("payload-not-canonical")
-                    continue
-                missing = [
-                    m
-                    for m in ("aeeRunBinding", "aeeKind", "aeeMethod")
-                    if m not in rv.payload
-                ]
-                if missing:
-                    out.add("payload-missing-reserved")
-                if (
-                    derived_binding is not None
-                    and "aeeRunBinding" in rv.payload
-                    and rv.payload["aeeRunBinding"] != derived_binding
-                ):
-                    out.add("run-binding-mismatch")
-
-            usable = [
-                rv
-                for rv in ref_views
-                if rv.payload is not None and rv.media_ok
-            ]
-            known_kinds = ("interception", "arming", "sealed", "examination")
-            unknown_ref = any(
-                rv.kind not in known_kinds for rv in usable
-            )
-
-            # class-match + kind constraints
+    def _gate1_row(
+        self,
+        st: _VerifyState,
+        out: Outcome,
+        i: int,
+        r: dict[str, Any],
+        pinned_posture: Any,
+        row_covering: dict[int, list[RecordView]],
+    ) -> None:
+        if r.get("basis") != "substrate" or i in st.fail_closed_rows:
+            return
+        if not st.has_records:
+            out.add("records-absent")
+            return
+        refs = r.get("observationRefs")
+        if not isinstance(refs, list) or len(refs) == 0:
+            out.add("refs-empty")
+            # an uncovered caught row is the immediate consequence
             lab = r.get("containmentObserved")
-            method = r.get("method")
-            covering: list[RecordView] = []
-            if method == "reconstructed":
-                exams = [rv for rv in usable if rv.kind == "examination"]
-                good = [rv for rv in exams if self._examination_ok(rv)]
-                if not exams:
-                    out.add(
-                        "record-kind-unknown-covers-nothing"
-                        if unknown_ref
-                        else "reconstructed-row-uncovered"
-                    )
-                elif not good:
-                    out.add("examination-covers-nothing")
-                covering = good
-            elif caught is not None and lab in caught:
-                inters = [rv for rv in usable if rv.kind == "interception"]
-                if not inters:
-                    out.add(
-                        "record-kind-unknown-covers-nothing"
-                        if unknown_ref
-                        else "caught-row-uncovered"
-                    )
-                covering = inters
-            else:  # clean intercepted row
-                armings = [rv for rv in usable if rv.kind == "arming"]
-                sealeds = [rv for rv in usable if rv.kind == "sealed"]
-                good_arm = [
-                    rv
-                    for rv in armings
-                    if self._arming_ok(rv, pinned_posture, issued_at)
-                ]
-                good_seal = [
-                    rv for rv in sealeds if self._sealed_ok(rv, pinned_posture)
-                ]
-                if not armings:
-                    out.add(
-                        "record-kind-unknown-covers-nothing"
-                        if unknown_ref
-                        else "clean-row-uncovered"
-                    )
-                elif not good_arm:
-                    out.add("arming-covers-nothing")
-                if not sealeds:
-                    out.add(
-                        "record-kind-unknown-covers-nothing"
-                        if unknown_ref
-                        else "clean-row-uncovered"
-                    )
-                elif not good_seal:
-                    out.add("sealed-covers-nothing")
-                covering = good_arm + good_seal
+            if st.caught is not None and lab in st.caught:
+                out.add("caught-row-uncovered")
+            return
+        ref_views = self._gate1_resolve_refs(st, out, refs)
+        if ref_views is None:
+            return
 
-            row_covering[i] = covering
+        # payload validity of every referenced record
+        self._gate1_check_payloads(st, out, ref_views)
 
-            # method cap: weakest signed aeeMethod across covering records
-            if covering:
-                # the comprehension only admits records whose method is a key
-                # of METHOD_ORDER, so index directly -- min never sees a None.
-                methods = [
-                    METHOD_ORDER[rv.method]
-                    for rv in covering
-                    if rv.method in METHOD_ORDER
-                ]
-                if methods and method in METHOD_ORDER:
-                    if METHOD_ORDER[method] > min(methods):
-                        out.add("method-cap-exceeded")
+        # class-match + kind constraints
+        covering = self._gate1_class_match(st, out, r, ref_views, pinned_posture)
+        row_covering[i] = covering
 
-        # ---- result recompute (pure function of carried rows) -----------
+        # method cap: weakest signed aeeMethod across covering records
+        self._gate1_method_cap(out, r, covering)
+
+    def _gate1_resolve_refs(
+        self, st: _VerifyState, out: Outcome, refs: list[Any]
+    ) -> list[RecordView] | None:
+        views = st.views
+        ref_views: list[RecordView] = []
+        refs_ok = True
+        for ref in refs:
+            if isinstance(ref, bool) or not isinstance(ref, int) or ref < 0:
+                out.add("ref-malformed")
+                refs_ok = False
+            elif ref >= len(views):
+                out.add("ref-out-of-range")
+                refs_ok = False
+            else:
+                ref_views.append(views[ref])
+        if not refs_ok and not ref_views:
+            return None
+        return ref_views
+
+    def _gate1_check_payloads(
+        self, st: _VerifyState, out: Outcome, ref_views: list[RecordView]
+    ) -> None:
+        derived_binding = st.derived_binding
+        for rv in ref_views:
+            self._gate1_check_payload(out, rv, derived_binding)
+
+    @staticmethod
+    def _gate1_check_payload(
+        out: Outcome, rv: RecordView, derived_binding: str | None
+    ) -> None:
+        if not rv.media_ok:
+            out.add("payload-media-type")
+        if rv.payload_error is not None:
+            out.add(rv.payload_error)
+            return
+        if rv.payload is None:
+            out.add("payload-not-canonical")
+            return
+        missing = [
+            m
+            for m in ("aeeRunBinding", "aeeKind", "aeeMethod")
+            if m not in rv.payload
+        ]
+        if missing:
+            out.add("payload-missing-reserved")
+        if (
+            derived_binding is not None
+            and "aeeRunBinding" in rv.payload
+            and rv.payload["aeeRunBinding"] != derived_binding
+        ):
+            out.add("run-binding-mismatch")
+
+    @staticmethod
+    def _uncovered_code(unknown_ref: bool, specific: str) -> str:
+        return "record-kind-unknown-covers-nothing" if unknown_ref else specific
+
+    def _gate1_class_match(
+        self,
+        st: _VerifyState,
+        out: Outcome,
+        r: dict[str, Any],
+        ref_views: list[RecordView],
+        pinned_posture: Any,
+    ) -> list[RecordView]:
+        usable = [rv for rv in ref_views if rv.payload is not None and rv.media_ok]
+        known_kinds = ("interception", "arming", "sealed", "examination")
+        unknown_ref = any(rv.kind not in known_kinds for rv in usable)
+
+        lab = r.get("containmentObserved")
+        method = r.get("method")
+        if method == "reconstructed":
+            return self._gate1_cover_reconstructed(out, usable, unknown_ref)
+        if st.caught is not None and lab in st.caught:
+            return self._gate1_cover_caught(out, usable, unknown_ref)
+        return self._gate1_cover_clean(st, out, usable, unknown_ref, pinned_posture)
+
+    def _gate1_cover_reconstructed(
+        self, out: Outcome, usable: list[RecordView], unknown_ref: bool
+    ) -> list[RecordView]:
+        exams = [rv for rv in usable if rv.kind == "examination"]
+        good = [rv for rv in exams if self._examination_ok(rv)]
+        if not exams:
+            out.add(self._uncovered_code(unknown_ref, "reconstructed-row-uncovered"))
+        elif not good:
+            out.add("examination-covers-nothing")
+        return good
+
+    def _gate1_cover_caught(
+        self, out: Outcome, usable: list[RecordView], unknown_ref: bool
+    ) -> list[RecordView]:
+        inters = [rv for rv in usable if rv.kind == "interception"]
+        if not inters:
+            out.add(self._uncovered_code(unknown_ref, "caught-row-uncovered"))
+        return inters
+
+    def _gate1_cover_clean(
+        self,
+        st: _VerifyState,
+        out: Outcome,
+        usable: list[RecordView],
+        unknown_ref: bool,
+        pinned_posture: Any,
+    ) -> list[RecordView]:
+        good_arm = self._gate1_clean_arm(st, out, usable, unknown_ref, pinned_posture)
+        good_seal = self._gate1_clean_seal(out, usable, unknown_ref, pinned_posture)
+        return good_arm + good_seal
+
+    def _gate1_clean_arm(
+        self,
+        st: _VerifyState,
+        out: Outcome,
+        usable: list[RecordView],
+        unknown_ref: bool,
+        pinned_posture: Any,
+    ) -> list[RecordView]:
+        issued_at = st.issued_at
+        armings = [rv for rv in usable if rv.kind == "arming"]
+        good_arm = [
+            rv for rv in armings if self._arming_ok(rv, pinned_posture, issued_at)
+        ]
+        if not armings:
+            out.add(self._uncovered_code(unknown_ref, "clean-row-uncovered"))
+        elif not good_arm:
+            out.add("arming-covers-nothing")
+        return good_arm
+
+    def _gate1_clean_seal(
+        self,
+        out: Outcome,
+        usable: list[RecordView],
+        unknown_ref: bool,
+        pinned_posture: Any,
+    ) -> list[RecordView]:
+        sealeds = [rv for rv in usable if rv.kind == "sealed"]
+        good_seal = [rv for rv in sealeds if self._sealed_ok(rv, pinned_posture)]
+        if not sealeds:
+            out.add(self._uncovered_code(unknown_ref, "clean-row-uncovered"))
+        elif not good_seal:
+            out.add("sealed-covers-nothing")
+        return good_seal
+
+    def _gate1_method_cap(
+        self, out: Outcome, r: dict[str, Any], covering: list[RecordView]
+    ) -> None:
+        if not covering:
+            return
+        method = r.get("method")
+        # the comprehension only admits records whose method is a key
+        # of METHOD_ORDER, so index directly -- min never sees a None.
+        methods = [
+            METHOD_ORDER[rv.method] for rv in covering if rv.method in METHOD_ORDER
+        ]
+        if methods and method in METHOD_ORDER:
+            if METHOD_ORDER[method] > min(methods):
+                out.add("method-cap-exceeded")
+
+    # ---- result recompute (pure function of carried rows) ---------------
+
+    def _check_result_recompute(self, st: _VerifyState, out: Outcome) -> None:
+        labels = st.labels
+        caught = st.caught
+        rows = st.rows
+        result = st.result
+        coverage = st.coverage
         if labels is not None and caught is not None and rows:
             recomputed = self._recompute(rows, labels, caught, coverage)
             if result in ("pass", "degraded", "fail") and recomputed != result:
@@ -993,14 +1217,13 @@ class ReferenceVerifier:
             elif result not in ("pass", "degraded", "fail"):
                 # unknown token can never equal the recompute
                 out.add("result-recompute-mismatch")
-        if out.codes:
-            return out  # invalid: no result, no tiers (behavior assertion 2)
 
-        # ---- GATE 2: evidence tier per key policy -----------------------
-        out.result = result
-        out.tiers_with_key = self._tiers(rows, row_covering, with_keys=True)
-        out.tiers_without_key = self._tiers(rows, row_covering, with_keys=False)
-        return out
+    # ---- GATE 2: evidence tier per key policy ---------------------------
+
+    def _check_gate2_tiers(self, st: _VerifyState, out: Outcome) -> None:
+        out.result = st.result
+        out.tiers_with_key = self._tiers(st.rows, st.row_covering, with_keys=True)
+        out.tiers_without_key = self._tiers(st.rows, st.row_covering, with_keys=False)
 
     @staticmethod
     def _recompute(
@@ -1106,7 +1329,16 @@ def second_fault_absence(stmt: Any, expected_codes: set[str]) -> list[str]:
         return findings
     env = pred.get("observationEnvironment")
     env = env if isinstance(env, dict) else {}
+    _sfa_batch_root(pred, expected_codes, findings)
+    _sfa_vocabulary(env, expected_codes, findings)
+    _sfa_corpus(env, expected_codes, findings)
+    _sfa_binding(stmt, pred, env, expected_codes, findings)
+    return findings
 
+
+def _sfa_batch_root(
+    pred: dict[str, Any], expected_codes: set[str], findings: list[str]
+) -> None:
     # (i) batch root recomputes unless a root-family fault is expected
     records = pred.get("observationRecords")
     root = pred.get("batchRoot")
@@ -1116,13 +1348,21 @@ def second_fault_absence(stmt: Any, expected_codes: set[str]) -> list[str]:
         and records
         and isinstance(root, str)
     ):
-        views = [RecordView(i, rec) for i, rec in enumerate(records)]
-        if all(v.pae is not None for v in views):
-            if merkle_root_hex([v.pae for v in views if v.pae is not None]) != root:
-                findings.append("second-fault: batchRoot does not recompute")
-        else:
-            findings.append("second-fault: undecodable record payload")
+        _sfa_root_recompute(records, root, findings)
 
+
+def _sfa_root_recompute(records: list[Any], root: str, findings: list[str]) -> None:
+    views = [RecordView(i, rec) for i, rec in enumerate(records)]
+    if all(v.pae is not None for v in views):
+        if merkle_root_hex([v.pae for v in views if v.pae is not None]) != root:
+            findings.append("second-fault: batchRoot does not recompute")
+    else:
+        findings.append("second-fault: undecodable record payload")
+
+
+def _sfa_vocabulary(
+    env: dict[str, Any], expected_codes: set[str], findings: list[str]
+) -> None:
     # (ii) vocabulary digest verifies unless a vocabulary fault is expected
     vocab = env.get("observationVocabulary")
     if not (expected_codes & _VOCAB_FAULT_CODES) and isinstance(vocab, dict):
@@ -1135,6 +1375,10 @@ def second_fault_absence(stmt: Any, expected_codes: set[str]) -> list[str]:
             except JcsError:
                 findings.append("second-fault: vocabulary not canonicalizable")
 
+
+def _sfa_corpus(
+    env: dict[str, Any], expected_codes: set[str], findings: list[str]
+) -> None:
     # (iii) corpus digest verifies unless a corpus fault is expected
     corpus = env.get("corpus")
     if not (expected_codes & _CORPUS_FAULT_CODES) and isinstance(corpus, dict):
@@ -1146,41 +1390,64 @@ def second_fault_absence(stmt: Any, expected_codes: set[str]) -> list[str]:
             except JcsError:
                 findings.append("second-fault: corpus manifest not canonicalizable")
 
+
+def _sfa_binding(
+    stmt: dict[str, Any],
+    pred: dict[str, Any],
+    env: dict[str, Any],
+    expected_codes: set[str],
+    findings: list[str],
+) -> None:
     # (iv) referenced record bindings equal the derived binding unless a
     # binding-family fault is expected
-    if not (expected_codes & _BINDING_FAULT_CODES):
-        rows = pred.get("attackResults")
-        rows = [r for r in rows if isinstance(r, dict)] if isinstance(rows, list) else []
-        if any(r.get("basis") == "substrate" for r in rows):
-            try:
-                vals = {
-                    "aeeBindingVersion": "1",
-                    "catchPolicy": env["catchPolicy"]["digest"]["sha256"],
-                    "corpus": env["corpus"]["digest"]["sha256"],
-                    "networkPosture": env["networkPosture"]["digest"]["sha256"],
-                    "runEntropy": env["runEntropy"]["digest"]["sha256"],
-                    "subject": stmt["subject"][0]["digest"]["sha256"],
-                    "substrate": env["substrate"]["digest"]["sha256"],
-                }
-                derived = sha256_hex(jcs_dumps(vals))
-            except (KeyError, IndexError, TypeError, JcsError):
-                derived = None
-            if derived is not None and isinstance(records, list):
-                views = [RecordView(i, rec) for i, rec in enumerate(records)]
-                for r in rows:
-                    for ref in r.get("observationRefs") or []:
-                        if (
-                            isinstance(ref, int)
-                            and not isinstance(ref, bool)
-                            and 0 <= ref < len(views)
-                        ):
-                            p = views[ref].payload
-                            if p is not None and p.get("aeeRunBinding") != derived:
-                                findings.append(
-                                    "second-fault: record binding != derived binding"
-                                )
-                                break
-    return findings
+    if expected_codes & _BINDING_FAULT_CODES:
+        return
+    rows = pred.get("attackResults")
+    rows = [r for r in rows if isinstance(r, dict)] if isinstance(rows, list) else []
+    if not any(r.get("basis") == "substrate" for r in rows):
+        return
+    records = pred.get("observationRecords")
+    derived = _sfa_derived_binding(stmt, env)
+    if derived is not None and isinstance(records, list):
+        views = [RecordView(i, rec) for i, rec in enumerate(records)]
+        _sfa_binding_scan(rows, views, derived, findings)
+
+
+def _sfa_derived_binding(stmt: dict[str, Any], env: dict[str, Any]) -> str | None:
+    try:
+        vals = {
+            "aeeBindingVersion": "1",
+            "catchPolicy": env["catchPolicy"]["digest"]["sha256"],
+            "corpus": env["corpus"]["digest"]["sha256"],
+            "networkPosture": env["networkPosture"]["digest"]["sha256"],
+            "runEntropy": env["runEntropy"]["digest"]["sha256"],
+            "subject": stmt["subject"][0]["digest"]["sha256"],
+            "substrate": env["substrate"]["digest"]["sha256"],
+        }
+        return sha256_hex(jcs_dumps(vals))
+    except (KeyError, IndexError, TypeError, JcsError):
+        return None
+
+
+def _sfa_binding_scan(
+    rows: list[dict[str, Any]],
+    views: list[RecordView],
+    derived: str,
+    findings: list[str],
+) -> None:
+    for r in rows:
+        for ref in r.get("observationRefs") or []:
+            if (
+                isinstance(ref, int)
+                and not isinstance(ref, bool)
+                and 0 <= ref < len(views)
+            ):
+                p = views[ref].payload
+                if p is not None and p.get("aeeRunBinding") != derived:
+                    findings.append(
+                        "second-fault: record binding != derived binding"
+                    )
+                    break
 
 
 # ---------------------------------------------------------------------------
@@ -1351,88 +1618,133 @@ def evaluate_vector(
         )
 
     if kind == "accept":
-        for g in ("gate0", "gate1", "recompute", "tier"):
-            gates[g] = "PASS"
-        if obs_verdict != "valid":
-            for code in obs_codes:
-                gates[CODE_STAGE.get(code, "gate0")] = "FAIL"
-            reasons.append(
-                "expected valid, observed invalid with codes %s"
-                % sorted(obs_codes)
-            )
-        exp_result = expected.get("result")
-        if obs_verdict == "valid" and exp_result is not None:
-            if observed.get("result") != exp_result:
-                gates["recompute"] = "FAIL"
-                reasons.append(
-                    "result: expected %r, observed %r"
-                    % (exp_result, observed.get("result"))
-                )
-        for field, obs_key in (
-            ("tierWithPinnedKey", "tiers_with_key"),
-            ("tierWithoutKey", "tiers_without_key"),
-        ):
-            exp_tiers = expected.get(field)
-            obs_tiers = observed.get(obs_key)
-            if exp_tiers is not None and obs_tiers is not None:
-                if list(exp_tiers) != list(obs_tiers):
-                    gates["tier"] = "FAIL"
-                    reasons.append(
-                        "%s: expected %s, observed %s"
-                        % (field, exp_tiers, obs_tiers)
-                    )
-        # behavior assertion 1: the tier never alters the result
-        if (
-            observed.get("tiers_with_key") is not None
-            and observed.get("result") is not None
-            and observed.get("result_without_key") not in (None, observed["result"])
-        ):
-            gates["tier"] = "FAIL"
-            reasons.append("tier derivation altered the result")
+        _eval_accept(expected, observed, obs_verdict, obs_codes, gates, reasons)
     else:
-        exp_codes = set(expected.get("codes") or [])
-        if obs_verdict != "invalid":
-            gates["gate0"] = gates["gate1"] = gates["recompute"] = "FAIL"
-            reasons.append("expected invalid, observed valid")
-        else:
-            stage = "gate0"
-            if exp_codes:
-                hit = exp_codes & obs_codes
-                if not hit:
-                    reasons.append(
-                        "no expected code observed: expected %s, observed %s"
-                        % (sorted(exp_codes), sorted(obs_codes))
-                    )
-                # Group expected codes by gate stage; a stage is PASS iff ANY of
-                # its expected codes was observed, matching the disjunctive
-                # "no expected code observed" reason above (several coverage
-                # codes are conditional alternates in the generator, so a vector
-                # legitimately declares more than one and emits one). Iterating
-                # the set directly let a later unobserved code overwrite an
-                # earlier PASS, making the sub-status depend on PYTHONHASHSEED.
-                stage_hit: dict[str, bool] = {}
-                for code in exp_codes:
-                    st = CODE_STAGE.get(code, "gate0")
-                    stage_hit[st] = stage_hit.get(st, False) or (code in obs_codes)
-                for st, seen in stage_hit.items():
-                    gates[st] = "PASS" if seen else "FAIL"
-            else:
-                gates[stage] = "PASS"
-            # behavior assertion 2: invalid emits no result and no tiers
-            if observed.get("result") is not None or observed.get(
-                "tiers_with_key"
-            ):
-                gates["recompute"] = "FAIL"
-                reasons.append("invalid vector emitted a result or tiers")
-        if self_check_findings is not None:
-            if self_check_findings:
-                gates["self-check"] = "FAIL"
-                reasons.extend(self_check_findings)
-            else:
-                gates["self-check"] = "PASS"
+        _eval_reject(
+            expected,
+            observed,
+            obs_verdict,
+            obs_codes,
+            self_check_findings,
+            gates,
+            reasons,
+        )
 
     ok = not reasons
     return ok, gates, reasons
+
+
+def _eval_accept(
+    expected: dict[str, Any],
+    observed: dict[str, Any],
+    obs_verdict: Any,
+    obs_codes: set[Any],
+    gates: dict[str, str],
+    reasons: list[str],
+) -> None:
+    for g in ("gate0", "gate1", "recompute", "tier"):
+        gates[g] = "PASS"
+    if obs_verdict != "valid":
+        for code in obs_codes:
+            gates[CODE_STAGE.get(code, "gate0")] = "FAIL"
+        reasons.append(
+            "expected valid, observed invalid with codes %s" % sorted(obs_codes)
+        )
+    exp_result = expected.get("result")
+    if obs_verdict == "valid" and exp_result is not None:
+        if observed.get("result") != exp_result:
+            gates["recompute"] = "FAIL"
+            reasons.append(
+                "result: expected %r, observed %r"
+                % (exp_result, observed.get("result"))
+            )
+    _eval_accept_tiers(expected, observed, gates, reasons)
+
+
+def _eval_accept_tiers(
+    expected: dict[str, Any],
+    observed: dict[str, Any],
+    gates: dict[str, str],
+    reasons: list[str],
+) -> None:
+    for field_name, obs_key in (
+        ("tierWithPinnedKey", "tiers_with_key"),
+        ("tierWithoutKey", "tiers_without_key"),
+    ):
+        exp_tiers = expected.get(field_name)
+        obs_tiers = observed.get(obs_key)
+        if exp_tiers is not None and obs_tiers is not None:
+            if list(exp_tiers) != list(obs_tiers):
+                gates["tier"] = "FAIL"
+                reasons.append(
+                    "%s: expected %s, observed %s" % (field_name, exp_tiers, obs_tiers)
+                )
+    # behavior assertion 1: the tier never alters the result
+    if (
+        observed.get("tiers_with_key") is not None
+        and observed.get("result") is not None
+        and observed.get("result_without_key") not in (None, observed["result"])
+    ):
+        gates["tier"] = "FAIL"
+        reasons.append("tier derivation altered the result")
+
+
+def _eval_reject(
+    expected: dict[str, Any],
+    observed: dict[str, Any],
+    obs_verdict: Any,
+    obs_codes: set[Any],
+    self_check_findings: list[str] | None,
+    gates: dict[str, str],
+    reasons: list[str],
+) -> None:
+    exp_codes = set(expected.get("codes") or [])
+    if obs_verdict != "invalid":
+        gates["gate0"] = gates["gate1"] = gates["recompute"] = "FAIL"
+        reasons.append("expected invalid, observed valid")
+    else:
+        _eval_reject_stages(exp_codes, obs_codes, gates, reasons)
+        # behavior assertion 2: invalid emits no result and no tiers
+        if observed.get("result") is not None or observed.get("tiers_with_key"):
+            gates["recompute"] = "FAIL"
+            reasons.append("invalid vector emitted a result or tiers")
+    if self_check_findings is not None:
+        if self_check_findings:
+            gates["self-check"] = "FAIL"
+            reasons.extend(self_check_findings)
+        else:
+            gates["self-check"] = "PASS"
+
+
+def _eval_reject_stages(
+    exp_codes: set[Any],
+    obs_codes: set[Any],
+    gates: dict[str, str],
+    reasons: list[str],
+) -> None:
+    stage = "gate0"
+    if not exp_codes:
+        gates[stage] = "PASS"
+        return
+    hit = exp_codes & obs_codes
+    if not hit:
+        reasons.append(
+            "no expected code observed: expected %s, observed %s"
+            % (sorted(exp_codes), sorted(obs_codes))
+        )
+    # Group expected codes by gate stage; a stage is PASS iff ANY of
+    # its expected codes was observed, matching the disjunctive
+    # "no expected code observed" reason above (several coverage
+    # codes are conditional alternates in the generator, so a vector
+    # legitimately declares more than one and emits one). Iterating
+    # the set directly let a later unobserved code overwrite an
+    # earlier PASS, making the sub-status depend on PYTHONHASHSEED.
+    stage_hit: dict[str, bool] = {}
+    for code in exp_codes:
+        st = CODE_STAGE.get(code, "gate0")
+        stage_hit[st] = stage_hit.get(st, False) or (code in obs_codes)
+    for st, seen in stage_hit.items():
+        gates[st] = "PASS" if seen else "FAIL"
 
 
 def run_suite(args: argparse.Namespace) -> int:
@@ -1453,6 +1765,37 @@ def run_suite(args: argparse.Namespace) -> int:
         )
         return 2
 
+    external_cmd, probe_note = _run_rail_selection(args)
+
+    keys = derive_test_keys()
+    pinned = [keys[PINNED_ROLE]["public"]]
+    ref_with = ReferenceVerifier(pinned)
+    ref_without = ReferenceVerifier([])
+
+    rows_out: list[dict[str, Any]] = []
+    failures = 0
+    for kind, path in vectors:
+        row, failed = _run_process_vector(
+            kind, path, idx, external_cmd, ref_with, ref_without, report_base
+        )
+        if failed:
+            failures += 1
+        rows_out.append(row)
+
+    # manifest completeness both ways
+    suite_notes, note_failures = _run_manifest_notes(manifest, idx, rows_out)
+    failures += note_failures
+
+    report, report_path = _run_write_report(
+        args, suite_dir, report_base, external_cmd, probe_note, suite_notes, rows_out
+    )
+    _run_print_table(
+        report, rows_out, suite_notes, probe_note, report_path, report_base
+    )
+    return 1 if failures else 0
+
+
+def _run_rail_selection(args: argparse.Namespace) -> tuple[list[str] | None, str]:
     # rail selection
     external_cmd: list[str] | None = None
     probe_note = "no external verifier supplied; using the reference rail"
@@ -1464,104 +1807,126 @@ def run_suite(args: argparse.Namespace) -> int:
                 external_cmd = [sys.executable, verifier]
             else:
                 external_cmd = [verifier]
+    return external_cmd, probe_note
 
-    keys = derive_test_keys()
-    pinned = [keys[PINNED_ROLE]["public"]]
-    ref_with = ReferenceVerifier(pinned)
-    ref_without = ReferenceVerifier([])
 
-    rows_out: list[dict[str, Any]] = []
-    failures = 0
-    for kind, path in vectors:
-        vid = os.path.splitext(os.path.basename(path))[0]
-        entry = idx.get(vid)
-        rel = os.path.relpath(path, report_base)
-        try:
-            with open(path, "rb") as f:
-                raw = f.read()
-            stmt = json.loads(raw.decode("utf-8"))
-        except (OSError, ValueError, RecursionError) as e:
-            rows_out.append(
-                {
-                    "id": vid,
-                    "file": rel,
-                    "kind": kind,
-                    "status": "FAIL",
-                    "gates": {g: "FAIL" for g in GATE_NAMES},
-                    "reasons": ["vector unreadable: %s" % e],
-                }
-            )
-            failures += 1
-            continue
+def _run_observe(
+    external_cmd: list[str] | None,
+    ref_with: ReferenceVerifier,
+    ref_without: ReferenceVerifier,
+    path: str,
+    stmt: Any,
+) -> dict[str, Any]:
+    if external_cmd is not None:
+        ext = run_external(external_cmd, path)
+        return {
+            "verdict": ext["verdict"],
+            "codes": ext["codes"],
+            "result": ext["result"],
+            "tiers_with_key": ext["tiers"],
+            "tiers_without_key": None,
+            "result_without_key": None,
+        }
+    o_with = ref_with.verify(stmt)
+    o_without = ref_without.verify(stmt)
+    return {
+        "verdict": o_with.verdict,
+        "codes": o_with.codes,
+        "result": o_with.result,
+        "tiers_with_key": o_with.tiers_with_key,
+        "tiers_without_key": o_without.tiers_without_key,
+        "result_without_key": o_without.result,
+    }
 
-        if external_cmd is not None:
-            ext = run_external(external_cmd, path)
-            observed = {
-                "verdict": ext["verdict"],
-                "codes": ext["codes"],
-                "result": ext["result"],
-                "tiers_with_key": ext["tiers"],
-                "tiers_without_key": None,
-                "result_without_key": None,
-            }
-        else:
-            o_with = ref_with.verify(stmt)
-            o_without = ref_without.verify(stmt)
-            observed = {
-                "verdict": o_with.verdict,
-                "codes": o_with.codes,
-                "result": o_with.result,
-                "tiers_with_key": o_with.tiers_with_key,
-                "tiers_without_key": o_without.tiers_without_key,
-                "result_without_key": o_without.result,
-            }
 
-        self_check = None
-        if kind == "reject":
-            exp_codes = set(((entry or {}).get("expected") or {}).get("codes") or [])
-            self_check = second_fault_absence(stmt, exp_codes)
+def _run_process_vector(
+    kind: str,
+    path: str,
+    idx: dict[str, dict[str, Any]],
+    external_cmd: list[str] | None,
+    ref_with: ReferenceVerifier,
+    ref_without: ReferenceVerifier,
+    report_base: str,
+) -> tuple[dict[str, Any], bool]:
+    vid = os.path.splitext(os.path.basename(path))[0]
+    entry = idx.get(vid)
+    rel = os.path.relpath(path, report_base)
+    try:
+        with open(path, "rb") as f:
+            raw = f.read()
+        stmt = json.loads(raw.decode("utf-8"))
+    except (OSError, ValueError, RecursionError) as e:
+        return {
+            "id": vid,
+            "file": rel,
+            "kind": kind,
+            "status": "FAIL",
+            "gates": {g: "FAIL" for g in GATE_NAMES},
+            "reasons": ["vector unreadable: %s" % e],
+        }, True
 
-        ok, gates, reasons = evaluate_vector(kind, entry, observed, self_check)
-        if not ok:
-            failures += 1
-        rows_out.append(
-            {
-                "id": vid,
-                "file": rel,
-                "kind": kind,
-                "status": "PASS" if ok else "FAIL",
-                "gates": gates,
-                "observed": {
-                    "verdict": observed["verdict"],
-                    "codes": observed["codes"],
-                    "result": observed["result"],
-                },
-                "expected": (entry or {}).get("expected"),
-                "inManifest": entry is not None,
-                "reasons": reasons,
-            }
-        )
+    observed = _run_observe(external_cmd, ref_with, ref_without, path, stmt)
 
-    # manifest completeness both ways
-    suite_notes = []
+    self_check = None
+    if kind == "reject":
+        exp_codes = set(((entry or {}).get("expected") or {}).get("codes") or [])
+        self_check = second_fault_absence(stmt, exp_codes)
+
+    ok, gates, reasons = evaluate_vector(kind, entry, observed, self_check)
+    row = {
+        "id": vid,
+        "file": rel,
+        "kind": kind,
+        "status": "PASS" if ok else "FAIL",
+        "gates": gates,
+        "observed": {
+            "verdict": observed["verdict"],
+            "codes": observed["codes"],
+            "result": observed["result"],
+        },
+        "expected": (entry or {}).get("expected"),
+        "inManifest": entry is not None,
+        "reasons": reasons,
+    }
+    return row, (not ok)
+
+
+def _run_manifest_notes(
+    manifest: dict[str, Any] | None,
+    idx: dict[str, dict[str, Any]],
+    rows_out: list[dict[str, Any]],
+) -> tuple[list[str], int]:
+    suite_notes: list[str] = []
     if manifest is None:
         suite_notes.append(
             "MANIFEST.json not found: expectations inferred from directory "
             "names only (verdict-level checks; no code, tier, or self-check "
             "exemption data)"
         )
-    else:
-        on_disk = {r["id"] for r in rows_out}
-        missing_files = sorted(set(idx) - on_disk)
-        unlisted = sorted(on_disk - set(idx))
-        if missing_files:
-            failures += 1
-            suite_notes.append(
-                "MANIFEST lists vectors with no file on disk: %s" % missing_files
-            )
-        if unlisted:
-            suite_notes.append("files on disk not listed in MANIFEST: %s" % unlisted)
+        return suite_notes, 0
+    on_disk = {r["id"] for r in rows_out}
+    missing_files = sorted(set(idx) - on_disk)
+    unlisted = sorted(on_disk - set(idx))
+    note_failures = 0
+    if missing_files:
+        note_failures += 1
+        suite_notes.append(
+            "MANIFEST lists vectors with no file on disk: %s" % missing_files
+        )
+    if unlisted:
+        suite_notes.append("files on disk not listed in MANIFEST: %s" % unlisted)
+    return suite_notes, note_failures
 
+
+def _run_write_report(
+    args: argparse.Namespace,
+    suite_dir: str,
+    report_base: str,
+    external_cmd: list[str] | None,
+    probe_note: str,
+    suite_notes: list[str],
+    rows_out: list[dict[str, Any]],
+) -> tuple[dict[str, Any], str]:
     report: dict[str, Any] = {
         "suite": os.path.relpath(suite_dir, report_base),
         "predicateType": AEE_PREDICATE_TYPE,
@@ -1583,12 +1948,24 @@ def run_suite(args: argparse.Namespace) -> int:
     with open(report_path, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2, sort_keys=False)
         f.write("\n")
+    return report, report_path
 
+
+def _run_print_table(
+    report: dict[str, Any],
+    rows_out: list[dict[str, Any]],
+    suite_notes: list[str],
+    probe_note: str,
+    report_path: str,
+    report_base: str,
+) -> None:
     # stdout coverage table (gate x vector)
     print("rail: %s  (%s)" % (report["rail"], probe_note))
-    header = "%-42s %-6s %s" % ("vector", "status", " ".join(
-        "%-10s" % g for g in GATE_NAMES
-    ))
+    header = "%-42s %-6s %s" % (
+        "vector",
+        "status",
+        " ".join("%-10s" % g for g in GATE_NAMES),
+    )
     print(header)
     print("-" * len(header))
     for r in rows_out:
@@ -1614,7 +1991,6 @@ def run_suite(args: argparse.Namespace) -> int:
             os.path.relpath(report_path, report_base),
         )
     )
-    return 1 if failures else 0
 
 
 # ---------------------------------------------------------------------------

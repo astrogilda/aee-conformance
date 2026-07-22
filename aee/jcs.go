@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"math/big"
 	"sort"
 	"strconv"
 	"strings"
@@ -32,7 +33,49 @@ var ErrDuplicateMember = errors.New("duplicate object member")
 // (rejected by the predicate's I-JSON safe-integer profile, spec:67-70).
 var ErrUnsafeInteger = errors.New("integer outside the I-JSON safe range")
 
+// ErrNonIntegerNumber reports a JSON number with a fractional part. The
+// predicate's number profile is integers-only (every numeric field is an
+// integer, spec:578,592-594); a non-integer is rejected on every rail (the
+// Python rail rejects it identically as "non-integer number").
+var ErrNonIntegerNumber = errors.New("non-integer number outside the integers-only profile")
+
 const maxSafeInteger = int64(1) << 53 // exclusive bound: |i| must be < 2^53
+
+// maxSafeIntBig is maxSafeInteger as a big.Int, for the exact integer-value
+// magnitude comparison in checkSafeInteger.
+var maxSafeIntBig = big.NewInt(maxSafeInteger)
+
+// checkSafeInteger enforces the predicate's integers-only, safe-integer number
+// profile (spec:67-70,578,592-594) for a JSON number token, in ANY notation:
+//   - a non-integer (1.5) is rejected: every numeric field is an integer, and
+//     rejecting non-integers keeps the two rails in lockstep (the Python rail
+//     rejects all non-integers) without needing cross-language float-format
+//     parity;
+//   - an integer with magnitude at or above 2^53 is rejected, including one
+//     written in exponent form (1e21) or with a decimal point (1.0e21) that a
+//     notation-blind check would miss.
+//
+// Exact rational arithmetic is used deliberately so an exponent-notation
+// integer such as 1e21 cannot slip past a float64 approximation of the bound --
+// the divergence the two number paths otherwise hid, where "1e21" contains 'e'
+// and was never range-checked. A safe integer written in exponent or
+// decimal-point form (1e2, 100.0) passes here and canonicalizes to plain form.
+func checkSafeInteger(s string) error {
+	r, ok := new(big.Rat).SetString(s)
+	if !ok {
+		// Not parseable as a rational here; a json.Number is always valid JSON
+		// number grammar, so this is unreachable for real input. Defer any
+		// rejection to the surrounding parse rather than masking it.
+		return nil
+	}
+	if !r.IsInt() {
+		return fmt.Errorf("%w: %s", ErrNonIntegerNumber, s)
+	}
+	if new(big.Int).Abs(r.Num()).Cmp(maxSafeIntBig) >= 0 {
+		return fmt.Errorf("%w: %s", ErrUnsafeInteger, s)
+	}
+	return nil
+}
 
 // maxParseDepth bounds JSON nesting on untrusted input. It is set far below
 // the native stack-overflow point (Go's own encoding/json uses 10000 only as
@@ -146,18 +189,7 @@ func decodeValue(dec *json.Decoder, depth int) (any, error) {
 }
 
 func checkSafeNumber(n json.Number) error {
-	s := string(n)
-	if !strings.ContainsAny(s, ".eE") {
-		i, err := strconv.ParseInt(s, 10, 64)
-		if err != nil {
-			// Does not fit int64 at all: certainly outside the safe range.
-			return fmt.Errorf("%w: %s", ErrUnsafeInteger, s)
-		}
-		if i >= maxSafeInteger || i <= -maxSafeInteger {
-			return fmt.Errorf("%w: %s", ErrUnsafeInteger, s)
-		}
-	}
-	return nil
+	return checkSafeInteger(string(n))
 }
 
 // Canonicalize parses raw (rejecting duplicate members and unsafe integers)
@@ -287,6 +319,12 @@ func utf16Less(a, b string) bool {
 // es6Number serializes a number per RFC 8785 (ES6 Number::toString).
 func es6Number(n json.Number) (string, error) {
 	s := string(n)
+	// Independently enforce the safe-integer profile so canonicalization can
+	// never emit an unsafe integer even if reached without a prior CheckIJSON
+	// pass (the same shared check the parse path runs, no forked logic).
+	if err := checkSafeInteger(s); err != nil {
+		return "", err
+	}
 	if !strings.ContainsAny(s, ".eE") {
 		i, err := strconv.ParseInt(s, 10, 64)
 		if err != nil {

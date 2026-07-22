@@ -83,6 +83,25 @@ def main() -> int:
             }
         )
 
+    # Closure check: every vector file must have exactly one INDEX row and vice
+    # versa. Without this a malformed INDEX row is silently skipped by table_rows
+    # and its vector is omitted from the manifest -- silently untested in
+    # MANIFEST-mode replay.
+    for kind in ("accept", "reject"):
+        files = {
+            f[: -len(".json")]
+            for f in os.listdir(os.path.join(HERE, kind))
+            if f.endswith(".json")
+        }
+        indexed = {v["id"] for v in vectors if v["kind"] == kind}
+        if missing := files - indexed:
+            raise SystemExit(
+                f"{kind}: vector file(s) with no INDEX.md row (would be silently "
+                f"untested): {sorted(missing)}"
+            )
+        if extra := indexed - files:
+            raise SystemExit(f"{kind}: INDEX.md row(s) with no vector file: {sorted(extra)}")
+
     ok = sum(1 for v in vectors if v["id"].startswith("ok-"))
     bad = len(vectors) - ok
     manifest = {

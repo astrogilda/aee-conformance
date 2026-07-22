@@ -75,6 +75,8 @@ import os
 import re
 import subprocess
 import sys
+from collections.abc import Callable
+from datetime import datetime
 from typing import Any
 
 AEE_PREDICATE_TYPE = (
@@ -163,7 +165,7 @@ class IJsonError(ValueError):
         self.code = code
 
 
-def _reject_dup_pairs(pairs):
+def _reject_dup_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     d: dict[str, Any] = {}
     for k, v in pairs:
         if k in d:
@@ -221,7 +223,7 @@ def _max_json_depth(text: str) -> int:
     return maxd
 
 
-def strict_payload_parse(raw: bytes) -> dict:
+def strict_payload_parse(raw: bytes) -> dict[str, Any]:
     """Parse record payload bytes; raise IJsonError with a registry code."""
     if len(raw) > MAX_PARSE_BYTES:
         raise IJsonError("payload-not-canonical", "payload exceeds the maximum size")
@@ -302,10 +304,11 @@ def _sha512(*parts: bytes) -> bytes:
 
 
 # Points are extended homogeneous coordinates (X, Y, Z, T), x = X/Z, y = Y/Z.
-_IDENT = (0, 1, 1, 0)
+_Point = tuple[int, int, int, int]
+_IDENT: _Point = (0, 1, 1, 0)
 
 
-def _pt_add(p, q):
+def _pt_add(p: _Point, q: _Point) -> _Point:
     x1, y1, z1, t1 = p
     x2, y2, z2, t2 = q
     a = (y1 - x1) * (y2 - x2) % _P
@@ -316,7 +319,7 @@ def _pt_add(p, q):
     return (e * f % _P, g * h % _P, f * g % _P, e * h % _P)
 
 
-def _pt_mul(s: int, p):
+def _pt_mul(s: int, p: _Point) -> _Point:
     q = _IDENT
     while s > 0:
         if s & 1:
@@ -326,7 +329,7 @@ def _pt_mul(s: int, p):
     return q
 
 
-def _pt_eq(p, q) -> bool:
+def _pt_eq(p: _Point, q: _Point) -> bool:
     x1, y1, z1, _ = p
     x2, y2, z2, _ = q
     return (x1 * z2 - x2 * z1) % _P == 0 and (y1 * z2 - y2 * z1) % _P == 0
@@ -349,14 +352,14 @@ _BX = _xrecover(_BY)
 _B = (_BX, _BY, 1, _BX * _BY % _P)
 
 
-def _pt_compress(p) -> bytes:
+def _pt_compress(p: _Point) -> bytes:
     x, y, z, _ = p
     zi = _inv(z)
     x, y = x * zi % _P, y * zi % _P
     return (y | ((x & 1) << 255)).to_bytes(32, "little")
 
 
-def _pt_decompress(s: bytes):
+def _pt_decompress(s: bytes) -> _Point | None:
     if len(s) != 32:
         return None
     y = int.from_bytes(s, "little")
@@ -437,7 +440,7 @@ def derive_test_keys() -> dict[str, dict[str, Any]]:
 
 
 class Outcome:
-    def __init__(self):
+    def __init__(self) -> None:
         self.codes: list[str] = []
         self.result: str | None = None
         self.tiers_with_key: list[str] | None = None
@@ -468,10 +471,8 @@ def _rfc3339_ok(v: Any) -> bool:
     return isinstance(v, str) and bool(RFC3339_RE.match(v))
 
 
-def _rfc3339_key(v: str):
+def _rfc3339_key(v: str) -> datetime | None:
     """Comparable key for RFC 3339 instants (suite uses UTC 'Z' timestamps)."""
-    from datetime import datetime
-
     s = v.strip()
     if s.endswith(("z", "Z")):
         s = s[:-1] + "+00:00"
@@ -494,7 +495,7 @@ class RecordView:
         self.payload_type = rec.get("payloadType") if isinstance(rec, dict) else None
         self.payload_bytes: bytes | None = None
         self.pae: bytes | None = None
-        self.payload: dict | None = None
+        self.payload: dict[str, Any] | None = None
         self.payload_error: str | None = None
         if isinstance(rec, dict) and isinstance(rec.get("payload"), str):
             try:
@@ -530,13 +531,18 @@ class ReferenceVerifier:
 
     # -- record cover validity -------------------------------------------
 
-    def _arming_ok(self, rv: RecordView, pinned_posture, issued_at) -> bool:
+    def _arming_ok(self, rv: RecordView, pinned_posture: Any, issued_at: Any) -> bool:
         p = rv.payload or {}
         armed = p.get("armedAt")
         if not _rfc3339_ok(armed):
             return False
         if _rfc3339_ok(issued_at):
-            a, b = _rfc3339_key(armed), _rfc3339_key(issued_at)
+            # armed/issued_at each passed _rfc3339_ok above, so both are
+            # strings here; an absent/None timestamp yields a None key and is
+            # skipped for ordering exactly as a malformed one is (never crash,
+            # never silently accept -- absence was already rejected above).
+            a = _rfc3339_key(armed) if isinstance(armed, str) else None
+            b = _rfc3339_key(issued_at) if isinstance(issued_at, str) else None
             if a is not None and b is not None and a > b:
                 return False
         if p.get("aeePostureDigest") != pinned_posture:
@@ -545,7 +551,7 @@ class ReferenceVerifier:
             return False
         return True
 
-    def _sealed_ok(self, rv: RecordView, pinned_posture) -> bool:
+    def _sealed_ok(self, rv: RecordView, pinned_posture: Any) -> bool:
         p = rv.payload or {}
         if p.get("aeeStillArmed") is not True:
             return False
@@ -627,8 +633,8 @@ class ReferenceVerifier:
             out.add("vocabulary-missing")
             vocab = None
 
-        labels: list | None = None
-        caught: list | None = None
+        labels: list[Any] | None = None
+        caught: list[Any] | None = None
         if vocab is not None:
             labels = vocab.get("labels")
             caught = vocab.get("caught")
@@ -658,7 +664,7 @@ class ReferenceVerifier:
                 labels, caught = None, None
 
         corpus = env.get("corpus")
-        manifest_classes: dict | None = None
+        manifest_classes: dict[str, Any] | None = None
         if isinstance(corpus, dict):
             manifest = corpus.get("manifest")
             classes = manifest.get("classes") if isinstance(manifest, dict) else None
@@ -711,7 +717,7 @@ class ReferenceVerifier:
             ) and all(acct.get(c, 0) == 1 for c in manifest_classes)
             if not partition_ok:
                 out.add("coverage-incomplete")
-            attack_class = {}
+            attack_class: dict[Any, Any] = {}
             for cls, ids in manifest_classes.items():
                 for aid in ids if isinstance(ids, list) else []:
                     attack_class.setdefault(aid, cls)
@@ -783,13 +789,13 @@ class ReferenceVerifier:
         records = pred.get("observationRecords")
         has_records = isinstance(records, list) and len(records) > 0
         views: list[RecordView] = []
-        if has_records:
+        if isinstance(records, list) and records:
             views = [RecordView(i, rec) for i, rec in enumerate(records)]
             root = pred.get("batchRoot")
             if root is None:
                 out.add("batch-root-missing")
             elif all(v.pae is not None for v in views):
-                if merkle_root_hex([v.pae for v in views]) != root:
+                if merkle_root_hex([v.pae for v in views if v.pae is not None]) != root:
                     out.add("batch-root-mismatch")
             else:
                 out.add("batch-root-mismatch")
@@ -944,8 +950,10 @@ class ReferenceVerifier:
 
             # method cap: weakest signed aeeMethod across covering records
             if covering:
+                # the comprehension only admits records whose method is a key
+                # of METHOD_ORDER, so index directly -- min never sees a None.
                 methods = [
-                    METHOD_ORDER.get(rv.method)
+                    METHOD_ORDER[rv.method]
                     for rv in covering
                     if rv.method in METHOD_ORDER
                 ]
@@ -971,7 +979,12 @@ class ReferenceVerifier:
         return out
 
     @staticmethod
-    def _recompute(rows, labels, caught, coverage) -> str:
+    def _recompute(
+        rows: list[dict[str, Any]],
+        labels: list[Any],
+        caught: list[Any],
+        coverage: Any,
+    ) -> str:
         for r in rows:
             lab = r.get("containmentObserved")
             if lab not in labels or lab in caught:
@@ -985,7 +998,12 @@ class ReferenceVerifier:
             return "degraded"
         return "pass"
 
-    def _tiers(self, rows, row_covering, with_keys: bool) -> list[str]:
+    def _tiers(
+        self,
+        rows: list[dict[str, Any]],
+        row_covering: dict[int, list[RecordView]],
+        with_keys: bool,
+    ) -> list[str]:
         tiers = []
         for i, r in enumerate(rows):
             if r.get("basis") == "artifact":
@@ -1075,7 +1093,7 @@ def second_fault_absence(stmt: Any, expected_codes: set[str]) -> list[str]:
     ):
         views = [RecordView(i, rec) for i, rec in enumerate(records)]
         if all(v.pae is not None for v in views):
-            if merkle_root_hex([v.pae for v in views]) != root:
+            if merkle_root_hex([v.pae for v in views if v.pae is not None]) != root:
                 findings.append("second-fault: batchRoot does not recompute")
         else:
             findings.append("second-fault: undecodable record payload")
@@ -1243,16 +1261,17 @@ CODE_STAGE = {
 }
 
 
-def load_manifest(suite_dir: str) -> dict | None:
+def load_manifest(suite_dir: str) -> dict[str, Any] | None:
     path = os.path.join(suite_dir, "MANIFEST.json")
     if not os.path.isfile(path):
         return None
     with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+        data: dict[str, Any] = json.load(f)
+        return data
 
 
-def manifest_index(manifest: dict | None) -> dict[str, dict]:
-    idx: dict[str, dict] = {}
+def manifest_index(manifest: dict[str, Any] | None) -> dict[str, dict[str, Any]]:
+    idx: dict[str, dict[str, Any]] = {}
     if not manifest:
         return idx
     vectors = manifest.get("vectors") or manifest.get("index") or []
@@ -1281,7 +1300,7 @@ def discover_vectors(suite_dir: str) -> list[tuple[str, str]]:
 
 def evaluate_vector(
     kind: str,
-    entry: dict | None,
+    entry: dict[str, Any] | None,
     observed: dict[str, Any],
     self_check_findings: list[str] | None,
 ) -> tuple[bool, dict[str, str], list[str]]:
@@ -1294,6 +1313,16 @@ def evaluate_vector(
     )
     obs_verdict = observed["verdict"]
     obs_codes = set(observed.get("codes") or [])
+
+    # Cross-check the observed verdict against the manifest's declared verdict
+    # (falling back to the directory-derived expectation). This strengthens the
+    # per-kind checks below by also catching a manifest whose declared verdict
+    # disagrees with the vector's accept/reject placement.
+    if obs_verdict != exp_verdict:
+        reasons.append(
+            "verdict: manifest declares %r, observed %r"
+            % (exp_verdict, obs_verdict)
+        )
 
     if kind == "accept":
         for g in ("gate0", "gate1", "recompute", "tier"):
@@ -1370,7 +1399,7 @@ def evaluate_vector(
     return ok, gates, reasons
 
 
-def run_suite(args) -> int:
+def run_suite(args: argparse.Namespace) -> int:
     suite_dir = os.path.abspath(args.vectors)
     if not os.path.isdir(suite_dir):
         print("suite directory not found: %s" % args.vectors, file=sys.stderr)
@@ -1405,7 +1434,7 @@ def run_suite(args) -> int:
     ref_with = ReferenceVerifier(pinned)
     ref_without = ReferenceVerifier([])
 
-    rows_out = []
+    rows_out: list[dict[str, Any]] = []
     failures = 0
     for kind, path in vectors:
         vid = os.path.splitext(os.path.basename(path))[0]
@@ -1497,7 +1526,7 @@ def run_suite(args) -> int:
         if unlisted:
             suite_notes.append("files on disk not listed in MANIFEST: %s" % unlisted)
 
-    report = {
+    report: dict[str, Any] = {
         "suite": os.path.relpath(suite_dir, report_base),
         "predicateType": AEE_PREDICATE_TYPE,
         "rail": "external" if external_cmd else "reference",
@@ -1557,14 +1586,14 @@ def run_suite(args) -> int:
 # ---------------------------------------------------------------------------
 
 
-def _selftest_build(keys) -> dict[str, Any]:
+def _selftest_build(keys: dict[str, dict[str, Any]]) -> dict[str, Any]:
     """Build a minimal valid substrate statement with arming + sealed +
     interception records signed by the derived test key."""
-    d = lambda s: sha256_hex(s.encode())  # noqa: E731  (synthetic digests)
+    d: Callable[[str], str] = lambda s: sha256_hex(s.encode())  # noqa: E731  (synthetic digests)
     labels = ["example_label_a", "example_label_b"]
     caught = ["example_label_a"]
     manifest = {"classes": {"XA": ["XA-EXAMPLE-1", "XA-EXAMPLE-2"]}}
-    env = {
+    env: dict[str, Any] = {
         "substrate": {"name": "example-substrate", "digest": {"sha256": d("substrate")}},
         "corpus": {
             "name": "example-corpus",
@@ -1583,7 +1612,9 @@ def _selftest_build(keys) -> dict[str, Any]:
         },
         "runEntropy": {"digest": {"sha256": d("run-start")}},
     }
-    subject = [{"name": "example-agent-bundle", "digest": {"sha256": d("subject")}}]
+    subject: list[dict[str, Any]] = [
+        {"name": "example-agent-bundle", "digest": {"sha256": d("subject")}}
+    ]
     binding = sha256_hex(
         jcs_dumps(
             {
@@ -1601,7 +1632,7 @@ def _selftest_build(keys) -> dict[str, Any]:
     seed = keys[PINNED_ROLE]["seed"]
     keyid = keys[PINNED_ROLE]["keyid"]
 
-    def record(payload_obj):
+    def record(payload_obj: dict[str, Any]) -> dict[str, Any]:
         payload = jcs_dumps(payload_obj)
         sig = ed25519_sign(seed, pae(ptype, payload))
         return {
@@ -1689,7 +1720,7 @@ def self_test() -> int:
     base = _selftest_build(keys)
     checks: list[tuple[str, bool, str]] = []
 
-    def check(name: str, cond: bool, detail: str = ""):
+    def check(name: str, cond: bool, detail: str = "") -> None:
         checks.append((name, cond, detail))
 
     o = ref.verify(base)
@@ -1715,7 +1746,7 @@ def self_test() -> int:
         "%s vs %s" % (o2.result, o.result),
     )
 
-    def mutate(fn):
+    def mutate(fn: Callable[[dict[str, Any]], object]) -> Outcome:
         s = json.loads(json.dumps(base))
         fn(s)
         return ref.verify(s)
@@ -1777,7 +1808,7 @@ def self_test() -> int:
     )
     check("ref out of range", "ref-out-of-range" in m.codes, str(m.codes))
 
-    def wrong_signer(s):
+    def wrong_signer(s: dict[str, Any]) -> None:
         seed = keys["wrong-signer-test"]["seed"]
         rec = s["predicate"]["observationRecords"][2]
         sig = ed25519_sign(

@@ -1377,9 +1377,19 @@ def evaluate_vector(
                         "no expected code observed: expected %s, observed %s"
                         % (sorted(exp_codes), sorted(obs_codes))
                     )
+                # Group expected codes by gate stage; a stage is PASS iff ANY of
+                # its expected codes was observed, matching the disjunctive
+                # "no expected code observed" reason above (several coverage
+                # codes are conditional alternates in the generator, so a vector
+                # legitimately declares more than one and emits one). Iterating
+                # the set directly let a later unobserved code overwrite an
+                # earlier PASS, making the sub-status depend on PYTHONHASHSEED.
+                stage_hit: dict[str, bool] = {}
                 for code in exp_codes:
-                    stage = CODE_STAGE.get(code, "gate0")
-                    gates[stage] = "PASS" if code in obs_codes else "FAIL"
+                    st = CODE_STAGE.get(code, "gate0")
+                    stage_hit[st] = stage_hit.get(st, False) or (code in obs_codes)
+                for st, seen in stage_hit.items():
+                    gates[st] = "PASS" if seen else "FAIL"
             else:
                 gates[stage] = "PASS"
             # behavior assertion 2: invalid emits no result and no tiers

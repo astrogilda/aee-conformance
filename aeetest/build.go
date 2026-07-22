@@ -211,7 +211,7 @@ func Build(o Options) []byte {
 
 	result := o.Result
 	if result == "" {
-		if o.Clean && rowMethod != "ABSENT" && (rowMethod == "intercepted" || rowMethod == "reconstructed") {
+		if o.Clean && (rowMethod == "intercepted" || rowMethod == "reconstructed") {
 			result = "pass"
 		} else {
 			result = "fail"

@@ -28,11 +28,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
     Ed25519PublicKey,
 )
-from cryptography.exceptions import InvalidSignature
 
 OUT_DIR = Path(__file__).resolve().parent
 
@@ -260,7 +260,7 @@ def make_row(
     return row
 
 
-def make_statement(
+def make_statement(  # noqa: C901
     manifest: dict[str, Any],
     rows: list[dict[str, Any]],
     records: list[dict[str, Any]] | None = None,
@@ -951,7 +951,7 @@ def build_vectors() -> dict[str, dict[str, Any]]:
 METHOD_RANK = {"reconstructed": 1, "intercepted": 2}
 
 
-def verify(stmt: dict[str, Any]) -> list[str]:
+def verify(stmt: dict[str, Any]) -> list[str]:  # noqa: C901
     errs: list[str] = []
     pred = stmt["predicate"]
     env = pred["observationEnvironment"]

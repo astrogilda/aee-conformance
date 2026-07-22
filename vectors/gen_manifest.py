@@ -31,7 +31,7 @@ TIER_EXPECTATIONS = {
 
 def table_rows(md_path: str) -> list[list[str]]:
     rows = []
-    with open(md_path, "r", encoding="utf-8") as f:
+    with open(md_path, encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line.startswith("|"):
@@ -62,7 +62,7 @@ def main() -> int:
             {
                 "id": vid,
                 "kind": "accept",
-                "file": "accept/%s.json" % vid,
+                "file": f"accept/{vid}.json",
                 "conditions": conditions_of(cells[2]),
                 "expected": expected,
             }
@@ -72,12 +72,12 @@ def main() -> int:
         vid = cells[0].strip("`")
         codes = codes_of(cells[5])
         if not codes:
-            raise SystemExit("no expected codes parsed for %s" % vid)
+            raise SystemExit(f"no expected codes parsed for {vid}")
         vectors.append(
             {
                 "id": vid,
                 "kind": "reject",
-                "file": "reject/%s.json" % vid,
+                "file": f"reject/{vid}.json",
                 "conditions": conditions_of(cells[4]),
                 "expected": {"verdict": "invalid", "codes": codes},
             }
@@ -97,7 +97,7 @@ def main() -> int:
     with open(out, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, sort_keys=False)
         f.write("\n")
-    print("wrote %s: %d accept + %d reject" % (out, ok, bad))
+    print(f"wrote {out}: {ok} accept + {bad} reject")
     return 0
 
 

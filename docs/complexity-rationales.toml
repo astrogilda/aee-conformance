@@ -1,0 +1,40 @@
+# Complexity rationales for functions carrying `# noqa: C901`.
+#
+# House policy permits cyclomatic complexity above the mccabe threshold of 10
+# only when the complexity is INHERENT, not organizational, and requires the
+# rationale to be recorded here. Each entry names the function, its measured
+# complexity, and which inherent-C+ case applies (orchestration, algorithmic,
+# nested-traversal, type-dispatch, or fault-isolation).
+
+["vectors/accept/gen_valid_vectors.py::verify"]
+complexity = 38
+case = "algorithmic"
+rationale = """
+The accept-vector generator carries its own independent statement verifier as a
+build-time producer-QA self-check -- a deliberate second opinion, distinct from
+the Go and Python reference rails. It replicates the full gate logic
+(well-formedness, coverage validity, per-record payload and binding checks, tier
+derivation), so its branch count mirrors the specification's, not any avoidable
+structure. Decomposing it would not lower the inherent branching and would risk
+diverging the self-check from the spec it mirrors.
+"""
+
+["vectors/accept/gen_valid_vectors.py::make_statement"]
+complexity = 12
+case = "orchestration"
+rationale = """
+make_statement assembles a valid statement from many independent, optional
+Options fields (result, signer role, record shape, coverage sets, and so on).
+Each option contributes one guarded branch; the complexity is the coordination
+of those independent knobs, not tangled control flow.
+"""
+
+["vectors/reject/gen_invalid_vectors.py::second_fault_absence"]
+complexity = 11
+case = "fault-isolation"
+rationale = """
+second_fault_absence runs a sequence of independent second-fault checks (root
+family, vocabulary, corpus, binding) to assert each reject vector is broken
+exactly one way. The checks are independent by construction; the branch count is
+the number of fault families guarded, one per family.
+"""

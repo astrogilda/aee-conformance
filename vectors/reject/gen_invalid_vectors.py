@@ -1521,21 +1521,21 @@ def parent_gate_check(name: str, st: dict[str, Any]) -> None:
         caught = row["containmentObserved"] in set(v["caught"])
         if caught and row["method"] == "intercepted":
             assert "interception" in kinds, name
-            cover = [m for k, m in zip(kinds, methods)
+            cover = [m for k, m in zip(kinds, methods, strict=False)
                      if k == "interception"]
         elif row["method"] == "reconstructed":
             assert "examination" in kinds, name
-            cover = [m for k, m in zip(kinds, methods)
+            cover = [m for k, m in zip(kinds, methods, strict=False)
                      if k == "examination"]
         else:
             assert "arming" in kinds and "sealed" in kinds, name
-            cover = [m for k, m in zip(kinds, methods)
+            cover = [m for k, m in zip(kinds, methods, strict=False)
                      if k in ("arming", "sealed")]
         rank = {"reconstructed": 0, "intercepted": 1}
         assert rank[row["method"]] <= min(rank[m] for m in cover), name
 
 
-def second_fault_absence(v: dict[str, Any], st: dict[str, Any]) -> None:
+def second_fault_absence(v: dict[str, Any], st: dict[str, Any]) -> None:  # noqa: C901
     """Assert every derived commitment NOT under test still verifies."""
     conds = set(v["conds"])
     p = st["predicate"]
@@ -1693,7 +1693,8 @@ def write_index() -> None:
     L.append("|---|---|")
     for k in sorted(PREIMAGES):
         L.append(f"| `{D[k]}` | `sha256(\"{PREIMAGES[k]}\")` |")
-    L.append(f"| `{CATCHPOLICY_D}` | `sha256(JCS({json.dumps(CATCHPOLICY_OBJ, sort_keys=True)}))` |")
+    cp_jcs = json.dumps(CATCHPOLICY_OBJ, sort_keys=True)
+    L.append(f"| `{CATCHPOLICY_D}` | `sha256(JCS({cp_jcs}))` |")
     L.append(f"| `{POSTURE_D}` | `sha256(JCS({json.dumps(POSTURE_OBJ, sort_keys=True)}))` |")
     L.append("")
     L.append("Corpus and vocabulary digests are JCS digests of the manifest and")
@@ -1727,7 +1728,10 @@ def write_index() -> None:
     L.append("`rederive` lists the derived commitments recomputed after the mutation")
     L.append("so the declared fault stays the ONLY fault.")
     L.append("")
-    L.append("| vector | parent | single mutation | rederive | conditions (aee-c ids) | expected rejection | spec |")
+    L.append(
+        "| vector | parent | single mutation | rederive | "
+        "conditions (aee-c ids) | expected rejection | spec |"
+    )
     L.append("|---|---|---|---|---|---|---|")
     for v in VECTORS:
         conds = " ".join(f"aee-c-{c}" for c in v["conds"])

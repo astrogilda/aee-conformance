@@ -117,7 +117,7 @@ def _jcs_string(s: str) -> str:
         elif ch == "\\":
             out.append("\\\\")
         elif o < 0x20:
-            out.append(_JCS_CTRL.get(o, "\\u%04x" % o))
+            out.append(_JCS_CTRL.get(o, f"\\u{o:04x}"))
         else:
             out.append(ch)
     out.append('"')
@@ -145,7 +145,7 @@ def jcs_dumps(obj: Any) -> bytes:
             return "{" + ",".join(
                 _jcs_string(k) + ":" + ser(v[k]) for k in keys
             ) + "}"
-        raise JcsError("unsupported type: %r" % type(v))
+        raise JcsError(f"unsupported type: {type(v)!r}")
 
     return ser(obj).encode("utf-8")
 
@@ -170,7 +170,7 @@ def _reject_dup_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     d: dict[str, Any] = {}
     for k, v in pairs:
         if k in d:
-            raise IJsonError("payload-not-ijson", "duplicate member %r" % k)
+            raise IJsonError("payload-not-ijson", f"duplicate member {k!r}")
         d[k] = v
     return d
 
@@ -246,7 +246,7 @@ def strict_payload_parse(raw: bytes) -> dict[str, Any]:
     try:
         text = raw.decode("utf-8")
     except UnicodeDecodeError:
-        raise IJsonError("payload-not-canonical", "payload is not UTF-8")
+        raise IJsonError("payload-not-canonical", "payload is not UTF-8") from None
     if _max_json_depth(text) > MAX_PARSE_DEPTH:
         raise IJsonError("payload-not-canonical",
                          "payload nesting exceeds the maximum depth")
@@ -255,14 +255,14 @@ def strict_payload_parse(raw: bytes) -> dict[str, Any]:
     except IJsonError:
         raise
     except (ValueError, RecursionError):
-        raise IJsonError("payload-not-canonical", "payload does not parse as JSON")
+        raise IJsonError("payload-not-canonical", "payload does not parse as JSON") from None
     if not isinstance(obj, dict):
         raise IJsonError("payload-not-canonical", "payload is not a JSON object")
     _walk_check_ints(obj)
     try:
         canon = jcs_dumps(obj)
     except JcsError:
-        raise IJsonError("payload-not-ijson", "payload not canonicalizable")
+        raise IJsonError("payload-not-ijson", "payload not canonicalizable") from None
     if canon != raw:
         raise IJsonError("payload-not-canonical", "payload bytes are not RFC 8785 canonical")
     return obj
@@ -439,7 +439,7 @@ def derive_test_keys() -> dict[str, dict[str, Any]]:
     keys = {}
     for role in KEY_ROLES:
         seed = hashlib.sha256(
-            ("in-toto-aee-test-key/%s/v1" % role).encode("utf-8")
+            (f"in-toto-aee-test-key/{role}/v1").encode()
         ).digest()
         pub = ed25519_public_key(seed)
         keys[role] = {
@@ -1463,7 +1463,7 @@ def probe_external_verifier(path: str) -> tuple[bool, str]:
         with open(path, "rb") as f:
             data = f.read()
     except OSError as e:
-        return False, "external verifier unreadable: %s" % e
+        return False, f"external verifier unreadable: {e}"
     if AEE_PREDICATE_TYPE.encode() in data:
         return True, "v0.6 predicate type URI found; external rail enabled"
     return (
@@ -1476,8 +1476,7 @@ def probe_external_verifier(path: str) -> tuple[bool, str]:
 def run_external(cmd: list[str], vector_path: str) -> dict[str, Any]:
     proc = subprocess.run(
         cmd + [vector_path],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         timeout=120,
     )
     verdict = "valid" if proc.returncode == 0 else "invalid"
@@ -1558,7 +1557,7 @@ def load_manifest(suite_dir: str) -> dict[str, Any] | None:
     path = os.path.join(suite_dir, "MANIFEST.json")
     if not os.path.isfile(path):
         return None
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         data: dict[str, Any] = json.load(f)
         return data
 
@@ -1613,8 +1612,7 @@ def evaluate_vector(
     # disagrees with the vector's accept/reject placement.
     if obs_verdict != exp_verdict:
         reasons.append(
-            "verdict: manifest declares %r, observed %r"
-            % (exp_verdict, obs_verdict)
+            f"verdict: manifest declares {exp_verdict!r}, observed {obs_verdict!r}"
         )
 
     if kind == "accept":
@@ -1648,15 +1646,14 @@ def _eval_accept(
         for code in obs_codes:
             gates[CODE_STAGE.get(code, "gate0")] = "FAIL"
         reasons.append(
-            "expected valid, observed invalid with codes %s" % sorted(obs_codes)
+            f"expected valid, observed invalid with codes {sorted(obs_codes)}"
         )
     exp_result = expected.get("result")
     if obs_verdict == "valid" and exp_result is not None:
         if observed.get("result") != exp_result:
             gates["recompute"] = "FAIL"
             reasons.append(
-                "result: expected %r, observed %r"
-                % (exp_result, observed.get("result"))
+                "result: expected {!r}, observed {!r}".format(exp_result, observed.get("result"))
             )
     _eval_accept_tiers(expected, observed, gates, reasons)
 
@@ -1677,7 +1674,7 @@ def _eval_accept_tiers(
             if list(exp_tiers) != list(obs_tiers):
                 gates["tier"] = "FAIL"
                 reasons.append(
-                    "%s: expected %s, observed %s" % (field_name, exp_tiers, obs_tiers)
+                    f"{field_name}: expected {exp_tiers}, observed {obs_tiers}"
                 )
     # behavior assertion 1: the tier never alters the result
     if (
@@ -1729,8 +1726,7 @@ def _eval_reject_stages(
     hit = exp_codes & obs_codes
     if not hit:
         reasons.append(
-            "no expected code observed: expected %s, observed %s"
-            % (sorted(exp_codes), sorted(obs_codes))
+            f"no expected code observed: expected {sorted(exp_codes)}, observed {sorted(obs_codes)}"
         )
     # Group expected codes by gate stage; a stage is PASS iff ANY of
     # its expected codes was observed, matching the disjunctive
@@ -1750,7 +1746,7 @@ def _eval_reject_stages(
 def run_suite(args: argparse.Namespace) -> int:
     suite_dir = os.path.abspath(args.vectors)
     if not os.path.isdir(suite_dir):
-        print("suite directory not found: %s" % args.vectors, file=sys.stderr)
+        print(f"suite directory not found: {args.vectors}", file=sys.stderr)
         return 2
 
     manifest = load_manifest(suite_dir)
@@ -1759,9 +1755,10 @@ def run_suite(args: argparse.Namespace) -> int:
     report_base = os.path.dirname(suite_dir) or "."
 
     if not vectors:
+        rel = os.path.relpath(suite_dir, report_base)
         print(
-            "no vectors found under %s (accept/ and reject/ are empty or "
-            "missing); nothing to run" % os.path.relpath(suite_dir, report_base)
+            f"no vectors found under {rel} (accept/ and reject/ are empty "
+            "or missing); nothing to run"
         )
         return 2
 
@@ -1862,7 +1859,7 @@ def _run_process_vector(
             "kind": kind,
             "status": "FAIL",
             "gates": {g: "FAIL" for g in GATE_NAMES},
-            "reasons": ["vector unreadable: %s" % e],
+            "reasons": [f"vector unreadable: {e}"],
         }, True
 
     observed = _run_observe(external_cmd, ref_with, ref_without, path, stmt)
@@ -1911,10 +1908,10 @@ def _run_manifest_notes(
     if missing_files:
         note_failures += 1
         suite_notes.append(
-            "MANIFEST lists vectors with no file on disk: %s" % missing_files
+            f"MANIFEST lists vectors with no file on disk: {missing_files}"
         )
     if unlisted:
-        suite_notes.append("files on disk not listed in MANIFEST: %s" % unlisted)
+        suite_notes.append(f"files on disk not listed in MANIFEST: {unlisted}")
     return suite_notes, note_failures
 
 
@@ -1960,36 +1957,23 @@ def _run_print_table(
     report_base: str,
 ) -> None:
     # stdout coverage table (gate x vector)
-    print("rail: %s  (%s)" % (report["rail"], probe_note))
-    header = "%-42s %-6s %s" % (
-        "vector",
-        "status",
-        " ".join("%-10s" % g for g in GATE_NAMES),
-    )
+    print(f"rail: {report['rail']}  ({probe_note})")
+    gate_cols = " ".join(f"{g:<10}" for g in GATE_NAMES)
+    header = f"{'vector':<42} {'status':<6} {gate_cols}"
     print(header)
     print("-" * len(header))
     for r in rows_out:
-        print(
-            "%-42s %-6s %s"
-            % (
-                r["id"][:42],
-                r["status"],
-                " ".join("%-10s" % r["gates"][g] for g in GATE_NAMES),
-            )
-        )
+        row_gates = " ".join(f"{r['gates'][g]:<10}" for g in GATE_NAMES)
+        print(f"{r['id'][:42]:<42} {r['status']:<6} {row_gates}")
         if r["status"] == "FAIL":
             for reason in r["reasons"]:
-                print("    ! %s" % reason)
+                print(f"    ! {reason}")
     for note in suite_notes:
-        print("note: %s" % note)
+        print(f"note: {note}")
+    t = report["totals"]
     print(
-        "totals: %d vectors, %d pass, %d fail; report written to %s"
-        % (
-            report["totals"]["vectors"],
-            report["totals"]["pass"],
-            report["totals"]["fail"],
-            os.path.relpath(report_path, report_base),
-        )
+        f"totals: {t['vectors']} vectors, {t['pass']} pass, {t['fail']} fail; "
+        f"report written to {os.path.relpath(report_path, report_base)}"
     )
 
 
@@ -2141,7 +2125,7 @@ def self_test() -> int:
     check(
         "base statement valid",
         o.verdict == "valid" and o.result == "fail",
-        "codes=%s result=%s" % (o.codes, o.result),
+        f"codes={o.codes} result={o.result}",
     )
     check(
         "tiers with pinned key",
@@ -2157,7 +2141,7 @@ def self_test() -> int:
     check(
         "tier never alters result",
         o2.result == o.result,
-        "%s vs %s" % (o2.result, o.result),
+        f"{o2.result} vs {o.result}",
     )
 
     def mutate(fn: Callable[[dict[str, Any]], object]) -> Outcome:
@@ -2242,13 +2226,13 @@ def self_test() -> int:
         "wrong-signer record: valid but unattested (signature failure is a "
         "tier outcome, never a failure code)",
         o3.verdict == "valid" and o3.tiers_with_key == ["unattested", "attested"],
-        "verdict=%s tiers=%s codes=%s" % (o3.verdict, o3.tiers_with_key, o3.codes),
+        f"verdict={o3.verdict} tiers={o3.tiers_with_key} codes={o3.codes}",
     )
 
     failed = [c for c in checks if not c[1]]
     for name, ok, detail in checks:
-        print("%s  %s%s" % ("PASS" if ok else "FAIL", name, "  [%s]" % detail if not ok else ""))
-    print("self-test: %d checks, %d failed" % (len(checks), len(failed)))
+        print("{}  {}{}".format("PASS" if ok else "FAIL", name, f"  [{detail}]" if not ok else ""))
+    print(f"self-test: {len(checks)} checks, {len(failed)} failed")
     return 1 if failed else 0
 
 

@@ -56,13 +56,13 @@ jobs:
           "$(go env GOPATH)/bin/staticcheck" ./aee/... ./cmd/...
           (cd witnessattestor && "$(go env GOPATH)/bin/staticcheck" ./...)
       - name: golangci-lint (core module)
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v7
         with:
-          version: v2.1.6
+          version: v2.11.4
       - name: golangci-lint (attestor module)
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v7
         with:
-          version: v2.1.6
+          version: v2.11.4
           working-directory: witnessattestor
 
   python:

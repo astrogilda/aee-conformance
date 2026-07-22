@@ -28,11 +28,11 @@ func TestEmitSeamRefusesSyntheticFaults(t *testing.T) {
 		"recompute-mismatch":      aeetest.Build(aeetest.Options{Result: "pass"}),
 	}
 	for name, body := range cases {
-		if err := aee.VerifyForEmit(body); err == nil {
+		if _, err := aee.VerifyForEmit(body); err == nil {
 			t.Errorf("%s: emit seam would sign a statement the suite rejects", name)
 		}
 	}
-	if err := aee.VerifyForEmit(aeetest.Build(aeetest.Options{})); err != nil {
+	if _, err := aee.VerifyForEmit(aeetest.Build(aeetest.Options{})); err != nil {
 		t.Errorf("emit seam refused a valid statement: %v", err)
 	}
 }
@@ -70,7 +70,7 @@ func TestEmitSeamRefusesVectorBodies(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				if err := aee.VerifyForEmit(body); err == nil {
+				if _, err := aee.VerifyForEmit(body); err == nil {
 					t.Errorf("%s: emit seam would sign a reject vector", e.Name())
 				}
 				ran++

@@ -242,13 +242,15 @@ func (a *Attestor) attest(ctx *attestation.AttestationContext) error {
 	}
 
 	// >>> THE SEAM <<< GATE 0 + GATE 1 + recompute equality. The attestor
-	// MUST error, never sign, on any failure.
-	if err := aee.VerifyForEmit(body); err != nil {
+	// MUST error, never sign, on any failure. The sealed context is reused by
+	// the producer-QA signature check below (no re-derivation).
+	evalCtx, err := aee.VerifyForEmit(body)
+	if err != nil {
 		return fmt.Errorf("refusing to sign: %w", err)
 	}
 
 	if a.expectSubstrateKeyPath != "" {
-		if err := a.producerQACheck(statement); err != nil {
+		if err := a.producerQACheck(evalCtx); err != nil {
 			return fmt.Errorf("producer QA (expect-substrate-key): %w", err)
 		}
 	}
@@ -331,7 +333,7 @@ func matchConfiguredEvidence(products map[string]attestation.Product, configured
 	}
 }
 
-func (a *Attestor) producerQACheck(statement *aee.Statement) error {
+func (a *Attestor) producerQACheck(evalCtx *aee.EvalContext) error {
 	raw, err := os.ReadFile(a.expectSubstrateKeyPath)
 	if err != nil {
 		return err
@@ -340,5 +342,5 @@ func (a *Attestor) producerQACheck(statement *aee.Statement) error {
 	if err != nil || len(pubBytes) != ed25519.PublicKeySize {
 		return fmt.Errorf("expected a %d-byte hex-encoded ed25519 public key", ed25519.PublicKeySize)
 	}
-	return aee.CheckRecordSignatures(statement, []ed25519.PublicKey{ed25519.PublicKey(pubBytes)})
+	return evalCtx.CheckRecordSignatures([]ed25519.PublicKey{ed25519.PublicKey(pubBytes)})
 }

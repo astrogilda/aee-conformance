@@ -3,6 +3,7 @@ package aee
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 // Report is the outcome of a full verification run.
@@ -33,6 +34,54 @@ const (
 	VerdictInvalid = "invalid"
 )
 
+// EvalContext is a statement that has passed GATE 0 + GATE 1 + recompute
+// equality, with the single expensive record derivation (base64 + PAE + Merkle
+// + JCS over every record) memoized. It is produced ONLY by Evaluate: the
+// unexported _sealed field makes it unconstructable elsewhere in or outside the
+// package, so any function that takes an *EvalContext is guaranteed a validated
+// statement and never has to (nor can it accidentally skip) re-running the
+// gates. This collapses what were three independent recomputations -- one in
+// GATE 1, one in DeriveTiers, one in CheckRecordSignatures -- into one, which
+// removes the permanent risk that the three drift apart.
+type EvalContext struct {
+	_sealed  struct{}
+	s        *Statement
+	states   []recordState
+	binding  string
+	issuedAt time.Time
+	result   string
+}
+
+// Statement returns the parsed, validated statement backing the context.
+func (ctx *EvalContext) Statement() *Statement { return ctx.s }
+
+// Result returns the carried, recompute-confirmed result.
+func (ctx *EvalContext) Result() string { return ctx.result }
+
+// Evaluate runs the shared consumer/producer precondition once -- GATE 0
+// (well-formedness) + GATE 1 (coverage validity) + recompute equality -- and
+// returns a sealed context on success. On a gate/recompute failure it returns a
+// nil context and the failure codes (primary first). On a parse failure it
+// returns an error. Exactly one of {ctx non-nil} / {codes non-empty} / {err
+// non-nil} holds.
+func Evaluate(statementJSON []byte) (*EvalContext, []Code, error) {
+	s, err := ParseStatement(statementJSON)
+	if err != nil {
+		return nil, nil, err
+	}
+	if codes := Gate0(s); len(codes) > 0 {
+		return nil, codes, nil
+	}
+	states, binding, issuedAt, codes := gate1WithContext(s)
+	if len(codes) > 0 {
+		return nil, codes, nil
+	}
+	if got := Recompute(s.Predicate); got != s.Predicate.Result {
+		return nil, []Code{CodeResultRecomputeMismatch}, nil
+	}
+	return &EvalContext{s: s, states: states, binding: binding, issuedAt: issuedAt, result: s.Predicate.Result}, nil, nil
+}
+
 // Verify runs the full consumer pipeline over one in-toto statement:
 //
 //	GATE 0 (statement well-formedness)
@@ -45,45 +94,34 @@ const (
 // later gate might have said, and neither Result nor Tiers is ever derived
 // for an invalid statement.
 func Verify(statementJSON []byte, policy *KeyPolicy) *Report {
-	s, err := ParseStatement(statementJSON)
+	ctx, codes, err := Evaluate(statementJSON)
 	if err != nil {
 		return &Report{Verdict: VerdictInvalid, Codes: []Code{CodeStatementMalformed}, PrimaryCode: CodeStatementMalformed}
 	}
-	if codes := Gate0(s); len(codes) > 0 {
+	if len(codes) > 0 {
 		return invalidReport(codes)
-	}
-	if codes := Gate1(s); len(codes) > 0 {
-		return invalidReport(codes)
-	}
-	if got := Recompute(s.Predicate); got != s.Predicate.Result {
-		return invalidReport([]Code{CodeResultRecomputeMismatch})
 	}
 	return &Report{
 		Verdict: VerdictValid,
-		Result:  s.Predicate.Result,
-		Tiers:   DeriveTiers(s, policy),
+		Result:  ctx.result,
+		Tiers:   ctx.DeriveTiers(policy),
 	}
 }
 
 // VerifyForEmit is the producer-side seam: GATE 0 + GATE 1 + recompute
-// equality, with no tier (the tier is trust-relative and consumer-derived
-// by definition; it never runs at emit). A non-nil error means the
-// statement MUST NOT be signed.
-func VerifyForEmit(statementJSON []byte) error {
-	s, err := ParseStatement(statementJSON)
+// equality, with no tier (the tier is trust-relative and consumer-derived by
+// definition; it never runs at emit). It returns the sealed context so the
+// producer-QA signature check can reuse the memoized derivation instead of
+// re-deriving it. A non-nil error means the statement MUST NOT be signed.
+func VerifyForEmit(statementJSON []byte) (*EvalContext, error) {
+	ctx, codes, err := Evaluate(statementJSON)
 	if err != nil {
-		return fmt.Errorf("statement does not parse: %w", err)
+		return nil, fmt.Errorf("statement does not parse: %w", err)
 	}
-	if codes := Gate0(s); len(codes) > 0 {
-		return fmt.Errorf("statement fails GATE 0 (well-formedness): %s", joinCodes(codes))
+	if len(codes) > 0 {
+		return nil, fmt.Errorf("statement fails GATE 0/1 or recompute: %s", joinCodes(codes))
 	}
-	if codes := Gate1(s); len(codes) > 0 {
-		return fmt.Errorf("statement fails GATE 1 (coverage validity): %s", joinCodes(codes))
-	}
-	if got := Recompute(s.Predicate); got != s.Predicate.Result {
-		return fmt.Errorf("carried result %q != recomputed %q (%s)", s.Predicate.Result, got, CodeResultRecomputeMismatch)
-	}
-	return nil
+	return ctx, nil
 }
 
 func invalidReport(codes []Code) *Report {

@@ -15,7 +15,6 @@ import (
 	"crypto/ed25519"
 	"encoding/base64"
 	"fmt"
-	"time"
 )
 
 // Tier is a derived per-row evidence tier.
@@ -44,17 +43,9 @@ type KeyPolicy struct {
 //     it can strengthen nothing;
 //   - a basis: substrate row is attested when every covering record's
 //     signature verifies against a policy-named key, unattested otherwise.
-func DeriveTiers(s *Statement, policy *KeyPolicy) []Tier {
-	p := s.Predicate
+func (ctx *EvalContext) DeriveTiers(policy *KeyPolicy) []Tier {
+	p := ctx.s.Predicate
 	tiers := make([]Tier, len(p.Rows))
-
-	var binding string
-	var issuedAt time.Time
-	if hasSubstrateRows(p) {
-		binding = deriveStatementBinding(s)
-		issuedAt, _ = time.Parse(time.RFC3339, p.IssuedAt)
-	}
-	states, _ := checkRecordsStatementLevel(p)
 
 	for i := range p.Rows {
 		row := &p.Rows[i]
@@ -66,15 +57,15 @@ func DeriveTiers(s *Statement, policy *KeyPolicy) []Tier {
 			tiers[i] = TierUnattested
 			continue
 		}
-		rowCodes, covering := checkSubstrateRow(p, row, states, binding, issuedAt)
+		rowCodes, covering := checkSubstrateRow(p, row, ctx.states, ctx.binding, ctx.issuedAt)
 		if len(rowCodes) > 0 {
-			// Unreachable on a valid statement; fail-closed if reached.
+			// Unreachable on a validated context; fail-closed if reached.
 			tiers[i] = TierUnattested
 			continue
 		}
 		tiers[i] = TierAttested
 		for _, idx := range covering {
-			if !recordVerifies(&states[idx], p.Records[idx].Signatures, policy.SubstrateObservationKeys) {
+			if !recordVerifies(&ctx.states[idx], p.Records[idx].Signatures, policy.SubstrateObservationKeys) {
 				tiers[i] = TierUnattested
 				break
 			}
@@ -108,28 +99,27 @@ func recordVerifies(state *recordState, sigs []RecordSignature, keys []ed25519.P
 // records carry a signature verifying under the given keys. It derives NO
 // tier — the tier is a consumer derivation by definition — and its failure
 // is a producer pipeline error, never a validity code.
-func CheckRecordSignatures(s *Statement, keys []ed25519.PublicKey) error {
-	p := s.Predicate
+func (ctx *EvalContext) CheckRecordSignatures(keys []ed25519.PublicKey) error {
+	p := ctx.s.Predicate
 	if !hasSubstrateRows(p) {
 		return nil
 	}
-	binding := deriveStatementBinding(s)
-	issuedAt, err := time.Parse(time.RFC3339, p.IssuedAt)
-	if err != nil {
-		return fmt.Errorf("issuedAt does not parse: %w", err)
-	}
-	states, _ := checkRecordsStatementLevel(p)
+	// The context is sealed by Evaluate, so the statement-level record codes
+	// (undecodable / batch-root / duplicate) are already known empty -- the
+	// prior free function discarded them from a fresh checkRecordsStatementLevel
+	// call, which a consumer invoking it directly (without GATE 1) could exploit
+	// to sign over unvalidated records. That path no longer exists.
 	for i := range p.Rows {
 		row := &p.Rows[i]
 		if !row.IsSubstrate() {
 			continue
 		}
-		rowCodes, covering := checkSubstrateRow(p, row, states, binding, issuedAt)
+		rowCodes, covering := checkSubstrateRow(p, row, ctx.states, ctx.binding, ctx.issuedAt)
 		if len(rowCodes) > 0 {
 			return fmt.Errorf("row %d (%s) is not gate-1 valid: %v", i, row.AttackID, rowCodes)
 		}
 		for _, idx := range covering {
-			if !recordVerifies(&states[idx], p.Records[idx].Signatures, keys) {
+			if !recordVerifies(&ctx.states[idx], p.Records[idx].Signatures, keys) {
 				return fmt.Errorf("row %d (%s): covering record %d does not verify under the expected key", i, row.AttackID, idx)
 			}
 		}

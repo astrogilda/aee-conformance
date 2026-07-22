@@ -47,7 +47,17 @@ type recordState struct {
 // pinned deterministic order. It must only run on statements that passed
 // GATE 0 (it relies on GATE 0's presence and digest-shape guarantees).
 func Gate1(s *Statement) []Code {
-	var codes []Code
+	_, _, _, codes := gate1WithContext(s)
+	return codes
+}
+
+// gate1WithContext runs GATE 1 and additionally returns the memoized artifacts
+// it necessarily builds along the way -- the decoded per-record states, the
+// derived run binding, and the parsed issuedAt -- so Evaluate can seal them
+// into an EvalContext instead of DeriveTiers and CheckRecordSignatures each
+// re-deriving them (the triple-recompute drift risk). Behavior is identical to
+// the previous inline Gate1: the returned codes are unchanged.
+func gate1WithContext(s *Statement) (states []recordState, binding string, issuedAt time.Time, codes []Code) {
 	p := s.Predicate
 
 	states, stCodes := checkRecordsStatementLevel(p)
@@ -56,21 +66,22 @@ func Gate1(s *Statement) []Code {
 	}
 
 	if !hasSubstrateRows(p) {
-		return codes
+		return states, "", time.Time{}, codes
 	}
 
 	// Registry precedence pin 2: when observationRecords is absent entirely,
 	// report records-absent; ref-out-of-range is reserved for statements
 	// where records exist.
 	if !p.RecordsPresent {
-		return appendCode(codes, CodeRecordsAbsent)
+		return states, "", time.Time{}, appendCode(codes, CodeRecordsAbsent)
 	}
 
-	binding := deriveStatementBinding(s)
-	issuedAt, err := time.Parse(time.RFC3339, p.IssuedAt)
+	binding = deriveStatementBinding(s)
+	var err error
+	issuedAt, err = time.Parse(time.RFC3339, p.IssuedAt)
 	if err != nil {
 		// GATE 0 already rejected this; defensive only.
-		return appendCode(codes, CodeIssuedAtMalformed)
+		return states, binding, issuedAt, appendCode(codes, CodeIssuedAtMalformed)
 	}
 
 	for i := range p.Rows {
@@ -83,7 +94,7 @@ func Gate1(s *Statement) []Code {
 			codes = appendCode(codes, c)
 		}
 	}
-	return codes
+	return states, binding, issuedAt, codes
 }
 
 // checkRecordsStatementLevel runs the record-set checks that hold for the

@@ -173,31 +173,34 @@ func TestVerifyForEmitRefusals(t *testing.T) {
 		"batch-root":         aeetest.Build(aeetest.Options{TamperBatchRoot: true}),
 	}
 	for name, body := range cases {
-		if err := aee.VerifyForEmit(body); err == nil {
+		if _, err := aee.VerifyForEmit(body); err == nil {
 			t.Errorf("%s: emit seam signed a statement the suite rejects", name)
 		}
 	}
-	if err := aee.VerifyForEmit(aeetest.Build(aeetest.Options{})); err != nil {
+	if _, err := aee.VerifyForEmit(aeetest.Build(aeetest.Options{})); err != nil {
 		t.Errorf("emit seam refused a valid statement: %v", err)
 	}
 }
 
 func TestCheckRecordSignaturesProducerQA(t *testing.T) {
-	good := aeetest.Build(aeetest.Options{})
-	st, err := aee.ParseStatement(good)
+	pub := aeetest.TestKey(aeetest.RoleSubstrateObservation).Public().(ed25519.PublicKey)
+
+	// A correctly signed statement passes the gates and the producer-QA check.
+	ctx, err := aee.VerifyForEmit(aeetest.Build(aeetest.Options{}))
 	if err != nil {
 		t.Fatal(err)
 	}
-	pub := aeetest.TestKey(aeetest.RoleSubstrateObservation).Public().(ed25519.PublicKey)
-	if err := aee.CheckRecordSignatures(st, []ed25519.PublicKey{pub}); err != nil {
+	if err := ctx.CheckRecordSignatures([]ed25519.PublicKey{pub}); err != nil {
 		t.Fatalf("producer QA rejected a correctly signed statement: %v", err)
 	}
-	bad := aeetest.Build(aeetest.Options{SignerRole: aeetest.RoleWrongSigner})
-	st2, err := aee.ParseStatement(bad)
+
+	// A wrong-signer statement is still gate-valid (signatures are not a GATE 1
+	// check), so it seals a context, but the producer-QA signature check fails.
+	ctx2, err := aee.VerifyForEmit(aeetest.Build(aeetest.Options{SignerRole: aeetest.RoleWrongSigner}))
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("wrong-signer statement should be gate-valid: %v", err)
 	}
-	if err := aee.CheckRecordSignatures(st2, []ed25519.PublicKey{pub}); err == nil {
+	if err := ctx2.CheckRecordSignatures([]ed25519.PublicKey{pub}); err == nil {
 		t.Fatal("producer QA accepted a wrong-signer statement")
 	}
 }

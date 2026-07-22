@@ -120,7 +120,7 @@ type Attestor struct {
 	evidencePath           string
 	expectSubstrateKeyPath string
 	// refusalErr remembers why Attest refused, so the MarshalJSON backstop
-	// can name the reason. Load-bearing against an upstream go-witness
+	// can name the reason. It matters because of an upstream go-witness
 	// v0.8.0 bug: attestation/context.go runAttestor is missing a return
 	// after recording a failed attestor, so the failure is recorded a
 	// second time WITHOUT the error and run.go still tries to sign the
@@ -199,7 +199,7 @@ func (a *Attestor) UnmarshalJSON(b []byte) error {
 
 // Attest implements attestation.Attestor. Any failure is remembered in
 // refusalErr so the MarshalJSON backstop names the reason (see the
-// refusalErr comment for why the backstop is load-bearing).
+// refusalErr comment for why the backstop matters).
 func (a *Attestor) Attest(ctx *attestation.AttestationContext) error {
 	if err := a.attest(ctx); err != nil {
 		a.refusalErr = err

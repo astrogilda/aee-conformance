@@ -13,6 +13,15 @@ linters:
       checks:
         - "all"
         - "-ST1000" # package-comment style, not load-bearing here
+    errcheck:
+      # Diagnostic/output writes to stdout/stderr are fire-and-forget: a failed
+      # write to the terminal is unactionable and never a verification-path
+      # fail-open. errcheck stays on for everything else (parsing, crypto, I/O
+      # on the verification path).
+      exclude-functions:
+        - fmt.Fprint
+        - fmt.Fprintf
+        - fmt.Fprintln
   exclusions:
     rules:
       # Test files read fixed vector/manifest paths under this repo, never

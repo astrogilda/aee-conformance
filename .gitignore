@@ -1,5 +1,8 @@
-# compiled binaries — never commit
-aee-verify
+# compiled binaries — never commit. The path is anchored to the repo root: an
+# unanchored "aee-verify" also matches the cmd/aee-verify/ SOURCE directory and
+# silently excludes the CLI's main.go from the repo.
+/aee-verify
+cmd/aee-verify/aee-verify
 *.test
 
 # Python bytecode cache

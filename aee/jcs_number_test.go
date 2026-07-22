@@ -22,14 +22,14 @@ func TestSafeIntegerProfile(t *testing.T) {
 		{"100.0", false, nil},            // decimal-point SAFE integer -> ok
 		{"9007199254740991", false, nil}, // 2^53 - 1
 		{"-9007199254740991", false, nil},
-		{"9007199254740992", true, ErrUnsafeInteger},   // 2^53
-		{"9007199254740993", true, ErrUnsafeInteger},   // 2^53 + 1, fits int64
+		{"9007199254740992", true, ErrUnsafeInteger},     // 2^53
+		{"9007199254740993", true, ErrUnsafeInteger},     // 2^53 + 1, fits int64
 		{"99999999999999999999", true, ErrUnsafeInteger}, // exceeds int64
-		{"1e21", true, ErrUnsafeInteger},               // THE bypass: 10^21
+		{"1e21", true, ErrUnsafeInteger},                 // THE bypass: 10^21
 		{"1E21", true, ErrUnsafeInteger},
 		{"1.0e21", true, ErrUnsafeInteger},
 		{"-1e21", true, ErrUnsafeInteger},
-		{"1.5", true, ErrNonIntegerNumber},  // non-integer -> rejected
+		{"1.5", true, ErrNonIntegerNumber}, // non-integer -> rejected
 		{"-0.1", true, ErrNonIntegerNumber},
 	}
 	for _, c := range cases {

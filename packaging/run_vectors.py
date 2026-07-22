@@ -1278,45 +1278,70 @@ def jcs_dumps_safe(obj: Any) -> bytes:
 # Second-fault-absence self-checks (single-fault discipline, machine-checked)
 # ---------------------------------------------------------------------------
 
-_ROOT_FAULT_CODES = {
-    "record-undecodable",
-    "batch-root-mismatch",
-    "batch-root-missing",
-    "batch-root-orphaned",
-    "duplicate-record",
-    "records-absent",
-    "ref-out-of-range",
-    "ref-malformed",
-    "refs-empty",
+# Single source of truth: each failure code declares its report gate stage
+# and the second-fault families it belongs to (a code may belong to more than
+# one, e.g. environment-incomplete). CODE_STAGE and the _*_FAULT_CODES sets are
+# DERIVED below so a new code is declared in exactly one place.
+_CODE_REGISTRY: dict[str, tuple[str, tuple[str, ...]]] = {
+    "statement-type-unsupported": ("gate0", ()),
+    "predicate-type-unsupported": ("gate0", ()),
+    "member-spelling": ("gate0", ()),
+    "result-vocabulary": ("gate0", ()),
+    "issued-at-missing": ("gate0", ()),
+    "issued-at-malformed": ("gate0", ()),
+    "environment-incomplete": ("gate0", ("corpus", "binding")),
+    "vocabulary-missing": ("gate0", ("vocab",)),
+    "vocabulary-not-canonical": ("gate0", ("vocab",)),
+    "vocabulary-caught-not-subset": ("gate0", ("vocab",)),
+    "vocabulary-digest-mismatch": ("gate0", ("vocab",)),
+    "corpus-digest-mismatch": ("gate0", ("corpus",)),
+    "manifest-duplicate-attack": ("gate0", ("corpus",)),
+    "coverage-missing": ("gate0", ()),
+    "coverage-incomplete": ("gate0", ()),
+    "row-attack-unknown": ("gate0", ()),
+    "malformed-missing-actual-layer": ("gate0", ()),
+    "clean-row-layer-not-none": ("gate0", ()),
+    "subject-cardinality": ("gate0", ("binding",)),
+    "subject-sha256-missing": ("gate0", ("binding",)),
+    "run-entropy-missing": ("gate0", ("binding",)),
+    "digest-not-canonical": ("gate0", ("binding",)),
+    "fail-closed-substrate-row": ("gate0", ()),
+    "record-undecodable": ("gate0", ("root",)),
+    "batch-root-missing": ("gate0", ("root", "binding")),
+    "batch-root-mismatch": ("gate0", ("root",)),
+    "batch-root-orphaned": ("gate0", ("root",)),
+    "duplicate-record": ("gate0", ("root",)),
+    "records-absent": ("gate1", ("root", "binding")),
+    "refs-empty": ("gate1", ("root", "binding")),
+    "ref-malformed": ("gate1", ("root", "binding")),
+    "ref-out-of-range": ("gate1", ("root", "binding")),
+    "payload-not-canonical": ("gate1", ("binding",)),
+    "payload-not-ijson": ("gate1", ("binding",)),
+    "payload-media-type": ("gate1", ("binding",)),
+    "payload-missing-reserved": ("gate1", ("binding",)),
+    "run-binding-mismatch": ("gate1", ("binding",)),
+    "method-cap-exceeded": ("gate1", ()),
+    "caught-row-uncovered": ("gate1", ()),
+    "reconstructed-row-uncovered": ("gate1", ()),
+    "clean-row-uncovered": ("gate1", ()),
+    "arming-covers-nothing": ("gate1", ()),
+    "sealed-covers-nothing": ("gate1", ()),
+    "examination-covers-nothing": ("gate1", ()),
+    "record-kind-unknown-covers-nothing": ("gate1", ()),
+    "result-recompute-mismatch": ("recompute", ()),
 }
-_VOCAB_FAULT_CODES = {
-    "vocabulary-digest-mismatch",
-    "vocabulary-not-canonical",
-    "vocabulary-caught-not-subset",
-    "vocabulary-missing",
-}
-_CORPUS_FAULT_CODES = {
-    "corpus-digest-mismatch",
-    "environment-incomplete",
-    "manifest-duplicate-attack",
-}
-_BINDING_FAULT_CODES = {
-    "run-binding-mismatch",
-    "run-entropy-missing",
-    "subject-sha256-missing",
-    "subject-cardinality",
-    "environment-incomplete",
-    "digest-not-canonical",
-    "payload-not-canonical",
-    "payload-not-ijson",
-    "payload-missing-reserved",
-    "payload-media-type",
-    "records-absent",
-    "ref-out-of-range",
-    "ref-malformed",
-    "refs-empty",
-    "batch-root-missing",
-}
+
+CODE_STAGE = {code: stage for code, (stage, _fams) in _CODE_REGISTRY.items()}
+
+
+def _fault_family(name: str) -> set[str]:
+    return {c for c, (_s, fams) in _CODE_REGISTRY.items() if name in fams}
+
+
+_ROOT_FAULT_CODES = _fault_family("root")
+_VOCAB_FAULT_CODES = _fault_family("vocab")
+_CORPUS_FAULT_CODES = _fault_family("corpus")
+_BINDING_FAULT_CODES = _fault_family("binding")
 
 
 def second_fault_absence(stmt: Any, expected_codes: set[str]) -> list[str]:
@@ -1503,54 +1528,6 @@ def run_external(cmd: list[str], vector_path: str) -> dict[str, Any]:
 
 GATE_NAMES = ("gate0", "gate1", "recompute", "tier", "self-check")
 
-CODE_STAGE = {
-    "statement-type-unsupported": "gate0",
-    "predicate-type-unsupported": "gate0",
-    "member-spelling": "gate0",
-    "result-vocabulary": "gate0",
-    "issued-at-missing": "gate0",
-    "issued-at-malformed": "gate0",
-    "environment-incomplete": "gate0",
-    "vocabulary-missing": "gate0",
-    "vocabulary-not-canonical": "gate0",
-    "vocabulary-caught-not-subset": "gate0",
-    "vocabulary-digest-mismatch": "gate0",
-    "corpus-digest-mismatch": "gate0",
-    "manifest-duplicate-attack": "gate0",
-    "coverage-missing": "gate0",
-    "coverage-incomplete": "gate0",
-    "row-attack-unknown": "gate0",
-    "malformed-missing-actual-layer": "gate0",
-    "clean-row-layer-not-none": "gate0",
-    "subject-cardinality": "gate0",
-    "subject-sha256-missing": "gate0",
-    "run-entropy-missing": "gate0",
-    "digest-not-canonical": "gate0",
-    "fail-closed-substrate-row": "gate0",
-    "record-undecodable": "gate0",
-    "batch-root-missing": "gate0",
-    "batch-root-mismatch": "gate0",
-    "batch-root-orphaned": "gate0",
-    "duplicate-record": "gate0",
-    "records-absent": "gate1",
-    "refs-empty": "gate1",
-    "ref-malformed": "gate1",
-    "ref-out-of-range": "gate1",
-    "payload-not-canonical": "gate1",
-    "payload-not-ijson": "gate1",
-    "payload-media-type": "gate1",
-    "payload-missing-reserved": "gate1",
-    "run-binding-mismatch": "gate1",
-    "method-cap-exceeded": "gate1",
-    "caught-row-uncovered": "gate1",
-    "reconstructed-row-uncovered": "gate1",
-    "clean-row-uncovered": "gate1",
-    "arming-covers-nothing": "gate1",
-    "sealed-covers-nothing": "gate1",
-    "examination-covers-nothing": "gate1",
-    "record-kind-unknown-covers-nothing": "gate1",
-    "result-recompute-mismatch": "recompute",
-}
 
 
 def load_manifest(suite_dir: str) -> dict[str, Any] | None:

@@ -145,19 +145,27 @@ func (a *Attestor) RunType() attestation.RunType { return RunType }
 // in the collection.
 func (a *Attestor) Export() bool { return true }
 
+// parsedSchema is the embedded predicate schema, unmarshaled once at package
+// initialization. The embedded bytes are a build-time constant (guarded by
+// TestSchemaRoundTripLossless), so a failure here is a build defect, not a
+// runtime condition: panic at load rather than let Schema() silently serve an
+// empty, misleading schema. This mirrors the regexp.MustCompile idiom.
+var parsedSchema = mustParseSchema()
+
+func mustParseSchema() *jsonschema.Schema {
+	s := &jsonschema.Schema{}
+	if err := json.Unmarshal(embeddedSchema, s); err != nil {
+		panic(fmt.Sprintf("witnessattestor: embedded predicate schema failed to unmarshal (build defect): %v", err))
+	}
+	return s
+}
+
 // Schema implements attestation.Attestor. It serves the embedded public
 // schema rather than a Go-struct reflection, so the published schema cannot
 // drift from the spec's. The schema is NON-NORMATIVE convenience: the
 // predicate specification text is authoritative; conflicts are schema bugs.
 func (a *Attestor) Schema() *jsonschema.Schema {
-	s := &jsonschema.Schema{}
-	if err := json.Unmarshal(embeddedSchema, s); err != nil {
-		// The embedded schema is a build-time constant validated by the
-		// round-trip test; reaching this branch is a build defect. Serve an
-		// empty schema rather than a misleading reflection.
-		return &jsonschema.Schema{}
-	}
-	return s
+	return parsedSchema
 }
 
 // Subjects implements attestation.Subjecter: exactly ONE subject, the

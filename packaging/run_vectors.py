@@ -1499,11 +1499,37 @@ def probe_external_verifier(path: str) -> tuple[bool, str]:
 
 
 def run_external(cmd: list[str], vector_path: str) -> dict[str, Any]:
-    proc = subprocess.run(
-        cmd + [vector_path],
-        capture_output=True,
-        timeout=120,
-    )
+    name = os.path.basename(vector_path)
+    try:
+        proc = subprocess.run(
+            cmd + [vector_path],
+            capture_output=True,
+            timeout=120,
+        )
+    except subprocess.TimeoutExpired:
+        # A hung external verifier must not kill the whole suite run: report a
+        # non-verdict for this vector so the loop continues.
+        print(f"external verifier timed out on {name}", file=sys.stderr)
+        return {
+            "verdict": "error",
+            "codes": ["external-verifier-timeout"],
+            "result": None,
+            "tiers": None,
+        }
+    except OSError as e:
+        # Covers a missing, non-executable, or otherwise unrunnable --verifier.
+        print(f"external verifier could not run on {name}: {e}", file=sys.stderr)
+        return {
+            "verdict": "error",
+            "codes": ["external-verifier-unrunnable"],
+            "result": None,
+            "tiers": None,
+        }
+    # Surface the external verifier's own diagnostics rather than swallowing
+    # them: captured stderr is otherwise invisible when a run misbehaves.
+    stderr_txt = proc.stderr.decode("utf-8", "replace").strip()
+    if stderr_txt:
+        print(f"external verifier stderr on {name}:\n{stderr_txt}", file=sys.stderr)
     verdict = "valid" if proc.returncode == 0 else "invalid"
     codes: list[str] = []
     result = None

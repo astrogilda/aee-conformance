@@ -1599,7 +1599,9 @@ def run_suite(args: argparse.Namespace) -> int:
 def _selftest_build(keys: dict[str, dict[str, Any]]) -> dict[str, Any]:
     """Build a minimal valid substrate statement with arming + sealed +
     interception records signed by the derived test key."""
-    d: Callable[[str], str] = lambda s: sha256_hex(s.encode())  # noqa: E731  (synthetic digests)
+    def d(s: str) -> str:  # synthetic digest for the self-test statement
+        return sha256_hex(s.encode())
+
     labels = ["example_label_a", "example_label_b"]
     caught = ["example_label_a"]
     manifest = {"classes": {"XA": ["XA-EXAMPLE-1", "XA-EXAMPLE-2"]}}

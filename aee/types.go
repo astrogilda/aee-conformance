@@ -195,12 +195,23 @@ type RecordSignature struct {
 	Sig   string `json:"sig"`
 }
 
+// maxStatementBytes bounds the whole untrusted statement before it is
+// unmarshaled. The JCS layer already caps per-record-payload size and nesting
+// depth, but nothing bounded the outer statement, so a statement with very many
+// records (or huge non-payload fields) could exhaust memory. The bound is
+// generous relative to any legitimate AEE statement; it is a resource guard, not
+// a conformance rule, and both reference rails apply the same limit.
+const maxStatementBytes = 64 << 20 // 64 MiB
+
 // ParseStatement decodes one complete in-toto statement. A nil error means
 // the JSON decoded; shape faults that have their own registry code are
 // collected into Statement.ParseCodes for GATE 0 rather than failing the
 // parse, so one malformed member reports its named code instead of a generic
 // failure.
 func ParseStatement(b []byte) (*Statement, error) {
+	if len(b) > maxStatementBytes {
+		return nil, fmt.Errorf("%w: statement is %d bytes", ErrInputTooLarge, len(b))
+	}
 	var shadow struct {
 		Type          *string         `json:"_type"`
 		Subject       []Subject       `json:"subject"`

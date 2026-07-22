@@ -199,6 +199,10 @@ def _walk_check_ints(v: Any) -> None:
 # shared explicit bound is what keeps the rails from splitting on deep input.
 MAX_PARSE_DEPTH = 128
 MAX_PARSE_BYTES = 20 << 20  # 20 MiB
+# Whole-statement bound, matched with the Go rail (aee/types.go maxStatementBytes)
+# so the two rails split on the same oversized input; a resource guard, not a
+# conformance rule.
+MAX_STATEMENT_BYTES = 64 << 20  # 64 MiB
 
 
 def _max_json_depth(text: str) -> int:
@@ -1853,7 +1857,9 @@ def _run_process_vector(
     rel = os.path.relpath(path, report_base)
     try:
         with open(path, "rb") as f:
-            raw = f.read()
+            raw = f.read(MAX_STATEMENT_BYTES + 1)
+        if len(raw) > MAX_STATEMENT_BYTES:
+            raise ValueError(f"statement exceeds {MAX_STATEMENT_BYTES} bytes")
         stmt = json.loads(raw.decode("utf-8"))
     except (OSError, ValueError, RecursionError) as e:
         return {

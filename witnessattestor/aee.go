@@ -245,15 +245,21 @@ func (a *Attestor) attest(ctx *attestation.AttestationContext) error {
 		}
 	}
 
-	if len(statement.Subject) == 0 {
-		return errors.New("refusing to sign: evidence statement carries no subject")
+	// GATE 0 (via VerifyForEmit above) already rejected any statement without
+	// exactly one subject carrying a sha256 digest (subject-cardinality,
+	// subject-sha256-missing). Re-assert the invariant fail-closed rather than
+	// silently build an empty DigestSet (which would bind the signed
+	// attestation to no artifact) or drop subjects past the first, in case the
+	// gate contract ever changes.
+	if len(statement.Subject) != 1 {
+		return fmt.Errorf("refusing to sign: AEE binds exactly one subject, statement carries %d", len(statement.Subject))
 	}
 	subject := statement.Subject[0]
-	digests := map[string]string{}
-	if sha, ok := subject.Digest["sha256"]; ok {
-		digests["sha256"] = sha
+	sha := subject.Digest["sha256"]
+	if sha == "" {
+		return errors.New("refusing to sign: subject carries no sha256 digest; an empty digest set would bind the attestation to no artifact")
 	}
-	subjectDigest, err := cryptoutil.NewDigestSet(digests)
+	subjectDigest, err := cryptoutil.NewDigestSet(map[string]string{"sha256": sha})
 	if err != nil {
 		return fmt.Errorf("error building subject digest set: %w", err)
 	}

@@ -1,0 +1,76 @@
+name: ci
+
+# The conformance suite is two Go modules (the stdlib-only core `aee/` plus the
+# go-witness attestor `witnessattestor/`, workspace-linked by go.work) and a
+# Python vector-generator + differential harness. CI runs the same gate the
+# repo is developed against: build, vet, format, race-test, and lint every Go
+# package; type-check and lint the Python; and replay all vectors on the Python
+# rail. Nothing here needs the repository to be public.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  go:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+      - name: gofmt (no diffs)
+        run: |
+          unformatted=$(gofmt -l aee cmd witnessattestor)
+          if [ -n "$unformatted" ]; then
+            echo "gofmt needs to run on:"; echo "$unformatted"; exit 1
+          fi
+      - name: build
+        run: |
+          go build ./aee/... ./cmd/...
+          (cd witnessattestor && go build ./...)
+      - name: vet
+        run: |
+          go vet ./aee/... ./cmd/...
+          (cd witnessattestor && go vet ./...)
+      - name: test (race)
+        run: |
+          go test ./aee/... ./cmd/... -race -count=1
+          (cd witnessattestor && go test ./... -race -count=1)
+      - name: coverage (informational; the per-file 80% gate lands with the test-coverage wave)
+        run: |
+          go test ./aee/... -cover -count=1
+          (cd witnessattestor && go test ./... -cover -count=1)
+      - name: staticcheck
+        run: |
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+          "$(go env GOPATH)/bin/staticcheck" ./aee/... ./cmd/...
+          (cd witnessattestor && "$(go env GOPATH)/bin/staticcheck" ./...)
+      - name: golangci-lint (core module)
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v2.1.6
+      - name: golangci-lint (attestor module)
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v2.1.6
+          working-directory: witnessattestor
+
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: sync toolchain
+        run: uv sync --extra dev --extra generators
+      - name: mypy --strict
+        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py
+      - name: ruff
+        run: uv run ruff check packaging vectors
+      - name: replay every vector on the Python rail (must be 118/118)
+        run: python3 packaging/run_vectors.py

@@ -59,8 +59,8 @@ const (
 	DefaultEvidenceFileName = "aee-evidence.json"
 )
 
-// RunType: the evidence file is produced by the execution step, so the
-// attestor runs post-product, exactly like the sarif attestor.
+// RunType is PostProductRunType: the evidence file is produced by the execution
+// step, so the attestor runs post-product, exactly like the sarif attestor.
 var RunType = attestation.PostProductRunType
 
 // Compile-time interface asserts. Exporter is MANDATORY: without
@@ -228,7 +228,7 @@ func (a *Attestor) attest(ctx *attestation.AttestationContext) error {
 		return fmt.Errorf("integrity error: product digest does not match evidence file %s", path)
 	}
 
-	body, err := os.ReadFile(path)
+	body, err := os.ReadFile(path) // #nosec G304 -- path is a step product located and digest-verified above, not attacker input
 	if err != nil {
 		return fmt.Errorf("error reading evidence file %s: %w", path, err)
 	}

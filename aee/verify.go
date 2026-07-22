@@ -29,6 +29,7 @@ type Report struct {
 	Tiers []Tier `json:"tiers,omitempty"`
 }
 
+// The two verdicts a Report can carry.
 const (
 	VerdictValid   = "valid"
 	VerdictInvalid = "invalid"
@@ -36,15 +37,15 @@ const (
 
 // EvalContext is a statement that has passed GATE 0 + GATE 1 + recompute
 // equality, with the single expensive record derivation (base64 + PAE + Merkle
-// + JCS over every record) memoized. It is produced ONLY by Evaluate: the
-// unexported _sealed field makes it unconstructable elsewhere in or outside the
-// package, so any function that takes an *EvalContext is guaranteed a validated
-// statement and never has to (nor can it accidentally skip) re-running the
-// gates. This collapses what were three independent recomputations -- one in
-// GATE 1, one in DeriveTiers, one in CheckRecordSignatures -- into one, which
-// removes the permanent risk that the three drift apart.
+// + JCS over every record) memoized. Every field is unexported, so an external
+// package cannot construct a usable one: the only way to obtain a populated
+// context is Evaluate. Any function that takes an *EvalContext is therefore
+// guaranteed a validated statement and never has to (nor can it accidentally
+// skip) re-running the gates. This collapses what were three independent
+// recomputations -- one in GATE 1, one in DeriveTiers, one in
+// CheckRecordSignatures -- into one, which removes the permanent risk that the
+// three drift apart.
 type EvalContext struct {
-	_sealed  struct{}
 	s        *Statement
 	states   []recordState
 	binding  string

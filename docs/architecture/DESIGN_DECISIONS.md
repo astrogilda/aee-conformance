@@ -42,8 +42,8 @@ helper, and `pae` (about seven lines total). These are NOT factored into a
 shared module. The generators are self-contained standalone scripts run directly
 (`python3 vectors/<dir>/gen_*.py`); introducing a shared module would add
 import-path machinery to both for a handful of trivial lines, trading real
-coupling for negligible de-duplication. Per the house code-style guidance, three
-similar lines beat a premature abstraction. (The generators' Merkle helpers
+coupling for negligible de-duplication, so the three similar lines are
+duplicated rather than abstracted. (The generators' Merkle helpers
 additionally diverge on purpose: the reject generator carries deliberately-wrong
 attack variants -- `merkle_root_no_domain`, `merkle_root_dup_pad` -- that must
 not be unified with the correct root.)

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Fail if any Go source file in a coverage profile is below a threshold.
 
-Go's `go test -cover` reports per-package coverage; the house policy is per-FILE.
+Go's `go test -cover` reports per-package coverage; this script enforces a
+stricter per-FILE threshold instead.
 This parses one or more `go test -coverprofile` outputs, aggregates covered vs
 total statements per file, and exits non-zero if any file is below the
 threshold. Test files and anything under an excluded path (e.g. runnable demo

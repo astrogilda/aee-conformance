@@ -23,8 +23,8 @@ import (
 	"github.com/in-toto/go-witness/attestation/product"
 	"github.com/in-toto/go-witness/cryptoutil"
 
-	// The attestor package sits at the module root of the placeholder
-	// module path; the path is re-set at landing (BUILD-NOTES.md).
+	// The attestor package sits at the module root (see BUILD-NOTES.md for
+	// the two-module layout and the workspace build).
 	witnessattestor "github.com/astrogilda/aee-conformance/witnessattestor"
 )
 

@@ -5,7 +5,7 @@
 // step's products, integrity-checks it, and embeds it), swapping "parse
 // sarif" for "parse + gate-check AEE evidence".
 //
-// HONEST FRAMING — what this attestor claims and what it does not:
+// Security scope — what this attestor claims and what it does not:
 //
 //   - The witness envelope key backs the PRODUCER-ASSERTED plane only: the
 //     assembly of the predicate, its gate-validity, and its
@@ -241,7 +241,7 @@ func (a *Attestor) attest(ctx *attestation.AttestationContext) error {
 		return fmt.Errorf("refusing to sign: evidence predicateType %q is not %q (fail-closed; no cross-version fallback)", statement.PredicateType, Type)
 	}
 
-	// >>> THE SEAM <<< GATE 0 + GATE 1 + recompute equality. The attestor
+	// Validation seam: GATE 0 + GATE 1 + recompute equality. The attestor
 	// MUST error, never sign, on any failure. The sealed context is reused by
 	// the producer-QA signature check below (no re-derivation).
 	evalCtx, err := aee.VerifyForEmit(body)

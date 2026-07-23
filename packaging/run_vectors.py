@@ -25,8 +25,8 @@ Rails
    harness falls back to the reference rail, so the suite is verifiable
    standalone.
 
-   External-rail contract (also the Rail-C wire-in contract): the verifier
-   is invoked as ``<cmd> <vector-file>``; exit 0 means valid, non-zero
+   External-implementation contract: a third-party verifier is invoked as
+   ``<cmd> <vector-file>``; exit 0 means valid, non-zero
    means invalid; if the LAST stdout line is a JSON object of the shape
    ``{"verdict": "valid"|"invalid", "codes": [...], "result": "...",
    "tiers": [...]}`` the harness additionally checks codes/result/tiers,

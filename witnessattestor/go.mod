@@ -1,5 +1,5 @@
-// go-witness-compatible attestor module; upstream go-witness PR staged.
-// Module path is a NEUTRAL PLACEHOLDER (finalized at landing).
+// go-witness-compatible attestor module. See BUILD-NOTES.md for the
+// two-module layout and the workspace build against go-witness.
 //
 // Wiring: github.com/astrogilda/aee-conformance is the sibling core module in this
 // tree; resolve it with a Go workspace (see ../go.work.example and

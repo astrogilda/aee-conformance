@@ -5,22 +5,19 @@ what is needed to reproduce it.
 
 ## Module layout (two modules, zero `replace` directives)
 
-| module | path (placeholder) | deps | builds with |
+| module | path | deps | builds with |
 |---|---|---|---|
 | core (`./`) | `github.com/astrogilda/aee-conformance` | stdlib only (enforced by `aee/imports_test.go`) | plain `go build ./...` / `go test ./...`, no workspace, no network |
 | attestor (`./witnessattestor`) | `github.com/astrogilda/aee-conformance/witnessattestor` | `github.com/in-toto/go-witness`, `github.com/invopop/jsonschema`, the core | a Go workspace (below) plus module downloads |
 
-Both module paths are neutral placeholders chosen for draft development;
-the landing commit re-paths them (one `sed` over module path and imports).
-No `replace` directive is committed in any `go.mod` by policy, so the
-cross-module link is workspace-resolved. Note the attestor `go.mod`
-deliberately carries no `require` line for the core module: in workspace
-mode the `use` directive resolves the import, and a `v0.0.0` require line
-actively breaks module-graph loading (every third-party module fetch error
-in this tree got misattributed to that phantom `v0.0.0` requirement before
-the line was dropped). At landing, `go mod tidy` inside the attestor
-module adds the real versioned require automatically once the core has a
-published path.
+No `replace` directive is committed in any `go.mod`, so the cross-module
+link is workspace-resolved. The attestor `go.mod` deliberately carries no
+`require` line for the core module: in workspace mode the `use` directive
+resolves the import, and a `v0.0.0` require line breaks module-graph
+loading (a third-party fetch error gets misattributed to the phantom
+`v0.0.0` requirement). Once the go-witness dependency is released and the
+attestor gains a versioned `require` on the core, `go mod tidy` inside the
+attestor module records it.
 
 ## Verified build and test state (what was run, in this tree)
 
@@ -33,11 +30,9 @@ directive to at least the highest member module's).
 The core module is clean end to end: `gofmt -l` clean, `go vet ./...`
 clean, `go test ./...` green across unit tests, RFC 6962 / PAE / JCS /
 run-binding known answers, emit-refusal seam tests, and the conformance
-replay of the sibling vector suite: 33 accept vectors, 83 reject vectors,
-both key policies (pinned derived test key and empty), all 116 strict
-passes after the bad-807 generator fix described below. The first replay
-came back 115 passes plus one double-faulted vector; that mismatch is the
-cross-rail catch that motivated the fix.
+replay of the sibling vector suite: 34 accept vectors, 91 reject vectors,
+both key policies (pinned derived test key and empty), all 125 strict
+passes.
 
 The attestor module compiles against the real go-witness module (workspace
 mode, with a local go-witness checkout whose own dependency graph comes
@@ -73,42 +68,26 @@ cd witnessattestor && go build ./... && go test ./...
 
 The core alone needs none of that: `go test ./...` at the tree root.
 
-`go.work` and `go.work.sum` are committed in this staging tree so it builds
+`go.work` and `go.work.sum` are committed so the attestor module builds
 and tests out of the box (the sum file pins the go-witness dependency
-graph). At landing, when the modules get real paths and the attestor
-gains a versioned `require` on the published core, both workspace files
-are dropped and `witnessattestor/go.sum` is generated in the landing
-commit.
+graph). When the go-witness dependency is released and the attestor gains
+a versioned `require` on the core, the workspace files can be dropped and
+`witnessattestor/go.sum` generated in their place.
 
-## Found defect: vector bad-807 was double-faulted (root-cause fixed)
+## Generator manifest isolation
 
-The conformance replay disagreed with the suite on exactly one vector,
-`bad-807-coverage-attack-superset` (expected sole code
-`coverage-incomplete`). The committed manifest carried `XA-EXAMPLE-1`
-under both `XA` and `XB`, which is `manifest-duplicate-attack` in its own
-right (an `attackId` MUST NOT appear under more than one class;
-spec:334-335), and this rail detects it at GATE 0, before
-coverage.
-
-The root cause sits in the invalid-set generator: `environment()`
-embedded the module-level manifest constant into built statements by
-reference, and `_b804` (bad-804's builder) appended to `classes["XB"]` in
-place, mutating the shared constant. Every vector built from that manifest
-after bad-804 inherited the duplicate as an undeclared second fault
-— bad-807 was the one it landed on. The corpus digest was recomputed over
-the already-mutated manifest at build time, so the suite's own
-second-fault self-check (roots, digests, bindings, signatures) could not
-see it: manifest content faults sit outside its four rederive surfaces.
-
-The fix goes in at the root: `environment()` now deep-copies the manifest
-at embed time, killing the whole aliasing class, with a comment naming
-this incident. The suite was regenerated, and a full-directory byte-diff
-confirmed the blast radius is exactly one file
-(`bad-807-coverage-attack-superset.json`); all 116 vectors then pass the
-strict path. The runner's quarantine mechanism (`knownDefectiveVectors` in
-`aee/vectors_test.go`) is retained but empty, ready for the next
-cross-rail catch. The two rails disagreeing is what exposed the generator
-bug; neither rail's own tests had caught it.
+The invalid-vector generators deep-copy the corpus manifest at statement
+build time. An earlier version embedded the module-level manifest constant
+by reference, so a builder that appended to one class list mutated the
+shared constant and every later-built vector inherited an undeclared
+second fault. The corpus digest was recomputed over the already-mutated
+manifest, so the generators' own second-fault self-check (roots, digests,
+bindings, signatures) could not see it, because manifest content faults
+sit outside its four rederive surfaces. The differential replay against
+the independent verifier caught the disagreement; the deep-copy at embed
+time removes the aliasing class. The runner keeps an empty
+`knownDefectiveVectors` quarantine set in `aee/vectors_test.go` for future
+differential findings.
 
 ## Deliberate implementation pins (documented, spec-question-adjacent)
 

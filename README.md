@@ -16,7 +16,7 @@ at commit `e5ea1eb` (`spec/predicates/adversarial-execution-evidence.md`).
 ## Layout
 
 ```
-go.mod                      core module (placeholder path; stdlib-only, enforced by test)
+go.mod                      core module (stdlib-only, enforced by test)
 aee/                        the verification core
   statement.go              GATE 0: statement well-formedness
   validity.go               GATE 1: coverage validity (consumption precondition)
@@ -104,7 +104,7 @@ against the recorded product digest, and then runs the emit seam (GATE 0
 + GATE 1 + recompute equality), returning an error rather than signing on
 any failure. The signed predicate bytes are exactly the validated bytes.
 
-Honest framing, stated in the package documentation and binding on every
+The security scope, stated in the package documentation and binding on every
 description of the attestor: the witness envelope key backs the
 **producer-asserted plane only** (assembly, gate-validity,
 recompute-consistency at pipeline step time), while the
@@ -126,7 +126,7 @@ currently coupled to its policy attestor).
 
 ## On independence
 
-One author wrote both the Go core here and the sibling Python rail, so they
+One author wrote both the Go core here and the sibling Python implementation, so they
 catch each other's bugs but do not amount to an independent audit. A third
 implementation from someone else is welcome: wiring one in is roughly a single
 command against the runner's stdin/stdout contract, and a conformant checker

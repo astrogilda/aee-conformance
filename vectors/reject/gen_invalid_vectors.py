@@ -10,7 +10,7 @@ batchRoot, recompute vocabulary/corpus digests, rederive the run binding),
 so no second fault is introduced. A self-check pass asserts second-fault
 ABSENCE for every vector and full gate-validity for every parent.
 
-Ground truth: spec/predicates/adversarial-execution-evidence.md @ e5ea1eb
+Ground truth: spec/predicates/adversarial-execution-evidence.md @ 4a36b19
 (in-toto/attestation PR #570 branch), version 0.6.0. Every anchor is a line
 ref into that single vendored revision, which folds in the review revisions
 (the BMP-only string profile and the arming-payload run-chaining members).
@@ -1742,7 +1742,7 @@ def write_index() -> None:
     L.append("This directory is the conformance suite's `vectors/reject/` layout.")
     L.append("")
     L.append("Ground truth: `spec/predicates/adversarial-execution-evidence.md` @")
-    L.append("`e5ea1eb` (in-toto/attestation PR #570 branch), version 0.6.0, type URI")
+    L.append("`4a36b19` (in-toto/attestation PR #570 branch), version 0.6.0, type URI")
     L.append(f"`{PREDICATE_TYPE}`.")
     L.append("All `Lnnn` anchors below are line refs into that single vendored")
     L.append("revision, which folds in the review revisions (the BMP-only string")

@@ -3,7 +3,7 @@
 This directory is the conformance suite's `vectors/reject/` layout.
 
 Ground truth: `spec/predicates/adversarial-execution-evidence.md` @
-`e5ea1eb` (in-toto/attestation PR #570 branch), version 0.6.0, type URI
+`4a36b19` (in-toto/attestation PR #570 branch), version 0.6.0, type URI
 `https://in-toto.io/attestation/adversarial-execution-evidence/v0.6`.
 All `Lnnn` anchors below are line refs into that single vendored
 revision, which folds in the review revisions (the BMP-only string

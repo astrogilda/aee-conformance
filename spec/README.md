@@ -7,7 +7,7 @@ can implement or check the predicate from this repo alone, and the `spec:NNN`
 line references throughout the Go and Python source resolve against a file that
 is actually present here (they cite line numbers in this copy).
 
-- **Tracks:** in-toto/attestation#570 at commit `e5ea1eb`.
+- **Tracks:** in-toto/attestation#570 at commit `4a36b19`.
 - **Version:** v0.6.0 (`https://in-toto.io/attestation/adversarial-execution-evidence/v0.6`).
 - **Authority:** the canonical namespace is the in-toto attestation catalog.
   This repository is the reference implementation and conformance authority for

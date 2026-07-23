@@ -11,7 +11,7 @@ implementation of that contract: any future producer of the predicateType
 can self-certify; any consumer can reject a lying emitter.
 
 Spec line references throughout the code are to the predicate specification
-at commit `e5ea1eb` (`spec/predicates/adversarial-execution-evidence.md`).
+at commit `4a36b19` (`spec/predicates/adversarial-execution-evidence.md`).
 
 ## Layout
 

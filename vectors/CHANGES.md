@@ -8,7 +8,7 @@ byte-identically from the generators.
 ## suiteRevision 1 (first public release)
 
 - Corpus: 125 vectors (34 accept, 91 reject) for the Adversarial Execution
-  Evidence predicate v0.6, tracking in-toto/attestation#570 at commit `e5ea1eb`
+  Evidence predicate v0.6, tracking in-toto/attestation#570 at commit `4a36b19`
   (which folds in the review revisions, including the BMP-only string profile
   and the optional arming-payload run-chaining members). `MANIFEST.json`
   enumerates every vector with its expected verdict, result, and code set.

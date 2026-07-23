@@ -32,7 +32,7 @@ byte-identically from the generators.
     accept vector `ok-034-arming-chain-genesis`.
   - Coverage partition: a whole manifest class left out of every coverage set
     with the result forced to pass (`bad-816-coverage-class-dropped`,
-    `coverage-incomplete`) — the class-granularity fail-open.
+    `coverage-incomplete`), the class-granularity fail-open.
   - Base64 canonicality: a record payload re-encoded as non-canonical base64
     (`bad-817-payload-noncanonical-base64`, `record-undecodable`). The Go rail
     decodes with `base64.StdEncoding.Strict()` and the Python rail

@@ -6,7 +6,7 @@ Execution Evidence predicate, version 0.6
 
 The predicate's model is execute-and-attest, not match-and-assert: the
 consumer recomputes the outcome from carried bytes instead of trusting a
-producer-asserted verdict. This tree is a second, independently usable
+producer-asserted verdict. This repository is a second, independently usable
 implementation of that contract: any future producer of the predicateType
 can self-certify; any consumer can reject a lying emitter.
 
@@ -53,7 +53,7 @@ go.work.example             wiring for building the attestor module (see BUILD-N
    and posture, sealed still-armed/drop-bound/joint posture equalities,
    examination method), and the row `method` capped by the weakest signed
    `aeeMethod` across covering records. On any failure the attestation is
-   invalid and its `result` is never consumed — the report carries no
+   invalid and its `result` is never consumed; the report carries no
    result and no tiers.
 3. Recompute equality. The carried `result` must equal the pure recompute
    over carried bytes; the recompute reads no records, no signature

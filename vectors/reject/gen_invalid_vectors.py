@@ -945,7 +945,7 @@ vec("bad-506-actuallayer-json-number", "ok-001",
     spec="L369-375",
     note="type-strictness pin: row members are strings, and a wrong-typed "
          "member is a decode-layer fault, deliberately a DIFFERENT altitude "
-         "than an absent one — a rail that maps the number to member "
+         "than an absent one, a rail that maps the number to member "
          "absence (malformed-missing-actual-layer) fails conformance here")
 
 # --- (f/g) vocabulary + runEntropy + subject -----------------------------
@@ -1737,7 +1737,7 @@ COND = {
 
 def write_index() -> None:
     L: list[str] = []
-    L.append("# INVALID conformance vectors — adversarial-execution-evidence v0.6")
+    L.append("# INVALID conformance vectors (adversarial-execution-evidence v0.6)")
     L.append("")
     L.append("This directory is the conformance suite's `vectors/reject/` layout.")
     L.append("")
@@ -1748,7 +1748,7 @@ def write_index() -> None:
     L.append("revision, which folds in the review revisions (the BMP-only string")
     L.append("profile and the arming-payload run-chaining members).")
     L.append("")
-    L.append("Every file is a COMPLETE in-toto Statement (UNWRAPPED — no outer DSSE;")
+    L.append("Every file is a COMPLETE in-toto Statement (UNWRAPPED, no outer DSSE;")
     L.append("the inner `observationRecords` carry real DSSE signatures) that a")
     L.append("conforming verifier MUST reject for exactly ONE declared reason. Each is")
     L.append("derived from a fully-valid parent statement by ONE mutation plus its")
@@ -1795,7 +1795,7 @@ def write_index() -> None:
     L.append("Corpus and vocabulary digests are JCS digests of the manifest and")
     L.append("`{\"caught\": [...], \"labels\": [...]}` objects embedded in each vector.")
     L.append("Run bindings derive per spec L87-93 from each statement's own values.")
-    L.append("Negative known-answer for bad-303 — the v2 pre-image that MUST NOT")
+    L.append("Negative known-answer for bad-303, the v2 pre-image that MUST NOT")
     L.append("match (JCS, then SHA-256):")
     _env = environment(M1)
     L.append("")
@@ -1833,7 +1833,7 @@ def write_index() -> None:
         codes = ", ".join(f"`{c}`" for c in v["codes"])
         if v["compound"]:
             codes += " (COMPOUND)"
-        red = ", ".join(v["rederive"]) if v["rederive"] else "—"
+        red = ", ".join(v["rederive"]) if v["rederive"] else "-"
         L.append(f"| `{v['id']}` | {v['parent']} | {v['mutation']} | {red} "
                  f"| {conds} | {codes} | {v['spec']} |")
     L.append("")
@@ -1841,7 +1841,7 @@ def write_index() -> None:
     L.append("")
     for v in VECTORS:
         if v["note"]:
-            L.append(f"- **{v['id']}** — {v['note']}.")
+            L.append(f"- **{v['id']}**: {v['note']}.")
     L.append("")
     L.append("## Compound vectors and precedence pins")
     L.append("")

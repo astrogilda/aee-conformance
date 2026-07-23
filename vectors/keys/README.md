@@ -1,6 +1,6 @@
 # Test keys
 
-The suite is signed with **TEST KEYS ONLY** — deterministic Ed25519 keys any
+The suite is signed with **TEST KEYS ONLY**: deterministic Ed25519 keys any
 verifier re-derives from a published recipe, so no private key material is
 distributed and the vectors are reproducible by anyone.
 

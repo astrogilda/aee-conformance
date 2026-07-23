@@ -1,4 +1,4 @@
-# INVALID conformance vectors — adversarial-execution-evidence v0.6
+# INVALID conformance vectors (adversarial-execution-evidence v0.6)
 
 This directory is the conformance suite's `vectors/reject/` layout.
 
@@ -9,7 +9,7 @@ All `Lnnn` anchors below are line refs into that single vendored
 revision, which folds in the review revisions (the BMP-only string
 profile and the arming-payload run-chaining members).
 
-Every file is a COMPLETE in-toto Statement (UNWRAPPED — no outer DSSE;
+Every file is a COMPLETE in-toto Statement (UNWRAPPED, no outer DSSE;
 the inner `observationRecords` carry real DSSE signatures) that a
 conforming verifier MUST reject for exactly ONE declared reason. Each is
 derived from a fully-valid parent statement by ONE mutation plus its
@@ -64,7 +64,7 @@ validity for every parent. Regenerate byte-identically with:
 Corpus and vocabulary digests are JCS digests of the manifest and
 `{"caught": [...], "labels": [...]}` objects embedded in each vector.
 Run bindings derive per spec L87-93 from each statement's own values.
-Negative known-answer for bad-303 — the v2 pre-image that MUST NOT
+Negative known-answer for bad-303, the v2 pre-image that MUST NOT
 match (JCS, then SHA-256):
 
 ```json
@@ -154,22 +154,22 @@ so the declared fault stays the ONLY fault.
 
 | vector | parent | single mutation | rederive | conditions (aee-c ids) | expected rejection | spec |
 |---|---|---|---|---|---|---|
-| `bad-001-result-uppercase` | ok-002 | result: "PASS" | — | aee-c-1 aee-c-2 | `result-vocabulary`, `result-recompute-mismatch` (COMPOUND) | L260; L215-218 |
-| `bad-002-result-mismatch-caught` | ok-001 | carried result: "pass" over a caught row (recompute: fail) | — | aee-c-2 | `result-recompute-mismatch` | L215-218; L262-264 |
-| `bad-003-result-mismatch-oov-label` | ok-009 | carried result: "pass" over a fail-closed out-of-vocabulary label | — | aee-c-2 aee-c-4 | `result-recompute-mismatch` | L264-265 |
-| `bad-004-result-mismatch-failclosed` | ok-008 | carried result: "pass" over a fail-closed unknown method row | — | aee-c-2 aee-c-5 | `result-recompute-mismatch` | L265-266 |
-| `bad-005-result-mismatch-coverage-gap` | ok-004 | carried result: "pass" with a non-empty coverage.outOfScope | — | aee-c-2 aee-c-6 | `result-recompute-mismatch` | L266-267 |
-| `bad-006-result-fail-on-pass` | ok-002 | carried result: "fail" where the recompute derives pass | — | aee-c-2 | `result-recompute-mismatch` | L215-218 |
-| `bad-007-result-degraded-on-pass` | ok-002 | carried result: "degraded" where the recompute derives pass | — | aee-c-2 | `result-recompute-mismatch` | L215-218 |
-| `bad-008-result-unknown-token` | ok-002 | result: "error" | — | aee-c-1 aee-c-2 | `result-vocabulary`, `result-recompute-mismatch` (COMPOUND) | L260 |
-| `bad-101-refs-empty` | ok-001 | caught substrate row observationRefs: [] | — | aee-c-10 aee-c-12 | `refs-empty`, `caught-row-uncovered` (COMPOUND) | L278; L280-282 |
-| `bad-102-ref-out-of-range` | ok-001 | observationRefs: [0, 7] with one record (valid cover kept) | — | aee-c-11 | `ref-out-of-range` | L278-279 |
-| `bad-103-ref-negative` | ok-001 | observationRefs: [0, -1] | — | aee-c-11 | `ref-malformed` | L278-279 |
+| `bad-001-result-uppercase` | ok-002 | result: "PASS" | - | aee-c-1 aee-c-2 | `result-vocabulary`, `result-recompute-mismatch` (COMPOUND) | L260; L215-218 |
+| `bad-002-result-mismatch-caught` | ok-001 | carried result: "pass" over a caught row (recompute: fail) | - | aee-c-2 | `result-recompute-mismatch` | L215-218; L262-264 |
+| `bad-003-result-mismatch-oov-label` | ok-009 | carried result: "pass" over a fail-closed out-of-vocabulary label | - | aee-c-2 aee-c-4 | `result-recompute-mismatch` | L264-265 |
+| `bad-004-result-mismatch-failclosed` | ok-008 | carried result: "pass" over a fail-closed unknown method row | - | aee-c-2 aee-c-5 | `result-recompute-mismatch` | L265-266 |
+| `bad-005-result-mismatch-coverage-gap` | ok-004 | carried result: "pass" with a non-empty coverage.outOfScope | - | aee-c-2 aee-c-6 | `result-recompute-mismatch` | L266-267 |
+| `bad-006-result-fail-on-pass` | ok-002 | carried result: "fail" where the recompute derives pass | - | aee-c-2 | `result-recompute-mismatch` | L215-218 |
+| `bad-007-result-degraded-on-pass` | ok-002 | carried result: "degraded" where the recompute derives pass | - | aee-c-2 | `result-recompute-mismatch` | L215-218 |
+| `bad-008-result-unknown-token` | ok-002 | result: "error" | - | aee-c-1 aee-c-2 | `result-vocabulary`, `result-recompute-mismatch` (COMPOUND) | L260 |
+| `bad-101-refs-empty` | ok-001 | caught substrate row observationRefs: [] | - | aee-c-10 aee-c-12 | `refs-empty`, `caught-row-uncovered` (COMPOUND) | L278; L280-282 |
+| `bad-102-ref-out-of-range` | ok-001 | observationRefs: [0, 7] with one record (valid cover kept) | - | aee-c-11 | `ref-out-of-range` | L278-279 |
+| `bad-103-ref-negative` | ok-001 | observationRefs: [0, -1] | - | aee-c-11 | `ref-malformed` | L278-279 |
 | `bad-104-caught-refs-arming-only` | ok-001 | append a fully-valid arming record; caught intercepted row refs only it | recompute-batch-root | aee-c-12 | `caught-row-uncovered` | L280-282 |
 | `bad-105-reconstructed-refs-interception` | ok-006 | append a fully-valid interception record; reconstructed row refs only it | recompute-batch-root | aee-c-13 | `reconstructed-row-uncovered` | L282-283 |
-| `bad-106-clean-missing-sealed` | ok-002 | clean row refs the arming record only | — | aee-c-14 | `clean-row-uncovered` | L283-286 |
-| `bad-107-clean-missing-arming` | ok-002 | clean row refs the sealed record only | — | aee-c-14 | `clean-row-uncovered` | L283-286 |
-| `bad-108-ref-non-integer` | ok-001 | observationRefs: [0, 1.5] | — | aee-c-11 | `ref-malformed` | L278-279 |
+| `bad-106-clean-missing-sealed` | ok-002 | clean row refs the arming record only | - | aee-c-14 | `clean-row-uncovered` | L283-286 |
+| `bad-107-clean-missing-arming` | ok-002 | clean row refs the sealed record only | - | aee-c-14 | `clean-row-uncovered` | L283-286 |
+| `bad-108-ref-non-integer` | ok-001 | observationRefs: [0, 1.5] | - | aee-c-11 | `ref-malformed` | L278-279 |
 | `bad-201-payload-unsorted-keys` | ok-001 | covering payload re-serialized with reverse-sorted member order | re-sign-record, recompute-batch-root | aee-c-17 | `payload-not-canonical` | L287-288; L625-630 |
 | `bad-202-payload-bignum` | ok-001 | covering payload gains an integer member 2^53+1 | re-sign-record, recompute-batch-root | aee-c-18 | `payload-not-ijson` | L627-629; L67-70 |
 | `bad-203-payload-duplicate-member` | ok-001 | byte-crafted duplicate aeeMethod member in the covering payload | re-sign-record, recompute-batch-root | aee-c-18 | `payload-not-ijson` | L627-629 |
@@ -182,32 +182,32 @@ so the declared fault stays the ONLY fault.
 | `bad-302-method-inflation` | ok-001 | row method "intercepted"; sole covering record signed "reconstructed" | re-sign-record, recompute-batch-root | aee-c-23 | `method-cap-exceeded` | L291-292 |
 | `bad-303-binding-version-2` | ok-002 | records signed with a binding derived from an "aeeBindingVersion": "2" pre-image | derive-binding-v2, re-sign-record, recompute-batch-root | aee-c-75 aee-c-22 | `run-binding-mismatch` | L131-135; L289-290 |
 | `bad-304-method-cap-multirecord` | ok-030 | row method "intercepted" covered by TWO interceptions with signed methods {intercepted, reconstructed}: exceeds the weakest | re-sign-record, recompute-batch-root | aee-c-23 aee-c-45 | `method-cap-exceeded` | L291-292 |
-| `bad-401-records-no-batchroot` | ok-002 | batchRoot member removed while observationRecords is non-empty | — | aee-c-24 | `batch-root-missing` | L736; L748-750 |
-| `bad-402-root-no-domain-separation` | ok-014 | root computed without the 0x00/0x01 domain-separation prefixes | — | aee-c-25 | `batch-root-mismatch` | L738-741 |
-| `bad-403-root-bitcoin-padding` | ok-014 | 3-leaf root computed by duplicate-last-leaf padding instead of the RFC 6962 recursive split | — | aee-c-26 | `batch-root-mismatch` | L741-743 |
-| `bad-404-root-leaf-order-swapped` | ok-014 | root computed over leaves in swapped order | — | aee-c-27 | `batch-root-mismatch` | L743 |
+| `bad-401-records-no-batchroot` | ok-002 | batchRoot member removed while observationRecords is non-empty | - | aee-c-24 | `batch-root-missing` | L736; L748-750 |
+| `bad-402-root-no-domain-separation` | ok-014 | root computed without the 0x00/0x01 domain-separation prefixes | - | aee-c-25 | `batch-root-mismatch` | L738-741 |
+| `bad-403-root-bitcoin-padding` | ok-014 | 3-leaf root computed by duplicate-last-leaf padding instead of the RFC 6962 recursive split | - | aee-c-26 | `batch-root-mismatch` | L741-743 |
+| `bad-404-root-leaf-order-swapped` | ok-014 | root computed over leaves in swapped order | - | aee-c-27 | `batch-root-mismatch` | L743 |
 | `bad-405-duplicate-records` | ok-002 | two byte-identical records in the tree; root recomputes CORRECTLY over all three leaves | recompute-batch-root | aee-c-29 | `duplicate-record` | L745-746 |
-| `bad-406-root-hex-tamper` | ok-002 | one hex digit of batchRoot flipped | — | aee-c-30 | `batch-root-mismatch` | L748-750 |
-| `bad-407-substrate-row-no-records` | ok-001 | remove observationRecords AND batchRoot under a substrate row (2-op mutation) | — | aee-c-31 aee-c-11 | `records-absent`, `ref-out-of-range` (COMPOUND) | L753-757; L278-279 |
-| `bad-408-batchroot-without-records` | ok-007 | orphan batchRoot added to a recordless artifact-only statement | — | aee-c-31 | `batch-root-orphaned` | L753-757; L744 |
-| `bad-409-artifact-records-bad-root` | ok-029 | one hex digit off on an artifact-only-with-records statement | — | aee-c-30 aee-c-24 | `batch-root-mismatch` | L748-750 |
-| `bad-501-substrate-unknown-method` | ok-001 | substrate row method: "example.method-x" (unknown value); refs, records, root, entropy intact; carried fail kept | — | aee-c-44 aee-c-5 aee-c-42 | `fail-closed-substrate-row` | L305-309; L467-470 |
-| `bad-502-missing-actual-layer` | ok-001 | drop actualLayer from the row | — | aee-c-47 | `malformed-missing-actual-layer` | L374-375; L590-598 |
-| `bad-503-clean-row-layer-not-none` | ok-002 | clean row actualLayer: "policy.egress_sinkhole" (MUST be the literal "none") | — | aee-c-48 | `clean-row-layer-not-none` | L599-604 |
-| `bad-504-substrate-oov-label` | ok-001 | substrate row containmentObserved: "example_label_a" (not in carried labels); carried fail kept | — | aee-c-4 aee-c-44 | `fail-closed-substrate-row` | L264-265; L305-309 |
-| `bad-505-substrate-missing-method` | ok-001 | substrate row method member ABSENT | — | aee-c-5 aee-c-42 aee-c-44 | `fail-closed-substrate-row` | L265-266; L467-470; L305-309 |
-| `bad-506-actuallayer-json-number` | ok-001 | caught row actualLayer carried as the JSON number 7 (wrong member type); refs, records, root, entropy intact; carried fail kept | — | aee-c-88 | `statement-malformed` | L369-375 |
-| `bad-601-vocabulary-absent` | ok-007 | drop observationVocabulary; carried fail kept | — | aee-c-51 | `vocabulary-missing` | L339-347 |
+| `bad-406-root-hex-tamper` | ok-002 | one hex digit of batchRoot flipped | - | aee-c-30 | `batch-root-mismatch` | L748-750 |
+| `bad-407-substrate-row-no-records` | ok-001 | remove observationRecords AND batchRoot under a substrate row (2-op mutation) | - | aee-c-31 aee-c-11 | `records-absent`, `ref-out-of-range` (COMPOUND) | L753-757; L278-279 |
+| `bad-408-batchroot-without-records` | ok-007 | orphan batchRoot added to a recordless artifact-only statement | - | aee-c-31 | `batch-root-orphaned` | L753-757; L744 |
+| `bad-409-artifact-records-bad-root` | ok-029 | one hex digit off on an artifact-only-with-records statement | - | aee-c-30 aee-c-24 | `batch-root-mismatch` | L748-750 |
+| `bad-501-substrate-unknown-method` | ok-001 | substrate row method: "example.method-x" (unknown value); refs, records, root, entropy intact; carried fail kept | - | aee-c-44 aee-c-5 aee-c-42 | `fail-closed-substrate-row` | L305-309; L467-470 |
+| `bad-502-missing-actual-layer` | ok-001 | drop actualLayer from the row | - | aee-c-47 | `malformed-missing-actual-layer` | L374-375; L590-598 |
+| `bad-503-clean-row-layer-not-none` | ok-002 | clean row actualLayer: "policy.egress_sinkhole" (MUST be the literal "none") | - | aee-c-48 | `clean-row-layer-not-none` | L599-604 |
+| `bad-504-substrate-oov-label` | ok-001 | substrate row containmentObserved: "example_label_a" (not in carried labels); carried fail kept | - | aee-c-4 aee-c-44 | `fail-closed-substrate-row` | L264-265; L305-309 |
+| `bad-505-substrate-missing-method` | ok-001 | substrate row method member ABSENT | - | aee-c-5 aee-c-42 aee-c-44 | `fail-closed-substrate-row` | L265-266; L467-470; L305-309 |
+| `bad-506-actuallayer-json-number` | ok-001 | caught row actualLayer carried as the JSON number 7 (wrong member type); refs, records, root, entropy intact; carried fail kept | - | aee-c-88 | `statement-malformed` | L369-375 |
+| `bad-601-vocabulary-absent` | ok-007 | drop observationVocabulary; carried fail kept | - | aee-c-51 | `vocabulary-missing` | L339-347 |
 | `bad-602-caught-not-subset` | ok-002 | caught gains "example_label_x" which is not in labels; digest recomputed over the mutated content | recompute-vocabulary-digest | aee-c-52 | `vocabulary-caught-not-subset` | L343-345 |
 | `bad-603-labels-unsorted` | ok-002 | labels in descending order; digest recomputed | recompute-vocabulary-digest | aee-c-53 | `vocabulary-not-canonical` | L345 |
 | `bad-604-caught-duplicate` | ok-002 | duplicate entry in caught; digest recomputed | recompute-vocabulary-digest | aee-c-53 | `vocabulary-not-canonical` | L345 |
-| `bad-605-vocabulary-digest-mismatch` | ok-002 | stale vocabulary digest over unchanged content | — | aee-c-54 | `vocabulary-digest-mismatch` | L345-347 |
-| `bad-606-missing-runentropy` | ok-002 | drop runEntropy on a substrate-row-carrying statement | — | aee-c-57 | `run-entropy-missing` | L351-353; L119-120 |
-| `bad-607-two-subjects-substrate` | ok-002 | second subject appended to a substrate-row-carrying statement | — | aee-c-58 | `subject-cardinality` | L115 |
+| `bad-605-vocabulary-digest-mismatch` | ok-002 | stale vocabulary digest over unchanged content | - | aee-c-54 | `vocabulary-digest-mismatch` | L345-347 |
+| `bad-606-missing-runentropy` | ok-002 | drop runEntropy on a substrate-row-carrying statement | - | aee-c-57 | `run-entropy-missing` | L351-353; L119-120 |
+| `bad-607-two-subjects-substrate` | ok-002 | second subject appended to a substrate-row-carrying statement | - | aee-c-58 | `subject-cardinality` | L115 |
 | `bad-608-digest-uppercase` | ok-002 | runEntropy digest upper-cased; binding rederived VERBATIM over the uppercase value and records re-signed with it | rederive-run-binding-verbatim, re-sign-record, recompute-batch-root | aee-c-59 | `digest-not-canonical` | L115-119 |
 | `bad-609-digest-truncated` | ok-002 | substrate digest truncated to 63 hex chars; verbatim rederive chain | rederive-run-binding-verbatim, re-sign-record, recompute-batch-root | aee-c-59 | `digest-not-canonical` | L115-119 |
 | `bad-610-empty-labels-substrate` | ok-001 | labels: [] and caught: [] (digest recomputed) under a substrate row whose label is now out-of-vocabulary | recompute-vocabulary-digest | aee-c-4 aee-c-44 aee-c-53 | `fail-closed-substrate-row` | L305-309; L345 |
-| `bad-611-subject-no-sha256` | ok-002 | subject digest carries only sha512 | — | aee-c-59 aee-c-60 | `subject-sha256-missing` | L115-119 |
+| `bad-611-subject-no-sha256` | ok-002 | subject digest carries only sha512 | - | aee-c-59 aee-c-60 | `subject-sha256-missing` | L115-119 |
 | `bad-612-labels-non-bmp` | ok-001 | labels gains the supplementary-plane entry U+1F600; digest recomputed over the mutated content | recompute-vocabulary-digest | aee-c-86 | `vocabulary-not-canonical` | L72-86 |
 | `bad-701-arming-missing-armedat` | ok-002 | drop armedAt from the arming payload | re-sign-record, recompute-batch-root | aee-c-63 | `arming-covers-nothing` | L636-641; L651-654 |
 | `bad-702-armedat-after-issuedat` | ok-002 | arming armedAt: "2026-01-01T00:01:00Z" (after issuedAt) | re-sign-record, recompute-batch-root | aee-c-63 | `arming-covers-nothing` | L636-641 |
@@ -228,70 +228,70 @@ so the declared fault stays the ONLY fault.
 | `bad-718-chain-runseq-zero` | ok-002 | arming payload gains aeeRunSeq: 0 with aeeChainScope present (a sequence number is a positive integer) | re-sign-record, recompute-batch-root | aee-c-89 | `arming-covers-nothing` | L662-673 |
 | `bad-719-chain-missing-scope` | ok-002 | arming payload gains aeeRunSeq: 1 with NO aeeChainScope (aeeChainScope is required whenever aeeRunSeq is present) | re-sign-record, recompute-batch-root | aee-c-89 | `arming-covers-nothing` | L662-673 |
 | `bad-720-chain-prev-not-hex` | ok-002 | arming payload gains aeeRunSeq: 2, aeeChainScope, and an aeePrevRunBinding that is not lowercase 64-hex | re-sign-record, recompute-batch-root | aee-c-89 | `arming-covers-nothing` | L662-673 |
-| `bad-801-wrong-predicatetype` | ok-002 | v0.5 predicateType URI on a v0.6-shaped statement | — | aee-c-77 | `predicate-type-unsupported` | L3; L162 |
-| `bad-802-missing-catchpolicy` | ok-007 | drop catchPolicy | — | aee-c-78 | `environment-incomplete` | L328-337 |
-| `bad-803-corpus-digest-mismatch` | ok-007 | corpus.digest is not the JCS digest of the embedded manifest | — | aee-c-79 | `corpus-digest-mismatch` | L332-335; L353-356 |
+| `bad-801-wrong-predicatetype` | ok-002 | v0.5 predicateType URI on a v0.6-shaped statement | - | aee-c-77 | `predicate-type-unsupported` | L3; L162 |
+| `bad-802-missing-catchpolicy` | ok-007 | drop catchPolicy | - | aee-c-78 | `environment-incomplete` | L328-337 |
+| `bad-803-corpus-digest-mismatch` | ok-007 | corpus.digest is not the JCS digest of the embedded manifest | - | aee-c-79 | `corpus-digest-mismatch` | L332-335; L353-356 |
 | `bad-804-attackid-two-classes` | ok-033 | XA-EXAMPLE-1 appears under two manifest classes; corpus digest recomputed | recompute-corpus-digest | aee-c-80 | `manifest-duplicate-attack` | L334-335 |
-| `bad-805-row-unknown-attackid` | ok-001 | row attackId: "XA-EXAMPLE-9" absent from the manifest | — | aee-c-81 aee-c-82 | `row-attack-unknown`, `coverage-incomplete` (COMPOUND) | L369; L393-396 |
-| `bad-806-coverage-attack-omitted` | ok-011 | one of the two rows of a 2-attack assessed class deleted (quiet omission) | — | aee-c-82 | `coverage-incomplete` | L393-396 |
-| `bad-807-coverage-attack-superset` | ok-004 | added artifact-basis clean row for the outOfScope class's attack; result stays degraded | — | aee-c-82 | `coverage-incomplete` | L393-396 |
-| `bad-816-coverage-class-dropped` | ok-004 | manifest class XB dropped from all three coverage sets (not assessed, not outOfScope, not routedElsewhere), result forced to pass: the class-granularity coverage-partition fail-open | — | aee-c-82 | `coverage-incomplete` | L360-365; L393-396 |
-| `bad-817-payload-noncanonical-base64` | ok-001 | covering record payload re-encoded as non-canonical base64 (nonzero trailing bits); the record no longer strict-decodes | — | aee-c-19 | `record-undecodable` | L609-612 |
-| `bad-808-coverage-absent` | ok-002 | drop coverage | — | aee-c-83 | `coverage-missing` | L358-362 |
-| `bad-809-snake-case-doesnotassert` | ok-002 | statement carries the rejected snake_case spelling of doesNotAssert | — | aee-c-84 | `member-spelling` | L759-769 |
-| `bad-810-missing-issuedat` | ok-007 | drop issuedAt | — | aee-c-85 | `issued-at-missing` | L771-773 |
-| `bad-811-issuedat-not-rfc3339` | ok-007 | issuedAt: "yesterday" | — | aee-c-85 | `issued-at-malformed` | L771-773 |
-| `bad-812-missing-networkposture` | ok-007 | drop networkPosture | — | aee-c-78 | `environment-incomplete` | L328-339 |
-| `bad-813-missing-corpus` | ok-007 | drop corpus | — | aee-c-78 | `environment-incomplete` | L328-335 |
-| `bad-814-missing-substrate` | ok-007 | drop substrate | — | aee-c-78 | `environment-incomplete` | L328-332 |
-| `bad-815-wrong-statement-type` | ok-002 | _type is not the in-toto Statement/v1 URI | — | aee-c-77 | `statement-type-unsupported` | L158 |
+| `bad-805-row-unknown-attackid` | ok-001 | row attackId: "XA-EXAMPLE-9" absent from the manifest | - | aee-c-81 aee-c-82 | `row-attack-unknown`, `coverage-incomplete` (COMPOUND) | L369; L393-396 |
+| `bad-806-coverage-attack-omitted` | ok-011 | one of the two rows of a 2-attack assessed class deleted (quiet omission) | - | aee-c-82 | `coverage-incomplete` | L393-396 |
+| `bad-807-coverage-attack-superset` | ok-004 | added artifact-basis clean row for the outOfScope class's attack; result stays degraded | - | aee-c-82 | `coverage-incomplete` | L393-396 |
+| `bad-816-coverage-class-dropped` | ok-004 | manifest class XB dropped from all three coverage sets (not assessed, not outOfScope, not routedElsewhere), result forced to pass: the class-granularity coverage-partition fail-open | - | aee-c-82 | `coverage-incomplete` | L360-365; L393-396 |
+| `bad-817-payload-noncanonical-base64` | ok-001 | covering record payload re-encoded as non-canonical base64 (nonzero trailing bits); the record no longer strict-decodes | - | aee-c-19 | `record-undecodable` | L609-612 |
+| `bad-808-coverage-absent` | ok-002 | drop coverage | - | aee-c-83 | `coverage-missing` | L358-362 |
+| `bad-809-snake-case-doesnotassert` | ok-002 | statement carries the rejected snake_case spelling of doesNotAssert | - | aee-c-84 | `member-spelling` | L759-769 |
+| `bad-810-missing-issuedat` | ok-007 | drop issuedAt | - | aee-c-85 | `issued-at-missing` | L771-773 |
+| `bad-811-issuedat-not-rfc3339` | ok-007 | issuedAt: "yesterday" | - | aee-c-85 | `issued-at-malformed` | L771-773 |
+| `bad-812-missing-networkposture` | ok-007 | drop networkPosture | - | aee-c-78 | `environment-incomplete` | L328-339 |
+| `bad-813-missing-corpus` | ok-007 | drop corpus | - | aee-c-78 | `environment-incomplete` | L328-335 |
+| `bad-814-missing-substrate` | ok-007 | drop substrate | - | aee-c-78 | `environment-incomplete` | L328-332 |
+| `bad-815-wrong-statement-type` | ok-002 | _type is not the in-toto Statement/v1 URI | - | aee-c-77 | `statement-type-unsupported` | L158 |
 
 ## Notes on specific vectors
 
-- **bad-001-result-uppercase** — uppercase token is both out-of-vocabulary and not the recompute.
-- **bad-006-result-fail-on-pass** — equality is two-directional.
-- **bad-101-refs-empty** — an empty ref set on a caught row inherently also uncovers it.
-- **bad-201-payload-unsorted-keys** — rawBytes: the committed base64 payload bytes are the fault; identical content, non-JCS order.
-- **bad-202-payload-bignum** — rawBytes.
-- **bad-203-payload-duplicate-member** — rawBytes.
-- **bad-204-payload-media-type** — PAE covers payloadType, so the record is re-signed: the media type is the ONLY fault.
-- **bad-208-payload-member-non-bmp** — rawBytes; BMP-only string profile: the name sorts last under BOTH the UTF-16 and the code-point member order, so the payload bytes stay canonical under either reading and the supplementary-plane member NAME is the single fault (a supplementary-plane member VALUE stays legal).
-- **bad-301-run-binding-splice** — the statement's own corpus is unchanged; the records were earned under another run's environment.
-- **bad-303-binding-version-2** — negative known-answer: the v2 pre-image MUST NOT match; a verifier has exactly one construction and never tries a second.
-- **bad-304-method-cap-multirecord** — min-composition: a max()/any() rail wrongly accepts this.
-- **bad-405-duplicate-records** — single fault: duplicate identity, not root arithmetic.
-- **bad-407-substrate-row-no-records** — precedence pin: records-absent is reported when the array is absent entirely; ref-out-of-range only when records exist.
-- **bad-409-artifact-records-bad-root** — the root check is statement-level: it runs even with zero substrate rows.
-- **bad-501-substrate-unknown-method** — pairs with ok-008: the SAME fail-closed axis on an artifact row is a VALID fail.
-- **bad-502-missing-actual-layer** — malformed STATEMENT, deliberately NOT a fail-closed row: a verifier answering result:fail here fails conformance.
-- **bad-504-substrate-oov-label** — pairs with ok-009 (artifact twin stays valid).
-- **bad-505-substrate-missing-method** — pairs with ok-027 (artifact row with absent method is a VALID fail).
-- **bad-506-actuallayer-json-number** — type-strictness pin: row members are strings, and a wrong-typed member is a decode-layer fault, deliberately a DIFFERENT altitude than an absent one — a rail that maps the number to member absence (malformed-missing-actual-layer) fails conformance here.
-- **bad-601-vocabulary-absent** — artifact-only parent: no digest or binding cascade.
-- **bad-606-missing-runentropy** — precedence pin: a missing binding INPUT reports its member code, never run-binding-mismatch.
-- **bad-607-two-subjects-substrate** — subject[0] unchanged, so record bindings still derive: the cardinality rule is the ONLY fault.
-- **bad-608-digest-uppercase** — a rail that derives verbatim finds the binding EQUAL; only the lowercase-64-hex format rule fails.
-- **bad-610-empty-labels-substrate** — empty vocabulary is internally canonical (vacuously sorted, vacuously a subset); the fault is the fail-closed substrate row.
-- **bad-611-subject-no-sha256** — precedence pin: missing binding input reports the member code; records keep the parent binding (unreachable check).
-- **bad-612-labels-non-bmp** — BMP-only string profile: the entry sorts last under BOTH the UTF-16 and the code-point order, so sortedness, the caught subset, and the digest all still verify and the supplementary-plane entry is the single fault.
-- **bad-703-arming-posture-mismatch** — inherently compound: the sealed record must equal BOTH the arming record's and the pinned digest, so one arming edit un-covers the sealed record too.
-- **bad-710-sealed-posture-mismatch** — both posture sub-clauses fire together; they are distinguishable only in already-invalid statements.
-- **bad-713-only-sealed-ref-noncovering** — discriminates rails that scan all records instead of the row's referenced set.
-- **bad-714-unknown-kind-sole-cover** — pairs with ok-013: an unknown kind that no row NEEDS is ignored and only contributes its leaf.
-- **bad-718-chain-runseq-zero** — pairs with the genesis accept vector ok-034 (aeeRunSeq 1, scope present, no predecessor).
-- **bad-719-chain-missing-scope** — an unscoped counter makes every chain rule vacuous, so the syntax check rejects it fail-closed.
-- **bad-720-chain-prev-not-hex** — a predecessor binding is a lowercase 64-hex run binding digest, present exactly when aeeRunSeq exceeds 1.
-- **bad-801-wrong-predicatetype** — a verifier MUST NOT process this as v0.6.
-- **bad-802-missing-catchpolicy** — artifact-only parent: no binding cascade; defeats the empty-vs-enforcing policy distinguishability.
-- **bad-803-corpus-digest-mismatch** — statement-side lie, vs bad-301's record-side splice.
-- **bad-804-attackid-two-classes** — artifact-only degraded parent avoids any binding cascade; coverage over the assessed class is unchanged.
-- **bad-805-row-unknown-attackid** — precedence pin: row-attack-unknown.
-- **bad-806-coverage-attack-omitted** — the second interception record stays in the tree (unreferenced records are legal), so the root is untouched: single fault.
-- **bad-807-coverage-attack-superset** — superset direction of exactly-equal coverage.
-- **bad-816-coverage-class-dropped** — distinct from bad-806/807 (attack granularity within an assessed class): a whole manifest class left silently unaccounted.
-- **bad-817-payload-noncanonical-base64** — encoding-layer divergence: Go decodes with StdEncoding.Strict() and the Python rail re-encode-compares, so both reject; a lenient decoder would accept. The stale signature and batch root are unreachable because a decode failure short-circuits both checks (validity.go:120).
-- **bad-809-snake-case-doesnotassert** — single-canonicalization rule: no alias.
-- **bad-810-missing-issuedat** — artifact-only parent: no armedAt comparison cascade.
+- **bad-001-result-uppercase**: uppercase token is both out-of-vocabulary and not the recompute.
+- **bad-006-result-fail-on-pass**: equality is two-directional.
+- **bad-101-refs-empty**: an empty ref set on a caught row inherently also uncovers it.
+- **bad-201-payload-unsorted-keys**: rawBytes: the committed base64 payload bytes are the fault; identical content, non-JCS order.
+- **bad-202-payload-bignum**: rawBytes.
+- **bad-203-payload-duplicate-member**: rawBytes.
+- **bad-204-payload-media-type**: PAE covers payloadType, so the record is re-signed: the media type is the ONLY fault.
+- **bad-208-payload-member-non-bmp**: rawBytes; BMP-only string profile: the name sorts last under BOTH the UTF-16 and the code-point member order, so the payload bytes stay canonical under either reading and the supplementary-plane member NAME is the single fault (a supplementary-plane member VALUE stays legal).
+- **bad-301-run-binding-splice**: the statement's own corpus is unchanged; the records were earned under another run's environment.
+- **bad-303-binding-version-2**: negative known-answer: the v2 pre-image MUST NOT match; a verifier has exactly one construction and never tries a second.
+- **bad-304-method-cap-multirecord**: min-composition: a max()/any() rail wrongly accepts this.
+- **bad-405-duplicate-records**: single fault: duplicate identity, not root arithmetic.
+- **bad-407-substrate-row-no-records**: precedence pin: records-absent is reported when the array is absent entirely; ref-out-of-range only when records exist.
+- **bad-409-artifact-records-bad-root**: the root check is statement-level: it runs even with zero substrate rows.
+- **bad-501-substrate-unknown-method**: pairs with ok-008: the SAME fail-closed axis on an artifact row is a VALID fail.
+- **bad-502-missing-actual-layer**: malformed STATEMENT, deliberately NOT a fail-closed row: a verifier answering result:fail here fails conformance.
+- **bad-504-substrate-oov-label**: pairs with ok-009 (artifact twin stays valid).
+- **bad-505-substrate-missing-method**: pairs with ok-027 (artifact row with absent method is a VALID fail).
+- **bad-506-actuallayer-json-number**: type-strictness pin: row members are strings, and a wrong-typed member is a decode-layer fault, deliberately a DIFFERENT altitude than an absent one, a rail that maps the number to member absence (malformed-missing-actual-layer) fails conformance here.
+- **bad-601-vocabulary-absent**: artifact-only parent: no digest or binding cascade.
+- **bad-606-missing-runentropy**: precedence pin: a missing binding INPUT reports its member code, never run-binding-mismatch.
+- **bad-607-two-subjects-substrate**: subject[0] unchanged, so record bindings still derive: the cardinality rule is the ONLY fault.
+- **bad-608-digest-uppercase**: a rail that derives verbatim finds the binding EQUAL; only the lowercase-64-hex format rule fails.
+- **bad-610-empty-labels-substrate**: empty vocabulary is internally canonical (vacuously sorted, vacuously a subset); the fault is the fail-closed substrate row.
+- **bad-611-subject-no-sha256**: precedence pin: missing binding input reports the member code; records keep the parent binding (unreachable check).
+- **bad-612-labels-non-bmp**: BMP-only string profile: the entry sorts last under BOTH the UTF-16 and the code-point order, so sortedness, the caught subset, and the digest all still verify and the supplementary-plane entry is the single fault.
+- **bad-703-arming-posture-mismatch**: inherently compound: the sealed record must equal BOTH the arming record's and the pinned digest, so one arming edit un-covers the sealed record too.
+- **bad-710-sealed-posture-mismatch**: both posture sub-clauses fire together; they are distinguishable only in already-invalid statements.
+- **bad-713-only-sealed-ref-noncovering**: discriminates rails that scan all records instead of the row's referenced set.
+- **bad-714-unknown-kind-sole-cover**: pairs with ok-013: an unknown kind that no row NEEDS is ignored and only contributes its leaf.
+- **bad-718-chain-runseq-zero**: pairs with the genesis accept vector ok-034 (aeeRunSeq 1, scope present, no predecessor).
+- **bad-719-chain-missing-scope**: an unscoped counter makes every chain rule vacuous, so the syntax check rejects it fail-closed.
+- **bad-720-chain-prev-not-hex**: a predecessor binding is a lowercase 64-hex run binding digest, present exactly when aeeRunSeq exceeds 1.
+- **bad-801-wrong-predicatetype**: a verifier MUST NOT process this as v0.6.
+- **bad-802-missing-catchpolicy**: artifact-only parent: no binding cascade; defeats the empty-vs-enforcing policy distinguishability.
+- **bad-803-corpus-digest-mismatch**: statement-side lie, vs bad-301's record-side splice.
+- **bad-804-attackid-two-classes**: artifact-only degraded parent avoids any binding cascade; coverage over the assessed class is unchanged.
+- **bad-805-row-unknown-attackid**: precedence pin: row-attack-unknown.
+- **bad-806-coverage-attack-omitted**: the second interception record stays in the tree (unreferenced records are legal), so the root is untouched: single fault.
+- **bad-807-coverage-attack-superset**: superset direction of exactly-equal coverage.
+- **bad-816-coverage-class-dropped**: distinct from bad-806/807 (attack granularity within an assessed class): a whole manifest class left silently unaccounted.
+- **bad-817-payload-noncanonical-base64**: encoding-layer divergence: Go decodes with StdEncoding.Strict() and the Python rail re-encode-compares, so both reject; a lenient decoder would accept. The stale signature and batch root are unreachable because a decode failure short-circuits both checks (validity.go:120).
+- **bad-809-snake-case-doesnotassert**: single-canonicalization rule: no alias.
+- **bad-810-missing-issuedat**: artifact-only parent: no armedAt comparison cascade.
 
 ## Compound vectors and precedence pins
 

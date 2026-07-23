@@ -35,7 +35,7 @@ var ErrUnsafeInteger = errors.New("integer outside the I-JSON safe range")
 
 // ErrNonIntegerNumber reports a JSON number with a fractional part. The
 // predicate's number profile is integers-only (every numeric field is an
-// integer, spec:578,592-594); a non-integer is rejected on every rail (the
+// integer, spec:627,642-644); a non-integer is rejected on every rail (the
 // Python rail rejects it identically as "non-integer number").
 var ErrNonIntegerNumber = errors.New("non-integer number outside the integers-only profile")
 
@@ -46,7 +46,7 @@ const maxSafeInteger = int64(1) << 53 // exclusive bound: |i| must be < 2^53
 var maxSafeIntBig = big.NewInt(maxSafeInteger)
 
 // checkSafeInteger enforces the predicate's integers-only, safe-integer number
-// profile (spec:67-70,578,592-594) for a JSON number token, in ANY notation:
+// profile (spec:67-70,627,642-644) for a JSON number token, in ANY notation:
 //   - a non-integer (1.5) is rejected: every numeric field is an integer, and
 //     rejecting non-integers keeps the two rails in lockstep (the Python rail
 //     rejects all non-integers) without needing cross-language float-format

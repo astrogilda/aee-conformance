@@ -8,9 +8,9 @@ byte-identically from the generators.
 ## suiteRevision 3 (2026-07-23)
 
 - Corpus: 125 vectors (34 accept, 91 reject), tracking the predicate
-  specification's review revisions at in-toto/attestation#570 commit
-  `7de6055` (the BMP-only string profile and the optional arming-payload
-  run-chaining members) on top of the `b5acaa5` baseline.
+  specification's review revisions at in-toto/attestation#570 (the BMP-only
+  string profile and the optional arming-payload run-chaining members). The
+  vendored copy is pinned at commit `e5ea1eb`, which folds these revisions in.
 - New accept vector:
   - `ok-034-arming-chain-genesis`: an arming payload carrying the optional
     run-chaining members in genesis form (`aeeRunSeq` 1, `aeeChainScope`

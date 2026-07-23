@@ -894,7 +894,7 @@ class ReferenceVerifier:
     ) -> bool:
         # Coverage MUST be an exhaustive, disjoint partition of the
         # manifest's classes across assessedClasses/outOfScope/
-        # routedElsewhere, each a real manifest class (spec:320-325,
+        # routedElsewhere, each a real manifest class (spec:360-365,
         # 350-353): without this a whole class is silently dropped from
         # all three sets (or a fabricated class pads assessedClasses).
         acct: dict[str, int] = {}

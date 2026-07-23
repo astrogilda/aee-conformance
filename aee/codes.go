@@ -20,7 +20,7 @@
 //	        trust-relative, derived per consumer key policy; never alters result
 //
 // Spec line references in this package are to the predicate specification at
-// commit b5acaa5 (spec/predicates/adversarial-execution-evidence.md).
+// commit e5ea1eb (spec/predicates/adversarial-execution-evidence.md).
 package aee
 
 // Code is a stable, machine-readable failure code. The registry of codes and

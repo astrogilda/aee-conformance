@@ -6,11 +6,11 @@ import "fmt"
 // derives. A future version that changes the construction names a new
 // binding version; a verifier MUST reject, fail-closed, a binding version
 // it does not implement rather than attempt more than one construction
-// (spec:98-103). There is deliberately exactly ONE construction here.
+// (spec:131-136). There is deliberately exactly ONE construction here.
 const BindingVersion = "1"
 
 // RunBindingPreimage builds the RFC 8785 canonical bytes of the binding
-// pre-image object (spec:72-78):
+// pre-image object (spec:87-93):
 //
 //	{"aeeBindingVersion":"1","catchPolicy":"<hex>","corpus":"<hex>",
 //	 "networkPosture":"<hex>","runEntropy":"<hex>","subject":"<hex>",
@@ -18,7 +18,7 @@ const BindingVersion = "1"
 //
 // The member names are emitted in their JCS (UTF-16 code unit) order, which
 // for these seven ASCII names is the literal order below. Values are taken
-// verbatim (no case-folding, no null fill, spec:85-86); a value that is not
+// verbatim (no case-folding, no null fill, spec:118-119); a value that is not
 // lowercase 64-hex has already been rejected at GATE 0 for any statement
 // that reaches a binding derivation. Hex strings never require JSON string
 // escaping, so direct formatting below emits exactly the JCS bytes.
@@ -30,7 +30,7 @@ func RunBindingPreimage(catchPolicy, corpus, networkPosture, runEntropy, subject
 
 // DeriveRunBinding returns the lowercase 64-hex SHA-256 of the binding
 // pre-image. A verifier derives this from the statement alone; no field
-// carries it (spec:87-88).
+// carries it (spec:120-121).
 func DeriveRunBinding(catchPolicy, corpus, networkPosture, runEntropy, subject, substrate string) string {
 	return SHA256Hex(RunBindingPreimage(catchPolicy, corpus, networkPosture, runEntropy, subject, substrate))
 }

@@ -69,6 +69,21 @@ enforce the RFC 7493 (I-JSON) safe-integer profile on canonicalized content:
 integers with magnitude at or above 2^53 MUST be rejected, so every rail
 (producer and verifier, in any language) derives identical bytes.
 
+The identical-bytes requirement has a string half. On every signed canonical
+surface — object member names in covering record payloads and the
+`observationVocabulary.labels`/`caught` arrays — strings MUST be BMP-only:
+no code point above U+FFFF, no surrogate pair. RFC 8785 sorts object members
+by UTF-16 code unit; a verifier that instead compares Unicode code points
+orders a supplementary-plane name differently from one in U+E000 through
+U+FFFF, so two otherwise-conforming verifiers could disagree on whether
+identical bytes are canonical — which under the coverage validity gate is
+attestation-valid versus attestation-invalid on the same bytes. Restricting
+the sorted strings to the BMP makes UTF-16 code-unit order and code-point
+order coincide, so that divergence is unconstructible. A verifier MUST treat
+a violation exactly as it treats non-canonical bytes: a supplementary-plane
+member name makes the covering payload cover nothing, and a
+supplementary-plane vocabulary entry makes the statement malformed.
+
 **Run binding.** For any statement carrying at least one `basis: substrate`
 row, the run binding digest is the lowercase 64-hex SHA-256 of the RFC 8785
 canonicalization of the object `{"aeeBindingVersion": "1", "catchPolicy":
@@ -77,8 +92,26 @@ canonicalization of the object `{"aeeBindingVersion": "1", "catchPolicy":
 "<runEntropy.digest.sha256>", "subject": "<subject[0].digest.sha256>",
 "substrate": "<substrate.digest.sha256>"}`. `runEntropy` is a run-start
 value the substrate emits and commits inside the arming record's signature;
-its pre-image is the substrate's run-start checkpoint or beacon head, so
-two executions sharing every other input still derive distinct bindings.
+its pre-image is the substrate's run-start checkpoint, so two executions
+sharing every other input still derive distinct bindings. The pre-image
+SHOULD additionally fold in a publicly datable value that was unpredictable
+before its round — a drand round output, or an epoch identifier in the
+RFC 9334 Section 10.3 sense — in addition to, never in place of, the
+substrate-unique run-start component, with the round reference recoverable
+by the consumer (carrying it in the arming payload as producer vocabulary
+suffices, since the digest binds it). A signature over a value that did not
+exist before its round cannot predate the round, so the arming record gains
+a proven earliest-possible signing time — a floor. `issuedAt` remains the
+asserted ceiling; the pair is deliberately not a two-sided proof, by the
+asserted-versus-attested rule this predicate applies everywhere. The floor
+bounds recency only where consumer policy couples the folded round to its
+freshness window — the producer selects the round, so an uncoupled round
+proves age, never freshness — and a beacon inside the producer's own trust
+domain yields no floor against that producer. The value is fetched at
+arming time, never cached: a stale round silently folded as current would
+defeat the same coupling. Public rounds also make two consumers'
+`runEntropy`-reuse observations comparable against a shared public time
+axis rather than against the producer's clock.
 For this predicate `subject` MUST contain exactly one entry, and each of
 the six digest inputs MUST carry a `sha256` digest whose value is already
 lowercase 64-hex; a substrate-row-carrying statement violating either
@@ -193,13 +226,18 @@ record payloads but not signatures or consumer policy) and the evidence tier
 recompute: the validity gate can invalidate an attestation, and the tier ranks
 a row, but neither alters `result`.
 
-A verifier typically proceeds (informative; only the consumption
-preconditions stated under Coverage validity and the evidence tier are
-normative): envelope signature; statement well-formedness and, for
-substrate-carrying statements, run-binding derivability; the coverage
-validity requirements; the `result` recompute; manifest and vocabulary
-digest integrity; the per-row evidence tier; the strength orderings;
-consumer policy.
+A verifier proceeds in two stages. Stage one is byte-pure — four validity
+steps, each a function of the carried statement alone, and all four are
+consumption preconditions: (1) statement well-formedness, including the
+vocabulary rules and, for substrate-carrying statements, run-binding
+derivability; (2) the coverage validity requirements; (3) the `result`
+recompute; (4) manifest and vocabulary digest integrity. Stage two is
+trust-relative: the envelope signature and the per-row evidence tier
+against consumer key policy, then the strength orderings and the rest of
+consumer policy, including the anchor comparison under Consumer policy
+obligations. Only the consumption preconditions stated under Coverage
+validity and the evidence tier are normative in this ordering; the
+sequencing itself is informative.
 
 A design invariant follows from the recompute: any per-observation property
 that the recompute or the documented consumer gating reads travels on the
@@ -302,9 +340,11 @@ substrate-authoritative egress posture, e.g. `no_network`, `allowlist`,
 producer's versioned observation label set carried in the attestation:
 `labels`, the complete array of `containmentObserved` values the producer can
 emit, and `caught`, the subset whose observation constitutes a caught
-containment event; both arrays sorted ascending with no duplicates, `caught` a
-subset of `labels`, and `digest` the JCS digest of the object `{"caught":
-[...], "labels": [...]}` — a statement violating any of these is malformed).
+containment event; both arrays sorted ascending by UTF-16 code unit (RFC 8785
+Section 3.2.3) with no duplicates and every entry BMP-only (see
+Prerequisites), `caught` a subset of `labels`, and `digest` the JCS digest of
+the object `{"caught": [...], "labels": [...]}` — a statement violating any
+of these is malformed).
 The recompute and the coverage validity requirements read only this carried
 set; the producer's published documentation is commentary on the same
 vocabulary, never a normative input, so archived attestations remain
@@ -335,14 +375,17 @@ below), `method` (required; the observation's directness, see below),
 `observationRefs`
 (indexes into `observationRecords` binding this row to the observation
 records that cover it). An `interception` index MAY be referenced by more
-than one row when the record's committed payload genuinely evidences each
-referenced attack. A row MAY carry `observationSelectors`, an array of
+than one row. A producer MUST NOT reference a record from a row whose
+attack the record's committed payload does not evidence; that is a
+producer obligation outside every gate — no validity requirement,
+recompute input, or tier evaluation reads it, so a conforming verifier
+neither can nor may invent an evidencing heuristic for shared references.
+A row MAY carry `observationSelectors`, an array of
 producer-defined string tokens positionally parallel to `observationRefs`,
 each naming the sub-observation within the referenced record's committed
-payload that this row rests on; token content is producer vocabulary and
-nothing normative reads it. Where no selector is carried, a shared
-`interception` index covers each referencing row only where its committed
-payload evidences each referenced attack. `arming`, `sealed`, and
+payload that this row rests on; token content is producer vocabulary,
+nothing normative reads it, and selector presence or absence changes no
+gate outcome. `arming`, `sealed`, and
 `examination` indexes MAY likewise be shared: one run-level record covers
 every row earned under it. The single normative reading of this value is its
 membership in the carried caught set; see `method` for the
@@ -467,7 +510,13 @@ claim that this row's specific channel was armed; and it is a claim about
 the run this attestation carries, never about a run population — nothing
 in this predicate proves that other runs of the same configuration did not
 occur or were not withheld, and run-population completeness (for example
-via a run ledger or monotonic counter) is a consumer or policy concern. An
+via a run ledger or monotonic counter) is a consumer or policy concern.
+The optional run-sequence members defined under `observationRecords` move
+cherry-picking from invisible to gap-evident across whatever set a
+producer does publish — a gap, a duplicated sequence number, a shared
+predecessor, or a duplicated genesis is detectable by any consumer holding
+both attestations — without changing this non-claim; their definition
+states the ordering-only scope and the registration-receipt completion. An
 `pass` resting on any `reconstructed` clean row SHOULD be read as
 tolerating transients between the observed states; a `pass` resting on any
 `artifact` clean row, or on an `unattested` substrate clean row, is
@@ -575,7 +624,8 @@ and `signatures`. A consumer verifies each record's signature — DSSE PAE
 over `(payloadType, payload)` — before reading any field inside the
 payload. Any record used to cover a `basis: substrate` row MUST carry a
 JSON object payload that is canonical per RFC 8785 and valid I-JSON per
-RFC 7493 (no duplicate members, integers within the safe range), whose
+RFC 7493 (no duplicate members, integers within the safe range, member
+names BMP-only per Prerequisites), whose
 media type ends in `+json`, and which carries these reserved members as
 top-level fields; a record whose payload is not so parseable, or whose
 media type is not `+json`, covers nothing:
@@ -607,7 +657,45 @@ A `sealed` record covers no clean row unless its `aeeStillArmed` is
 declared in the same signed payload, and its `aeePostureDigest` equals
 both the arming record's and the pinned `networkPosture` digest — each a
 check on signed carried bytes, so failing it is a coverage validity
-failure, never a silent pass. These members are deliberately semantic
+failure, never a silent pass.
+
+An `arming` record's payload MAY additionally carry three reserved members
+that chain runs under the same substrate key: `aeeRunSeq` (a positive
+safe-range integer), `aeePrevRunBinding` (the lowercase 64-hex run binding
+digest of the predecessor run, absent exactly when `aeeRunSeq` is `1`),
+and `aeeChainScope` (a producer-declared string naming the population the
+sequence counts; REQUIRED whenever `aeeRunSeq` is present, RECOMMENDED at
+minimum the pair of substrate key and subject — an unscoped counter makes
+every chain rule below vacuous, and a single global per-key counter
+additionally leaks the producer's total run volume across its customers).
+Within one attestation these members are syntax-checked in the
+reserved-member walk and nothing else normative reads them: the coverage
+validity requirements, the `result` recompute, and the evidence tier are
+unchanged. A violation of the syntax rules — a non-positive or non-integer
+`aeeRunSeq`, a malformed `aeePrevRunBinding`, a missing `aeeChainScope`
+when the sequence is present, or any of the three present without
+`aeeRunSeq` — is handled as any reserved-member violation: the record
+covers nothing. Their value is across attestations, as consumer policy over
+whatever set a producer publishes: a skipped sequence number is a gap; two
+attestations carrying the same `aeeRunSeq` under one key and scope are a
+fork; two carrying the same `aeePrevRunBinding` share a predecessor; and
+two genesis records (absent `aeePrevRunBinding`) under one key and scope
+are equivocation of the same grade as a shared predecessor — a chain
+reset is not a fresh start. The members claim ordering under the substrate
+key, nothing more: nothing on the wire anchors when an arming record was
+signed relative to the run's outcome, so commit-before-outcome holds only
+in combination with the publicly datable run-entropy floor under
+Prerequisites or an external registration receipt. A numeric gap is
+unexplained absence — crashed, private, and discarded runs all produce
+gaps innocently — never fraud evidence in itself; what the members buy is
+demand-disclosure: a consumer policy MAY require a contiguous, fork-free
+chain over the runs offered to it, and fork consistency is the ceiling of
+what any self-contained attestation set can establish. The external
+completion is a registration receipt — committing each arming record to
+an append-only transparency log at run start (for example SCITT, RFC
+9943, with COSE receipts, RFC 9942) upgrades gap-evidence to
+third-party-auditable non-omission — and that machinery is deliberately
+outside this predicate. These members are deliberately semantic
 (armed, stayed armed, nothing dropped, posture unchanged) rather than
 mechanism-specific: how a substrate establishes them (a checkpoint chain,
 a sequence counter, a hardware watchdog) stays producer territory. A
@@ -615,9 +703,30 @@ record whose `aeeKind` the consumer does not recognize covers nothing and
 is otherwise ignored, while still contributing its leaf to `batchRoot`;
 minor versions MAY add kinds and MUST NOT change the covering semantics of
 an existing kind — an unrecognized kind can only weaken, never
-strengthen, a row. The `aee` member prefix is reserved for future versions
+strengthen, a row (candidate future kinds, informatively: a hardware-quote
+kind binding the vantage to a measured platform, and a `registration` kind
+carrying a transparency-service receipt over the arming record). The `aee` member prefix is reserved for future versions
 (`aeeVersion` is reserved for a payload contract version); everything else
-in the payload stays producer territory. No record is required to name its
+in the payload stays producer territory.
+
+*Precedent (informative).* Reserved members inside a producer-defined
+signed payload follow an established lineage rather than a novel
+mechanism: an RFC 7519 JWT claims set is a producer-defined object from
+which verifiers read registered claim names (`exp`, `aud`, `iss`), with
+collision resistance by registration and prefixing; EAT (RFC 9711) applies
+the same registered-claims pattern inside an attestation token, in the
+RATS family; OCI image annotations reserve the `org.opencontainers.*`
+prefix inside an otherwise free-form map; and the `+json` requirement is
+RFC 6839 Section 3.1's structured-syntax license to parse a media type not
+otherwise known. None of the cited standards' semantics apply here by
+reference; the citations locate the pattern, not the rules. Two deliberate
+departures from that lineage: where RFC 7519 tells consumers to ignore
+unrecognized claims, this predicate is fail-closed — a colliding or
+unrecognized `aee*` member can only weaken coverage (the record covers
+nothing), never create it — and the verify-then-read discipline is
+normative here (a payload's fields mean nothing until its signature
+verifies), which closes the parse-before-verify class of deployment
+mistake the JWT lineage is known for. No record is required to name its
 attack — substrates sign at observation time, before attribution, and
 attribution strength deliberately remains producer vocabulary. What an
 `interception` record carries is a commitment to an intercepted payload
@@ -670,6 +779,26 @@ re-derivable from the embedded manifest (`{"classes":{"CO":["CO-EXFIL-1"]}}`
 canonicalized under RFC 8785 and hashed); the remaining digests are
 placeholders.
 
+### Consumer policy obligations
+
+Two expectations are consumer policy, resolved outside the attestation and
+never read from it: which keys count as substrate observation keys (the
+evidence tier's input), and which corpus and substrate this consumer
+expects. A consumer MUST pin, out of band, the corpus digest and the
+substrate digest it expects for the deployment it is admitting into, and
+at consumption MUST compare them against
+`observationEnvironment.corpus.digest` and
+`observationEnvironment.substrate.digest`; on mismatch the attestation is
+not admitted, exactly as an attestation whose covering signatures do not
+verify is not admitted. The comparison is deliberately not a validity
+gate: validity is a function of carried bytes alone and holds identically
+for every consumer, while the expected corpus and substrate differ per
+consumer — an anchor-mismatched attestation is valid evidence about the
+wrong context. Verification surfaces SHOULD expose one consumer-facing
+admission result that conjoins validity, tier-policy satisfaction, and the
+anchor comparison, so a result-only consumer cannot read a
+valid-but-wrong-context attestation as admissible.
+
 ### Consumer policy example (non-normative)
 
 Naming the substrate observation keys is policy, not wire format. A
@@ -712,6 +841,14 @@ tolerance travels on the `method` axis, so an admission rule that needs a
 live observation keys on `method: intercepted` as well as the tier.
 
 ## Changelog and Migrations
+
+A versioning discipline this predicate commits to: a member is born exactly
+when a normative reader consumes it. In particular, if a future version
+makes the shared-reference evidencing obligation checkable (for example by
+committing per-attack expected artifacts in the corpus manifest),
+attribution strength acquires a normative reader at that version and
+becomes a required member then — never retroactively, and never by a
+verifier-invented heuristic in the meantime.
 
 Versions 0.1–0.2 were internal producer iterations; 0.3 was the first shape
 proposed for vetting. Relative to those internal versions, 0.3 removed all
@@ -811,6 +948,30 @@ predicate-level, and adopted the I-JSON safe-integer profile on every rail.
     independence from the validity gate and the tier. Stated the
     composition and run-population non-claims. Unknown `aeeKind` covers
     nothing and is otherwise ignored (fail-closed forward compatibility).
+-   Completed the canonical-bytes profile with its string half: the
+    vocabulary arrays are sorted ascending by UTF-16 code unit explicitly,
+    and every signed canonical surface (covering payload member names,
+    both vocabulary arrays) is BMP-only, rejected as malformed — within
+    the BMP, code-unit and code-point order coincide, so conforming
+    verifiers cannot split on sort order.
+-   Numbered the byte-pure validity steps and separated them from the
+    trust-relative stage; stated the consumer anchor obligations (pinned
+    expected corpus and substrate digests, compared at consumption, with
+    a single conjoined admission result recommended for verification
+    surfaces) as consumer policy rather than a validity gate.
+-   Recommended a publicly datable, round-unpredictable component in the
+    run-entropy pre-image (proven signing-time floor; asserted ceiling
+    unchanged), with the qualifications that make the floor real.
+-   Added the optional `aeeRunSeq` / `aeePrevRunBinding` /
+    `aeeChainScope` arming-payload members: cross-run gap evidence under
+    a declared scope, ordering-only, with equivocation semantics for
+    forks and duplicated geneses and a stated registration-receipt
+    completion path.
+-   Reclassified the shared-reference evidencing rule as a producer
+    obligation outside every gate, and recorded the member-birth
+    versioning discipline in this changelog. Documented the
+    registered-claims lineage for reserved payload members as an
+    informative note.
 
 [Runtime Traces]: runtime-trace.md
 [SCAI]: scai.md

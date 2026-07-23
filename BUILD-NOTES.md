@@ -87,7 +87,7 @@ The conformance replay disagreed with the suite on exactly one vector,
 `coverage-incomplete`). The committed manifest carried `XA-EXAMPLE-1`
 under both `XA` and `XB`, which is `manifest-duplicate-attack` in its own
 right (an `attackId` MUST NOT appear under more than one class;
-spec:296-297 @ b5acaa5), and this rail detects it at GATE 0, before
+spec:334-335), and this rail detects it at GATE 0, before
 coverage.
 
 The root cause sits in the invalid-set generator: `environment()`

@@ -27,6 +27,19 @@ type Report struct {
 	// Tiers is the derived per-row evidence tier column, in attackResults
 	// order; only set when valid.
 	Tiers []Tier `json:"tiers,omitempty"`
+	// PolicyCodes lists consumer-policy findings (the anchor comparison) for
+	// a VALID statement under the supplied policy. They are consumer-relative
+	// admission facts, never validity codes: Verdict, Codes, Result, and
+	// Tiers are byte-pure and unchanged by them.
+	PolicyCodes []Code `json:"policyCodes,omitempty"`
+	// Admitted is the single consumer-facing admission result: validity AND
+	// tier-policy satisfaction (every basis: substrate row the consumer
+	// credits derives attested; vacuously satisfied when the statement
+	// carries no substrate rows) AND every supplied anchor matching. A
+	// consumer with no substrate observation keys derives unattested for
+	// every substrate row (no TOFU), so such a statement is never admitted
+	// under that policy.
+	Admitted bool `json:"admitted"`
 }
 
 // The two verdicts a Report can carry.
@@ -88,13 +101,15 @@ func Evaluate(statementJSON []byte) (*EvalContext, []Code, error) {
 //	GATE 0 (statement well-formedness)
 //	GATE 1 (coverage validity — consumption precondition)
 //	recompute equality (carried result == pure recompute)
-//	GATE 2 (evidence tier, per the given key policy)
+//	GATE 2 (evidence tier, per the given consumer policy)
+//	consumer-policy step (anchor comparison; Admitted conjunction)
 //
 // The gates run in that order and the pipeline stops at the first failing
 // gate: a statement that fails GATE 0 is invalid regardless of anything a
 // later gate might have said, and neither Result nor Tiers is ever derived
-// for an invalid statement.
-func Verify(statementJSON []byte, policy *KeyPolicy) *Report {
+// for an invalid statement. The consumer-policy step never alters the
+// byte-pure facts: an anchor mismatch fails Admitted, never validity.
+func Verify(statementJSON []byte, policy *ConsumerPolicy) *Report {
 	ctx, codes, err := Evaluate(statementJSON)
 	if err != nil {
 		return &Report{Verdict: VerdictInvalid, Codes: []Code{CodeStatementMalformed}, PrimaryCode: CodeStatementMalformed}
@@ -102,11 +117,49 @@ func Verify(statementJSON []byte, policy *KeyPolicy) *Report {
 	if len(codes) > 0 {
 		return invalidReport(codes)
 	}
+	tiers := ctx.DeriveTiers(policy)
+	policyCodes := anchorPolicyCodes(ctx, policy)
 	return &Report{
-		Verdict: VerdictValid,
-		Result:  ctx.result,
-		Tiers:   ctx.DeriveTiers(policy),
+		Verdict:     VerdictValid,
+		Result:      ctx.result,
+		Tiers:       tiers,
+		PolicyCodes: policyCodes,
+		Admitted:    tierPolicySatisfied(ctx, tiers) && len(policyCodes) == 0,
 	}
+}
+
+// tierPolicySatisfied reports whether every basis: substrate row derived
+// attested under the consumer's policy. Artifact rows (and rows fail-closed
+// on basis) are declared and never gate admission; a statement with no
+// substrate rows satisfies the tier policy vacuously, under any key set.
+func tierPolicySatisfied(ctx *EvalContext, tiers []Tier) bool {
+	rows := ctx.s.Predicate.Rows
+	for i := range rows {
+		if rows[i].IsSubstrate() && tiers[i] != TierAttested {
+			return false
+		}
+	}
+	return true
+}
+
+// anchorPolicyCodes compares the supplied expected anchors against the
+// carried observationEnvironment digests. An empty expected digest is
+// unsupplied and compares nothing. The comparison is deliberately not a
+// validity gate: it runs only on a valid statement and its findings live on
+// the consumer surface (Report.PolicyCodes), feeding Admitted alone.
+func anchorPolicyCodes(ctx *EvalContext, policy *ConsumerPolicy) []Code {
+	if policy == nil {
+		return nil
+	}
+	env := ctx.s.Predicate.Env
+	var codes []Code
+	if policy.ExpectedCorpusDigest != "" && policy.ExpectedCorpusDigest != env.Corpus.Sha256() {
+		codes = appendCode(codes, CodeCorpusAnchorMismatch)
+	}
+	if policy.ExpectedSubstrateDigest != "" && policy.ExpectedSubstrateDigest != env.Substrate.Sha256() {
+		codes = appendCode(codes, CodeSubstrateAnchorMismatch)
+	}
+	return codes
 }
 
 // VerifyForEmit is the producer-side seam: GATE 0 + GATE 1 + recompute

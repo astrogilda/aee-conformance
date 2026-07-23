@@ -10,9 +10,9 @@ import (
 	"github.com/astrogilda/aee-conformance/aeetest"
 )
 
-func pinnedPolicy() *aee.KeyPolicy {
+func pinnedPolicy() *aee.ConsumerPolicy {
 	pub := aeetest.TestKey(aeetest.RoleSubstrateObservation).Public().(ed25519.PublicKey)
-	return &aee.KeyPolicy{SubstrateObservationKeys: []ed25519.PublicKey{pub}}
+	return &aee.ConsumerPolicy{SubstrateObservationKeys: []ed25519.PublicKey{pub}}
 }
 
 func requireValid(t *testing.T, r *aee.Report) {

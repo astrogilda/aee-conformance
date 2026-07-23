@@ -93,6 +93,15 @@ const (
 	CodeResultRecomputeMismatch Code = "result-recompute-mismatch"
 )
 
+// Consumer-policy stage codes. These are consumer-relative admission facts,
+// recorded on the report's consumer surface (Report.PolicyCodes) and folded
+// into Admitted; they are NEVER validity codes: the byte-pure verdict and
+// its code list are unchanged by any anchor comparison.
+const (
+	CodeCorpusAnchorMismatch    Code = "corpus-anchor-mismatch"
+	CodeSubstrateAnchorMismatch Code = "substrate-anchor-mismatch"
+)
+
 // appendCode appends c to codes unless it is already present, preserving
 // detection order (the first code is the deterministic primary code).
 func appendCode(codes []Code, c Code) []Code {

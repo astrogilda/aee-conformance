@@ -29,10 +29,26 @@ const (
 	TierAttested   Tier = "attested"
 )
 
-// KeyPolicy names the consumer's substrate observation keys. It is pinned
-// out of band; nothing in it is ever read from the predicate.
-type KeyPolicy struct {
+// ConsumerPolicy is the consumer's out-of-band expectation set: the
+// substrate observation keys (GATE 2's input) and the expected corpus and
+// substrate anchors compared at the consumer-policy step after GATE 2.
+// Nothing in it is ever read from the predicate.
+type ConsumerPolicy struct {
 	SubstrateObservationKeys []ed25519.PublicKey
+
+	// ExpectedCorpusDigest is the corpus digest the consumer expects for the
+	// deployment it is admitting into (lowercase 64-hex sha256). Empty means
+	// unsupplied: no comparison is made and the corpus anchor never fails
+	// admission. When supplied, inequality with
+	// observationEnvironment.corpus.digest.sha256 fails admission, never
+	// validity: an anchor-mismatched attestation is valid evidence about the
+	// wrong context.
+	ExpectedCorpusDigest string
+
+	// ExpectedSubstrateDigest is the substrate digest the consumer expects,
+	// with the same semantics against
+	// observationEnvironment.substrate.digest.sha256.
+	ExpectedSubstrateDigest string
 }
 
 // DeriveTiers derives the per-row tier column for a statement that has
@@ -43,7 +59,7 @@ type KeyPolicy struct {
 //     it can strengthen nothing;
 //   - a basis: substrate row is attested when every covering record's
 //     signature verifies against a policy-named key, unattested otherwise.
-func (ctx *EvalContext) DeriveTiers(policy *KeyPolicy) []Tier {
+func (ctx *EvalContext) DeriveTiers(policy *ConsumerPolicy) []Tier {
 	p := ctx.s.Predicate
 	tiers := make([]Tier, len(p.Rows))
 

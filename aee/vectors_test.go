@@ -285,7 +285,7 @@ var knownDefectiveVectors = map[string]string{}
 func checkQuarantinedReject(t *testing.T, body []byte, wantCodes []string, reason string) {
 	t.Helper()
 	t.Logf("QUARANTINED double-faulted vector: %s — verifying rejection + expected-code presence only", reason)
-	for _, policy := range []*aee.KeyPolicy{pinnedPolicy(), {}} {
+	for _, policy := range []*aee.ConsumerPolicy{pinnedPolicy(), {}} {
 		r := aee.Verify(body, policy)
 		if r.Verdict != aee.VerdictInvalid {
 			t.Fatalf("quarantined vector verified valid")
@@ -315,11 +315,11 @@ func checkVector(t *testing.T, body []byte, accept bool, wantResult string,
 	wantCodes, tierWithPinned, tierWithout []string) {
 	t.Helper()
 	pinned := pinnedPolicy()
-	empty := &aee.KeyPolicy{}
+	empty := &aee.ConsumerPolicy{}
 
 	for _, pc := range []struct {
 		name   string
-		policy *aee.KeyPolicy
+		policy *aee.ConsumerPolicy
 	}{{"pinned", pinned}, {"none", empty}} {
 		r := aee.Verify(body, pc.policy)
 		if accept {

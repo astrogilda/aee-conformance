@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """AEE v0.6 INVALID conformance-vector generator.
 
-Generates the 83 reject vectors of the adversarial-execution-evidence v0.6
+Generates the 91 reject vectors of the adversarial-execution-evidence v0.6
 conformance suite. Every vector is a COMPLETE in-toto Statement that a
 conforming verifier MUST reject for exactly ONE declared reason: each is
 derived from a fully-valid parent statement by one mutation plus the declared
@@ -11,7 +11,10 @@ so no second fault is introduced. A self-check pass asserts second-fault
 ABSENCE for every vector and full gate-validity for every parent.
 
 Ground truth: spec/predicates/adversarial-execution-evidence.md @ b5acaa5
-(in-toto/attestation PR #570 branch), version 0.6.0.
+(in-toto/attestation PR #570 branch), version 0.6.0. Conditions introduced
+by the specification's later review revisions (the BMP-only string profile
+and the arming-payload run-chaining members) cite the revised text at commit
+7de6055 on the same branch; their anchors are marked accordingly.
 
 Determinism recipe (nothing random, nothing typed):
   - Test key seeds are DERIVED, never stored:
@@ -671,6 +674,23 @@ def _drop_member(member: str) -> Callable[[], dict[str, Any]]:
     return b
 
 
+def _b208() -> dict[str, Any]:
+    st = P_caught()
+    return mutate_record_payload(
+        st, 0, lambda o: {**o, "zz\U0001F600": "example-value"})
+
+
+vec("bad-208-payload-member-non-bmp", "ok-001",
+    "covering payload gains a member whose NAME carries the supplementary-"
+    "plane code point U+1F600",
+    ["re-sign-record", "recompute-batch-root"], [87],
+    ["payload-not-canonical"], _b208,
+    spec="L72-86 @ 7de6055",
+    note="rawBytes; BMP-only string profile: the name sorts last under BOTH "
+         "the UTF-16 and the code-point member order, so the payload bytes "
+         "stay canonical under either reading and the supplementary-plane "
+         "member NAME is the single fault (a supplementary-plane member "
+         "VALUE stays legal)")
 vec("bad-205-payload-missing-runbinding", "ok-001",
     "drop aeeRunBinding from the covering payload",
     ["re-sign-record", "recompute-batch-root"], [20],
@@ -918,6 +938,16 @@ vec("bad-505-substrate-missing-method", "ok-001",
     spec="L227-228; L424-427; L267-271",
     note="pairs with ok-027 (artifact row with absent method is a VALID "
          "fail)")
+vec("bad-506-actuallayer-json-number", "ok-001",
+    "caught row actualLayer carried as the JSON number 7 (wrong member "
+    "type); refs, records, root, entropy intact; carried fail kept", [],
+    [88], ["statement-malformed"],
+    _row_mut(P_caught, 0, lambda r: {**r, "actualLayer": 7}),
+    spec="L329-335",
+    note="type-strictness pin: row members are strings, and a wrong-typed "
+         "member is a decode-layer fault, deliberately a DIFFERENT altitude "
+         "than an absent one — a rail that maps the number to member "
+         "absence (malformed-missing-actual-layer) fails conformance here")
 
 # --- (f/g) vocabulary + runEntropy + subject -----------------------------
 
@@ -1079,6 +1109,26 @@ vec("bad-611-subject-no-sha256", "ok-002",
     note="precedence pin: missing binding input reports the member code; "
          "records keep the parent binding (unreachable check)")
 
+
+def _b612() -> dict[str, Any]:
+    st = P_caught()
+    v = st["predicate"]["observationEnvironment"]["observationVocabulary"]
+    v["labels"] = [*v["labels"], "\U0001F600"]
+    v["digest"]["sha256"] = jcs_digest(
+        {"caught": v["caught"], "labels": v["labels"]})
+    return st
+
+
+vec("bad-612-labels-non-bmp", "ok-001",
+    "labels gains the supplementary-plane entry U+1F600; digest recomputed "
+    "over the mutated content",
+    ["recompute-vocabulary-digest"], [86], ["vocabulary-not-canonical"],
+    _b612, spec="L72-86 @ 7de6055",
+    note="BMP-only string profile: the entry sorts last under BOTH the "
+         "UTF-16 and the code-point order, so sortedness, the caught "
+         "subset, and the digest all still verify and the supplementary-"
+         "plane entry is the single fault")
+
 # --- (h) arming / sealed / examination -----------------------------------
 
 
@@ -1224,6 +1274,40 @@ vec("bad-717-arming-missing-posture", "ok-002",
              lambda o: {k: v for k, v in o.items()
                         if k != "aeePostureDigest"}),
     spec="L586-591")
+
+CHAIN_SCOPE = "example-substrate-key-and-subject/v1"
+
+vec("bad-718-chain-runseq-zero", "ok-002",
+    "arming payload gains aeeRunSeq: 0 with aeeChainScope present (a "
+    "sequence number is a positive integer)",
+    ["re-sign-record", "recompute-batch-root"], [89],
+    ["arming-covers-nothing"],
+    _rec_mut(P_clean, 0,
+             lambda o: {**o, "aeeChainScope": CHAIN_SCOPE, "aeeRunSeq": 0}),
+    spec="L662-673 @ 7de6055",
+    note="pairs with the genesis accept vector ok-034 (aeeRunSeq 1, scope "
+         "present, no predecessor)")
+vec("bad-719-chain-missing-scope", "ok-002",
+    "arming payload gains aeeRunSeq: 1 with NO aeeChainScope "
+    "(aeeChainScope is required whenever aeeRunSeq is present)",
+    ["re-sign-record", "recompute-batch-root"], [89],
+    ["arming-covers-nothing"],
+    _rec_mut(P_clean, 0, lambda o: {**o, "aeeRunSeq": 1}),
+    spec="L662-673 @ 7de6055",
+    note="an unscoped counter makes every chain rule vacuous, so the "
+         "syntax check rejects it fail-closed")
+vec("bad-720-chain-prev-not-hex", "ok-002",
+    "arming payload gains aeeRunSeq: 2, aeeChainScope, and an "
+    "aeePrevRunBinding that is not lowercase 64-hex",
+    ["re-sign-record", "recompute-batch-root"], [89],
+    ["arming-covers-nothing"],
+    _rec_mut(P_clean, 0,
+             lambda o: {**o, "aeeChainScope": CHAIN_SCOPE,
+                        "aeePrevRunBinding": "EXAMPLE-NOT-64-HEX",
+                        "aeeRunSeq": 2}),
+    spec="L662-673 @ 7de6055",
+    note="a predecessor binding is a lowercase 64-hex run binding digest, "
+         "present exactly when aeeRunSeq exceeds 1")
 
 # --- (k) statement-level -------------------------------------------------
 
@@ -1639,6 +1723,16 @@ COND = {
     83: ("L318-322", "coverage member required"),
     84: ("L650-660", "doesNotAssert single canonical spelling"),
     85: ("L662-664", "issuedAt required, RFC 3339"),
+    86: ("L72-86 @ 7de6055", "vocabulary labels/caught entries BMP-only; a "
+                             "supplementary-plane entry is malformed"),
+    87: ("L72-86 @ 7de6055", "covering payload member names BMP-only; a "
+                             "supplementary-plane name covers nothing"),
+    88: ("L329-335", "row members are strictly typed; a wrong-JSON-type "
+                     "member is a malformed statement"),
+    89: ("L662-673 @ 7de6055", "arming chain-member syntax: positive "
+                               "aeeRunSeq; aeeChainScope required with it; "
+                               "aeePrevRunBinding lowercase 64-hex, absent "
+                               "exactly when aeeRunSeq is 1"),
 }
 
 
@@ -1651,7 +1745,10 @@ def write_index() -> None:
     L.append("Ground truth: `spec/predicates/adversarial-execution-evidence.md` @")
     L.append("`b5acaa5` (in-toto/attestation PR #570 branch), version 0.6.0, type URI")
     L.append(f"`{PREDICATE_TYPE}`.")
-    L.append("All `Lnnn` anchors below are line refs into that file at that commit.")
+    L.append("All `Lnnn` anchors below are line refs into that file at that commit,")
+    L.append("except anchors marked `@ 7de6055`, which cite the specification's later")
+    L.append("review revisions at that commit on the same branch (the BMP-only string")
+    L.append("profile and the arming-payload run-chaining members).")
     L.append("")
     L.append("Every file is a COMPLETE in-toto Statement (UNWRAPPED — no outer DSSE;")
     L.append("the inner `observationRecords` carry real DSSE signatures) that a")
@@ -1720,7 +1817,7 @@ def write_index() -> None:
     for c in used:
         L.append(f"| aee-c-{c} | {COND[c][0]} | {COND[c][1]} |")
     L.append("")
-    L.append("## Vectors (83)")
+    L.append(f"## Vectors ({len(VECTORS)})")
     L.append("")
     L.append("`parent` names the accept-suite shape the vector derives from (the")
     L.append("accept vectors land separately; the parent statements are built")
@@ -1822,7 +1919,7 @@ def main() -> None:
         with open(path) as f:
             json.load(f)  # every vector parses as JSON
 
-    assert len(VECTORS) == 85, f"expected 85 vectors, built {len(VECTORS)}"
+    assert len(VECTORS) == 91, f"expected 91 vectors, built {len(VECTORS)}"
 
     # 3. index
     write_index()

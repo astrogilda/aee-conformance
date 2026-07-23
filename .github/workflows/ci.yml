@@ -76,5 +76,5 @@ jobs:
         run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py
       - name: ruff
         run: uv run ruff check packaging vectors
-      - name: replay every vector on the Python rail (must be 118/118)
+      - name: replay every vector on the Python rail (must be 125/125)
         run: python3 packaging/run_vectors.py

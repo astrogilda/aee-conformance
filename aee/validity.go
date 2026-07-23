@@ -30,6 +30,11 @@ const (
 	memberStillArmed    = "aeeStillArmed"
 	memberDropCount     = "aeeDropCount"
 	memberDropBound     = "aeeDropBound"
+
+	// Optional arming-payload run-chaining members.
+	memberRunSeq         = "aeeRunSeq"
+	memberPrevRunBinding = "aeePrevRunBinding"
+	memberChainScope     = "aeeChainScope"
 )
 
 const jsonMediaTypeSuffix = "+json"
@@ -249,6 +254,9 @@ func evaluateKind(a payloadAnalysis, pinnedPosture string, armingPostures []stri
 		if posture != pinnedPosture {
 			return ev
 		}
+		if !armingChainSyntaxValid(a.obj) {
+			return ev
+		}
 		ev.valid = true
 	case KindSealed:
 		ev.failCode = CodeSealedCoversNothing
@@ -284,6 +292,42 @@ func evaluateKind(a payloadAnalysis, pinnedPosture string, armingPostures []stri
 		ev.failCode = CodeRecordKindUnknownCoversNothing
 	}
 	return ev
+}
+
+// armingChainSyntaxValid checks the optional run-chaining members an arming
+// payload MAY carry: aeeRunSeq, aeePrevRunBinding, aeeChainScope. They are
+// syntax-checked here in the reserved-member walk and nothing else normative
+// reads them (the coverage validity requirements, the result recompute, and
+// the evidence tier are unchanged); their cross-attestation gap/fork
+// semantics are consumer policy over whatever set a producer publishes.
+//
+// Syntax: aeeRunSeq is a positive safe-range integer; aeeChainScope is a
+// string, REQUIRED whenever aeeRunSeq is present; aeePrevRunBinding is a
+// lowercase 64-hex string, present exactly when aeeRunSeq is greater than 1
+// (a genesis record, aeeRunSeq 1, carries no predecessor). A chain member
+// present without aeeRunSeq is rejected fail-closed: the members are
+// defined only as a set anchored on the sequence number, and a reserved aee
+// member with unsatisfiable syntax can only weaken coverage, never create
+// it.
+func armingChainSyntaxValid(obj *jsonObject) bool {
+	_, seqPresent := obj.values[memberRunSeq]
+	_, prevPresent := obj.values[memberPrevRunBinding]
+	_, scopePresent := obj.values[memberChainScope]
+	if !seqPresent {
+		return !prevPresent && !scopePresent
+	}
+	seq, seqIsInt := objInt(obj, memberRunSeq)
+	if !seqIsInt || seq < 1 {
+		return false
+	}
+	if _, ok := objString(obj, memberChainScope); !ok {
+		return false
+	}
+	if seq == 1 {
+		return !prevPresent
+	}
+	prev, ok := objString(obj, memberPrevRunBinding)
+	return ok && IsLowerHex64(prev)
 }
 
 // classRequirement is one class-match requirement of a row (spec:243-248).

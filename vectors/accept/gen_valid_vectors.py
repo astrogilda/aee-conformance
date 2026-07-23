@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Deterministic generator for the AEE v0.6 ACCEPT (valid) conformance vectors.
 
-Emits ok-001 .. ok-033 as complete, unwrapped in-toto Statement JSON files that a
+Emits ok-001 .. ok-034 as complete, unwrapped in-toto Statement JSON files that a
 conforming verifier MUST accept, into the directory containing this script.
 
 Determinism recipe (normative for this suite):
@@ -940,6 +940,30 @@ def build_vectors() -> dict[str, dict[str, Any]]:
         with_entropy=False,
     )
 
+    # ok-034 arming payload carrying the optional run-chaining members in
+    # genesis form: aeeRunSeq 1, aeeChainScope present, no aeePrevRunBinding.
+    # The members are syntax-checked in the reserved-member walk and nothing
+    # else normative reads them, so the record still covers.
+    v["ok-034-arming-chain-genesis"] = make_statement(
+        man_1,
+        [
+            make_row(
+                "XA-EXAMPLE-1", "no_egress", "substrate", "intercepted", "none", [0, 1]
+            )
+        ],
+        records=[
+            make_record(
+                "arming",
+                b_1,
+                extra={
+                    "aeeRunSeq": 1,
+                    "aeeChainScope": "example-substrate-key-and-subject/v1",
+                },
+            ),
+            make_record("sealed", b_1),
+        ],
+    )
+
     return v
 
 
@@ -1036,12 +1060,31 @@ def verify(stmt: dict[str, Any]) -> list[str]:  # noqa: C901
         is_clean = lab in labels and lab not in caught
         meth = r.get("method")
 
+        def chain_ok(p: dict[str, Any]) -> bool:
+            # Optional run-chaining member syntax: positive integer aeeRunSeq
+            # with a string aeeChainScope; aeePrevRunBinding (lowercase
+            # 64-hex) present exactly when aeeRunSeq exceeds 1.
+            if "aeeRunSeq" not in p:
+                return "aeePrevRunBinding" not in p and "aeeChainScope" not in p
+            seq = p.get("aeeRunSeq")
+            if not isinstance(seq, int) or isinstance(seq, bool) or seq < 1:
+                return False
+            if not isinstance(p.get("aeeChainScope"), str):
+                return False
+            if seq == 1:
+                return "aeePrevRunBinding" not in p
+            prev = p.get("aeePrevRunBinding")
+            return isinstance(prev, str) and len(prev) == 64 and all(
+                c in "0123456789abcdef" for c in prev
+            )
+
         def arming_ok(p: dict[str, Any]) -> bool:
             return (
                 p.get("armedAt") is not None
                 and p.get("armedAt") <= pred["issuedAt"]
                 and p.get("aeePostureDigest") == env["networkPosture"]["digest"]["sha256"]
                 and p.get("aeeMethod") == "intercepted"
+                and chain_ok(p)
             )
 
         def sealed_ok(p: dict[str, Any]) -> bool:
@@ -1143,7 +1186,7 @@ def verify_signatures(stmt: dict[str, Any]) -> dict[int, str]:
 
 def main() -> int:
     vectors = build_vectors()
-    assert len(vectors) == 33, len(vectors)
+    assert len(vectors) == 34, len(vectors)
     failures = 0
     for name, stmt in vectors.items():
         errs = verify(stmt)
@@ -1165,7 +1208,7 @@ def main() -> int:
     if failures:
         print(f"FAIL: {failures} vectors invalid")
         return 1
-    print("all 33 vectors VALID under self-verifier")
+    print(f"all {len(vectors)} vectors VALID under self-verifier")
     return 0
 
 

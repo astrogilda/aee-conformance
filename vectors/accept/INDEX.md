@@ -10,7 +10,7 @@ canonical RFC 8785 / RFC 7493 `+json` carrying the reserved members with
 capped by the weakest signed `aeeMethod`, `batchRoot` recomputes under RFC 6962),
 and the carried `result` equals the recompute. Condition ids below are stable
 `aee-c-NN` ids; the suite README maps them to spec line ranges at the pinned
-spec commit. Verdict for all 33: **valid**; the per-row evidence tier
+spec commit. Verdict for all 34: **valid**; the per-row evidence tier
 (attested / unattested / declared) is trust-relative and never alters validity
 or `result`.
 
@@ -92,6 +92,7 @@ tier-2 spec question.
 | ok-031-caught-reconstructed | fail | aee-c-13 | caught (substrate, reconstructed) row class-matched by an examination record: class-match keys on method, not caught-ness |
 | ok-032-method-inferred-retired | fail | aee-c-5, aee-c-43 | retired 0.4 `method` value `inferred` is out-of-vocabulary, fail-closed; VALID |
 | ok-033-artifact-degraded | degraded | aee-c-6 | artifact-only recordless degraded statement: parent for coverage-family rejects with no digest/binding cascade |
+| ok-034-arming-chain-genesis | pass | aee-c-89 | arming payload carrying the optional run-chaining members in genesis form (`aeeRunSeq` 1, `aeeChainScope` present, no `aeePrevRunBinding`): syntax-checked in the reserved-member walk, nothing else normative reads them, and the record still covers |
 
 ## Coverage notes
 

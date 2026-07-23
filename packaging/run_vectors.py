@@ -640,7 +640,34 @@ class ReferenceVerifier:
             return False
         if p.get("aeeMethod") != "intercepted":
             return False
+        if not self._arming_chain_ok(p):
+            return False
         return True
+
+    @staticmethod
+    def _arming_chain_ok(p: dict[str, Any]) -> bool:
+        """Syntax of the optional run-chaining members an arming payload MAY
+        carry (aeeRunSeq / aeePrevRunBinding / aeeChainScope): aeeRunSeq is a
+        positive safe-range integer; aeeChainScope is a string, required
+        whenever aeeRunSeq is present; aeePrevRunBinding is a lowercase
+        64-hex string, present exactly when aeeRunSeq is greater than 1. A
+        chain member present without aeeRunSeq is rejected fail-closed.
+        Syntax-checked here in the reserved-member walk; nothing else
+        normative reads the members."""
+        has_seq = "aeeRunSeq" in p
+        has_prev = "aeePrevRunBinding" in p
+        has_scope = "aeeChainScope" in p
+        if not has_seq:
+            return not has_prev and not has_scope
+        seq = p.get("aeeRunSeq")
+        if isinstance(seq, bool) or not isinstance(seq, int) or seq < 1:
+            return False
+        if not isinstance(p.get("aeeChainScope"), str):
+            return False
+        if seq == 1:
+            return not has_prev
+        prev = p.get("aeePrevRunBinding")
+        return isinstance(prev, str) and bool(HEX64_RE.match(prev))
 
     def _sealed_ok(self, rv: RecordView, pinned_posture: Any) -> bool:
         p = rv.payload or {}
@@ -921,6 +948,14 @@ class ReferenceVerifier:
         rows = st.rows
         labels = st.labels
         caught = st.caught
+        for r in rows:
+            # Row members are strictly typed: a member present with a
+            # non-string JSON value is a malformed statement (a different
+            # altitude than an ABSENT basis/method, which is a fail-closed
+            # row, or an absent actualLayer, which has its own code).
+            for member in ("attackId", "containmentObserved", "basis", "method", "actualLayer"):
+                if member in r and not isinstance(r[member], str):
+                    out.add("statement-malformed")
         for r in rows:
             if "actualLayer" not in r:
                 out.add("malformed-missing-actual-layer")
@@ -1336,6 +1371,7 @@ def jcs_dumps_safe(obj: Any) -> bytes:
 # one, e.g. environment-incomplete). CODE_STAGE and the _*_FAULT_CODES sets are
 # DERIVED below so a new code is declared in exactly one place.
 _CODE_REGISTRY: dict[str, tuple[str, tuple[str, ...]]] = {
+    "statement-malformed": ("gate0", ()),
     "statement-type-unsupported": ("gate0", ()),
     "predicate-type-unsupported": ("gate0", ()),
     "member-spelling": ("gate0", ()),

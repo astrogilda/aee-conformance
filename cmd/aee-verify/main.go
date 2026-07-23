@@ -68,7 +68,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "aee-verify: %v\n", err)
 		return 2
 	}
-	body, err := os.ReadFile(fs.Arg(0)) // #nosec G304 -- this CLI verifies a file the operator names by design
+	body, err := os.ReadFile(fs.Arg(0)) // #nosec G304 -- this CLI verifies a file the caller names by design
 	if err != nil {
 		fmt.Fprintf(stderr, "aee-verify: %v\n", err)
 		return 2
@@ -132,7 +132,7 @@ func loadPolicy(path, expectedCorpus, expectedSubstrate string) (*aee.ConsumerPo
 	if path == "" {
 		return policy, nil
 	}
-	raw, err := os.ReadFile(path) // #nosec G304 -- this CLI verifies a policy file the operator names by design
+	raw, err := os.ReadFile(path) // #nosec G304 -- this CLI verifies a policy file the caller names by design
 	if err != nil {
 		return nil, err
 	}

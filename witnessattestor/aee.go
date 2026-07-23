@@ -304,7 +304,7 @@ func (a *Attestor) locateEvidence(ctx *attestation.AttestationContext) (string, 
 	return paths[0], products[paths[0]], nil
 }
 
-// matchConfiguredEvidence resolves an operator-configured evidence-path against
+// matchConfiguredEvidence resolves a caller-configured evidence-path against
 // the step's products. The match is on a path-component boundary: a configured
 // value equals a product path exactly, or is its trailing path segment
 // ("evidence.json" matches "sub/evidence.json"), but never a substring of a

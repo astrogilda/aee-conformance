@@ -48,11 +48,11 @@ additionally diverge on purpose: the reject generator carries deliberately-wrong
 attack variants -- `merkle_root_no_domain`, `merkle_root_dup_pad` -- that must
 not be unified with the correct root.)
 
-## Accepted inherent complexity
+## Inherent complexity
 
-Some functions exceed a conventional cyclomatic-complexity threshold because the
-specification they implement is itself branch-heavy, not because of tangled
-structure. These are algorithmic/orchestration complexity and are accepted.
+A few functions have high cyclomatic complexity because the specification they
+implement is itself branch-heavy, not because of tangled structure. The table
+below explains why each one is complex.
 
 Go verifier (measured with gocyclo):
 
@@ -64,8 +64,8 @@ Go verifier (measured with gocyclo):
 | `aee/statement.go` `gate0CoverageIntegrity` | 18 | The coverage-partition invariant across three disjoint sets against the manifest. |
 | `aee/jcs.go` `decodeValue` | 18 | Recursive JSON value dispatch with the I-JSON profile checks. |
 
-Python harness/generators: the functions carrying `# noqa: C901` are documented
-individually in [`docs/complexity-rationales.toml`](../complexity-rationales.toml).
+The Python generators' functions carrying `# noqa: C901` are explained in
+[`docs/complexity-rationales.toml`](../complexity-rationales.toml).
 
 ## The core is stdlib-only and go-witness-free
 

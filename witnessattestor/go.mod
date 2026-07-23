@@ -3,7 +3,7 @@
 //
 // Wiring: github.com/astrogilda/aee-conformance is the sibling core module in this
 // tree; resolve it with a Go workspace (see ../go.work.example and
-// BUILD-NOTES.md). No replace directives are committed by policy.
+// BUILD-NOTES.md). No replace directives are committed.
 module github.com/astrogilda/aee-conformance/witnessattestor
 
 go 1.24

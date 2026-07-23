@@ -42,7 +42,7 @@ jobs:
         run: |
           go test ./aee/... ./cmd/... -race -count=1
           (cd witnessattestor && go test ./... -race -count=1)
-      - name: coverage (per-file 80% gate)
+      - name: coverage (per-file 80% minimum)
         run: |
           go test ./aee/... ./cmd/... -coverprofile=core.cov -count=1
           (cd witnessattestor && go test ./... -coverprofile=../wa.cov -count=1)

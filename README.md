@@ -84,7 +84,7 @@ tier outcome.
 
 ## Conformance vectors
 
-`aee/vectors_test.go` replays the sibling conformance vector suite
+`aee/vectors_test.go` replays the conformance vector suite in this repository
 (default `../../vectors`, override `AEE_VECTORS_DIR`): every accept vector
 must verify valid with matching result and tier columns under both key
 policies; every reject vector must be invalid with the primary code inside

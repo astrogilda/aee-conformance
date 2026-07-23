@@ -33,7 +33,7 @@ target-version = "py313"
 
 [tool.ruff.lint]
 # E/W pycodestyle, F pyflakes, I isort, UP pyupgrade, B bugbear, C901 mccabe
-# (complexity governance; accepted C+ functions carry a
+# (cyclomatic complexity; a function above the threshold carries a
 # noqa: C901 with a rationale in docs/complexity-rationales.toml).
 select = ["E", "F", "W", "I", "UP", "B", "C901"]
 

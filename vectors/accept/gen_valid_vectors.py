@@ -260,7 +260,7 @@ def make_row(
     return row
 
 
-def make_statement(  # noqa: C901
+def make_statement(  # noqa: C901 -- one guarded branch per independent option field; see docs/complexity-rationales.toml
     manifest: dict[str, Any],
     rows: list[dict[str, Any]],
     records: list[dict[str, Any]] | None = None,
@@ -975,7 +975,7 @@ def build_vectors() -> dict[str, dict[str, Any]]:
 METHOD_RANK = {"reconstructed": 1, "intercepted": 2}
 
 
-def verify(stmt: dict[str, Any]) -> list[str]:  # noqa: C901
+def verify(stmt: dict[str, Any]) -> list[str]:  # noqa: C901 -- mirrors the full spec gate logic; see docs/complexity-rationales.toml
     errs: list[str] = []
     pred = stmt["predicate"]
     env = pred["observationEnvironment"]

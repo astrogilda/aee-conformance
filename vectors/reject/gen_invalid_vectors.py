@@ -1618,7 +1618,7 @@ def parent_gate_check(name: str, st: dict[str, Any]) -> None:
         assert rank[row["method"]] <= min(rank[m] for m in cover), name
 
 
-def second_fault_absence(v: dict[str, Any], st: dict[str, Any]) -> None:  # noqa: C901
+def second_fault_absence(v: dict[str, Any], st: dict[str, Any]) -> None:  # noqa: C901 -- one branch per independent fault family; see docs/complexity-rationales.toml
     """Assert every derived commitment NOT under test still verifies."""
     conds = set(v["conds"])
     p = st["predicate"]

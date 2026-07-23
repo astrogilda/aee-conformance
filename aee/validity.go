@@ -185,6 +185,15 @@ func analyzePayload(rec *Record, state *recordState, binding string) payloadAnal
 	if err != nil || !bytes.Equal(canon, state.payloadBytes) {
 		a.codes = appendCode(a.codes, CodePayloadNotCanonical)
 	}
+	// BMP-only string profile: a supplementary-plane member name anywhere in
+	// the covering payload makes it cover nothing, the same handling as
+	// non-canonical bytes. A payload can pass the byte-equality check above
+	// under both the UTF-16 and the code-point member order when the two
+	// orders happen to agree on its names; rejecting non-BMP names outright
+	// removes the only inputs on which the two orders can disagree.
+	if hasSupplementaryMemberName(obj) {
+		a.codes = appendCode(a.codes, CodePayloadNotCanonical)
+	}
 	if !strings.HasSuffix(rec.PayloadType, jsonMediaTypeSuffix) {
 		a.codes = appendCode(a.codes, CodePayloadMediaType)
 	}

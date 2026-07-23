@@ -142,6 +142,14 @@ func gate0Vocabulary(v *Vocabulary, codes []Code) []Code {
 	if !isSortedNoDuplicates(v.Labels) || !isSortedNoDuplicates(v.Caught) {
 		codes = appendCode(codes, CodeVocabularyNotCanonical)
 	}
+	// BMP-only string profile: a supplementary-plane labels/caught entry
+	// makes the statement malformed, the same handling as non-canonical
+	// bytes. The UTF-16 sort rule above stays in force as defense in depth;
+	// this rejection removes the only inputs on which a UTF-16 rail and a
+	// code-point rail could order the vocabulary differently.
+	if !vocabularyStringsBMPOnly(v.Labels, v.Caught) {
+		codes = appendCode(codes, CodeVocabularyNotCanonical)
+	}
 	labelSet := stringSet(v.Labels)
 	for _, c := range v.Caught {
 		if !labelSet[c] {
@@ -331,6 +339,17 @@ func isCleanLabel(v *Vocabulary, label string) bool {
 
 func isCaughtLabel(v *Vocabulary, label string) bool {
 	return stringSet(v.Caught)[label]
+}
+
+func vocabularyStringsBMPOnly(labels, caught []string) bool {
+	for _, arr := range [][]string{labels, caught} {
+		for _, s := range arr {
+			if !isBMPOnly(s) {
+				return false
+			}
+		}
+	}
+	return true
 }
 
 func isSortedNoDuplicates(ss []string) bool {

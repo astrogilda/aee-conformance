@@ -108,6 +108,40 @@ class JcsError(ValueError):
 _JCS_CTRL = {0x08: "\\b", 0x09: "\\t", 0x0A: "\\n", 0x0C: "\\f", 0x0D: "\\r"}
 
 
+def _utf16_sort_key(s: str) -> bytes:
+    """UTF-16 code-unit sort key (RFC 8785 section 3.2.3).
+
+    Big-endian UTF-16 bytes compare lexicographically exactly as the 16-bit
+    code-unit sequence does, so ``sorted(..., key=_utf16_sort_key)`` is the
+    code-unit order the spec pins. This is deliberately NOT plain ``sorted``
+    (code-point order): a supplementary-plane string's lead surrogate
+    (0xD800..0xDBFF) sorts before a BMP code point in 0xE000..0xFFFF under
+    UTF-16 and after it under code points. The BMP-only string profile makes
+    that divergence unconstructible in accepted input, so this key is the
+    comparator-level pin, shared by member-name canonicalization and the
+    vocabulary sortedness check.
+    """
+    return s.encode("utf-16-be")
+
+
+def _all_bmp(strings: list[str]) -> bool:
+    """True when every code point of every string lies inside the BMP."""
+    return all(ord(ch) <= 0xFFFF for s in strings for ch in s)
+
+
+def _member_names_bmp(v: Any) -> bool:
+    """True when every object member name, at any depth, is BMP-only.
+
+    Member values are unconstrained; only the sorted member names participate
+    in RFC 8785 member ordering.
+    """
+    if isinstance(v, dict):
+        return all(_all_bmp([k]) and _member_names_bmp(x) for k, x in v.items())
+    if isinstance(v, list):
+        return all(_member_names_bmp(x) for x in v)
+    return True
+
+
 def _jcs_string(s: str) -> str:
     out = ['"']
     for ch in s:
@@ -141,7 +175,7 @@ def jcs_dumps(obj: Any) -> bytes:
         if isinstance(v, list):
             return "[" + ",".join(ser(x) for x in v) + "]"
         if isinstance(v, dict):
-            keys = sorted(v.keys(), key=lambda k: k.encode("utf-16-be"))
+            keys = sorted(v.keys(), key=_utf16_sort_key)
             return "{" + ",".join(
                 _jcs_string(k) + ":" + ser(v[k]) for k in keys
             ) + "}"
@@ -262,6 +296,14 @@ def strict_payload_parse(raw: bytes) -> dict[str, Any]:
         raise IJsonError("payload-not-canonical", "payload does not parse as JSON") from None
     if not isinstance(obj, dict):
         raise IJsonError("payload-not-canonical", "payload is not a JSON object")
+    if not _member_names_bmp(obj):
+        # BMP-only string profile: a supplementary-plane member name makes the
+        # covering payload cover nothing, the same handling as non-canonical
+        # bytes (the payload can be byte-canonical under both member orders
+        # when they happen to agree on its names; the name itself is rejected).
+        raise IJsonError(
+            "payload-not-canonical", "supplementary-plane object member name"
+        )
     _walk_check_ints(obj)
     try:
         canon = jcs_dumps(obj)
@@ -733,7 +775,14 @@ class ReferenceVerifier:
         for arr in (labels, caught):
             if not isinstance(arr, list) or not all(isinstance(x, str) for x in arr):
                 return False
-            if sorted(arr) != arr or len(set(arr)) != len(arr):
+            # Sortedness is by UTF-16 code unit (RFC 8785 section 3.2.3), the
+            # same comparator member-name canonicalization uses, and every
+            # entry must be BMP-only: a supplementary-plane vocabulary entry
+            # makes the statement malformed, the same handling as
+            # non-canonical bytes.
+            if sorted(arr, key=_utf16_sort_key) != arr or len(set(arr)) != len(arr):
+                return False
+            if not _all_bmp(arr):
                 return False
         return True
 
@@ -2152,6 +2201,19 @@ def self_test() -> int:
         "hand-rolled signature must match the reference",
     )
 
+    # Comparator pin, mirrored from the Go rail's unit pin: a
+    # supplementary-plane string orders BEFORE a BMP private-use code point
+    # under UTF-16 code units and AFTER it under code points. With the
+    # BMP-only profile enforced no corpus vector can probe this divergence,
+    # so this is the only layer where the comparator's order stays
+    # expressible; reverting the sort key to code-point order turns it red.
+    check(
+        "utf-16 code-unit comparator (supplementary before private-use)",
+        sorted(["\uE000", "\U0001F600"], key=_utf16_sort_key)
+        == ["\U0001F600", "\uE000"],
+        "sort key must compare 16-bit code units, not code points",
+    )
+
     o = ref.verify(base)
     check(
         "base statement valid",
@@ -2179,6 +2241,52 @@ def self_test() -> int:
         s = json.loads(json.dumps(base))
         fn(s)
         return ref.verify(s)
+
+    def add_astral_label(s: dict[str, Any]) -> None:
+        # Supplementary-plane label with the digest recomputed and sortedness
+        # intact under both orders: the BMP-only rule is the only violation.
+        v = s["predicate"]["observationEnvironment"]["observationVocabulary"]
+        v["labels"] = [*v["labels"], "\U0001F600"]
+        v["digest"]["sha256"] = sha256_hex(
+            jcs_dumps({"caught": v["caught"], "labels": v["labels"]})
+        )
+
+    m = mutate(add_astral_label)
+    check(
+        "supplementary-plane vocabulary entry rejected (BMP-only profile)",
+        m.verdict == "invalid" and "vocabulary-not-canonical" in m.codes,
+        str(m.codes),
+    )
+
+    # Supplementary-plane member NAME in a covering payload covers nothing;
+    # a supplementary-plane VALUE stays legal. Checked at the payload-parse
+    # layer, where the covering-payload analysis reads it.
+    bad_name = jcs_dumps({"aeeKind": "interception", "zz\U0001F600": "x"})
+    try:
+        strict_payload_parse(bad_name)
+        bmp_name_rejected = False
+        bmp_name_detail = "parse accepted a supplementary-plane member name"
+    except IJsonError as e:
+        bmp_name_rejected = e.code == "payload-not-canonical"
+        bmp_name_detail = e.code
+    check(
+        "supplementary-plane payload member name rejected (BMP-only profile)",
+        bmp_name_rejected,
+        bmp_name_detail,
+    )
+    ok_value = jcs_dumps({"aeeKind": "interception", "note": "\U0001F600"})
+    try:
+        strict_payload_parse(ok_value)
+        bmp_value_ok = True
+        bmp_value_detail = ""
+    except IJsonError as e:
+        bmp_value_ok = False
+        bmp_value_detail = e.code
+    check(
+        "supplementary-plane payload member VALUE stays legal",
+        bmp_value_ok,
+        bmp_value_detail,
+    )
 
     m = mutate(lambda s: s["predicate"].__setitem__("result", "pass"))
     check(

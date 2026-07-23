@@ -299,6 +299,51 @@ func appendJCSString(buf *bytes.Buffer, s string) {
 	buf.WriteByte('"')
 }
 
+// isBMPOnly reports whether every code point in s lies inside the Basic
+// Multilingual Plane. The predicate's BMP-only string profile — the string
+// half of the I-JSON safe-integer profile — restricts every sorted
+// signed-surface string (object member names in covering record payloads,
+// and the observationVocabulary labels/caught entries) to the BMP: within
+// the BMP, UTF-16 code-unit order and Unicode code-point order coincide, so
+// two conforming sort implementations cannot disagree on canonical form. A
+// supplementary-plane string is rejected fail-closed, never re-ordered.
+func isBMPOnly(s string) bool {
+	for _, r := range s {
+		if r > 0xFFFF {
+			return false
+		}
+	}
+	return true
+}
+
+// hasSupplementaryMemberName walks a parsed JSON value and reports whether
+// any object member name, at any depth, carries a code point outside the
+// BMP. Member values are unconstrained: only the sorted member names
+// participate in RFC 8785 member ordering, so only they can split a UTF-16
+// verifier from a code-point verifier.
+func hasSupplementaryMemberName(v any) bool {
+	switch t := v.(type) {
+	case *jsonObject:
+		for _, k := range t.keys {
+			if !isBMPOnly(k) {
+				return true
+			}
+		}
+		for _, val := range t.values {
+			if hasSupplementaryMemberName(val) {
+				return true
+			}
+		}
+	case []any:
+		for _, el := range t {
+			if hasSupplementaryMemberName(el) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 // utf16Less orders member names by their UTF-16 code units, as RFC 8785
 // section 3.2.3 requires.
 func utf16Less(a, b string) bool {

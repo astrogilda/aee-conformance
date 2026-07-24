@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 260" role="img" aria-label="aee-conformance">
+  <defs><radialGradient id="bg" cx="24%" cy="30%" r="80%">
+    <stop offset="0" stop-color="#11253E"/><stop offset="1" stop-color="#0A192F"/></radialGradient></defs>
+  <rect width="1280" height="260" fill="url(#bg)"/>
+  <g transform="translate(84,70) scale(2.5)">
+    <rect x="5" y="5" width="38" height="38" rx="7" fill="none" stroke="#EAF1FB" stroke-width="3.4"/>
+    <path d="M11 27 L18 15 L23 33 L29 18 L33 27" fill="none" stroke="#F5A623" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="33" cy="27" r="3.5" fill="#F5A623"/>
+  </g>
+  <text x="252" y="122" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="50" font-weight="600" fill="#F4F8FD" letter-spacing="-1">aee-conformance</text>
+  <text x="254" y="168" font-family="-apple-system,system-ui,Roboto,sans-serif" font-size="22" fill="#9FB3CE">Recomputable conformance suite for the Adversarial Execution Evidence predicate</text>
+  <path d="M252 206 L286 190 L306 224 L332 186 L352 216 L386 194 L408 222 L442 198 L460 214 L1030 214" fill="none" stroke="#26456B" stroke-width="2" opacity="0.85"/>
+</svg>

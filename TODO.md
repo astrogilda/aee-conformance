@@ -3,6 +3,10 @@
 Open work for the conformance-vector suite and reference verifier of the in-toto
 Adversarial Execution Evidence (AEE) predicate. Contributions welcome.
 
+> **Session code-health audit 2026-07-24:** `go build ./...` + `go vet ./...` + `mypy` all
+> **CLEAN** — no findings for this repo. Combined cross-repo report:
+> `probity/research/162-session-audit-2026-07-24/AUDIT-REPORT.md`.
+
 ## Standards-ecosystem interoperability
 
 - [ ] **SARIF v2.1.0 output** — an `aee-in-sarif` convention doc + emitter so a verifier

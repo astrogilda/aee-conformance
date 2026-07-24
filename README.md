@@ -1,4 +1,14 @@
-# AEE v0.6 verification core + go-witness attestor
+<p align="center">
+  <img src=".github/assets/banner.svg" alt="aee-conformance" width="820">
+</p>
+
+<p align="center">
+  <a href="https://github.com/astrogilda/aee-conformance/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/astrogilda/aee-conformance/ci.yml?branch=main&label=build" alt="build status"></a>
+  <img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="license Apache-2.0">
+  <img src="https://img.shields.io/badge/conformance%20vectors-125-e8951c" alt="125 conformance vectors">
+  <img src="https://img.shields.io/badge/rails-Go%20%C2%B7%20Python-546274" alt="Go and Python rails">
+  <img src="https://img.shields.io/badge/predicate-in--toto%20AEE%20v0.6-6f57c2" alt="in-toto AEE v0.6 predicate">
+</p>
 
 A recomputable execution attestation toolkit for the in-toto Adversarial
 Execution Evidence predicate, version 0.6.
@@ -34,6 +44,11 @@ go.work.example             wiring for building the attestor module (see BUILD-N
 ```
 
 ## The verification pipeline
+
+<img src=".github/assets/pipeline.svg" alt="A signed statement passes four byte-pure gates (well-formedness, coverage validity, result recompute, evidence tier) to a verdict; any gate fails closed with no result and no tiers." width="100%">
+
+Four byte-pure gates plus a consumer-relative evidence tier. Any gate fails
+closed: no result, no tiers. The full contract, step by step:
 
 1. GATE 0: statement well-formedness. Statement `_type` and
    `predicateType` (fail-closed: exactly one accepted construction, no

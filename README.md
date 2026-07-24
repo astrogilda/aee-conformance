@@ -1,7 +1,7 @@
 # AEE v0.6 verification core + go-witness attestor
 
 A recomputable execution attestation toolkit for the in-toto Adversarial
-Execution Evidence predicate, v ersion 0.6.
+Execution Evidence predicate, version 0.6.
 
 The predicate's model is execute-and-attest, not match-and-assert: the
 consumer recomputes the outcome from carried bytes instead of trusting a

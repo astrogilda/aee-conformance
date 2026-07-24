@@ -45,7 +45,9 @@ go.work.example             wiring for building the attestor module (see BUILD-N
 
 ## The verification pipeline
 
-<img src=".github/assets/pipeline.svg" alt="A signed statement passes four byte-pure gates (well-formedness, coverage validity, result recompute, evidence tier) to a verdict; any gate fails closed with no result and no tiers." width="100%">
+<p align="center">
+  <img src=".github/assets/pipeline.svg" alt="A signed statement passes four byte-pure gates (well-formedness, coverage validity, result recompute, evidence tier) to a verdict; any gate fails closed with no result and no tiers." width="380">
+</p>
 
 Four byte-pure gates plus a consumer-relative evidence tier. Any gate fails
 closed: no result, no tiers. The full contract, step by step:

@@ -1,8 +1,7 @@
 # AEE v0.6 verification core + go-witness attestor
 
 A recomputable execution attestation toolkit for the in-toto Adversarial
-Execution Evidence predicate, version 0.6
-(`https://in-toto.io/attestation/adversarial-execution-evidence/v0.6`).
+Execution Evidence predicate, v ersion 0.6.
 
 The predicate's model is execute-and-attest, not match-and-assert: the
 consumer recomputes the outcome from carried bytes instead of trusting a
@@ -126,7 +125,7 @@ currently coupled to its policy attestor).
 
 ## On independence
 
-One author wrote both the Go core here and the sibling Python implementation, so they
+I wrote both the Go core here and the sibling Python implementation, so they
 catch each other's bugs but do not amount to an independent audit. A third
 implementation from someone else is welcome: wiring one in is roughly a single
 command against the runner's stdin/stdout contract, and a conformant checker

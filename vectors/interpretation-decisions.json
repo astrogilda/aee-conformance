@@ -201,16 +201,19 @@
       "forcingVectors": [
         "bad-729-duplicate-attackid-rows"
       ]
+    },
+    {
+      "id": 14,
+      "title": "Coverage sets are a disjoint partition (assessedClasses / outOfScope / routedElsewhere)",
+      "classification": "forced",
+      "specAnchors": [
+        "L376-381"
+      ],
+      "reading": "The three coverage sets are a disjoint partition of the manifest's classes: a class appears in exactly one of assessedClasses, outOfScope, routedElsewhere (a move, not a copy). A class in more than one of the three is malformed - a class both assessed and disclosed as a gap is contradictory. Resolves open corner B, a LIVE divergence: our two rails already reject overlap (disjoint partition) while the independent from-spec checker accepts it (completeness-only); no vector exercised it, so 134/134 parity was intact. Keeping the reject reading is the converged debate's recommended DIRECTION and is the one editorial call here, reversible at vetting. bad-730 locks it.",
+      "forcingVectors": [
+        "bad-730-coverage-class-overlap"
+      ]
     }
   ],
-  "openCorners": [
-    {
-      "id": "B",
-      "title": "assessedClasses overlapping the gap maps (outOfScope / routedElsewhere)",
-      "classification": "permitted",
-      "railBehavior": "REJECT (coverage is an exhaustive, disjoint partition: a class counted in more than one set fails the partition, coverage-incomplete)",
-      "checkerBehavior": "accept (union)",
-      "note": "DIVERGENCE: our two rails reject the overlap while the independent from-spec checker accepts it. No corpus vector exercises it, so parity was not broken. Genuine design call (contradiction -> reject vs union-accept); flagged for operator/spec resolution in docs/interpretation-decisions-open.md, not locked by a vector."
-    }
-  ]
+  "openCorners": []
 }

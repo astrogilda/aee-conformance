@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 137,
-    "pass": 137,
+    "vectors": 138,
+    "pass": 138,
     "fail": 0
   },
   "notes": [],
@@ -3202,6 +3202,34 @@
         "verdict": "invalid",
         "codes": [
           "statement-malformed"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-730-coverage-class-overlap",
+      "file": "vectors/reject/bad-730-coverage-class-overlap.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "coverage-incomplete"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "coverage-incomplete"
         ]
       },
       "inManifest": true,

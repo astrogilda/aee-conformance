@@ -1355,6 +1355,25 @@ vec("bad-729-duplicate-attackid-rows", "ok-001",
          "invariant detected before the set is built")
 
 
+def _b730() -> dict[str, Any]:
+    st = P_degraded()  # manifest MAB: classes XA, XB; assessedClasses ["XA"]
+    # XA now appears in BOTH assessedClasses and outOfScope: the three coverage
+    # sets are no longer a disjoint partition.
+    st["predicate"]["coverage"]["outOfScope"] = {
+        "XA": "example scope reason", "XB": "example scope reason"}
+    return st
+
+
+vec("bad-730-coverage-class-overlap", "ok-004",
+    "class XA appears in BOTH assessedClasses and outOfScope: the three "
+    "coverage sets are not a disjoint partition", [], [82],
+    ["coverage-incomplete"], _b730, spec="L376-381",
+    note="the from-spec checker accepts overlap (completeness-only); our two "
+         "rails reject it (disjoint partition). A class both assessed and "
+         "disclosed as a gap is contradictory. Keeping the reject reading is "
+         "the converged debate recommendation, reversible at vetting")
+
+
 CHAIN_SCOPE = ["subject"]
 
 vec("bad-718-chain-runseq-zero", "ok-002",
@@ -2092,7 +2111,7 @@ def main() -> None:
         with open(path) as f:
             json.load(f)  # every vector parses as JSON (a duplicate member is last-wins)
 
-    assert len(VECTORS) == 102, f"expected 102 vectors, built {len(VECTORS)}"
+    assert len(VECTORS) == 103, f"expected 103 vectors, built {len(VECTORS)}"
 
     # 3. index
     write_index()

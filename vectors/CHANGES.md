@@ -7,7 +7,7 @@ byte-identically from the generators.
 
 ## suiteRevision 2 (round-7 chain-scope redesign)
 
-- Corpus: 137 vectors (35 accept, 102 reject). Normative change to the
+- Corpus: 138 vectors (35 accept, 103 reject). Normative change to the
   `aeeChainScope` arming-payload member: a free-form producer string becomes a
   duplicate-free array of tokens from the closed dimension vocabulary
   (`subject`, `corpus`, `networkPosture`), sorted in `observationVocabulary.labels`
@@ -65,6 +65,15 @@ byte-identically from the generators.
   (which silently collapsed it before) and emit `statement-malformed`. Spec
   paragraph at L385-398 gains the uniqueness sentence; new reject vector
   `bad-729-duplicate-attackid-rows`. Registry decision 13.
+- Coverage sets pinned as a disjoint partition (open corner B resolved, the one
+  editorial call; reversible at vetting). A class appears in exactly one of
+  `assessedClasses`, `outOfScope`, `routedElsewhere`; a class in more than one is
+  malformed. This was a live divergence (our rails reject overlap; the from-spec
+  checker accepts it) that no vector exercised. Rails unchanged (both already
+  reject via the disjoint-partition check); the spec text at L376-381 now matches
+  them; new reject vector `bad-730-coverage-class-overlap`. Registry decision 14.
+  With these three corners resolved, `interpretation-decisions.json` has no open
+  corners remaining.
 
 ## suiteRevision 1 (first public release)
 

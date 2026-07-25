@@ -777,6 +777,7 @@ class ReferenceVerifier:
         self._check_vocabulary(st, out)
         self._check_corpus(st, out)
         self._check_rows_setup(st, out)
+        self._check_subject_cardinality(st, out)
         self._check_coverage(st, out)
         self._check_per_row_statements(st, out)
         self._check_substrate_binding_inputs(st, out)
@@ -1029,6 +1030,15 @@ class ReferenceVerifier:
 
     # substrate-carrying statements: binding inputs
 
+    def _check_subject_cardinality(self, st: _VerifyState, out: Outcome) -> None:
+        # subject MUST contain exactly one entry on a statement of ANY basis
+        # (spec:122-126). The six binding-digest-input requirement stays
+        # substrate-scoped (_check_substrate_binding_inputs).
+        subject = st.stmt.get("subject")
+        subject = subject if isinstance(subject, list) else []
+        if len(subject) != 1:
+            out.add("subject-cardinality")
+
     def _check_substrate_binding_inputs(self, st: _VerifyState, out: Outcome) -> None:
         if not st.has_substrate:
             return
@@ -1036,8 +1046,6 @@ class ReferenceVerifier:
         env = st.env
         subject = stmt.get("subject")
         subject = subject if isinstance(subject, list) else []
-        if len(subject) != 1:
-            out.add("subject-cardinality")
         subj_digest = _digest_of(subject[0]) if subject else None
         if subject and subj_digest is None:
             out.add("subject-sha256-missing")

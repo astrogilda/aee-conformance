@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 135,
-    "pass": 135,
+    "vectors": 136,
+    "pass": 136,
     "fail": 0
   },
   "notes": [],
@@ -3146,6 +3146,34 @@
         "verdict": "invalid",
         "codes": [
           "arming-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-728-artifact-two-subjects",
+      "file": "vectors/reject/bad-728-artifact-two-subjects.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "subject-cardinality"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "subject-cardinality"
         ]
       },
       "inManifest": true,

@@ -176,6 +176,19 @@
       "forcingVectors": [
         "bad-725-statement-duplicate-member"
       ]
+    },
+    {
+      "id": 12,
+      "title": "Subject cardinality is unconditional (one subject on a statement of any basis)",
+      "classification": "forced",
+      "specAnchors": [
+        "L122-126"
+      ],
+      "reading": "subject MUST contain exactly one entry on a statement of ANY basis (L122-126); a statement carrying zero or more than one subject is malformed regardless of whether any row is basis:substrate. Only the six binding-digest-input requirement (each carries a lowercase-64-hex sha256) stays scoped to substrate-row-carrying statements. Resolves open corner C (was permitted: the cardinality rule had been enforced only for substrate-carrying statements while its consequence sentence was substrate-scoped, so an artifact-only two-subject statement was wrongly accepted by all rails). bad-607 keeps a substrate row; bad-728 locks the artifact-only case.",
+      "forcingVectors": [
+        "bad-607-two-subjects-substrate",
+        "bad-728-artifact-two-subjects"
+      ]
     }
   ],
   "openCorners": [
@@ -194,14 +207,6 @@
       "railBehavior": "REJECT (coverage is an exhaustive, disjoint partition: a class counted in more than one set fails the partition, coverage-incomplete)",
       "checkerBehavior": "accept (union)",
       "note": "DIVERGENCE: our two rails reject the overlap while the independent from-spec checker accepts it. No corpus vector exercises it, so parity was not broken. Genuine design call (contradiction -> reject vs union-accept); flagged for operator/spec resolution in docs/interpretation-decisions-open.md, not locked by a vector."
-    },
-    {
-      "id": "C",
-      "title": "Artifact-only statement with two subjects",
-      "classification": "permitted",
-      "railBehavior": "accept (subject cardinality is enforced only for substrate-row-carrying statements, L122-124)",
-      "checkerBehavior": "accept",
-      "note": "Genuine design call: the exactly-one-subject rule's malformedness is scoped to substrate-row-carrying statements; whether an artifact-only multi-subject statement is legal is unstated. See docs/interpretation-decisions-open.md."
     }
   ]
 }

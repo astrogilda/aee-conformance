@@ -73,32 +73,33 @@ tolerated (union)?
   that spec change should a forcing vector be added; until then the rails are
   opinionated ahead of the text, which is the gap to close.
 
-## Corner C -- Artifact-only statement with two subjects
+## RESOLVED: Corner C -- Artifact-only statement with two subjects
 
 **Question.** A statement whose rows are all `basis: artifact` carries two
 `subject` entries. Legal or malformed?
 
-- **Spec.** "For this predicate `subject` MUST contain exactly one entry ...; a
-  **substrate-row-carrying statement** violating either requirement is
-  malformed" (L122-124). The malformedness is explicitly scoped to
-  substrate-row-carrying statements; an artifact-only statement derives no run
-  binding and the cardinality rule's enforcement clause does not name it.
-- **Current rails.** **Accept.** Subject cardinality is checked only when the
-  statement carries a substrate row (`gate0SubstrateBindingInputs` runs under
-  `hasSubstrateRows`; the Python rail mirrors this).
-- **From-spec checker.** Accept. No divergence.
-- **Trade-offs.** Accept follows the literal scope of the malformedness sentence
-  and keeps artifact-only evidence permissive. Reject (extending "exactly one
-  entry" to all statements) is simpler to state and avoids a statement whose
-  single derived-binding path would be ambiguous if it later gained a substrate
-  row, at the cost of contradicting the current scoped text.
-- **Recommendation.** **Extend the one-subject requirement to every statement**
-  (drop the "substrate-row-carrying" scope on the cardinality half, keeping it
-  only on the six-digest-input half). One executed artifact per statement is the
-  model everywhere else; a two-subject artifact-only statement has no coherent
-  meaning. Needs the spec edit, then lock with a reject vector. `bad-607` already
-  keeps a substrate row precisely so the current (scoped) rule undeniably
-  applies; the artifact-only case is the open half.
+**Resolution (locked).** The one-subject requirement is now **unconditional**:
+`subject` MUST contain exactly one entry on a statement of **any** basis, and a
+statement carrying zero or more than one subject is malformed regardless of
+whether any row is `basis: substrate`. Only the six binding-digest-input
+requirement stays scoped to substrate-row-carrying statements. This is the
+converged debate's recommended direction (open point 3): one executed artifact
+per statement is the model everywhere else, and a two-subject artifact-only
+statement has no coherent meaning.
+
+- **Spec.** L122-126 was split: the cardinality half is stated unconditional
+  ("on a statement of any basis"); the digest-input half keeps the
+  substrate-row-carrying scope.
+- **Rails.** The subject-cardinality check was hoisted out of the
+  substrate-only path into unconditional Gate0 (Go `Gate0` step 9b, Python
+  `_check_subject_cardinality`); the substrate-scoped binding-digest-input
+  check is unchanged. Previously both rails accepted an artifact-only
+  two-subject statement (cardinality ran only under `hasSubstrateRows`).
+- **Vector.** `bad-728-artifact-two-subjects` (an artifact-only statement with a
+  second subject -> `subject-cardinality`). `bad-607` retains the substrate
+  case. Decision 12 in the registry lists both.
+- **Reversibility.** The direction (unconditional vs substrate-scoped) is an
+  editorial call recorded for vetting; it can be reversed there.
 
 ---
 

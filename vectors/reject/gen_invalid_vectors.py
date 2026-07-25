@@ -1338,6 +1338,23 @@ vec("bad-728-artifact-two-subjects", "ok-007",
          "an artifact-only statement")
 
 
+def _b729() -> dict[str, Any]:
+    st = P_caught()  # single caught row, manifest M1 (one attack)
+    rows = st["predicate"]["attackResults"]
+    rows.append(dict(rows[0]))  # a second row with the SAME attackId
+    return st
+
+
+vec("bad-729-duplicate-attackid-rows", "ok-001",
+    "a second attackResults row carrying the SAME attackId as the first "
+    "(one row per executed attack)", [], [90], ["statement-malformed"], _b729,
+    spec="L385-398",
+    note="two rows share attackId XA-EXAMPLE-1. Coverage integrity set-compares "
+         "row attackIds to the manifest, so a duplicate collapses under set "
+         "semantics and would pass silently; uniqueness is a well-formedness "
+         "invariant detected before the set is built")
+
+
 CHAIN_SCOPE = ["subject"]
 
 vec("bad-718-chain-runseq-zero", "ok-002",
@@ -1879,6 +1896,7 @@ COND = {
                              "supplementary-plane name covers nothing"),
     88: ("L369-375", "row members are strictly typed; a wrong-JSON-type "
                      "member is a malformed statement"),
+    90: ("L385-398", "no two attackResults rows share an attackId"),
     89: ("L662-673", "arming chain-member syntax: positive "
                                "aeeRunSeq; aeeChainScope required with it; "
                                "aeePrevRunBinding lowercase 64-hex, absent "
@@ -2074,7 +2092,7 @@ def main() -> None:
         with open(path) as f:
             json.load(f)  # every vector parses as JSON (a duplicate member is last-wins)
 
-    assert len(VECTORS) == 101, f"expected 101 vectors, built {len(VECTORS)}"
+    assert len(VECTORS) == 102, f"expected 102 vectors, built {len(VECTORS)}"
 
     # 3. index
     write_index()

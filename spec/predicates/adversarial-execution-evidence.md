@@ -396,6 +396,12 @@ attack the record's committed payload does not evidence; that is a
 producer obligation outside every gate: no validity requirement,
 recompute input, or tier evaluation reads it, so a conforming verifier
 neither can nor may invent an evidencing heuristic for shared references.
+No two `attackResults` rows may carry the same `attackId`: one row per
+executed attack is a well-formedness invariant, and a statement with a
+duplicate `attackId` across rows is malformed. Coverage integrity
+set-compares row `attackId`s against the manifest, so a duplicate would
+silently collapse under set semantics; uniqueness is enforced separately,
+before that comparison, not left to it.
 Wherever `observationRefs` is present - on any row, regardless of `basis`,
 and including rows on which nothing normative reads it - every index MUST be
 in range for `observationRecords`; an out-of-range index is a structural

@@ -989,9 +989,15 @@ class ReferenceVerifier:
         assessed: list[Any],
     ) -> None:
         attack_class, expected_ids = self._coverage_index(manifest_classes, assessed)
+        # No two rows may carry the same attackId (spec:385-398): one row per
+        # executed attack is a well-formedness invariant. Detected BEFORE the
+        # row_ids set is built, because the set-equality check below silently
+        # collapses duplicates.
         row_ids = set()
         for r in st.rows:
             aid = r.get("attackId")
+            if aid in row_ids:
+                out.add("statement-malformed")
             row_ids.add(aid)
             if aid not in attack_class:
                 out.add("row-attack-unknown")

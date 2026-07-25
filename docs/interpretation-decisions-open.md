@@ -20,28 +20,28 @@ is stated for each so the operator knows the current default.
 
 ---
 
-## Corner A -- Duplicate `attackId` rows
+## RESOLVED: Corner A -- Duplicate `attackId` rows
 
 **Question.** Two `attackResults` rows carry the same `attackId`. Legal (union
 semantics) or a malformed statement?
 
-- **Spec.** `attackResults` is "one row per executed attack" (L381), which reads
-  as one row *per* attack; but coverage integrity keys on the **set** of row
-  attackIds against the manifest (L413-416), and set semantics naturally dedupe.
-  No sentence explicitly forbids a repeated `attackId`.
-- **Current rails.** **Accept** (union): coverage integrity uses a set of row
-  attackIds, so a duplicate row is absorbed with no effect.
-- **From-spec checker.** Accept (union). No divergence.
-- **Trade-offs.** Union-accept is forgiving and matches the set-based coverage
-  check, but lets a producer carry two contradictory rows for one attack (e.g.
-  one caught, one clean) with the `result` recompute reading both. Reject-as-
-  malformed enforces "one row per attack" and removes the contradiction, at the
-  cost of a stricter producer contract.
-- **Recommendation.** **Reject duplicate `attackId` rows** as malformed. A
-  single attack with two rows is a producer-assembly bug, and two contradictory
-  rows for one attack is exactly the ambiguity the recompute should not have to
-  arbitrate. Needs a spec sentence: "An `attackId` MUST NOT appear on more than
-  one `attackResults` row." Then lock with a reject vector.
+**Resolution (locked).** Duplicate `attackId` rows are **malformed**. "One row
+per executed attack" is a well-formedness invariant, so a statement carrying two
+rows with the same `attackId` is rejected. This is the converged debate's
+recommended direction (open point 1): a single attack with two rows is a
+producer-assembly bug, and two contradictory rows for one attack (e.g. one
+caught, one clean) is exactly the ambiguity the recompute must not arbitrate.
+
+- **Spec.** A sentence was added to the `attackResults` paragraph (L385-398):
+  no two rows may carry the same `attackId`; coverage integrity set-compares row
+  `attackId`s, so a duplicate would silently collapse under set semantics, and
+  uniqueness is enforced separately, before that comparison.
+- **Rails.** Both rails detect the duplicate BEFORE building the rowID set (Go
+  `gate0CoverageIntegrity`, Python `_coverage_check_rows`), emitting
+  `statement-malformed`. Previously the set-based coverage check absorbed the
+  duplicate with no effect (all rails accepted).
+- **Vector.** `bad-729-duplicate-attackid-rows` (a second row with the same
+  `attackId` -> `statement-malformed`). Registry decision 13.
 
 ## Corner B -- `assessedClasses` overlapping the gap maps
 

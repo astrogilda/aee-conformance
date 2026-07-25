@@ -7,7 +7,7 @@ byte-identically from the generators.
 
 ## suiteRevision 2 (round-7 chain-scope redesign)
 
-- Corpus: 134 vectors (35 accept, 99 reject). Normative change to the
+- Corpus: 135 vectors (35 accept, 100 reject). Normative change to the
   `aeeChainScope` arming-payload member: a free-form producer string becomes a
   duplicate-free array of tokens from the closed dimension vocabulary
   (`subject`, `corpus`, `networkPosture`), sorted in `observationVocabulary.labels`
@@ -48,6 +48,10 @@ byte-identically from the generators.
   `bad-724`) are recorded in `docs/interpretation-decisions-open.md`; the three
   genuine design calls among them are flagged for operator/spec resolution and
   deliberately left un-locked.
+- `armedAt` zero UTC offset locked (decision 8 offset sub-case, a real rail bug).
+  The spec says "RFC 3339 UTC" but both rails accepted a non-zero offset (e.g.
+  `+05:00`) as a valid instant. Both rails now reject a non-zero offset; the spec
+  pins `Z` or `+00:00`; new reject vector `bad-727-armedat-non-utc-offset`.
 
 ## suiteRevision 1 (first public release)
 

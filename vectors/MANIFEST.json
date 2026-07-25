@@ -2,11 +2,11 @@
   "suite": "adversarial-execution-evidence-conformance",
   "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6",
   "specPath": "spec/predicates/adversarial-execution-evidence.md",
-  "specDigest": "849f3e767353175c7ec59e0563dcc5cb5a0bdcc828e1329553494b632f047478",
+  "specDigest": "6b67da943b7490acc7a21dfb034cb0ef2e4cab83ed7fbbd899bc8b694ca75a09",
   "tracksUpstream": "in-toto/attestation#570",
   "counts": {
     "accept": 35,
-    "reject": 99
+    "reject": 100
   },
   "vectors": [
     {
@@ -1505,6 +1505,20 @@
       "id": "bad-717-arming-missing-posture",
       "kind": "reject",
       "file": "reject/bad-717-arming-missing-posture.json",
+      "conditions": [
+        "aee-c-63"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-727-armedat-non-utc-offset",
+      "kind": "reject",
+      "file": "reject/bad-727-armedat-non-utc-offset.json",
       "conditions": [
         "aee-c-63"
       ],

@@ -555,6 +555,15 @@ def _rfc3339_ok(v: Any) -> bool:
     return isinstance(v, str) and bool(RFC3339_RE.match(v))
 
 
+def _armed_utc_offset_ok(v: Any) -> bool:
+    """armedAt MUST carry a zero UTC offset (spec: "RFC 3339 UTC"). The shared
+    RFC3339 pattern accepts any numeric offset (issuedAt only needs to be a
+    valid instant), so armedAt is checked separately: Z or +/-00:00 only."""
+    if not isinstance(v, str):
+        return False
+    return v[-1:] in ("Z", "z") or v.endswith(("+00:00", "-00:00"))
+
+
 def _rfc3339_key(v: str) -> datetime | None:
     """Comparable key for RFC 3339 instants (suite uses UTC 'Z' timestamps)."""
     s = v.strip()
@@ -648,6 +657,8 @@ class ReferenceVerifier:
         p = rv.payload or {}
         armed = p.get("armedAt")
         if not _rfc3339_ok(armed):
+            return False
+        if not _armed_utc_offset_ok(armed):
             return False
         if _rfc3339_ok(issued_at):
             # armed/issued_at each passed _rfc3339_ok above, so both are

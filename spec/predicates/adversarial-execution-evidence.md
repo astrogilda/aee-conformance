@@ -378,7 +378,11 @@ assessed), `outOfScope` and `routedElsewhere` (maps from class code to a
 reason string; empty objects when complete). Disclosing a gap moves the class
 into one of these maps and forces `result` to `degraded`, which is the honest
 alternative to leaving it out and quietly reporting a narrower run as a full
-one.
+one. The three sets are a disjoint partition of the manifest's classes: a
+class appears in exactly one of `assessedClasses`, `outOfScope`,
+`routedElsewhere` (a move, not a copy). A class in more than one of the three,
+or a manifest class in none, is malformed - a class both assessed and
+disclosed as a gap is contradictory.
 
 `attackResults` _array of objects, required_
 

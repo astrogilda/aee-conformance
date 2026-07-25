@@ -6,7 +6,7 @@
   "tracksUpstream": "in-toto/attestation#570",
   "counts": {
     "accept": 34,
-    "reject": 95
+    "reject": 96
   },
   "vectors": [
     {
@@ -1568,6 +1568,20 @@
         "verdict": "invalid",
         "codes": [
           "ref-out-of-range"
+        ]
+      }
+    },
+    {
+      "id": "bad-725-statement-duplicate-member",
+      "kind": "reject",
+      "file": "reject/bad-725-statement-duplicate-member.json",
+      "conditions": [
+        "aee-c-18"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "statement-malformed"
         ]
       }
     },

@@ -7,7 +7,7 @@ byte-identically from the generators.
 
 ## suiteRevision 2 (round-7 chain-scope redesign)
 
-- Corpus: 129 vectors (34 accept, 95 reject). Normative change to the
+- Corpus: 130 vectors (34 accept, 96 reject). Normative change to the
   `aeeChainScope` arming-payload member: a free-form producer string becomes a
   duplicate-free array of tokens from the closed dimension vocabulary
   (`subject`, `corpus`, `networkPosture`), sorted in `observationVocabulary.labels`
@@ -22,6 +22,10 @@ byte-identically from the generators.
   the array form `["subject"]`.
 - Out-of-range `observationRefs` is now a structural fault on ANY row, regardless
   of `basis`, fail-closed (previously enforced only on substrate rows).
+- The whole statement is parsed as strict I-JSON: a duplicate member anywhere in
+  the statement (not only inside a record payload) makes it malformed. New reject
+  vector `bad-725-statement-duplicate-member` (raw statement bytes; the dict form
+  cannot carry a repeat).
 
 ## suiteRevision 1 (first public release)
 

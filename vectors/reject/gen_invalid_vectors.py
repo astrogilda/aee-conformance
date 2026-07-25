@@ -465,7 +465,8 @@ VECTORS: list[dict[str, Any]] = []
 
 def vec(vid: str, parent: str, mutation: str, rederive: list[str],
         conds: list[int], codes: list[str],
-        build: Callable[[], dict[str, Any]], compound: bool = False,
+        build: Callable[[], dict[str, Any]] | Callable[[], str],
+        compound: bool = False,
         spec: str = "", note: str = "") -> None:
     VECTORS.append({"id": vid, "parent": parent, "mutation": mutation,
                     "rederive": rederive, "conds": conds, "codes": codes,
@@ -1349,6 +1350,30 @@ vec("bad-724-artifact-ref-out-of-range", "ok-029",
          "row regardless of basis; a reference that does not resolve is "
          "never silently ignored")
 
+def _b725() -> str:
+    """A statement carrying a duplicate top-level member (RFC 7493). The dict
+    representation cannot express a repeat, so emit raw text with a second
+    predicateType member. json.loads keeps the last silently; a strict rail
+    parses the whole statement as I-JSON and rejects the duplicate statement-wide,
+    not only inside record payloads."""
+    st = P_clean()
+    text = json.dumps(st, indent=2, sort_keys=True, ensure_ascii=False)
+    lines = text.split("\n")
+    dup = ('  "predicateType": '
+           '"https://in-toto.io/attestation/adversarial-execution-evidence/v0.6",')
+    lines.insert(1, dup)
+    return "\n".join(lines)
+
+
+vec("bad-725-statement-duplicate-member", "ok-002",
+    "raw statement bytes carrying a duplicate top-level predicateType member "
+    "(the whole statement is parsed as strict I-JSON, not only record payloads)",
+    [], [18], ["statement-malformed"],
+    _b725, spec="L69-75",
+    note="rawStatement: the dict form cannot carry a duplicate member; a lenient "
+         "parser keeps the last silently, so a duplicate anywhere in the "
+         "statement is a malformed statement, fail-closed")
+
 # --- (k) statement-level -------------------------------------------------
 
 
@@ -1659,8 +1684,13 @@ def parent_gate_check(name: str, st: dict[str, Any]) -> None:
         assert rank[row["method"]] <= min(rank[m] for m in cover), name
 
 
-def second_fault_absence(v: dict[str, Any], st: dict[str, Any]) -> None:  # noqa: C901 -- one branch per independent fault family; see docs/complexity-rationales.toml
+def second_fault_absence(v: dict[str, Any], st: Any) -> None:  # noqa: C901 -- one branch per independent fault family; see docs/complexity-rationales.toml
     """Assert every derived commitment NOT under test still verifies."""
+    if not isinstance(st, dict):
+        # Raw-statement vector (str/bytes): the fault is a byte-level construction
+        # (e.g. a duplicate top-level member) that is single by construction and
+        # not introspectable as a dict. No derived-commitment cross-check applies.
+        return
     conds = set(v["conds"])
     p = st["predicate"]
     env = p.get("observationEnvironment", {})
@@ -1953,12 +1983,18 @@ def main() -> None:
         second_fault_absence(v, st)
         path = os.path.join(OUT, v["id"] + ".json")
         with open(path, "w") as f:
-            json.dump(st, f, indent=2, sort_keys=True, ensure_ascii=False)
-            f.write("\n")
+            if isinstance(st, str):
+                # Raw-statement vector: bytes crafted to carry a fault the dict
+                # representation cannot express (e.g. a duplicate top-level
+                # member). Written verbatim, not re-serialized from a dict.
+                f.write(st if st.endswith("\n") else st + "\n")
+            else:
+                json.dump(st, f, indent=2, sort_keys=True, ensure_ascii=False)
+                f.write("\n")
         with open(path) as f:
-            json.load(f)  # every vector parses as JSON
+            json.load(f)  # every vector parses as JSON (a duplicate member is last-wins)
 
-    assert len(VECTORS) == 95, f"expected 95 vectors, built {len(VECTORS)}"
+    assert len(VECTORS) == 96, f"expected 96 vectors, built {len(VECTORS)}"
 
     # 3. index
     write_index()

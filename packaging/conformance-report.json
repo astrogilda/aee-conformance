@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 129,
-    "pass": 129,
+    "vectors": 130,
+    "pass": 130,
     "fail": 0
   },
   "notes": [],
@@ -3038,6 +3038,34 @@
         "verdict": "invalid",
         "codes": [
           "ref-out-of-range"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-725-statement-duplicate-member",
+      "file": "vectors/reject/bad-725-statement-duplicate-member.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "statement-malformed"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "statement-malformed"
         ]
       },
       "inManifest": true,

@@ -644,12 +644,17 @@ class ReferenceVerifier:
             return False
         return True
 
+    _CHAIN_SCOPE_VOCAB = frozenset({"subject", "corpus", "networkPosture"})
+
     @staticmethod
     def _arming_chain_ok(p: dict[str, Any]) -> bool:
         """Syntax of the optional run-chaining members an arming payload MAY
         carry (aeeRunSeq / aeePrevRunBinding / aeeChainScope): aeeRunSeq is a
-        positive safe-range integer; aeeChainScope is a string, required
-        whenever aeeRunSeq is present; aeePrevRunBinding is a lowercase
+        positive safe-range integer; aeeChainScope is a duplicate-free array of
+        tokens from the closed vocabulary {subject, corpus, networkPosture},
+        sorted in observationVocabulary.labels canonical order (UTF-16
+        code-unit; for the ASCII vocabulary this is plain codepoint order),
+        required whenever aeeRunSeq is present; aeePrevRunBinding is a lowercase
         64-hex string, present exactly when aeeRunSeq is greater than 1. A
         chain member present without aeeRunSeq is rejected fail-closed.
         Syntax-checked here in the reserved-member walk; nothing else
@@ -662,7 +667,12 @@ class ReferenceVerifier:
         seq = p.get("aeeRunSeq")
         if isinstance(seq, bool) or not isinstance(seq, int) or seq < 1:
             return False
-        if not isinstance(p.get("aeeChainScope"), str):
+        scope = p.get("aeeChainScope")
+        if not isinstance(scope, list):
+            return False
+        if any(tok not in ReferenceVerifier._CHAIN_SCOPE_VOCAB for tok in scope):
+            return False
+        if scope != sorted(scope) or len(set(scope)) != len(scope):
             return False
         if seq == 1:
             return not has_prev
@@ -1093,10 +1103,31 @@ class ReferenceVerifier:
     def _check_gate1_coverage(self, st: _VerifyState, out: Outcome) -> None:
         pinned_posture = _digest_of(st.env.get("networkPosture"))
         st.pinned_posture = pinned_posture
+        # An out-of-range observationRefs index is a structural integrity fault
+        # on ANY row, regardless of basis and including rows nothing normative
+        # reads (fail-closed, independent of any gate). Reserved for statements
+        # where records exist; with no records the records-absent precedence
+        # owns the reject. Negative indexes stay the substrate ref-malformed
+        # path's concern.
+        if st.has_records:
+            self._check_refs_in_range(st, out)
         row_covering: dict[int, list[RecordView]] = {}
         for i, r in enumerate(st.rows):
             self._gate1_row(st, out, i, r, pinned_posture, row_covering)
         st.row_covering = row_covering
+
+    def _check_refs_in_range(self, st: _VerifyState, out: Outcome) -> None:
+        n = len(st.views)
+        for r in st.rows:
+            refs = r.get("observationRefs")
+            if not isinstance(refs, list):
+                continue
+            for ref in refs:
+                if isinstance(ref, bool) or not isinstance(ref, int):
+                    continue  # non-integer refs are the ref-malformed path's concern
+                if ref >= n:
+                    out.add("ref-out-of-range")
+                    return
 
     def _gate1_row(
         self,

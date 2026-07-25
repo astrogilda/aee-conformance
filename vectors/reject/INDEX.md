@@ -119,7 +119,7 @@ carries the authoritative id-to-spec-line table.
 | aee-c-53 | L345 | vocabulary arrays sorted ascending, no duplicates |
 | aee-c-54 | L345-347 | vocabulary digest is JCS of {caught, labels} |
 | aee-c-57 | L351-353 | runEntropy required with any substrate row |
-| aee-c-58 | L115 | exactly one subject on substrate-carrying statements |
+| aee-c-58 | L122-126 | exactly one subject on a statement of any basis |
 | aee-c-59 | L115-119 | binding digest inputs lowercase 64-hex sha256 |
 | aee-c-60 | L87-93 | binding pre-image construction |
 | aee-c-62 | L124-131 | binding is anti-splice |
@@ -144,7 +144,7 @@ carries the authoritative id-to-spec-line table.
 | aee-c-88 | L369-375 | row members are strictly typed; a wrong-JSON-type member is a malformed statement |
 | aee-c-89 | L662-673 | arming chain-member syntax: positive aeeRunSeq; aeeChainScope required with it; aeePrevRunBinding lowercase 64-hex, absent exactly when aeeRunSeq is 1 |
 
-## Vectors (100)
+## Vectors (101)
 
 `parent` names the accept-suite shape the vector derives from (the
 accept vectors land separately; the parent statements are built
@@ -205,7 +205,7 @@ so the declared fault stays the ONLY fault.
 | `bad-604-caught-duplicate` | ok-002 | duplicate entry in caught; digest recomputed | recompute-vocabulary-digest | aee-c-53 | `vocabulary-not-canonical` | L345 |
 | `bad-605-vocabulary-digest-mismatch` | ok-002 | stale vocabulary digest over unchanged content | - | aee-c-54 | `vocabulary-digest-mismatch` | L345-347 |
 | `bad-606-missing-runentropy` | ok-002 | drop runEntropy on a substrate-row-carrying statement | - | aee-c-57 | `run-entropy-missing` | L351-353; L119-120 |
-| `bad-607-two-subjects-substrate` | ok-002 | second subject appended to a substrate-row-carrying statement | - | aee-c-58 | `subject-cardinality` | L115 |
+| `bad-607-two-subjects-substrate` | ok-002 | second subject appended to a substrate-row-carrying statement | - | aee-c-58 | `subject-cardinality` | L122-126 |
 | `bad-608-digest-uppercase` | ok-002 | runEntropy digest upper-cased; binding rederived VERBATIM over the uppercase value and records re-signed with it | rederive-run-binding-verbatim, re-sign-record, recompute-batch-root | aee-c-59 | `digest-not-canonical` | L115-119 |
 | `bad-609-digest-truncated` | ok-002 | substrate digest truncated to 63 hex chars; verbatim rederive chain | rederive-run-binding-verbatim, re-sign-record, recompute-batch-root | aee-c-59 | `digest-not-canonical` | L115-119 |
 | `bad-610-empty-labels-substrate` | ok-001 | labels: [] and caught: [] (digest recomputed) under a substrate row whose label is now out-of-vocabulary | recompute-vocabulary-digest | aee-c-4 aee-c-44 aee-c-53 | `fail-closed-substrate-row` | L305-309; L345 |
@@ -228,6 +228,7 @@ so the declared fault stays the ONLY fault.
 | `bad-716-sealed-missing-posture` | ok-002 | drop aeePostureDigest from the sealed payload | re-sign-record, recompute-batch-root | aee-c-64 aee-c-65 | `sealed-covers-nothing` | L641-646; L655-699 |
 | `bad-717-arming-missing-posture` | ok-002 | drop aeePostureDigest from the arming payload | re-sign-record, recompute-batch-root | aee-c-63 | `arming-covers-nothing` | L636-641 |
 | `bad-727-armedat-non-utc-offset` | ok-002 | armedAt carries a non-zero UTC offset (+05:00): a valid instant no later than issuedAt, but not RFC 3339 UTC | re-sign-record, recompute-batch-root | aee-c-63 | `arming-covers-nothing` | L658-663 |
+| `bad-728-artifact-two-subjects` | ok-007 | a second subject appended to an ARTIFACT-ONLY statement (no substrate rows) | - | aee-c-58 | `subject-cardinality` | L122-126 |
 | `bad-718-chain-runseq-zero` | ok-002 | arming payload gains aeeRunSeq: 0 with aeeChainScope present (a sequence number is a positive integer) | re-sign-record, recompute-batch-root | aee-c-89 | `arming-covers-nothing` | L662-673 |
 | `bad-719-chain-missing-scope` | ok-002 | arming payload gains aeeRunSeq: 1 with NO aeeChainScope (aeeChainScope is required whenever aeeRunSeq is present) | re-sign-record, recompute-batch-root | aee-c-89 | `arming-covers-nothing` | L662-673 |
 | `bad-720-chain-prev-not-hex` | ok-002 | arming payload gains aeeRunSeq: 2, aeeChainScope, and an aeePrevRunBinding that is not lowercase 64-hex | re-sign-record, recompute-batch-root | aee-c-89 | `arming-covers-nothing` | L662-673 |
@@ -290,6 +291,7 @@ so the declared fault stays the ONLY fault.
 - **bad-713-only-sealed-ref-noncovering**: discriminates rails that scan all records instead of the row's referenced set.
 - **bad-714-unknown-kind-sole-cover**: pairs with ok-013: an unknown kind that no row NEEDS is ignored and only contributes its leaf.
 - **bad-727-armedat-non-utc-offset**: RFC 3339 UTC means a zero offset; +05:00 parses as a valid instant (18:59Z, before issuedAt) but is not UTC, so the arming record covers nothing, distinct from a late armedAt (bad-702).
+- **bad-728-artifact-two-subjects**: subject cardinality is unconditional (spec:122-126): exactly one subject on a statement of any basis. bad-607 keeps a substrate row; this locks the previously substrate-scoped rule as unconditional on an artifact-only statement.
 - **bad-718-chain-runseq-zero**: pairs with the genesis accept vector ok-034 (aeeRunSeq 1, scope present, no predecessor).
 - **bad-719-chain-missing-scope**: an unscoped counter makes every chain rule vacuous, so the syntax check rejects it fail-closed.
 - **bad-720-chain-prev-not-hex**: a predecessor binding is a lowercase 64-hex run binding digest, present exactly when aeeRunSeq exceeds 1.

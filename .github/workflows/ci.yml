@@ -73,8 +73,10 @@ jobs:
       - name: sync toolchain
         run: uv sync --extra dev --extra generators
       - name: mypy --strict
-        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py
+        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py
       - name: ruff
         run: uv run ruff check packaging vectors
+      - name: spec/corpus non-drift gate
+        run: python3 scripts/spec-drift-gate.py
       - name: replay every vector on the Python rail (must be 129/129)
         run: python3 packaging/run_vectors.py

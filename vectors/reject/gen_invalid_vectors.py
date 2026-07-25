@@ -1058,7 +1058,7 @@ def _b607() -> dict[str, Any]:
 
 vec("bad-607-two-subjects-substrate", "ok-002",
     "second subject appended to a substrate-row-carrying statement", [],
-    [58], ["subject-cardinality"], _b607, spec="L115",
+    [58], ["subject-cardinality"], _b607, spec="L122-126",
     note="subject[0] unchanged, so record bindings still derive: the "
          "cardinality rule is the ONLY fault")
 
@@ -1317,6 +1317,26 @@ vec("bad-727-armedat-non-utc-offset", "ok-002",
     note="RFC 3339 UTC means a zero offset; +05:00 parses as a valid instant "
          "(18:59Z, before issuedAt) but is not UTC, so the arming record covers "
          "nothing, distinct from a late armedAt (bad-702)")
+
+
+# --- round-8 corner resolutions (open corners C/A/B locked; see
+#     docs/interpretation-decisions-open.md) --------------------------------
+
+def _b728() -> dict[str, Any]:
+    st = P_artifact()  # artifact-only, no substrate rows
+    st["subject"].append({"name": "example-agent-bundle-b",
+                          "digest": {"sha256": D["subject-b"]}})
+    return st
+
+
+vec("bad-728-artifact-two-subjects", "ok-007",
+    "a second subject appended to an ARTIFACT-ONLY statement (no substrate "
+    "rows)", [], [58], ["subject-cardinality"], _b728, spec="L122-126",
+    note="subject cardinality is unconditional (spec:122-126): exactly one "
+         "subject on a statement of any basis. bad-607 keeps a substrate row; "
+         "this locks the previously substrate-scoped rule as unconditional on "
+         "an artifact-only statement")
+
 
 CHAIN_SCOPE = ["subject"]
 
@@ -1831,7 +1851,7 @@ COND = {
     53: ("L345", "vocabulary arrays sorted ascending, no duplicates"),
     54: ("L345-347", "vocabulary digest is JCS of {caught, labels}"),
     57: ("L351-353", "runEntropy required with any substrate row"),
-    58: ("L115", "exactly one subject on substrate-carrying statements"),
+    58: ("L122-126", "exactly one subject on a statement of any basis"),
     59: ("L115-119", "binding digest inputs lowercase 64-hex sha256"),
     60: ("L87-93", "binding pre-image construction"),
     62: ("L124-131", "binding is anti-splice"),
@@ -2054,7 +2074,7 @@ def main() -> None:
         with open(path) as f:
             json.load(f)  # every vector parses as JSON (a duplicate member is last-wins)
 
-    assert len(VECTORS) == 100, f"expected 100 vectors, built {len(VECTORS)}"
+    assert len(VECTORS) == 101, f"expected 101 vectors, built {len(VECTORS)}"
 
     # 3. index
     write_index()

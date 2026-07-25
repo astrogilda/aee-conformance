@@ -119,10 +119,12 @@ arming time, never cached: a stale round silently folded as current would
 defeat the same coupling. Public rounds also make two consumers'
 `runEntropy`-reuse observations comparable against a shared public time
 axis rather than against the producer's clock.
-For this predicate `subject` MUST contain exactly one entry, and each of
-the six digest inputs MUST carry a `sha256` digest whose value is already
-lowercase 64-hex; a substrate-row-carrying statement violating either
-requirement is malformed. Values are taken verbatim (no case-folding, no
+For this predicate `subject` MUST contain exactly one entry on a statement
+of any basis; a statement carrying zero or more than one subject is
+malformed, regardless of whether any row is `basis: substrate`. Separately,
+each of the six digest inputs MUST carry a `sha256` digest whose value is
+already lowercase 64-hex; a substrate-row-carrying statement violating this
+digest-input requirement is malformed. Values are taken verbatim (no case-folding, no
 null fill). A statement whose rows are all `basis: artifact` derives no
 binding and need not carry `runEntropy`. A verifier derives the digest from
 the statement alone; no field carries it. Every substrate-signed

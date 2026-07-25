@@ -84,6 +84,14 @@ func Gate0(s *Statement) []Code {
 		codes = appendCode(codes, CodeStatementMalformed)
 	}
 
+	// 9b. subject cardinality is unconditional (spec:122-126): subject MUST
+	//     contain exactly one entry on a statement of ANY basis. Only the
+	//     six binding-digest-input requirement stays substrate-scoped (checked
+	//     in gate0SubstrateBindingInputs).
+	if len(s.Subject) != 1 {
+		codes = appendCode(codes, CodeSubjectCardinality)
+	}
+
 	// 10. Per-row actualLayer altitude (spec:590-608): a missing member is a
 	//     malformed statement; a clean row must carry the literal "none".
 	vocabOK := env != nil && env.Vocabulary != nil && !containsVocabularyCodes(codes)
@@ -291,12 +299,9 @@ func gate0SubstrateBindingInputs(s *Statement, codes []Code) []Code {
 		codes = appendCode(codes, CodeDigestNotCanonical)
 	}
 
-	// subject MUST contain exactly one entry (spec:115-117). Artifact-only
-	// multi-subject is an open spec question and is deliberately not
-	// enforced outside substrate-carrying statements.
-	if len(s.Subject) != 1 {
-		codes = appendCode(codes, CodeSubjectCardinality)
-	}
+	// subject cardinality is checked unconditionally in Gate0 (spec:122-126).
+	// Here only the subject's binding-digest input is validated, alongside the
+	// other five substrate-scoped digest inputs.
 	if len(s.Subject) >= 1 {
 		sha, ok := s.Subject[0].Digest["sha256"]
 		if !ok {

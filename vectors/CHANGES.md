@@ -7,7 +7,7 @@ byte-identically from the generators.
 
 ## suiteRevision 2 (round-7 chain-scope redesign)
 
-- Corpus: 135 vectors (35 accept, 100 reject). Normative change to the
+- Corpus: 136 vectors (35 accept, 101 reject). Normative change to the
   `aeeChainScope` arming-payload member: a free-form producer string becomes a
   duplicate-free array of tokens from the closed dimension vocabulary
   (`subject`, `corpus`, `networkPosture`), sorted in `observationVocabulary.labels`
@@ -52,6 +52,13 @@ byte-identically from the generators.
   The spec says "RFC 3339 UTC" but both rails accepted a non-zero offset (e.g.
   `+05:00`) as a valid instant. Both rails now reject a non-zero offset; the spec
   pins `Z` or `+00:00`; new reject vector `bad-727-armedat-non-utc-offset`.
+- Subject cardinality made unconditional (open corner C resolved). `subject` MUST
+  contain exactly one entry on a statement of ANY basis; only the six
+  binding-digest inputs stay substrate-scoped. Both rails previously enforced
+  cardinality only under `hasSubstrateRows`, so an artifact-only two-subject
+  statement was wrongly accepted. The spec text at L122-126 is split accordingly;
+  new reject vector `bad-728-artifact-two-subjects` (`bad-607` keeps the substrate
+  case). Registry decision 12.
 
 ## suiteRevision 1 (first public release)
 

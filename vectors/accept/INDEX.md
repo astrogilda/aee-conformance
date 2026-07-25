@@ -93,6 +93,7 @@ tier-2 spec question.
 | ok-032-method-inferred-retired | fail | aee-c-5, aee-c-43 | retired 0.4 `method` value `inferred` is out-of-vocabulary, fail-closed; VALID |
 | ok-033-artifact-degraded | degraded | aee-c-6 | artifact-only recordless degraded statement: parent for coverage-family rejects with no digest/binding cascade |
 | ok-034-arming-chain-genesis | pass | aee-c-89 | arming payload carrying the optional run-chaining members in genesis form (`aeeRunSeq` 1, `aeeChainScope` present, no `aeePrevRunBinding`): syntax-checked in the reserved-member walk, nothing else normative reads them, and the record still covers |
+| ok-035-unknown-kind-excluded-from-cap | pass | aee-c-23, aee-c-45, aee-c-71 | clean intercepted row referencing an unknown-`aeeKind` record signed `aeeMethod` "reconstructed": the record covers nothing and is otherwise ignored, so it neither invalidates the row (arming + sealed satisfy class-match) nor participates in the method cap, which reads only covering records |
 
 ## Coverage notes
 

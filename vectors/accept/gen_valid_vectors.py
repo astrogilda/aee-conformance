@@ -964,6 +964,33 @@ def build_vectors() -> dict[str, dict[str, Any]]:
         ],
     )
 
+    # ok-035 an unknown-kind record signed aeeMethod "reconstructed", REFERENCED
+    # by a clean intercepted row. An unrecognized aeeKind covers nothing and is
+    # OTHERWISE IGNORED (spec:702-706): it neither invalidates the row (the
+    # arming+sealed cover satisfies class-match) nor participates in the method
+    # cap, which reads only COVERING records (spec:291-292). A rail that folded
+    # the ignored record's weaker aeeMethod into the cap would wrongly flag
+    # method-cap-exceeded; this locks the exclusion. Distinct from ok-013, whose
+    # unknown record is unreferenced and intercepted, so its cap is never tested.
+    v["ok-035-unknown-kind-excluded-from-cap"] = make_statement(
+        man_1,
+        [
+            make_row(
+                "XA-EXAMPLE-1", "no_egress", "substrate", "intercepted", "none", [0, 1, 2]
+            )
+        ],
+        records=[
+            make_record("arming", b_1),
+            make_record("sealed", b_1),
+            make_record(
+                "aee-future-x",
+                b_1,
+                method="reconstructed",
+                note="example unknown-kind record signed reconstructed",
+            ),
+        ],
+    )
+
     return v
 
 
@@ -1194,7 +1221,7 @@ def verify_signatures(stmt: dict[str, Any]) -> dict[int, str]:
 
 def main() -> int:
     vectors = build_vectors()
-    assert len(vectors) == 34, len(vectors)
+    assert len(vectors) == 35, len(vectors)
     failures = 0
     for name, stmt in vectors.items():
         errs = verify(stmt)

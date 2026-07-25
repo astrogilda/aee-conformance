@@ -5,8 +5,8 @@
   "specDigest": "849f3e767353175c7ec59e0563dcc5cb5a0bdcc828e1329553494b632f047478",
   "tracksUpstream": "in-toto/attestation#570",
   "counts": {
-    "accept": 34,
-    "reject": 97
+    "accept": 35,
+    "reject": 99
   },
   "vectors": [
     {
@@ -446,6 +446,20 @@
       "file": "accept/ok-034-arming-chain-genesis.json",
       "conditions": [
         "aee-c-89"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "ok-035-unknown-kind-excluded-from-cap",
+      "kind": "accept",
+      "file": "accept/ok-035-unknown-kind-excluded-from-cap.json",
+      "conditions": [
+        "aee-c-23",
+        "aee-c-45",
+        "aee-c-71"
       ],
       "expected": {
         "verdict": "valid",
@@ -1033,6 +1047,20 @@
       "id": "bad-503-clean-row-layer-not-none",
       "kind": "reject",
       "file": "reject/bad-503-clean-row-layer-not-none.json",
+      "conditions": [
+        "aee-c-48"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "clean-row-layer-not-none"
+        ]
+      }
+    },
+    {
+      "id": "bad-818-artifact-clean-row-layer-not-none",
+      "kind": "reject",
+      "file": "reject/bad-818-artifact-clean-row-layer-not-none.json",
       "conditions": [
         "aee-c-48"
       ],
@@ -1703,6 +1731,20 @@
       "id": "bad-816-coverage-class-dropped",
       "kind": "reject",
       "file": "reject/bad-816-coverage-class-dropped.json",
+      "conditions": [
+        "aee-c-82"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "coverage-incomplete"
+        ]
+      }
+    },
+    {
+      "id": "bad-819-assessed-class-not-in-manifest",
+      "kind": "reject",
+      "file": "reject/bad-819-assessed-class-not-in-manifest.json",
       "conditions": [
         "aee-c-82"
       ],

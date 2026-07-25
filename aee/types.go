@@ -221,6 +221,15 @@ func ParseStatement(b []byte) (*Statement, error) {
 	if err := json.Unmarshal(b, &shadow); err != nil {
 		return nil, fmt.Errorf("statement does not parse: %w", err)
 	}
+	// Statement-wide strict I-JSON (RFC 7493): reject a duplicate member
+	// anywhere in the statement JSON, not only inside record payloads. stdlib
+	// json.Unmarshal silently keeps the last of a repeated member, so validate
+	// the whole document with the I-JSON-strict parser; a duplicate member is a
+	// malformed statement. Other strict-parser divergences are not promoted
+	// here (basic parseability is already established above).
+	if _, perr := parseJSONValue(b); errors.Is(perr, ErrDuplicateMember) {
+		return nil, fmt.Errorf("statement does not parse: %w", perr)
+	}
 	s := &Statement{Subject: shadow.Subject, PredicateRaw: shadow.Predicate}
 	if shadow.Type != nil {
 		s.Type = *shadow.Type

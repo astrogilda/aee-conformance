@@ -7,7 +7,7 @@ byte-identically from the generators.
 
 ## suiteRevision 2 (round-7 chain-scope redesign)
 
-- Corpus: 131 vectors (34 accept, 97 reject). Normative change to the
+- Corpus: 134 vectors (35 accept, 99 reject). Normative change to the
   `aeeChainScope` arming-payload member: a free-form producer string becomes a
   duplicate-free array of tokens from the closed dimension vocabulary
   (`subject`, `corpus`, `networkPosture`), sorted in `observationVocabulary.labels`
@@ -31,6 +31,23 @@ byte-identically from the generators.
   implement (the arming record covers nothing), distinguishably from a
   run-binding digest mismatch. Absent defaults to `1`; the carried value never
   drives the derivation. New reject vector `bad-726-arming-binding-version-carried`.
+- Interpretation-decision hardening (from the independent from-spec checker's
+  eleven recorded interpretation decisions, in-toto/attestation#570). Three
+  forcing vectors lock spec-mandated readings the corpus did not yet exercise:
+  `ok-035-unknown-kind-excluded-from-cap` (a referenced unknown-`aeeKind` record
+  signed reconstructed covers nothing and is excluded from the method cap),
+  `bad-818-artifact-clean-row-layer-not-none` (the clean-row `actualLayer: none`
+  rule is not scoped to a basis, so an artifact clean row is held to it too), and
+  `bad-819-assessed-class-not-in-manifest` (coverage is an exhaustive, disjoint
+  partition of real manifest classes, mirroring `bad-816`). New machine-readable
+  registry `vectors/interpretation-decisions.json` maps each of the eleven
+  decisions to its spec anchor(s) and forcing vector(s), gated by
+  `scripts/interpretation-registry-gate.py`. The four open corners (duplicate
+  `attackId` rows; `assessedClasses` overlapping the gap maps; artifact-only
+  multi-subject; and out-of-range artifact-row refs, already locked by
+  `bad-724`) are recorded in `docs/interpretation-decisions-open.md`; the three
+  genuine design calls among them are flagged for operator/spec resolution and
+  deliberately left un-locked.
 
 ## suiteRevision 1 (first public release)
 

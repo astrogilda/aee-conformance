@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 131,
-    "pass": 131,
+    "vectors": 134,
+    "pass": 134,
     "fail": 0
   },
   "notes": [],
@@ -823,6 +823,30 @@
     {
       "id": "ok-034-arming-chain-genesis",
       "file": "vectors/accept/ok-034-arming-chain-genesis.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "result": "pass"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "ok-035-unknown-kind-excluded-from-cap",
+      "file": "vectors/accept/ok-035-unknown-kind-excluded-from-cap.json",
       "kind": "accept",
       "status": "PASS",
       "gates": {
@@ -3574,6 +3598,62 @@
         "verdict": "invalid",
         "codes": [
           "record-undecodable"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-818-artifact-clean-row-layer-not-none",
+      "file": "vectors/reject/bad-818-artifact-clean-row-layer-not-none.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "clean-row-layer-not-none"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "clean-row-layer-not-none"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-819-assessed-class-not-in-manifest",
+      "file": "vectors/reject/bad-819-assessed-class-not-in-manifest.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "coverage-incomplete"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "coverage-incomplete"
         ]
       },
       "inManifest": true,

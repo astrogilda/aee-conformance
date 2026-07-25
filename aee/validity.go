@@ -35,6 +35,8 @@ const (
 	memberRunSeq         = "aeeRunSeq"
 	memberPrevRunBinding = "aeePrevRunBinding"
 	memberChainScope     = "aeeChainScope"
+	// Optional explicit binding-version declaration (read-first).
+	memberBindingVersion = "aeeBindingVersion"
 )
 
 const jsonMediaTypeSuffix = "+json"
@@ -253,6 +255,14 @@ func evaluateKind(a payloadAnalysis, pinnedPosture string, armingPostures []stri
 		ev.failCode = CodePayloadMissingReserved
 	case KindArming:
 		ev.failCode = CodeArmingCoversNothing
+		// Read-first binding-version declaration: an arming payload MAY carry an
+		// explicit aeeBindingVersion. A verifier reads it before deriving and
+		// rejects fail-closed (the record covers nothing) a value it does not
+		// implement, distinguishably from a run-binding digest mismatch. Absent
+		// defaults to the implemented version; the derivation is unchanged.
+		if bv, ok := objString(a.obj, memberBindingVersion); ok && bv != BindingVersion {
+			return ev
+		}
 		armedAt, hasArmedAt := objString(a.obj, memberArmedAt)
 		posture, hasPosture := objString(a.obj, memberPostureDigest)
 		if !hasArmedAt || !hasPosture || a.method != MethodIntercepted {

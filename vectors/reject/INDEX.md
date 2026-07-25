@@ -144,7 +144,7 @@ carries the authoritative id-to-spec-line table.
 | aee-c-88 | L369-375 | row members are strictly typed; a wrong-JSON-type member is a malformed statement |
 | aee-c-89 | L662-673 | arming chain-member syntax: positive aeeRunSeq; aeeChainScope required with it; aeePrevRunBinding lowercase 64-hex, absent exactly when aeeRunSeq is 1 |
 
-## Vectors (96)
+## Vectors (97)
 
 `parent` names the accept-suite shape the vector derives from (the
 accept vectors land separately; the parent statements are built
@@ -181,6 +181,7 @@ so the declared fault stays the ONLY fault.
 | `bad-301-run-binding-splice` | ok-002 | records signed under a binding derived from a DIFFERENT corpus digest (cross-run splice) | recompute-batch-root | aee-c-22 aee-c-62 | `run-binding-mismatch` | L289-290; L121-126 |
 | `bad-302-method-inflation` | ok-001 | row method "intercepted"; sole covering record signed "reconstructed" | re-sign-record, recompute-batch-root | aee-c-23 | `method-cap-exceeded` | L291-292 |
 | `bad-303-binding-version-2` | ok-002 | records signed with a binding derived from an "aeeBindingVersion": "2" pre-image | derive-binding-v2, re-sign-record, recompute-batch-root | aee-c-75 aee-c-22 | `run-binding-mismatch` | L131-135; L289-290 |
+| `bad-726-arming-binding-version-carried` | ok-002 | arming payload carries an explicit aeeBindingVersion: "2" the verifier does not implement (read-first, distinct from the bad-303 digest mismatch) | re-sign-record, recompute-batch-root | aee-c-75 | `arming-covers-nothing` | L138-145 |
 | `bad-304-method-cap-multirecord` | ok-030 | row method "intercepted" covered by TWO interceptions with signed methods {intercepted, reconstructed}: exceeds the weakest | re-sign-record, recompute-batch-root | aee-c-23 aee-c-45 | `method-cap-exceeded` | L291-292 |
 | `bad-401-records-no-batchroot` | ok-002 | batchRoot member removed while observationRecords is non-empty | - | aee-c-24 | `batch-root-missing` | L736; L748-750 |
 | `bad-402-root-no-domain-separation` | ok-014 | root computed without the 0x00/0x01 domain-separation prefixes | - | aee-c-25 | `batch-root-mismatch` | L738-741 |
@@ -263,6 +264,7 @@ so the declared fault stays the ONLY fault.
 - **bad-208-payload-member-non-bmp**: rawBytes; BMP-only string profile: the name sorts last under BOTH the UTF-16 and the code-point member order, so the payload bytes stay canonical under either reading and the supplementary-plane member NAME is the single fault (a supplementary-plane member VALUE stays legal).
 - **bad-301-run-binding-splice**: the statement's own corpus is unchanged; the records were earned under another run's environment.
 - **bad-303-binding-version-2**: negative known-answer: the v2 pre-image MUST NOT match; a verifier has exactly one construction and never tries a second.
+- **bad-726-arming-binding-version-carried**: an explicit binding-version declaration the verifier does not implement is read before deriving and makes the arming record cover nothing, distinguishably from a run-binding digest mismatch.
 - **bad-304-method-cap-multirecord**: min-composition: a max()/any() rail wrongly accepts this.
 - **bad-405-duplicate-records**: single fault: duplicate identity, not root arithmetic.
 - **bad-407-substrate-row-no-records**: precedence pin: records-absent is reported when the array is absent entirely; ref-out-of-range only when records exist.

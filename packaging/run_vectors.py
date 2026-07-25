@@ -662,6 +662,13 @@ class ReferenceVerifier:
             return False
         if p.get("aeeMethod") != "intercepted":
             return False
+        # Read-first binding-version declaration: an explicit aeeBindingVersion
+        # the verifier does not implement makes the arming record cover nothing,
+        # distinguishably from a run-binding digest mismatch. Absent defaults to
+        # the implemented version "1"; the derivation is unchanged.
+        bv = p.get("aeeBindingVersion")
+        if bv is not None and bv != "1":
+            return False
         if not self._arming_chain_ok(p):
             return False
         return True

@@ -7,7 +7,7 @@ byte-identically from the generators.
 
 ## suiteRevision 2 (round-7 chain-scope redesign)
 
-- Corpus: 130 vectors (34 accept, 96 reject). Normative change to the
+- Corpus: 131 vectors (34 accept, 97 reject). Normative change to the
   `aeeChainScope` arming-payload member: a free-form producer string becomes a
   duplicate-free array of tokens from the closed dimension vocabulary
   (`subject`, `corpus`, `networkPosture`), sorted in `observationVocabulary.labels`
@@ -26,6 +26,11 @@ byte-identically from the generators.
   the statement (not only inside a record payload) makes it malformed. New reject
   vector `bad-725-statement-duplicate-member` (raw statement bytes; the dict form
   cannot carry a repeat).
+- `aeeBindingVersion` MAY be carried explicitly in the arming payload: a verifier
+  reads it before deriving and rejects, fail-closed, a version it does not
+  implement (the arming record covers nothing), distinguishably from a
+  run-binding digest mismatch. Absent defaults to `1`; the carried value never
+  drives the derivation. New reject vector `bad-726-arming-binding-version-carried`.
 
 ## suiteRevision 1 (first public release)
 

@@ -2,11 +2,11 @@
   "suite": "adversarial-execution-evidence-conformance",
   "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6",
   "specPath": "spec/predicates/adversarial-execution-evidence.md",
-  "specDigest": "77582691666c7d3321427fd67324366f9e54396bc90a2dec9c8b89d62d669c91",
+  "specDigest": "849f3e767353175c7ec59e0563dcc5cb5a0bdcc828e1329553494b632f047478",
   "tracksUpstream": "in-toto/attestation#570",
   "counts": {
     "accept": 34,
-    "reject": 96
+    "reject": 97
   },
   "vectors": [
     {
@@ -838,6 +838,20 @@
         "verdict": "invalid",
         "codes": [
           "run-binding-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-726-arming-binding-version-carried",
+      "kind": "reject",
+      "file": "reject/bad-726-arming-binding-version-carried.json",
+      "conditions": [
+        "aee-c-75"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
         ]
       }
     },

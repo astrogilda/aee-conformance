@@ -139,7 +139,14 @@ value it has already seen. `aeeBindingVersion` names this construction;
 a future version that changes the construction (another hash algorithm,
 additional inputs, multiple subjects or substrates) names a new binding
 version, and a verifier MUST reject, fail-closed, a binding version it does
-not implement rather than attempt more than one construction. A future
+not implement rather than attempt more than one construction. An arming
+record's payload MAY carry an explicit `aeeBindingVersion` member declaring
+its construction; a verifier reads it before deriving and rejects it
+fail-closed (the arming record covers nothing) when the value is a version it
+does not implement, distinguishably from a run-binding digest mismatch. An
+absent member defaults to version `1`; the carried value never drives the
+derivation (a verifier derives only under the version it implements, so a
+record declaring `1` but constructed otherwise still fails on the digest). A future
 minor version admitting multiple subjects or multiple substrates binds all
 of them in canonical name-then-digest order.
 

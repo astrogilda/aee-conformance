@@ -757,6 +757,21 @@ vec("bad-303-binding-version-2", "ok-002",
     ["run-binding-mismatch"], _b303, spec="L131-135; L289-290",
     note="negative known-answer: the v2 pre-image MUST NOT match; a "
          "verifier has exactly one construction and never tries a second")
+def _b726() -> dict[str, Any]:
+    st = P_clean()
+    return mutate_record_payload(st, 0, lambda o: {**o, "aeeBindingVersion": "2"})
+
+
+vec("bad-726-arming-binding-version-carried", "ok-002",
+    "arming payload carries an explicit aeeBindingVersion: \"2\" the verifier "
+    "does not implement (read-first, distinct from the bad-303 digest mismatch)",
+    ["re-sign-record", "recompute-batch-root"], [75],
+    ["arming-covers-nothing"],
+    _b726,
+    spec="L138-145",
+    note="an explicit binding-version declaration the verifier does not "
+         "implement is read before deriving and makes the arming record cover "
+         "nothing, distinguishably from a run-binding digest mismatch")
 
 
 def _b304() -> dict[str, Any]:
@@ -1994,7 +2009,7 @@ def main() -> None:
         with open(path) as f:
             json.load(f)  # every vector parses as JSON (a duplicate member is last-wins)
 
-    assert len(VECTORS) == 96, f"expected 96 vectors, built {len(VECTORS)}"
+    assert len(VECTORS) == 97, f"expected 97 vectors, built {len(VECTORS)}"
 
     # 3. index
     write_index()

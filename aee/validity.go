@@ -70,6 +70,17 @@ func gate1WithContext(s *Statement) (states []recordState, binding string, issue
 		codes = appendCode(codes, c)
 	}
 
+	// An out-of-range observationRefs index is a structural integrity fault on
+	// ANY row, regardless of basis and including rows nothing normative reads,
+	// fail-closed and independent of any gate. Checked before the substrate-row
+	// path so an artifact-only statement with a dangling ref is still rejected.
+	// Reserved for statements where records exist: with no records the
+	// records-absent precedence owns the reject (a ref cannot resolve to a
+	// record set that is not there).
+	if len(p.Records) > 0 && anyObservationRefOutOfRange(p) {
+		codes = appendCode(codes, CodeRefOutOfRange)
+	}
+
 	if !hasSubstrateRows(p) {
 		return states, "", time.Time{}, codes
 	}
@@ -294,6 +305,18 @@ func evaluateKind(a payloadAnalysis, pinnedPosture string, armingPostures []stri
 	return ev
 }
 
+// chainScopeVocabulary is the closed set of aeeChainScope dimension tokens.
+// Each token pins a projection to a value already carried on the wire
+// (subject -> subject[0].digest.sha256, corpus ->
+// observationEnvironment.corpus.digest, networkPosture ->
+// networkPosture.digest.sha256). Minor versions MAY append tokens; an
+// unrecognized token fails closed.
+var chainScopeVocabulary = map[string]bool{
+	"subject":        true,
+	"corpus":         true,
+	"networkPosture": true,
+}
+
 // armingChainSyntaxValid checks the optional run-chaining members an arming
 // payload MAY carry: aeeRunSeq, aeePrevRunBinding, aeeChainScope. They are
 // syntax-checked here in the reserved-member walk and nothing else normative
@@ -302,13 +325,14 @@ func evaluateKind(a payloadAnalysis, pinnedPosture string, armingPostures []stri
 // semantics are consumer policy over whatever set a producer publishes.
 //
 // Syntax: aeeRunSeq is a positive safe-range integer; aeeChainScope is a
-// string, REQUIRED whenever aeeRunSeq is present; aeePrevRunBinding is a
-// lowercase 64-hex string, present exactly when aeeRunSeq is greater than 1
-// (a genesis record, aeeRunSeq 1, carries no predecessor). A chain member
-// present without aeeRunSeq is rejected fail-closed: the members are
-// defined only as a set anchored on the sequence number, and a reserved aee
-// member with unsatisfiable syntax can only weaken coverage, never create
-// it.
+// duplicate-free array of tokens from the closed chainScopeVocabulary, sorted
+// in observationVocabulary.labels canonical order (UTF-16 code-unit),
+// REQUIRED whenever aeeRunSeq is present; aeePrevRunBinding is a lowercase
+// 64-hex string, present exactly when aeeRunSeq is greater than 1 (a genesis
+// record, aeeRunSeq 1, carries no predecessor). A chain member present without
+// aeeRunSeq is rejected fail-closed: the members are defined only as a set
+// anchored on the sequence number, and a reserved aee member with
+// unsatisfiable syntax can only weaken coverage, never create it.
 func armingChainSyntaxValid(obj *jsonObject) bool {
 	_, seqPresent := obj.values[memberRunSeq]
 	_, prevPresent := obj.values[memberPrevRunBinding]
@@ -320,7 +344,16 @@ func armingChainSyntaxValid(obj *jsonObject) bool {
 	if !seqIsInt || seq < 1 {
 		return false
 	}
-	if _, ok := objString(obj, memberChainScope); !ok {
+	scope, ok := objStringArray(obj, memberChainScope)
+	if !ok {
+		return false
+	}
+	for _, tok := range scope {
+		if !chainScopeVocabulary[tok] {
+			return false
+		}
+	}
+	if !isSortedNoDuplicates(scope) {
 		return false
 	}
 	if seq == 1 {
@@ -328,6 +361,27 @@ func armingChainSyntaxValid(obj *jsonObject) bool {
 	}
 	prev, ok := objString(obj, memberPrevRunBinding)
 	return ok && IsLowerHex64(prev)
+}
+
+// anyObservationRefOutOfRange reports whether any row, regardless of basis,
+// carries a present, well-formed observationRefs index that is out of range
+// for observationRecords. An out-of-range index is a structural integrity
+// fault that makes the statement invalid, fail-closed and independent of any
+// gate (spec: observationRefs field definition). Malformed refs (RefsErr) are
+// a separate code and are skipped here.
+func anyObservationRefOutOfRange(p *Predicate) bool {
+	for i := range p.Rows {
+		row := &p.Rows[i]
+		if !row.RefsPresent || row.RefsErr != nil {
+			continue
+		}
+		for _, idx := range row.Refs {
+			if idx < 0 || idx >= len(p.Records) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // classRequirement is one class-match requirement of a row (spec:281-286).
@@ -489,6 +543,32 @@ func objString(obj *jsonObject, key string) (string, bool) {
 	}
 	s, ok := v.(string)
 	return s, ok
+}
+
+// objStringArray reads an array-of-strings member from a parsed payload
+// object. ok is false if the member is absent or is not a JSON array whose
+// every element is a string.
+func objStringArray(obj *jsonObject, key string) ([]string, bool) {
+	if obj == nil {
+		return nil, false
+	}
+	v, ok := obj.values[key]
+	if !ok {
+		return nil, false
+	}
+	arr, ok := v.([]any)
+	if !ok {
+		return nil, false
+	}
+	out := make([]string, 0, len(arr))
+	for _, el := range arr {
+		s, ok := el.(string)
+		if !ok {
+			return nil, false
+		}
+		out = append(out, s)
+	}
+	return out, true
 }
 
 // objBool reads a boolean member; a string "true" is NOT a boolean.

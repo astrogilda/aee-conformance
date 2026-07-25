@@ -957,7 +957,7 @@ def build_vectors() -> dict[str, dict[str, Any]]:
                 b_1,
                 extra={
                     "aeeRunSeq": 1,
-                    "aeeChainScope": "example-substrate-key-and-subject/v1",
+                    "aeeChainScope": ["subject"],
                 },
             ),
             make_record("sealed", b_1),
@@ -1062,14 +1062,22 @@ def verify(stmt: dict[str, Any]) -> list[str]:  # noqa: C901 -- mirrors the full
 
         def chain_ok(p: dict[str, Any]) -> bool:
             # Optional run-chaining member syntax: positive integer aeeRunSeq
-            # with a string aeeChainScope; aeePrevRunBinding (lowercase
-            # 64-hex) present exactly when aeeRunSeq exceeds 1.
+            # with an aeeChainScope that is a duplicate-free array of tokens
+            # from the closed vocabulary {subject, corpus, networkPosture},
+            # sorted in canonical (UTF-16 code-unit) order; aeePrevRunBinding
+            # (lowercase 64-hex) present exactly when aeeRunSeq exceeds 1.
+            chain_vocab = {"subject", "corpus", "networkPosture"}
             if "aeeRunSeq" not in p:
                 return "aeePrevRunBinding" not in p and "aeeChainScope" not in p
             seq = p.get("aeeRunSeq")
             if not isinstance(seq, int) or isinstance(seq, bool) or seq < 1:
                 return False
-            if not isinstance(p.get("aeeChainScope"), str):
+            scope = p.get("aeeChainScope")
+            if not isinstance(scope, list):
+                return False
+            if any(tok not in chain_vocab for tok in scope):
+                return False
+            if scope != sorted(scope) or len(set(scope)) != len(scope):
                 return False
             if seq == 1:
                 return "aeePrevRunBinding" not in p

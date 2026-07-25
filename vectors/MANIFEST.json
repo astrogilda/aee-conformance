@@ -3,7 +3,7 @@
   "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6",
   "counts": {
     "accept": 34,
-    "reject": 91
+    "reject": 95
   },
   "vectors": [
     {
@@ -1509,6 +1509,62 @@
         "verdict": "invalid",
         "codes": [
           "arming-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-721-chain-scope-not-array",
+      "kind": "reject",
+      "file": "reject/bad-721-chain-scope-not-array.json",
+      "conditions": [
+        "aee-c-89"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-722-chain-scope-unknown-dimension",
+      "kind": "reject",
+      "file": "reject/bad-722-chain-scope-unknown-dimension.json",
+      "conditions": [
+        "aee-c-89"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-723-chain-scope-not-canonical",
+      "kind": "reject",
+      "file": "reject/bad-723-chain-scope-not-canonical.json",
+      "conditions": [
+        "aee-c-89"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-724-artifact-ref-out-of-range",
+      "kind": "reject",
+      "file": "reject/bad-724-artifact-ref-out-of-range.json",
+      "conditions": [
+        "aee-c-11"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "ref-out-of-range"
         ]
       }
     },

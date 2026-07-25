@@ -2,11 +2,11 @@
   "suite": "adversarial-execution-evidence-conformance",
   "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6",
   "specPath": "spec/predicates/adversarial-execution-evidence.md",
-  "specDigest": "8cdb38c628848f4fb90c76500c5e4b194160a1c6eae87ff8279b6aba257f12bf",
+  "specDigest": "d3872a02875b2da8de0263e93fb92ca6f5ab0fd75f07ed3762a1b18b0c1712a3",
   "tracksUpstream": "in-toto/attestation#570",
   "counts": {
     "accept": 35,
-    "reject": 102
+    "reject": 103
   },
   "vectors": [
     {
@@ -1554,6 +1554,20 @@
         "verdict": "invalid",
         "codes": [
           "statement-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-730-coverage-class-overlap",
+      "kind": "reject",
+      "file": "reject/bad-730-coverage-class-overlap.json",
+      "conditions": [
+        "aee-c-82"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "coverage-incomplete"
         ]
       }
     },

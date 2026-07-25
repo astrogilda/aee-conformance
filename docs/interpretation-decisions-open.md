@@ -9,11 +9,14 @@ vectors and recorded in `vectors/interpretation-decisions.json`), but recorded
 these corners as places its author had to choose without the spec deciding for
 them.
 
-Per the conservative stance for this corpus, **none of these is resolved by a
-vector**: adding a reject or accept vector would silently commit the suite (and
-every consumer that certifies against it) to one side of an unresolved semantic
-question. Each needs an operator decision and, ideally, a spec sentence that
-makes the reading explicit, before it is locked.
+**Status: all three corners (A, B, C) are now RESOLVED** in the direction of a
+converged 29-agent adversarial debate, each pinned in the spec text, locked by a
+forcing vector, and recorded as a `forced` decision in
+`vectors/interpretation-decisions.json` (`openCorners` is now empty). The
+sections below are retained for the audit trail. Corner B is the single
+editorial call (keep our existing reject reading) and is reversible at vetting;
+A and C fixed a genuine under-enforcement present in every rail. Rail
+propagation to the probity and mcp verifier rails is a follow-up.
 
 Behavior of the two rails today (Go `aee/`, Python `packaging/run_vectors.py`)
 is stated for each so the operator knows the current default.
@@ -43,35 +46,32 @@ caught, one clean) is exactly the ambiguity the recompute must not arbitrate.
 - **Vector.** `bad-729-duplicate-attackid-rows` (a second row with the same
   `attackId` -> `statement-malformed`). Registry decision 13.
 
-## Corner B -- `assessedClasses` overlapping the gap maps
+## RESOLVED: Corner B -- `assessedClasses` overlapping the gap maps
 
 **Question.** A class appears in both `coverage.assessedClasses` **and** one of
 `coverage.outOfScope` / `coverage.routedElsewhere`. Contradiction (reject) or
 tolerated (union)?
 
-- **Spec.** "Disclosing a gap **moves** the class into one of these maps"
-  (L376-379) reads as exclusive placement, and the run-binding/coverage prose
-  treats the three sets as a partition of the manifest's classes; but there is
-  no explicit "MUST NOT overlap".
-- **Current rails.** **REJECT.** Both rails enforce an exhaustive, *disjoint*
-  partition: each manifest class must be accounted exactly once across the three
-  sets, so a class in two sets fails with `coverage-incomplete`
-  (`aee/statement.go` `gate0CoverageIntegrity`, `run_vectors.py`
-  `_coverage_partition_ok`).
-- **From-spec checker.** **Accept** (union) -- overlap tolerated.
-- **This is a live divergence.** Our rails and the independent checker disagree.
-  It has not broken parity only because **no corpus vector exercises overlap**.
-  A vector added on either side would immediately split the two implementations.
-- **Trade-offs.** Disjoint-partition (reject) makes "assessed" and "disclosed
-  gap" mutually exclusive, so a class cannot be simultaneously claimed as
-  assessed and excused as out of scope -- the honest reading of "moves the class
-  into". Union-accept is more permissive but lets a producer double-book a class,
-  muddying what the `degraded` result actually bounds.
-- **Recommendation.** **Keep the disjoint-partition (reject) reading** the rails
-  already implement, and make it explicit in the spec: "A class MUST appear in
-  exactly one of `assessedClasses`, `outOfScope`, `routedElsewhere`." Only after
-  that spec change should a forcing vector be added; until then the rails are
-  opinionated ahead of the text, which is the gap to close.
+**Resolution (locked).** **Keep the disjoint-partition (reject) reading** the
+rails already implement, and make it explicit in the spec. This was a **live
+divergence**: our two rails reject the overlap (disjoint partition) while the
+independent from-spec checker accepts it (completeness-only); no corpus vector
+exercised it, so 134/134 parity was intact. This is the one **editorial call**
+among the three corners, and the converged debate chose keep-reject: a class
+both assessed and disclosed as a gap is contradictory. **Reversible at
+vetting.**
+
+- **Spec.** The coverage paragraph (L376-381) now states the three sets are a
+  disjoint partition: a class appears in exactly one of `assessedClasses`,
+  `outOfScope`, `routedElsewhere` (a move, not a copy); a class in more than one
+  is malformed.
+- **Rails.** Unchanged - both already reject overlap via the exhaustive,
+  disjoint partition check (Go `gate0CoverageIntegrity`, Python
+  `_coverage_partition_ok`), emitting `coverage-incomplete`. The spec text now
+  matches the rails rather than the rails being opinionated ahead of the text.
+- **Vector.** `bad-730-coverage-class-overlap` (class XA in both
+  `assessedClasses` and `outOfScope` -> `coverage-incomplete`). Registry
+  decision 14.
 
 ## RESOLVED: Corner C -- Artifact-only statement with two subjects
 

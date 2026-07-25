@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 134,
-    "pass": 134,
+    "vectors": 135,
+    "pass": 135,
     "fail": 0
   },
   "notes": [],
@@ -3098,6 +3098,34 @@
     {
       "id": "bad-726-arming-binding-version-carried",
       "file": "vectors/reject/bad-726-arming-binding-version-carried.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-727-armedat-non-utc-offset",
+      "file": "vectors/reject/bad-727-armedat-non-utc-offset.json",
       "kind": "reject",
       "status": "PASS",
       "gates": {

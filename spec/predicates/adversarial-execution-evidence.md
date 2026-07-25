@@ -655,7 +655,8 @@ media type is not `+json`, covers nothing:
 -   `aeeKind` _string_: `interception` (per-event capture, covers caught
     rows); `arming` (run-level: a live, cooperation-independent capture
     vantage was armed for the run before corpus injection; payload MUST
-    carry `armedAt` in RFC 3339 UTC no later than `issuedAt` and
+    carry `armedAt` in RFC 3339 with a zero UTC offset (`Z` or `+00:00`, never a
+    non-zero offset such as `+05:00`) no later than `issuedAt` and
     `aeePostureDigest` equal to the pinned `networkPosture` digest, and
     its `aeeMethod` MUST be `intercepted`); `sealed` (run-level: the
     vantage stayed armed to run-end; payload MUST carry `aeeStillArmed`,
@@ -670,7 +671,8 @@ media type is not `+json`, covers nothing:
     substrate observed, stated inside the signature.
 
 A record violating any constraint of its declared `aeeKind` (including a
-missing `armedAt` on an `arming` record, an `armedAt` after `issuedAt`, or
+missing `armedAt` on an `arming` record, an `armedAt` after `issuedAt`, an
+`armedAt` with a non-zero UTC offset, or
 an `examination` record signed `aeeMethod: intercepted`) covers nothing.
 A `sealed` record covers no clean row unless its `aeeStillArmed` is
 `true`, its `aeeDropCount` is zero or does not exceed an `aeeDropBound`

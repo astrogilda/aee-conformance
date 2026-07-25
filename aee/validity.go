@@ -272,6 +272,12 @@ func evaluateKind(a payloadAnalysis, pinnedPosture string, armingPostures []stri
 		if err != nil || t.After(issuedAt) {
 			return ev
 		}
+		// armedAt MUST carry a zero UTC offset (spec: "RFC 3339 UTC"): time.RFC3339
+		// accepts any numeric offset, so a non-zero offset (e.g. +05:00) parses as a
+		// valid instant but is not UTC and makes the arming record cover nothing.
+		if _, off := t.Zone(); off != 0 {
+			return ev
+		}
 		if posture != pinnedPosture {
 			return ev
 		}

@@ -102,15 +102,19 @@ tolerated (union)?
 
 ---
 
-## Also flagged: decision 8 zero-offset sub-reading (not a corner, a rail gap)
+## RESOLVED: decision 8 zero-offset sub-reading (was a rail gap; now locked)
 
 The independent checker read `armedAt` as "RFC 3339 with a **zero offset**"
-(L659-663, "RFC 3339 UTC"). Both our rails currently accept a non-`Z` offset
-(Go `time.Parse` and the Python `RFC3339_RE` both admit `[+-]HH:MM`) and compare
-`armedAt`/`issuedAt` as **instants**, so an offset `armedAt` whose instant
-precedes `issuedAt` is accepted today. The instant comparison is locked
-(bad-702); the zero-offset strictness is **not** locked, because doing so would
-change rail behavior on an arguably-ambiguous reading of "RFC 3339 UTC". If the
-operator wants strict UTC-only `armedAt`, both rails must first reject a non-`Z`
-offset, then a forcing vector can lock it. Recorded here so it is not silently
-adopted or silently dropped.
+(the spec says "RFC 3339 UTC"). Both our rails previously accepted a non-`Z`
+offset (Go `time.Parse` and the Python `RFC3339_RE` both admit `[+-]HH:MM`) and
+compared `armedAt`/`issuedAt` as instants, so an offset `armedAt` whose instant
+precedes `issuedAt` was accepted. The independent-checker grok classified this
+as a real rail bug rather than an editorial call: the spec already mandates UTC,
+so accepting `+05:00` is out of spec. **Fixed:** the spec text now pins the zero
+UTC offset (`Z` or `+00:00`, never a non-zero offset) explicitly, both rails
+reject a non-zero offset (Go checks `t.Zone()` offset is 0; Python
+`_armed_utc_offset_ok`), and `bad-727-armedat-non-utc-offset` locks it (a valid
+`+05:00` instant before `issuedAt`, rejected as `arming-covers-nothing`,
+distinct from a late `armedAt`). Decision 8 in the registry now lists bad-727.
+Retained here for the audit trail. Rail propagation to the probity and mcp
+verifier rails is a follow-up (tracked with corners A and C below).

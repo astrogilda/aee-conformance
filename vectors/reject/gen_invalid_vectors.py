@@ -1306,6 +1306,17 @@ vec("bad-717-arming-missing-posture", "ok-002",
              lambda o: {k: v for k, v in o.items()
                         if k != "aeePostureDigest"}),
     spec="L636-641")
+vec("bad-727-armedat-non-utc-offset", "ok-002",
+    "armedAt carries a non-zero UTC offset (+05:00): a valid instant no later "
+    "than issuedAt, but not RFC 3339 UTC",
+    ["re-sign-record", "recompute-batch-root"], [63],
+    ["arming-covers-nothing"],
+    _rec_mut(P_clean, 0,
+             lambda o: {**o, "armedAt": "2025-12-31T23:59:00+05:00"}),
+    spec="L658-663",
+    note="RFC 3339 UTC means a zero offset; +05:00 parses as a valid instant "
+         "(18:59Z, before issuedAt) but is not UTC, so the arming record covers "
+         "nothing, distinct from a late armedAt (bad-702)")
 
 CHAIN_SCOPE = ["subject"]
 
@@ -2043,7 +2054,7 @@ def main() -> None:
         with open(path) as f:
             json.load(f)  # every vector parses as JSON (a duplicate member is last-wins)
 
-    assert len(VECTORS) == 99, f"expected 99 vectors, built {len(VECTORS)}"
+    assert len(VECTORS) == 100, f"expected 100 vectors, built {len(VECTORS)}"
 
     # 3. index
     write_index()

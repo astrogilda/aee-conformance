@@ -189,17 +189,21 @@
         "bad-607-two-subjects-substrate",
         "bad-728-artifact-two-subjects"
       ]
+    },
+    {
+      "id": 13,
+      "title": "Duplicate attackId rows are malformed (one row per executed attack)",
+      "classification": "forced",
+      "specAnchors": [
+        "L385-398"
+      ],
+      "reading": "No two attackResults rows may carry the same attackId: 'one row per executed attack' (L385) is a well-formedness invariant, and a statement with a duplicate attackId across rows is malformed. Resolves open corner A (was permitted: coverage integrity set-compares row attackIds against the manifest, so a duplicate silently collapsed under set semantics and all rails accepted it). Both rails now detect the duplicate before building the rowID set. bad-729 locks it.",
+      "forcingVectors": [
+        "bad-729-duplicate-attackid-rows"
+      ]
     }
   ],
   "openCorners": [
-    {
-      "id": "A",
-      "title": "Duplicate attackId rows",
-      "classification": "permitted",
-      "railBehavior": "accept (union): coverage integrity keys on the set of row attackIds",
-      "checkerBehavior": "accept (union)",
-      "note": "Genuine design call (union-accept vs reject as a violation of 'one row per executed attack'). No behavior change; see docs/interpretation-decisions-open.md."
-    },
     {
       "id": "B",
       "title": "assessedClasses overlapping the gap maps (outOfScope / routedElsewhere)",

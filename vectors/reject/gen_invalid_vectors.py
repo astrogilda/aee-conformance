@@ -1274,7 +1274,7 @@ vec("bad-717-arming-missing-posture", "ok-002",
                         if k != "aeePostureDigest"}),
     spec="L636-641")
 
-CHAIN_SCOPE = "example-substrate-key-and-subject/v1"
+CHAIN_SCOPE = ["subject"]
 
 vec("bad-718-chain-runseq-zero", "ok-002",
     "arming payload gains aeeRunSeq: 0 with aeeChainScope present (a "
@@ -1307,6 +1307,47 @@ vec("bad-720-chain-prev-not-hex", "ok-002",
     spec="L662-673",
     note="a predecessor binding is a lowercase 64-hex run binding digest, "
          "present exactly when aeeRunSeq exceeds 1")
+
+vec("bad-721-chain-scope-not-array", "ok-002",
+    "arming payload gains aeeRunSeq: 1 with aeeChainScope as a free-form "
+    "string, not the required array of registered dimension tokens",
+    ["re-sign-record", "recompute-batch-root"], [89],
+    ["arming-covers-nothing"],
+    _rec_mut(P_clean, 0,
+             lambda o: {**o, "aeeChainScope": "example-substrate-key-and-subject/v1",
+                        "aeeRunSeq": 1}),
+    spec="L662-673",
+    note="the old free-form string form is rejected fail-closed; array of "
+         "registered tokens is the sole accepted shape (no alias)")
+vec("bad-722-chain-scope-unknown-dimension", "ok-002",
+    "arming payload gains aeeRunSeq: 1 with an aeeChainScope carrying a "
+    "token outside the closed dimension vocabulary",
+    ["re-sign-record", "recompute-batch-root"], [89],
+    ["arming-covers-nothing"],
+    _rec_mut(P_clean, 0,
+             lambda o: {**o, "aeeChainScope": ["bogus-dimension"], "aeeRunSeq": 1}),
+    spec="L662-673",
+    note="an unrecognized dimension token fails closed, as every closed "
+         "vocabulary in this spec does")
+vec("bad-723-chain-scope-not-canonical", "ok-002",
+    "arming payload gains aeeRunSeq: 1 with an aeeChainScope array whose "
+    "tokens are not in canonical (UTF-16 code-unit) order",
+    ["re-sign-record", "recompute-batch-root"], [89],
+    ["arming-covers-nothing"],
+    _rec_mut(P_clean, 0,
+             lambda o: {**o, "aeeChainScope": ["subject", "corpus"], "aeeRunSeq": 1}),
+    spec="L662-673",
+    note="canonical order is corpus < networkPosture < subject; the same "
+         "canonicality rule as observationVocabulary.labels")
+vec("bad-724-artifact-ref-out-of-range", "ok-029",
+    "an artifact row carries an observationRefs index out of range for "
+    "observationRecords (fail-closed on any row, not only substrate rows)",
+    [], [11], ["ref-out-of-range"],
+    set_refs(P_artifact_with_records, 0, [99]),
+    spec="L279-280",
+    note="an out-of-range reference is a structural integrity fault on any "
+         "row regardless of basis; a reference that does not resolve is "
+         "never silently ignored")
 
 # --- (k) statement-level -------------------------------------------------
 
@@ -1917,7 +1958,7 @@ def main() -> None:
         with open(path) as f:
             json.load(f)  # every vector parses as JSON
 
-    assert len(VECTORS) == 91, f"expected 91 vectors, built {len(VECTORS)}"
+    assert len(VECTORS) == 95, f"expected 95 vectors, built {len(VECTORS)}"
 
     # 3. index
     write_index()

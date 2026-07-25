@@ -381,6 +381,12 @@ attack the record's committed payload does not evidence; that is a
 producer obligation outside every gate: no validity requirement,
 recompute input, or tier evaluation reads it, so a conforming verifier
 neither can nor may invent an evidencing heuristic for shared references.
+Wherever `observationRefs` is present - on any row, regardless of `basis`,
+and including rows on which nothing normative reads it - every index MUST be
+in range for `observationRecords`; an out-of-range index is a structural
+integrity fault that makes the statement malformed, fail-closed and
+independent of any gate, so a reference that does not resolve is never
+silently ignored.
 A row MAY carry `observationSelectors`, an array of
 producer-defined string tokens positionally parallel to `observationRefs`,
 each naming the sub-observation within the referenced record's committed
@@ -664,39 +670,75 @@ An `arming` record's payload MAY additionally carry three reserved members
 that chain runs under the same substrate key: `aeeRunSeq` (a positive
 safe-range integer), `aeePrevRunBinding` (the lowercase 64-hex run binding
 digest of the predecessor run, absent exactly when `aeeRunSeq` is `1`),
-and `aeeChainScope` (a producer-declared string naming the population the
-sequence counts; REQUIRED whenever `aeeRunSeq` is present, RECOMMENDED at
-minimum the pair of substrate key and subject; an unscoped counter makes
-every chain rule below vacuous, and a single global per-key counter
-additionally leaks the producer's total run volume across its customers).
+and `aeeChainScope` (the population the sequence counts, declared as a
+duplicate-free array of dimension tokens drawn from the closed vocabulary
+registered below, sorted in the same canonical order as
+`observationVocabulary.labels` (UTF-16 code-unit order, RFC 8785 section
+3.2.3); REQUIRED whenever `aeeRunSeq` is present). The chain is always
+structurally under one substrate key; each token names a further within-key
+partition attribute already carried elsewhere in the attestation and fixes
+where a consumer reads that attribute's value. The declared array is the
+*dimension set*; the *evaluated tuple* is the projection of the
+substrate-key value and each declared token onto its registered attribute
+value for this run (computed, never carried). The recommended minimum is
+`["subject"]`; the empty array is the single global per-key counter that
+makes every chain rule below vacuous and leaks the producer's total run
+volume across its customers.
+
+The `aeeChainScope` vocabulary is closed and each token pins a projection
+to a value already carried on the wire: `subject` to
+`subject[0].digest.sha256`, `corpus` to `observationEnvironment.corpus.digest`,
+and `networkPosture` to `networkPosture.digest.sha256`. The substrate key is
+the structural outer axis and is never a token. Values are not carried in
+the member; a consumer projects each declared token onto its registered
+field for this run. Minor versions MAY append tokens (each with a pinned
+projection) and MUST NOT redefine an existing one; an unrecognized token
+fails closed, as every closed vocabulary in this spec does.
+
 Within one attestation these members are syntax-checked in the
 reserved-member walk and nothing else normative reads them: the coverage
 validity requirements, the `result` recompute, and the evidence tier are
 unchanged. A violation of the syntax rules (a non-positive or non-integer
 `aeeRunSeq`, a malformed `aeePrevRunBinding`, a missing `aeeChainScope`
-when the sequence is present, or any of the three present without
+when the sequence is present, a non-array `aeeChainScope`, an array carrying
+a token outside the registered vocabulary, an array not in canonical order
+(the same canonicality rule as `observationVocabulary.labels`: UTF-16
+code-unit order, duplicate-free), or any of the three present without
 `aeeRunSeq`) is handled as any reserved-member violation: the record
 covers nothing. Their value is across attestations, as consumer policy over
-whatever set a producer publishes: a skipped sequence number is a gap; two
-attestations carrying the same `aeeRunSeq` under one key and scope are a
-fork; two carrying the same `aeePrevRunBinding` share a predecessor; and
-two genesis records (absent `aeePrevRunBinding`) under one key and scope
-are equivocation of the same grade as a shared predecessor. A chain
-reset is not a fresh start. The members claim ordering under the substrate
-key, nothing more: nothing on the wire anchors when an arming record was
-signed relative to the run's outcome, so commit-before-outcome holds only
-in combination with the publicly datable run-entropy floor under
-Prerequisites or an external registration receipt. A numeric gap is
-unexplained absence (crashed, private, and discarded runs all produce
-gaps innocently), never fraud evidence in itself; what the members buy is
-demand-disclosure: a consumer policy MAY require a contiguous, fork-free
-chain over the runs offered to it, and fork consistency is the ceiling of
-what any self-contained attestation set can establish. The external
-completion is a registration receipt: committing each arming record to
-an append-only transparency log at run start (for example SCITT, RFC
-9943, with COSE receipts, RFC 9942) upgrades gap-evidence to
-third-party-auditable non-omission, and that machinery is deliberately
-outside this predicate. These members are semantic
+whatever set a producer publishes. A consumer compares each attestation's
+declared dimension set against the set its policy demands: an equal set is
+admissible; a strictly finer set (a superset of dimensions) is
+scope-narrowing, fragmenting every run into a singleton chain so no gap,
+fork, or duplicate genesis can arise and the chain proves nothing; a
+strictly coarser set (a subset of dimensions) pools distinct subjects, so a
+withheld run of the demanded subject is deniable as a sibling's private run
+and a sibling's run can occupy the withheld sequence position. A consumer
+that has demanded a scope admits only the equal set, neither finer nor
+coarser. Among admitted attestations the rules key on the evaluated tuple,
+not the token set: a skipped `aeeRunSeq` under one tuple is a gap; two
+attestations carrying the same `aeeRunSeq` under one tuple are a fork; two
+carrying the same `aeePrevRunBinding` share a predecessor; and two genesis
+records (absent `aeePrevRunBinding`) under one tuple are equivocation of the
+same grade as a shared predecessor. Keying on the tuple is load-bearing:
+genesis-per-subject-value is the normal case, and only a second genesis
+under an identical tuple is a reset. A chain reset is not a fresh start. The
+members claim ordering under the substrate key, nothing more: nothing on the
+wire anchors when an arming record was signed relative to the run's outcome,
+so commit-before-outcome holds only in combination with the publicly datable
+run-entropy floor under Prerequisites or an external registration receipt. A
+numeric gap is unexplained absence (crashed, private, and discarded runs all
+produce gaps innocently), never fraud evidence in itself. Even a contiguous,
+fork-free, correctly-scoped chain does not prove population completeness: a
+producer may still mint a dense, gap-free set of passing runs after the
+fact. Fork consistency among the published set is the ceiling of what any
+self-contained attestation set can establish; the demand-disclosure yield is
+that a consumer policy MAY require a contiguous, fork-free chain over the
+runs offered to it. The external completion is a registration receipt:
+committing each arming record to an append-only transparency log at run
+start (for example SCITT, RFC 9943, with COSE receipts, RFC 9942) upgrades
+gap-evidence to third-party-auditable non-omission, and that machinery is
+deliberately outside this predicate. These members are semantic
 (armed, stayed armed, nothing dropped, posture unchanged) rather than
 mechanism-specific: how a substrate establishes them (a checkpoint chain,
 a sequence counter, a hardware watchdog) stays producer territory. A

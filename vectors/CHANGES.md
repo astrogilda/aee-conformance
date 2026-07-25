@@ -5,6 +5,24 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 2 (round-7 chain-scope redesign)
+
+- Corpus: 129 vectors (34 accept, 95 reject). Normative change to the
+  `aeeChainScope` arming-payload member: a free-form producer string becomes a
+  duplicate-free array of tokens from the closed dimension vocabulary
+  (`subject`, `corpus`, `networkPosture`), sorted in `observationVocabulary.labels`
+  canonical order (UTF-16 code-unit). Each token pins a projection to a value
+  already carried on the wire; a consumer compares the declared dimension set
+  against its demanded scope (equality: neither finer nor coarser) and keys the
+  gap/fork/genesis rules on the evaluated tuple, not the token set. No alias: the
+  old string form fails closed.
+- New reject vectors: `bad-721-chain-scope-not-array` (old string form),
+  `bad-722-chain-scope-unknown-dimension`, `bad-723-chain-scope-not-canonical`,
+  `bad-724-artifact-ref-out-of-range`. `ok-034-arming-chain-genesis` rewritten to
+  the array form `["subject"]`.
+- Out-of-range `observationRefs` is now a structural fault on ANY row, regardless
+  of `basis`, fail-closed (previously enforced only on substrate rows).
+
 ## suiteRevision 1 (first public release)
 
 - Corpus: 125 vectors (34 accept, 91 reject) for the Adversarial Execution

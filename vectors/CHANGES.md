@@ -7,7 +7,7 @@ byte-identically from the generators.
 
 ## suiteRevision 2 (round-7 chain-scope redesign)
 
-- Corpus: 136 vectors (35 accept, 101 reject). Normative change to the
+- Corpus: 137 vectors (35 accept, 102 reject). Normative change to the
   `aeeChainScope` arming-payload member: a free-form producer string becomes a
   duplicate-free array of tokens from the closed dimension vocabulary
   (`subject`, `corpus`, `networkPosture`), sorted in `observationVocabulary.labels`
@@ -59,6 +59,12 @@ byte-identically from the generators.
   statement was wrongly accepted. The spec text at L122-126 is split accordingly;
   new reject vector `bad-728-artifact-two-subjects` (`bad-607` keeps the substrate
   case). Registry decision 12.
+- Duplicate `attackId` rows are now malformed (open corner A resolved). "One row
+  per executed attack" is a well-formedness invariant; both rails detect a
+  duplicate `attackId` across rows before the set-based coverage comparison
+  (which silently collapsed it before) and emit `statement-malformed`. Spec
+  paragraph at L385-398 gains the uniqueness sentence; new reject vector
+  `bad-729-duplicate-attackid-rows`. Registry decision 13.
 
 ## suiteRevision 1 (first public release)
 

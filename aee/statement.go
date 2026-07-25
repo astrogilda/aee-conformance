@@ -272,9 +272,16 @@ func gate0CoverageIntegrity(p *Predicate, env *Environment, codes []Code) []Code
 			expected[id] = true
 		}
 	}
+	// No two rows may carry the same attackId (spec:385-398): "one row per
+	// executed attack" is a well-formedness invariant. A duplicate is detected
+	// BEFORE the rowID set is built, because the set-equality coverage check
+	// below silently collapses duplicates.
 	rowIDs := map[string]bool{}
 	for i := range p.Rows {
 		id := p.Rows[i].AttackID
+		if rowIDs[id] {
+			codes = appendCode(codes, CodeStatementMalformed)
+		}
 		rowIDs[id] = true
 		if !inManifest[id] {
 			codes = appendCode(codes, CodeRowAttackUnknown)

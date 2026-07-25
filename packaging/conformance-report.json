@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 136,
-    "pass": 136,
+    "vectors": 137,
+    "pass": 137,
     "fail": 0
   },
   "notes": [],
@@ -3174,6 +3174,34 @@
         "verdict": "invalid",
         "codes": [
           "subject-cardinality"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-729-duplicate-attackid-rows",
+      "file": "vectors/reject/bad-729-duplicate-attackid-rows.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "statement-malformed"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "statement-malformed"
         ]
       },
       "inManifest": true,

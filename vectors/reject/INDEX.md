@@ -144,7 +144,7 @@ carries the authoritative id-to-spec-line table.
 | aee-c-88 | L369-375 | row members are strictly typed; a wrong-JSON-type member is a malformed statement |
 | aee-c-89 | L662-673 | arming chain-member syntax: positive aeeRunSeq; aeeChainScope required with it; aeePrevRunBinding lowercase 64-hex, absent exactly when aeeRunSeq is 1 |
 
-## Vectors (97)
+## Vectors (99)
 
 `parent` names the accept-suite shape the vector derives from (the
 accept vectors land separately; the parent statements are built
@@ -195,6 +195,7 @@ so the declared fault stays the ONLY fault.
 | `bad-501-substrate-unknown-method` | ok-001 | substrate row method: "example.method-x" (unknown value); refs, records, root, entropy intact; carried fail kept | - | aee-c-44 aee-c-5 aee-c-42 | `fail-closed-substrate-row` | L305-309; L467-470 |
 | `bad-502-missing-actual-layer` | ok-001 | drop actualLayer from the row | - | aee-c-47 | `malformed-missing-actual-layer` | L374-375; L590-598 |
 | `bad-503-clean-row-layer-not-none` | ok-002 | clean row actualLayer: "policy.egress_sinkhole" (MUST be the literal "none") | - | aee-c-48 | `clean-row-layer-not-none` | L599-604 |
+| `bad-818-artifact-clean-row-layer-not-none` | ok-007 | artifact clean row actualLayer: "policy.egress_sinkhole" (a clean row MUST carry the literal "none" regardless of basis) | - | aee-c-48 | `clean-row-layer-not-none` | L599-604 |
 | `bad-504-substrate-oov-label` | ok-001 | substrate row containmentObserved: "example_label_a" (not in carried labels); carried fail kept | - | aee-c-4 aee-c-44 | `fail-closed-substrate-row` | L264-265; L305-309 |
 | `bad-505-substrate-missing-method` | ok-001 | substrate row method member ABSENT | - | aee-c-5 aee-c-42 aee-c-44 | `fail-closed-substrate-row` | L265-266; L467-470; L305-309 |
 | `bad-506-actuallayer-json-number` | ok-001 | caught row actualLayer carried as the JSON number 7 (wrong member type); refs, records, root, entropy intact; carried fail kept | - | aee-c-88 | `statement-malformed` | L369-375 |
@@ -242,6 +243,7 @@ so the declared fault stays the ONLY fault.
 | `bad-806-coverage-attack-omitted` | ok-011 | one of the two rows of a 2-attack assessed class deleted (quiet omission) | - | aee-c-82 | `coverage-incomplete` | L393-396 |
 | `bad-807-coverage-attack-superset` | ok-004 | added artifact-basis clean row for the outOfScope class's attack; result stays degraded | - | aee-c-82 | `coverage-incomplete` | L393-396 |
 | `bad-816-coverage-class-dropped` | ok-004 | manifest class XB dropped from all three coverage sets (not assessed, not outOfScope, not routedElsewhere), result forced to pass: the class-granularity coverage-partition fail-open | - | aee-c-82 | `coverage-incomplete` | L360-365; L393-396 |
+| `bad-819-assessed-class-not-in-manifest` | ok-001 | assessedClasses padded with class XZ the manifest never carried | - | aee-c-82 | `coverage-incomplete` | L360-365; L393-396 |
 | `bad-817-payload-noncanonical-base64` | ok-001 | covering record payload re-encoded as non-canonical base64 (nonzero trailing bits); the record no longer strict-decodes | - | aee-c-19 | `record-undecodable` | L609-612 |
 | `bad-808-coverage-absent` | ok-002 | drop coverage | - | aee-c-83 | `coverage-missing` | L358-362 |
 | `bad-809-snake-case-doesnotassert` | ok-002 | statement carries the rejected snake_case spelling of doesNotAssert | - | aee-c-84 | `member-spelling` | L759-769 |
@@ -271,6 +273,7 @@ so the declared fault stays the ONLY fault.
 - **bad-409-artifact-records-bad-root**: the root check is statement-level: it runs even with zero substrate rows.
 - **bad-501-substrate-unknown-method**: pairs with ok-008: the SAME fail-closed axis on an artifact row is a VALID fail.
 - **bad-502-missing-actual-layer**: malformed STATEMENT, deliberately NOT a fail-closed row: a verifier answering result:fail here fails conformance.
+- **bad-818-artifact-clean-row-layer-not-none**: pairs with bad-503, the substrate twin: the clean-row none rule is not scoped to a basis (L599-604 says 'a row', no basis qualifier), so an artifact clean row is held to it too.
 - **bad-504-substrate-oov-label**: pairs with ok-009 (artifact twin stays valid).
 - **bad-505-substrate-missing-method**: pairs with ok-027 (artifact row with absent method is a VALID fail).
 - **bad-506-actuallayer-json-number**: type-strictness pin: row members are strings, and a wrong-typed member is a decode-layer fault, deliberately a DIFFERENT altitude than an absent one, a rail that maps the number to member absence (malformed-missing-actual-layer) fails conformance here.
@@ -301,6 +304,7 @@ so the declared fault stays the ONLY fault.
 - **bad-806-coverage-attack-omitted**: the second interception record stays in the tree (unreferenced records are legal), so the root is untouched: single fault.
 - **bad-807-coverage-attack-superset**: superset direction of exactly-equal coverage.
 - **bad-816-coverage-class-dropped**: distinct from bad-806/807 (attack granularity within an assessed class): a whole manifest class left silently unaccounted.
+- **bad-819-assessed-class-not-in-manifest**: mirror of bad-816 (a manifest class dropped from every coverage set): here a fabricated class pads assessedClasses. Coverage must be an exhaustive, disjoint partition of the manifest's real classes, so a class in a coverage set that the manifest never carried is the same class-granularity coverage-partition fault.
 - **bad-817-payload-noncanonical-base64**: encoding-layer divergence: Go decodes with StdEncoding.Strict() and the Python rail re-encode-compares, so both reject; a lenient decoder would accept. The stale signature and batch root are unreachable because a decode failure short-circuits both checks (validity.go:120).
 - **bad-809-snake-case-doesnotassert**: single-canonicalization rule: no alias.
 - **bad-810-missing-issuedat**: artifact-only parent: no armedAt comparison cascade.

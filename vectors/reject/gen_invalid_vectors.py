@@ -391,6 +391,12 @@ def P_artifact_oov_label() -> dict[str, Any]:  # ok-009 shape: fail-closed label
                      result="fail")
 
 
+def P_artifact_clean() -> dict[str, Any]:  # ok-007 shape: artifact-only CLEAN row, recordless
+    env = environment(M1, entropy=False)
+    return statement(env, [artifact_row(label="no_egress", method="reconstructed")],
+                     result="pass")
+
+
 def P_two_attacks() -> dict[str, Any]:  # ok-011 shape: two caught rows, two interceptions
     env = environment(M2)
     b = binding_for(env)
@@ -450,6 +456,7 @@ PARENTS = {
     "ok-007 shape (artifact-only recordless)": P_artifact,
     "ok-008 shape (artifact row, fail-closed method, valid fail)": P_artifact_unknown_method,
     "ok-009 shape (artifact row, fail-closed label, valid fail)": P_artifact_oov_label,
+    "ok-007 shape (artifact-only clean row, recordless, pass)": P_artifact_clean,
     "ok-011 shape (two caught rows, two interceptions)": P_two_attacks,
     "ok-014 shape (three-record odd-split tree)": P_three_records,
     "ok-029 shape (artifact rows + unreferenced records + root)": P_artifact_with_records,
@@ -937,6 +944,16 @@ vec("bad-503-clean-row-layer-not-none", "ok-002",
     _row_mut(P_clean, 0,
              lambda r: {**r, "actualLayer": "policy.egress_sinkhole"}),
     spec="L599-604")
+vec("bad-818-artifact-clean-row-layer-not-none", "ok-007",
+    'artifact clean row actualLayer: "policy.egress_sinkhole" (a clean row '
+    'MUST carry the literal "none" regardless of basis)', [], [48],
+    ["clean-row-layer-not-none"],
+    _row_mut(P_artifact_clean, 0,
+             lambda r: {**r, "actualLayer": "policy.egress_sinkhole"}),
+    spec="L599-604",
+    note="pairs with bad-503, the substrate twin: the clean-row none rule is "
+         "not scoped to a basis (L599-604 says 'a row', no basis qualifier), so "
+         "an artifact clean row is held to it too")
 vec("bad-504-substrate-oov-label", "ok-001",
     'substrate row containmentObserved: "example_label_a" (not in carried '
     "labels); carried fail kept", [], [4, 44],
@@ -1501,6 +1518,23 @@ vec("bad-816-coverage-class-dropped", "ok-004",
          "class): a whole manifest class left silently unaccounted")
 
 
+def _b819() -> dict[str, Any]:
+    st = P_caught()
+    st["predicate"]["coverage"]["assessedClasses"] = ["XA", "XZ"]
+    return st
+
+
+vec("bad-819-assessed-class-not-in-manifest", "ok-001",
+    "assessedClasses padded with class XZ the manifest never carried", [],
+    [82], ["coverage-incomplete"], _b819,
+    spec="L360-365; L393-396",
+    note="mirror of bad-816 (a manifest class dropped from every coverage set): "
+         "here a fabricated class pads assessedClasses. Coverage must be an "
+         "exhaustive, disjoint partition of the manifest's real classes, so a "
+         "class in a coverage set that the manifest never carried is the same "
+         "class-granularity coverage-partition fault")
+
+
 _B64_ALPHABET = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 )
@@ -2009,7 +2043,7 @@ def main() -> None:
         with open(path) as f:
             json.load(f)  # every vector parses as JSON (a duplicate member is last-wins)
 
-    assert len(VECTORS) == 97, f"expected 97 vectors, built {len(VECTORS)}"
+    assert len(VECTORS) == 99, f"expected 99 vectors, built {len(VECTORS)}"
 
     # 3. index
     write_index()

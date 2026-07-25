@@ -1,6 +1,9 @@
 {
   "suite": "adversarial-execution-evidence-conformance",
   "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6",
+  "specPath": "spec/predicates/adversarial-execution-evidence.md",
+  "specDigest": "de73b3071a348bdd361b8a8b562188d82058e77f07be201492c941652f317b5e",
+  "tracksUpstream": "in-toto/attestation#570",
   "counts": {
     "accept": 34,
     "reject": 95

@@ -13,12 +13,21 @@ them. Regenerate byte-identically: python3 gen_manifest.py
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
 from typing import Any
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+
+# The vendored predicate spec the corpus certifies against. Its content digest
+# is recorded in the MANIFEST and re-checked in CI (scripts/spec-drift-gate.py)
+# so an edit to the spec without a corpus regeneration fails closed instead of
+# drifting silently.
+SPEC_REL = "spec/predicates/adversarial-execution-evidence.md"
+SPEC_PATH = os.path.normpath(os.path.join(HERE, "..", SPEC_REL))
+TRACKS_UPSTREAM = "in-toto/attestation#570"
 
 # Tier expectations explicitly pinned by accept/INDEX.md (ok-024 row).
 TIER_EXPECTATIONS = {
@@ -104,11 +113,17 @@ def main() -> int:
 
     ok = sum(1 for v in vectors if v["id"].startswith("ok-"))
     bad = len(vectors) - ok
+    spec_digest = hashlib.sha256(
+        open(SPEC_PATH, "rb").read()  # noqa: SIM115 -- one-shot read
+    ).hexdigest()
     manifest = {
         "suite": "adversarial-execution-evidence-conformance",
         "predicateType": (
             "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6"
         ),
+        "specPath": SPEC_REL,
+        "specDigest": spec_digest,
+        "tracksUpstream": TRACKS_UPSTREAM,
         "counts": {"accept": ok, "reject": bad},
         "vectors": vectors,
     }

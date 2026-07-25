@@ -70,6 +70,12 @@ enforce the RFC 7493 (I-JSON) safe-integer profile on canonicalized content:
 integers with magnitude at or above 2^53 MUST be rejected, so every rail
 (producer and verifier, in any language) derives identical bytes.
 
+The whole statement JSON is parsed as strict I-JSON: a duplicate member
+anywhere in the statement, at any depth and not only inside a covering record
+payload, makes the statement malformed. A lenient parser that silently keeps
+the last of a repeated member would let two rails disagree on identical bytes,
+so a verifier MUST reject a duplicate member statement-wide, fail-closed.
+
 The identical-bytes requirement has a string half. On every signed canonical
 surface (object member names in covering record payloads and the
 `observationVocabulary.labels`/`caught` arrays), strings MUST be BMP-only:

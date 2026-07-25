@@ -501,6 +501,28 @@ def derive_test_keys() -> dict[str, dict[str, Any]]:
 # ---------------------------------------------------------------------------
 
 
+def _statement_has_duplicate_member(raw: bytes) -> bool:
+    """Whole-statement strict I-JSON (RFC 7493): report a duplicate member
+    anywhere in the statement JSON, at any depth, not only inside record
+    payloads. json.loads keeps the last of a repeated member silently, so scan
+    with an object_pairs_hook. Mirrors the Go rail's ParseStatement dup check;
+    non-dup I-JSON aspects are handled by the payload parser, not here."""
+    found = False
+
+    def hook(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        nonlocal found
+        keys = [k for k, _ in pairs]
+        if len(keys) != len(set(keys)):
+            found = True
+        return dict(pairs)
+
+    try:
+        json.loads(raw.decode("utf-8"), object_pairs_hook=hook)
+    except (ValueError, UnicodeDecodeError):
+        return False
+    return found
+
+
 class Outcome:
     def __init__(self) -> None:
         self.codes: list[str] = []
@@ -721,8 +743,15 @@ class ReferenceVerifier:
 
     # -- main entry -------------------------------------------------------
 
-    def verify(self, stmt: Any) -> Outcome:
+    def verify(self, stmt: Any, raw: bytes | None = None) -> Outcome:
         out = Outcome()
+        # Statement-wide strict I-JSON: a duplicate member anywhere in the
+        # statement JSON is a malformed statement (checked from the raw bytes
+        # because the pre-parsed dict has already collapsed repeats). raw is
+        # None for internally-built clean dicts.
+        if raw is not None and _statement_has_duplicate_member(raw):
+            out.add("statement-malformed")
+            return out
         st = _VerifyState(stmt=stmt)
         if self._check_statement_type(st, out):
             return out
@@ -1936,6 +1965,7 @@ def _run_observe(
     ref_without: ReferenceVerifier,
     path: str,
     stmt: Any,
+    raw: bytes | None = None,
 ) -> dict[str, Any]:
     if external_cmd is not None:
         ext = run_external(external_cmd, path)
@@ -1947,8 +1977,8 @@ def _run_observe(
             "tiers_without_key": None,
             "result_without_key": None,
         }
-    o_with = ref_with.verify(stmt)
-    o_without = ref_without.verify(stmt)
+    o_with = ref_with.verify(stmt, raw)
+    o_without = ref_without.verify(stmt, raw)
     return {
         "verdict": o_with.verdict,
         "codes": o_with.codes,
@@ -1987,7 +2017,7 @@ def _run_process_vector(
             "reasons": [f"vector unreadable: {e}"],
         }, True
 
-    observed = _run_observe(external_cmd, ref_with, ref_without, path, stmt)
+    observed = _run_observe(external_cmd, ref_with, ref_without, path, stmt, raw)
 
     self_check = None
     if kind == "reject":
@@ -2411,6 +2441,17 @@ def self_test() -> int:
         )
     )
     check("ref out of range", "ref-out-of-range" in m.codes, str(m.codes))
+
+    dup_raw = (
+        b'{"_type":"https://in-toto.io/Statement/v1","_type":"x",'
+        b'"subject":[],"predicateType":"p","predicate":{}}'
+    )
+    o_dup = ref.verify({}, dup_raw)
+    check(
+        "statement-wide duplicate member rejected",
+        o_dup.verdict == "invalid" and "statement-malformed" in o_dup.codes,
+        f"codes={o_dup.codes}",
+    )
 
     def wrong_signer(s: dict[str, Any]) -> None:
         seed = keys["wrong-signer-test"]["seed"]

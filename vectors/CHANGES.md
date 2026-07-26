@@ -5,6 +5,23 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 3 (round-8 reason-map membership)
+
+- Corpus: 140 vectors (35 accept, 105 reject). No normative spec change; the
+  specDigest is unchanged. Two forcing vectors close the reason-map side of the
+  coverage-partition membership rule already carried by the spec (L381-383): the
+  three coverage sets are a disjoint partition of the manifest's classes, so
+  membership runs both ways, but only `bad-819` forced the `assessedClasses`
+  side. New reject vectors `bad-731-outofscope-unknown-class` and
+  `bad-732-routedelsewhere-unknown-class` force it for the two reason maps (an
+  unknown class key in `outOfScope` / `routedElsewhere`, `result` left alone,
+  must be rejected `coverage-incomplete`). Both reference rails already enforced
+  it (Go `aee/statement.go`, Python `_coverage_partition_ok`); the vectors lock
+  the rule and mutation-prove the rails (reverting the reason-map accounting
+  flips both vectors). Surfaced by the independent from-spec checker as an
+  untested consequence of the written rule (in-toto/attestation#570 round-8,
+  Rul1an). Registry decision 14 gains the two vectors.
+
 ## suiteRevision 2 (round-7 chain-scope redesign)
 
 - Corpus: 138 vectors (35 accept, 103 reject). Normative change to the

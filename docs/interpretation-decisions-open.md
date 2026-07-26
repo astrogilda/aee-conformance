@@ -119,3 +119,28 @@ reject a non-zero offset (Go checks `t.Zone()` offset is 0; Python
 distinct from a late `armedAt`). Decision 8 in the registry now lists bad-727.
 Retained here for the audit trail. Rail propagation to the probity and mcp
 verifier rails is a follow-up (tracked with corners A and C below).
+
+---
+
+## Note: the registry is a POST-RUN reconciliation surface, not an answer key
+
+The interpretation-decision registry (`vectors/interpretation-decisions.json`)
+records, per forced reading, the spec anchor and the corpus vector(s) that lock
+it. It is valuable **after** an independent implementation has committed its own
+readings: it then shows exactly where those readings diverged, without either
+author having to arbitrate. Read **before** implementing, it is an answer key,
+and a from-spec independence claim made against it is worth less than one made
+without it. So: a genuinely independent conformance result is one produced
+without reading this registry (or the rail source, or the manifest's expected
+condition codes) first; the registry is for reconciling and explaining
+divergences afterward, not for pre-loading the "right" answers. Raised by the
+independent from-spec checker (in-toto/attestation#570 round-8, Rul1an).
+
+## suiteRevision 3: reason-map membership vectors
+
+The coverage-partition membership rule (spec L381-383: the three sets are a
+disjoint partition of the manifest's classes) is now forced on all three sets,
+not just `assessedClasses`: `bad-819` (assessed), `bad-731` (`outOfScope`),
+`bad-732` (`routedElsewhere`). Both rails already enforced reason-map membership;
+these vectors were the untested consequence of the written rule. Not an open
+corner (the spec forces it); recorded here for the audit trail.

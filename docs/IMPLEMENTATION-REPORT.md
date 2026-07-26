@@ -14,7 +14,7 @@ bytes.
 
 ## Reference corpus
 
-`vectors/MANIFEST.json`, suiteRevision 2: **138 vectors (35 accept, 103 reject)**.
+`vectors/MANIFEST.json`, suiteRevision 3: **140 vectors (35 accept, 105 reject)**.
 Each accept vector must verify valid with its expected `result` token; each reject
 vector must be invalid with a failure code drawn from the manifest's code set. The
 corpus is regenerated deterministically from the generators and its vendored spec
@@ -24,9 +24,9 @@ digest is pinned and CI-checked (`scripts/spec-drift-gate.py`).
 
 | Implementation | Language | Independence | Verified against | Result |
 |---|---|---|---|---|
-| Reference rail (`aee/`) | Go | first-party | reference corpus, suiteRevision 2 | **138 / 138** |
-| Reference rail (`packaging/run_vectors.py`) | Python | first-party (independent decomposition) | reference corpus, suiteRevision 2 | **138 / 138** |
-| `Rul1an/aee-checker` | Rust | **third-party, from-spec, no dependency on the reference impl** | corpus at suiteRevision 1 (spec `4a36b197`) | **125 / 125** (see note 1) |
+| Reference rail (`aee/`) | Go | first-party | reference corpus, suiteRevision 3 | **140 / 140** |
+| Reference rail (`packaging/run_vectors.py`) | Python | first-party (independent decomposition) | reference corpus, suiteRevision 3 | **140 / 140** |
+| `Rul1an/aee-checker` | Rust | **third-party, from-spec, no dependency on the reference impl** | suiteRevision 2 (138), spec-diff-led | **138 / 138** (132/138 unchanged; see note 1) |
 | `@probity/verify` | TypeScript | first-party consumer rail | its vendored set (118 vectors) + cross-rail parity tests | pass (see note 2) |
 | `probity-verify.py` | Python | first-party consumer rail (standalone) | its vendored set (118 vectors) + parity tests | pass (see note 2) |
 | matchlock-mcp `_aee.py` | Python | first-party consumer rail | its vendored set (132 vectors) + parity tests | pass (see note 2) |
@@ -39,11 +39,13 @@ sight of the reference implementation and no reading of the corpus condition cod
 
 ## Feature coverage
 
-Two eras. The **core** predicate (through spec `4a36b197`) has three genuinely
-independent implementations agreeing: the two reference rails and the from-spec
-Rust checker. The **round-7** additions post-date the Rust checker's build, so they
-are covered by the two reference rails plus the two consumer stacks (probity, mcp)
-that were brought to parity.
+Two eras. The **core** predicate and the **round-7** additions now both have three
+genuinely independent implementations agreeing: the two reference rails and the
+from-spec Rust checker, which re-ran against the round-7 corpus (suiteRevision 2)
+and reached 138/138 after a spec-diff-led update (132/138 on the unchanged build).
+Only the **suiteRevision-3** reason-map vectors (`bad-731`/`bad-732`) post-date the
+Rust checker's latest run; they are covered by the two reference rails plus the two
+consumer stacks (probity, mcp).
 
 | Feature | Go ref | Python ref | Rust (3rd-party) | probity | mcp |
 |---|---|---|---|---|---|
@@ -52,22 +54,25 @@ that were brought to parity.
 | `result` recompute (pass/degraded/fail) | yes | yes | yes | yes | yes |
 | Evidence tier (declared/unattested/attested) | yes | yes | yes | yes | yes |
 | The 11 interpretation decisions | yes | yes | yes | yes | yes |
-| chain-scope machine-comparable array (round-7) | yes | yes | note 1 | yes | yes |
-| statement-wide strict I-JSON (round-7, decision 11) | yes | yes | note 1 | yes | yes |
-| read-first `aeeBindingVersion` (round-7) | yes | yes | note 1 | yes | yes |
-| out-of-range refs fail-closed any row (round-7) | yes | yes | note 1 | yes | yes |
-| `armedAt` zero UTC offset (round-7, decision 8) | yes | yes | note 1 | yes | yes |
-| corners A/B/C: dup attackId / partition / cardinality | yes | yes | note 1 | yes | yes |
+| chain-scope machine-comparable array (round-7) | yes | yes | yes | yes | yes |
+| statement-wide strict I-JSON (round-7, decision 11) | yes | yes | yes | yes | yes |
+| read-first `aeeBindingVersion` (round-7) | yes | yes | yes | yes | yes |
+| out-of-range refs fail-closed any row (round-7) | yes | yes | yes | yes | yes |
+| `armedAt` zero UTC offset (round-7, decision 8) | yes | yes | yes | yes | yes |
+| corners A/B/C: dup attackId / partition / cardinality | yes | yes | yes | yes | yes |
 
 ## Notes (the honest scoping)
 
-1. **Rust checker is at suiteRevision 1 (spec `4a36b197`), pre-round-7.** Its
-   125/125 is against the 125-vector corpus before the round-7 changes, so the
-   round-7 rows are "not yet" for that column, not "fails". A re-run against
-   suiteRevision 2 is invited in the round-7 reply; when it lands, this report gets
-   a fourth fully-independent column on the round-7 features too.
+1. **Rust checker re-ran against the round-7 corpus (suiteRevision 2, 138) and
+   reached 138/138**, spec-diff-led: the unchanged pre-round-7 build scored 132/138,
+   and the six diverging vectors were exactly the round-7 changes (two of which were
+   defects in the checker, the rest spec-boundary adoptions). So the round-7 features
+   now have a third fully-independent column. The author is explicit that this pass
+   was not blind (the changelog was read before implementing), unlike the 125/125,
+   and keeps all three run records with a content-digest provenance index. Only the
+   suiteRevision-3 reason-map vectors (`bad-731`/`bad-732`) post-date this run.
 2. **The consumer rails carry the round-7 rules but their vendored vector sets lag
-   the reference corpus** (probity 118, mcp 132 vs the reference 138). The rules
+   the reference corpus** (probity 118, mcp 132 vs the reference 140). The rules
    themselves are verified by cross-rail parity tests plus each rail's own suite
    and mutation checks; a full re-vendor of all 138 into probity and mcp is tracked
    as a follow-up. Until then, "pass" means the rail implements and is parity-tested

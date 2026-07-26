@@ -145,7 +145,7 @@ carries the authoritative id-to-spec-line table.
 | aee-c-89 | L662-673 | arming chain-member syntax: positive aeeRunSeq; aeeChainScope required with it; aeePrevRunBinding lowercase 64-hex, absent exactly when aeeRunSeq is 1 |
 | aee-c-90 | L385-398 | no two attackResults rows share an attackId |
 
-## Vectors (103)
+## Vectors (105)
 
 `parent` names the accept-suite shape the vector derives from (the
 accept vectors land separately; the parent statements are built
@@ -249,6 +249,8 @@ so the declared fault stays the ONLY fault.
 | `bad-807-coverage-attack-superset` | ok-004 | added artifact-basis clean row for the outOfScope class's attack; result stays degraded | - | aee-c-82 | `coverage-incomplete` | L393-396 |
 | `bad-816-coverage-class-dropped` | ok-004 | manifest class XB dropped from all three coverage sets (not assessed, not outOfScope, not routedElsewhere), result forced to pass: the class-granularity coverage-partition fail-open | - | aee-c-82 | `coverage-incomplete` | L360-365; L393-396 |
 | `bad-819-assessed-class-not-in-manifest` | ok-001 | assessedClasses padded with class XZ the manifest never carried | - | aee-c-82 | `coverage-incomplete` | L360-365; L393-396 |
+| `bad-731-outofscope-unknown-class` | ok-004 | outOfScope carries class XZ the manifest never carried | - | aee-c-82 | `coverage-incomplete` | L360-365; L381-383 |
+| `bad-732-routedelsewhere-unknown-class` | ok-004 | routedElsewhere carries class XZ the manifest never carried | - | aee-c-82 | `coverage-incomplete` | L360-365; L381-383 |
 | `bad-817-payload-noncanonical-base64` | ok-001 | covering record payload re-encoded as non-canonical base64 (nonzero trailing bits); the record no longer strict-decodes | - | aee-c-19 | `record-undecodable` | L609-612 |
 | `bad-808-coverage-absent` | ok-002 | drop coverage | - | aee-c-83 | `coverage-missing` | L358-362 |
 | `bad-809-snake-case-doesnotassert` | ok-002 | statement carries the rejected snake_case spelling of doesNotAssert | - | aee-c-84 | `member-spelling` | L759-769 |
@@ -314,6 +316,8 @@ so the declared fault stays the ONLY fault.
 - **bad-807-coverage-attack-superset**: superset direction of exactly-equal coverage.
 - **bad-816-coverage-class-dropped**: distinct from bad-806/807 (attack granularity within an assessed class): a whole manifest class left silently unaccounted.
 - **bad-819-assessed-class-not-in-manifest**: mirror of bad-816 (a manifest class dropped from every coverage set): here a fabricated class pads assessedClasses. Coverage must be an exhaustive, disjoint partition of the manifest's real classes, so a class in a coverage set that the manifest never carried is the same class-granularity coverage-partition fault.
+- **bad-731-outofscope-unknown-class**: reason-map mirror of bad-819 (which forces the assessedClasses side). The three coverage sets are a disjoint partition of the manifest's classes, so membership runs both ways; nothing forced the outOfScope side until now (in-toto/attestation#570 round-8, Rul1an). Both rails already enforce it (Go statement.go, Python _coverage_partition_ok); this vector locks the rule and mutation-proves the rails..
+- **bad-732-routedelsewhere-unknown-class**: reason-map mirror of bad-819 for the routedElsewhere side (see bad-731). Closes the second untested consequence of the partition-membership rule (in-toto/attestation#570 round-8)..
 - **bad-817-payload-noncanonical-base64**: encoding-layer divergence: Go decodes with StdEncoding.Strict() and the Python rail re-encode-compares, so both reject; a lenient decoder would accept. The stale signature and batch root are unreachable because a decode failure short-circuits both checks (validity.go:120).
 - **bad-809-snake-case-doesnotassert**: single-canonicalization rule: no alias.
 - **bad-810-missing-issuedat**: artifact-only parent: no armedAt comparison cascade.

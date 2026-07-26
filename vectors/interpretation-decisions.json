@@ -211,7 +211,9 @@
       ],
       "reading": "The three coverage sets are a disjoint partition of the manifest's classes: a class appears in exactly one of assessedClasses, outOfScope, routedElsewhere (a move, not a copy). A class in more than one of the three is malformed - a class both assessed and disclosed as a gap is contradictory. Resolves open corner B, a LIVE divergence: our two rails already reject overlap (disjoint partition) while the independent from-spec checker accepts it (completeness-only); no vector exercised it, so 134/134 parity was intact. Keeping the reject reading is the converged debate's recommended DIRECTION and is the one editorial call here, reversible at vetting. bad-730 locks it.",
       "forcingVectors": [
-        "bad-730-coverage-class-overlap"
+        "bad-730-coverage-class-overlap",
+        "bad-731-outofscope-unknown-class",
+        "bad-732-routedelsewhere-unknown-class"
       ]
     }
   ],

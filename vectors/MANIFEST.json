@@ -6,7 +6,7 @@
   "tracksUpstream": "in-toto/attestation#570",
   "counts": {
     "accept": 35,
-    "reject": 103
+    "reject": 105
   },
   "vectors": [
     {
@@ -1801,6 +1801,34 @@
       "id": "bad-819-assessed-class-not-in-manifest",
       "kind": "reject",
       "file": "reject/bad-819-assessed-class-not-in-manifest.json",
+      "conditions": [
+        "aee-c-82"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "coverage-incomplete"
+        ]
+      }
+    },
+    {
+      "id": "bad-731-outofscope-unknown-class",
+      "kind": "reject",
+      "file": "reject/bad-731-outofscope-unknown-class.json",
+      "conditions": [
+        "aee-c-82"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "coverage-incomplete"
+        ]
+      }
+    },
+    {
+      "id": "bad-732-routedelsewhere-unknown-class",
+      "kind": "reject",
+      "file": "reject/bad-732-routedelsewhere-unknown-class.json",
       "conditions": [
         "aee-c-82"
       ],

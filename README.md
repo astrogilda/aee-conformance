@@ -148,3 +148,14 @@ implementation from someone else is welcome: wiring one in is roughly a single
 command against the runner's stdin/stdout contract, and a conformant checker
 passes even when it evaluates in a different order, since the suite compares
 verdicts and code sets and ignores both message text and evaluation order.
+
+One now exists. [`Rul1an/aee-checker`][aee-checker] is a from-spec Rust
+implementation with its own I-JSON parser, RFC 8785 serializer, RFC 6962 Merkle
+root, run-binding derivation, and Ed25519 tier, built with no sight of the
+reference code. It clears 125/125 at suiteRevision 1 (spec `4a36b197`). It keeps
+its own authorship, history, and CI; the link is pinned to commit `a7d891b` so
+the two cannot drift silently. The round-7 additions post-date that build, so a
+re-run against suiteRevision 2 is invited but not yet reflected in its column of
+the [implementation report](docs/IMPLEMENTATION-REPORT.md).
+
+[aee-checker]: https://github.com/Rul1an/aee-checker/tree/a7d891b19d510d84d43354294146d4ab8dfb9e97

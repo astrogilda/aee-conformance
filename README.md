@@ -152,10 +152,20 @@ verdicts and code sets and ignores both message text and evaluation order.
 One now exists. [`Rul1an/aee-checker`][aee-checker] is a from-spec Rust
 implementation with its own I-JSON parser, RFC 8785 serializer, RFC 6962 Merkle
 root, run-binding derivation, and Ed25519 tier, built with no sight of the
-reference code. It clears 125/125 at suiteRevision 1 (spec `4a36b197`). It keeps
-its own authorship, history, and CI; the link is pinned to commit `a7d891b` so
-the two cannot drift silently. The round-7 additions post-date that build, so a
-re-run against suiteRevision 2 is invited but not yet reflected in its column of
-the [implementation report](docs/IMPLEMENTATION-REPORT.md).
+reference code. It cleared 125/125 at suiteRevision 1 (spec `4a36b197`), and has
+since re-run against each revision: 138/138 at suiteRevision 2 after a
+spec-diff-led update, with the unchanged suiteRevision-1 build scoring 132/138 on
+that corpus first, and 140/140 at suiteRevision 3 on the first run with the
+suiteRevision-2 build unchanged. It keeps its own authorship, history, and CI.
 
-[aee-checker]: https://github.com/Rul1an/aee-checker/tree/a7d891b19d510d84d43354294146d4ab8dfb9e97
+Its [`reports/INDEX.json`][aee-index] carries one record per revision, each
+binding the report's own sha256 to a deterministic digest of the checker source
+that produced it and to the suite commit it ran against, with the vendored spec
+digest from suiteRevision 2 on. That is what a relying party needs to walk from
+any of those numbers back to the inputs and re-run it, and that repo's CI checks
+the binding, so a swapped report or drifted metadata fails rather than passing
+quietly. Both links are pinned to commit `0cf46c1` so the record cannot move
+under this page.
+
+[aee-checker]: https://github.com/Rul1an/aee-checker/tree/0cf46c1fa61517c955fc8f5283be4d435010765c
+[aee-index]: https://github.com/Rul1an/aee-checker/blob/0cf46c1fa61517c955fc8f5283be4d435010765c/reports/INDEX.json

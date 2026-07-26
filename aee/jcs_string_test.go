@@ -63,6 +63,41 @@ func TestJCSStringEscapes(t *testing.T) {
 	}
 }
 
+// TestCheckStringScalarsDefensiveBranches exercises checkStringScalars on
+// SYNTACTICALLY BROKEN bytes. parseJSONValue only ever calls it after the
+// decode has proved the input is one valid JSON value, so these branches are
+// unreachable in production; they are tested directly because "unreachable"
+// is a property of the caller, not of the function, and the next caller must
+// find it fail-closed rather than reading past the end of its input.
+func TestCheckStringScalarsDefensiveBranches(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		raw  string
+	}{
+		{"unterminated string literal", `{"a":"abc`},
+		{"trailing lone backslash", `{"a":"abc\`},
+		{"escape truncated after the backslash-u", `"\u`},
+		{"non-hex digits in a \\u escape", `"\uZZZZ"`},
+		{"\\u escape truncated mid-hex", `"\ud8`},
+		{"high surrogate then a truncated escape", `"\ud800\u`},
+		{"high surrogate then non-hex digits", `"\ud800\uZZZZ"`},
+		{"raw control character in a string", "\"a\x01b\""},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if err := checkStringScalars([]byte(tc.raw)); err == nil {
+				t.Fatalf("checkStringScalars(%q) = nil, want a rejection", tc.raw)
+			}
+		})
+	}
+	// The same bytes reach parseJSONValue only as a decode failure, never as a
+	// silent accept: whichever layer speaks first, the input is refused.
+	for _, raw := range []string{`{"a":"abc`, `"\uZZZZ"`, "\"a\x01b\""} {
+		if _, err := parseJSONValue([]byte(raw)); err == nil {
+			t.Fatalf("parseJSONValue(%q) = nil error, want a rejection", raw)
+		}
+	}
+}
+
 // TestJCSNestedDuplicateKey proves duplicate members are rejected (RFC 7493 /
 // RFC 8785) when nested, not only at the top level.
 func TestJCSNestedDuplicateKey(t *testing.T) {

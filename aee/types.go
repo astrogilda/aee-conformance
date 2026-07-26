@@ -221,13 +221,32 @@ func ParseStatement(b []byte) (*Statement, error) {
 	if err := json.Unmarshal(b, &shadow); err != nil {
 		return nil, fmt.Errorf("statement does not parse: %w", err)
 	}
-	// Statement-wide strict I-JSON (RFC 7493): reject a duplicate member
-	// anywhere in the statement JSON, not only inside record payloads. stdlib
-	// json.Unmarshal silently keeps the last of a repeated member, so validate
-	// the whole document with the I-JSON-strict parser; a duplicate member is a
-	// malformed statement. Other strict-parser divergences are not promoted
-	// here (basic parseability is already established above).
-	if _, perr := parseJSONValue(b); errors.Is(perr, ErrDuplicateMember) {
+	// Statement-wide strict I-JSON (RFC 7493), enforced on the RAW bytes before
+	// any member is read. stdlib json.Unmarshal is lossy in exactly the two ways
+	// this profile forbids -- it silently keeps the last of a repeated member,
+	// and it silently substitutes U+FFFD for an unpaired surrogate escape or
+	// invalid UTF-8 -- so both faults are unrecoverable one layer later, when
+	// every downstream check reads decoded Go strings. This is the seam that
+	// makes those checks sound: GATE 0's observationVocabulary rules (sortedness,
+	// duplicate-freedom, BMP-only, digest) compare decoded strings and cannot
+	// themselves tell a U+FFFD that the producer wrote from one the decoder
+	// invented, so a statement whose bytes do not decode faithfully must not
+	// reach them at all.
+	//
+	// Promoted fail-closed:
+	//   - ErrDuplicateMember, ErrStringNotScalar: the two lossy-decode faults;
+	//   - ErrInputTooLarge, ErrInputTooDeep: the strict pass could not run to
+	//     completion, so neither fault above was ruled out. Without these a
+	//     producer pads the statement past the parse bounds with an oversized or
+	//     deeply nested extra member and the checks above are skipped silently.
+	//
+	// The number-profile divergences are not promoted: the safe-integer profile
+	// is scoped to canonicalized content, and basic parseability is already
+	// established above.
+	if _, perr := parseJSONValue(b); errors.Is(perr, ErrDuplicateMember) ||
+		errors.Is(perr, ErrStringNotScalar) ||
+		errors.Is(perr, ErrInputTooLarge) ||
+		errors.Is(perr, ErrInputTooDeep) {
 		return nil, fmt.Errorf("statement does not parse: %w", perr)
 	}
 	s := &Statement{Subject: shadow.Subject, PredicateRaw: shadow.Predicate}

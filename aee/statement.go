@@ -143,6 +143,18 @@ func containsVocabularyCodes(codes []Code) bool {
 	return false
 }
 
+// gate0Vocabulary checks the observationVocabulary shape, subset, and digest.
+//
+// Every check here reads DECODED Go strings, and the digest is recomputed from
+// them rather than compared against the carried bytes, so none of them can see
+// what the wire bytes said. They are sound only because ParseStatement refuses,
+// on the raw bytes, any statement whose strings are not Unicode scalar
+// sequences (ErrStringNotScalar): that is what guarantees a decoded U+FFFD here
+// is one the producer wrote and not one the decoder substituted for an unpaired
+// surrogate escape. Without that upstream gate, "\ud800" would reach the
+// BMP-only check as a legal BMP scalar and pass, and two distinct escapes would
+// arrive as one string. Do not move the string-scalar check into this function:
+// by this point the fault has already been erased.
 func gate0Vocabulary(v *Vocabulary, codes []Code) []Code {
 	if !v.LabelsPresent || !v.CaughtPresent {
 		return appendCode(codes, CodeVocabularyNotCanonical)

@@ -23,11 +23,37 @@ import (
 	"strconv"
 	"strings"
 	"unicode/utf16"
+	"unicode/utf8"
 )
 
 // ErrDuplicateMember reports a JSON object with a repeated member name
 // (rejected by RFC 7493).
 var ErrDuplicateMember = errors.New("duplicate object member")
+
+// ErrStringNotScalar reports a JSON string literal whose bytes do not denote a
+// sequence of Unicode scalar values: an unpaired surrogate escape, a surrogate
+// escape pair that is not high-then-low, a raw control character, or invalid
+// UTF-8 (which includes an overlong form and a surrogate encoded directly in
+// UTF-8). RFC 7493 (I-JSON) section 2.1 rejects all of these, and they are
+// rejected here at the raw bytes, BEFORE any decode.
+//
+// The check exists because a decoder cannot report it after the fact. Go's
+// encoding/json substitutes U+FFFD for every one of these faults while
+// decoding (encoding/json/decode.go, unquoteBytes), so a downstream check
+// reading the decoded Go string sees a legal BMP scalar and cannot recover
+// what the bytes said. Two consequences follow, and both are unconstructible
+// only if the fault is caught at the byte level:
+//
+//   - a false accept: "\ud800" inside an observationVocabulary entry decodes
+//     to U+FFFD, which the BMP-only string profile accepts;
+//   - a canonicalization collision: "\ud800", "\udc00", and a literal U+FFFD
+//     are three distinct inputs that decode, and therefore canonicalize, to
+//     identical bytes, so a sortedness or duplicate-member check reads two
+//     distinct strings as one.
+//
+// The independent Rust rail rejects the same inputs at its parser, so this is
+// also what keeps the rails byte-identical.
+var ErrStringNotScalar = errors.New("JSON string is not a sequence of Unicode scalar values")
 
 // ErrUnsafeInteger reports an integer with magnitude at or above 2^53
 // (rejected by the predicate's I-JSON safe-integer profile, spec:67-70).
@@ -106,7 +132,8 @@ type jsonObject struct {
 }
 
 // parseJSONValue decodes exactly one JSON value from raw, rejecting
-// duplicate members, unsafe integers, and trailing content.
+// duplicate members, unsafe integers, strings that are not Unicode scalar
+// sequences, and trailing content.
 func parseJSONValue(raw []byte) (any, error) {
 	if len(raw) > maxParseBytes {
 		return nil, fmt.Errorf("%w: %d bytes", ErrInputTooLarge, len(raw))
@@ -120,7 +147,122 @@ func parseJSONValue(raw []byte) (any, error) {
 	if _, err := dec.Token(); err != io.EOF {
 		return nil, errors.New("trailing content after JSON value")
 	}
+	// String scalars are checked on the RAW bytes, after the decode has
+	// established that raw is exactly one syntactically valid JSON value (so
+	// every '"' the scan meets outside a literal opens one) and before any
+	// caller reads a decoded string. The decoded values above are already
+	// lossy where this check fails; only the bytes still carry the fault.
+	if err := checkStringScalars(raw); err != nil {
+		return nil, err
+	}
 	return v, nil
+}
+
+// checkStringScalars walks raw JSON bytes and applies checkStringLiteral to
+// every string literal in the document, at any depth and in both member-name
+// and value position. It requires raw to be syntactically valid JSON.
+func checkStringScalars(raw []byte) error {
+	for i := 0; i < len(raw); {
+		if raw[i] != '"' {
+			i++
+			continue
+		}
+		n, err := checkStringLiteral(raw[i:])
+		if err != nil {
+			return err
+		}
+		i += n
+	}
+	return nil
+}
+
+// checkStringLiteral validates one JSON string literal beginning at b[0] ('"')
+// and returns the number of bytes it spans, including both quotes. See
+// ErrStringNotScalar for what it rejects.
+func checkStringLiteral(b []byte) (int, error) {
+	for i := 1; i < len(b); {
+		switch c := b[i]; {
+		case c == '"':
+			return i + 1, nil
+		case c == '\\':
+			n, err := checkEscape(b[i:])
+			if err != nil {
+				return 0, err
+			}
+			i += n
+		case c < 0x20:
+			return 0, fmt.Errorf("%w: raw control character U+%04X in string", ErrStringNotScalar, c)
+		case c < utf8.RuneSelf:
+			i++
+		default:
+			// DecodeRune reports (RuneError, 1) for every ill-formed sequence,
+			// including an overlong encoding and a surrogate encoded in UTF-8;
+			// a genuine U+FFFD decodes with size 3 and is legal.
+			r, size := utf8.DecodeRune(b[i:])
+			if r == utf8.RuneError && size <= 1 {
+				return 0, fmt.Errorf("%w: invalid UTF-8 at byte %d of string", ErrStringNotScalar, i)
+			}
+			i += size
+		}
+	}
+	return 0, errors.New("unterminated string literal")
+}
+
+// checkEscape validates one escape sequence beginning at b[0] ('\\') and
+// returns the number of bytes it spans. A \u escape naming a high surrogate
+// spans the low-surrogate escape that MUST follow it, so the pair is validated
+// and consumed as one unit and a lone surrogate of either half is rejected.
+func checkEscape(b []byte) (int, error) {
+	if len(b) < 2 {
+		return 0, errors.New("unterminated escape sequence")
+	}
+	if b[1] != 'u' {
+		return 2, nil // \" \\ \/ \b \f \n \r \t: syntax already validated by the decode
+	}
+	hi, ok := hex4(b[2:])
+	if !ok {
+		return 0, fmt.Errorf("%w: malformed \\u escape", ErrStringNotScalar)
+	}
+	switch {
+	case hi >= 0xD800 && hi < 0xDC00: // high surrogate: a low surrogate escape MUST follow
+		const pair = 12 // \uXXXX\uXXXX
+		if len(b) < pair || b[6] != '\\' || b[7] != 'u' {
+			return 0, fmt.Errorf("%w: unpaired high surrogate \\u%04X", ErrStringNotScalar, hi)
+		}
+		lo, ok := hex4(b[8:])
+		if !ok {
+			return 0, fmt.Errorf("%w: malformed \\u escape after high surrogate \\u%04X", ErrStringNotScalar, hi)
+		}
+		if lo < 0xDC00 || lo >= 0xE000 {
+			return 0, fmt.Errorf("%w: high surrogate \\u%04X followed by \\u%04X, which is not a low surrogate", ErrStringNotScalar, hi, lo)
+		}
+		return pair, nil
+	case hi >= 0xDC00 && hi < 0xE000:
+		return 0, fmt.Errorf("%w: unpaired low surrogate \\u%04X", ErrStringNotScalar, hi)
+	default:
+		return 6, nil
+	}
+}
+
+// hex4 reads the four hex digits of a \u escape from the start of b.
+func hex4(b []byte) (uint32, bool) {
+	if len(b) < 4 {
+		return 0, false
+	}
+	var v uint32
+	for _, c := range b[:4] {
+		switch {
+		case c >= '0' && c <= '9':
+			v = v<<4 | uint32(c-'0')
+		case c >= 'a' && c <= 'f':
+			v = v<<4 | uint32(c-'a'+10)
+		case c >= 'A' && c <= 'F':
+			v = v<<4 | uint32(c-'A'+10)
+		default:
+			return 0, false
+		}
+	}
+	return v, true
 }
 
 func decodeValue(dec *json.Decoder, depth int) (any, error) {
@@ -207,8 +349,9 @@ func Canonicalize(raw []byte) ([]byte, error) {
 }
 
 // CheckIJSON reports whether raw violates the I-JSON profile the predicate
-// pins: duplicate members or integers outside the safe range. Other parse
-// errors are returned as-is.
+// pins: duplicate members, integers outside the safe range, or a string that
+// is not a sequence of Unicode scalar values. Other parse errors are returned
+// as-is.
 func CheckIJSON(raw []byte) error {
 	_, err := parseJSONValue(raw)
 	return err

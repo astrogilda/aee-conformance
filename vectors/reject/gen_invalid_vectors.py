@@ -1602,6 +1602,41 @@ vec("bad-819-assessed-class-not-in-manifest", "ok-001",
          "class-granularity coverage-partition fault")
 
 
+def _b731() -> dict[str, Any]:
+    st = P_degraded()
+    st["predicate"]["coverage"]["outOfScope"]["XZ"] = \
+        "unknown class the manifest never carried"
+    return st
+
+
+vec("bad-731-outofscope-unknown-class", "ok-004",
+    "outOfScope carries class XZ the manifest never carried", [],
+    [82], ["coverage-incomplete"], _b731,
+    spec="L360-365; L381-383",
+    note="reason-map mirror of bad-819 (which forces the assessedClasses side). "
+         "The three coverage sets are a disjoint partition of the manifest's "
+         "classes, so membership runs both ways; nothing forced the outOfScope "
+         "side until now (in-toto/attestation#570 round-8, Rul1an). Both rails "
+         "already enforce it (Go statement.go, Python _coverage_partition_ok); "
+         "this vector locks the rule and mutation-proves the rails.")
+
+
+def _b732() -> dict[str, Any]:
+    st = P_degraded()
+    st["predicate"]["coverage"]["routedElsewhere"]["XZ"] = \
+        "unknown class the manifest never carried"
+    return st
+
+
+vec("bad-732-routedelsewhere-unknown-class", "ok-004",
+    "routedElsewhere carries class XZ the manifest never carried", [],
+    [82], ["coverage-incomplete"], _b732,
+    spec="L360-365; L381-383",
+    note="reason-map mirror of bad-819 for the routedElsewhere side (see "
+         "bad-731). Closes the second untested consequence of the "
+         "partition-membership rule (in-toto/attestation#570 round-8).")
+
+
 _B64_ALPHABET = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 )
@@ -2111,7 +2146,7 @@ def main() -> None:
         with open(path) as f:
             json.load(f)  # every vector parses as JSON (a duplicate member is last-wins)
 
-    assert len(VECTORS) == 103, f"expected 103 vectors, built {len(VECTORS)}"
+    assert len(VECTORS) == 105, f"expected 105 vectors, built {len(VECTORS)}"
 
     # 3. index
     write_index()

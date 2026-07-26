@@ -80,5 +80,5 @@ jobs:
         run: python3 scripts/spec-drift-gate.py
       - name: interpretation-decision registry gate
         run: python3 scripts/interpretation-registry-gate.py
-      - name: replay every vector on the Python rail (must be 138/138)
+      - name: replay every vector on the Python rail (must be 140/140)
         run: python3 packaging/run_vectors.py

@@ -189,6 +189,134 @@ def sha256_hex(data: bytes) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Byte-level string-scalar scan, mirroring the Go rail (aee/jcs.go
+# checkStringScalars). Every check downstream of a decode reads Python str
+# objects, and both decoders this rail uses are lossy in exactly the ways the
+# profile forbids: json.loads turns an unpaired "\ud800" escape into a lone
+# surrogate that no later comparison can distinguish from a legitimately
+# written one, and it is not even encodable, so the UTF-16 sort key and the
+# canonical re-serialization raise UnicodeEncodeError from deep inside checks
+# that have no business seeing an encoding fault. The bytes are the only place
+# the fault is still visible, so it is rejected there, before any caller reads
+# a decoded string.
+# ---------------------------------------------------------------------------
+
+
+class StringNotScalarError(ValueError):
+    """A JSON string literal whose bytes do not denote Unicode scalar values."""
+
+
+def _hex4(b: bytes) -> int | None:
+    """Value of the four hex digits of a \\u escape at the start of b."""
+    if len(b) < 4:
+        return None
+    v = 0
+    for c in b[:4]:
+        if 0x30 <= c <= 0x39:
+            v = v << 4 | (c - 0x30)
+        elif 0x61 <= c <= 0x66:
+            v = v << 4 | (c - 0x61 + 10)
+        elif 0x41 <= c <= 0x46:
+            v = v << 4 | (c - 0x41 + 10)
+        else:
+            return None
+    return v
+
+
+def _check_escape(b: bytes) -> int:
+    """Validate one escape sequence at b[0] ('\\') and return its byte span.
+
+    A \\u escape naming a high surrogate spans the low-surrogate escape that
+    MUST follow it, so the pair is validated and consumed as one unit and a
+    lone surrogate of either half is rejected.
+    """
+    if len(b) < 2:
+        raise StringNotScalarError("unterminated escape sequence")
+    if b[1:2] != b"u":
+        return 2  # \" \\ \/ \b \f \n \r \t: syntax already validated by the decode
+    hi = _hex4(b[2:])
+    if hi is None:
+        raise StringNotScalarError("malformed \\u escape")
+    if 0xD800 <= hi < 0xDC00:  # high surrogate: a low surrogate escape MUST follow
+        pair = 12  # \uXXXX\uXXXX
+        if len(b) < pair or b[6:8] != b"\\u":
+            raise StringNotScalarError(f"unpaired high surrogate \\u{hi:04X}")
+        lo = _hex4(b[8:])
+        if lo is None:
+            raise StringNotScalarError(
+                f"malformed \\u escape after high surrogate \\u{hi:04X}"
+            )
+        if not 0xDC00 <= lo < 0xE000:
+            raise StringNotScalarError(
+                f"high surrogate \\u{hi:04X} followed by \\u{lo:04X}, "
+                "which is not a low surrogate"
+            )
+        return pair
+    if 0xDC00 <= hi < 0xE000:
+        raise StringNotScalarError(f"unpaired low surrogate \\u{hi:04X}")
+    return 6
+
+
+def _check_string_literal(b: bytes) -> int:
+    """Validate one JSON string literal at b[0] ('"'), returning its byte span
+    including both quotes."""
+    i = 1
+    while i < len(b):
+        c = b[i]
+        if c == 0x22:  # '"'
+            return i + 1
+        if c == 0x5C:  # '\'
+            i += _check_escape(b[i:])
+        elif c < 0x20:
+            raise StringNotScalarError(f"raw control character U+{c:04X} in string")
+        elif c < 0x80:
+            i += 1
+        else:
+            # A multi-byte sequence is legal only if it round-trips: strict
+            # UTF-8 decoding rejects overlong forms and surrogates encoded in
+            # UTF-8 (CESU-8), which is what separates a genuine U+FFFD the
+            # producer wrote from an ill-formed sequence.
+            size = _utf8_seq_len(c)
+            if size == 0 or i + size > len(b):
+                raise StringNotScalarError(f"invalid UTF-8 at byte {i} of string")
+            try:
+                b[i : i + size].decode("utf-8")
+            except UnicodeDecodeError:
+                raise StringNotScalarError(
+                    f"invalid UTF-8 at byte {i} of string"
+                ) from None
+            i += size
+    raise StringNotScalarError("unterminated string literal")
+
+
+def _utf8_seq_len(lead: int) -> int:
+    """Byte length a UTF-8 lead byte announces, or 0 if it is not a lead byte."""
+    if 0xC2 <= lead <= 0xDF:
+        return 2
+    if 0xE0 <= lead <= 0xEF:
+        return 3
+    if 0xF0 <= lead <= 0xF4:
+        return 4
+    return 0  # continuation byte, or a lead byte no valid sequence starts with
+
+
+def check_string_scalars(raw: bytes) -> None:
+    """Apply _check_string_literal to every string literal in raw, at any depth
+    and in both member-name and value position.
+
+    Requires raw to be syntactically valid JSON, so that every '"' met outside
+    a literal opens one.
+    """
+    i = 0
+    n = len(raw)
+    while i < n:
+        if raw[i] != 0x22:  # '"'
+            i += 1
+            continue
+        i += _check_string_literal(raw[i:])
+
+
+# ---------------------------------------------------------------------------
 # RFC 7493 (I-JSON) strict payload parse: duplicate members and unsafe
 # integers rejected.
 # ---------------------------------------------------------------------------
@@ -277,8 +405,17 @@ def strict_b64decode(s: str) -> bytes:
     return raw
 
 
-def strict_payload_parse(raw: bytes) -> dict[str, Any]:
-    """Parse record payload bytes; raise IJsonError with a registry code."""
+def parse_json_value(raw: bytes) -> Any:
+    """Parse payload bytes into a faithful Python value under the I-JSON
+    profile, or raise IJsonError with a registry code.
+
+    The counterpart of the Go rail's parseJSONValue (aee/jcs.go): bounds, then
+    the decode, then the checks the decode cannot express. Split from the
+    canonical-form checks in strict_payload_parse for the same reason the Go
+    rail splits parseJSONValue from analyzePayload -- "are these bytes a value
+    at all" and "is that value in canonical form" fail for different reasons
+    and carry different codes.
+    """
     if len(raw) > MAX_PARSE_BYTES:
         raise IJsonError("payload-not-canonical", "payload exceeds the maximum size")
     try:
@@ -294,6 +431,23 @@ def strict_payload_parse(raw: bytes) -> dict[str, Any]:
         raise
     except (ValueError, RecursionError):
         raise IJsonError("payload-not-canonical", "payload does not parse as JSON") from None
+    # String scalars are checked on the RAW bytes, after the parse above has
+    # established that they are exactly one syntactically valid JSON value and
+    # before any caller reads a decoded string. obj is already lossy wherever
+    # this check fails. Mapped to payload-not-ijson to match the Go rail, whose
+    # parseJSONValue raises ErrStringNotScalar and whose analyzePayload maps
+    # every parse failure to the same covers-nothing code.
+    try:
+        check_string_scalars(raw)
+    except StringNotScalarError as e:
+        raise IJsonError("payload-not-ijson", f"payload string is not scalar: {e}") from None
+    return obj
+
+
+def strict_payload_parse(raw: bytes) -> dict[str, Any]:
+    """Parse record payload bytes and require RFC 8785 canonical form; raise
+    IJsonError with a registry code."""
+    obj = parse_json_value(raw)
     if not isinstance(obj, dict):
         raise IJsonError("payload-not-canonical", "payload is not a JSON object")
     if not _member_names_bmp(obj):
@@ -501,12 +655,46 @@ def derive_test_keys() -> dict[str, dict[str, Any]]:
 # ---------------------------------------------------------------------------
 
 
-def _statement_has_duplicate_member(raw: bytes) -> bool:
-    """Whole-statement strict I-JSON (RFC 7493): report a duplicate member
-    anywhere in the statement JSON, at any depth, not only inside record
-    payloads. json.loads keeps the last of a repeated member silently, so scan
-    with an object_pairs_hook. Mirrors the Go rail's ParseStatement dup check;
-    non-dup I-JSON aspects are handled by the payload parser, not here."""
+def _statement_strict_fault(raw: bytes) -> bool:
+    """Whole-statement strict pass (RFC 7493 I-JSON): report a fault the later
+    decoded-value checks cannot see, anywhere in the statement JSON at any
+    depth, not only inside record payloads. Mirrors the Go rail's
+    ParseStatement promotion (aee/types.go).
+
+    Two faults are unrecoverable one layer later, because every downstream
+    check reads decoded Python strings:
+
+      - a duplicate member, which json.loads keeps the last of, silently;
+      - a string whose bytes are not Unicode scalar values, which json.loads
+        turns into a lone surrogate or which the UTF-8 decode below rejects.
+
+    The second is what makes GATE 0's observationVocabulary rules sound. They
+    compare decoded strings and recompute the digest from them, so they cannot
+    tell an unpaired "\\ud800" escape from a legitimate BMP scalar; without
+    this gate that escape reached the BMP-only check and passed, and two
+    distinct escapes arrived as one string and were reported as a duplicate the
+    producer never wrote. Two of those checks cannot even run on a lone
+    surrogate -- the UTF-16 sort key and the canonical re-serialization both
+    raise UnicodeEncodeError -- so the fault surfaced as a traceback rather
+    than a verdict.
+
+    A bounds failure is promoted with them: an incomplete strict pass rules
+    nothing out, so padding a statement past the parse bounds, or nesting one
+    member deeper than the cap, must not skip the two checks above.
+
+    Faults the payload parser already owns are NOT promoted here: the
+    safe-integer profile is scoped to canonicalized content, and a statement
+    that is not parseable JSON at all is reported by the caller's own parse.
+    """
+    if len(raw) > MAX_PARSE_BYTES:
+        return True
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        return True
+    if _max_json_depth(text) > MAX_PARSE_DEPTH:
+        return True
+
     found = False
 
     def hook(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
@@ -517,10 +705,18 @@ def _statement_has_duplicate_member(raw: bytes) -> bool:
         return dict(pairs)
 
     try:
-        json.loads(raw.decode("utf-8"), object_pairs_hook=hook)
-    except (ValueError, UnicodeDecodeError):
+        json.loads(text, object_pairs_hook=hook)
+    except (ValueError, RecursionError):
+        # Not syntactically valid JSON; the caller's own parse reports that, and
+        # the scan below requires syntactic validity to locate string literals.
         return False
-    return found
+    if found:
+        return True
+    try:
+        check_string_scalars(raw)
+    except StringNotScalarError:
+        return True
+    return False
 
 
 class Outcome:
@@ -763,11 +959,12 @@ class ReferenceVerifier:
 
     def verify(self, stmt: Any, raw: bytes | None = None) -> Outcome:
         out = Outcome()
-        # Statement-wide strict I-JSON: a duplicate member anywhere in the
-        # statement JSON is a malformed statement (checked from the raw bytes
-        # because the pre-parsed dict has already collapsed repeats). raw is
-        # None for internally-built clean dicts.
-        if raw is not None and _statement_has_duplicate_member(raw):
+        # Statement-wide strict I-JSON: a duplicate member, or a string whose
+        # bytes are not Unicode scalar values, anywhere in the statement JSON
+        # is a malformed statement. Both are checked from the raw bytes, because
+        # the pre-parsed dict has already collapsed repeats and substituted for
+        # the ill-formed strings. raw is None for internally-built clean dicts.
+        if raw is not None and _statement_strict_fault(raw):
             out.add("statement-malformed")
             return out
         st = _VerifyState(stmt=stmt)

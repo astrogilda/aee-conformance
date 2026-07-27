@@ -472,7 +472,8 @@ VECTORS: list[dict[str, Any]] = []
 
 def vec(vid: str, parent: str, mutation: str, rederive: list[str],
         conds: list[int], codes: list[str],
-        build: Callable[[], dict[str, Any]] | Callable[[], str],
+        build: Callable[[], dict[str, Any]] | Callable[[], str]
+        | Callable[[], bytes],
         compound: bool = False,
         spec: str = "", note: str = "") -> None:
     VECTORS.append({"id": vid, "parent": parent, "mutation": mutation,
@@ -1637,6 +1638,221 @@ vec("bad-732-routedelsewhere-unknown-class", "ok-004",
          "partition-membership rule (in-toto/attestation#570 round-8).")
 
 
+# --- (l) byte-level string well-formedness -------------------------------
+#
+# This quadrant had ZERO corpus coverage until now. Decoding all 140 vector
+# files and all 219 base64 record payloads found no escape sequence of any
+# kind, no non-UTF-8 byte and no raw control character anywhere, in either
+# position. It is also the quadrant where the rails actually diverged in the
+# field: one accepted a statement the other three rejected, and a fourth
+# crashed instead of returning a verdict.
+#
+# Every statement-position vector here appends the fault to
+# observationVocabulary.labels and recomputes the vocabulary digest OVER THE
+# MUTATED CONTENT. That is the point. A rail that decodes leniently sees a
+# self-consistent vocabulary and has no other rule left to catch the statement
+# on, so only a check on the raw bytes rejects it. The digest is computed with
+# surrogatepass where the content is not otherwise encodable, which is exactly
+# the substitution a lenient rail performs.
+#
+# The appended label sorts last under UTF-16 code-unit order, because every
+# existing label is ASCII, so sortedness, duplicate-freedom and the caught
+# subset all still hold and the byte-level fault is the single fault.
+
+_LONE_HI = "zz_\ud800"
+_LONE_LO = "zz_\udc00"
+_REVERSED = "zz_\udc00\ud800"
+
+
+def _voc_label_fault(label: str) -> dict[str, Any]:
+    """A clean statement whose vocabulary gains `label`, digest recomputed."""
+    st = P_clean()
+    v = st["predicate"]["observationEnvironment"]["observationVocabulary"]
+    v["labels"] = [*v["labels"], label]
+    pre = (
+        '{"caught":['
+        + ",".join(json.dumps(c) for c in v["caught"])
+        + '],"labels":['
+        + ",".join(json.dumps(x) for x in v["labels"])
+        + "]}"
+    )
+    v["digest"]["sha256"] = sha256hex(pre.encode("utf-8", "surrogatepass"))
+    return st
+
+
+def _escaped(st: dict[str, Any]) -> str:
+    """Serialize with ensure_ascii, so a lone surrogate rides as a backslash-u
+    ESCAPE and the file itself stays valid UTF-8. This is the half a fatal
+    decoder cannot catch: the bytes are well formed, the escape is not."""
+    return json.dumps(st, indent=2, sort_keys=True, ensure_ascii=True)
+
+
+def _b733() -> str:
+    return _escaped(_voc_label_fault(_LONE_HI))
+
+
+vec("bad-733-statement-lone-high-surrogate-escape", "ok-002",
+    "vocabulary label carrying an unpaired high surrogate escape; digest "
+    "recomputed over the mutated content",
+    ["recompute-vocabulary-digest"], [18], ["statement-malformed"],
+    _b733, spec="L73-92",
+    note="rawStatement: the file is valid UTF-8 and parses as JSON, so only a "
+         "check on the raw bytes sees it. A lenient parse yields a lone "
+         "surrogate that no later comparison can tell from a written one.")
+
+
+def _b734() -> str:
+    return _escaped(_voc_label_fault(_LONE_LO))
+
+
+vec("bad-734-statement-lone-low-surrogate-escape", "ok-002",
+    "vocabulary label carrying an unpaired low surrogate escape; digest "
+    "recomputed over the mutated content",
+    ["recompute-vocabulary-digest"], [18], ["statement-malformed"],
+    _b734, spec="L73-92",
+    note="rawStatement: a low surrogate with no preceding high surrogate.")
+
+
+def _b735() -> str:
+    return _escaped(_voc_label_fault(_REVERSED))
+
+
+vec("bad-735-statement-reversed-surrogate-pair", "ok-002",
+    "vocabulary label carrying a low surrogate followed by a high surrogate; "
+    "digest recomputed over the mutated content",
+    ["recompute-vocabulary-digest"], [18], ["statement-malformed"],
+    _b735, spec="L73-92",
+    note="rawStatement: both halves are present, in the wrong order, so a "
+         "check that counts surrogates rather than pairing them passes.")
+
+
+def _b736() -> bytes:
+    """The same label as bad-733, encoded rather than escaped. surrogatepass
+    emits ED A0 80, a surrogate encoded directly in UTF-8 (CESU-8)."""
+    st = _voc_label_fault(_LONE_HI)
+    text = json.dumps(st, indent=2, sort_keys=True, ensure_ascii=False)
+    return text.encode("utf-8", "surrogatepass")
+
+
+vec("bad-736-statement-cesu8-vocabulary-label", "ok-002",
+    "vocabulary label carrying a surrogate encoded directly in UTF-8 "
+    "(CESU-8, ED A0 80); digest recomputed over the mutated content",
+    ["recompute-vocabulary-digest"], [18], ["statement-malformed"],
+    _b736, spec="L73-92",
+    note="rawBytes: not valid UTF-8. A lenient decoder substitutes U+FFFD, and "
+         "because the vocabulary digest is recomputed from the decoded strings "
+         "the statement is self-consistent afterwards. This is the exact "
+         "construction that verified valid on one rail and invalid on three.")
+
+
+def _b737() -> bytes:
+    """C0 AF is an overlong encoding of '/': a sequence a permissive decoder
+    accepts and a strict one refuses."""
+    st = _voc_label_fault("zz_OVERLONG")
+    text = json.dumps(st, indent=2, sort_keys=True, ensure_ascii=False)
+    return text.encode("utf-8").replace(b"OVERLONG", b"\xc0\xaf")
+
+
+vec("bad-737-statement-overlong-utf8", "ok-002",
+    "vocabulary label carrying the overlong encoding C0 AF; digest recomputed "
+    "over the mutated content",
+    ["recompute-vocabulary-digest"], [18], ["statement-malformed"],
+    _b737, spec="L73-92",
+    note="rawBytes: the overlong form is the other half of the UTF-8 "
+         "well-formedness rule, and a length-only scanner steps over it.")
+
+
+def _b738() -> bytes:
+    """A raw U+0001 inside a string literal. JSON forbids an unescaped
+    character below U+0020, so this is refused at the byte level rather than
+    by any vocabulary rule."""
+    st = _voc_label_fault("zz_CTRL")
+    text = json.dumps(st, indent=2, sort_keys=True, ensure_ascii=False)
+    return text.encode("utf-8").replace(b"CTRL", b"\x01")
+
+
+vec("bad-738-statement-raw-control-character", "ok-002",
+    "vocabulary label carrying a raw unescaped U+0001; digest recomputed over "
+    "the mutated content",
+    ["recompute-vocabulary-digest"], [18], ["statement-malformed"],
+    _b738, spec="L73-92",
+    note="rawBytes: JSON forbids an unescaped character below U+0020.")
+
+
+def _b739() -> dict[str, Any]:
+    """A covering payload carrying an unpaired surrogate escape. The payload is
+    base64 inside the statement, so the statement file stays valid UTF-8 and
+    the fault is reached only after the record decodes."""
+    st = P_caught()
+    obj = json.loads(unb64(st["predicate"]["observationRecords"][0]["payload"]))
+    obj["aeeNote"] = _LONE_HI
+    body = json.dumps(obj, sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=True)
+    return raw_record_bytes(st, 0, body.encode())
+
+
+vec("bad-739-payload-lone-surrogate-escape", "ok-001",
+    "covering payload gains a member whose value carries an unpaired surrogate "
+    "escape",
+    ["re-sign-record", "recompute-batch-root"], [18], ["payload-not-ijson"],
+    _b739, spec="L660-663",
+    note="rawBytes: the payload position of the rule bad-733 covers "
+         "statement-wide. The code differs because a payload that is not a "
+         "parseable I-JSON value covers nothing.")
+
+
+def _b740() -> dict[str, Any]:
+    """The same payload fault as bad-739, encoded rather than escaped."""
+    st = P_caught()
+    obj = json.loads(unb64(st["predicate"]["observationRecords"][0]["payload"]))
+    obj["aeeNote"] = "PLACEHOLDER"
+    body = json.dumps(obj, sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=True).encode()
+    return raw_record_bytes(st, 0, body.replace(b"PLACEHOLDER",
+                                                b"\xed\xa0\x80"))
+
+
+vec("bad-740-payload-cesu8", "ok-001",
+    "covering payload gains a member whose value carries a surrogate encoded "
+    "directly in UTF-8 (CESU-8, ED A0 80)",
+    ["re-sign-record", "recompute-batch-root"], [18], ["payload-not-ijson"],
+    _b740, spec="L660-663",
+    note="rawBytes: the payload path byte-compares against the carried bytes, "
+         "so a substitution cannot round-trip there; this vector pins the "
+         "CODE rather than the verdict.")
+
+
+def _b741() -> dict[str, Any]:
+    """A covering payload that is otherwise complete and valid, carrying ONE
+    producer member nested 129 deep -- one level past the normative bound.
+
+    The nesting is added to a real covering payload rather than replacing it, so
+    depth is the single fault. An earlier draft replaced the payload outright,
+    which also dropped the reserved members: every rail still rejected, but a
+    rail whose own bound is 256 rejected for the missing members instead, and
+    the vector discriminated nothing."""
+    depth = 129
+    st = P_caught()
+    obj = json.loads(unb64(st["predicate"]["observationRecords"][0]["payload"]))
+    body = json.dumps(obj, sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=True)
+    deep = '{"a":' * depth + "1" + "}" * depth
+    # Splice the deep value in as one more member, keeping the object canonical:
+    # "aaDeep" sorts before every reserved member name, which all start "aee".
+    body = '{"aaDeep":' + deep + "," + body[1:]
+    return raw_record_bytes(st, 0, body.encode())
+
+
+vec("bad-741-payload-nesting-exceeds-max-depth", "ok-001",
+    "covering payload nested 129 deep, one level past the normative bound",
+    ["re-sign-record", "recompute-batch-root"], [18], ["payload-not-ijson"],
+    _b741, spec="L107-114",
+    note="rawBytes: the bound is normative because it was not. The reference "
+         "rails chose 128 and the independent from-spec checker chose 256, so "
+         "identical bytes were evidence to one conforming verifier and "
+         "malformed to another across 127 depths.")
+
+
 _B64_ALPHABET = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 )
@@ -2134,6 +2350,27 @@ def main() -> None:
         st = v["build"]()
         second_fault_absence(v, st)
         path = os.path.join(OUT, v["id"] + ".json")
+        if isinstance(st, bytes):
+            # Byte-level vector: the fault IS the encoding, so the file is not
+            # valid UTF-8 and cannot be produced by any serializer. Written
+            # verbatim in binary. These are the only vectors exempt from the
+            # re-parse check below, and the exemption is the assertion: a
+            # byte-level vector that decodes as UTF-8 is not testing what it
+            # claims to, so it must fail to decode.
+            with open(path, "wb") as fb:
+                fb.write(st if st.endswith(b"\n") else st + b"\n")
+            with open(path, "rb") as fb:
+                written = fb.read()
+            try:
+                json.loads(written.decode("utf-8"))
+            except (UnicodeDecodeError, ValueError):
+                continue
+            raise SystemExit(
+                f"{v['id']}: declared a byte-level vector but is a valid JSON "
+                "text; either the fault was lost in serialization, or the "
+                "vector belongs in the raw-statement tier, whose members are "
+                "parseable and carry their fault in the parsed content"
+            )
         with open(path, "w") as f:
             if isinstance(st, str):
                 # Raw-statement vector: bytes crafted to carry a fault the dict
@@ -2146,7 +2383,7 @@ def main() -> None:
         with open(path) as f:
             json.load(f)  # every vector parses as JSON (a duplicate member is last-wins)
 
-    assert len(VECTORS) == 105, f"expected 105 vectors, built {len(VECTORS)}"
+    assert len(VECTORS) == 114, f"expected 114 vectors, built {len(VECTORS)}"
 
     # 3. index
     write_index()

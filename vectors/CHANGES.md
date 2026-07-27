@@ -5,6 +5,48 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 5 (byte-level tier: the quadrant that had no coverage)
+
+- Corpus: **149 vectors (35 accept, 114 reject)**, specDigest unchanged from
+  revision 4. Nine new reject vectors, `bad-733` through `bad-741`.
+- **The gap this closes.** Revision 4 made encoding well-formedness and the
+  nesting bound normative and said plainly that the corpus exercised neither.
+  It exercised nothing nearby: decoding all 140 files and all 219 base64
+  payloads found no escape sequence of any kind, no non-UTF-8 byte and no raw
+  control character anywhere. That is also the quadrant where the rails had
+  actually diverged in the field, so it was the largest unguarded surface in
+  the suite.
+- **Statement position** (`statement-malformed`): unpaired high surrogate
+  escape (`bad-733`), unpaired low (`bad-734`), reversed pair (`bad-735`),
+  CESU-8 (`bad-736`), overlong UTF-8 (`bad-737`), raw U+0001 (`bad-738`). Each
+  appends the fault to an `observationVocabulary` label and **recomputes the
+  vocabulary digest over the mutated content**, so a rail that decodes leniently
+  sees a self-consistent vocabulary and has no other rule left to catch the
+  statement on. That is the construction that verified valid on one rail and
+  invalid on three.
+- **Payload position** (`payload-not-ijson`): unpaired surrogate escape
+  (`bad-739`), CESU-8 (`bad-740`), nesting one level past the bound (`bad-741`).
+- **New vector tier.** `bad-736`, `bad-737` and `bad-738` are not valid JSON
+  texts, so they cannot be produced by a serializer and are written verbatim in
+  binary. The generator asserts the property rather than assuming it: a vector
+  declared byte-level that parses as a JSON text is an error, because the fault
+  was lost in serialization. The runner reports whether its parse was faithful
+  and skips the derived-commitment self-check when it was not, since every
+  digest recomputed from a lossy reconstruction would mismatch for the
+  substitution rather than for a second fault.
+- **`bad-741` currently fails the independent from-spec checker, and that is
+  the point.** On identical bytes the reference rails answer invalid and
+  `Rul1an/aee-checker` answers **valid**, because its bound is 256 and the
+  bound is now normative at 128. The 127-depth divergence recorded in revision 4
+  is no longer an argument; it is a reproducible corpus failure. The checker
+  needs a one-constant update to reach 149/149, and until it lands the honest
+  parity figure for that implementation is **148/149**.
+- Verified by mutation on both reference rails: removing the Go string-scalar
+  scan changes every statement-position vector to `vocabulary-digest-mismatch`
+  and the payload vectors to `payload-not-canonical`; removing the Python one
+  restores the original `UnicodeEncodeError` crash, which is the defect the
+  whole tier exists to keep closed.
+
 ## suiteRevision 4 (encoding well-formedness and a normative nesting bound)
 
 - Corpus: 140 vectors (35 accept, 105 reject), verdicts and codes unchanged.

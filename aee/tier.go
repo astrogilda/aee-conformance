@@ -1,6 +1,6 @@
 package aee
 
-// GATE 2 — the per-row evidence tier (spec:311-326). Trust-relative and
+// GATE 2 — the per-row evidence tier (spec:311-325). Trust-relative and
 // derived, never carried: {declared | unattested | attested} given the
 // consumer's key policy. The tier is total and deterministic given that
 // policy; it never alters result.
@@ -8,7 +8,7 @@ package aee
 // No TOFU: a consumer with no policy-pinned substrate root MUST treat every
 // basis: substrate row as unattested and MUST NOT infer the substrate root
 // from the predicate (spec:317-319). A record's keyid is an unauthenticated
-// lookup hint and never the check itself (spec:807-810): verification below
+// lookup hint and never the check itself (spec:808-810): verification below
 // tries every policy-named key and never reads keyid.
 
 import (

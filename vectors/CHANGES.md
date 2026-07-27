@@ -5,6 +5,38 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 4 (encoding well-formedness and a normative nesting bound)
+
+- Corpus: 140 vectors (35 accept, 105 reject), verdicts and codes unchanged.
+  New specDigest `39233b27b7f2...`, vendored from in-toto/attestation#570 at
+  commit `98328d1`.
+- **Normative change.** Strict I-JSON previously named only its duplicate-member
+  half, and the string half was scoped to BMP-only, which constrains WHICH
+  scalar values may appear rather than whether the bytes denote scalar values at
+  all. The spec now requires, statement-wide and fail-closed, that every string
+  literal be a well-formed sequence of Unicode scalar values: valid UTF-8 with no
+  overlong form and no surrogate encoded directly in UTF-8, no unpaired surrogate
+  escape in either order, no raw character below U+0020, and a `\u` escape of
+  exactly four hexadecimal digits with no sign, whitespace or radix prefix. The
+  check is required on the raw bytes, before any decoded string is read.
+- **Normative change.** JSON nesting depth is bounded at 128, with the counting
+  rule stated (open containers, not parsed values). It was previously unstated,
+  so implementations chose their own: the reference rails chose 128 and the
+  independent from-spec checker chose 256, which made identical bytes valid
+  evidence to one conforming verifier and malformed to another across 127 depths.
+- **Why no vectors changed.** Both rules codify what the reference rails already
+  enforced, so no existing vector flips. That is also the honest limit of this
+  revision: **the corpus does not yet exercise either rule.** Decoding all 140
+  vector files and all 219 base64 record payloads finds no `\u` escape of any
+  kind, no non-UTF-8 byte, and no raw control character anywhere, in either
+  statement or payload position. An implementation can pass this revision at
+  140/140 while getting the new rules wrong.
+- **Follow-up, tracked.** A declared raw-bytes vector tier covering unpaired
+  surrogate escapes, CESU-8, overlong forms, raw control characters and the
+  depth boundary, in both positions. It is a tier rather than ordinary vectors
+  because a vector carrying invalid UTF-8 cannot satisfy the generator's
+  existing invariant that every emitted vector re-parses as JSON text.
+
 ## suiteRevision 3 (round-8 reason-map membership)
 
 - Corpus: 140 vectors (35 accept, 105 reject). No normative spec change; the

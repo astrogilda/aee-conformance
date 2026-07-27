@@ -412,31 +412,44 @@ def parse_json_value(raw: bytes) -> Any:
     The counterpart of the Go rail's parseJSONValue (aee/jcs.go): bounds, then
     the decode, then the checks the decode cannot express. Split from the
     canonical-form checks in strict_payload_parse for the same reason the Go
-    rail splits parseJSONValue from analyzePayload -- "are these bytes a value
-    at all" and "is that value in canonical form" fail for different reasons
-    and carry different codes.
+    rail splits parseJSONValue from analyzePayload, and the split is where the
+    two codes divide.
+
+    EVERY failure here is payload-not-ijson, matching the Go rail, whose
+    analyzePayload maps every parseJSONValue error to CodePayloadNotIJSON on the
+    reasoning that a payload which is not a parseable I-JSON value at all is the
+    same covers-nothing class as one that parses and then violates the profile.
+    payload-not-canonical is reserved for a payload that IS a valid I-JSON value
+    whose bytes are not the RFC 8785 canonical form of it -- the caller's
+    concern, not this function's. The condition registry splits the same way:
+    aee-c-18 is "valid I-JSON (RFC 7493)" and aee-c-17 is "canonical RFC 8785",
+    and asking whether bytes are in canonical form presupposes they denote a
+    value.
+
+    This rail used to answer payload-not-canonical for a payload that was
+    oversized, over-deep, not UTF-8, or not syntactically JSON, which put four
+    parse failures under the serialization-form code. No vector pinned any of
+    them, so the divergence from Go was invisible to the suite.
     """
     if len(raw) > MAX_PARSE_BYTES:
-        raise IJsonError("payload-not-canonical", "payload exceeds the maximum size")
+        raise IJsonError("payload-not-ijson", "payload exceeds the maximum size")
     try:
         text = raw.decode("utf-8")
     except UnicodeDecodeError:
-        raise IJsonError("payload-not-canonical", "payload is not UTF-8") from None
+        raise IJsonError("payload-not-ijson", "payload is not UTF-8") from None
     if _max_json_depth(text) > MAX_PARSE_DEPTH:
-        raise IJsonError("payload-not-canonical",
+        raise IJsonError("payload-not-ijson",
                          "payload nesting exceeds the maximum depth")
     try:
         obj = json.loads(text, object_pairs_hook=_reject_dup_pairs)
     except IJsonError:
         raise
     except (ValueError, RecursionError):
-        raise IJsonError("payload-not-canonical", "payload does not parse as JSON") from None
+        raise IJsonError("payload-not-ijson", "payload does not parse as JSON") from None
     # String scalars are checked on the RAW bytes, after the parse above has
     # established that they are exactly one syntactically valid JSON value and
     # before any caller reads a decoded string. obj is already lossy wherever
-    # this check fails. Mapped to payload-not-ijson to match the Go rail, whose
-    # parseJSONValue raises ErrStringNotScalar and whose analyzePayload maps
-    # every parse failure to the same covers-nothing code.
+    # this check fails.
     try:
         check_string_scalars(raw)
     except StringNotScalarError as e:

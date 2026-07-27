@@ -166,7 +166,7 @@ func checkRecordsStatementLevel(p *Predicate) ([]recordState, []Code) {
 }
 
 // payloadAnalysis is the outcome of the byte-level checks every REFERENCED
-// payload must pass (spec:287-290): canonical RFC 8785 + I-JSON RFC 7493
+// payload must pass (spec:288-290): canonical RFC 8785 + I-JSON RFC 7493
 // object, +json media type, reserved members, run binding equality.
 type payloadAnalysis struct {
 	codes     []Code
@@ -451,7 +451,7 @@ func checkSubstrateRow(p *Predicate, row *Row, states []recordState, binding str
 		return codes, nil
 	}
 
-	// Every referenced payload must pass the byte-level checks (spec:287-290).
+	// Every referenced payload must pass the byte-level checks (spec:288-290).
 	analyses := map[int]payloadAnalysis{}
 	for _, idx := range uniqueRefs {
 		a := analyzePayload(&p.Records[idx], &states[idx], binding)

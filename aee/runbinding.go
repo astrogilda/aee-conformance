@@ -10,7 +10,7 @@ import "fmt"
 const BindingVersion = "1"
 
 // RunBindingPreimage builds the RFC 8785 canonical bytes of the binding
-// pre-image object (spec:87-93):
+// pre-image object (spec:87-92):
 //
 //	{"aeeBindingVersion":"1","catchPolicy":"<hex>","corpus":"<hex>",
 //	 "networkPosture":"<hex>","runEntropy":"<hex>","subject":"<hex>",

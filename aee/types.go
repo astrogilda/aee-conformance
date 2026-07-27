@@ -155,7 +155,7 @@ type Coverage struct {
 }
 
 // Row is one attackResults row. Pointer members distinguish an absent member
-// from an empty value: absent basis/method is fail-closed (spec:467-470),
+// from an empty value: absent basis/method is fail-closed (spec:468-470),
 // absent actualLayer is a malformed statement (spec:590-594).
 type Row struct {
 	Raw map[string]json.RawMessage
@@ -189,7 +189,7 @@ type Record struct {
 }
 
 // RecordSignature matches the DSSE signature member shape. The keyid is an
-// unauthenticated lookup hint and never the check itself (spec:807-810).
+// unauthenticated lookup hint and never the check itself (spec:808-810).
 type RecordSignature struct {
 	KeyID string `json:"keyid"`
 	Sig   string `json:"sig"`

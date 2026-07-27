@@ -78,6 +78,8 @@ jobs:
         run: uv run ruff check packaging vectors scripts
       - name: spec/corpus non-drift gate
         run: python3 scripts/spec-drift-gate.py
+      - name: spec line-citation gate
+        run: python3 scripts/spec-citation-gate.py
       - name: interpretation-decision registry gate
         run: python3 scripts/interpretation-registry-gate.py
       - name: replay every vector on the Python rail (must be 140/140)

@@ -69,7 +69,7 @@ func Gate0(s *Statement) []Code {
 		codes = gate0Vocabulary(env.Vocabulary, codes)
 	}
 
-	// 7. Corpus manifest digest + duplicate attack ids (spec:332-335, 314-316).
+	// 7. Corpus manifest digest + duplicate attack ids (spec:332-335, 314-315).
 	if env != nil && env.Corpus != nil {
 		codes = gate0Corpus(env.Corpus, codes)
 	}
@@ -189,7 +189,7 @@ func gate0Vocabulary(v *Vocabulary, codes []Code) []Code {
 }
 
 // canonicalVocabulary builds the JCS bytes of the digest pre-image object
-// {"caught": [...], "labels": [...]} (spec:343-347).
+// {"caught": [...], "labels": [...]} (spec:344-347).
 func canonicalVocabulary(labels, caught []string) []byte {
 	var buf bytes.Buffer
 	buf.WriteString(`{"caught":`)

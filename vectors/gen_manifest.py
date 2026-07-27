@@ -27,7 +27,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # drifting silently.
 SPEC_REL = "spec/predicates/adversarial-execution-evidence.md"
 SPEC_PATH = os.path.normpath(os.path.join(HERE, "..", SPEC_REL))
-TRACKS_UPSTREAM = "in-toto/attestation#570"
+# Upstream provenance is read from the vendor pin, never restated here. The pin
+# is written by scripts/vendor-spec.py from git at vendor time, so the commit
+# the corpus certifies against cannot disagree with the bytes it certifies.
+PIN_PATH = os.path.normpath(os.path.join(HERE, "..", "spec", "VENDOR-PIN.json"))
 
 # Tier expectations explicitly pinned by accept/INDEX.md (ok-024 row).
 TIER_EXPECTATIONS = {
@@ -116,6 +119,14 @@ def main() -> int:
     spec_digest = hashlib.sha256(
         open(SPEC_PATH, "rb").read()  # noqa: SIM115 -- one-shot read
     ).hexdigest()
+    with open(PIN_PATH, encoding="utf-8") as f:
+        pin = json.load(f)
+    if pin["specDigest"] != spec_digest:
+        raise SystemExit(
+            "spec/VENDOR-PIN.json describes different bytes than the vendored "
+            f"spec ({pin['specDigest'][:12]}... vs {spec_digest[:12]}...); "
+            "re-vendor with scripts/vendor-spec.py before regenerating"
+        )
     manifest = {
         "suite": "adversarial-execution-evidence-conformance",
         "predicateType": (
@@ -123,7 +134,8 @@ def main() -> int:
         ),
         "specPath": SPEC_REL,
         "specDigest": spec_digest,
-        "tracksUpstream": TRACKS_UPSTREAM,
+        "tracksUpstream": f"{pin['upstreamRepo']}#{pin['upstreamPullRequest']}",
+        "specUpstreamCommit": pin["commit"],
         "counts": {"accept": ok, "reject": bad},
         "vectors": vectors,
     }

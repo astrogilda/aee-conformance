@@ -142,20 +142,37 @@ currently coupled to its policy attestor).
 
 ## On independence
 
-I wrote both the Go core here and the sibling Python implementation, so they
-catch each other's bugs but do not amount to an independent audit. A third
-implementation from someone else is welcome: wiring one in is roughly a single
-command against the runner's stdin/stdout contract, and a conformant checker
-passes even when it evaluates in a different order, since the suite compares
-verdicts and code sets and ignores both message text and evaluation order.
+I wrote the Go core here, the sibling Python implementation, and the three
+consumer rails in the Probity and matchlock-mcp stacks. Five implementations,
+one author, one reading of RFC 8785 and RFC 7493. They catch each other's
+transcription errors and the differential fuzzer catches drift between them, but
+they cannot catch a misreading of the specification, because they all inherit
+the same one. Counting them as independent would be counting the same opinion
+five times.
 
-One now exists. [`Rul1an/aee-checker`][aee-checker] is a from-spec Rust
-implementation with its own I-JSON parser, RFC 8785 serializer, RFC 6962 Merkle
-root, run-binding derivation, and Ed25519 tier, built with no sight of the
-reference code. It clears 125/125 at suiteRevision 1 (spec `4a36b197`). It keeps
-its own authorship, history, and CI; the link is pinned to commit `a7d891b` so
-the two cannot drift silently. The round-7 additions post-date that build, so a
-re-run against suiteRevision 2 is invited but not yet reflected in its column of
-the [implementation report](docs/IMPLEMENTATION-REPORT.md).
+**The number of implementations independent of this specification's author is
+one.** [`Rul1an/aee-checker`][aee-checker] is a from-spec Rust implementation
+with its own I-JSON parser, RFC 8785 serializer, RFC 6962 Merkle root,
+run-binding derivation, and Ed25519 tier, built with no sight of the reference
+code. It cleared 125/125 at suiteRevision 1, then re-ran against the round-7
+corpus and reached 138/138 at suiteRevision 2 after a spec-diff-led update
+(132/138 on the unchanged build). It keeps its own authorship, history, and CI.
+The link is pinned to the build that produced the 138/138 record, whose source
+digest is `sha256:2bea1345...` in that repository's `reports/INDEX.json`; a
+commit alone cannot name the source it carries, which is why they bind the
+result to a content digest and why this pin cites one.
 
-[aee-checker]: https://github.com/Rul1an/aee-checker/tree/a7d891b19d510d84d43354294146d4ab8dfb9e97
+That one reading has already earned its keep. The specification did not pin a
+maximum JSON nesting depth, so all five of my rails chose 128 and agreed at every
+depth; the independent checker read the same text and chose 256. For the 127
+depths in between, identical bytes are valid evidence to one conformant verifier
+and malformed to another. Five agreeing rails could not surface that. One
+outside reader surfaced it on contact.
+
+More outside implementations are wanted, and the count above is the reason.
+Wiring one in is roughly a single command against the runner's stdin/stdout
+contract, and a conformant checker passes even when it evaluates in a different
+order, since the suite compares verdicts and code sets and ignores both message
+text and evaluation order.
+
+[aee-checker]: https://github.com/Rul1an/aee-checker/tree/47dbaf17a405b3949e5cad20321b9b70ae38071c

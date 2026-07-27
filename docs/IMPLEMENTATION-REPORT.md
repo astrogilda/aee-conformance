@@ -1,16 +1,38 @@
 <!--
 Implementation report for the AEE v0.6 predicate conformance suite.
-Corpus SSOT: vectors/MANIFEST.json (suiteRevision 2, 138 vectors: 35 accept, 103 reject).
+Corpus SSOT: vectors/MANIFEST.json (suiteRevision 3, 140 vectors: 35 accept, 105 reject).
 Honest scoping: every claim below states exactly what each implementation was verified against.
-Prerequisites for the two open columns are named, not glossed.
+Independence is counted by authorship, not by implementation count; see "How independence
+is counted here" before adding any row to the table.
 -->
 # AEE v0.6 implementation report
 
 A W3C-style "multiple independent interoperable implementations" report for the
 Adversarial Execution Evidence predicate (in-toto/attestation PR #570). The
 purpose is one claim, made honestly: the specification is determinate enough that
-independent parties, in different languages, reach the same verdict on the same
-bytes.
+a party who did not write it, working in a different language, reaches the same
+verdict on the same bytes.
+
+## How independence is counted here
+
+Independence is a property of authorship, not of implementation count. Six
+implementations clear this corpus and one author wrote five of them. Those five
+share a single reading of RFC 8785 and RFC 7493, so when they agree they have
+confirmed that the reading was transcribed consistently across five languages,
+which is worth having and is not the claim this report exists to make. A
+misreading of the text produces the same agreement.
+
+**The count of implementations independent of the specification's author is one:**
+`Rul1an/aee-checker`. Every determinacy claim below rests on that column and on
+nothing else. The first-party rails appear because a conformance suite should
+state what it actually runs, not to be counted toward independence.
+
+A measured instance of why the distinction matters: the specification did not pin
+a maximum JSON nesting depth, so all five first-party rails chose 128 and agreed
+at every depth, while the independent checker read the same text and chose 256.
+For the 127 depths between them, identical bytes are valid evidence to one
+conformant verifier and malformed to another. No amount of first-party agreement
+could have surfaced that; the outside implementation surfaced it immediately.
 
 ## Reference corpus
 
@@ -22,30 +44,36 @@ digest is pinned and CI-checked (`scripts/spec-drift-gate.py`).
 
 ## Implementations
 
-| Implementation | Language | Independence | Verified against | Result |
+| Implementation | Language | Author | Verified against | Result |
 |---|---|---|---|---|
-| Reference rail (`aee/`) | Go | first-party | reference corpus, suiteRevision 3 | **140 / 140** |
-| Reference rail (`packaging/run_vectors.py`) | Python | first-party (independent decomposition) | reference corpus, suiteRevision 3 | **140 / 140** |
-| `Rul1an/aee-checker` | Rust | **third-party, from-spec, no dependency on the reference impl** | suiteRevision 2 (138), spec-diff-led | **138 / 138** (132/138 unchanged; see note 1) |
-| `@probity/verify` | TypeScript | first-party consumer rail | its vendored set (118 vectors) + cross-rail parity tests | pass (see note 2) |
-| `probity-verify.py` | Python | first-party consumer rail (standalone) | its vendored set (118 vectors) + parity tests | pass (see note 2) |
-| matchlock-mcp `_aee.py` | Python | first-party consumer rail | its vendored set (132 vectors) + parity tests | pass (see note 2) |
+| Reference rail (`aee/`) | Go | spec author | reference corpus, suiteRevision 3 | **140 / 140** |
+| Reference rail (`packaging/run_vectors.py`) | Python | spec author | reference corpus, suiteRevision 3 | **140 / 140** |
+| `Rul1an/aee-checker` | Rust | **independent, from-spec text alone** | suiteRevision 2 (138), spec-diff-led | **138 / 138** (132/138 unchanged; see note 1) |
+| `@probity/verify` | TypeScript | spec author | its vendored set (118 vectors) + cross-rail parity tests | pass (see note 2) |
+| `probity-verify.py` | Python | spec author | its vendored set (118 vectors) + parity tests | pass (see note 2) |
+| matchlock-mcp `_aee.py` | Python | spec author | its vendored set (132 vectors) + parity tests | pass (see note 2) |
 
-The two reference rails are independent decompositions (not shared code) and both
-clear the full corpus. The Rust checker is the load-bearing independence result:
-built from the spec text alone, its own I-JSON parser, RFC 8785 serializer, RFC
-6962 Merkle root over DSSE PAE, run-binding derivation, and Ed25519 tier, with no
-sight of the reference implementation and no reading of the corpus condition codes.
+The five first-party rails are separate decompositions rather than shared code, so
+they do catch each other's transcription errors, and the differential fuzzer over
+them catches drift. What they cannot catch is a misreading of the specification,
+because they inherit one. Read their agreement as a drift check, not as
+corroboration.
+
+The Rust checker is the load-bearing result: built from the spec text alone, with
+its own I-JSON parser, RFC 8785 serializer, RFC 6962 Merkle root over DSSE PAE,
+run-binding derivation, and Ed25519 tier, with no sight of the reference
+implementation and no reading of the corpus condition codes.
 
 ## Feature coverage
 
-Two eras. The **core** predicate and the **round-7** additions now both have three
-genuinely independent implementations agreeing: the two reference rails and the
-from-spec Rust checker, which re-ran against the round-7 corpus (suiteRevision 2)
-and reached 138/138 after a spec-diff-led update (132/138 on the unchanged build).
-Only the **suiteRevision-3** reason-map vectors (`bad-731`/`bad-732`) post-date the
-Rust checker's latest run; they are covered by the two reference rails plus the two
-consumer stacks (probity, mcp).
+Two eras. The **core** predicate and the **round-7** additions have both been read
+independently: the from-spec Rust checker re-ran against the round-7 corpus
+(suiteRevision 2) and reached 138/138 after a spec-diff-led update (132/138 on the
+unchanged build). That is one independent reading of each era, corroborated by the
+first-party rails rather than the other way round. Only the **suiteRevision-3**
+reason-map vectors (`bad-731`/`bad-732`) post-date the Rust checker's latest run,
+so those two rules currently have no independent reading at all and are covered by
+first-party rails alone.
 
 | Feature | Go ref | Python ref | Rust (3rd-party) | probity | mcp |
 |---|---|---|---|---|---|
@@ -80,9 +108,12 @@ consumer stacks (probity, mcp).
 
 ## What this report does NOT claim
 
-Two independent implementations agreeing is strong evidence the text is
-determinate; it is not proof it is unambiguous (both could share a reasonable but
-unforced reading). The interpretation-decision registry
+One independent implementation agreeing is strong evidence the text is
+determinate; it is not proof it is unambiguous. Two readers can share a
+reasonable but unforced reading, and a single outside reader is a sample of one.
+Nor does agreement on 140 vectors say anything about the surface no vector
+touches, which is where the nesting-depth divergence above lived. The
+interpretation-decision registry
 (`vectors/interpretation-decisions.json`) records where the text forces the reading
 and locks each with a vector; three corners where it does not force the reading are
 recorded, resolved in a stated direction, and marked reversible at vetting in

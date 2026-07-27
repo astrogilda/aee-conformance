@@ -25,6 +25,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MANIFEST = REPO_ROOT / "vectors" / "MANIFEST.json"
+PIN = REPO_ROOT / "spec" / "VENDOR-PIN.json"
 
 
 def main() -> int:
@@ -58,7 +59,37 @@ def main() -> int:
         )
         return 1
 
-    print(f"OK: vendored spec matches MANIFEST specDigest ({recorded[:12]}...).")
+    # The provenance half of the same question. MANIFEST.specDigest says the
+    # corpus was regenerated against these bytes; VENDOR-PIN.json says which
+    # upstream commit these bytes came from. Both must agree with what is on
+    # disk, because an outside implementer diffs the vendored copy against the
+    # pinned commit to certify no version skew, and a pin naming the wrong
+    # commit reports a drift that does not exist or hides one that does.
+    if not PIN.is_file():
+        print(
+            f"FAIL: {PIN.relative_to(REPO_ROOT)} is missing; re-vendor with "
+            "python3 scripts/vendor-spec.py --from <attestation checkout>",
+            file=sys.stderr,
+        )
+        return 1
+    pin = json.loads(PIN.read_text(encoding="utf-8"))
+    if pin.get("specDigest") != actual:
+        print(
+            "FAIL: vendor pin does not describe the vendored bytes.\n"
+            f"  pinned commit:  {pin.get('commit')}\n"
+            f"  pinned digest:  {pin.get('specDigest')}\n"
+            f"  actual digest:  {actual}\n"
+            "The vendored spec was edited in place instead of re-vendored. Edit "
+            "the spec upstream, then run scripts/vendor-spec.py so the pin names "
+            "a commit that actually contains these bytes.",
+            file=sys.stderr,
+        )
+        return 1
+
+    print(
+        f"OK: vendored spec matches MANIFEST specDigest ({recorded[:12]}...) "
+        f"and VENDOR-PIN commit {str(pin.get('commit'))[:12]}."
+    )
     return 0
 
 

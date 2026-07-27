@@ -4,6 +4,7 @@
   "specPath": "spec/predicates/adversarial-execution-evidence.md",
   "specDigest": "d3872a02875b2da8de0263e93fb92ca6f5ab0fd75f07ed3762a1b18b0c1712a3",
   "tracksUpstream": "in-toto/attestation#570",
+  "specUpstreamCommit": "83da03ec83eef9b0423ee20eff8669d25a1ffcfb",
   "counts": {
     "accept": 35,
     "reject": 105

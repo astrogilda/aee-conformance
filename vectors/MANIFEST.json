@@ -7,7 +7,7 @@
   "specUpstreamCommit": "98328d1f561aa1915ea2189c11c563d60bb2ea58",
   "counts": {
     "accept": 35,
-    "reject": 105
+    "reject": 114
   },
   "vectors": [
     {
@@ -1837,6 +1837,132 @@
         "verdict": "invalid",
         "codes": [
           "coverage-incomplete"
+        ]
+      }
+    },
+    {
+      "id": "bad-733-statement-lone-high-surrogate-escape",
+      "kind": "reject",
+      "file": "reject/bad-733-statement-lone-high-surrogate-escape.json",
+      "conditions": [
+        "aee-c-18"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "statement-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-734-statement-lone-low-surrogate-escape",
+      "kind": "reject",
+      "file": "reject/bad-734-statement-lone-low-surrogate-escape.json",
+      "conditions": [
+        "aee-c-18"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "statement-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-735-statement-reversed-surrogate-pair",
+      "kind": "reject",
+      "file": "reject/bad-735-statement-reversed-surrogate-pair.json",
+      "conditions": [
+        "aee-c-18"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "statement-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-736-statement-cesu8-vocabulary-label",
+      "kind": "reject",
+      "file": "reject/bad-736-statement-cesu8-vocabulary-label.json",
+      "conditions": [
+        "aee-c-18"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "statement-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-737-statement-overlong-utf8",
+      "kind": "reject",
+      "file": "reject/bad-737-statement-overlong-utf8.json",
+      "conditions": [
+        "aee-c-18"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "statement-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-738-statement-raw-control-character",
+      "kind": "reject",
+      "file": "reject/bad-738-statement-raw-control-character.json",
+      "conditions": [
+        "aee-c-18"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "statement-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-739-payload-lone-surrogate-escape",
+      "kind": "reject",
+      "file": "reject/bad-739-payload-lone-surrogate-escape.json",
+      "conditions": [
+        "aee-c-18"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "payload-not-ijson"
+        ]
+      }
+    },
+    {
+      "id": "bad-740-payload-cesu8",
+      "kind": "reject",
+      "file": "reject/bad-740-payload-cesu8.json",
+      "conditions": [
+        "aee-c-18"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "payload-not-ijson"
+        ]
+      }
+    },
+    {
+      "id": "bad-741-payload-nesting-exceeds-max-depth",
+      "kind": "reject",
+      "file": "reject/bad-741-payload-nesting-exceeds-max-depth.json",
+      "conditions": [
+        "aee-c-18"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "payload-not-ijson"
         ]
       }
     },

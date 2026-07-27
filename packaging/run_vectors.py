@@ -720,9 +720,13 @@ def _statement_strict_fault(raw: bytes) -> bool:
     try:
         json.loads(text, object_pairs_hook=hook)
     except (ValueError, RecursionError):
-        # Not syntactically valid JSON; the caller's own parse reports that, and
-        # the scan below requires syntactic validity to locate string literals.
-        return False
+        # Bytes that are not a parseable JSON text at all are a malformed
+        # statement, which is the same answer the Go rail and both consumer
+        # rails give. This case is reachable on its own: a raw character below
+        # U+0020 inside a string is well-formed UTF-8 that JSON forbids, so it
+        # never gets as far as the string scan below, which needs syntactic
+        # validity to know where the literals are.
+        return True
     if found:
         return True
     try:
@@ -1790,6 +1794,17 @@ def _sfa_vocabulary(
                     findings.append("second-fault: vocabulary digest mismatch")
             except JcsError:
                 findings.append("second-fault: vocabulary not canonicalizable")
+            except UnicodeEncodeError:
+                # A byte-level vector: a label carries bytes that are not a
+                # well-formed sequence of Unicode scalar values, so there is no
+                # canonical pre-image to recompute a digest over. The statement
+                # is malformed before any vocabulary rule applies, which is the
+                # single fault under test, so the second-fault check does not
+                # apply rather than failing. This is the harness's own instance
+                # of the bug the vectors exist to catch: code that recomputes a
+                # digest from decoded strings cannot run on bytes that never
+                # decoded.
+                pass
 
 
 def _sfa_corpus(
@@ -2231,6 +2246,34 @@ def _run_observe(
     }
 
 
+def _load_statement(raw: bytes) -> tuple[Any, bool]:
+    """Parse a vector file for the harness, reporting whether the parse was
+    faithful. Returns (value, faithful).
+
+    A byte-level vector carries its fault in the ENCODING or in a character JSON
+    forbids, so there is no faithful Python value to produce. The verifier does
+    not need one: it is handed the raw bytes and rejects them in the
+    statement-wide strict pass before any decoded string is read. Everything the
+    harness does with the value afterwards -- recomputing digests, checking that
+    no second fault crept in -- is meaningful only on a faithful parse, so the
+    flag is what those checks key on rather than guessing from the content.
+
+    Where a lenient decode still yields JSON, it is returned: that is exactly
+    the substitution a lenient rail performs, so if the strict pass ever stopped
+    rejecting these bytes the lossy value would flow onward and the vector would
+    fail, which is the outcome it exists to force. Where even that fails, there
+    is no value at all and the verifier answers from the bytes alone.
+    """
+    try:
+        return json.loads(raw.decode("utf-8")), True
+    except (UnicodeDecodeError, ValueError):
+        pass
+    try:
+        return json.loads(raw.decode("utf-8", "replace")), False
+    except ValueError:
+        return None, False
+
+
 def _run_process_vector(
     kind: str,
     path: str,
@@ -2248,7 +2291,7 @@ def _run_process_vector(
             raw = f.read(MAX_STATEMENT_BYTES + 1)
         if len(raw) > MAX_STATEMENT_BYTES:
             raise ValueError(f"statement exceeds {MAX_STATEMENT_BYTES} bytes")
-        stmt = json.loads(raw.decode("utf-8"))
+        stmt, faithful = _load_statement(raw)
     except (OSError, ValueError, RecursionError) as e:
         return {
             "id": vid,
@@ -2262,7 +2305,12 @@ def _run_process_vector(
     observed = _run_observe(external_cmd, ref_with, ref_without, path, stmt, raw)
 
     self_check = None
-    if kind == "reject":
+    if kind == "reject" and faithful:
+        # The second-fault check recomputes derived commitments from the parsed
+        # statement, so it is meaningful only when the parse was faithful. On a
+        # byte-level vector the value above is a lossy reconstruction and every
+        # digest recomputed from it would mismatch for the substitution rather
+        # than for a second fault.
         exp_codes = set(((entry or {}).get("expected") or {}).get("codes") or [])
         self_check = second_fault_absence(stmt, exp_codes)
 

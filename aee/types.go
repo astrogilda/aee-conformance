@@ -6,15 +6,15 @@ import (
 	"fmt"
 )
 
-// StatementType is the only accepted in-toto statement _type (spec:158).
+// StatementType is the only accepted in-toto statement _type (spec:191).
 const StatementType = "https://in-toto.io/Statement/v1"
 
 // PredicateType is the only predicateType this implementation accepts
 // (spec:3). A different version URI is rejected fail-closed; the verifier
-// never attempts more than one construction (spec:131-136).
+// never attempts more than one construction (spec:164-169).
 const PredicateType = "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6"
 
-// Closed vocabularies (spec:258-270, 355-436).
+// Closed vocabularies (spec:291-303, 388-469).
 const (
 	ResultPass     = "pass"
 	ResultDegraded = "degraded"
@@ -79,7 +79,7 @@ type Predicate struct {
 	IssuedAtPresent bool
 }
 
-// Environment is observationEnvironment (spec:328-356).
+// Environment is observationEnvironment (spec:361-389).
 type Environment struct {
 	Raw map[string]json.RawMessage
 
@@ -105,7 +105,7 @@ func (d *DigestRef) Sha256() string {
 	return d.Digest["sha256"]
 }
 
-// Corpus carries the digest-committed corpus manifest (spec:332-335).
+// Corpus carries the digest-committed corpus manifest (spec:365-368).
 type Corpus struct {
 	Name        string            `json:"name"`
 	URI         string            `json:"uri"`
@@ -137,7 +137,7 @@ func (n *NetworkPosture) Sha256() string {
 	return n.Digest["sha256"]
 }
 
-// Vocabulary is observationVocabulary (spec:338-351).
+// Vocabulary is observationVocabulary (spec:371-384).
 type Vocabulary struct {
 	Digest map[string]string `json:"digest"`
 	Labels []string          `json:"labels"`
@@ -147,7 +147,7 @@ type Vocabulary struct {
 	CaughtPresent bool `json:"-"`
 }
 
-// Coverage is the coverage bound (spec:358-365).
+// Coverage is the coverage bound (spec:391-398).
 type Coverage struct {
 	AssessedClasses []string          `json:"assessedClasses"`
 	OutOfScope      map[string]string `json:"outOfScope"`
@@ -155,8 +155,8 @@ type Coverage struct {
 }
 
 // Row is one attackResults row. Pointer members distinguish an absent member
-// from an empty value: absent basis/method is fail-closed (spec:468-470),
-// absent actualLayer is a malformed statement (spec:590-594).
+// from an empty value: absent basis/method is fail-closed (spec:501-503),
+// absent actualLayer is a malformed statement (spec:623-627).
 type Row struct {
 	Raw map[string]json.RawMessage
 
@@ -181,7 +181,7 @@ func (r *Row) IsSubstrate() bool {
 	return r.Basis != nil && *r.Basis == BasisSubstrate
 }
 
-// Record is one observation record: a DSSE-shaped envelope (spec:619-624).
+// Record is one observation record: a DSSE-shaped envelope (spec:652-657).
 type Record struct {
 	PayloadB64  string            `json:"payload"`
 	PayloadType string            `json:"payloadType"`
@@ -189,7 +189,7 @@ type Record struct {
 }
 
 // RecordSignature matches the DSSE signature member shape. The keyid is an
-// unauthenticated lookup hint and never the check itself (spec:808-810).
+// unauthenticated lookup hint and never the check itself (spec:843-845).
 type RecordSignature struct {
 	KeyID string `json:"keyid"`
 	Sig   string `json:"sig"`

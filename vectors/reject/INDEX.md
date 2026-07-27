@@ -296,7 +296,7 @@ so the declared fault stays the ONLY fault.
 - **bad-713-only-sealed-ref-noncovering**: discriminates rails that scan all records instead of the row's referenced set.
 - **bad-714-unknown-kind-sole-cover**: pairs with ok-013: an unknown kind that no row NEEDS is ignored and only contributes its leaf.
 - **bad-727-armedat-non-utc-offset**: RFC 3339 UTC means a zero offset; +05:00 parses as a valid instant (18:59Z, before issuedAt) but is not UTC, so the arming record covers nothing, distinct from a late armedAt (bad-702).
-- **bad-728-artifact-two-subjects**: subject cardinality is unconditional (spec:122-126): exactly one subject on a statement of any basis. bad-607 keeps a substrate row; this locks the previously substrate-scoped rule as unconditional on an artifact-only statement.
+- **bad-728-artifact-two-subjects**: subject cardinality is unconditional (spec:155-159): exactly one subject on a statement of any basis. bad-607 keeps a substrate row; this locks the previously substrate-scoped rule as unconditional on an artifact-only statement.
 - **bad-729-duplicate-attackid-rows**: two rows share attackId XA-EXAMPLE-1. Coverage integrity set-compares row attackIds to the manifest, so a duplicate collapses under set semantics and would pass silently; uniqueness is a well-formedness invariant detected before the set is built.
 - **bad-730-coverage-class-overlap**: the from-spec checker accepts overlap (completeness-only); our two rails reject it (disjoint partition). A class both assessed and disclosed as a gap is contradictory. Keeping the reject reading is the converged debate recommendation, reversible at vetting.
 - **bad-718-chain-runseq-zero**: pairs with the genesis accept vector ok-034 (aeeRunSeq 1, scope present, no predecessor).

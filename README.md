@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://github.com/astrogilda/aee-conformance/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/astrogilda/aee-conformance/ci.yml?branch=main&label=build" alt="build status"></a>
   <img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="license Apache-2.0">
-  <img src="https://img.shields.io/badge/conformance%20vectors-125-e8951c" alt="125 conformance vectors">
+  <img src="https://img.shields.io/badge/conformance%20vectors-149-e8951c" alt="149 conformance vectors">
   <img src="https://img.shields.io/badge/rails-Go%20%C2%B7%20Python-546274" alt="Go and Python rails">
   <img src="https://img.shields.io/badge/predicate-in--toto%20AEE%20v0.6-6f57c2" alt="in-toto AEE v0.6 predicate">
 </p>
@@ -19,8 +19,12 @@ producer-asserted verdict. This repository is a second, independently usable
 implementation of that contract: any future producer of the predicateType
 can self-certify; any consumer can reject a lying emitter.
 
-Spec line references throughout the code are to the predicate specification
-at commit `4a36b19` (`spec/predicates/adversarial-execution-evidence.md`).
+Spec line references throughout the code are to the vendored predicate
+specification (`spec/predicates/adversarial-execution-evidence.md`). The
+upstream commit it was taken from is recorded in
+[`spec/VENDOR-PIN.json`](spec/VENDOR-PIN.json), written from git at vendor time
+rather than by hand, and `scripts/spec-citation-gate.py` checks that every
+line reference still resolves.
 
 ## Layout
 
@@ -156,7 +160,9 @@ with its own I-JSON parser, RFC 8785 serializer, RFC 6962 Merkle root,
 run-binding derivation, and Ed25519 tier, built with no sight of the reference
 code. It cleared 125/125 at suiteRevision 1, then re-ran against the round-7
 corpus and reached 138/138 at suiteRevision 2 after a spec-diff-led update
-(132/138 on the unchanged build). It keeps its own authorship, history, and CI.
+(132/138 on the unchanged build), and 148/149 at suiteRevision 5 -- the single
+miss being the vector that pins the nesting bound, which it reads as 256 where
+the specification now says 128. It keeps its own authorship, history, and CI.
 The link is pinned to the build that produced the 138/138 record, whose source
 digest is `sha256:2bea1345...` in that repository's `reports/INDEX.json`; a
 commit alone cannot name the source it carries, which is why they bind the

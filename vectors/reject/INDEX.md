@@ -145,7 +145,7 @@ carries the authoritative id-to-spec-line table.
 | aee-c-89 | L662-673 | arming chain-member syntax: positive aeeRunSeq; aeeChainScope required with it; aeePrevRunBinding lowercase 64-hex, absent exactly when aeeRunSeq is 1 |
 | aee-c-90 | L385-398 | no two attackResults rows share an attackId |
 
-## Vectors (105)
+## Vectors (114)
 
 `parent` names the accept-suite shape the vector derives from (the
 accept vectors land separately; the parent statements are built
@@ -251,6 +251,15 @@ so the declared fault stays the ONLY fault.
 | `bad-819-assessed-class-not-in-manifest` | ok-001 | assessedClasses padded with class XZ the manifest never carried | - | aee-c-82 | `coverage-incomplete` | L360-365; L393-396 |
 | `bad-731-outofscope-unknown-class` | ok-004 | outOfScope carries class XZ the manifest never carried | - | aee-c-82 | `coverage-incomplete` | L360-365; L381-383 |
 | `bad-732-routedelsewhere-unknown-class` | ok-004 | routedElsewhere carries class XZ the manifest never carried | - | aee-c-82 | `coverage-incomplete` | L360-365; L381-383 |
+| `bad-733-statement-lone-high-surrogate-escape` | ok-002 | vocabulary label carrying an unpaired high surrogate escape; digest recomputed over the mutated content | recompute-vocabulary-digest | aee-c-18 | `statement-malformed` | L73-92 |
+| `bad-734-statement-lone-low-surrogate-escape` | ok-002 | vocabulary label carrying an unpaired low surrogate escape; digest recomputed over the mutated content | recompute-vocabulary-digest | aee-c-18 | `statement-malformed` | L73-92 |
+| `bad-735-statement-reversed-surrogate-pair` | ok-002 | vocabulary label carrying a low surrogate followed by a high surrogate; digest recomputed over the mutated content | recompute-vocabulary-digest | aee-c-18 | `statement-malformed` | L73-92 |
+| `bad-736-statement-cesu8-vocabulary-label` | ok-002 | vocabulary label carrying a surrogate encoded directly in UTF-8 (CESU-8, ED A0 80); digest recomputed over the mutated content | recompute-vocabulary-digest | aee-c-18 | `statement-malformed` | L73-92 |
+| `bad-737-statement-overlong-utf8` | ok-002 | vocabulary label carrying the overlong encoding C0 AF; digest recomputed over the mutated content | recompute-vocabulary-digest | aee-c-18 | `statement-malformed` | L73-92 |
+| `bad-738-statement-raw-control-character` | ok-002 | vocabulary label carrying a raw unescaped U+0001; digest recomputed over the mutated content | recompute-vocabulary-digest | aee-c-18 | `statement-malformed` | L73-92 |
+| `bad-739-payload-lone-surrogate-escape` | ok-001 | covering payload gains a member whose value carries an unpaired surrogate escape | re-sign-record, recompute-batch-root | aee-c-18 | `payload-not-ijson` | L660-663 |
+| `bad-740-payload-cesu8` | ok-001 | covering payload gains a member whose value carries a surrogate encoded directly in UTF-8 (CESU-8, ED A0 80) | re-sign-record, recompute-batch-root | aee-c-18 | `payload-not-ijson` | L660-663 |
+| `bad-741-payload-nesting-exceeds-max-depth` | ok-001 | covering payload nested 129 deep, one level past the normative bound | re-sign-record, recompute-batch-root | aee-c-18 | `payload-not-ijson` | L107-114 |
 | `bad-817-payload-noncanonical-base64` | ok-001 | covering record payload re-encoded as non-canonical base64 (nonzero trailing bits); the record no longer strict-decodes | - | aee-c-19 | `record-undecodable` | L609-612 |
 | `bad-808-coverage-absent` | ok-002 | drop coverage | - | aee-c-83 | `coverage-missing` | L358-362 |
 | `bad-809-snake-case-doesnotassert` | ok-002 | statement carries the rejected snake_case spelling of doesNotAssert | - | aee-c-84 | `member-spelling` | L759-769 |
@@ -318,6 +327,15 @@ so the declared fault stays the ONLY fault.
 - **bad-819-assessed-class-not-in-manifest**: mirror of bad-816 (a manifest class dropped from every coverage set): here a fabricated class pads assessedClasses. Coverage must be an exhaustive, disjoint partition of the manifest's real classes, so a class in a coverage set that the manifest never carried is the same class-granularity coverage-partition fault.
 - **bad-731-outofscope-unknown-class**: reason-map mirror of bad-819 (which forces the assessedClasses side). The three coverage sets are a disjoint partition of the manifest's classes, so membership runs both ways; nothing forced the outOfScope side until now (in-toto/attestation#570 round-8, Rul1an). Both rails already enforce it (Go statement.go, Python _coverage_partition_ok); this vector locks the rule and mutation-proves the rails..
 - **bad-732-routedelsewhere-unknown-class**: reason-map mirror of bad-819 for the routedElsewhere side (see bad-731). Closes the second untested consequence of the partition-membership rule (in-toto/attestation#570 round-8)..
+- **bad-733-statement-lone-high-surrogate-escape**: rawStatement: the file is valid UTF-8 and parses as JSON, so only a check on the raw bytes sees it. A lenient parse yields a lone surrogate that no later comparison can tell from a written one..
+- **bad-734-statement-lone-low-surrogate-escape**: rawStatement: a low surrogate with no preceding high surrogate..
+- **bad-735-statement-reversed-surrogate-pair**: rawStatement: both halves are present, in the wrong order, so a check that counts surrogates rather than pairing them passes..
+- **bad-736-statement-cesu8-vocabulary-label**: rawBytes: not valid UTF-8. A lenient decoder substitutes U+FFFD, and because the vocabulary digest is recomputed from the decoded strings the statement is self-consistent afterwards. This is the exact construction that verified valid on one rail and invalid on three..
+- **bad-737-statement-overlong-utf8**: rawBytes: the overlong form is the other half of the UTF-8 well-formedness rule, and a length-only scanner steps over it..
+- **bad-738-statement-raw-control-character**: rawBytes: JSON forbids an unescaped character below U+0020..
+- **bad-739-payload-lone-surrogate-escape**: rawBytes: the payload position of the rule bad-733 covers statement-wide. The code differs because a payload that is not a parseable I-JSON value covers nothing..
+- **bad-740-payload-cesu8**: rawBytes: the payload path byte-compares against the carried bytes, so a substitution cannot round-trip there; this vector pins the CODE rather than the verdict..
+- **bad-741-payload-nesting-exceeds-max-depth**: rawBytes: the bound is normative because it was not. The reference rails chose 128 and the independent from-spec checker chose 256, so identical bytes were evidence to one conforming verifier and malformed to another across 127 depths..
 - **bad-817-payload-noncanonical-base64**: encoding-layer divergence: Go decodes with StdEncoding.Strict() and the Python rail re-encode-compares, so both reject; a lenient decoder would accept. The stale signature and batch root are unreachable because a decode failure short-circuits both checks (validity.go:120).
 - **bad-809-snake-case-doesnotassert**: single-canonicalization rule: no alias.
 - **bad-810-missing-issuedat**: artifact-only parent: no armedAt comparison cascade.

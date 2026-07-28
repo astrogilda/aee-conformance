@@ -8,7 +8,21 @@ linters:
     # errcheck stays on (the standard set includes it) and gosec is added.
     - gosec
     - revive
+    # A hard ceiling on new complexity. The accepted branch-heavy functions are
+    # governed by name in docs/architecture/DESIGN_DECISIONS.md, enforced by
+    # scripts/complexity-table-gate.py; this linter is the second layer that
+    # says nothing may get worse than the worst thing already accepted.
+    - gocyclo
   settings:
+    gocyclo:
+      # The linter reports strictly ABOVE this number ("is high (> 37)"), so 37
+      # means the build fails at 38. The highest accepted function is
+      # checkSubstrateRow at 37, so every accepted function passes unchanged and
+      # anything more complex than the worst one has to be argued for. Raising
+      # this is not the way to land a new complex function: add a row to the
+      # table with a rationale, which the table gate then holds to its measured
+      # number.
+      min-complexity: 37
     staticcheck:
       checks:
         - "all"

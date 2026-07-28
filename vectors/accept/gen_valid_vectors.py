@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Deterministic generator for the AEE v0.6 ACCEPT (valid) conformance vectors.
 
-Emits ok-001 .. ok-034 as complete, unwrapped in-toto Statement JSON files that a
+Emits ok-001 .. ok-036 as complete, unwrapped in-toto Statement JSON files that a
 conforming verifier MUST accept, into the directory containing this script.
 
 Determinism recipe (normative for this suite):
@@ -991,6 +991,28 @@ def build_vectors() -> dict[str, dict[str, Any]]:
         ],
     )
 
+    # ok-036 a covering payload nested exactly TO the bound: a producer member
+    # whose deepest open container sits at open-container depth 128, one inside the
+    # normative maximum, with a scalar leaf. Valid, and the discriminating twin of
+    # the reject vectors bad-741/bad-742: it is the one depth the corpus otherwise
+    # never touches, and the depth where a per-parsed-value counter and a per-open-
+    # container counter can disagree. A rail that mistakenly rejects AT the bound (an
+    # over-tightened fix) fails here, while both a correct counter and a buggy
+    # empty-container counter accept it -- so it pins "128 is accepted" independently
+    # of the empty-container reject.
+    _deep: Any = 1
+    for _ in range(127):  # payload depth 1 + 127 wrapping objects => deepest container at depth 128
+        _deep = {"a": _deep}
+    v["ok-036-payload-nesting-at-bound"] = make_statement(
+        man_1,
+        [
+            make_row(
+                "XA-EXAMPLE-1", "no_egress", "substrate", "intercepted", "none", [0, 1]
+            )
+        ],
+        records=[make_record("arming", b_1, extra={"aaDeep": _deep}), make_record("sealed", b_1)],
+    )
+
     return v
 
 
@@ -1221,7 +1243,7 @@ def verify_signatures(stmt: dict[str, Any]) -> dict[int, str]:
 
 def main() -> int:
     vectors = build_vectors()
-    assert len(vectors) == 35, len(vectors)
+    assert len(vectors) == 36, len(vectors)
     failures = 0
     for name, stmt in vectors.items():
         errs = verify(stmt)

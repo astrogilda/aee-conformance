@@ -202,7 +202,7 @@ func checkStringLiteral(b []byte) (int, error) {
 			if r == utf8.RuneError && size <= 1 {
 				return 0, fmt.Errorf("%w: invalid UTF-8 at byte %d of string", ErrStringNotScalar, i)
 			}
-			if isNoncharacter(uint32(r)) {
+			if isNoncharacter(uint32(r)) { // #nosec G115 -- r is a decoded code point in [0, 0x10FFFF], never negative
 				return 0, fmt.Errorf("%w: noncharacter U+%04X in string", ErrStringNotScalar, r)
 			}
 			i += size

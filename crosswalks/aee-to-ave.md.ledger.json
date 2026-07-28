@@ -10,7 +10,7 @@
    "description": "ai-vocabulary: 'This' — Kobak excess-vocabulary token; doc excess ratio 20.5/1k words (>18 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
    "severity": "medium",
    "decision": "DISMISS",
-   "reason": "register: 'This' is a common connective in formal technical prose and carries meaning here; decorative density was reduced in the same pass",
+   "reason": "register: 'This' is a common connective carrying meaning here; decorative density was reduced in the same pass",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
@@ -27,7 +27,7 @@
    "description": "hyphenated-compound-density: 're-check' — 17 distinct hyphenated compound-modifiers (18.4/1k words, above the human ceiling) — a long tail of novel compounds reads as optimized for token density over re",
    "severity": "info",
    "decision": "DISMISS",
-   "reason": "register: formal technical prose; the construction is the plainest available statement of the mapping",
+   "reason": "register: plain correspondence; the construction is the most direct statement of the request",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P32",
@@ -44,7 +44,7 @@
    "description": "ai-vocabulary: 'this' — Kobak excess-vocabulary token; doc excess ratio 20.5/1k words (>18 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
    "severity": "medium",
    "decision": "DISMISS",
-   "reason": "register: 'this' is a common connective in formal technical prose and carries meaning here; decorative density was reduced in the same pass",
+   "reason": "register: 'this' is a common connective carrying meaning here; decorative density was reduced in the same pass",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
@@ -61,7 +61,7 @@
    "description": "ai-vocabulary: 'this' — Kobak excess-vocabulary token; doc excess ratio 20.5/1k words (>18 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
    "severity": "medium",
    "decision": "DISMISS",
-   "reason": "register: 'this' is a common connective in formal technical prose and carries meaning here; decorative density was reduced in the same pass",
+   "reason": "register: 'this' is a common connective carrying meaning here; decorative density was reduced in the same pass",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
@@ -78,7 +78,7 @@
    "description": "absolutes-self-contradiction: 'Every' — ADVISORY (absolutes lexicon): absolute claim word — every hit must be ledger-adjudicated, never batch-dismissed. Verify no hedged variant of the same claim exis",
    "severity": "low",
    "decision": "DISMISS",
-   "reason": "register: the absolute is stipulative and verified in-document against stated totals, and no hedged variant of the same claim appears elsewhere",
+   "reason": "register: absolute is verified in-document against stated counts, with no hedged variant of the same claim elsewhere",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P54",
@@ -95,7 +95,7 @@
    "description": "ai-vocabulary: 'this' — Kobak excess-vocabulary token; doc excess ratio 20.5/1k words (>18 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
    "severity": "medium",
    "decision": "DISMISS",
-   "reason": "register: 'this' is a common connective in formal technical prose and carries meaning here; decorative density was reduced in the same pass",
+   "reason": "register: 'this' is a common connective carrying meaning here; decorative density was reduced in the same pass",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
@@ -112,7 +112,7 @@
    "description": "ai-vocabulary: 'like' — Kobak excess-vocabulary token; doc excess ratio 20.5/1k words (>18 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
    "severity": "medium",
    "decision": "DISMISS",
-   "reason": "register: 'like' is a common connective in formal technical prose and carries meaning here; decorative density was reduced in the same pass",
+   "reason": "register: 'like' is a common connective carrying meaning here; decorative density was reduced in the same pass",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
@@ -129,7 +129,7 @@
    "description": "absolutes-self-contradiction: 'All' — ADVISORY (absolutes lexicon): absolute claim word — every hit must be ledger-adjudicated, never batch-dismissed. Verify no hedged variant of the same claim exis",
    "severity": "low",
    "decision": "DISMISS",
-   "reason": "register: the absolute is stipulative and verified in-document against stated totals, and no hedged variant of the same claim appears elsewhere",
+   "reason": "register: absolute is verified in-document against stated counts, with no hedged variant of the same claim elsewhere",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P54",
@@ -146,7 +146,7 @@
    "description": "ai-vocabulary: 'this' — Kobak excess-vocabulary token; doc excess ratio 20.5/1k words (>18 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
    "severity": "medium",
    "decision": "DISMISS",
-   "reason": "register: 'this' is a common connective in formal technical prose and carries meaning here; decorative density was reduced in the same pass",
+   "reason": "register: 'this' is a common connective carrying meaning here; decorative density was reduced in the same pass",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
@@ -163,7 +163,7 @@
    "description": "stray-code-token: 'observationEnvironment' — camelCase/code-like token in prose; verify it is intended, not a humanizer artifact dropped mid-sentence.",
    "severity": "low",
    "decision": "DISMISS",
-   "reason": "load-bearing-technical-term: 'observationEnvironment' is a field identifier being mapped; a field-mapping crosswalk cannot name its fields without naming them",
+   "reason": "load-bearing-technical-term: 'observationEnvironment' is an identifier the recipient needs reproduced exactly",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "M-codetoken",
@@ -180,7 +180,7 @@
    "description": "ai-vocabulary: 'declared' — Kobak excess-vocabulary token; doc excess ratio 20.5/1k words (>18 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
    "severity": "medium",
    "decision": "DISMISS",
-   "reason": "load-bearing-technical-term: 'declared' is an enum value of the predicate under discussion, so it is the field's own vocabulary",
+   "reason": "load-bearing-technical-term: 'declared' is an enum value of the predicate under discussion",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
@@ -197,7 +197,7 @@
    "description": "absolutes-self-contradiction: 'all' — ADVISORY (absolutes lexicon): absolute claim word — every hit must be ledger-adjudicated, never batch-dismissed. Verify no hedged variant of the same claim exis",
    "severity": "low",
    "decision": "DISMISS",
-   "reason": "register: the absolute is stipulative and verified in-document against stated totals, and no hedged variant of the same claim appears elsewhere",
+   "reason": "register: absolute is verified in-document against stated counts, with no hedged variant of the same claim elsewhere",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P54",
@@ -214,7 +214,7 @@
    "description": "ai-vocabulary: 'this' — Kobak excess-vocabulary token; doc excess ratio 20.5/1k words (>18 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
    "severity": "medium",
    "decision": "DISMISS",
-   "reason": "register: 'this' is a common connective in formal technical prose and carries meaning here; decorative density was reduced in the same pass",
+   "reason": "register: 'this' is a common connective carrying meaning here; decorative density was reduced in the same pass",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
@@ -231,7 +231,7 @@
    "description": "ai-vocabulary: 'between' — Kobak excess-vocabulary token; doc excess ratio 20.5/1k words (>18 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
    "severity": "medium",
    "decision": "DISMISS",
-   "reason": "register: 'between' is a common connective in formal technical prose and carries meaning here; decorative density was reduced in the same pass",
+   "reason": "register: 'between' is a common connective carrying meaning here; decorative density was reduced in the same pass",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
@@ -248,7 +248,7 @@
    "description": "ai-vocabulary: 'through' — Kobak excess-vocabulary token; doc excess ratio 20.5/1k words (>18 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
    "severity": "medium",
    "decision": "DISMISS",
-   "reason": "register: 'through' is a common connective in formal technical prose and carries meaning here; decorative density was reduced in the same pass",
+   "reason": "register: 'through' is a common connective carrying meaning here; decorative density was reduced in the same pass",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
@@ -265,7 +265,7 @@
    "description": "stray-code-token: 'evidenceTier' — camelCase/code-like token in prose; verify it is intended, not a humanizer artifact dropped mid-sentence.",
    "severity": "low",
    "decision": "DISMISS",
-   "reason": "load-bearing-technical-term: 'evidenceTier' is a field identifier being mapped; a field-mapping crosswalk cannot name its fields without naming them",
+   "reason": "load-bearing-technical-term: 'evidenceTier' is an identifier the recipient needs reproduced exactly",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "M-codetoken",
@@ -282,7 +282,7 @@
    "description": "ai-vocabulary: 'stands' — Kobak excess-vocabulary token; doc excess ratio 20.5/1k words (>18 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
    "severity": "medium",
    "decision": "DISMISS",
-   "reason": "register: 'stands' is a common connective in formal technical prose and carries meaning here; decorative density was reduced in the same pass",
+   "reason": "register: 'stands' is a common connective carrying meaning here; decorative density was reduced in the same pass",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
@@ -299,7 +299,7 @@
    "description": "ai-vocabulary: 'declared' — Kobak excess-vocabulary token; doc excess ratio 20.5/1k words (>18 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
    "severity": "medium",
    "decision": "DISMISS",
-   "reason": "load-bearing-technical-term: 'declared' is an enum value of the predicate under discussion, so it is the field's own vocabulary",
+   "reason": "load-bearing-technical-term: 'declared' is an enum value of the predicate under discussion",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
@@ -316,7 +316,7 @@
    "description": "ai-vocabulary: 'Both' — Kobak excess-vocabulary token; doc excess ratio 20.5/1k words (>18 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
    "severity": "medium",
    "decision": "DISMISS",
-   "reason": "register: 'Both' is a common connective in formal technical prose and carries meaning here; decorative density was reduced in the same pass",
+   "reason": "register: 'Both' is a common connective carrying meaning here; decorative density was reduced in the same pass",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
@@ -333,7 +333,7 @@
    "description": "ai-vocabulary: 'This' — Kobak excess-vocabulary token; doc excess ratio 20.5/1k words (>18 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
    "severity": "medium",
    "decision": "DISMISS",
-   "reason": "register: 'This' is a common connective in formal technical prose and carries meaning here; decorative density was reduced in the same pass",
+   "reason": "register: 'This' is a common connective carrying meaning here; decorative density was reduced in the same pass",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
@@ -350,7 +350,7 @@
    "description": "absolutes-self-contradiction: 'the only' — ADVISORY (absolutes lexicon): absolute claim word — every hit must be ledger-adjudicated, never batch-dismissed. Verify no hedged variant of the same claim exis",
    "severity": "low",
    "decision": "DISMISS",
-   "reason": "register: the absolute is stipulative and verified in-document against stated totals, and no hedged variant of the same claim appears elsewhere",
+   "reason": "register: absolute is verified in-document against stated counts, with no hedged variant of the same claim elsewhere",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P54",
@@ -367,7 +367,7 @@
    "description": "ai-vocabulary: 'observed' — Kobak excess-vocabulary token; doc excess ratio 20.5/1k words (>18 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
    "severity": "medium",
    "decision": "DISMISS",
-   "reason": "load-bearing-technical-term: 'observed' is an enum value of the predicate under discussion, so it is the field's own vocabulary",
+   "reason": "load-bearing-technical-term: 'observed' is an enum value of the predicate under discussion",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
@@ -384,7 +384,7 @@
    "description": "ai-vocabulary: 'this' — Kobak excess-vocabulary token; doc excess ratio 20.5/1k words (>18 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
    "severity": "medium",
    "decision": "DISMISS",
-   "reason": "register: 'this' is a common connective in formal technical prose and carries meaning here; decorative density was reduced in the same pass",
+   "reason": "register: 'this' is a common connective carrying meaning here; decorative density was reduced in the same pass",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
@@ -401,7 +401,7 @@
    "description": "ai-vocabulary: 'were' — Kobak excess-vocabulary token; doc excess ratio 20.5/1k words (>18 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
    "severity": "medium",
    "decision": "DISMISS",
-   "reason": "register: 'were' is a common connective in formal technical prose and carries meaning here; decorative density was reduced in the same pass",
+   "reason": "register: 'were' is a common connective carrying meaning here; decorative density was reduced in the same pass",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
@@ -418,7 +418,7 @@
    "description": "ai-vocabulary: 'this' — Kobak excess-vocabulary token; doc excess ratio 20.5/1k words (>18 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
    "severity": "medium",
    "decision": "DISMISS",
-   "reason": "register: 'this' is a common connective in formal technical prose and carries meaning here; decorative density was reduced in the same pass",
+   "reason": "register: 'this' is a common connective carrying meaning here; decorative density was reduced in the same pass",
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",

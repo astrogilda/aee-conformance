@@ -33,7 +33,7 @@ Verified titles, read from the published crosswalk corpus on 2026-07-28.
 | MCP09 | Shadow MCP Servers | Discovery is an observation about a network, so the observation environment is the evidence. |
 | MCP10 | Context Injection and Over-sharing | What actually crossed the boundary, not what policy said should. |
 
-The pattern across the ten: seven describe conditions that can only be confirmed or denied by something that watched a real execution, and none of the ten currently specifies what that watcher must be able to prove.
+The pattern across the ten: seven of the rows above (MCP01, 02, 03, 05, 06, 09 and 10) describe conditions that can only be confirmed or denied by something that watched a real execution. MCP04 and MCP07 are answerable statically, and MCP08 is about the record itself.
 
 ## NIST AI RMF
 
@@ -49,7 +49,7 @@ The useful pairing is that an ATLAS technique names what to look for, and an AEE
 
 ## The gap this crosswalk exists to name
 
-Across all four taxonomies, the categories describe what can go wrong and, in the RMF case, what should be measured. None of them specifies what a claim about the result must be able to prove, or to whom.
+Across all four taxonomies, the categories describe what can go wrong and, in the RMF case, what should be measured. Nothing in the material read for this pass specifies what a claim about the result must be able to prove, or to whom. That is a statement about what was read and not a proof of absence: this pass covered the MCP Top 10 titles, the NIST subcategory identifiers and the ATLAS technique identifiers carried by the record corpus, not the full text of all four taxonomies.
 
 That is not a criticism. A taxonomy that also mandated an evidence format would be doing two jobs badly. But it does leave a layer unoccupied, and a detection rule evaluated over a record the observed party controls is confidently wrong in the most dangerous direction: it reports a clean result on a compromised system, and the cleanliness is exactly what the compromise produced.
 

@@ -1,6 +1,6 @@
 <!--
 Implementation report for the AEE v0.6 predicate conformance suite.
-Corpus SSOT: vectors/MANIFEST.json (suiteRevision 5, 149 vectors: 35 accept, 114 reject).
+Corpus SSOT: vectors/MANIFEST.json (suiteRevision 6, 153 vectors: 36 accept, 117 reject).
 Honest scoping: every claim below states exactly what each implementation was verified against.
 Independence is counted by authorship, not by implementation count; see "How independence
 is counted here" before adding any row to the table.
@@ -30,13 +30,19 @@ state what it actually runs, not to be counted toward independence.
 A measured instance of why the distinction matters: the specification did not pin
 a maximum JSON nesting depth, so all five first-party rails chose 128 and agreed
 at every depth, while the independent checker read the same text and chose 256.
-For the 127 depths between them, identical bytes are valid evidence to one
+For the 127 depths between them, identical bytes were valid evidence to one
 conformant verifier and malformed to another. No amount of first-party agreement
-could have surfaced that; the outside implementation surfaced it immediately.
+could have surfaced that; the outside implementation surfaced it immediately. The
+bound is now normative at 128 and the checker adopted it (suiteRevision 5,
+149/149). Reading it back also surfaced a second split the first-party rails hid
+from each other: the reference Go rail charged nesting depth per parsed child, so
+an empty-container leaf slipped one level past the bound while the Python rail
+rejected it — our own two rails disagreeing on identical bytes at one exact depth,
+fixed this round and now pinned by a boundary vector pair.
 
 ## Reference corpus
 
-`vectors/MANIFEST.json`, suiteRevision 5: **149 vectors (35 accept, 114 reject)**.
+`vectors/MANIFEST.json`, suiteRevision 6: **153 vectors (36 accept, 117 reject)**.
 Each accept vector must verify valid with its expected `result` token; each reject
 vector must be invalid with a failure code drawn from the manifest's code set. The
 corpus is regenerated deterministically from the generators and its vendored spec
@@ -46,12 +52,12 @@ digest is pinned and CI-checked (`scripts/spec-drift-gate.py`).
 
 | Implementation | Language | Author | Verified against | Result |
 |---|---|---|---|---|
-| Reference rail (`aee/`) | Go | spec author | reference corpus, suiteRevision 5 | **149 / 149** |
-| Reference rail (`packaging/run_vectors.py`) | Python | spec author | reference corpus, suiteRevision 5 | **149 / 149** |
-| `Rul1an/aee-checker` | Rust | **independent, from-spec text alone** | last author-run suiteRevision 3 (140), 2026-07-26; suiteRevision 5 not run by its author | **140 / 140** at suiteRevision 3; suiteRevision 5 not run by author (see note 1) |
-| `@probity/verify` | TypeScript | spec author | its vendored set (140 vectors) + cross-rail parity tests | pass (see note 2) |
-| `probity-verify.py` | Python | spec author | its vendored set (140 vectors) + parity tests | pass (see note 2) |
-| matchlock-mcp `_aee.py` | Python | spec author | its vendored set (140 vectors) + parity tests | pass (see note 2) |
+| Reference rail (`aee/`) | Go | spec author | reference corpus, suiteRevision 6 | **153 / 153** |
+| Reference rail (`packaging/run_vectors.py`) | Python | spec author | reference corpus, suiteRevision 6 | **153 / 153** |
+| `Rul1an/aee-checker` | Rust | **independent, from-spec text alone** | author-run suiteRevision 5 (149), 2026-07-28 (aee-checker#3); suiteRevision 6 not run by its author | **149 / 149** at suiteRevision 5; suiteRevision 6 not run by author (see note 1) |
+| `@probity/verify` | TypeScript | spec author | its vendored set (153 vectors) + cross-rail parity tests | pass (see note 2) |
+| `probity-verify.py` | Python | spec author | its vendored set (153 vectors) + parity tests | pass (see note 2) |
+| matchlock-mcp `_aee.py` | Python | spec author | its vendored set (153 vectors) + parity tests | pass (see note 2) |
 
 The five first-party rails are separate decompositions rather than shared code, so
 they do catch each other's transcription errors, and the differential fuzzer over
@@ -69,12 +75,16 @@ implementation and no reading of the corpus condition codes.
 Two eras. The **core** predicate and the **round-7** additions have both been read
 independently: the from-spec Rust checker re-ran against the round-7 corpus
 (suiteRevision 2) and reached 138/138 after a spec-diff-led update (132/138 on the
-unchanged build), then cleared the suiteRevision-3 corpus at 140/140 with the same
-build. That is one independent reading of each era, corroborated by the first-party
-rails rather than the other way round. The **suiteRevision-4 and -5** additions —
-the encoding-well-formedness and nesting-bound vectors `bad-733` through `bad-741` —
-post-date the Rust checker's latest author-run, so those rules currently have no
-independent reading at all and are covered by first-party rails alone.
+unchanged build), cleared the suiteRevision-3 corpus at 140/140, and then cleared
+the **suiteRevision-5** byte-level tier (`bad-733` through `bad-741`) at 149/149
+once it adopted the normative depth bound and moved its counter into the container
+branch (aee-checker#3, 2026-07-28). That is one independent reading of each era so
+far, corroborated by the first-party rails rather than the other way round. The
+**suiteRevision-6** additions — the two depth-boundary vectors and the two
+noncharacter vectors below — post-date that run, so those readings currently have
+no independent confirmation and are covered by first-party rails alone; the
+noncharacter pair in particular exercises a rule the checker's author has flagged
+as not yet implemented on his side.
 
 | Feature | Go ref | Python ref | Rust (3rd-party) | probity | mcp |
 |---|---|---|---|---|---|
@@ -82,7 +92,7 @@ independent reading at all and are covered by first-party rails alone.
 | RFC 6962 batch root over DSSE PAE | yes | yes | yes | yes | yes |
 | `result` recompute (pass/degraded/fail) | yes | yes | yes | yes | yes |
 | Evidence tier (declared/unattested/attested) | yes | yes | yes | yes | yes |
-| The 11 interpretation decisions | yes | yes | yes | yes | yes |
+| The 17 interpretation decisions | yes | yes | 1–16 | yes | yes |
 | chain-scope machine-comparable array (round-7) | yes | yes | yes | yes | yes |
 | statement-wide strict I-JSON (round-7, decision 11) | yes | yes | yes | yes | yes |
 | read-first `aeeBindingVersion` (round-7) | yes | yes | yes | yes | yes |
@@ -101,30 +111,34 @@ independent reading at all and are covered by first-party rails alone.
    pass after the first was not blind (the changelog was read before implementing),
    unlike the 125/125.
 
-   **His last author-run is suiteRevision 3 at 140/140 (2026-07-26). He has not run
-   suiteRevision 4 or 5, so this report publishes no suiteRevision-5 score in his
-   column.** What we can say, in our own voice and not his: the suiteRevision-5
-   vector `bad-741-payload-nesting-exceeds-max-depth` pins a normative nesting bound
-   of 128, and his build's bound is 256, so we expect his current build to answer
-   valid where the reference rails answer invalid on that one vector — a one-constant
-   update on his side. That is our derivation of a rule difference, not a run he
-   produced, and it is not a score we will report as his. The honest cell for his
-   column at suiteRevision 5 is "not run by author", and it stays that way until he
-   posts a record and its source digest.
-2. **The consumer rails carry the round-7 rules but their vendored vector sets lag
-   the reference corpus** (probity 140, mcp 140 vs the reference 149). The rules
-   themselves are verified by cross-rail parity tests plus each rail's own suite
-   and mutation checks; a full re-vendor of the byte-level tier (`bad-733` through
-   `bad-741`) into probity and mcp is tracked as a follow-up. Until then, "pass"
-   means the rail implements and is parity-tested on the rule, not that it replayed
-   the full 149.
+   **His last author-run is suiteRevision 5 at 149/149 (2026-07-28, aee-checker#3).**
+   The suiteRevision-5 vector `bad-741-payload-nesting-exceeds-max-depth` had pinned
+   the nesting bound at 128 where his build read 256; he adopted 128 and, rather than
+   only move the constant, moved his depth increment from per parsed value into the
+   container branch, which is the counting rule the spec states next to the bound.
+   **He has not run suiteRevision 6, so this report publishes no suiteRevision-6
+   score in his column.** What we can say, in our own voice and not his: two of the
+   four new vectors (`bad-743`, `bad-744`) require rejecting the Unicode
+   noncharacters RFC 7493 section 2.1 forbids, and he has stated his checker does not
+   yet implement that check, so we would expect it to answer valid where the
+   reference rails answer invalid on those two — a rule difference we derived, not a
+   run he produced, and not a score we will report as his. The other two new vectors
+   are the depth-boundary pair his own container-branch fix already handles. His
+   suiteRevision-6 cell is "not run by author" until he posts a record and its source
+   digest.
+2. **The consumer rails now carry the full reference corpus.** `@probity/verify`,
+   `probity-verify.py` and matchlock-mcp `_aee.py` each vendor all 153 vectors
+   byte-for-byte (`VENDOR-STAMP.json` pins the source spec digest, upstream commit
+   and a content digest; a consumer-side drift gate fails CI on any change without a
+   re-vendor). "pass" means the rail implements the rule, is parity-tested on it, and
+   replays the full 153.
 
 ## What this report does NOT claim
 
 One independent implementation agreeing is strong evidence the text is
 determinate; it is not proof it is unambiguous. Two readers can share a
 reasonable but unforced reading, and a single outside reader is a sample of one.
-Nor does agreement on 149 vectors say anything about the surface no vector
+Nor does agreement on 153 vectors say anything about the surface no vector
 touches, which is where the nesting-depth divergence above lived. The
 interpretation-decision registry
 (`vectors/interpretation-decisions.json`) records where the text forces the reading

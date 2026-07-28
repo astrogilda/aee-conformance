@@ -1853,6 +1853,42 @@ vec("bad-741-payload-nesting-exceeds-max-depth", "ok-001",
          "malformed to another across 127 depths.")
 
 
+def _b742() -> dict[str, Any]:
+    """A covering payload nested 129 deep whose deepest leaf is an EMPTY container.
+
+    The twin of bad-741, and the one bad-741 could not catch. A rail that charges a
+    nesting level only when it recurses into a child -- rather than when a container
+    OPENS -- never charges an empty container its own level, so an empty-object or
+    empty-array leaf slips one level past the bound. bad-741's leaf is a scalar,
+    which forces a child recursion and is charged correctly, so it hid this. Here the
+    innermost value is `{}`: 128 wrapping objects plus the empty object is
+    open-container depth 129, one past the bound, and the empty container is the only
+    fault. Two reference rails (the Go core and the TypeScript payload parse)
+    accepted this until the guard moved into the container branch."""
+    st = P_caught()
+    obj = json.loads(unb64(st["predicate"]["observationRecords"][0]["payload"]))
+    body = json.dumps(obj, sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=True)
+    # The payload's own outermost brace is open-container depth 1, so a member value
+    # of 127 wrapping objects around an empty object puts that empty object at depth
+    # 129 -- one past the bound, and the exact depth where a per-child counter accepts
+    # it. (bad-741's scalar leaf at 129 wrapping lands at depth 130, one deeper, where
+    # even the buggy counter rejects; that is why it could not discriminate this.)
+    deep = '{"a":' * 127 + "{}" + "}" * 127
+    body = '{"aaDeep":' + deep + "," + body[1:]
+    return raw_record_bytes(st, 0, body.encode())
+
+
+vec("bad-742-payload-nesting-empty-container-leaf", "ok-001",
+    "covering payload nested 129 deep with an empty-container leaf, one past the bound",
+    ["re-sign-record", "recompute-batch-root"], [18], ["payload-not-ijson"],
+    _b742, spec="L107-114",
+    note="rawBytes: the empty-container companion to bad-741. A rail that charges a "
+         "level per parsed child rather than per open container never charges an "
+         "empty container, so it accepts at depth 129 what the bracket-counting rails "
+         "reject. bad-741's scalar leaf could not discriminate it.")
+
+
 _B64_ALPHABET = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 )
@@ -2383,7 +2419,7 @@ def main() -> None:
         with open(path) as f:
             json.load(f)  # every vector parses as JSON (a duplicate member is last-wins)
 
-    assert len(VECTORS) == 114, f"expected 114 vectors, built {len(VECTORS)}"
+    assert len(VECTORS) == 115, f"expected 115 vectors, built {len(VECTORS)}"
 
     # 3. index
     write_index()

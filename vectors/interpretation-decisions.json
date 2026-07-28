@@ -242,9 +242,10 @@
       "specAnchors": [
         "L101-110"
       ],
-      "reading": "A statement whose JSON nesting depth exceeds 128 is rejected fail-closed (L101-110). Nesting depth counts open arrays and objects, with the outermost brace of the statement at depth 1 and scalars not deepening it; the counting rule is stated because a rail that increments per parsed value rather than per open container lands one level away from an identical constant. Record payloads are parsed under the same bound. The bound is normative rather than a resource limit alone: with none stated, two conforming verifiers disagree about whether identical bytes are evidence at all over the whole range between their choices (the independent from-spec checker chose 256, the reference rails 128). bad-741 carries a covering payload nested 129 deep with every reserved member intact, so depth is its only fault (payload-not-ijson).",
+      "reading": "A statement whose JSON nesting depth exceeds 128 is rejected fail-closed (L101-110). Nesting depth counts open arrays and objects, with the outermost brace of the statement at depth 1 and scalars not deepening it; the counting rule is stated because a rail that increments per parsed value rather than per open container lands one level away from an identical constant. Record payloads are parsed under the same bound. The bound is normative rather than a resource limit alone: with none stated, two conforming verifiers disagree about whether identical bytes are evidence at all over the whole range between their choices (the independent from-spec checker chose 256, the reference rails 128). bad-741 carries a covering payload nested 129 deep with every reserved member intact, so depth is its only fault (payload-not-ijson). bad-742 is the empty-container companion: a rail that charges a nesting level per parsed child rather than per open container never charges an empty container, so it accepts at depth 129 what the bracket-counting rails reject; bad-741's scalar leaf could not discriminate it, and ok-036 pins the at-bound (128) accept.",
       "forcingVectors": [
-        "bad-741-payload-nesting-exceeds-max-depth"
+        "bad-741-payload-nesting-exceeds-max-depth",
+        "bad-742-payload-nesting-empty-container-leaf"
       ]
     }
   ],

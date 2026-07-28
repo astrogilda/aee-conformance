@@ -215,6 +215,37 @@
         "bad-731-outofscope-unknown-class",
         "bad-732-routedelsewhere-unknown-class"
       ]
+    },
+    {
+      "id": 15,
+      "title": "String bytes are a well-formed sequence of Unicode scalar values",
+      "classification": "forced",
+      "specAnchors": [
+        "L79-99"
+      ],
+      "reading": "Strict I-JSON constrains the bytes of every string, statement-wide and fail-closed: valid UTF-8 with no overlong form and no surrogate encoded directly in UTF-8 (CESU-8), paired \\u surrogate escapes with no unpaired half, no raw character below U+0020, and a \\u escape of exactly four hex digits (L79-99). The check runs on the RAW bytes before any decoded string is read, because a lenient decoder substitutes U+FFFD and the observationVocabulary digest is recomputed from decoded strings, so ill-formed bytes would otherwise verify valid on one rail and malformed on another. bad-733/734/735 carry lone and reversed surrogate escapes, bad-736 a CESU-8 vocabulary label, bad-737 an overlong form, bad-738 a raw control character (all statement-position, statement-malformed); bad-739/740 carry the surrogate and CESU-8 faults in a covering payload (payload-not-ijson). This is the quadrant where the rails had actually diverged in the field.",
+      "forcingVectors": [
+        "bad-733-statement-lone-high-surrogate-escape",
+        "bad-734-statement-lone-low-surrogate-escape",
+        "bad-735-statement-reversed-surrogate-pair",
+        "bad-736-statement-cesu8-vocabulary-label",
+        "bad-737-statement-overlong-utf8",
+        "bad-738-statement-raw-control-character",
+        "bad-739-payload-lone-surrogate-escape",
+        "bad-740-payload-cesu8"
+      ]
+    },
+    {
+      "id": 16,
+      "title": "JSON nesting depth is bounded at 128",
+      "classification": "forced",
+      "specAnchors": [
+        "L101-110"
+      ],
+      "reading": "A statement whose JSON nesting depth exceeds 128 is rejected fail-closed (L101-110). Nesting depth counts open arrays and objects, with the outermost brace of the statement at depth 1 and scalars not deepening it; the counting rule is stated because a rail that increments per parsed value rather than per open container lands one level away from an identical constant. Record payloads are parsed under the same bound. The bound is normative rather than a resource limit alone: with none stated, two conforming verifiers disagree about whether identical bytes are evidence at all over the whole range between their choices (the independent from-spec checker chose 256, the reference rails 128). bad-741 carries a covering payload nested 129 deep with every reserved member intact, so depth is its only fault (payload-not-ijson).",
+      "forcingVectors": [
+        "bad-741-payload-nesting-exceeds-max-depth"
+      ]
     }
   ],
   "openCorners": []

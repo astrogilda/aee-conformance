@@ -925,7 +925,12 @@ class ReferenceVerifier:
             return False
         if any(tok not in ReferenceVerifier._CHAIN_SCOPE_VOCAB for tok in scope):
             return False
-        if scope != sorted(scope) or len(set(scope)) != len(scope):
+        # Canonical order is UTF-16 code-unit, the single sort predicate every rail
+        # uses (and the same _utf16_sort_key the vocabulary array check applies). For
+        # the current ASCII vocabulary this coincides with code-point order, but
+        # sorting by the shared key keeps this rule correct if a non-BMP token is
+        # ever registered rather than silently diverging from the other rails.
+        if sorted(scope, key=_utf16_sort_key) != scope or len(set(scope)) != len(scope):
             return False
         if seq == 1:
             return not has_prev

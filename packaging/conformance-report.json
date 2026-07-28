@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 151,
-    "pass": 151,
+    "vectors": 153,
+    "pass": 153,
     "fail": 0
   },
   "notes": [],
@@ -3573,6 +3573,63 @@
     {
       "id": "bad-742-payload-nesting-empty-container-leaf",
       "file": "vectors/reject/bad-742-payload-nesting-empty-container-leaf.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "payload-not-ijson",
+          "caught-row-uncovered"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "payload-not-ijson"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-743-statement-noncharacter-vocabulary-label",
+      "file": "vectors/reject/bad-743-statement-noncharacter-vocabulary-label.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "statement-malformed"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "statement-malformed"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-744-payload-noncharacter",
+      "file": "vectors/reject/bad-744-payload-noncharacter.json",
       "kind": "reject",
       "status": "PASS",
       "gates": {

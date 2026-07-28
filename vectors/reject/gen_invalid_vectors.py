@@ -1889,6 +1889,55 @@ vec("bad-742-payload-nesting-empty-container-leaf", "ok-001",
          "reject. bad-741's scalar leaf could not discriminate it.")
 
 
+def _b743() -> str:
+    """A vocabulary label carrying U+FFFF, a Unicode noncharacter, as a \\u escape.
+    It is a valid scalar value that round-trips faithfully, so unlike the surrogate
+    labels the vocabulary digest is recomputed over the canonical (ensure_ascii=False)
+    form the rail also canonicalizes, keeping the noncharacter the single fault. RFC
+    7493 section 2.1 forbids noncharacters, so a from-spec verifier that implements the
+    label rather than the narrower scalar-value MUST rejects it; the byte-level
+    string-scalar scan at GATE 0 catches it as statement-malformed before the digest
+    is read."""
+    st = P_clean()
+    v = st["predicate"]["observationEnvironment"]["observationVocabulary"]
+    v["labels"] = [*v["labels"], "zz_\uffff"]
+    pre = json.dumps({"caught": v["caught"], "labels": v["labels"]},
+                     sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    v["digest"]["sha256"] = sha256hex(pre.encode("utf-8"))
+    return _escaped(st)
+
+
+vec("bad-743-statement-noncharacter-vocabulary-label", "ok-002",
+    "vocabulary label carrying the noncharacter U+FFFF",
+    ["recompute-vocabulary-digest"], [18], ["statement-malformed"],
+    _b743, spec="L79-99",
+    note="rawBytes: a noncharacter is a valid scalar that nothing substitutes, so "
+         "this is not a live cross-rail split; it is the RFC 7493 label made true, "
+         "so a from-spec verifier reading the label does not reject a record we "
+         "accept.")
+
+
+def _b744() -> dict[str, Any]:
+    """A covering payload carrying U+FFFF, a Unicode noncharacter, in a producer
+    member value. The payload-position companion to bad-743: rejected as
+    payload-not-ijson because a payload that is not a well-formed I-JSON value
+    covers nothing."""
+    st = P_caught()
+    obj = json.loads(unb64(st["predicate"]["observationRecords"][0]["payload"]))
+    obj["aeeNote"] = "zz_\uffff"
+    body = json.dumps(obj, sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=False).encode("utf-8")
+    return raw_record_bytes(st, 0, body)
+
+
+vec("bad-744-payload-noncharacter", "ok-001",
+    "covering payload gains a member whose value carries the noncharacter U+FFFF",
+    ["re-sign-record", "recompute-batch-root"], [18], ["payload-not-ijson"],
+    _b744, spec="L79-99",
+    note="rawBytes: the payload position of bad-743. RFC 7493 section 2.1 forbids "
+         "noncharacters in every string literal, not only member names.")
+
+
 _B64_ALPHABET = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 )
@@ -2419,7 +2468,7 @@ def main() -> None:
         with open(path) as f:
             json.load(f)  # every vector parses as JSON (a duplicate member is last-wins)
 
-    assert len(VECTORS) == 115, f"expected 115 vectors, built {len(VECTORS)}"
+    assert len(VECTORS) == 117, f"expected 115 vectors, built {len(VECTORS)}"
 
     # 3. index
     write_index()

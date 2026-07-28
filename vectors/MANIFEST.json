@@ -7,7 +7,7 @@
   "specUpstreamCommit": "98328d1f561aa1915ea2189c11c563d60bb2ea58",
   "counts": {
     "accept": 36,
-    "reject": 115
+    "reject": 117
   },
   "vectors": [
     {
@@ -1982,6 +1982,34 @@
       "id": "bad-742-payload-nesting-empty-container-leaf",
       "kind": "reject",
       "file": "reject/bad-742-payload-nesting-empty-container-leaf.json",
+      "conditions": [
+        "aee-c-18"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "payload-not-ijson"
+        ]
+      }
+    },
+    {
+      "id": "bad-743-statement-noncharacter-vocabulary-label",
+      "kind": "reject",
+      "file": "reject/bad-743-statement-noncharacter-vocabulary-label.json",
+      "conditions": [
+        "aee-c-18"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "statement-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-744-payload-noncharacter",
+      "kind": "reject",
+      "file": "reject/bad-744-payload-noncharacter.json",
       "conditions": [
         "aee-c-18"
       ],

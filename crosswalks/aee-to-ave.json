@@ -7,10 +7,10 @@
     "url": "https://github.com/astrogilda/aee-conformance",
     "upstream": "https://github.com/in-toto/attestation/pull/570",
     "conformance_suite": {
-      "revision": 6,
-      "vectors": 153,
+      "revision": 7,
+      "vectors": 154,
       "accept": 36,
-      "reject": 117
+      "reject": 118
     }
   },
   "target": {

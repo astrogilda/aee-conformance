@@ -8,7 +8,7 @@ import (
 
 // PAE computes the DSSE v1 pre-authentication encoding over
 // (payloadType, payload). Record signatures — and the batchRoot leaves —
-// are defined over these bytes (spec:672-674, 678-680).
+// are defined over these bytes (spec:743-745, 749-751).
 func PAE(payloadType string, payload []byte) []byte {
 	return []byte(fmt.Sprintf("DSSEv1 %d %s %d %s", len(payloadType), payloadType, len(payload), payload))
 }
@@ -20,7 +20,7 @@ func SHA256Hex(b []byte) string {
 }
 
 // IsLowerHex64 reports whether s is exactly 64 lowercase hex characters —
-// the only accepted digest value form (spec:164-167).
+// the only accepted digest value form (spec:178-181).
 func IsLowerHex64(s string) bool {
 	if len(s) != 64 {
 		return false

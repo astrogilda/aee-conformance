@@ -2,12 +2,12 @@
   "suite": "adversarial-execution-evidence-conformance",
   "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6",
   "specPath": "spec/predicates/adversarial-execution-evidence.md",
-  "specDigest": "606215de629d5f5eda9e62826cf511733b1ec0b9ca8ed07662a5c8bfe181d0b9",
+  "specDigest": "da840f9ed0649c18cc4b80cd60c2f9c441a0f28575d34538fd6fb08d2937cbdb",
   "tracksUpstream": "in-toto/attestation#570",
-  "specUpstreamCommit": "aa9aa9ca194a70028827949fee684b530eb54b3c",
+  "specUpstreamCommit": "3502c521a801f09a8ece57f60d23a17400d485b6",
   "counts": {
     "accept": 36,
-    "reject": 117
+    "reject": 118
   },
   "vectors": [
     {
@@ -2017,6 +2017,20 @@
         "verdict": "invalid",
         "codes": [
           "payload-not-ijson"
+        ]
+      }
+    },
+    {
+      "id": "bad-745-record-signatures-empty",
+      "kind": "reject",
+      "file": "reject/bad-745-record-signatures-empty.json",
+      "conditions": [
+        "aee-c-91"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "record-signatures-empty"
         ]
       }
     },

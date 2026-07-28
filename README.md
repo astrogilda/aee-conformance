@@ -193,4 +193,4 @@ contract, and a conformant checker passes even when it evaluates in a different
 order, since the suite compares verdicts and code sets and ignores both message
 text and evaluation order.
 
-[aee-checker]: https://github.com/Rul1an/aee-checker/tree/0cf46c1fa61517c955fc8f5283be4d435010765c
+[aee-checker]: https://github.com/Rul1an/aee-checker/tree/88c37d19c63854341778fd40fb31108d74975ce1

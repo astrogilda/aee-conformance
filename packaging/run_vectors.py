@@ -223,6 +223,35 @@ def _hex4(b: bytes) -> int | None:
     return v
 
 
+def _is_noncharacter(cp: int) -> bool:
+    """Whether cp is a Unicode noncharacter: U+FDD0..U+FDEF or U+nFFFE/U+nFFFF in
+    any of the 17 planes. RFC 7493 (I-JSON) section 2.1 forbids these in the same
+    sentence as surrogates, so strict I-JSON rejects them wherever a string literal
+    appears. They are valid scalar values that nothing substitutes for, so every rail
+    decodes identical bytes identically; the rejection makes the RFC 7493 label true
+    for a from-spec verifier rather than a narrower carve-out."""
+    return cp & 0xFFFE == 0xFFFE or 0xFDD0 <= cp <= 0xFDEF
+
+
+def _check_surrogate_pair(b: bytes, hi: int) -> int:
+    """Validate the low-surrogate escape that MUST follow a high surrogate at hi,
+    and return the 12-byte span of the pair. Rejects a lone or malformed low half
+    and a paired code point that is a noncharacter."""
+    if len(b) < 12 or b[6:8] != b"\\u":
+        raise StringNotScalarError(f"unpaired high surrogate \\u{hi:04X}")
+    lo = _hex4(b[8:])
+    if lo is None:
+        raise StringNotScalarError(f"malformed \\u escape after high surrogate \\u{hi:04X}")
+    if not 0xDC00 <= lo < 0xE000:
+        raise StringNotScalarError(
+            f"high surrogate \\u{hi:04X} followed by \\u{lo:04X}, which is not a low surrogate"
+        )
+    cp = 0x10000 + ((hi - 0xD800) << 10) + (lo - 0xDC00)
+    if _is_noncharacter(cp):
+        raise StringNotScalarError(f"noncharacter U+{cp:04X} in string")
+    return 12  # \uXXXX\uXXXX
+
+
 def _check_escape(b: bytes) -> int:
     """Validate one escape sequence at b[0] ('\\') and return its byte span.
 
@@ -238,22 +267,11 @@ def _check_escape(b: bytes) -> int:
     if hi is None:
         raise StringNotScalarError("malformed \\u escape")
     if 0xD800 <= hi < 0xDC00:  # high surrogate: a low surrogate escape MUST follow
-        pair = 12  # \uXXXX\uXXXX
-        if len(b) < pair or b[6:8] != b"\\u":
-            raise StringNotScalarError(f"unpaired high surrogate \\u{hi:04X}")
-        lo = _hex4(b[8:])
-        if lo is None:
-            raise StringNotScalarError(
-                f"malformed \\u escape after high surrogate \\u{hi:04X}"
-            )
-        if not 0xDC00 <= lo < 0xE000:
-            raise StringNotScalarError(
-                f"high surrogate \\u{hi:04X} followed by \\u{lo:04X}, "
-                "which is not a low surrogate"
-            )
-        return pair
+        return _check_surrogate_pair(b, hi)
     if 0xDC00 <= hi < 0xE000:
         raise StringNotScalarError(f"unpaired low surrogate \\u{hi:04X}")
+    if _is_noncharacter(hi):
+        raise StringNotScalarError(f"noncharacter U+{hi:04X} in string")
     return 6
 
 
@@ -280,11 +298,13 @@ def _check_string_literal(b: bytes) -> int:
             if size == 0 or i + size > len(b):
                 raise StringNotScalarError(f"invalid UTF-8 at byte {i} of string")
             try:
-                b[i : i + size].decode("utf-8")
+                ch = b[i : i + size].decode("utf-8")
             except UnicodeDecodeError:
                 raise StringNotScalarError(
                     f"invalid UTF-8 at byte {i} of string"
                 ) from None
+            if _is_noncharacter(ord(ch)):
+                raise StringNotScalarError(f"noncharacter U+{ord(ch):04X} in string")
             i += size
     raise StringNotScalarError("unterminated string literal")
 

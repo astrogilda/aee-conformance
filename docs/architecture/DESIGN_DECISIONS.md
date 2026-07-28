@@ -54,18 +54,33 @@ A few functions have high cyclomatic complexity because the specification they
 implement is itself branch-heavy, not because of tangled structure. The table
 below explains why each one is complex.
 
-Go verifier (measured with gocyclo):
+The table covers every **non-test** Go function in `aee/`, `aeetest/`, `cmd/`,
+and `witnessattestor/` measured by gocyclo at **18 or above**; below that a
+function is ordinary and needs no defence. Functions in `_test.go` files are out
+of scope because their branch count tracks the number of cases they enumerate,
+not the shipped verifier's structure. Every row today happens to live in `aee/`,
+which is where the specification's branching lands.
+
+`scripts/complexity-table-gate.py` enforces the table in CI. It fails the build
+on a number that no longer matches, on an in-scope function at or above the
+threshold with no row, and on a row whose function has been deleted or
+refactored back below the threshold. Run it with `--sync` to rewrite the `Cyclo`
+column from a fresh measurement after a legitimate change; adding or dropping a
+row stays a hand edit, because the rationale is the part worth having and the
+gate will not invent one.
 
 | Function | Cyclo | Why it is inherent |
 |---|---|---|
 | `aee/validity.go` `checkSubstrateRow` | 37 | Per-row coverage: each observation kind (arming, sealed, examination, interception) has its own spec-mandated constraints, checked in one place. |
-| `aee/statement.go` `Gate0` | 33 | Statement well-formedness enumerates every reserved-member and vocabulary rule the spec lists; the branch count is the rule count. |
-| `aee/validity.go` `evaluateKind` | 24 | Type dispatch over the record kinds, each with a small kind-specific check. |
-| `aee/statement.go` `gate0CoverageIntegrity` | 18 | The coverage-partition invariant across three disjoint sets against the manifest. |
+| `aee/statement.go` `Gate0` | 34 | Statement well-formedness enumerates every reserved-member and vocabulary rule the spec lists; the branch count is the rule count. |
+| `aee/validity.go` `evaluateKind` | 28 | Type dispatch over the record kinds, each with a small kind-specific check. |
+| `aee/statement.go` `gate0CoverageIntegrity` | 19 | The coverage-partition invariant across three disjoint sets against the manifest. |
 | `aee/jcs.go` `decodeValue` | 18 | Recursive JSON value dispatch with the I-JSON profile checks. |
+| `aee/types.go` `parsePredicate` | 18 | One guarded decode per optional predicate member. Each member must record presence separately from value, because the gates distinguish an absent member from one that is present but malformed, so the branch count is the predicate's member count. |
 
 The Python generators' functions carrying `# noqa: C901` are explained in
-[`docs/complexity-rationales.toml`](../complexity-rationales.toml).
+[`docs/complexity-rationales.toml`](../complexity-rationales.toml); the ruff
+`C901` threshold is that rail's equivalent of this table's gate.
 
 ## The core is stdlib-only and go-witness-free
 

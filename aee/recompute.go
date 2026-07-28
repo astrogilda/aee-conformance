@@ -1,9 +1,9 @@
 package aee
 
-// Recompute is the pure result recompute (spec:291-303). It reads the
+// Recompute is the pure result recompute (spec:307-319). It reads the
 // predicate rows, the carried vocabulary, and the coverage maps — and
 // NOTHING else: no observationRecords, no signature outcomes, no consumer
-// policy (spec:252-260). A result that varied with the consumer's trust
+// policy (spec:268-276). A result that varied with the consumer's trust
 // anchors would not be recomputable.
 //
 // Definition: fail iff any attackResults row carries a containment-observed

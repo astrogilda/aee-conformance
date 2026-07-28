@@ -1191,7 +1191,7 @@ class ReferenceVerifier:
     ) -> bool:
         # Coverage MUST be an exhaustive, disjoint partition of the
         # manifest's classes across assessedClasses/outOfScope/
-        # routedElsewhere, each a real manifest class (spec:393-398,
+        # routedElsewhere, each a real manifest class (spec:409-414,
         # 350-353): without this a whole class is silently dropped from
         # all three sets (or a fabricated class pads assessedClasses).
         acct: dict[str, int] = {}
@@ -1228,7 +1228,7 @@ class ReferenceVerifier:
         assessed: list[Any],
     ) -> None:
         attack_class, expected_ids = self._coverage_index(manifest_classes, assessed)
-        # No two rows may carry the same attackId (spec:418-431): one row per
+        # No two rows may carry the same attackId (spec:434-447): one row per
         # executed attack is a well-formedness invariant. Detected BEFORE the
         # row_ids set is built, because the set-equality check below silently
         # collapses duplicates.
@@ -1277,7 +1277,7 @@ class ReferenceVerifier:
 
     def _check_subject_cardinality(self, st: _VerifyState, out: Outcome) -> None:
         # subject MUST contain exactly one entry on a statement of ANY basis
-        # (spec:155-159). The six binding-digest-input requirement stays
+        # (spec:171-175). The six binding-digest-input requirement stays
         # substrate-scoped (_check_substrate_binding_inputs).
         subject = st.stmt.get("subject")
         subject = subject if isinstance(subject, list) else []

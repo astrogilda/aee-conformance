@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://github.com/astrogilda/aee-conformance/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/astrogilda/aee-conformance/ci.yml?branch=main&label=build" alt="build status"></a>
   <img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="license Apache-2.0">
-  <img src="https://img.shields.io/badge/conformance%20vectors-149-e8951c" alt="149 conformance vectors">
+  <img src="https://img.shields.io/badge/conformance%20vectors-153-e8951c" alt="153 conformance vectors">
   <img src="https://img.shields.io/badge/rails-Go%20%C2%B7%20Python-546274" alt="Go and Python rails">
   <img src="https://img.shields.io/badge/predicate-in--toto%20AEE%20v0.6-6f57c2" alt="in-toto AEE v0.6 predicate">
 </p>
@@ -160,27 +160,32 @@ with its own I-JSON parser, RFC 8785 serializer, RFC 6962 Merkle root,
 run-binding derivation, and Ed25519 tier, built with no sight of the reference
 code. It cleared 125/125 at suiteRevision 1, then re-ran against the round-7
 corpus and reached 138/138 at suiteRevision 2 after a spec-diff-led update
-(132/138 on the unchanged build), and cleared suiteRevision 3 at 140/140 with
-the same build. That 140/140 is its author's last run; it has not been run
-against suiteRevision 4 or 5, so this suite publishes no suiteRevision-5 score
-in its column. In our own voice, not its author's: the suiteRevision-5 vector
-`bad-741` pins the nesting bound at 128 where this build reads 256, so we expect
-it to answer valid there where the reference rails answer invalid -- a
-one-constant update on its side. That is a rule difference we derived, not a run
-it produced, and we do not report a derived figure as its score. It keeps its
-own authorship, history, and CI. The link is pinned to the build that recorded
-the 140/140 run, whose source digest `sha256:2bea1345...` is unchanged from the
-138/138 build in that repository's `reports/INDEX.json` (the checker source did
-not move between suiteRevision 2 and 3); a commit alone cannot name the source
-it carries, which is why they bind the result to a content digest and why this
-pin cites one.
+(132/138 on the unchanged build), cleared suiteRevision 3 at 140/140, and
+cleared suiteRevision 5 at 149/149 after it adopted the normative nesting bound
+of 128 and moved its depth counter from per parsed value into the container
+branch (aee-checker#3, 2026-07-28). It has not been run against suiteRevision 6,
+so this suite publishes no suiteRevision-6 score in its column. In our own voice,
+not its author's: two of the four new vectors (`bad-743`, `bad-744`) require
+rejecting the Unicode noncharacters RFC 7493 section 2.1 forbids, and its author
+has stated the checker does not yet implement that check, so we expect it to
+answer valid there where the reference rails answer invalid -- a rule difference
+we derived, not a run it produced, and we do not report a derived figure as its
+score. The other two new vectors are the depth-boundary pair its container-branch
+fix already handles. It keeps its own authorship, history, and CI. The link is
+pinned to the build that recorded the 149/149 run.
 
-That one reading has already earned its keep. The specification did not pin a
-maximum JSON nesting depth, so all five of my rails chose 128 and agreed at every
-depth; the independent checker read the same text and chose 256. For the 127
-depths in between, identical bytes are valid evidence to one conformant verifier
-and malformed to another. Five agreeing rails could not surface that. One
-outside reader surfaced it on contact.
+That one reading has already earned its keep, twice. The specification did not
+pin a maximum JSON nesting depth, so all five of my rails chose 128 and agreed at
+every depth; the independent checker read the same text and chose 256. For the
+127 depths in between, identical bytes were valid evidence to one conformant
+verifier and malformed to another. Five agreeing rails could not surface that;
+one outside reader surfaced it on contact, and the bound is now normative at 128.
+Reading it back a second time surfaced a split the five rails had hidden from
+each other: the reference Go rail counted nesting depth per parsed child, so an
+empty-container leaf slipped one level past the bound where the Python rail
+rejected it -- two first-party rails disagreeing on identical bytes at one exact
+depth. That one is fixed and pinned by a boundary vector pair; both findings came
+from the same outside reader, and neither could have come from the rails alone.
 
 More outside implementations are wanted, and the count above is the reason.
 Wiring one in is roughly a single command against the runner's stdin/stdout

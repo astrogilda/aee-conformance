@@ -73,7 +73,7 @@ jobs:
       - name: sync toolchain
         run: uv sync --extra dev --extra generators
       - name: mypy --strict
-        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py
+        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/coverage-matrix-gate.py
       - name: ruff
         run: uv run ruff check packaging vectors scripts
       - name: spec/corpus non-drift gate
@@ -82,5 +82,7 @@ jobs:
         run: python3 scripts/spec-citation-gate.py
       - name: interpretation-decision registry gate
         run: python3 scripts/interpretation-registry-gate.py
+      - name: requirement-coverage matrix is current
+        run: python3 scripts/coverage-matrix-gate.py --check
       - name: replay every vector on the Python rail (must be 149/149)
         run: python3 packaging/run_vectors.py

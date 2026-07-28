@@ -1,0 +1,106 @@
+{
+  "$schema": "https://aveproject.org/schema/crosswalk-1.0.0.schema.json",
+  "source": {
+    "standard": "AEE (Adversarial Execution Evidence)",
+    "version": "v0.6",
+    "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6",
+    "url": "https://github.com/astrogilda/aee-conformance",
+    "upstream": "https://github.com/in-toto/attestation/pull/570",
+    "conformance_suite": {
+      "revision": 6,
+      "vectors": 153,
+      "accept": 36,
+      "reject": 117
+    }
+  },
+  "target": {
+    "standard": "AVE (Agentic Vulnerability Enumeration)",
+    "url": "https://aveproject.org",
+    "record_count": 59,
+    "records_read": "2026-07-28"
+  },
+  "generated": "2026-07-28",
+  "crosswalk_kind": "vocabulary-to-structure",
+  "note": "AEE is not a scanner and emits no finding IDs, so a finding-to-record table would invent a correspondence that does not exist. This maps AVE's existing evidence-provenance vocabulary onto AEE's evidence structure instead: for each way AVE already describes how a finding was reached, what the corresponding signed, offline-verifiable record looks like. Offered as a basis for collaboration, not as a competing taxonomy.",
+  "mappings": [
+    {
+      "ave_field": "detection_stage",
+      "ave_value": "static_detection",
+      "record_count": 44,
+      "aee_field": "method",
+      "aee_value": "examination",
+      "notes": "The component was read, not run. AEE's examination method is an assertion about an artifact derived without executing it, which is what a static rule produces."
+    },
+    {
+      "ave_field": "detection_stage",
+      "ave_value": "runtime_observed",
+      "record_count": 15,
+      "aee_field": "method",
+      "aee_value": "interception | arming",
+      "notes": "The component executed and something watched. Interception when the observer sat in the data path; arming when it planted a tripwire. AVE does not currently distinguish these and would not need to unless it wanted the distinction."
+    },
+    {
+      "ave_field": "detection_layer",
+      "ave_value": "content",
+      "record_count": 37,
+      "aee_field": "observationEnvironment",
+      "aee_value": "undefined, honestly",
+      "notes": "No execution environment exists to describe, so substrate is absent rather than stubbed. AEE refuses to dress an examination up as an observation."
+    },
+    {
+      "ave_field": "detection_layer",
+      "ave_value": "runtime",
+      "record_count": 15,
+      "aee_field": "observationEnvironment",
+      "aee_value": "substrate + corpus + manifest + catchPolicy + networkPosture",
+      "notes": "A real environment existed and every part of it is pinnable. networkPosture in particular (no_network, allowlist, sinkhole) changes what a runtime finding means and is not currently recoverable from an AVE record."
+    },
+    {
+      "ave_field": "detection_layer",
+      "ave_value": "registry_metadata",
+      "record_count": 4,
+      "aee_field": "basis",
+      "aee_value": "reconstructed",
+      "notes": "The observation is about a registry response, so the fetch itself is the thing needing provenance."
+    },
+    {
+      "ave_field": "detection_layer",
+      "ave_value": "server_card",
+      "record_count": 3,
+      "aee_field": "basis",
+      "aee_value": "reconstructed",
+      "notes": "Same, for a declared capability document."
+    },
+    {
+      "ave_field": "evidence_basis_engines",
+      "ave_value": "sandbox",
+      "record_count": 2,
+      "aee_field": "basis",
+      "aee_value": "intercepted",
+      "notes": "The only engine value where basis intercepted is available, because only here did the component actually run. Records AVE-2026-00054 and AVE-2026-00056.",
+      "ave_ids": [
+        "AVE-2026-00054",
+        "AVE-2026-00056"
+      ]
+    },
+    {
+      "ave_field": "evidence_basis_engines",
+      "ave_value": "llm",
+      "record_count": 25,
+      "aee_field": "method",
+      "aee_value": "examination",
+      "notes": "The case where a signed record helps most: a model's judgement is exactly the kind of claim a reader has no independent way to check."
+    }
+  ],
+  "unmapped": [
+    {
+      "ave_field": "confidence_baseline",
+      "reason": "AEE has no confidence field and will not gain one. It expresses trust structurally instead: evidenceTier (declared, attested, unattested) says who stands behind the observation, basis (reconstructed, intercepted) says whether the observer saw the event or inferred it, and result carries a degraded value so partial observation stays reportable as partial. A reader who sees confidence_baseline 0.83 learns what the author believed; a reader who sees evidenceTier attested with basis intercepted learns something verifiable without trusting the author. The proposal is to keep confidence_baseline as the human-facing summary it already is and let an optional AEE attachment carry the checkable part."
+    }
+  ],
+  "limits": [
+    "AEE detects nothing and does not compete with AVE's classification work. It cannot tell you a component is malicious, only whether the account of how you found out is checkable.",
+    "AEE is presently exercised by a first-party implementation set, so cross-rail agreement is a drift check rather than independent corroboration.",
+    "The predicate is a draft under review at in-toto, not a ratified standard."
+  ]
+}

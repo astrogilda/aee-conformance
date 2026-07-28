@@ -39,7 +39,7 @@ exactly where "two implementations agree" is untested rather than confirmed.
 | D13 Duplicate attackId rows are malformed (one row per executed attack) | L385-398 | `bad-729-duplicate-attackid-rows` |
 | D14 Coverage sets are a disjoint partition (assessedClasses / outOfScope / routedElsewhere) | L376-381 | `bad-730-coverage-class-overlap`, `bad-731-outofscope-unknown-class`, `bad-732-routedelsewhere-unknown-class` |
 | D15 String bytes are a well-formed sequence of Unicode scalar values | L79-99 | `bad-733-statement-lone-high-surrogate-escape`, `bad-734-statement-lone-low-surrogate-escape`, `bad-735-statement-reversed-surrogate-pair`, `bad-736-statement-cesu8-vocabulary-label`, `bad-737-statement-overlong-utf8`, `bad-738-statement-raw-control-character`, `bad-739-payload-lone-surrogate-escape`, `bad-740-payload-cesu8` |
-| D16 JSON nesting depth is bounded at 128 | L101-110 | `bad-741-payload-nesting-exceeds-max-depth` |
+| D16 JSON nesting depth is bounded at 128 | L101-110 | `bad-741-payload-nesting-exceeds-max-depth`, `bad-742-payload-nesting-empty-container-leaf` |
 
 ## Forcible but not yet vectored
 

@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 149,
-    "pass": 149,
+    "vectors": 151,
+    "pass": 151,
     "fail": 0
   },
   "notes": [],
@@ -847,6 +847,30 @@
     {
       "id": "ok-035-unknown-kind-excluded-from-cap",
       "file": "vectors/accept/ok-035-unknown-kind-excluded-from-cap.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "result": "pass"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "ok-036-payload-nesting-at-bound",
+      "file": "vectors/accept/ok-036-payload-nesting-at-bound.json",
       "kind": "accept",
       "status": "PASS",
       "gates": {
@@ -3520,6 +3544,35 @@
     {
       "id": "bad-741-payload-nesting-exceeds-max-depth",
       "file": "vectors/reject/bad-741-payload-nesting-exceeds-max-depth.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "payload-not-ijson",
+          "caught-row-uncovered"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "payload-not-ijson"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-742-payload-nesting-empty-container-leaf",
+      "file": "vectors/reject/bad-742-payload-nesting-empty-container-leaf.json",
       "kind": "reject",
       "status": "PASS",
       "gates": {

@@ -94,6 +94,7 @@ tier-2 spec question.
 | ok-033-artifact-degraded | degraded | aee-c-6 | artifact-only recordless degraded statement: parent for coverage-family rejects with no digest/binding cascade |
 | ok-034-arming-chain-genesis | pass | aee-c-89 | arming payload carrying the optional run-chaining members in genesis form (`aeeRunSeq` 1, `aeeChainScope` present, no `aeePrevRunBinding`): syntax-checked in the reserved-member walk, nothing else normative reads them, and the record still covers |
 | ok-035-unknown-kind-excluded-from-cap | pass | aee-c-23, aee-c-45, aee-c-71 | clean intercepted row referencing an unknown-`aeeKind` record signed `aeeMethod` "reconstructed": the record covers nothing and is otherwise ignored, so it neither invalidates the row (arming + sealed satisfy class-match) nor participates in the method cap, which reads only covering records |
+| ok-036-payload-nesting-at-bound | pass | aee-c-18 | covering payload carrying a producer member nested exactly TO the bound (deepest open container at depth 128, scalar leaf): valid, and the discriminating twin of bad-741/bad-742 -- the one depth the corpus otherwise never touches, where a per-open-container counter and a per-parsed-value counter can disagree |
 
 ## Coverage notes
 

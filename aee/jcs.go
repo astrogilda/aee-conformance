@@ -266,15 +266,22 @@ func hex4(b []byte) (uint32, bool) {
 }
 
 func decodeValue(dec *json.Decoder, depth int) (any, error) {
-	if depth > maxParseDepth {
-		return nil, ErrInputTooDeep
-	}
 	tok, err := dec.Token()
 	if err != nil {
 		return nil, err
 	}
 	switch t := tok.(type) {
 	case json.Delim:
+		// A container occupies its own nesting level, charged when it opens so
+		// that an EMPTY container is counted too. depth is the number of enclosing
+		// containers, so this container sits at open-container depth depth+1; reject
+		// when depth+1 > maxParseDepth, i.e. depth >= maxParseDepth. Counting per
+		// open container rather than per parsed child is what keeps this rail in
+		// step with the bracket-counting rails: charging only on child recursion let
+		// an empty-container leaf slip one level past the bound.
+		if depth >= maxParseDepth {
+			return nil, ErrInputTooDeep
+		}
 		switch t {
 		case '{':
 			obj := &jsonObject{values: map[string]any{}}

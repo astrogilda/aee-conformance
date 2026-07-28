@@ -58,7 +58,10 @@ func run(stdin io.Reader, stdout, stderr io.Writer) {
 	// Candidates can be large; raise the line cap well above the 64 KiB default.
 	in.Buffer(make([]byte, 0, 1<<20), 16<<20)
 	out := bufio.NewWriter(stdout)
-	defer out.Flush()
+	// A failed final flush to a broken stdout is unactionable (the harness went
+	// away); discard it explicitly, as the loop below already handles a mid-stream
+	// flush error by returning.
+	defer func() { _ = out.Flush() }()
 
 	enc := json.NewEncoder(out)
 	for in.Scan() {

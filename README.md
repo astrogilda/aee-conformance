@@ -160,13 +160,20 @@ with its own I-JSON parser, RFC 8785 serializer, RFC 6962 Merkle root,
 run-binding derivation, and Ed25519 tier, built with no sight of the reference
 code. It cleared 125/125 at suiteRevision 1, then re-ran against the round-7
 corpus and reached 138/138 at suiteRevision 2 after a spec-diff-led update
-(132/138 on the unchanged build), and 148/149 at suiteRevision 5 -- the single
-miss being the vector that pins the nesting bound, which it reads as 256 where
-the specification now says 128. It keeps its own authorship, history, and CI.
-The link is pinned to the build that produced the 138/138 record, whose source
-digest is `sha256:2bea1345...` in that repository's `reports/INDEX.json`; a
-commit alone cannot name the source it carries, which is why they bind the
-result to a content digest and why this pin cites one.
+(132/138 on the unchanged build), and cleared suiteRevision 3 at 140/140 with
+the same build. That 140/140 is its author's last run; it has not been run
+against suiteRevision 4 or 5, so this suite publishes no suiteRevision-5 score
+in its column. In our own voice, not its author's: the suiteRevision-5 vector
+`bad-741` pins the nesting bound at 128 where this build reads 256, so we expect
+it to answer valid there where the reference rails answer invalid -- a
+one-constant update on its side. That is a rule difference we derived, not a run
+it produced, and we do not report a derived figure as its score. It keeps its
+own authorship, history, and CI. The link is pinned to the build that recorded
+the 140/140 run, whose source digest `sha256:2bea1345...` is unchanged from the
+138/138 build in that repository's `reports/INDEX.json` (the checker source did
+not move between suiteRevision 2 and 3); a commit alone cannot name the source
+it carries, which is why they bind the result to a content digest and why this
+pin cites one.
 
 That one reading has already earned its keep. The specification did not pin a
 maximum JSON nesting depth, so all five of my rails chose 128 and agreed at every
@@ -181,4 +188,4 @@ contract, and a conformant checker passes even when it evaluates in a different
 order, since the suite compares verdicts and code sets and ignores both message
 text and evaluation order.
 
-[aee-checker]: https://github.com/Rul1an/aee-checker/tree/47dbaf17a405b3949e5cad20321b9b70ae38071c
+[aee-checker]: https://github.com/Rul1an/aee-checker/tree/0cf46c1fa61517c955fc8f5283be4d435010765c

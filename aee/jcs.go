@@ -202,6 +202,9 @@ func checkStringLiteral(b []byte) (int, error) {
 			if r == utf8.RuneError && size <= 1 {
 				return 0, fmt.Errorf("%w: invalid UTF-8 at byte %d of string", ErrStringNotScalar, i)
 			}
+			if isNoncharacter(uint32(r)) {
+				return 0, fmt.Errorf("%w: noncharacter U+%04X in string", ErrStringNotScalar, r)
+			}
 			i += size
 		}
 	}
@@ -236,12 +239,29 @@ func checkEscape(b []byte) (int, error) {
 		if lo < 0xDC00 || lo >= 0xE000 {
 			return 0, fmt.Errorf("%w: high surrogate \\u%04X followed by \\u%04X, which is not a low surrogate", ErrStringNotScalar, hi, lo)
 		}
+		if cp := uint32(0x10000) + (hi-0xD800)<<10 + (lo - 0xDC00); isNoncharacter(cp) {
+			return 0, fmt.Errorf("%w: noncharacter U+%04X in string", ErrStringNotScalar, cp)
+		}
 		return pair, nil
 	case hi >= 0xDC00 && hi < 0xE000:
 		return 0, fmt.Errorf("%w: unpaired low surrogate \\u%04X", ErrStringNotScalar, hi)
 	default:
+		if isNoncharacter(hi) {
+			return 0, fmt.Errorf("%w: noncharacter U+%04X in string", ErrStringNotScalar, hi)
+		}
 		return 6, nil
 	}
+}
+
+// isNoncharacter reports whether r is a Unicode noncharacter: U+FDD0..U+FDEF, or
+// U+nFFFE/U+nFFFF in any of the 17 planes. RFC 7493 section 2.1 forbids these in the
+// same sentence as surrogates, so strict I-JSON rejects them wherever a string
+// literal appears, at any depth and in both member-name and value position. They are
+// valid Unicode scalar values, so nothing substitutes for them and every rail decodes
+// identical bytes identically; the rejection exists so a from-spec verifier that reads
+// the RFC 7493 label cannot reject a record another rail accepts.
+func isNoncharacter(r uint32) bool {
+	return r&0xFFFE == 0xFFFE || (r >= 0xFDD0 && r <= 0xFDEF)
 }
 
 // hex4 reads the four hex digits of a \u escape from the start of b.

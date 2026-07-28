@@ -145,7 +145,7 @@ carries the authoritative id-to-spec-line table.
 | aee-c-89 | L662-673 | arming chain-member syntax: positive aeeRunSeq; aeeChainScope required with it; aeePrevRunBinding lowercase 64-hex, absent exactly when aeeRunSeq is 1 |
 | aee-c-90 | L385-398 | no two attackResults rows share an attackId |
 
-## Vectors (115)
+## Vectors (117)
 
 `parent` names the accept-suite shape the vector derives from (the
 accept vectors land separately; the parent statements are built
@@ -261,6 +261,8 @@ so the declared fault stays the ONLY fault.
 | `bad-740-payload-cesu8` | ok-001 | covering payload gains a member whose value carries a surrogate encoded directly in UTF-8 (CESU-8, ED A0 80) | re-sign-record, recompute-batch-root | aee-c-18 | `payload-not-ijson` | L660-663 |
 | `bad-741-payload-nesting-exceeds-max-depth` | ok-001 | covering payload nested 129 deep, one level past the normative bound | re-sign-record, recompute-batch-root | aee-c-18 | `payload-not-ijson` | L107-114 |
 | `bad-742-payload-nesting-empty-container-leaf` | ok-001 | covering payload nested 129 deep with an empty-container leaf, one past the bound | re-sign-record, recompute-batch-root | aee-c-18 | `payload-not-ijson` | L107-114 |
+| `bad-743-statement-noncharacter-vocabulary-label` | ok-002 | vocabulary label carrying the noncharacter U+FFFF | recompute-vocabulary-digest | aee-c-18 | `statement-malformed` | L79-99 |
+| `bad-744-payload-noncharacter` | ok-001 | covering payload gains a member whose value carries the noncharacter U+FFFF | re-sign-record, recompute-batch-root | aee-c-18 | `payload-not-ijson` | L79-99 |
 | `bad-817-payload-noncanonical-base64` | ok-001 | covering record payload re-encoded as non-canonical base64 (nonzero trailing bits); the record no longer strict-decodes | - | aee-c-19 | `record-undecodable` | L609-612 |
 | `bad-808-coverage-absent` | ok-002 | drop coverage | - | aee-c-83 | `coverage-missing` | L358-362 |
 | `bad-809-snake-case-doesnotassert` | ok-002 | statement carries the rejected snake_case spelling of doesNotAssert | - | aee-c-84 | `member-spelling` | L759-769 |
@@ -338,6 +340,8 @@ so the declared fault stays the ONLY fault.
 - **bad-740-payload-cesu8**: rawBytes: the payload path byte-compares against the carried bytes, so a substitution cannot round-trip there; this vector pins the CODE rather than the verdict..
 - **bad-741-payload-nesting-exceeds-max-depth**: rawBytes: the bound is normative because it was not. The reference rails chose 128 and the independent from-spec checker chose 256, so identical bytes were evidence to one conforming verifier and malformed to another across 127 depths..
 - **bad-742-payload-nesting-empty-container-leaf**: rawBytes: the empty-container companion to bad-741. A rail that charges a level per parsed child rather than per open container never charges an empty container, so it accepts at depth 129 what the bracket-counting rails reject. bad-741's scalar leaf could not discriminate it..
+- **bad-743-statement-noncharacter-vocabulary-label**: rawBytes: a noncharacter is a valid scalar that nothing substitutes, so this is not a live cross-rail split; it is the RFC 7493 label made true, so a from-spec verifier reading the label does not reject a record we accept..
+- **bad-744-payload-noncharacter**: rawBytes: the payload position of bad-743. RFC 7493 section 2.1 forbids noncharacters in every string literal, not only member names..
 - **bad-817-payload-noncanonical-base64**: encoding-layer divergence: Go decodes with StdEncoding.Strict() and the Python rail re-encode-compares, so both reject; a lenient decoder would accept. The stale signature and batch root are unreachable because a decode failure short-circuits both checks (validity.go:120).
 - **bad-809-snake-case-doesnotassert**: single-canonicalization rule: no alias.
 - **bad-810-missing-issuedat**: artifact-only parent: no armedAt comparison cascade.

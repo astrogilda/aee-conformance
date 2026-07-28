@@ -26,6 +26,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/astrogilda/aee-conformance/aee"
@@ -46,10 +47,17 @@ type response struct {
 }
 
 func main() {
-	in := bufio.NewScanner(os.Stdin)
+	run(os.Stdin, os.Stdout, os.Stderr)
+}
+
+// run reads one request object per line from stdin and writes one response
+// object per line to stdout, so the protocol loop is exercisable in a test
+// without a real process boundary.
+func run(stdin io.Reader, stdout, stderr io.Writer) {
+	in := bufio.NewScanner(stdin)
 	// Candidates can be large; raise the line cap well above the 64 KiB default.
 	in.Buffer(make([]byte, 0, 1<<20), 16<<20)
-	out := bufio.NewWriter(os.Stdout)
+	out := bufio.NewWriter(stdout)
 	defer out.Flush()
 
 	enc := json.NewEncoder(out)
@@ -69,16 +77,16 @@ func main() {
 		// A write/flush failure means stdout is broken (the harness went away);
 		// there is nothing left to report to, so stop the loop.
 		if err := enc.Encode(resp); err != nil {
-			fmt.Fprintln(os.Stderr, "shim: encode failed:", err)
+			fmt.Fprintln(stderr, "shim: encode failed:", err)
 			return
 		}
 		if err := out.Flush(); err != nil {
-			fmt.Fprintln(os.Stderr, "shim: flush failed:", err)
+			fmt.Fprintln(stderr, "shim: flush failed:", err)
 			return
 		}
 	}
 	if err := in.Err(); err != nil {
-		fmt.Fprintln(os.Stderr, "shim: read failed:", err)
+		fmt.Fprintln(stderr, "shim: read failed:", err)
 	}
 }
 

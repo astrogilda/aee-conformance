@@ -5,6 +5,55 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 6 (the depth boundary and the noncharacter exclusion)
+
+- Corpus: **153 vectors (36 accept, 117 reject)**. specDigest advances to
+  `606215de...` at upstream commit `aa9aa9c`, which adds two paragraphs to the
+  Prerequisites: the noncharacter exclusion below, and a normative-honesty
+  sentence stating that a reading no vector exercises is untested rather than
+  confirmed. Four new vectors, two normative reasons.
+- **The depth boundary the previous revision could not discriminate.** Revision 5
+  made the nesting bound normative at 128 with `bad-741`, but `bad-741` is a
+  scalar leaf at open-container depth 130 — the one shape a verifier that counts
+  per parsed value rejects correctly — and nothing in the corpus sat at the 128
+  boundary, so a constant-only fix and a correct counting rule scored identically.
+  The independent checker named this precisely. `ok-036` (accept) puts a scalar
+  leaf at open-container depth 128, the exact bound; `bad-742` (reject) puts an
+  **empty-container** leaf at open-container depth 129, one level past it. The
+  empty-container shape is the discriminator: a verifier that charges nesting per
+  parsed child never charges an empty container its own level, so it slips one
+  past the bound.
+- **A first-party split the pair also closed.** That exact shape was live in the
+  reference Go rail: `decodeValue` charged depth per child, so `aee/jcs.go`
+  accepted an empty-object leaf at open-container depth 129 where the Python rail
+  (`run_vectors.py`, a bracket counter) rejected it — the two reference rails
+  disagreeing on identical bytes at one depth, which is the parity the bound
+  exists to guarantee. The guard moved into the container branch so an empty
+  container is charged when it opens; `bad-742` is the regression pin (reverting
+  the guard makes the buggy rail accept it). The same off-by-one was fixed in the
+  TypeScript payload parse.
+- **The noncharacter exclusion (`bad-743`, `bad-744`).** The string
+  well-formedness rule cited strict I-JSON, and RFC 7493 section 2.1 forbids the
+  66 Unicode noncharacters (U+FDD0..U+FDEF and U+nFFFE/U+nFFFF in every plane) in
+  the same sentence as surrogates, but every rail accepted U+FFFF. A noncharacter
+  is a valid scalar value that nothing substitutes for, so it is not a cross-rail
+  decoding split — identical bytes give identical digests everywhere — but a
+  verifier implementing the RFC 7493 label rather than the narrower scalar-value
+  wording would reject a record another accepts. `bad-743` carries U+FFFF in a
+  vocabulary label (statement position); `bad-744` carries it in a payload value.
+  Every rail now rejects noncharacters wherever a string literal appears, at any
+  depth and in both member-name and value position.
+- **Independent checker status.** `Rul1an/aee-checker` reached **149/149 on
+  suiteRevision 5** (2026-07-28, aee-checker#3): it adopted the 128 bound and,
+  rather than only move the constant, moved its depth increment into the container
+  branch, which resolves the 148/149 note recorded under revision 5 below. It has
+  not run suiteRevision 6. Its author has stated the checker does not yet reject
+  noncharacters, so on `bad-743`/`bad-744` we would expect it to answer valid
+  where the reference rails answer invalid until it adds that check — a rule
+  difference derived from his own note, not a run he produced, and not reported as
+  his score. The two depth-boundary vectors his container-branch fix already
+  handles.
+
 ## suiteRevision 5 (byte-level tier: the quadrant that had no coverage)
 
 - Corpus: **149 vectors (35 accept, 114 reject)**, specDigest unchanged from

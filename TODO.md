@@ -5,7 +5,7 @@ Adversarial Execution Evidence (AEE) predicate. Contributions welcome.
 
 > **Session code-health audit 2026-07-24:** `go build ./...` + `go vet ./...` + `mypy` all
 > **CLEAN** — no findings for this repo. Combined cross-repo report:
-> `probity/research/162-session-audit-2026-07-24/AUDIT-REPORT.md`.
+> an internal audit report.
 
 ## Status: v0.6 review (in-toto/attestation#570)
 

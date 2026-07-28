@@ -16,7 +16,7 @@ forcing vector, and recorded as a `forced` decision in
 sections below are retained for the audit trail. Corner B is the single
 editorial call (keep our existing reject reading) and is reversible at vetting;
 A and C fixed a genuine under-enforcement present in every rail. Rail
-propagation to the probity and mcp verifier rails is a follow-up.
+propagation to the first-party verifier rails is a follow-up.
 
 Behavior of the two rails today (Go `aee/`, Python `packaging/run_vectors.py`)
 is stated for each so the operator knows the current default.
@@ -117,7 +117,7 @@ reject a non-zero offset (Go checks `t.Zone()` offset is 0; Python
 `_armed_utc_offset_ok`), and `bad-727-armedat-non-utc-offset` locks it (a valid
 `+05:00` instant before `issuedAt`, rejected as `arming-covers-nothing`,
 distinct from a late `armedAt`). Decision 8 in the registry now lists bad-727.
-Retained here for the audit trail. Rail propagation to the probity and mcp
+Retained here for the audit trail. Rail propagation to the first-party
 verifier rails is a follow-up (tracked with corners A and C below).
 
 ---

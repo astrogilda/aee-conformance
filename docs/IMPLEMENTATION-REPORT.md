@@ -55,9 +55,9 @@ digest is pinned and CI-checked (`scripts/spec-drift-gate.py`).
 | Reference rail (`aee/`) | Go | spec author | reference corpus, suiteRevision 6 | **153 / 153** |
 | Reference rail (`packaging/run_vectors.py`) | Python | spec author | reference corpus, suiteRevision 6 | **153 / 153** |
 | `Rul1an/aee-checker` | Rust | **independent, from-spec text alone** | author-run suiteRevision 5 (149), 2026-07-28 (aee-checker#3); suiteRevision 6 not run by its author | **149 / 149** at suiteRevision 5; suiteRevision 6 not run by author (see note 1) |
-| `@probity/verify` | TypeScript | spec author | its vendored set (153 vectors) + cross-rail parity tests | pass (see note 2) |
-| `probity-verify.py` | Python | spec author | its vendored set (153 vectors) + parity tests | pass (see note 2) |
-| matchlock-mcp `_aee.py` | Python | spec author | its vendored set (153 vectors) + parity tests | pass (see note 2) |
+| `ts-verify` | TypeScript | spec author | its vendored set (153 vectors) + cross-rail parity tests | pass (see note 2) |
+| `py-verify` | Python | spec author | its vendored set (153 vectors) + parity tests | pass (see note 2) |
+| MCP server rail `_aee.py` | Python | spec author | its vendored set (153 vectors) + parity tests | pass (see note 2) |
 
 The five first-party rails are separate decompositions rather than shared code, so
 they do catch each other's transcription errors, and the differential fuzzer over
@@ -86,7 +86,7 @@ no independent confirmation and are covered by first-party rails alone; the
 noncharacter pair in particular exercises a rule the checker's author has flagged
 as not yet implemented on his side.
 
-| Feature | Go ref | Python ref | Rust (3rd-party) | probity | mcp |
+| Feature | Go ref | Python ref | Rust (3rd-party) | TS rail | MCP rail |
 |---|---|---|---|---|---|
 | I-JSON / RFC 8785 canonical payloads | yes | yes | yes | yes | yes |
 | RFC 6962 batch root over DSSE PAE | yes | yes | yes | yes | yes |
@@ -126,8 +126,8 @@ as not yet implemented on his side.
    are the depth-boundary pair his own container-branch fix already handles. His
    suiteRevision-6 cell is "not run by author" until he posts a record and its source
    digest.
-2. **The consumer rails now carry the full reference corpus.** `@probity/verify`,
-   `probity-verify.py` and matchlock-mcp `_aee.py` each vendor all 153 vectors
+2. **The consumer rails now carry the full reference corpus.** The TypeScript rail,
+   the standalone Python rail and the MCP server rail each vendor all 153 vectors
    byte-for-byte (`VENDOR-STAMP.json` pins the source spec digest, upstream commit
    and a content digest; a consumer-side drift gate fails CI on any change without a
    re-vendor). "pass" means the rail implements the rule, is parity-tested on it, and

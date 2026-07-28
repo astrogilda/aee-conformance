@@ -147,7 +147,7 @@ currently coupled to its policy attestor).
 ## On independence
 
 I wrote the Go core here, the sibling Python implementation, and the three
-consumer rails in the Probity and matchlock-mcp stacks. Five implementations,
+consumer rails in two first-party stacks. Five implementations,
 one author, one reading of RFC 8785 and RFC 7493. They catch each other's
 transcription errors and the differential fuzzer catches drift between them, but
 they cannot catch a misreading of the specification, because they all inherit

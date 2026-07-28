@@ -15,7 +15,7 @@
       "requirement": "aeeChainScope two-sided equality gate: a consumer admits only the equal declared dimension set, neither a strictly finer (scope-narrowing) nor a strictly coarser (pooling) set",
       "specAnchors": ["L771-780"],
       "classification": "consumer-policy-unvectorable",
-      "reason": "The comparison is consumer policy ACROSS attestations. The conformance corpus is single-statement, so the equality gate cannot be exercised by a self-contained vector; it needs a multi-statement policy vector class (pol-001 narrowed -> reject, pol-002 pooled -> reject, pol-003 exact -> accept), designed in probity research/163/SEAM-chainscope-narrowing-attack.md and unbuilt.",
+      "reason": "The comparison is consumer policy ACROSS attestations. The conformance corpus is single-statement, so the equality gate cannot be exercised by a self-contained vector; it needs a multi-statement policy vector class (pol-001 narrowed -> reject, pol-002 pooled -> reject, pol-003 exact -> accept), designed in first-party research/163/SEAM-chainscope-narrowing-attack.md and unbuilt.",
       "witnessSketch": "A policy/ vector class over statement SETS, not single statements; requires a policy-replay harness the corpus does not currently define."
     },
     {

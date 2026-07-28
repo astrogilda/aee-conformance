@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """AEE v0.6 INVALID conformance-vector generator.
 
-Generates the 91 reject vectors of the adversarial-execution-evidence v0.6
+Generates the 118 reject vectors of the adversarial-execution-evidence v0.6
 conformance suite. Every vector is a COMPLETE in-toto Statement that a
 conforming verifier MUST reject for exactly ONE declared reason: each is
 derived from a fully-valid parent statement by one mutation plus the declared
@@ -1333,7 +1333,7 @@ def _b728() -> dict[str, Any]:
 vec("bad-728-artifact-two-subjects", "ok-007",
     "a second subject appended to an ARTIFACT-ONLY statement (no substrate "
     "rows)", [], [58], ["subject-cardinality"], _b728, spec="L122-126",
-    note="subject cardinality is unconditional (spec:171-175): exactly one "
+    note="subject cardinality is unconditional (spec:185-189): exactly one "
          "subject on a statement of any basis. bad-607 keeps a substrate row; "
          "this locks the previously substrate-scoped rule as unconditional on "
          "an artifact-only statement")
@@ -1938,6 +1938,36 @@ vec("bad-744-payload-noncharacter", "ok-001",
          "noncharacters in every string literal, not only member names.")
 
 
+def _b745() -> dict[str, Any]:
+    """A covering record whose signatures array is emptied. The spec now requires
+    the member to carry at least one entry, and an absent member is the same zero
+    as an empty array; the empty array is the spelling that reaches a rail whose
+    record type makes signatures a list, since both decode to a count of nothing.
+
+    Nothing is rederived, and that is the finding rather than a shortcut. A DSSE
+    leaf is H(0x00 || PAE) and the PAE pre-image spans only payloadType and
+    payload, so signatures sit outside every committed digest: the leaf, the
+    batchRoot, the run binding and the recomputed result are all bit for bit what
+    the parent carried. This is the only mutation in the suite that alters a
+    record and moves no commitment at all, which is precisely why the zero case
+    was invisible to every other check at this layer -- a statement stripped of
+    every signature stayed valid and kept its result, and only the derived
+    evidence tier dropped."""
+    st = P_caught()
+    st["predicate"]["observationRecords"][0]["signatures"] = []
+    return st
+
+
+vec("bad-745-record-signatures-empty", "ok-001",
+    "covering record's signatures array emptied to []", [],
+    [91], ["record-signatures-empty"], _b745, spec="L773-775",
+    note="the count is byte-pure and verifies nothing: a record carrying one "
+         "fabricated signature entry passes it and is caught only at the tier, so "
+         "this vector closes the literal zero-signature case and no more. It is "
+         "also the suite's one vector with an empty rederive chain, because "
+         "signatures are outside the PAE pre-image and so outside batchRoot")
+
+
 _B64_ALPHABET = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 )
@@ -2256,6 +2286,8 @@ COND = {
                                "aeeRunSeq; aeeChainScope required with it; "
                                "aeePrevRunBinding lowercase 64-hex, absent "
                                "exactly when aeeRunSeq is 1"),
+    91: ("L773-775", "each observation record's signatures member carries at "
+                     "least one entry"),
 }
 
 
@@ -2387,10 +2419,13 @@ def write_index() -> None:
     L.append("   arming constraint (bad-710); distinguishable only in")
     L.append("   already-invalid statements.")
     L.append("")
-    L.append("Signature failure is NEVER a failure code in this suite: whether a")
-    L.append("record's signature verifies against a consumer-named key is the")
-    L.append("evidence tier's separate, trust-relative question. Every committed")
-    L.append("signature here verifies under the derived test public key above.")
+    L.append("Signature VERIFICATION failure is NEVER a failure code in this suite:")
+    L.append("whether a record's signature verifies against a consumer-named key is")
+    L.append("the evidence tier's separate, trust-relative question. Every committed")
+    L.append("signature here verifies under the derived test public key above. How")
+    L.append("many entries the array carries is a different question, answered")
+    L.append("without key material and therefore inside validity: `bad-745` carries")
+    L.append("a record with zero of them and no signature to verify.")
     L.append("")
     L.append("## Deferred coverage (no vector, by design)")
     L.append("")
@@ -2468,7 +2503,7 @@ def main() -> None:
         with open(path) as f:
             json.load(f)  # every vector parses as JSON (a duplicate member is last-wins)
 
-    assert len(VECTORS) == 117, f"expected 115 vectors, built {len(VECTORS)}"
+    assert len(VECTORS) == 118, f"expected 118 vectors, built {len(VECTORS)}"
 
     # 3. index
     write_index()

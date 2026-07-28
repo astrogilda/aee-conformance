@@ -104,8 +104,16 @@ differential findings.
   neither cap nor tier-gate. Records that cover nothing do not
   participate in the method cap.
 - `record-undecodable` is a registry-extension code for a record whose
-  `payload` is not valid base64 (no committed vector exercises it; the
-  registry codes cover everything the suite commits).
+  `payload` is not valid base64; `bad-817-payload-noncanonical-base64`
+  exercises it.
+- `record-signatures-empty` is a registry-extension code for a record
+  carrying zero `signatures` entries, which the spec forbids. An absent
+  member and an empty array are the same fault. Counting entries needs no
+  key material, so the check sits with the other coverage-validity checks
+  and is the one signature-shaped question the byte-pure layer can answer;
+  it verifies nothing, and a record carrying fabricated signature bytes
+  passes it and is caught only at the tier.
+  `bad-745-record-signatures-empty` exercises it.
 - JCS floats: vector payloads are integer-only per the suite's
   serialization pin. The ES6 double path in `aee/jcs.go` is exact for the
   common range and conservative (reject, never accept) at the extreme

@@ -99,5 +99,5 @@ jobs:
         run: python3 scripts/interpretation-registry-gate.py
       - name: requirement-coverage matrix is current
         run: python3 scripts/coverage-matrix-gate.py --check
-      - name: replay every vector on the Python rail (must be 149/149)
+      - name: replay every vector on the Python rail (must be 154/154)
         run: python3 packaging/run_vectors.py

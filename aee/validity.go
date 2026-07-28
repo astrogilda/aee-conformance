@@ -1,14 +1,16 @@
 package aee
 
-// GATE 1 — coverage validity (spec:321-348). A consumption precondition, not
+// GATE 1 — coverage validity (spec:335-388). A consumption precondition, not
 // an optional lint: a consumer that consumes result, credits any row, or
 // applies either strength ordering MUST evaluate these first, and on failure
 // the attestation is INVALID and its result MUST NOT be consumed.
 //
-// Everything here reads record payloads but never signatures or consumer
-// policy, so it is a pure function of the carried statement (spec:323-325).
-// Signature verification — the one trust-relative step — is the evidence
-// tier's separate question (tier.go); a signature failure is never a
+// Everything here reads record payloads but never consumer policy, so it is
+// a pure function of the carried statement (spec:337-339). It reads exactly
+// one thing about signatures: how many entries the array carries, which needs
+// no key material and so costs the layer none of its purity. Signature
+// verification — the one trust-relative step — remains the evidence tier's
+// separate question (tier.go); a signature that fails to verify is never a
 // validity failure code.
 
 import (
@@ -20,7 +22,7 @@ import (
 	"time"
 )
 
-// Reserved payload members (spec:682-698).
+// Reserved payload members (spec:753-769).
 const (
 	memberRunBinding    = "aeeRunBinding"
 	memberKind          = "aeeKind"
@@ -117,9 +119,10 @@ func gate1WithContext(s *Statement) (states []recordState, binding string, issue
 
 // checkRecordsStatementLevel runs the record-set checks that hold for the
 // whole statement whenever observationRecords is non-empty, BEFORE any row
-// logic: batchRoot presence (spec:787), duplicate-record rejection
-// (spec:795-797), root recomputation (spec:799-801), and the orphaned-root
-// case (a batchRoot with no records to recompute over, spec:805-808).
+// logic: signature-entry presence (spec:773-775), batchRoot presence
+// (spec:864), duplicate-record rejection (spec:872-874), root recomputation
+// (spec:876-878), and the orphaned-root case (a batchRoot with no records to
+// recompute over, spec:882-885).
 func checkRecordsStatementLevel(p *Predicate) ([]recordState, []Code) {
 	var codes []Code
 	states := make([]recordState, len(p.Records))
@@ -129,6 +132,14 @@ func checkRecordsStatementLevel(p *Predicate) ([]recordState, []Code) {
 			codes = appendCode(codes, CodeBatchRootOrphaned)
 		}
 		return states, codes
+	}
+
+	// Envelope shape before payload bytes: a record's signatures member MUST
+	// carry at least one entry. Checked here rather than at the tier because
+	// counting array entries reads no key material, so the check keeps this
+	// layer a pure function of the carried statement.
+	if anyRecordSignaturesEmpty(p) {
+		codes = appendCode(codes, CodeRecordSignaturesEmpty)
 	}
 
 	decodeFailed := false
@@ -165,8 +176,39 @@ func checkRecordsStatementLevel(p *Predicate) ([]recordState, []Code) {
 	return states, codes
 }
 
+// anyRecordSignaturesEmpty reports whether any observation record carries no
+// signature entry at all. A record is a DSSE envelope, and the spec requires
+// its signatures member to carry at least one entry, so an absent member and
+// an empty array are the same fault: zero entries. Both land here, because a
+// missing member decodes to a nil slice.
+//
+// What this does NOT do, stated plainly so nobody reads more into it: it
+// proves nothing whatsoever about the signatures it counts. A producer who
+// fills the array with plausible-looking garbage bytes passes it, and is
+// caught only by real signature verification against a consumer-pinned key at
+// GATE 2. The check converts "admits a statement carrying zero signatures"
+// into "admits one whose signatures are structurally present but unchecked" —
+// a narrow improvement, not a substitute for verification.
+//
+// It is worth having because the zero case is otherwise invisible at this
+// layer. Stripping every signatures entry from every record leaves batchRoot
+// unchanged (a leaf is H(0x00||PAE) and the PAE pre-image spans only
+// payloadType and payload), leaves the statement valid, and leaves result at
+// whatever it was; only the derived evidence tier drops. A consumer gating on
+// result alone therefore admitted an entirely unsigned attestation. Being
+// byte-pure, this closes the literal zero-signature case in every deployment,
+// including ones that cannot do curve math at all.
+func anyRecordSignaturesEmpty(p *Predicate) bool {
+	for i := range p.Records {
+		if len(p.Records[i].Signatures) == 0 {
+			return true
+		}
+	}
+	return false
+}
+
 // payloadAnalysis is the outcome of the byte-level checks every REFERENCED
-// payload must pass (spec:337-339): canonical RFC 8785 + I-JSON RFC 7493
+// payload must pass (spec:373-375): canonical RFC 8785 + I-JSON RFC 7493
 // object, +json media type, reserved members, run binding equality.
 type payloadAnalysis struct {
 	codes     []Code
@@ -230,11 +272,11 @@ func analyzePayload(rec *Record, state *recordState, binding string) payloadAnal
 }
 
 // recordEval is a referenced record's covering evaluation: whether it
-// satisfies its declared aeeKind's constraints (spec:682-750), and the
+// satisfies its declared aeeKind's constraints (spec:753-827), and the
 // kind-specific code to report when it does not. A record violating any
-// constraint of its declared kind covers nothing (spec:700-703); a record
+// constraint of its declared kind covers nothing (spec:771-774); a record
 // whose kind is unrecognized covers nothing and is otherwise ignored
-// (spec:753-757).
+// (spec:830-834).
 type recordEval struct {
 	kind        string
 	method      string
@@ -301,7 +343,7 @@ func evaluateKind(a payloadAnalysis, pinnedPosture string, armingPostures []stri
 		}
 		// The two sealed posture equalities are jointly enforced: the seal's
 		// posture must equal the pinned networkPosture digest AND every
-		// referenced arming record's posture claim (spec:704-709).
+		// referenced arming record's posture claim (spec:775-786).
 		if posture != pinnedPosture {
 			return ev
 		}
@@ -400,7 +442,7 @@ func anyObservationRefOutOfRange(p *Predicate) bool {
 	return false
 }
 
-// classRequirement is one class-match requirement of a row (spec:330-335).
+// classRequirement is one class-match requirement of a row (spec:344-349).
 type classRequirement struct {
 	kind        string
 	genericCode Code
@@ -417,7 +459,7 @@ func checkSubstrateRow(p *Predicate, row *Row, states []recordState, binding str
 
 	// A fail-closed substrate row (out-of-vocabulary label, or missing or
 	// out-of-vocabulary method) cannot satisfy the class-match requirement
-	// and is therefore invalid (spec:350-358).
+	// and is therefore invalid (spec:390-398).
 	labelCaught := isCaughtLabel(voc, row.ContainmentObserved)
 	labelClean := isCleanLabel(voc, row.ContainmentObserved)
 	methodValid := row.Method != nil && (*row.Method == MethodIntercepted || *row.Method == MethodReconstructed)
@@ -425,7 +467,7 @@ func checkSubstrateRow(p *Predicate, row *Row, states []recordState, binding str
 		return appendCode(codes, CodeFailClosedSubstrateRow), nil
 	}
 
-	// observationRefs shape (spec:328-329).
+	// observationRefs shape (spec:342-343).
 	if !row.RefsPresent {
 		return appendCode(codes, CodeRefsEmpty), nil
 	}
@@ -451,7 +493,7 @@ func checkSubstrateRow(p *Predicate, row *Row, states []recordState, binding str
 		return codes, nil
 	}
 
-	// Every referenced payload must pass the byte-level checks (spec:337-339).
+	// Every referenced payload must pass the byte-level checks (spec:373-375).
 	analyses := map[int]payloadAnalysis{}
 	for _, idx := range uniqueRefs {
 		a := analyzePayload(&p.Records[idx], &states[idx], binding)
@@ -464,7 +506,7 @@ func checkSubstrateRow(p *Predicate, row *Row, states []recordState, binding str
 		return codes, nil
 	}
 
-	// Kind constraints + class-match (spec:330-335, 632-660).
+	// Kind constraints + class-match (spec:344-349, 689-710).
 	pinnedPosture := p.Env.NetworkPosture.Sha256()
 	var armingPostures []string
 	for _, idx := range uniqueRefs {
@@ -529,7 +571,7 @@ func checkSubstrateRow(p *Predicate, row *Row, states []recordState, binding str
 		return codes, nil
 	}
 
-	// Method cap (spec:340-341): the row's method is no stronger than the
+	// Method cap (spec:376-377): the row's method is no stronger than the
 	// weakest signed aeeMethod across its COVERING records (reconstructed is
 	// weaker than intercepted). Registry precedence pin 3: records that
 	// cover nothing do not participate in the cap.

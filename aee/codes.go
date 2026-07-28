@@ -65,6 +65,12 @@ const (
 	CodeDuplicateRecord   Code = "duplicate-record"
 	CodeRecordsAbsent     Code = "records-absent"
 	CodeRecordUndecodable Code = "record-undecodable" // registry extension: a record whose payload is not valid base64 (no committed vector; documented)
+	// CodeRecordSignaturesEmpty is a registry extension for a record whose
+	// signatures array is absent or carries zero entries, which the spec
+	// forbids ("signatures, which MUST carry at least one entry"). The name
+	// says what is detected — an empty array — and deliberately not
+	// "unsigned", because counting entries is all this code stands for.
+	CodeRecordSignaturesEmpty Code = "record-signatures-empty"
 )
 
 // GATE 1 — per-row coverage-validity codes.

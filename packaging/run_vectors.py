@@ -841,6 +841,14 @@ class RecordView:
             "+json"
         )
         self.media_ok = media_ok
+        # How many DSSE signature entries the record carries, and nothing about
+        # whether any of them verifies. A record is a DSSE envelope and the spec
+        # requires its signatures member to carry at least one entry, so an
+        # absent member and an empty array are the same fault: zero entries.
+        # Counting needs no key material, which is why the count lives here with
+        # the byte-pure facts and the verification lives at the tier.
+        sigs = rec.get("signatures") if isinstance(rec, dict) else None
+        self.signature_count = len(sigs) if isinstance(sigs, list) else 0
 
     @property
     def kind(self) -> Any:
@@ -1191,7 +1199,7 @@ class ReferenceVerifier:
     ) -> bool:
         # Coverage MUST be an exhaustive, disjoint partition of the
         # manifest's classes across assessedClasses/outOfScope/
-        # routedElsewhere, each a real manifest class (spec:409-414,
+        # routedElsewhere, each a real manifest class (spec:466-471,
         # 350-353): without this a whole class is silently dropped from
         # all three sets (or a fabricated class pads assessedClasses).
         acct: dict[str, int] = {}
@@ -1228,7 +1236,7 @@ class ReferenceVerifier:
         assessed: list[Any],
     ) -> None:
         attack_class, expected_ids = self._coverage_index(manifest_classes, assessed)
-        # No two rows may carry the same attackId (spec:434-447): one row per
+        # No two rows may carry the same attackId (spec:491-504): one row per
         # executed attack is a well-formedness invariant. Detected BEFORE the
         # row_ids set is built, because the set-equality check below silently
         # collapses duplicates.
@@ -1277,7 +1285,7 @@ class ReferenceVerifier:
 
     def _check_subject_cardinality(self, st: _VerifyState, out: Outcome) -> None:
         # subject MUST contain exactly one entry on a statement of ANY basis
-        # (spec:171-175). The six binding-digest-input requirement stays
+        # (spec:185-189). The six binding-digest-input requirement stays
         # substrate-scoped (_check_substrate_binding_inputs).
         subject = st.stmt.get("subject")
         subject = subject if isinstance(subject, list) else []
@@ -1338,6 +1346,19 @@ class ReferenceVerifier:
         views: list[RecordView] = []
         if isinstance(records, list) and records:
             views = [RecordView(i, rec) for i, rec in enumerate(records)]
+            # Envelope shape before payload bytes, mirroring Go
+            # validity.go:137-143: every record's signatures member MUST carry
+            # at least one entry (spec:773-775), and an absent member is the
+            # same zero as an empty array. The check is a count and proves
+            # nothing about the entries it counts -- fabricated signature bytes
+            # satisfy it and are caught only by verification at the tier -- but
+            # the zero case is otherwise invisible here, because signatures sit
+            # outside the PAE pre-image and so outside batchRoot: stripping them
+            # all leaves the root, the validity verdict and the result
+            # unchanged, and only the derived tier drops. A consumer gating on
+            # result alone therefore admitted an entirely unsigned attestation.
+            if any(v.signature_count == 0 for v in views):
+                out.add("record-signatures-empty")
             if any(v.decode_err for v in views):
                 # Mirror Go validity.go:105-120: a record whose payload is not
                 # strict base64 is record-undecodable, and the dup-record and
@@ -1726,6 +1747,10 @@ _CODE_REGISTRY: dict[str, tuple[str, tuple[str, ...]]] = {
     "run-entropy-missing": ("gate0", ("binding",)),
     "digest-not-canonical": ("gate0", ("binding",)),
     "fail-closed-substrate-row": ("gate0", ()),
+    # Not a root-family fault: signatures are outside the PAE pre-image, so a
+    # record with none still recomputes the same leaf and the same batchRoot,
+    # and the second-fault check must keep asserting that the root recomputes.
+    "record-signatures-empty": ("gate0", ()),
     "record-undecodable": ("gate0", ("root",)),
     "batch-root-missing": ("gate0", ("root", "binding")),
     "batch-root-mismatch": ("gate0", ("root",)),

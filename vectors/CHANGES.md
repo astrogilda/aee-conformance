@@ -5,6 +5,52 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 7 (a record must carry a signature to be a record)
+
+- Corpus: **154 vectors (36 accept, 118 reject)**. specDigest advances to
+  `da840f9e...` at upstream commit `3502c52`. One new vector, one normative
+  reason.
+- **The normative change.** `observationRecords` described a DSSE envelope as
+  `payload`, `payloadType` and `signatures` without saying how many signature
+  entries the last of those must carry, so a record carrying an empty array was
+  a well-formed record by the letter of the definition. The definition now
+  requires at least one entry. The revision also reconciles the verify-then-read
+  order the same section states with the byte-pure gates that read payload
+  fields before any verification: those gates read ahead deliberately, because a
+  consumer holding no key material must still be able to run them, and what they
+  produce is a stage rather than a conclusion. Coverage validity is restated in
+  the same terms — it establishes that a statement is well formed and never that
+  it is true, and it becomes a security property only in combination with
+  observation-record signature verification.
+- **Why the corpus could not see the zero case.** A DSSE leaf is
+  `H(0x00 || PAE)` and the PAE pre-image spans `payloadType` and `payload` only,
+  so signatures sit outside every commitment the predicate makes. Stripping
+  every signature entry from every record leaves the leaf hashes, `batchRoot`,
+  the run binding and the recomputed `result` bit for bit unchanged, leaves the
+  statement valid, and drops only the derived evidence tier. A consumer gating
+  on `result` alone therefore admitted an entirely unsigned attestation, and no
+  check at the byte-pure layer could notice.
+- **`bad-745-record-signatures-empty`.** Derived from the `ok-001` shape by
+  emptying the covering record's `signatures` array, with an empty rederive
+  chain — the only vector in the suite that alters a record and moves no
+  committed digest at all, which is the finding stated as a construction. An
+  absent member and an empty array are the same fault, since both are a count of
+  zero. The check is byte-pure and proves nothing about the entries it counts: a
+  record carrying one fabricated signature stays valid here and is caught only
+  by verification at the tier, so the vector closes the literal zero-signature
+  case and no more.
+- **Both reference rails.** The Go rail carries the check as
+  `record-signatures-empty` in `checkRecordsStatementLevel`; the Python rail
+  gained the same code this revision, since without it the two rails disagreed
+  on a statement with an empty `signatures` array — the Python rail answered
+  valid where Go answered invalid. Verified by mutation: with the Python check
+  disabled, `bad-745` is the only failing vector of the 154 and fails as
+  "expected invalid, observed valid".
+- **Independent checker status.** `Rul1an/aee-checker`'s last author-run remains
+  **suiteRevision 5 at 149/149** (2026-07-28, aee-checker#3). It has not run
+  suiteRevision 6 and has not run suiteRevision 7, so this suite publishes no
+  score for it at either revision.
+
 ## suiteRevision 6 (the depth boundary and the noncharacter exclusion)
 
 - Corpus: **153 vectors (36 accept, 117 reject)**. specDigest advances to

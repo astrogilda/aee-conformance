@@ -23,7 +23,7 @@ func Gate0(s *Statement) []Code {
 	var codes []Code
 	p := s.Predicate
 
-	// 1. Statement envelope types (spec:207,211; both halves of condition
+	// 1. Statement envelope types (spec:221,225; both halves of condition
 	//    coverage: _type and predicateType).
 	if s.Type != StatementType {
 		codes = appendCode(codes, CodeStatementTypeUnsupported)
@@ -38,17 +38,17 @@ func Gate0(s *Statement) []Code {
 	}
 
 	// 3. Rejected snake_case spelling: single canonicalization per content
-	//    (spec:815-820).
+	//    (spec:892-897).
 	if _, ok := p.Raw[rejectedSnakeCaseSpelling]; ok {
 		codes = appendCode(codes, CodeMemberSpelling)
 	}
 
-	// 4. result vocabulary (spec:307-309).
+	// 4. result vocabulary (spec:321-323).
 	if !p.ResultPresent || !isResultToken(p.Result) {
 		codes = appendCode(codes, CodeResultVocabulary)
 	}
 
-	// 5. observationEnvironment members (spec:377-390). observationVocabulary
+	// 5. observationEnvironment members (spec:434-447). observationVocabulary
 	//    absence carries its own code; the other four report
 	//    environment-incomplete.
 	env := p.Env
@@ -64,27 +64,27 @@ func Gate0(s *Statement) []Code {
 		}
 	}
 
-	// 6. Vocabulary shape, subset, digest (spec:387-400).
+	// 6. Vocabulary shape, subset, digest (spec:444-457).
 	if env != nil && env.Vocabulary != nil {
 		codes = gate0Vocabulary(env.Vocabulary, codes)
 	}
 
-	// 7. Corpus manifest digest + duplicate attack ids (spec:381-384, 363-364).
+	// 7. Corpus manifest digest + duplicate attack ids (spec:438-441, 403-404).
 	if env != nil && env.Corpus != nil {
 		codes = gate0Corpus(env.Corpus, codes)
 	}
 
-	// 8. coverage presence (spec:407-414).
+	// 8. coverage presence (spec:464-471).
 	if !p.CoveragePresent {
 		codes = appendCode(codes, CodeCoverageMissing)
 	}
 
-	// 9. attackResults presence (required member, spec:416).
+	// 9. attackResults presence (required member, spec:473).
 	if !p.RowsPresent {
 		codes = appendCode(codes, CodeStatementMalformed)
 	}
 
-	// 9b. subject cardinality is unconditional (spec:171-175): subject MUST
+	// 9b. subject cardinality is unconditional (spec:185-189): subject MUST
 	//     contain exactly one entry on a statement of ANY basis. Only the
 	//     six binding-digest-input requirement stays substrate-scoped (checked
 	//     in gate0SubstrateBindingInputs).
@@ -92,7 +92,7 @@ func Gate0(s *Statement) []Code {
 		codes = appendCode(codes, CodeSubjectCardinality)
 	}
 
-	// 10. Per-row actualLayer altitude (spec:639-657): a missing member is a
+	// 10. Per-row actualLayer altitude (spec:696-710): a missing member is a
 	//     malformed statement; a clean row must carry the literal "none".
 	vocabOK := env != nil && env.Vocabulary != nil && !containsVocabularyCodes(codes)
 	for i := range p.Rows {
@@ -106,7 +106,7 @@ func Gate0(s *Statement) []Code {
 		}
 	}
 
-	// 11. Coverage integrity at attack granularity (spec:442-445): every row
+	// 11. Coverage integrity at attack granularity (spec:499-502): every row
 	//     attackId appears in the manifest, and the union of row attackIds
 	//     exactly equals the manifest's attackIds for the assessed classes.
 	if env != nil && env.Corpus != nil && env.Corpus.Classes != nil && p.Coverage != nil {
@@ -114,12 +114,12 @@ func Gate0(s *Statement) []Code {
 	}
 
 	// 12. Substrate-carrying statements: runEntropy, subject cardinality,
-	//     and the six binding digest inputs (spec:127-186, 360-362).
+	//     and the six binding digest inputs (spec:141-200, 400-402).
 	if hasSubstrateRows(p) {
 		codes = gate0SubstrateBindingInputs(s, codes)
 	}
 
-	// 13. issuedAt (spec:822-824).
+	// 13. issuedAt (spec:899-901).
 	if !p.IssuedAtPresent {
 		codes = appendCode(codes, CodeIssuedAtMissing)
 	} else if _, err := time.Parse(time.RFC3339, p.IssuedAt); err != nil {
@@ -189,7 +189,7 @@ func gate0Vocabulary(v *Vocabulary, codes []Code) []Code {
 }
 
 // canonicalVocabulary builds the JCS bytes of the digest pre-image object
-// {"caught": [...], "labels": [...]} (spec:393-396).
+// {"caught": [...], "labels": [...]} (spec:450-453).
 func canonicalVocabulary(labels, caught []string) []byte {
 	var buf bytes.Buffer
 	buf.WriteString(`{"caught":`)
@@ -222,7 +222,7 @@ func gate0Corpus(c *Corpus, codes []Code) []Code {
 	if c.Sha256() != SHA256Hex(canon) {
 		codes = appendCode(codes, CodeCorpusDigestMismatch)
 	}
-	// An attackId MUST NOT appear under more than one class (spec:383-384);
+	// An attackId MUST NOT appear under more than one class (spec:440-441);
 	// a duplicate inside one class array is the same integrity fault.
 	seen := map[string]bool{}
 	for _, class := range sortedKeys(c.Classes) {
@@ -245,7 +245,7 @@ func gate0CoverageIntegrity(p *Predicate, env *Environment, codes []Code) []Code
 	}
 	// Coverage MUST be an exhaustive, disjoint partition of the manifest's
 	// classes across assessedClasses / outOfScope / routedElsewhere, each a
-	// real manifest class (spec:409-414, 399-402). Enforcing this closes a
+	// real manifest class (spec:466-471, 456-459). Enforcing this closes a
 	// fail-open: without it a producer drops a failing class from all three
 	// sets (silently omitting it while still reporting pass), or pads
 	// assessedClasses with a fabricated class the manifest never carried.
@@ -284,7 +284,7 @@ func gate0CoverageIntegrity(p *Predicate, env *Environment, codes []Code) []Code
 			expected[id] = true
 		}
 	}
-	// No two rows may carry the same attackId (spec:434-447): "one row per
+	// No two rows may carry the same attackId (spec:491-504): "one row per
 	// executed attack" is a well-formedness invariant. A duplicate is detected
 	// BEFORE the rowID set is built, because the set-equality coverage check
 	// below silently collapses duplicates.
@@ -310,7 +310,7 @@ func gate0SubstrateBindingInputs(s *Statement, codes []Code) []Code {
 	env := p.Env
 
 	// runEntropy is required exactly when any row carries basis: substrate
-	// (spec:400-402). Its absence reports its member code, never a binding
+	// (spec:457-459). Its absence reports its member code, never a binding
 	// mismatch (registry precedence pin 1).
 	if env == nil || env.RunEntropy == nil {
 		codes = appendCode(codes, CodeRunEntropyMissing)
@@ -318,7 +318,7 @@ func gate0SubstrateBindingInputs(s *Statement, codes []Code) []Code {
 		codes = appendCode(codes, CodeDigestNotCanonical)
 	}
 
-	// subject cardinality is checked unconditionally in Gate0 (spec:171-175).
+	// subject cardinality is checked unconditionally in Gate0 (spec:185-189).
 	// Here only the subject's binding-digest input is validated, alongside the
 	// other five substrate-scoped digest inputs.
 	if len(s.Subject) >= 1 {
@@ -331,7 +331,7 @@ func gate0SubstrateBindingInputs(s *Statement, codes []Code) []Code {
 	}
 
 	// The remaining binding digest inputs must be lowercase 64-hex
-	// (spec:164-167). Absent parent members were already reported as
+	// (spec:178-181). Absent parent members were already reported as
 	// environment-incomplete.
 	if env != nil {
 		for _, digest := range []string{

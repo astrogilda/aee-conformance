@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 153,
-    "pass": 153,
+    "vectors": 154,
+    "pass": 154,
     "fail": 0
   },
   "notes": [],
@@ -3651,6 +3651,34 @@
         "verdict": "invalid",
         "codes": [
           "payload-not-ijson"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-745-record-signatures-empty",
+      "file": "vectors/reject/bad-745-record-signatures-empty.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "record-signatures-empty"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "record-signatures-empty"
         ]
       },
       "inManifest": true,

@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://github.com/astrogilda/aee-conformance/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/astrogilda/aee-conformance/ci.yml?branch=main&label=build" alt="build status"></a>
   <img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="license Apache-2.0">
-  <img src="https://img.shields.io/badge/conformance%20vectors-153-e8951c" alt="153 conformance vectors">
+  <img src="https://img.shields.io/badge/conformance%20vectors-154-e8951c" alt="154 conformance vectors">
   <img src="https://img.shields.io/badge/rails-Go%20%C2%B7%20Python-546274" alt="Go and Python rails">
   <img src="https://img.shields.io/badge/predicate-in--toto%20AEE%20v0.6-6f57c2" alt="in-toto AEE v0.6 predicate">
 </p>
@@ -99,8 +99,11 @@ derived but come out unequal. `records-absent` fires when
 only once records exist. The method cap reads covering records only, so
 records that cover nothing do not participate, and the two sealed posture
 equalities (pinned digest, arming record's claim) are enforced jointly,
-not independently. Signature failure is never a failure code; it is a
-tier outcome.
+not independently. Signature *verification* failure is never a failure
+code; it is a tier outcome. The one signature-shaped question the
+byte-pure layer does answer is how many entries the array carries: a
+record with zero of them (`record-signatures-empty`) is malformed, since
+counting entries needs no key material.
 
 ## Conformance vectors
 
@@ -163,16 +166,18 @@ corpus and reached 138/138 at suiteRevision 2 after a spec-diff-led update
 (132/138 on the unchanged build), cleared suiteRevision 3 at 140/140, and
 cleared suiteRevision 5 at 149/149 after it adopted the normative nesting bound
 of 128 and moved its depth counter from per parsed value into the container
-branch (aee-checker#3, 2026-07-28). It has not been run against suiteRevision 6,
-so this suite publishes no suiteRevision-6 score in its column. In our own voice,
-not its author's: two of the four new vectors (`bad-743`, `bad-744`) require
-rejecting the Unicode noncharacters RFC 7493 section 2.1 forbids, and its author
-has stated the checker does not yet implement that check, so we expect it to
-answer valid there where the reference rails answer invalid -- a rule difference
-we derived, not a run it produced, and we do not report a derived figure as its
-score. The other two new vectors are the depth-boundary pair its container-branch
-fix already handles. It keeps its own authorship, history, and CI. The link is
-pinned to the build that recorded the 149/149 run.
+branch (aee-checker#3, 2026-07-28). It has not been run against suiteRevision 6
+or suiteRevision 7, so this suite publishes no score for it at either revision.
+In our own voice, not its author's: two of the four suiteRevision-6 vectors
+(`bad-743`, `bad-744`) require rejecting the Unicode noncharacters RFC 7493
+section 2.1 forbids, and its author has stated the checker does not yet implement
+that check, so we expect it to answer valid there where the reference rails
+answer invalid -- a rule difference we derived, not a run it produced, and we do
+not report a derived figure as its score. The other two are the depth-boundary
+pair its container-branch fix already handles, and the single suiteRevision-7
+vector (`bad-745`) tests a requirement the specification gained after its last
+run. It keeps its own authorship, history, and CI. The link is pinned to the
+build that recorded the 149/149 run.
 
 That one reading has already earned its keep, twice. The specification did not
 pin a maximum JSON nesting depth, so all five of my rails chose 128 and agreed at

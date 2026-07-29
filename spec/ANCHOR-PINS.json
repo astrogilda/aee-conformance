@@ -1443,10 +1443,10 @@
       "closes": "Prerequisites."
     },
     "vectors/interpretation-decisions.json::1#3": {
-      "anchor": "L884-885",
-      "digest": "dd3260ba296ec5838adcfd7751420c9937a77d9700654b3e3c8cac1dd9d8f0ba",
+      "anchor": "L884-887",
+      "digest": "a0d0a3d721a2feda23d5cbe0bf539cdbc991b7796531c7abf26391b448c7113b",
       "opens": "A record violating any constraint of its declared `aeeKind` (including a",
-      "closes": "missing `armedAt` on an `arming` record, an `armedAt` after `issuedAt`, an"
+      "closes": "`aeeMethod: intercepted`) covers nothing."
     },
     "vectors/interpretation-decisions.json::1#4": {
       "anchor": "L373-376",
@@ -1473,10 +1473,10 @@
       "closes": "its covering records (`reconstructed` is weaker than `intercepted`);"
     },
     "vectors/interpretation-decisions.json::2#1": {
-      "anchor": "L969-970",
-      "digest": "abec7c0aa021afd2f35a79c67188fce4e5e6832bf60631bf3af07c3a740ea821",
-      "opens": "mechanism-specific: how a substrate establishes them (a checkpoint chain,",
-      "closes": "a sequence counter, a hardware watchdog) stays producer territory. A"
+      "anchor": "L971-972",
+      "digest": "c18e4e04272f42ba1455361d801b05423a9f73e2294140ec7b23fe7e76a1b518",
+      "opens": "record whose `aeeKind` the consumer does not recognize covers nothing and",
+      "closes": "is otherwise ignored, while still contributing its leaf to `batchRoot`;"
     },
     "vectors/interpretation-decisions.json::2#2": {
       "anchor": "L396-397",
@@ -1491,10 +1491,10 @@
       "closes": "is otherwise ignored, while still contributing its leaf to `batchRoot`;"
     },
     "vectors/interpretation-decisions.json::3#0": {
-      "anchor": "L1011-1013",
-      "digest": "547e9a27a6b94a93ae474211c0fde69aecaa9ef26a8d1a37856952a83a1411d8",
-      "opens": "pad the leaf count), leaves in `observationRecords` array order, a",
-      "closes": "Two byte-identical entries in `observationRecords` make the attestation"
+      "anchor": "L1013-1015",
+      "digest": "9f8ed3e077d0a6fc19a6ffa1b68d552c62384f87bcaf41a11cb3aafa40e91883",
+      "opens": "Two byte-identical entries in `observationRecords` make the attestation",
+      "closes": "reference is shorthand for the leaf hash at that position, and a future"
     },
     "vectors/interpretation-decisions.json::3#1": {
       "anchor": "L1013-1015",
@@ -1641,10 +1641,10 @@
       "closes": "prefix `aee`, MUST be ignored and MUST NOT alter the derivation."
     },
     "vectors/interpretation-decisions.json::10#1": {
-      "anchor": "L1096-1098",
-      "digest": "3f1ddebb3f27bbe82d0aee45da7eef2e78be62984eec1d1af3065382c8245b1b",
-      "opens": "minimal policy in the style of a witness layout, keyed on both the derived",
-      "closes": "as a live one. The check that matters is signature verification against a"
+      "anchor": "L1098-1100",
+      "digest": "b0306298aa252f910e3e3ac79c62e73193b85106eaa733b53e18e461324ed5ff",
+      "opens": "as a live one. The check that matters is signature verification against a",
+      "closes": "hint and never the check itself:"
     },
     "vectors/interpretation-decisions.json::10#2": {
       "anchor": "L1098-1100",

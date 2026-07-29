@@ -66,12 +66,40 @@ proposal out of draft.
   stamp check cannot see it either, since a revert plus a re-stamp is internally
   consistent. Closing it needs this repository to read the consumer, which is the
   cross-repository read the gate is built to avoid. File: `scripts/consumer-lag-gate.py`.
-- [ ] **The sync's re-aim check cannot see a truncated anchor.** `--sync` refuses to move
-  an anchor off text that is still in the document, which catches an anchor whose range
-  collapsed onto unrelated prose. An anchor cut short of the requirement it exists for,
+- [ ] **The sync's re-aim check cannot see a truncated citation.** `--sync` refuses to move
+  a citation off text that is still in the document, which catches one whose range
+  collapsed onto unrelated prose. A citation cut short of the requirement it exists for,
   where the prose it lost was also edited, reads as an ordinary rewrite and is only
-  reported for review. Fix: compare the anchor's own subject rather than its former text.
-  File: `scripts/spec-anchor-gate.py`.
+  reported for review. This holds for both spellings, since both now share the rule.
+  Fix: compare the citation's own subject rather than its former text.
+  File: `scripts/specpins.py`.
+- [ ] **Forty-three `spec:NNN` citations address prose they were not written against.**
+  The content pin stops citations drifting from here on, but it was added after the
+  drift, so it pins what is already there. Measured, not estimated: for every citation
+  live at HEAD, take the spec text it addressed in the oldest revision that carries the
+  same claim, and ask whether that text is still in the document somewhere the citation
+  no longer covers. Forty-three of one hundred citation spans answer yes, which is the
+  same moved-off rule `--sync` now enforces, applied backwards over the whole history.
+  A close reading of all eighty-seven citations agrees and adds a second class the
+  mechanical test cannot see: citations that were aimed at the wrong passage when they
+  were written. Two of those are worth separating out, because the rule they cite is not
+  in the specification at any line: `NetworkPosture` and `EgressPostures` in
+  `aee/types.go` describe a closed posture registry with an append-only minor-version
+  rule, where the vendored text names the postures illustratively ("e.g. `no_network`,
+  `allowlist`, `sinkhole`") and states no registry. Fix: correct each citation to the
+  lines its own claim names, run
+  `scripts/spec-citation-gate.py --sync`, and read every changed excerpt against the
+  claim beside it, exactly as the nine mis-aimed anchors were corrected. Files: the
+  sources under `CITING_GLOBS` in `scripts/spec-citation-gate.py`.
+
+- [ ] **Nothing compares an interpretation entry's anchors with the anchors its own
+  prose quotes, outside the registry.** The registry gate now requires an entry's
+  `specAnchors` to cover every line reference its title or reading makes, which is what
+  found four entries whose recorded anchor sat two lines above the words the entry puts
+  in quotation marks. The same disagreement is possible in `vectors/CHANGES.md`,
+  `vectors/coverage-unforced.json` and `docs/interpretation-decisions-open.md`, which
+  carry anchors and prose side by side with no equivalent check.
+  File: `scripts/interpretation-registry-gate.py`.
 
 ## Recently landed
 

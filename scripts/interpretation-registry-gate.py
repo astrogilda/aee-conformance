@@ -12,7 +12,10 @@ forced reading. This gate asserts the registry stays honest:
     ``vectors/MANIFEST.json`` (so it is actually replayed, not orphaned);
   - a ``permitted`` decision names no forcing vector (a permitted reading must
     not be silently locked; contested corners live in ``openCorners`` and are
-    documented in ``docs/interpretation-decisions-open.md``).
+    documented in ``docs/interpretation-decisions-open.md``);
+  - an entry's ``specAnchors`` covers every line reference the entry's own prose
+    makes, so the machine-readable citation and the quotation beside it cannot
+    name different passages.
 
 Usage: python3 scripts/interpretation-registry-gate.py
 Exit 0 when the registry is consistent with the live corpus; 1 otherwise.
@@ -21,6 +24,7 @@ Exit 0 when the registry is consistent with the live corpus; 1 otherwise.
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -72,6 +76,49 @@ def _check_decision(
         )
 
 
+ANCHOR_RE = re.compile(r"\bL(\d+)(?:-(\d+))?\b")
+
+
+def _span(token: re.Match[str]) -> tuple[int, int]:
+    lo = int(token.group(1))
+    return lo, int(token.group(2)) if token.group(2) else lo
+
+
+def _check_anchors_cover_prose(dec: dict[str, Any], errors: list[str]) -> None:
+    """An entry's ``specAnchors`` must cover every line reference the entry's own
+    prose makes.
+
+    The two fields are one citation written twice: ``specAnchors`` is what the
+    tools read and publish, and the reading quotes the spec and names the lines
+    the quotation came from. Nothing compared them, and four entries drifted
+    apart, each with an anchor sitting exactly two lines above the prose the
+    same entry quotes. In every case the anchor stopped short of the words the
+    reading puts in quotation marks, so the machine-readable field pointed at
+    text that does not contain the rule the entry is about.
+
+    The anchor gate cannot see this. It asks whether an anchor still addresses
+    the text it was recorded against, which a wrong anchor does perfectly well,
+    and both fields are pinned, so it will preserve the disagreement
+    indefinitely. Comparing the pair is the only thing that catches it, and it
+    catches the class rather than the four instances that were found by eye.
+    """
+    anchors = [
+        _span(m)
+        for a in dec.get("specAnchors", [])
+        if (m := ANCHOR_RE.fullmatch(str(a)))
+    ]
+    for field in ("title", "reading"):
+        for m in ANCHOR_RE.finditer(str(dec.get(field, ""))):
+            lo, hi = _span(m)
+            if not any(a <= lo and hi <= b for a, b in anchors):
+                errors.append(
+                    f"decision {dec.get('id')}: the {field} cites {m.group(0)}, "
+                    f"which no entry of specAnchors {dec.get('specAnchors')} "
+                    "covers, so the two disagree about which lines carry the "
+                    "rule"
+                )
+
+
 def main() -> int:
     registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
     live = _live_vector_ids()
@@ -83,10 +130,12 @@ def main() -> int:
         return 1
     for dec in decisions:
         _check_decision(dec, live, errors)
+        _check_anchors_cover_prose(dec, errors)
 
     # Open corners must be permitted and carry no forcing vector.
     for corner in registry.get("openCorners", []):
         _check_decision(corner, live, errors)
+        _check_anchors_cover_prose(corner, errors)
 
     if errors:
         print("FAIL: interpretation-decision registry drift.", file=sys.stderr)

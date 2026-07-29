@@ -1,0 +1,606 @@
+{
+  "specPath": "spec/predicates/adversarial-execution-evidence.md",
+  "specDigest": "4939d4500cebd459dc8baddc3db736e3eb148cb3e19bafc6439ddf0c8f7e30fa",
+  "citations": {
+    "aee/jcs.go::ErrUnsafeInteger#0": {
+      "cites": "spec:81-84",
+      "digest": "16f7735c788c16c326d5692684c62b5d8a5b35c17791622dda461aee1d46bd01",
+      "opens": "a DSSE-shaped envelope) and [RFC 8785 (JCS)](https://www.rfc-editor.org/rfc/rfc8785)",
+      "closes": "integers with magnitude at or above 2^53 MUST be rejected, so every rail"
+    },
+    "aee/jcs.go::ErrNonIntegerNumber#0": {
+      "cites": "spec:819",
+      "digest": "10ac77873cb66deff994cb0f2e268cc2513bdf70f0bc3f2b2cceb8cd19cf06f9",
+      "opens": "fail-closed-row semantics are reserved for members the recompute or the",
+      "closes": "fail-closed-row semantics are reserved for members the recompute or the"
+    },
+    "aee/jcs.go::ErrNonIntegerNumber#1": {
+      "cites": "spec:834-836",
+      "digest": "072c5e8a738a506998a6e729120f2d29b61d1eca6db8fa569bfe4ad6d4391c6b",
+      "opens": "`method`: a clean row carrying (`basis: substrate`, `method:",
+      "closes": "was attributed, which is the strongest claim a `pass` can rest on, a claim"
+    },
+    "aee/jcs.go::checkSafeInteger#0": {
+      "cites": "spec:81-84",
+      "digest": "16f7735c788c16c326d5692684c62b5d8a5b35c17791622dda461aee1d46bd01",
+      "opens": "a DSSE-shaped envelope) and [RFC 8785 (JCS)](https://www.rfc-editor.org/rfc/rfc8785)",
+      "closes": "integers with magnitude at or above 2^53 MUST be rejected, so every rail"
+    },
+    "aee/jcs.go::checkSafeInteger#1": {
+      "cites": "spec:819",
+      "digest": "10ac77873cb66deff994cb0f2e268cc2513bdf70f0bc3f2b2cceb8cd19cf06f9",
+      "opens": "fail-closed-row semantics are reserved for members the recompute or the",
+      "closes": "fail-closed-row semantics are reserved for members the recompute or the"
+    },
+    "aee/jcs.go::checkSafeInteger#2": {
+      "cites": "spec:834-836",
+      "digest": "072c5e8a738a506998a6e729120f2d29b61d1eca6db8fa569bfe4ad6d4391c6b",
+      "opens": "`method`: a clean row carrying (`basis: substrate`, `method:",
+      "closes": "was attributed, which is the strongest claim a `pass` can rest on, a claim"
+    },
+    "aee/jcs_number_test.go::TestSafeIntegerProfile#0": {
+      "cites": "spec:81-84",
+      "digest": "16f7735c788c16c326d5692684c62b5d8a5b35c17791622dda461aee1d46bd01",
+      "opens": "a DSSE-shaped envelope) and [RFC 8785 (JCS)](https://www.rfc-editor.org/rfc/rfc8785)",
+      "closes": "integers with magnitude at or above 2^53 MUST be rejected, so every rail"
+    },
+    "aee/jcs_number_test.go::TestSafeIntegerProfile#1": {
+      "cites": "spec:819",
+      "digest": "10ac77873cb66deff994cb0f2e268cc2513bdf70f0bc3f2b2cceb8cd19cf06f9",
+      "opens": "fail-closed-row semantics are reserved for members the recompute or the",
+      "closes": "fail-closed-row semantics are reserved for members the recompute or the"
+    },
+    "aee/jcs_number_test.go::TestSafeIntegerProfile#2": {
+      "cites": "spec:834-836",
+      "digest": "072c5e8a738a506998a6e729120f2d29b61d1eca6db8fa569bfe4ad6d4391c6b",
+      "opens": "`method`: a clean row carrying (`basis: substrate`, `method:",
+      "closes": "was attributed, which is the strongest claim a `pass` can rest on, a claim"
+    },
+    "aee/merkle.go::-#0": {
+      "cites": "spec:935-956",
+      "digest": "7ef74deb392cdeb4dd00a3a8617cf3253b54cb5d5986c99c288e4efc4454d9df",
+      "opens": "whatever set a producer publishes. A consumer compares each attestation's",
+      "closes": "numeric gap is unexplained absence (crashed, private, and discarded runs all"
+    },
+    "aee/merkle.go::-#1": {
+      "cites": "spec:943-947",
+      "digest": "868c9d0f18bdd98fc5ebdd2a89167fdf45cb5c53e29996f4d0b4e9b8d71c6647",
+      "opens": "that has demanded a scope admits only the equal set, neither finer nor",
+      "closes": "carrying the same `aeePrevRunBinding` share a predecessor; and two genesis"
+    },
+    "aee/pae.go::PAE#0": {
+      "cites": "spec:815-817",
+      "digest": "ed7af84f8833ad6d34eeb51a75f28a757e909c9803f7ec7c60644a313381d43e",
+      "opens": "containment event. It is required on every row; a row missing the member",
+      "closes": "attestation is invalid, rather than the row forcing `fail`. That altitude"
+    },
+    "aee/pae.go::PAE#1": {
+      "cites": "spec:821-823",
+      "digest": "c4d2d682d9fdf95b6a2ff225cae66c93e5175239bb528eb974457b28e3add16f",
+      "opens": "`method`); `actualLayer` is read by neither, so its absence is a",
+      "closes": "`containmentObserved` label is from the carried"
+    },
+    "aee/pae.go::IsLowerHex64#0": {
+      "cites": "spec:178-181",
+      "digest": "db76f318566468112ced482d0571de4942f5902d72fcd2daf1e3985301601bf8",
+      "opens": "freshness window (the producer selects the round, so an uncoupled round",
+      "closes": "arming time, never cached: a stale round silently folded as current would"
+    },
+    "aee/recompute.go::Recompute#0": {
+      "cites": "spec:321-333",
+      "digest": "38b0ea2f0a8fe7f6ef73826912a02242ce6e1b6eb24f1a3271ba7f467eabea92",
+      "opens": "A design invariant follows from the recompute: any per-observation property",
+      "closes": "bounded by the pinned `networkPosture` digest."
+    },
+    "aee/recompute.go::Recompute#1": {
+      "cites": "spec:282-290",
+      "digest": "135d2224a9b157dc873817449af0c2a8f344d41c164384d1d992bd499ae50c44",
+      "opens": "],",
+      "closes": "### Parsing Rules"
+    },
+    "aee/runbinding.go::BindingVersion#0": {
+      "cites": "spec:194-199",
+      "digest": "7213473275a25cf1bdac95c8bd37e7d798ecceee8736d716c1cb618444a829b1",
+      "opens": "observation record commits to the run by carrying this digest inside its",
+      "closes": "carries no verifier nonce, and identical-configuration re-runs are"
+    },
+    "aee/runbinding.go::RunBindingPreimage#0": {
+      "cites": "spec:141-146",
+      "digest": "716b8a0e8fc6632088e13753d9b6917406c64c19c80d61b505c7d1f9ca535764",
+      "opens": "attestation-valid versus attestation-invalid on the same bytes. Restricting",
+      "closes": "supplementary-plane vocabulary entry makes the statement malformed."
+    },
+    "aee/runbinding.go::RunBindingPreimage#1": {
+      "cites": "spec:181-182",
+      "digest": "3c808d39ea1e71657de1b8968591f652b229551c6699638f2014fb51d8af8202",
+      "opens": "arming time, never cached: a stale round silently folded as current would",
+      "closes": "defeat the same coupling. Public rounds also make two consumers'"
+    },
+    "aee/runbinding.go::DeriveRunBinding#0": {
+      "cites": "spec:183-184",
+      "digest": "1f0d7221550f5687f1f7f98025c97fd23da95ffd0c76bebc99304859f095c5f4",
+      "opens": "`runEntropy`-reuse observations comparable against a shared public time",
+      "closes": "axis rather than against the producer's clock."
+    },
+    "aee/statement.go::parseTimestamp#0": {
+      "cites": "spec:869",
+      "digest": "ed33680e724ae26dfeedb53bf045ea163f9451ba84cb19be3c2b138c6fc4fd3c",
+      "opens": "vantage was armed for the run before corpus injection; payload MUST",
+      "closes": "vantage was armed for the run before corpus injection; payload MUST"
+    },
+    "aee/statement.go::Gate0#0": {
+      "cites": "spec:221",
+      "digest": "9e85e792104de8a08bbc24dc8fe6dc74d1dd87a96c97bc7ec2d09a6cf7f79425",
+      "opens": "subject artifact inside an isolated, instrumented environment (a microVM, a",
+      "closes": "subject artifact inside an isolated, instrumented environment (a microVM, a"
+    },
+    "aee/statement.go::Gate0#1": {
+      "cites": "spec:225",
+      "digest": "19a4e1ff8bb77ee2daff498289a31caab33e21f09990ac0a56edcc083cd47171",
+      "opens": "artifact, by digest. Every",
+      "closes": "artifact, by digest. Every"
+    },
+    "aee/statement.go::Gate0#2": {
+      "cites": "spec:963-968",
+      "digest": "a22a2e9762400a696c158f188cae52b6a39058f4ef87a4686b1d46e4be91dc2d",
+      "opens": "runs offered to it. The external completion is a registration receipt:",
+      "closes": "(armed, stayed armed, nothing dropped, posture unchanged) rather than"
+    },
+    "aee/statement.go::Gate0#3": {
+      "cites": "spec:321-323",
+      "digest": "053801cb57db28ee80db1be280fa71f54ea557fec7d24f6427abb909004ba801",
+      "opens": "A design invariant follows from the recompute: any per-observation property",
+      "closes": "row itself, as a required member, other than the record-borne binding"
+    },
+    "aee/statement.go::Gate0#4": {
+      "cites": "spec:434-447",
+      "digest": "59f1efdc6535b64458f3d8a5177f2715edafc6ea629e01ee6d340185aaf4627a",
+      "opens": "consumer MUST, before crediting any `basis: substrate` row or applying",
+      "closes": "`evidenceTier`, or any predicate-level member beginning with the reserved"
+    },
+    "aee/statement.go::Gate0#5": {
+      "cites": "spec:444-457",
+      "digest": "0d0094c4541e1b402d4c21b484e4487c60e31887cc166bc1836d9176847ac6b9",
+      "opens": "hardware-attested observation key, or agreement of multiple keys); a",
+      "closes": "MUST NOT appear under more than one class), `catchPolicy` (JCS digest of the"
+    },
+    "aee/statement.go::Gate0#6": {
+      "cites": "spec:438-441",
+      "digest": "c8a253ac9f0780e3d5448ae99652796db1b1f6058a15a6acd0a5fc3acadc377a",
+      "opens": "policy names as a substrate observation key, and `unattested` otherwise. A",
+      "closes": "the predicate. The tier is total and deterministic given the consumer's"
+    },
+    "aee/statement.go::Gate0#7": {
+      "cites": "spec:403-404",
+      "digest": "bce6ad0c1b0c9e7dbf3ae70f98a60425d23aa3b8100c1f5b357c40eb51ddd0f7",
+      "opens": "is invalid and its `result` MUST NOT be consumed, the same handling as",
+      "closes": "any malformed statement."
+    },
+    "aee/statement.go::Gate0#8": {
+      "cites": "spec:464-471",
+      "digest": "361fae5fc19e83bc64ff33bac8ce7d66b1abaa0a4fdd1d3021c660d43127b901",
+      "opens": "emit, and `caught`, the subset whose observation constitutes a caught",
+      "closes": "set; the producer's published documentation is commentary on the same"
+    },
+    "aee/statement.go::Gate0#9": {
+      "cites": "spec:473",
+      "digest": "2b9ae7837e7925c93d501b85b6962621bccf1b84cdcd6dfb3f149c34ef7efda8",
+      "opens": "verifiable after the producer's documentation moves or disappears. A sixth",
+      "closes": "verifiable after the producer's documentation moves or disappears. A sixth"
+    },
+    "aee/statement.go::Gate0#10": {
+      "cites": "spec:185-189",
+      "digest": "97e39f393fe8bb593b290c69335a698b992bc73fef18c768426a6bf044286cea",
+      "opens": "For this predicate `subject` MUST contain exactly one entry on a statement",
+      "closes": "already lowercase 64-hex; a substrate-row-carrying statement violating this"
+    },
+    "aee/statement.go::Gate0#11": {
+      "cites": "spec:754-768",
+      "digest": "e0b84cd8d7acb56258ab14243fa67875f609dae47f5fea495410494412c670d0",
+      "opens": "Substrate-covered, through the coverage validity gate and evidence tier:",
+      "closes": "pipeline with no substrate in the loop and cross-configuration splices,"
+    },
+    "aee/statement.go::Gate0#12": {
+      "cites": "spec:533-536",
+      "digest": "3329298a6cee6ed710402936718327d6336505b5aab8e48c25baecceb9267803",
+      "opens": "below), `method` (required; the observation's directness, see below),",
+      "closes": "(indexes into `observationRecords` binding this row to the observation"
+    },
+    "aee/statement.go::Gate0#13": {
+      "cites": "spec:141-200",
+      "digest": "36daa654061221da027609866821ea0c92e1f06e7912a562be870e6503fd5efa",
+      "opens": "attestation-valid versus attestation-invalid on the same bytes. Restricting",
+      "closes": "distinguished only by the substrate-emitted `runEntropy` value, so a"
+    },
+    "aee/statement.go::Gate0#14": {
+      "cites": "spec:400-402",
+      "digest": "7b29fdfc3c97988408bbd82e593e599b0d5124fdd054394fe1d1908b589a8b80",
+      "opens": "These requirements are consumption preconditions, not optional lints: a",
+      "closes": "strength ordering MUST first evaluate them, and on failure the attestation"
+    },
+    "aee/statement.go::Gate0#15": {
+      "cites": "spec:970-972",
+      "digest": "04c9d69a12eb62609c75e1d33e7d4accd883da4a3178c53aa2360ae9a5e0a17b",
+      "opens": "a sequence counter, a hardware watchdog) stays producer territory. A",
+      "closes": "is otherwise ignored, while still contributing its leaf to `batchRoot`;"
+    },
+    "aee/statement.go::canonicalVocabulary#0": {
+      "cites": "spec:450-453",
+      "digest": "b222a3dfdcccb279bbb0cf48c964ac8eb9f06d56403640ef538ecbc00edc4820",
+      "opens": "`observationEnvironment` _object, required_",
+      "closes": "members: `substrate` (the subject reference of the substrate's own"
+    },
+    "aee/statement.go::gate0Corpus#0": {
+      "cites": "spec:440-441",
+      "digest": "aa2f8c99623cca17a9343bbb67fd66e739ac434ba5168c7bb0af88d154e89e97",
+      "opens": "substrate` row as `unattested` and MUST NOT infer the substrate root from",
+      "closes": "the predicate. The tier is total and deterministic given the consumer's"
+    },
+    "aee/statement.go::gate0Corpus#1": {
+      "cites": "spec:400-402",
+      "digest": "7b29fdfc3c97988408bbd82e593e599b0d5124fdd054394fe1d1908b589a8b80",
+      "opens": "These requirements are consumption preconditions, not optional lints: a",
+      "closes": "strength ordering MUST first evaluate them, and on failure the attestation"
+    },
+    "aee/statement.go::gate0Corpus#2": {
+      "cites": "spec:457-459",
+      "digest": "a6ddbee4a910d87ca5539aa2e4c1b33bc8e2bf6eea42be3ed033e22a5cd5b0de",
+      "opens": "MUST NOT appear under more than one class), `catchPolicy` (JCS digest of the",
+      "closes": "distinguishable from an enforcing one), `networkPosture` (the"
+    },
+    "aee/statement.go::gate0CoverageIntegrity#0": {
+      "cites": "spec:466-471",
+      "digest": "681bd3b30c1452c0dfc35e0f1355d986f8cf93d39f752dc8287e5e6177892a7c",
+      "opens": "Section 3.2.3) with no duplicates and every entry BMP-only (see",
+      "closes": "set; the producer's published documentation is commentary on the same"
+    },
+    "aee/statement.go::gate0CoverageIntegrity#1": {
+      "cites": "spec:456-459",
+      "digest": "5428c1808e85a18c52c7b09534153068aa38690a290a9d99e8647c1ac6dcc132",
+      "opens": "class to the complete array of attack identifiers it defines; an attackId",
+      "closes": "distinguishable from an enforcing one), `networkPosture` (the"
+    },
+    "aee/statement.go::gate0CoverageIntegrity#2": {
+      "cites": "spec:525-538",
+      "digest": "6694f6f27189bb965d2a5b550af4ef551d849c58c081ed879fcf6b7d14a5d338",
+      "opens": "disclosed as a gap is contradictory.",
+      "closes": "than one row. A producer MUST NOT reference a record from a row whose"
+    },
+    "aee/statement.go::gate0SubstrateBindingInputs#0": {
+      "cites": "spec:457-459",
+      "digest": "a6ddbee4a910d87ca5539aa2e4c1b33bc8e2bf6eea42be3ed033e22a5cd5b0de",
+      "opens": "MUST NOT appear under more than one class), `catchPolicy` (JCS digest of the",
+      "closes": "distinguishable from an enforcing one), `networkPosture` (the"
+    },
+    "aee/statement.go::gate0SubstrateBindingInputs#1": {
+      "cites": "spec:185-189",
+      "digest": "97e39f393fe8bb593b290c69335a698b992bc73fef18c768426a6bf044286cea",
+      "opens": "For this predicate `subject` MUST contain exactly one entry on a statement",
+      "closes": "already lowercase 64-hex; a substrate-row-carrying statement violating this"
+    },
+    "aee/statement.go::gate0SubstrateBindingInputs#2": {
+      "cites": "spec:178-181",
+      "digest": "db76f318566468112ced482d0571de4942f5902d72fcd2daf1e3985301601bf8",
+      "opens": "freshness window (the producer selects the round, so an uncoupled round",
+      "closes": "arming time, never cached: a stale round silently folded as current would"
+    },
+    "aee/tier.go::-#0": {
+      "cites": "spec:400-431",
+      "digest": "42fa6b34e50849328d2c674d44eb2e6a0fd77f27ced709ab74384ccdd93068e7",
+      "opens": "These requirements are consumption preconditions, not optional lints: a",
+      "closes": "of both orderings as before."
+    },
+    "aee/tier.go::-#1": {
+      "cites": "spec:423-425",
+      "digest": "c18080bf054005f3dc69a47683413a79296e4e49f34aebbe075b3bfd4d79b739",
+      "opens": "A caught row is one whose `containmentObserved` label is in the carried",
+      "closes": "label is in the carried `observationVocabulary.labels` and not in the"
+    },
+    "aee/tier.go::-#2": {
+      "cites": "spec:1007-1009",
+      "digest": "4bbaa09371fd1718890a7b2b026a0dee9ac538ca60519ba46be80b06632c6ce5",
+      "opens": "An RFC 6962 Merkle root over the observation records, SHA-256, with",
+      "closes": "bytes)`, each internal node is `H(0x01 || left || right)`, the tree built"
+    },
+    "aee/tier.go::Tier#0": {
+      "cites": "spec:427-431",
+      "digest": "27a76885ec66acb5a8eaf3a1e29d73079df9e14bc25f991828d1d391db2ce68b",
+      "opens": "function of carried bytes. A `basis: substrate` row whose",
+      "closes": "of both orderings as before."
+    },
+    "aee/tier.go::DeriveTiers#0": {
+      "cites": "spec:658-660",
+      "digest": "8b49e624fa80896d0fcc9d0fbf2038a1d700b139a99a699f1af0bff6f04eb42f",
+      "opens": "including window bleed between same-layer siblings, so they remain",
+      "closes": "definition, and a consumer MUST NOT move a `result` or an evidence tier on"
+    },
+    "aee/types.go::StatementType#0": {
+      "cites": "spec:221",
+      "digest": "9e85e792104de8a08bbc24dc8fe6dc74d1dd87a96c97bc7ec2d09a6cf7f79425",
+      "opens": "subject artifact inside an isolated, instrumented environment (a microVM, a",
+      "closes": "subject artifact inside an isolated, instrumented environment (a microVM, a"
+    },
+    "aee/types.go::PredicateType#0": {
+      "cites": "spec:3",
+      "digest": "7d25a2e33cd157f5aaf747b68b7e5be00875afd84fbda12a7eec2fbb64dd578d",
+      "opens": "Type URI: https://in-toto.io/attestation/adversarial-execution-evidence/v0.6",
+      "closes": "Type URI: https://in-toto.io/attestation/adversarial-execution-evidence/v0.6"
+    },
+    "aee/types.go::PredicateType#1": {
+      "cites": "spec:194-199",
+      "digest": "7213473275a25cf1bdac95c8bd37e7d798ecceee8736d716c1cb618444a829b1",
+      "opens": "observation record commits to the run by carrying this digest inside its",
+      "closes": "carries no verifier nonce, and identical-configuration re-runs are"
+    },
+    "aee/types.go::PredicateType#2": {
+      "cites": "spec:321-333",
+      "digest": "38b0ea2f0a8fe7f6ef73826912a02242ce6e1b6eb24f1a3271ba7f467eabea92",
+      "opens": "A design invariant follows from the recompute: any per-observation property",
+      "closes": "bounded by the pinned `networkPosture` digest."
+    },
+    "aee/types.go::PredicateType#3": {
+      "cites": "spec:461-600",
+      "digest": "ff421b11d600e8fcedc7912148276830da3e0e538cb98a9c08c4935ab3da98b1",
+      "opens": "`sinkhole`, with its configuration digest), and `observationVocabulary` (the",
+      "closes": "state). This names a class of vantage, cooperation-independence, not"
+    },
+    "aee/types.go::Environment#0": {
+      "cites": "spec:434-462",
+      "digest": "d2d90ab53182b18bab337292ac5b2cb32b2e2f7f10112fb59c62337882877079",
+      "opens": "consumer MUST, before crediting any `basis: substrate` row or applying",
+      "closes": "producer's versioned observation label set carried in the attestation:"
+    },
+    "aee/types.go::Corpus#0": {
+      "cites": "spec:438-441",
+      "digest": "c8a253ac9f0780e3d5448ae99652796db1b1f6058a15a6acd0a5fc3acadc377a",
+      "opens": "policy names as a substrate observation key, and `unattested` otherwise. A",
+      "closes": "the predicate. The tier is total and deterministic given the consumer's"
+    },
+    "aee/types.go::NetworkPosture#0": {
+      "cites": "spec:376-386",
+      "digest": "a29e475437eb87225a58c15a9b5aa0eb1a5deb4430a1993f1fa3e5700b7ffd61",
+      "opens": "payloads but never signatures or consumer policy, so they are a pure function",
+      "closes": "with `method: intercepted` references at least one `interception`"
+    },
+    "aee/types.go::EgressPostures#0": {
+      "cites": "spec:376-386",
+      "digest": "a29e475437eb87225a58c15a9b5aa0eb1a5deb4430a1993f1fa3e5700b7ffd61",
+      "opens": "payloads but never signatures or consumer policy, so they are a pure function",
+      "closes": "with `method: intercepted` references at least one `interception`"
+    },
+    "aee/types.go::Vocabulary#0": {
+      "cites": "spec:444-457",
+      "digest": "0d0094c4541e1b402d4c21b484e4487c60e31887cc166bc1836d9176847ac6b9",
+      "opens": "hardware-attested observation key, or agreement of multiple keys); a",
+      "closes": "MUST NOT appear under more than one class), `catchPolicy` (JCS digest of the"
+    },
+    "aee/types.go::Coverage#0": {
+      "cites": "spec:464-471",
+      "digest": "361fae5fc19e83bc64ff33bac8ce7d66b1abaa0a4fdd1d3021c660d43127b901",
+      "opens": "emit, and `caught`, the subset whose observation constitutes a caught",
+      "closes": "set; the producer's published documentation is commentary on the same"
+    },
+    "aee/types.go::Row#0": {
+      "cites": "spec:632-634",
+      "digest": "8b84633753d9648c9376da712f5ecaa1622df6dd10be2227f52db1a90c8c6a3f",
+      "opens": "- `intercepted`: the claim rests on events captured as they occurred. On",
+      "closes": "capture was attributed to it."
+    },
+    "aee/types.go::Row#1": {
+      "cites": "spec:754-758",
+      "digest": "8a26798eaf9d38bb3274d203d9903ede14777b367d4a1b865d0471c8929946a8",
+      "opens": "Substrate-covered, through the coverage validity gate and evidence tier:",
+      "closes": "nuance, `basis` and `method` on `artifact` rows, `actualLayer`,"
+    },
+    "aee/types.go::Record#0": {
+      "cites": "spec:811-816",
+      "digest": "ed33678ff6bbbc3a4962bec5ad7e1b32d6531367df67c09fdf1f3397b4726d14",
+      "opens": "interception path at that boundary is incoherent, and a consumer MAY",
+      "closes": "is malformed under the framework's standard parsing rules and the"
+    },
+    "aee/types.go::RecordSignatures#0": {
+      "cites": "spec:845-847",
+      "digest": "e0f1c03133309284c9b105cee0d71eb793fac400fbb6acbb7f1816a982e705ff",
+      "opens": "One DSSE envelope per observation: `payload` (base64 of the exact",
+      "closes": "and `signatures`, which MUST carry at least one entry. A consumer verifies"
+    },
+    "aee/types.go::RecordSignature#0": {
+      "cites": "spec:1007-1009",
+      "digest": "4bbaa09371fd1718890a7b2b026a0dee9ac538ca60519ba46be80b06632c6ce5",
+      "opens": "An RFC 6962 Merkle root over the observation records, SHA-256, with",
+      "closes": "bytes)`, each internal node is `H(0x01 || left || right)`, the tree built"
+    },
+    "aee/validity.go::-#0": {
+      "cites": "spec:335-388",
+      "digest": "94fca2a008c59c19d556fc4f322a36a785d3f638432220e265891bad0dbd5e1b",
+      "opens": "### Fields",
+      "closes": "`examination` record; a clean row with `method: intercepted`"
+    },
+    "aee/validity.go::-#1": {
+      "cites": "spec:337-339",
+      "digest": "c6f9757c09e9df12607753e23b7d06018bbb9bdc0ee28455649cc6d8557b5eb5",
+      "opens": "`result` _string, required_",
+      "closes": "One of `pass`, `degraded`, `fail` (lowercase). Defined as a total,"
+    },
+    "aee/validity.go::-#2": {
+      "cites": "spec:825-841",
+      "digest": "8d4af2aab8bfc77c3234907ceebb64615e670383c59ad12ad50b371f65339b71",
+      "opens": "nothing acted), the producer MUST emit the literal string `none`. `none` is",
+      "closes": "described under `method`."
+    },
+    "aee/validity.go::checkRecordsStatementLevel#0": {
+      "cites": "spec:845-847",
+      "digest": "e0f1c03133309284c9b105cee0d71eb793fac400fbb6acbb7f1816a982e705ff",
+      "opens": "One DSSE envelope per observation: `payload` (base64 of the exact",
+      "closes": "and `signatures`, which MUST carry at least one entry. A consumer verifies"
+    },
+    "aee/validity.go::checkRecordsStatementLevel#1": {
+      "cites": "spec:935",
+      "digest": "c3074373eddf07abfecb2adffda4a8cbf7e0ef0d35e6650459fff87a7c8f5148",
+      "opens": "whatever set a producer publishes. A consumer compares each attestation's",
+      "closes": "whatever set a producer publishes. A consumer compares each attestation's"
+    },
+    "aee/validity.go::checkRecordsStatementLevel#2": {
+      "cites": "spec:943-945",
+      "digest": "e1fabdeacd0515cc3071effb0e37b722d92deb3daffe0bfa86fc435d9defd24f",
+      "opens": "that has demanded a scope admits only the equal set, neither finer nor",
+      "closes": "not the token set: a skipped `aeeRunSeq` under one tuple is a gap; two"
+    },
+    "aee/validity.go::checkRecordsStatementLevel#3": {
+      "cites": "spec:947-949",
+      "digest": "46eb16863e088d65da164ae7bf1f03efd8535ef57a1c529ba0c8a7cd8ed8ba86",
+      "opens": "carrying the same `aeePrevRunBinding` share a predecessor; and two genesis",
+      "closes": "same grade as a shared predecessor. Keying on the tuple is load-bearing:"
+    },
+    "aee/validity.go::checkRecordsStatementLevel#4": {
+      "cites": "spec:953-956",
+      "digest": "8ca21ea44947ef8b725cff16bf2568d8425d6489d531b638ef039ca046724daf",
+      "opens": "wire anchors when an arming record was signed relative to the run's outcome,",
+      "closes": "numeric gap is unexplained absence (crashed, private, and discarded runs all"
+    },
+    "aee/validity.go::checkRecordsStatementLevel#5": {
+      "cites": "spec:847-854",
+      "digest": "0c6fbc4f2db0b8e4b200a955739cdc5f16c329cf5a0c4b04dd0eda9e4a6676fe",
+      "opens": "and `signatures`, which MUST carry at least one entry. A consumer verifies",
+      "closes": "Reading ahead of verification is a stage, never a conclusion. Any record used"
+    },
+    "aee/validity.go::payloadAnalysis#0": {
+      "cites": "spec:373-375",
+      "digest": "72e3c42322d4d20ec2ffc8905ae53c6e0a532f923faa1ed91257eff99270d357",
+      "opens": "**Coverage validity (derived from carried bytes; a violation is malformed).**",
+      "closes": "is invalid, exactly as a missing `actualLayer` is invalid. These read record"
+    },
+    "aee/validity.go::recordEval#0": {
+      "cites": "spec:825-898",
+      "digest": "21e137bb012b8a7de7018268ebcfd854e09ff08cbb0f62ba9cddde2c8487c913",
+      "opens": "nothing acted), the producer MUST emit the literal string `none`. `none` is",
+      "closes": "digest of the predecessor run, absent exactly when `aeeRunSeq` is `1`),"
+    },
+    "aee/validity.go::recordEval#1": {
+      "cites": "spec:843-846",
+      "digest": "6183e4affd2d803be95d40a264ec75489760172786a82ab5f9513fa6fc4111a4",
+      "opens": "`observationRecords` _array of objects, optional_",
+      "closes": "canonical bytes the substrate signed at observation time), `payloadType`,"
+    },
+    "aee/validity.go::recordEval#2": {
+      "cites": "spec:901-905",
+      "digest": "940ce9faaf3d2429613abc1d68e0bb3552731cbaa38fb45c0356ce07c11c719d",
+      "opens": "registered below, sorted in the same canonical order as",
+      "closes": "partition attribute already carried elsewhere in the attestation and fixes"
+    },
+    "aee/validity.go::evaluateKind#0": {
+      "cites": "spec:869",
+      "digest": "ed33680e724ae26dfeedb53bf045ea163f9451ba84cb19be3c2b138c6fc4fd3c",
+      "opens": "vantage was armed for the run before corpus injection; payload MUST",
+      "closes": "vantage was armed for the run before corpus injection; payload MUST"
+    },
+    "aee/validity.go::evaluateKind#1": {
+      "cites": "spec:847-858",
+      "digest": "a18b0c908725e7a1b404471b3b9ab0a27f8db42025693032b8d211cd29b4693e",
+      "opens": "and `signatures`, which MUST carry at least one entry. A consumer verifies",
+      "closes": "names BMP-only per Prerequisites, every string a well-formed sequence of"
+    },
+    "aee/validity.go::classRequirement#0": {
+      "cites": "spec:344-349",
+      "digest": "381c96adc07aedbdfe25c489e27b636032c02cbfbdf2d8f2545bd98668f7068c",
+      "opens": "out-of-vocabulary `basis` or `method` (fail-closed, same rule); otherwise `degraded`",
+      "closes": "downstream."
+    },
+    "aee/validity.go::checkSubstrateRow#0": {
+      "cites": "spec:390-398",
+      "digest": "04216b01c2834d9dfebf06535b111b531b8787a65ee5bcc97c3e889a40724378",
+      "opens": "`sealed` record (a `sealed` record covers under the conditions stated",
+      "closes": "- `batchRoot` recomputes over `observationRecords` (see `batchRoot`)."
+    },
+    "aee/validity.go::checkSubstrateRow#1": {
+      "cites": "spec:342-343",
+      "digest": "2aec15bbeaf88776557bb04450ee9fef0b9f67c98316b24f375b587601bf458e",
+      "opens": "caught set (`observationVocabulary.caught`), a label outside the carried",
+      "closes": "`observationVocabulary.labels` (fail-closed), or a missing or"
+    },
+    "aee/validity.go::checkSubstrateRow#2": {
+      "cites": "spec:373-375",
+      "digest": "72e3c42322d4d20ec2ffc8905ae53c6e0a532f923faa1ed91257eff99270d357",
+      "opens": "**Coverage validity (derived from carried bytes; a violation is malformed).**",
+      "closes": "is invalid, exactly as a missing `actualLayer` is invalid. These read record"
+    },
+    "aee/validity.go::checkSubstrateRow#3": {
+      "cites": "spec:344-349",
+      "digest": "381c96adc07aedbdfe25c489e27b636032c02cbfbdf2d8f2545bd98668f7068c",
+      "opens": "out-of-vocabulary `basis` or `method` (fail-closed, same rule); otherwise `degraded`",
+      "closes": "downstream."
+    },
+    "aee/validity.go::checkSubstrateRow#4": {
+      "cites": "spec:747-768",
+      "digest": "78267c2b02f6b60e5ad835bf76968acc9d30ef6c6ddac255261143f1d4a5810b",
+      "opens": "first observed event\" is a chain-order fact (the arming record is the",
+      "closes": "pipeline with no substrate in the loop and cross-configuration splices,"
+    },
+    "aee/validity.go::checkSubstrateRow#5": {
+      "cites": "spec:376-377",
+      "digest": "b9250a10bcea792d3d0e810417a9c4d477ebcc1b37fb132c4b8adf247f934400",
+      "opens": "payloads but never signatures or consumer policy, so they are a pure function",
+      "closes": "of the carried statement, and that is what makes them runnable by a consumer"
+    },
+    "aee/verify.go::Report#0": {
+      "cites": "spec:384-388",
+      "digest": "90db519818dc428dd45f06c0c773ae0595917dc0e036b0a35f5575bdd328e6e5",
+      "opens": "`observationRecords`;",
+      "closes": "`examination` record; a clean row with `method: intercepted`"
+    },
+    "packaging/run_vectors.py::_timestamp_ok#0": {
+      "cites": "spec:869",
+      "digest": "ed33680e724ae26dfeedb53bf045ea163f9451ba84cb19be3c2b138c6fc4fd3c",
+      "opens": "vantage was armed for the run before corpus injection; payload MUST",
+      "closes": "vantage was armed for the run before corpus injection; payload MUST"
+    },
+    "packaging/run_vectors.py::ReferenceVerifier#0": {
+      "cites": "spec:570-592",
+      "digest": "8bf6062b3d8dc4601f074d487349a10d4754f4a0182673ad3b5dc5e85db434a1",
+      "opens": "That comparison is only as strong as the manifest it reads against, so the",
+      "closes": "by this requirement, because its manifest declares an attack identifier."
+    },
+    "packaging/run_vectors.py::ReferenceVerifier#1": {
+      "cites": "spec:466-471",
+      "digest": "681bd3b30c1452c0dfc35e0f1355d986f8cf93d39f752dc8287e5e6177892a7c",
+      "opens": "Section 3.2.3) with no duplicates and every entry BMP-only (see",
+      "closes": "set; the producer's published documentation is commentary on the same"
+    },
+    "packaging/run_vectors.py::ReferenceVerifier#2": {
+      "cites": "spec:525-538",
+      "digest": "6694f6f27189bb965d2a5b550af4ef551d849c58c081ed879fcf6b7d14a5d338",
+      "opens": "disclosed as a gap is contradictory.",
+      "closes": "than one row. A producer MUST NOT reference a record from a row whose"
+    },
+    "packaging/run_vectors.py::ReferenceVerifier#3": {
+      "cites": "spec:185-189",
+      "digest": "97e39f393fe8bb593b290c69335a698b992bc73fef18c768426a6bf044286cea",
+      "opens": "For this predicate `subject` MUST contain exactly one entry on a statement",
+      "closes": "already lowercase 64-hex; a substrate-row-carrying statement violating this"
+    },
+    "packaging/run_vectors.py::ReferenceVerifier#4": {
+      "cites": "spec:845-847",
+      "digest": "e0f1c03133309284c9b105cee0d71eb793fac400fbb6acbb7f1816a982e705ff",
+      "opens": "One DSSE envelope per observation: `payload` (base64 of the exact",
+      "closes": "and `signatures`, which MUST carry at least one entry. A consumer verifies"
+    },
+    "vectors/accept/gen_valid_vectors.py::build_vectors#0": {
+      "cites": "spec:901-905",
+      "digest": "940ce9faaf3d2429613abc1d68e0bb3552731cbaa38fb45c0356ce07c11c719d",
+      "opens": "registered below, sorted in the same canonical order as",
+      "closes": "partition attribute already carried elsewhere in the attestation and fixes"
+    },
+    "vectors/accept/gen_valid_vectors.py::build_vectors#1": {
+      "cites": "spec:376-377",
+      "digest": "b9250a10bcea792d3d0e810417a9c4d477ebcc1b37fb132c4b8adf247f934400",
+      "opens": "payloads but never signatures or consumer policy, so they are a pure function",
+      "closes": "of the carried statement, and that is what makes them runnable by a consumer"
+    },
+    "vectors/reject/gen_invalid_vectors.py::_b728#0": {
+      "cites": "spec:185-189",
+      "digest": "97e39f393fe8bb593b290c69335a698b992bc73fef18c768426a6bf044286cea",
+      "opens": "For this predicate `subject` MUST contain exactly one entry on a statement",
+      "closes": "already lowercase 64-hex; a substrate-row-carrying statement violating this"
+    }
+  }
+}

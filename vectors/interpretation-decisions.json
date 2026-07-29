@@ -12,7 +12,7 @@
         "L373-398",
         "L391-394",
         "L863-866",
-        "L884-885"
+        "L884-887"
       ],
       "reading": "The coverage-validity bullets (references resolve in range and class-match; every referenced payload parses as canonical +json carrying the reserved members with aeeRunBinding equal to the derived binding; method cap; batchRoot) are a HARD validity requirement: 'the following MUST hold or the attestation is invalid' (L373-376). Kind-constraint violations (a bad armedAt, posture/method mismatch, sealed conditions, run-chaining syntax, unknown aeeKind) make the record 'cover nothing' (L863-866, L884-887), invalidating only when the row is left without its required class cover. Both altitudes are quoted verbatim in the spec.",
       "forcingVectors": [
@@ -33,7 +33,7 @@
       "classification": "forced",
       "specAnchors": [
         "L396-397",
-        "L969-970"
+        "L971-972"
       ],
       "reading": "'The row's method is no stronger than the weakest aeeMethod across its covering records' (L396-397) is computed over the referenced records that class-match and pass their kind constraints. A record whose aeeKind the consumer does not recognize 'covers nothing and is otherwise ignored' (L971-972), so it is excluded from the cap; likewise non-covering records. bad-304 locks the min-composition over covering records; ok-035 locks that a referenced unknown-kind record signed reconstructed neither invalidates an intercepted row nor lowers its cap.",
       "forcingVectors": [
@@ -49,7 +49,7 @@
       "title": "Duplicate records by leaf hash",
       "classification": "forced",
       "specAnchors": [
-        "L1011-1013"
+        "L1013-1015"
       ],
       "reading": "'Two byte-identical entries in observationRecords make the attestation invalid: a record's canonical identity is its leaf hash' (L1013-1015). The leaf hash is H(0x00 || DSSE PAE(payloadType, payload)), so a shared leaf hash and byte-identical PAE bytes are equivalent: a discriminating vector (distinct payloads, same leaf) is unconstructible, so bad-405 fully locks the reading.",
       "forcingVectors": [
@@ -160,7 +160,7 @@
       "classification": "forced",
       "specAnchors": [
         "L433-448",
-        "L1096-1098"
+        "L1098-1100"
       ],
       "reading": "The per-row evidence tier (attested/unattested/declared) is derived over the row's covering records; a record verifies when any of its signatures verifies (DSSE semantics) against a consumer-pinned substrate observation key, and keyid is 'an unauthenticated lookup hint and never the check itself' (L1098-1100). The tier is trust-relative (stage two), so a signature outcome is never a validity reject code; the readings are locked by ACCEPT vectors with pinned per-row tier expectations (ok-024) rather than reject vectors.",
       "forcingVectors": [

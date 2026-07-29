@@ -26,11 +26,19 @@ Rails
    standalone.
 
    External-implementation contract: a third-party verifier is invoked as
-   ``<cmd> <vector-file>``; exit 0 means valid, non-zero
-   means invalid; if the LAST stdout line is a JSON object of the shape
+   ``<cmd> <vector-file>``; exit 0 means valid, non-zero means invalid; and
+   the LAST stdout line must be a JSON object of the shape
    ``{"verdict": "valid"|"invalid", "codes": [...], "result": "...",
-   "tiers": [...]}`` the harness additionally checks codes/result/tiers,
-   otherwise it checks the verdict only.
+   "tiers": [...]}``.  The exit status alone does not carry a vector: a
+   reject vector is checked against its MANIFEST ``expected.codes`` and an
+   accept vector against its ``expected.result``, so a rail that answers with
+   a verdict and nothing else fails every vector declaring either.  ``codes``
+   is compared as a SET -- order carries nothing and message text carries
+   nothing.  This paragraph is pinned to the evaluator below by
+   ``scripts/code-contract-gate.py``, which drives each response shape through
+   it and asserts the outcome, because the paragraph previously said the
+   harness falls back to checking the verdict alone and nothing contradicted
+   it.
 
 2. REFERENCE RAIL (default, self-contained, stdlib-only): an independent
    Python implementation of the spec's checks -- statement well-formedness

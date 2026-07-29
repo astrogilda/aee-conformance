@@ -57,10 +57,11 @@ jobs:
           (cd witnessattestor && "$(go env GOPATH)/bin/staticcheck" ./...)
       # The accepted-complexity table in docs/architecture/DESIGN_DECISIONS.md
       # names each branch-heavy Go function and its measured complexity. This
-      # gate re-measures and fails on drift. It lives in the go job rather than
-      # next to the sibling Python gates because it needs the Go toolchain:
-      # gocyclo is installed from source here exactly as staticcheck is above,
-      # and this job already runs a python3 gate script (coverage-gate.py).
+      # gate re-measures and fails on drift. Only the Go rail runs here; the
+      # same script gates the Python records in the sibling job, because the two
+      # analyzers come from different toolchains. gocyclo is installed from
+      # source exactly as staticcheck is above, and this job already runs a
+      # python3 gate script (coverage-gate.py).
       - name: accepted-complexity table matches the source
         run: |
           # Pinned, unlike staticcheck@latest above: this tool's numeric output
@@ -68,7 +69,7 @@ jobs:
           # is counted would fail an unrelated PR. Bump deliberately, then run
           # the gate with --sync.
           go install github.com/fzipp/gocyclo/cmd/gocyclo@v0.6.0
-          python3 scripts/complexity-table-gate.py \
+          python3 scripts/complexity-table-gate.py --rail go \
             --gocyclo "$(go env GOPATH)/bin/gocyclo"
       - name: golangci-lint (core module)
         uses: golangci/golangci-lint-action@v7
@@ -88,9 +89,16 @@ jobs:
       - name: sync toolchain
         run: uv sync --extra dev --extra generators
       - name: mypy --strict
-        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/spec-anchor-gate.py
+        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/spec-anchor-gate.py scripts/code-contract-gate.py
       - name: ruff
         run: uv run ruff check packaging vectors scripts
+      # The other half of the accepted-complexity gate. It runs here rather than
+      # beside the Go half because it measures with ruff, and it measures with
+      # --ignore-noqa because the marker that brings a function into
+      # docs/complexity-rationales.toml is the same marker that stops the step
+      # above from reporting its number.
+      - name: accepted-complexity rationales match the source
+        run: uv run python scripts/complexity-table-gate.py --rail python
       - name: spec/corpus non-drift gate
         run: python3 scripts/spec-drift-gate.py
       - name: spec line-citation gate
@@ -103,6 +111,13 @@ jobs:
         run: python3 scripts/spec-anchor-gate.py
       - name: interpretation-decision registry gate
         run: python3 scripts/interpretation-registry-gate.py
+      # The failure-code contract the README states, checked against the
+      # evaluator that enforces it and against the enumerated code set. It runs
+      # the documented third-party response shapes through the runner rather
+      # than counting codes, because the drift it exists to catch was prose
+      # describing a fallback the evaluator never had.
+      - name: failure-code contract gate
+        run: python3 scripts/code-contract-gate.py
       - name: requirement-coverage matrix is current
         run: python3 scripts/coverage-matrix-gate.py --check
       - name: replay every vector on the Python rail (must be 158/158)

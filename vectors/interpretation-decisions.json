@@ -112,9 +112,9 @@
         "L196-200",
         "L203-210"
       ],
-      "reading": "A verifier has exactly one binding construction and rejects, fail-closed, a version it does not implement rather than attempt a second (L196-200); a construction it does not implement surfaces as aeeRunBinding failing to equal the v1 derivation (bad-303). An arming payload MAY carry an explicit aeeBindingVersion, read before deriving; a value the verifier does not implement makes the arming record cover nothing, distinguishably from a run-binding digest mismatch (L203-210, bad-726).",
+      "reading": "A verifier has exactly one binding construction and rejects, fail-closed, a version it does not implement rather than attempt a second (L196-200); a construction it does not implement surfaces as aeeRunBinding failing to equal the implemented derivation (bad-303, whose records are minted under the retired version-1 pre-image). An arming payload MAY carry an explicit aeeBindingVersion, read before deriving; a value the verifier does not implement makes the arming record cover nothing, distinguishably from a run-binding digest mismatch (L203-210, bad-726). The declared version in each of those two vectors moves whenever the implemented construction moves: a vector minted under, or declaring, the version the rail implements asserts nothing at all.",
       "forcingVectors": [
-        "bad-303-binding-version-2",
+        "bad-303-binding-version-1",
         "bad-726-arming-binding-version-carried"
       ]
     },
@@ -264,6 +264,21 @@
       "forcingVectors": [
         "bad-743-statement-noncharacter-vocabulary-label",
         "bad-744-payload-noncharacter"
+      ]
+    },
+    {
+      "id": 18,
+      "title": "The run binding covers the carried posture object and the carried vocabulary digest",
+      "classification": "forced",
+      "specAnchors": [
+        "L157-163",
+        "L394-395"
+      ],
+      "reading": "The pre-image names networkPosture and observationVocabulary, and the value each contributes is read from the statement's own bytes (L157-163), so a statement whose posture object or whose vocabulary digest differs from the one its records were signed against derives a binding no record carries and fails the equality every covering payload is put to (L394-395). Three vectors force it and each names a mutation that was free before: a posture string swapped between two registered values, which no vocabulary rule can see (bad-305); a caught set narrowed with its own digest re-derived over the narrowed arrays, which verifies against the arrays beside it and so costs nothing (bad-306); and a producer member added to the posture after the arming record was signed (bad-307), whose accepted twin ok-043 carries the same member with records that commit to it.",
+      "forcingVectors": [
+        "bad-305-posture-swapped",
+        "bad-306-vocabulary-caught-narrowed",
+        "bad-307-posture-member-added-after-arming"
       ]
     }
   ],

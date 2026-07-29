@@ -212,13 +212,13 @@
       "opens": "- the row's `method` is no stronger than the weakest `aeeMethod` across",
       "closes": "its covering records (`reconstructed` is weaker than `intercepted`);"
     },
-    "vectors/reject/gen_invalid_vectors.py::bad-303-binding-version-2#0": {
+    "vectors/reject/gen_invalid_vectors.py::bad-303-binding-version-1#0": {
       "anchor": "L203-207",
       "digest": "4e087fe0eab612d48258f81d0c5f962f981f55f246150effbeb8bc776f8270d2",
       "opens": "value it has already seen. `aeeBindingVersion` names this construction;",
       "closes": "not implement rather than attempt more than one construction. An arming"
     },
-    "vectors/reject/gen_invalid_vectors.py::bad-303-binding-version-2#1": {
+    "vectors/reject/gen_invalid_vectors.py::bad-303-binding-version-1#1": {
       "anchor": "L394-395",
       "digest": "b832bc1f1bf1df186089531b26fd9435c44c4498d5f40a5474af1d1a53f9903f",
       "opens": "`aeeRunBinding` equals the run binding digest derived from this",
@@ -974,6 +974,60 @@
       "opens": "`issuedAt` _Timestamp, required_",
       "closes": "`issuedAt` _Timestamp, required_"
     },
+    "vectors/reject/gen_invalid_vectors.py::bad-823-posture-unregistered#0": {
+      "anchor": "L459-461",
+      "digest": "03e76f519aa0303feb8228191a92779fc68d5855bb0b97df520920eba3cc996a",
+      "opens": "distinguishable from an enforcing one), `networkPosture` (the",
+      "closes": "`sinkhole`, with its configuration digest), and `observationVocabulary` (the"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-824-posture-not-a-string#0": {
+      "anchor": "L459-461",
+      "digest": "03e76f519aa0303feb8228191a92779fc68d5855bb0b97df520920eba3cc996a",
+      "opens": "distinguishable from an enforcing one), `networkPosture` (the",
+      "closes": "`sinkhole`, with its configuration digest), and `observationVocabulary` (the"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-825-posture-array#0": {
+      "anchor": "L459-461",
+      "digest": "03e76f519aa0303feb8228191a92779fc68d5855bb0b97df520920eba3cc996a",
+      "opens": "distinguishable from an enforcing one), `networkPosture` (the",
+      "closes": "`sinkhole`, with its configuration digest), and `observationVocabulary` (the"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-305-posture-swapped#0": {
+      "anchor": "L157-163",
+      "digest": "11793fde42fa361a123d21f595ae3810f4fd9a2d2965e0e4e9f79e9a8308b5f1",
+      "opens": "**Run binding.** For any statement carrying at least one `basis: substrate`",
+      "closes": "\"substrate\": \"<substrate.digest.sha256>\"}`. `runEntropy` is a run-start"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-305-posture-swapped#1": {
+      "anchor": "L394-395",
+      "digest": "b832bc1f1bf1df186089531b26fd9435c44c4498d5f40a5474af1d1a53f9903f",
+      "opens": "`aeeRunBinding` equals the run binding digest derived from this",
+      "closes": "statement;"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-306-vocabulary-caught-narrowed#0": {
+      "anchor": "L157-163",
+      "digest": "11793fde42fa361a123d21f595ae3810f4fd9a2d2965e0e4e9f79e9a8308b5f1",
+      "opens": "**Run binding.** For any statement carrying at least one `basis: substrate`",
+      "closes": "\"substrate\": \"<substrate.digest.sha256>\"}`. `runEntropy` is a run-start"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-306-vocabulary-caught-narrowed#1": {
+      "anchor": "L394-395",
+      "digest": "b832bc1f1bf1df186089531b26fd9435c44c4498d5f40a5474af1d1a53f9903f",
+      "opens": "`aeeRunBinding` equals the run binding digest derived from this",
+      "closes": "statement;"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-307-posture-member-added-after-arming#0": {
+      "anchor": "L157-163",
+      "digest": "11793fde42fa361a123d21f595ae3810f4fd9a2d2965e0e4e9f79e9a8308b5f1",
+      "opens": "**Run binding.** For any statement carrying at least one `basis: substrate`",
+      "closes": "\"substrate\": \"<substrate.digest.sha256>\"}`. `runEntropy` is a run-start"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-307-posture-member-added-after-arming#1": {
+      "anchor": "L394-395",
+      "digest": "b832bc1f1bf1df186089531b26fd9435c44c4498d5f40a5474af1d1a53f9903f",
+      "opens": "`aeeRunBinding` equals the run binding digest derived from this",
+      "closes": "statement;"
+    },
     "vectors/reject/gen_invalid_vectors.py::1#0": {
       "anchor": "L339",
       "digest": "60289d59ca99c5671ddbd28df6d0b8d4f41af5ed3d1c60b0a5f62beecc270f10",
@@ -1346,6 +1400,12 @@
       "opens": "That comparison is only as strong as the manifest it reads against, so the",
       "closes": "by this requirement, because its manifest declares an attack identifier."
     },
+    "vectors/reject/gen_invalid_vectors.py::93#0": {
+      "anchor": "L459-461",
+      "digest": "03e76f519aa0303feb8228191a92779fc68d5855bb0b97df520920eba3cc996a",
+      "opens": "distinguishable from an enforcing one), `networkPosture` (the",
+      "closes": "`sinkhole`, with its configuration digest), and `observationVocabulary` (the"
+    },
     "vectors/reject/gen_invalid_vectors.py::write_index#0": {
       "anchor": "L1098-1100",
       "digest": "b0306298aa252f910e3e3ac79c62e73193b85106eaa733b53e18e461324ed5ff",
@@ -1664,6 +1724,30 @@
       "opens": "Strict I-JSON also constrains the bytes of every string, and for the same",
       "closes": "any decoded string is read."
     },
+    "vectors/interpretation-decisions.json::18#0": {
+      "anchor": "L157-163",
+      "digest": "11793fde42fa361a123d21f595ae3810f4fd9a2d2965e0e4e9f79e9a8308b5f1",
+      "opens": "**Run binding.** For any statement carrying at least one `basis: substrate`",
+      "closes": "\"substrate\": \"<substrate.digest.sha256>\"}`. `runEntropy` is a run-start"
+    },
+    "vectors/interpretation-decisions.json::18#1": {
+      "anchor": "L394-395",
+      "digest": "b832bc1f1bf1df186089531b26fd9435c44c4498d5f40a5474af1d1a53f9903f",
+      "opens": "`aeeRunBinding` equals the run binding digest derived from this",
+      "closes": "statement;"
+    },
+    "vectors/interpretation-decisions.json::18#2": {
+      "anchor": "L157-163",
+      "digest": "11793fde42fa361a123d21f595ae3810f4fd9a2d2965e0e4e9f79e9a8308b5f1",
+      "opens": "**Run binding.** For any statement carrying at least one `basis: substrate`",
+      "closes": "\"substrate\": \"<substrate.digest.sha256>\"}`. `runEntropy` is a run-start"
+    },
+    "vectors/interpretation-decisions.json::18#3": {
+      "anchor": "L394-395",
+      "digest": "b832bc1f1bf1df186089531b26fd9435c44c4498d5f40a5474af1d1a53f9903f",
+      "opens": "`aeeRunBinding` equals the run binding digest derived from this",
+      "closes": "statement;"
+    },
     "vectors/coverage-unforced.json::U1#0": {
       "anchor": "L549-554",
       "digest": "f41df7e06112774b3da3d633e6754c427c043bce2e38fe28904f4f9803174b80",
@@ -1771,6 +1855,24 @@
       "digest": "09477573cacc695830bd00f714525a243c0cd430b0dc4cde657a0fbfcc91cd99",
       "opens": "nothing, never create it), and the verify-then-read discipline is",
       "closes": "verifies), which closes the parse-before-verify class of deployment"
+    },
+    "docs/interpretation-decisions-open.md::suiteRevision 12: the posture registry, and a vendored copy that predates the binding it certifies#0": {
+      "anchor": "L459-461",
+      "digest": "03e76f519aa0303feb8228191a92779fc68d5855bb0b97df520920eba3cc996a",
+      "opens": "distinguishable from an enforcing one), `networkPosture` (the",
+      "closes": "`sinkhole`, with its configuration digest), and `observationVocabulary` (the"
+    },
+    "docs/interpretation-decisions-open.md::suiteRevision 12: the posture registry, and a vendored copy that predates the binding it certifies#1": {
+      "anchor": "L808-812",
+      "digest": "2d6ca2442e911e945498173213b855d048482898a492ef813da6a56aab3d2634",
+      "opens": "to `issuedAt`. Consumers MAY additionally coherence-check row claims against",
+      "closes": "reject on that ground."
+    },
+    "docs/interpretation-decisions-open.md::suiteRevision 12: the posture registry, and a vendored copy that predates the binding it certifies#2": {
+      "anchor": "L157-163",
+      "digest": "11793fde42fa361a123d21f595ae3810f4fd9a2d2965e0e4e9f79e9a8308b5f1",
+      "opens": "**Run binding.** For any statement carrying at least one `basis: substrate`",
+      "closes": "\"substrate\": \"<substrate.digest.sha256>\"}`. `runEntropy` is a run-start"
     }
   }
 }

@@ -112,10 +112,11 @@ func TestRunBindingPreimageShape(t *testing.T) {
 		sum := sha256.Sum256([]byte(s))
 		return hex.EncodeToString(sum[:])
 	}
-	cp, co, np, re, su, sb := h("cp"), h("co"), h("np"), h("re"), h("su"), h("sb")
-	pre := aee.RunBindingPreimage(cp, co, np, re, su, sb)
-	want := `{"aeeBindingVersion":"1","catchPolicy":"` + cp + `","corpus":"` + co +
-		`","networkPosture":"` + np + `","runEntropy":"` + re +
+	cp, co, np, ov, re, su, sb := h("cp"), h("co"), h("np"), h("ov"), h("re"), h("su"), h("sb")
+	pre := aee.RunBindingPreimage(cp, co, np, ov, re, su, sb)
+	want := `{"aeeBindingVersion":"2","catchPolicy":"` + cp + `","corpus":"` + co +
+		`","networkPosture":"` + np + `","observationVocabulary":"` + ov +
+		`","runEntropy":"` + re +
 		`","subject":"` + su + `","substrate":"` + sb + `"}`
 	if string(pre) != want {
 		t.Fatalf("preimage bytes drifted:\n got %s\nwant %s", pre, want)
@@ -125,7 +126,7 @@ func TestRunBindingPreimageShape(t *testing.T) {
 	if err != nil || !bytes.Equal(canon, pre) {
 		t.Fatalf("binding pre-image is not canonical: %v", err)
 	}
-	if got := aee.DeriveRunBinding(cp, co, np, re, su, sb); got != aee.SHA256Hex(pre) {
+	if got := aee.DeriveRunBinding(cp, co, np, ov, re, su, sb); got != aee.SHA256Hex(pre) {
 		t.Fatal("binding digest is not the SHA-256 of the pre-image")
 	}
 }

@@ -212,12 +212,34 @@ def environment(manifest: dict[str, Any], entropy: bool = True,
 
 
 def binding_preimage(env: dict[str, Any], subject_sha: str | None = None,
-                     version: str = "1") -> dict[str, str]:
+                     version: str = "2") -> dict[str, str]:
+    """The run-binding pre-image object, in the construction ``version`` names.
+
+    Version 2 is the implemented construction. It differs from version 1 twice,
+    and both differences are readable here: ``observationVocabulary`` is a
+    member version 1 did not have, and ``networkPosture`` is the JCS digest of
+    the carried posture OBJECT rather than the value of that object's own
+    digest member. Version 1 is still constructible because one vector is the
+    negative known-answer for it: a statement whose records were minted under
+    the retired construction, which a version-2 verifier must refuse rather
+    than attempt a second derivation for.
+    """
+    if version == "1":
+        return {
+            "aeeBindingVersion": "1",
+            "catchPolicy": env["catchPolicy"]["digest"]["sha256"],
+            "corpus": env["corpus"]["digest"]["sha256"],
+            "networkPosture": env["networkPosture"]["digest"]["sha256"],
+            "runEntropy": env["runEntropy"]["digest"]["sha256"],
+            "subject": subject_sha or D["subject"],
+            "substrate": env["substrate"]["digest"]["sha256"],
+        }
     return {
         "aeeBindingVersion": version,
         "catchPolicy": env["catchPolicy"]["digest"]["sha256"],
         "corpus": env["corpus"]["digest"]["sha256"],
-        "networkPosture": env["networkPosture"]["digest"]["sha256"],
+        "networkPosture": jcs_digest(env["networkPosture"]),
+        "observationVocabulary": env["observationVocabulary"]["digest"]["sha256"],
         "runEntropy": env["runEntropy"]["digest"]["sha256"],
         "subject": subject_sha or D["subject"],
         "substrate": env["substrate"]["digest"]["sha256"],
@@ -324,6 +346,26 @@ def reroot(st: dict[str, Any]) -> dict[str, Any]:
     st["predicate"]["batchRoot"] = merkle_root(
         st["predicate"]["observationRecords"])
     return st
+
+
+def rebind_records(st: dict[str, Any]) -> dict[str, Any]:
+    """Rederive the run binding over the mutated statement, re-sign, re-root.
+
+    Version 2 of the binding folds in the vocabulary digest and the canonical
+    digest of the whole networkPosture object, so a mutation to either moves the
+    derived binding. A vector that mutates one of them and leaves its records
+    carrying the parent's binding therefore carries a second fault, and the
+    self-check below refuses it. Every payload member other than aeeRunBinding
+    is preserved, so the declared mutation stays the only difference from the
+    parent.
+    """
+    env = st["predicate"]["observationEnvironment"]
+    bv = binding_for(env, subject_sha=st["subject"][0]["digest"].get("sha256"))
+    st["predicate"]["observationRecords"] = [
+        record({**json.loads(unb64(r["payload"])), "aeeRunBinding": bv},
+               r["payloadType"])
+        for r in st["predicate"]["observationRecords"]]
+    return reroot(st)
 
 
 # ---------------------------------------------------------------- parents
@@ -761,26 +803,34 @@ vec("bad-302-method-inflation", "ok-001",
 def _b303() -> dict[str, Any]:
     st = P_clean()
     env = st["predicate"]["observationEnvironment"]
-    b2 = sha256hex(jcs(binding_preimage(env, version="2")))
+    b1 = sha256hex(jcs(binding_preimage(env, version="1")))
     st["predicate"]["observationRecords"] = [
-        record(arming_payload(b2)), record(sealed_payload(b2))]
+        record(arming_payload(b1)), record(sealed_payload(b1))]
     return reroot(st)
 
 
-vec("bad-303-binding-version-2", "ok-002",
-    'records signed with a binding derived from an "aeeBindingVersion": '
-    '"2" pre-image', ["derive-binding-v2", "re-sign-record",
-                      "recompute-batch-root"], [75, 22],
+vec("bad-303-binding-version-1", "ok-002",
+    'records signed with a binding derived from the retired '
+    '"aeeBindingVersion": "1" pre-image', ["derive-binding-v1",
+                                           "re-sign-record",
+                                           "recompute-batch-root"], [75, 22],
     ["run-binding-mismatch"], _b303, spec="L203-207; L394-395",
-    note="negative known-answer: the v2 pre-image MUST NOT match; a "
-         "verifier has exactly one construction and never tries a second")
+    note="negative known-answer: version 1 is retired with no alias and no "
+         "dual-accept window, so its pre-image MUST NOT match; a verifier has "
+         "exactly one construction and never tries a second. The vector is "
+         "named for the construction its records were minted under, and it is "
+         "the retired one rather than a future one on purpose: a vector minted "
+         "under a version nobody has implemented rejects whether or not the "
+         "rule holds, because its digest matches no construction at all, while "
+         "this one is a digest a real producer could have emitted last "
+         "revision")
 def _b726() -> dict[str, Any]:
     st = P_clean()
-    return mutate_record_payload(st, 0, lambda o: {**o, "aeeBindingVersion": "2"})
+    return mutate_record_payload(st, 0, lambda o: {**o, "aeeBindingVersion": "3"})
 
 
 vec("bad-726-arming-binding-version-carried", "ok-002",
-    "arming payload carries an explicit aeeBindingVersion: \"2\" the verifier "
+    "arming payload carries an explicit aeeBindingVersion: \"3\" the verifier "
     "does not implement (read-first, distinct from the bad-303 digest mismatch)",
     ["re-sign-record", "recompute-batch-root"], [75],
     ["arming-covers-nothing"],
@@ -788,7 +838,12 @@ vec("bad-726-arming-binding-version-carried", "ok-002",
     spec="L203-210",
     note="an explicit binding-version declaration the verifier does not "
          "implement is read before deriving and makes the arming record cover "
-         "nothing, distinguishably from a run-binding digest mismatch")
+         "nothing, distinguishably from a run-binding digest mismatch. The "
+         "declared version has to be one no verifier implements, so it moves "
+         "whenever the implemented construction does: it read \"2\" while the "
+         "implemented construction was version 1, and left that value in place "
+         "the version 2 landed, at which point the record declared exactly what "
+         "the verifier derives and the vector asserted nothing")
 
 
 def _b304() -> dict[str, Any]:
@@ -1022,28 +1077,42 @@ def _vocab_mut(labels: list[str] | None = None,
         elif redigest:
             v["digest"]["sha256"] = jcs_digest(
                 {"caught": v["caught"], "labels": v["labels"]})
-        return st
+        # The carried vocabulary digest is a binding input under version 2, so
+        # every one of these mutations moves the derived binding. Rederiving
+        # over the mutated statement keeps the vocabulary rule the only fault;
+        # for the stale-digest vector that means deriving over the STALE value,
+        # which is what a verifier reading the carried bytes derives too.
+        return rebind_records(st)
     return b
 
+
+_VOCAB_REDERIVE = ["recompute-vocabulary-digest", "rederive-binding",
+                   "re-sign-record", "recompute-batch-root"]
 
 vec("bad-602-caught-not-subset", "ok-002",
     'caught gains "example_label_x" which is not in labels; digest '
     "recomputed over the mutated content",
-    ["recompute-vocabulary-digest"], [52], ["vocabulary-caught-not-subset"],
+    _VOCAB_REDERIVE, [52], ["vocabulary-caught-not-subset"],
     _vocab_mut(caught=["egress_captured", "example_label_x"]),
     spec="L465-467")
 vec("bad-603-labels-unsorted", "ok-002",
     "labels in descending order; digest recomputed",
-    ["recompute-vocabulary-digest"], [53], ["vocabulary-not-canonical"],
+    _VOCAB_REDERIVE, [53], ["vocabulary-not-canonical"],
     _vocab_mut(labels=["no_egress", "egress_captured"]), spec="L467")
 vec("bad-604-caught-duplicate", "ok-002",
     "duplicate entry in caught; digest recomputed",
-    ["recompute-vocabulary-digest"], [53], ["vocabulary-not-canonical"],
+    _VOCAB_REDERIVE, [53], ["vocabulary-not-canonical"],
     _vocab_mut(caught=["egress_captured", "egress_captured"]), spec="L467")
 vec("bad-605-vocabulary-digest-mismatch", "ok-002",
-    "stale vocabulary digest over unchanged content", [], [54],
+    "stale vocabulary digest over unchanged content",
+    ["rederive-binding", "re-sign-record", "recompute-batch-root"], [54],
     ["vocabulary-digest-mismatch"], _vocab_mut(stale=True, redigest=False),
-    spec="L467-469")
+    spec="L467-469",
+    note="the binding is rederived over the STALE carried digest, not over "
+         "the digest the arrays recompute to, because that is the value a "
+         "verifier reading the statement folds into the pre-image; deriving "
+         "over the honest one would leave every record mismatched and the "
+         "vector would report a binding fault instead of the digest fault")
 
 
 def _b606() -> dict[str, Any]:
@@ -1125,13 +1194,14 @@ def _b610() -> dict[str, Any]:
     v = env["observationVocabulary"]
     v["labels"], v["caught"] = [], []
     v["digest"]["sha256"] = jcs_digest({"caught": [], "labels": []})
-    return st
+    return rebind_records(st)
 
 
 vec("bad-610-empty-labels-substrate", "ok-001",
     "labels: [] and caught: [] (digest recomputed) under a substrate row "
     "whose label is now out-of-vocabulary",
-    ["recompute-vocabulary-digest"], [4, 44, 53],
+    ["recompute-vocabulary-digest", "rederive-binding", "re-sign-record",
+     "recompute-batch-root"], [4, 44, 53],
     ["fail-closed-substrate-row"], _b610, spec="L427-431; L467",
     note="empty vocabulary is internally canonical (vacuously sorted, "
          "vacuously a subset); the fault is the fail-closed substrate row")
@@ -1158,13 +1228,14 @@ def _b612() -> dict[str, Any]:
     v["labels"] = [*v["labels"], "\U0001F600"]
     v["digest"]["sha256"] = jcs_digest(
         {"caught": v["caught"], "labels": v["labels"]})
-    return st
+    return rebind_records(st)
 
 
 vec("bad-612-labels-non-bmp", "ok-001",
     "labels gains the supplementary-plane entry U+1F600; digest recomputed "
     "over the mutated content",
-    ["recompute-vocabulary-digest"], [86], ["vocabulary-not-canonical"],
+    ["recompute-vocabulary-digest", "rederive-binding", "re-sign-record",
+     "recompute-batch-root"], [86], ["vocabulary-not-canonical"],
     _b612, spec="L133-146",
     note="BMP-only string profile: the entry sorts last under BOTH the "
          "UTF-16 and the code-point order, so sortedness, the caught "
@@ -1686,7 +1757,13 @@ def _voc_label_fault(label: str) -> dict[str, Any]:
         + "]}"
     )
     v["digest"]["sha256"] = sha256hex(pre.encode("utf-8", "surrogatepass"))
-    return st
+    # The vocabulary digest is a binding input under version 2, so recomputing
+    # it over the mutated label moves the run binding too. Rederiving and
+    # re-signing keeps the byte-level fault the single fault; without it every
+    # one of these vectors would also carry a run-binding mismatch, which a
+    # lenient rail would report instead of the encoding fault the vector exists
+    # to catch.
+    return rebind_records(st)
 
 
 def _escaped(st: dict[str, Any]) -> str:
@@ -1703,7 +1780,7 @@ def _b733() -> str:
 vec("bad-733-statement-lone-high-surrogate-escape", "ok-002",
     "vocabulary label carrying an unpaired high surrogate escape; digest "
     "recomputed over the mutated content",
-    ["recompute-vocabulary-digest"], [18], ["statement-malformed"],
+    _VOCAB_REDERIVE, [18], ["statement-malformed"],
     _b733, spec="L87-113",
     note="rawStatement: the file is valid UTF-8 and parses as JSON, so only a "
          "check on the raw bytes sees it. A lenient parse yields a lone "
@@ -1717,7 +1794,7 @@ def _b734() -> str:
 vec("bad-734-statement-lone-low-surrogate-escape", "ok-002",
     "vocabulary label carrying an unpaired low surrogate escape; digest "
     "recomputed over the mutated content",
-    ["recompute-vocabulary-digest"], [18], ["statement-malformed"],
+    _VOCAB_REDERIVE, [18], ["statement-malformed"],
     _b734, spec="L87-113",
     note="rawStatement: a low surrogate with no preceding high surrogate.")
 
@@ -1729,7 +1806,7 @@ def _b735() -> str:
 vec("bad-735-statement-reversed-surrogate-pair", "ok-002",
     "vocabulary label carrying a low surrogate followed by a high surrogate; "
     "digest recomputed over the mutated content",
-    ["recompute-vocabulary-digest"], [18], ["statement-malformed"],
+    _VOCAB_REDERIVE, [18], ["statement-malformed"],
     _b735, spec="L87-113",
     note="rawStatement: both halves are present, in the wrong order, so a "
          "check that counts surrogates rather than pairing them passes.")
@@ -1746,7 +1823,7 @@ def _b736() -> bytes:
 vec("bad-736-statement-cesu8-vocabulary-label", "ok-002",
     "vocabulary label carrying a surrogate encoded directly in UTF-8 "
     "(CESU-8, ED A0 80); digest recomputed over the mutated content",
-    ["recompute-vocabulary-digest"], [18], ["statement-malformed"],
+    _VOCAB_REDERIVE, [18], ["statement-malformed"],
     _b736, spec="L87-113",
     note="rawBytes: not valid UTF-8. A lenient decoder substitutes U+FFFD, and "
          "because the vocabulary digest is recomputed from the decoded strings "
@@ -1765,7 +1842,7 @@ def _b737() -> bytes:
 vec("bad-737-statement-overlong-utf8", "ok-002",
     "vocabulary label carrying the overlong encoding C0 AF; digest recomputed "
     "over the mutated content",
-    ["recompute-vocabulary-digest"], [18], ["statement-malformed"],
+    _VOCAB_REDERIVE, [18], ["statement-malformed"],
     _b737, spec="L87-113",
     note="rawBytes: the overlong form is the other half of the UTF-8 "
          "well-formedness rule, and a length-only scanner steps over it.")
@@ -1783,7 +1860,7 @@ def _b738() -> bytes:
 vec("bad-738-statement-raw-control-character", "ok-002",
     "vocabulary label carrying a raw unescaped U+0001; digest recomputed over "
     "the mutated content",
-    ["recompute-vocabulary-digest"], [18], ["statement-malformed"],
+    _VOCAB_REDERIVE, [18], ["statement-malformed"],
     _b738, spec="L87-113",
     note="rawBytes: JSON forbids an unescaped character below U+0020.")
 
@@ -1913,12 +1990,12 @@ def _b743() -> str:
     pre = json.dumps({"caught": v["caught"], "labels": v["labels"]},
                      sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     v["digest"]["sha256"] = sha256hex(pre.encode("utf-8"))
-    return _escaped(st)
+    return _escaped(rebind_records(st))
 
 
 vec("bad-743-statement-noncharacter-vocabulary-label", "ok-002",
     "vocabulary label carrying the noncharacter U+FFFF",
-    ["recompute-vocabulary-digest"], [18], ["statement-malformed"],
+    _VOCAB_REDERIVE, [18], ["statement-malformed"],
     _b743, spec="L93-120",
     note="rawBytes: a noncharacter is a valid scalar that nothing substitutes, so "
          "this is not a live cross-rail split; it is the RFC 7493 label made true, "
@@ -2327,6 +2404,148 @@ vec("bad-822-issuedat-lowercase-zone-designator", "ok-007",
          "not the other passes every both-lowercase mutant")
 
 
+# --- (m) the closed posture registry -------------------------------------
+#
+# Every other vector in this suite carries the posture "sinkhole", so until
+# these three landed the registry was untested by construction: a rail that
+# admitted only that one string and a rail that admitted any string at all
+# scored identically on the whole corpus. The three registered values the
+# corpus does not use are covered on the accept side (ok-040 to ok-042); these
+# are the three shapes that are not a registered value.
+#
+# All three rederive the binding over the mutated posture object. That is not
+# tidiness: the posture object is a binding input under version 2, so leaving
+# the parent's records in place would give each vector a run-binding mismatch
+# as well, and the vector would then be indistinguishable from bad-305.
+
+def _posture_mut(value: Any) -> Callable[[], dict[str, Any]]:
+    def b() -> dict[str, Any]:
+        st = P_clean()
+        st["predicate"]["observationEnvironment"]["networkPosture"]["posture"] = value
+        return rebind_records(st)
+    return b
+
+
+_POSTURE_REDERIVE = ["rederive-binding", "re-sign-record",
+                     "recompute-batch-root"]
+
+vec("bad-823-posture-unregistered", "ok-002",
+    'networkPosture.posture: "example_posture_x", a value the registry does '
+    "not carry", _POSTURE_REDERIVE, [93], ["posture-vocabulary"],
+    _posture_mut("example_posture_x"), spec="L459-461",
+    note="the pinned digest member is untouched, so both covering records "
+         "still compare equal on aeePostureDigest and the unregistered string "
+         "is the single fault")
+vec("bad-824-posture-not-a-string", "ok-002",
+    "networkPosture.posture: 3, a value of the wrong JSON type",
+    _POSTURE_REDERIVE, [93], ["posture-vocabulary"],
+    _posture_mut(3), spec="L459-461",
+    note="a wrong-type posture is the same requirement failing as an "
+         "unregistered one, so it reports the same condition rather than the "
+         "parse catch-all; a rail that decodes the member into a string field "
+         "and lets the decode failure escape names a different condition than "
+         "its peers for these exact bytes")
+vec("bad-825-posture-array", "ok-002",
+    'networkPosture.posture: ["sinkhole"], an array wrapping a registered '
+    "value", _POSTURE_REDERIVE, [93], ["posture-vocabulary"],
+    _posture_mut(["sinkhole"]), spec="L459-461",
+    note="the shape that separated the rails before it was fixed: testing "
+         "membership of an unhashable value against a set raises rather than "
+         "returning false, so two rails crashed on it while a third rejected "
+         "it cleanly, which is a crash and a cross-rail split at once. It is "
+         "kept distinct from the wrong-type vector because a scalar of the "
+         "wrong type and a container of the wrong type reach a membership "
+         "test by different paths")
+
+
+# --- (n) the two inputs version 2 added ----------------------------------
+#
+# These are the vectors the version-2 binding exists for. Both are statements
+# that were fully VALID under version 1, where neither input was bound: the
+# posture string sat beside a digest nothing compared it against, and the
+# vocabulary's digest verified against the arrays beside it and so re-derived
+# for free. Neither mutation moved a signature or a digest, so a party holding
+# only the outer envelope key could make either edit undetectably. Under
+# version 2 each derives a binding the producer's own records do not carry.
+
+def _b305() -> dict[str, Any]:
+    # The posture string is swapped between two REGISTERED values, so the
+    # closed-registry check has nothing to say and the binding is the only
+    # thing that can catch it. The pinned digest member is left alone, which is
+    # what makes the swap free under version 1: a producer's posture
+    # configuration travels nowhere in the statement, so no verifier can check
+    # the string against the digest taken over it.
+    st = P_clean()
+    st["predicate"]["observationEnvironment"]["networkPosture"]["posture"] = "allowlist"
+    return st
+
+
+vec("bad-305-posture-swapped", "ok-002",
+    'networkPosture.posture swapped from "sinkhole" to "allowlist"; every '
+    "digest, signature and record left exactly as the producer signed them",
+    [], [22, 60], ["run-binding-mismatch"], _b305, spec="L157-163; L394-395",
+    note="both values are registered, so this is the swap no vocabulary rule "
+         "can see. Under the version-1 binding this statement was VALID and "
+         "the substitution cost nothing: it changed no digest and broke no "
+         "signature. It is a mismatch now because the binding covers the "
+         "carried posture object rather than the value of that object's own "
+         "digest member")
+
+
+def _b306() -> dict[str, Any]:
+    # The caught set is narrowed and the vocabulary digest re-derived over the
+    # narrowed arrays, which is free: the digest is verified only against the
+    # arrays beside it. The parent is the clean-row shape rather than a caught
+    # one on purpose. Narrowing caught on a caught-row parent also changes which
+    # cover that row requires (a caught row references an interception; a clean
+    # row references arming and sealed), so such a vector would carry an
+    # uncovered-row fault alongside the binding one and could not attribute
+    # either. On this parent the narrowing moves nothing except the vocabulary
+    # digest, which is exactly the input under test.
+    st = P_clean()
+    v = st["predicate"]["observationEnvironment"]["observationVocabulary"]
+    v["caught"] = []
+    v["digest"]["sha256"] = jcs_digest({"caught": [], "labels": v["labels"]})
+    return st
+
+
+vec("bad-306-vocabulary-caught-narrowed", "ok-002",
+    "caught narrowed to [] with the vocabulary digest re-derived over the "
+    "narrowed arrays; the records keep the binding they were signed with",
+    ["recompute-vocabulary-digest"], [22, 60],
+    ["run-binding-mismatch"], _b306, spec="L157-163; L394-395",
+    note="the caught set decides which labels are caught, and both the "
+         "recompute and the coverage validity requirements read it, so a "
+         "producer that narrows it after the run turns a caught row into a "
+         "clean one. Nothing resisted that under version 1: the vocabulary's "
+         "own digest re-derives from the arrays beside it and no record's "
+         "binding moved. Binding the carried digest is what closes it")
+
+
+def _b307() -> dict[str, Any]:
+    # The extension case, in the direction that must fail. The producer adds a
+    # member to networkPosture after the arming record was signed, so the
+    # records commit to the object without it. ok-043 is the same statement with
+    # the records committing to the extended object, and it is VALID.
+    st = P_clean()
+    st["predicate"]["observationEnvironment"]["networkPosture"][
+        "producerNote"] = "example posture annotation"
+    return st
+
+
+vec("bad-307-posture-member-added-after-arming", "ok-002",
+    "networkPosture gains a producer member the records do not commit to",
+    [], [22, 60], ["run-binding-mismatch"], _b307,
+    spec="L157-163; L394-395",
+    note="the consequence the binding change makes normative, in the "
+         "direction that must fail. The binding covers the carried object, so "
+         "a member added to the posture after arming invalidates the "
+         "producer's own statement. Its accepted twin is ok-043, which carries "
+         "the same member with records committing to it, and the pair is what "
+         "makes this a rule about WHEN the member was added rather than about "
+         "whether the posture may carry one at all")
+
+
 # ---------------------------------------------------------------- checks
 
 RESULT_VOCAB = {"pass", "degraded", "fail"}
@@ -2562,6 +2781,7 @@ COND = {
                      "least one entry"),
     92: ("L570-592", "the corpus manifest declares at least one attack "
                      "identifier across all of its classes"),
+    93: ("L459-461", "networkPosture.posture is a registered value"),
 }
 
 
@@ -2648,12 +2868,12 @@ def write_index() -> None:
     L.append("Corpus and vocabulary digests are JCS digests of the manifest and")
     L.append("`{\"caught\": [...], \"labels\": [...]}` objects embedded in each vector.")
     L.append("Run bindings derive per spec L157-163 from each statement's own values.")
-    L.append("Negative known-answer for bad-303, the v2 pre-image that MUST NOT")
-    L.append("match (JCS, then SHA-256):")
+    L.append("Negative known-answer for bad-303, the retired version-1 pre-image")
+    L.append("that MUST NOT match (JCS, then SHA-256):")
     _env = environment(M1)
     L.append("")
     L.append("```json")
-    L.append(json.dumps(binding_preimage(_env, version="2"), sort_keys=True,
+    L.append(json.dumps(binding_preimage(_env, version="1"), sort_keys=True,
                         indent=2))
     L.append("```")
     L.append("")
@@ -2811,7 +3031,7 @@ def main() -> None:
         with open(path) as f:
             json.load(f)  # every vector parses as JSON (a duplicate member is last-wins)
 
-    assert len(VECTORS) == 127, f"expected 127 vectors, built {len(VECTORS)}"
+    assert len(VECTORS) == 133, f"expected 133 vectors, built {len(VECTORS)}"
 
     # 3. index
     write_index()

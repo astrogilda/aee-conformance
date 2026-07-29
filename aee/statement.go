@@ -87,6 +87,16 @@ func Gate0(s *Statement) []Code {
 		if env.Vocabulary == nil {
 			codes = appendCode(codes, CodeVocabularyMissing)
 		}
+		// The posture registry is closed and its violation is a malformed
+		// statement, not a fail-closed row: nothing on a row carries it. The
+		// check runs only when the member is present, so an absent
+		// networkPosture keeps reporting environment-incomplete alone rather
+		// than gaining a second code for the same absence. It runs after the
+		// two absence checks above so the primary code for a statement missing
+		// several environment members stays the one naming the absence.
+		if env.NetworkPosture != nil && !EgressPostures[env.NetworkPosture.Posture] {
+			codes = appendCode(codes, CodePostureVocabulary)
+		}
 	}
 
 	// 6. Vocabulary shape, subset, digest (spec:444-457).
@@ -111,7 +121,7 @@ func Gate0(s *Statement) []Code {
 
 	// 9b. subject cardinality is unconditional (spec:185-189): subject MUST
 	//     contain exactly one entry on a statement of ANY basis. Only the
-	//     six binding-digest-input requirement stays substrate-scoped (checked
+	//     binding-digest-input requirement stays substrate-scoped (checked
 	//     in gate0SubstrateBindingInputs).
 	if len(s.Subject) != 1 {
 		codes = appendCode(codes, CodeSubjectCardinality)
@@ -373,7 +383,15 @@ func gate0SubstrateBindingInputs(s *Statement, codes []Code) []Code {
 
 	// subject cardinality is checked unconditionally in Gate0 (spec:185-189).
 	// Here only the subject's binding-digest input is validated, alongside the
-	// other five substrate-scoped digest inputs.
+	// substrate-scoped digest members below. networkPosture is in that list
+	// even though version 2 of the binding no longer reads its digest
+	// verbatim: the value is still compared byte for byte against a record's
+	// aeePostureDigest, so an uppercase spelling on both sides would otherwise
+	// pass unnoticed. The observationVocabulary digest is deliberately NOT in
+	// the list, because the vocabulary digest-integrity check recomputes it
+	// from the carried arrays and a non-canonical value cannot equal that
+	// recompute; adding it here would be a condition that could never be the
+	// one to fire.
 	if len(s.Subject) >= 1 {
 		sha, ok := s.Subject[0].Digest["sha256"]
 		if !ok {

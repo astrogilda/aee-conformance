@@ -128,5 +128,5 @@ jobs:
       # question can be asked without one repository reading another in CI.
       - name: consumers carry the corpus this repository publishes
         run: python3 scripts/consumer-lag-gate.py --check
-      - name: replay every vector on the Python rail (must be 165/165)
+      - name: replay every vector on the Python rail (must be 175/175)
         run: python3 packaging/run_vectors.py

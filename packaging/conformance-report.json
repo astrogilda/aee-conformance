@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 165,
-    "pass": 165,
+    "vectors": 175,
+    "pass": 175,
     "fail": 0
   },
   "notes": [],
@@ -941,6 +941,102 @@
       "reasons": []
     },
     {
+      "id": "ok-040-posture-no-network",
+      "file": "vectors/accept/ok-040-posture-no-network.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "result": "pass"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "ok-041-posture-allowlist",
+      "file": "vectors/accept/ok-041-posture-allowlist.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "result": "pass"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "ok-042-posture-unsafe-bypass-egress",
+      "file": "vectors/accept/ok-042-posture-unsafe-bypass-egress.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "result": "pass"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "ok-043-posture-producer-member-bound",
+      "file": "vectors/accept/ok-043-posture-producer-member-bound.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "result": "pass"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
       "id": "bad-001-result-uppercase",
       "file": "vectors/reject/bad-001-result-uppercase.json",
       "kind": "reject",
@@ -1681,8 +1777,8 @@
       "reasons": []
     },
     {
-      "id": "bad-303-binding-version-2",
-      "file": "vectors/reject/bad-303-binding-version-2.json",
+      "id": "bad-303-binding-version-1",
+      "file": "vectors/reject/bad-303-binding-version-1.json",
       "kind": "reject",
       "status": "PASS",
       "gates": {
@@ -1731,6 +1827,90 @@
         "verdict": "invalid",
         "codes": [
           "method-cap-exceeded"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-305-posture-swapped",
+      "file": "vectors/reject/bad-305-posture-swapped.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "run-binding-mismatch"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "run-binding-mismatch"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-306-vocabulary-caught-narrowed",
+      "file": "vectors/reject/bad-306-vocabulary-caught-narrowed.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "run-binding-mismatch"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "run-binding-mismatch"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-307-posture-member-added-after-arming",
+      "file": "vectors/reject/bad-307-posture-member-added-after-arming.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "run-binding-mismatch"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "run-binding-mismatch"
         ]
       },
       "inManifest": true,
@@ -4521,6 +4701,90 @@
         "verdict": "invalid",
         "codes": [
           "issued-at-malformed"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-823-posture-unregistered",
+      "file": "vectors/reject/bad-823-posture-unregistered.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "posture-vocabulary"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "posture-vocabulary"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-824-posture-not-a-string",
+      "file": "vectors/reject/bad-824-posture-not-a-string.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "posture-vocabulary"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "posture-vocabulary"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-825-posture-array",
+      "file": "vectors/reject/bad-825-posture-array.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "posture-vocabulary"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "posture-vocabulary"
         ]
       },
       "inManifest": true,

@@ -5,6 +5,65 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 12 (the run identity gains the vocabulary and the posture)
+
+- Corpus: **175 vectors (42 accept, 133 reject)**. Every vector carrying a
+  decodable record identity was re-minted, because the identity itself moved:
+  126 of the 165 that existed, 29 accept and 97 reject. 32 carry no decodable
+  record identity and are byte-identical. Seven carry an identity that matches
+  neither construction on purpose, and all seven were re-derived by the
+  generators that express that purpose rather than rewritten to a value someone
+  chose. Ten vectors are new.
+- **What moved.** The run-binding pre-image is now `aeeBindingVersion: 2`. It
+  gains `observationVocabulary`, the carried vocabulary digest, and its
+  `networkPosture` input becomes the RFC 8785 canonical digest of the carried
+  posture OBJECT rather than the value of that object's own digest member.
+  Nothing else about a statement changed: both inputs are configuration the wire
+  already carried, so no accept vector gains a byte, and both close through the
+  equality every record's `aeeRunBinding` was already put to. Version 1 is
+  retired with no alias and no dual-accept window.
+- **Why each input belongs there.** Both are run configuration fixed before
+  corpus injection, which is the admission test for any binding input rather
+  than a coincidence: the arming record carries the digest inside its own
+  signature and is signed before injection, so a value the producer could not
+  know then would make the arming record unsignable. Before the change, a party
+  holding only the outer envelope key could narrow the caught set and turn a
+  caught row into a clean one, or swap the posture between two registered
+  values, and in both cases change no digest and break no signature.
+- **Two vectors inverted rather than moved.** `bad-303` was named for a pre-image
+  the rails did not implement and is now named for the one they retired: its
+  records are minted under version 1, which is a digest a real producer could
+  have emitted last revision, where a version nobody has implemented would
+  reject whether or not the rule holds. `bad-726` declared the version the
+  verifier does not implement and had been left declaring `2`, which the rails
+  now implement, so it asserted nothing; it declares `3`. Both were caught by
+  asking what would have to change for each to go red, not by reading them.
+- **The posture registry is exercised for the first time.** Every vector in the
+  suite carried the same posture string, so a rail admitting only that one
+  string and a rail admitting any string at all scored identically on the whole
+  corpus. Three accept vectors carry the other registered values and three
+  reject vectors carry the three shapes that are not one: an unregistered value,
+  a value of the wrong JSON type, and a value wrapped in an array. The last is
+  the shape that took two rails down before it was fixed, because testing
+  membership of an unhashable value against a set raises rather than returning
+  false, which is a crash and a cross-rail split at once.
+- **Three vectors pin the change itself**, and each names a mutation that was
+  free before it: a posture swapped between two registered values (`bad-305`), a
+  caught set narrowed with its own digest re-derived (`bad-306`), and a producer
+  member added to the posture after the arming record was signed (`bad-307`),
+  whose accepted twin `ok-043` carries the same member with records that commit
+  to it. The pair states the rule as one about when the member was added rather
+  than about whether the posture may carry one.
+- **The vendored copy is deliberately unmoved, and the corpus now runs ahead of
+  it.** The authority this corpus certifies against still describes the
+  seven-member version-1 pre-image and still introduces the posture values
+  illustratively. Closing that needs the amendment to exist upstream first,
+  because editing the vendored copy in place would make the vendor pin name a
+  commit that does not contain those bytes, which is the single thing the drift
+  gate exists to refuse. The pin and the recorded `specDigest` are therefore
+  unchanged from revision 11, and the gap is recorded with the exact upstream
+  ask in `docs/interpretation-decisions-open.md` rather than left to be noticed.
+
 ## suiteRevision 11 (the amendment run vendored, with the corpus unmoved)
 
 - Corpus: **165 vectors (38 accept, 127 reject)**. Every vector file is

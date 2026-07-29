@@ -13,7 +13,7 @@
         ]
       }
     ],
-    "batchRoot": "92dcb67e41104b37db7c47f4a5475c9b6ef0c18c2790706546a05b2bce9f18fc",
+    "batchRoot": "3e962e8f018c7b79fa7f454dc4c354eabeb012ffb6d144fa90db6ebc3fc8ff29",
     "coverage": {
       "assessedClasses": [
         "XA"
@@ -74,12 +74,12 @@
     },
     "observationRecords": [
       {
-        "payload": "eyJhZWVLaW5kIjoiaW50ZXJjZXB0aW9uIiwiYWVlTWV0aG9kIjoiaW50ZXJjZXB0ZWQiLCJhZWVOb3RlIjoi7aCAIiwiYWVlUnVuQmluZGluZyI6IjBiYjRlYmNhZjQwZDIwZWU1Nzg5ZThjMGMyY2E5M2UwYjdkNzFkNzdmMzMyZTgzM2YxMzc1NmEzNjhlMzMwNWIiLCJjb21taXRtZW50IjoiZjMxODIxYWUzZTFkNmUwNjExZGM0ZDc1M2U4ZjRjMDIzMmFkMDNkZjFmNGJkMzJhYTQ3YjljZDQxMDdmZTNiZiIsInByb2R1Y2VyTm90ZSI6ImV4YW1wbGUgaW50ZXJjZXB0aW9uIn0=",
+        "payload": "eyJhZWVLaW5kIjoiaW50ZXJjZXB0aW9uIiwiYWVlTWV0aG9kIjoiaW50ZXJjZXB0ZWQiLCJhZWVOb3RlIjoi7aCAIiwiYWVlUnVuQmluZGluZyI6IjlhMWIyMjY5MmI4M2JkZjA2ZmMwY2JiZjlmMmJjMzhmOTkxNDA0OTU1NGI5M2Y3NGI0NTAyM2FlY2E5MjBmNmYiLCJjb21taXRtZW50IjoiZjMxODIxYWUzZTFkNmUwNjExZGM0ZDc1M2U4ZjRjMDIzMmFkMDNkZjFmNGJkMzJhYTQ3YjljZDQxMDdmZTNiZiIsInByb2R1Y2VyTm90ZSI6ImV4YW1wbGUgaW50ZXJjZXB0aW9uIn0=",
         "payloadType": "application/vnd.example.aee-observation.v1+json",
         "signatures": [
           {
             "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
-            "sig": "xwjguioIFlBxNlIXkzcSUhU2xoA8o+FOMQaAAfUZSNc6Z80UpNv6+0jKWQKdtV+/WE0UVmWNsiEl//va5L//AQ=="
+            "sig": "5i/+gMyGYF4VWE1yLHqbMaMu0b9ifYNwt2ePXXTqu+yOrAcd/ch2Loy3IZp88auOxbXlcpsH3YkV0hhdJzOmAA=="
           }
         ]
       }

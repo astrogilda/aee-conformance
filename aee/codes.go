@@ -37,6 +37,7 @@ const (
 	CodeMemberSpelling            Code = "member-spelling"
 	CodeResultVocabulary          Code = "result-vocabulary"
 	CodeEnvironmentIncomplete     Code = "environment-incomplete"
+	CodePostureVocabulary         Code = "posture-vocabulary"
 	CodeVocabularyMissing         Code = "vocabulary-missing"
 	CodeVocabularyNotCanonical    Code = "vocabulary-not-canonical"
 	CodeVocabularyCaughtNotSubset Code = "vocabulary-caught-not-subset"

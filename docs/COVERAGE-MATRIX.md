@@ -6,7 +6,7 @@ vectors/coverage-unforced.json. Do not hand-edit; run the gate to regenerate. CI
 # AEE v0.6 requirement-coverage matrix
 
 Every normative requirement, classified by whether a conformance vector forces it. The point is one
-honest number: of 23 tracked requirements, **17 are forced by a vector**, 1 are
+honest number: of 24 tracked requirements, **18 are forced by a vector**, 1 are
 forcible but not yet vectored, and 5 cannot be pinned by a self-contained corpus at all. The
 determinacy claim rests only on the forced rows; the other two classes are stated so a reader knows
 exactly where "two implementations agree" is untested rather than confirmed.
@@ -15,10 +15,10 @@ exactly where "two implementations agree" is untested rather than confirmed.
 
 | class | count | what it means |
 |---|---|---|
-| forced-by-vector | 17 | a registry decision locked by a live forcing vector |
+| forced-by-vector | 18 | a registry decision locked by a live forcing vector |
 | forcible-but-unforced | 1 | a vector could pin it; none written yet |
 | consumer-policy-unvectorable | 5 | cross-attestation or trust-relative |
-| **total tracked** | **23** |  |
+| **total tracked** | **24** |  |
 
 ## Forced by a vector
 
@@ -30,7 +30,7 @@ exactly where "two implementations agree" is untested rather than confirmed.
 | D4 Fail-closed vs malformed row members | L428-431, L663-666, L815-822 | `bad-501-substrate-unknown-method`, `bad-504-substrate-oov-label`, `bad-505-substrate-missing-method`, `bad-506-actuallayer-json-number` |
 | D5 Clean-row actualLayer 'none' on every basis | L822-824 | `bad-503-clean-row-layer-not-none`, `bad-818-artifact-clean-row-layer-not-none` |
 | D6 Coverage completeness at class + attack granularity; assessed classes are real manifest classes | L458-461, L514-521, L565-568 | `bad-816-coverage-class-dropped`, `bad-819-assessed-class-not-in-manifest`, `bad-806-coverage-attack-omitted`, `bad-807-coverage-attack-superset`, `bad-805-row-unknown-attackid` |
-| D7 Binding-version detection: derived mismatch and explicit read-first declaration | L196-200, L203-210 | `bad-303-binding-version-2`, `bad-726-arming-binding-version-carried` |
+| D7 Binding-version detection: derived mismatch and explicit read-first declaration | L196-200, L203-210 | `bad-303-binding-version-1`, `bad-726-arming-binding-version-carried` |
 | D8 One timestamp profile on both fields: RFC 3339, uppercase designators, zero UTC offset; armedAt no later than issuedAt | L870-871, L1044-1046 | `bad-701-arming-missing-armedat`, `bad-702-armedat-after-issuedat`, `bad-810-missing-issuedat`, `bad-811-issuedat-not-rfc3339`, `bad-727-armedat-non-utc-offset`, `bad-750-armedat-lowercase-separator`, `bad-751-armedat-lowercase-zone-designator`, `bad-820-issuedat-non-utc-offset`, `bad-821-issuedat-lowercase-separator`, `bad-822-issuedat-lowercase-zone-designator`, `ok-038-issuedat-negative-zero-offset`, `ok-039-armedat-negative-zero-offset` |
 | D9 Strict, canonical base64 for record payloads | L845-863 | `bad-817-payload-noncanonical-base64` |
 | D10 Evidence tier per row over covering records; DSSE any-signature-verifies; keyid never the check | L433-448, L1096-1098 | `ok-024-mixed-basis-rows`, `ok-019-wrong-keyid-sig-verifies`, `ok-020-non-pae-signature`, `ok-023-no-tofu-embedded-key` |
@@ -41,6 +41,7 @@ exactly where "two implementations agree" is untested rather than confirmed.
 | D15 String bytes are a well-formed sequence of Unicode scalar values | L93-120 | `bad-733-statement-lone-high-surrogate-escape`, `bad-734-statement-lone-low-surrogate-escape`, `bad-735-statement-reversed-surrogate-pair`, `bad-736-statement-cesu8-vocabulary-label`, `bad-737-statement-overlong-utf8`, `bad-738-statement-raw-control-character`, `bad-739-payload-lone-surrogate-escape`, `bad-740-payload-cesu8` |
 | D16 JSON nesting depth is bounded at 128 | L122-131 | `bad-741-payload-nesting-exceeds-max-depth`, `bad-742-payload-nesting-empty-container-leaf` |
 | D17 Noncharacters are rejected in every string literal (RFC 7493 section 2.1) | L93-120 | `bad-743-statement-noncharacter-vocabulary-label`, `bad-744-payload-noncharacter` |
+| D18 The run binding covers the carried posture object and the carried vocabulary digest | L157-163, L394-395 | `bad-305-posture-swapped`, `bad-306-vocabulary-caught-narrowed`, `bad-307-posture-member-added-after-arming` |
 
 ## Forcible but not yet vectored
 

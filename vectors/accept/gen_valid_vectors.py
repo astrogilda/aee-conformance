@@ -127,6 +127,17 @@ UNCHECKED_BINDING = sha256_hex(PREIMAGES["unchecked-binding"].encode())
 DEFAULT_LABELS = ["egress_captured", "no_egress"]
 DEFAULT_CAUGHT = ["egress_captured"]
 
+# The networkPosture object as it travels on the wire. Version 2 of the run
+# binding folds in the JCS digest of this WHOLE object rather than the value of
+# its own digest member, so the posture string and every further member a
+# producer carries here are inside every record's signature.
+DEFAULT_POSTURE = {"posture": "sinkhole", "digest": {"sha256": POSTURE_DIGEST}}
+
+# The closed registry of substrate-authoritative egress postures.
+EGRESS_POSTURES = frozenset(
+    {"no_network", "allowlist", "sinkhole", "unsafe_bypass_egress"}
+)
+
 
 def vocab_obj(labels: list[str], caught: list[str]) -> dict[str, Any]:
     return {
@@ -134,6 +145,10 @@ def vocab_obj(labels: list[str], caught: list[str]) -> dict[str, Any]:
         "labels": labels,
         "caught": caught,
     }
+
+
+def vocab_digest(labels: list[str], caught: list[str]) -> str:
+    return sha256_hex(jcs({"caught": caught, "labels": labels}))
 
 
 def corpus_obj(manifest: dict[str, Any]) -> dict[str, Any]:
@@ -145,12 +160,28 @@ def corpus_obj(manifest: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def run_binding(corpus_digest: str) -> str:
+def run_binding(
+    corpus_digest: str,
+    labels: list[str] | None = None,
+    caught: list[str] | None = None,
+    posture: dict[str, Any] | None = None,
+) -> str:
+    """The version-2 run binding: eight ASCII members in JCS order.
+
+    The two inputs version 2 added are both material the statement already
+    carries. ``observationVocabulary`` is the carried vocabulary digest, so a
+    caught set narrowed after the run derives a binding no record carries.
+    ``networkPosture`` is the JCS digest of the carried posture OBJECT, so the
+    posture string travels inside the signature that used to sit beside it.
+    """
+    labels = DEFAULT_LABELS if labels is None else labels
+    caught = DEFAULT_CAUGHT if caught is None else caught
     pre = {
-        "aeeBindingVersion": "1",
+        "aeeBindingVersion": "2",
         "catchPolicy": CATCH_POLICY_DIGEST,
         "corpus": corpus_digest,
-        "networkPosture": POSTURE_DIGEST,
+        "networkPosture": sha256_hex(jcs(DEFAULT_POSTURE if posture is None else posture)),
+        "observationVocabulary": vocab_digest(labels, caught),
         "runEntropy": RUN_ENTROPY_DIGEST,
         "subject": SUBJECT_DIGEST,
         "substrate": SUBSTRATE_DIGEST,
@@ -274,6 +305,7 @@ def make_statement(  # noqa: C901 -- one guarded branch per independent option f
     does_not_assert: list[str] | None = None,
     predicate_extra: dict[str, Any] | None = None,
     binding_for_root: str | None = None,
+    posture: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     labels = DEFAULT_LABELS if labels is None else labels
     caught = DEFAULT_CAUGHT if caught is None else caught
@@ -285,7 +317,7 @@ def make_statement(  # noqa: C901 -- one guarded branch per independent option f
         },
         "corpus": corpus,
         "catchPolicy": {"digest": {"sha256": CATCH_POLICY_DIGEST}},
-        "networkPosture": {"posture": "sinkhole", "digest": {"sha256": POSTURE_DIGEST}},
+        "networkPosture": DEFAULT_POSTURE if posture is None else posture,
         "observationVocabulary": vocab_obj(labels, caught),
     }
     if with_entropy:
@@ -843,7 +875,11 @@ def build_vectors() -> dict[str, dict[str, Any]]:
         with_entropy=False,
     )
 
-    # ok-028 empty caught set: vacuously no caught rows, clean pass
+    # ok-028 empty caught set: vacuously no caught rows, clean pass. The caught
+    # set is a binding input under version 2, so this vector's records carry a
+    # binding of their own rather than b_1: an empty caught array derives a
+    # different vocabulary digest and therefore a different run.
+    b_1_no_caught = run_binding(sha256_hex(jcs(man_1)), caught=[])
     v["ok-028-empty-caught-pass"] = make_statement(
         man_1,
         [
@@ -851,7 +887,10 @@ def build_vectors() -> dict[str, dict[str, Any]]:
                 "XA-EXAMPLE-1", "no_egress", "substrate", "intercepted", "none", [0, 1]
             )
         ],
-        records=[make_record("arming", b_1), make_record("sealed", b_1)],
+        records=[
+            make_record("arming", b_1_no_caught),
+            make_record("sealed", b_1_no_caught),
+        ],
         caught=[],
     )
 
@@ -1048,6 +1087,67 @@ def build_vectors() -> dict[str, dict[str, Any]]:
         ],
     )
 
+    # ok-040 .. ok-042 the three registered postures the corpus otherwise never
+    # carries. Every other vector in this suite says "sinkhole", so the closed
+    # posture registry was untested by construction: a rail that admitted only
+    # the one string the corpus happens to use passed all 165 vectors, and so
+    # did a rail that admitted any string at all. These three are byte-identical
+    # to ok-002 apart from the posture string and everything that string moves,
+    # which is now the run binding as well, since version 2 of the binding
+    # covers the carried posture object. Their pinned digest member is
+    # unchanged, so the arming and sealed cover conditions still compare equal
+    # and the posture string is the only variable.
+    for _slug, _posture in (
+        ("ok-040-posture-no-network", "no_network"),
+        ("ok-041-posture-allowlist", "allowlist"),
+        ("ok-042-posture-unsafe-bypass-egress", "unsafe_bypass_egress"),
+    ):
+        _obj = {"posture": _posture, "digest": {"sha256": POSTURE_DIGEST}}
+        _b = run_binding(sha256_hex(jcs(man_1)), posture=_obj)
+        v[_slug] = make_statement(
+            man_1,
+            [
+                make_row(
+                    "XA-EXAMPLE-1",
+                    "no_egress",
+                    "substrate",
+                    "intercepted",
+                    "none",
+                    [0, 1],
+                )
+            ],
+            records=[make_record("arming", _b), make_record("sealed", _b)],
+            posture=_obj,
+        )
+
+    # ok-043 the accept half of the extension pair. A producer carries an extra
+    # member inside networkPosture, and the records commit to the posture object
+    # that member is part of, so the statement verifies. The reject twin
+    # (bad-307) carries the same extra member with records that do not commit to
+    # it, which is what a member added AFTER the arming record was signed looks
+    # like on the wire. Together they state the consequence the binding change
+    # makes normative: the object the binding covers is the carried one, so the
+    # posture is not a place to add members casually.
+    _posture_extended = {
+        "posture": "sinkhole",
+        "digest": {"sha256": POSTURE_DIGEST},
+        "producerNote": "example posture annotation",
+    }
+    _b_extended = run_binding(sha256_hex(jcs(man_1)), posture=_posture_extended)
+    v["ok-043-posture-producer-member-bound"] = make_statement(
+        man_1,
+        [
+            make_row(
+                "XA-EXAMPLE-1", "no_egress", "substrate", "intercepted", "none", [0, 1]
+            )
+        ],
+        records=[
+            make_record("arming", _b_extended),
+            make_record("sealed", _b_extended),
+        ],
+        posture=_posture_extended,
+    )
+
     return v
 
 
@@ -1065,6 +1165,10 @@ def verify(stmt: dict[str, Any]) -> list[str]:  # noqa: C901 -- mirrors the full
     env = pred["observationEnvironment"]
     vocab = env["observationVocabulary"]
     labels, caught = vocab["labels"], vocab["caught"]
+
+    # the closed posture registry
+    if env["networkPosture"].get("posture") not in EGRESS_POSTURES:
+        errs.append("posture not in the closed registry")
 
     # vocabulary shape + digest
     if sorted(labels) != labels or sorted(caught) != caught:
@@ -1102,10 +1206,11 @@ def verify(stmt: dict[str, Any]) -> list[str]:  # noqa: C901 -- mirrors the full
             binding = sha256_hex(
                 jcs(
                     {
-                        "aeeBindingVersion": "1",
+                        "aeeBindingVersion": "2",
                         "catchPolicy": env["catchPolicy"]["digest"]["sha256"],
                         "corpus": env["corpus"]["digest"]["sha256"],
-                        "networkPosture": env["networkPosture"]["digest"]["sha256"],
+                        "networkPosture": sha256_hex(jcs(env["networkPosture"])),
+                        "observationVocabulary": vocab["digest"]["sha256"],
                         "runEntropy": env["runEntropy"]["digest"]["sha256"],
                         "subject": stmt["subject"][0]["digest"]["sha256"],
                         "substrate": env["substrate"]["digest"]["sha256"],
@@ -1278,7 +1383,7 @@ def verify_signatures(stmt: dict[str, Any]) -> dict[int, str]:
 
 def main() -> int:
     vectors = build_vectors()
-    assert len(vectors) == 38, len(vectors)
+    assert len(vectors) == 42, len(vectors)
     failures = 0
     for name, stmt in vectors.items():
         errs = verify(stmt)

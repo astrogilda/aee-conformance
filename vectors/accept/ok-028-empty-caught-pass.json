@@ -14,7 +14,7 @@
         ]
       }
     ],
-    "batchRoot": "0ffaae7158ee12a435203331d7685c00760aa1404d0e1de1d56b5625ecb82ec4",
+    "batchRoot": "c79bbe82167b6e1a7171573233e291f53b141972ead6f2b93b91ff9906dd5a09",
     "coverage": {
       "assessedClasses": [
         "XA"
@@ -73,22 +73,22 @@
     },
     "observationRecords": [
       {
-        "payload": "eyJhZWVLaW5kIjoiYXJtaW5nIiwiYWVlTWV0aG9kIjoiaW50ZXJjZXB0ZWQiLCJhZWVQb3N0dXJlRGlnZXN0IjoiYTZlYmZjODQ1YmZlOTEwYTA5OTMyMGZkN2VjMzNlMjEyODJhOGI1NmQ4MjExMTUyN2E4MDQ0NGNhMThlNDM1MiIsImFlZVJ1bkJpbmRpbmciOiIyOGY5MmJhMGI0ZTNhZjMwNGFjZTNlMTNmZTllNzdhOWU5YzYyOTFiNzFhMzkxM2FhZjNmZmJlMTk0MmMxM2JmIiwiYXJtZWRBdCI6IjIwMjUtMTItMzFUMjM6NTk6MDBaIn0=",
+        "payload": "eyJhZWVLaW5kIjoiYXJtaW5nIiwiYWVlTWV0aG9kIjoiaW50ZXJjZXB0ZWQiLCJhZWVQb3N0dXJlRGlnZXN0IjoiYTZlYmZjODQ1YmZlOTEwYTA5OTMyMGZkN2VjMzNlMjEyODJhOGI1NmQ4MjExMTUyN2E4MDQ0NGNhMThlNDM1MiIsImFlZVJ1bkJpbmRpbmciOiJjYWM0YTlmNzJmZWU3MWUyMTFlMTc5YTkzMzMyYjgzZTgyNjJjNTllYjk2NzI1MDM5MWZiMzk1ZjIwMjQ3NGU4IiwiYXJtZWRBdCI6IjIwMjUtMTItMzFUMjM6NTk6MDBaIn0=",
         "payloadType": "application/vnd.example.aee-observation.v1+json",
         "signatures": [
           {
             "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
-            "sig": "xXfwmG9cgrFz2h0BB41bJzG/hipOIbdKChNDgi725ch+oaJftyl/q8G7IPNX3+uCiwmD5PnBvshoc40dUIBwDQ=="
+            "sig": "FU2QZyf2gplrDz8h0RGLR6q+SIwQBKISRNCLOMy4JOYa37NkXvHNwfELezd/Hnh29msMGatOQzk0vZFRAEe1BA=="
           }
         ]
       },
       {
-        "payload": "eyJhZWVEcm9wQ291bnQiOjAsImFlZUtpbmQiOiJzZWFsZWQiLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZVBvc3R1cmVEaWdlc3QiOiJhNmViZmM4NDViZmU5MTBhMDk5MzIwZmQ3ZWMzM2UyMTI4MmE4YjU2ZDgyMTExNTI3YTgwNDQ0Y2ExOGU0MzUyIiwiYWVlUnVuQmluZGluZyI6IjI4ZjkyYmEwYjRlM2FmMzA0YWNlM2UxM2ZlOWU3N2E5ZTljNjI5MWI3MWEzOTEzYWFmM2ZmYmUxOTQyYzEzYmYiLCJhZWVTdGlsbEFybWVkIjp0cnVlfQ==",
+        "payload": "eyJhZWVEcm9wQ291bnQiOjAsImFlZUtpbmQiOiJzZWFsZWQiLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZVBvc3R1cmVEaWdlc3QiOiJhNmViZmM4NDViZmU5MTBhMDk5MzIwZmQ3ZWMzM2UyMTI4MmE4YjU2ZDgyMTExNTI3YTgwNDQ0Y2ExOGU0MzUyIiwiYWVlUnVuQmluZGluZyI6ImNhYzRhOWY3MmZlZTcxZTIxMWUxNzlhOTMzMzJiODNlODI2MmM1OWViOTY3MjUwMzkxZmIzOTVmMjAyNDc0ZTgiLCJhZWVTdGlsbEFybWVkIjp0cnVlfQ==",
         "payloadType": "application/vnd.example.aee-observation.v1+json",
         "signatures": [
           {
             "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
-            "sig": "DrILD7O5HpeCqNzgNS9tn28HMhBStDv39TSNxTa9pgvI8j9qHdhUiIV84qHHPIjW+wkDobIDP3JM+QZIbn01CA=="
+            "sig": "icGS3MoYgYCYyNqRx4VU4gqYUcKdDVpmFpbP2Pav53CV8voSwkNC8HrJi6laJkIPy0mFJKDj1p/smDK98C9ABQ=="
           }
         ]
       }

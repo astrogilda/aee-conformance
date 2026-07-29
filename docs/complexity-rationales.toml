@@ -12,7 +12,7 @@
 # after a legitimate change; adding or dropping an entry stays a hand edit.
 
 ["vectors/accept/gen_valid_vectors.py::verify"]
-complexity = 45
+complexity = 46
 rationale = """
 The accept-vector generator carries its own independent statement verifier as a
 build-time self-check, a deliberate second opinion distinct from the Go and

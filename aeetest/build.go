@@ -93,6 +93,17 @@ type Options struct {
 
 	// PredicateType overrides the statement predicateType ("" = v0.6 URI).
 	PredicateType string
+
+	// ExtraVocabularyLabels appends labels to observationVocabulary.labels,
+	// re-deriving the vocabulary digest, the run binding and every record
+	// signature over it. A caller that wants a label no Go string can carry
+	// through a decode builds with the DECODED form here and substitutes the
+	// raw source into the returned bytes afterwards: everything the substitution
+	// would otherwise leave inconsistent has already been derived over the
+	// decoded value, which is the value a rail reads. Each label must sort
+	// after every existing one, or the statement is unsorted rather than
+	// whatever the caller meant to test.
+	ExtraVocabularyLabels []string
 }
 
 // canonMust canonicalizes or panics; builder inputs are all synthetic
@@ -124,6 +135,7 @@ var (
 func Build(o Options) []byte {
 	labels := []string{"egress_captured", "no_egress"}
 	caught := []string{"egress_captured"}
+	labels = append(labels, o.ExtraVocabularyLabels...)
 	vocabDigest := aee.SHA256Hex(canonMust(map[string]any{"caught": caught, "labels": labels}))
 	if o.TamperVocabularyDigest {
 		vocabDigest = aee.SHA256Hex([]byte("stale"))
@@ -136,7 +148,14 @@ func Build(o Options) []byte {
 	manifest := map[string]any{"classes": map[string]any{"XA": attackIDs}}
 	corpusDigest := aee.SHA256Hex(canonMust(manifest))
 
-	binding := aee.DeriveRunBinding(catchPolicyDigest, corpusDigest, postureDigest, runEntropyDigest, subjectDigest, substrateDigest)
+	posture := map[string]any{"digest": map[string]any{"sha256": postureDigest}, "posture": "sinkhole"}
+
+	// The version-2 networkPosture input is the canonical digest of the whole
+	// carried object, so it is built from the same literal the environment
+	// below carries rather than from postureDigest, which is that object's own
+	// pinned digest member.
+	posturePreimage := aee.SHA256Hex(canonMust(posture))
+	binding := aee.DeriveRunBinding(catchPolicyDigest, corpusDigest, posturePreimage, vocabDigest, runEntropyDigest, subjectDigest, substrateDigest)
 
 	signerRole := o.SignerRole
 	if signerRole == "" {
@@ -221,7 +240,7 @@ func Build(o Options) []byte {
 	env := map[string]any{
 		"catchPolicy":    map[string]any{"digest": map[string]any{"sha256": catchPolicyDigest}},
 		"corpus":         map[string]any{"digest": map[string]any{"sha256": corpusDigest}, "manifest": manifest, "name": "example-corpus", "uri": "pkg:example/corpus@1"},
-		"networkPosture": map[string]any{"digest": map[string]any{"sha256": postureDigest}, "posture": "sinkhole"},
+		"networkPosture": posture,
 		"observationVocabulary": map[string]any{
 			"caught": caught,
 			"digest": map[string]any{"sha256": vocabDigest},

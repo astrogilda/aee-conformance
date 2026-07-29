@@ -792,6 +792,64 @@ def _digest_of(obj: Any) -> Any:
     return None
 
 
+# The run-binding construction this rail implements. A record declaring any
+# other version covers nothing: the spec forbids attempting more than one
+# construction, so there is no version-1 path left in this file to fall back to.
+BINDING_VERSION = "2"
+
+# The closed registry of substrate-authoritative egress postures. An absent,
+# non-string or unregistered value makes the statement malformed, fail-closed.
+EGRESS_POSTURES = frozenset(
+    {"no_network", "allowlist", "sinkhole", "unsafe_bypass_egress"}
+)
+
+
+def posture_preimage_digest(env: dict[str, Any]) -> str:
+    """The version-2 networkPosture input: the canonical digest of the CARRIED
+    object, never of its own `digest` member.
+
+    Binding the member's digest, which is what version 1 did, leaves the
+    `posture` string beside it unsigned, and the posture configuration that
+    digest is taken over travels nowhere in the statement, so nothing could ever
+    have compared the string against it. Hashing the object puts the string, its
+    pinned digest and every further member a producer carries there inside the
+    comparison every record already runs.
+
+    A non-object, absent or otherwise, contributes the empty string, exactly as
+    an absent digest member does elsewhere in this file: those statements are
+    already malformed on their own codes, and inventing a second failure here
+    would only mask the first. The same reasoning covers a canonicalizer error:
+    a lone surrogate or an unsafe integer inside the object is caught by the
+    I-JSON profile at GATE 0, so this returns the empty string and lets that
+    code be the one the reader sees.
+    """
+    raw = env.get("networkPosture")
+    if not isinstance(raw, dict):
+        return ""
+    try:
+        return sha256_hex(jcs_dumps(raw))
+    except (JcsError, TypeError, ValueError):
+        return ""
+
+
+def binding_preimage(env: dict[str, Any], subject_sha: Any) -> dict[str, Any] | None:
+    """The eight-member version-2 pre-image object, or None when a member the
+    construction reads verbatim is absent."""
+    try:
+        return {
+            "aeeBindingVersion": BINDING_VERSION,
+            "catchPolicy": env["catchPolicy"]["digest"]["sha256"],
+            "corpus": env["corpus"]["digest"]["sha256"],
+            "networkPosture": posture_preimage_digest(env),
+            "observationVocabulary": env["observationVocabulary"]["digest"]["sha256"],
+            "runEntropy": env["runEntropy"]["digest"]["sha256"],
+            "subject": subject_sha,
+            "substrate": env["substrate"]["digest"]["sha256"],
+        }
+    except (KeyError, IndexError, TypeError):
+        return None
+
+
 def _timestamp_ok(v: Any) -> bool:
     """Whether a value is carried under the predicate's Timestamp field type.
 
@@ -1104,6 +1162,20 @@ class ReferenceVerifier:
             out.add("vocabulary-missing")
             vocab = None
         st.vocab = vocab
+        # The posture registry is closed and its violation is a malformed
+        # statement, not a fail-closed row: nothing on a row carries it. The
+        # check runs only when the member is present, so an absent
+        # networkPosture keeps reporting environment-incomplete alone rather
+        # than gaining a second code for the same absence. Membership is tested
+        # against a frozenset, which raises on an unhashable value, so the
+        # posture is normalized to a hashable stand-in first: a posture holding
+        # a list is not a registered value and must report that rather than
+        # taking the rail down.
+        posture = env.get("networkPosture")
+        if isinstance(posture, dict):
+            declared = posture.get("posture")
+            if not isinstance(declared, str) or declared not in EGRESS_POSTURES:
+                out.add("posture-vocabulary")
 
     def _check_vocabulary(self, st: _VerifyState, out: Outcome) -> None:
         vocab = st.vocab
@@ -1458,16 +1530,10 @@ class ReferenceVerifier:
             env = st.env
             try:
                 subject0 = stmt["subject"][0]
-                vals = {
-                    "aeeBindingVersion": "1",
-                    "catchPolicy": env["catchPolicy"]["digest"]["sha256"],
-                    "corpus": env["corpus"]["digest"]["sha256"],
-                    "networkPosture": env["networkPosture"]["digest"]["sha256"],
-                    "runEntropy": env["runEntropy"]["digest"]["sha256"],
-                    "subject": subject0["digest"]["sha256"],
-                    "substrate": env["substrate"]["digest"]["sha256"],
-                }
-                if all(isinstance(v, str) for v in vals.values()):
+                vals = binding_preimage(env, subject0["digest"]["sha256"])
+                if vals is not None and all(
+                    isinstance(v, str) for v in vals.values()
+                ):
                     derived_binding = sha256_hex(jcs_dumps(vals))
             except (KeyError, IndexError, TypeError):
                 derived_binding = None  # member codes already emitted
@@ -1785,6 +1851,11 @@ _CODE_REGISTRY: dict[str, tuple[str, tuple[str, ...]]] = {
     "issued-at-missing": ("gate0", ()),
     "issued-at-malformed": ("gate0", ()),
     "environment-incomplete": ("gate0", ("corpus", "binding")),
+    # A binding-family fault: the posture object is a binding input under
+    # version 2, so a statement carrying an unregistered posture has had that
+    # object rewritten and its records rebound, which is the second-fault
+    # assertion this family exempts.
+    "posture-vocabulary": ("gate0", ("binding",)),
     "vocabulary-missing": ("gate0", ("vocab",)),
     "vocabulary-not-canonical": ("gate0", ("vocab",)),
     "vocabulary-caught-not-subset": ("gate0", ("vocab",)),
@@ -1955,15 +2026,9 @@ def _sfa_binding(
 
 def _sfa_derived_binding(stmt: dict[str, Any], env: dict[str, Any]) -> str | None:
     try:
-        vals = {
-            "aeeBindingVersion": "1",
-            "catchPolicy": env["catchPolicy"]["digest"]["sha256"],
-            "corpus": env["corpus"]["digest"]["sha256"],
-            "networkPosture": env["networkPosture"]["digest"]["sha256"],
-            "runEntropy": env["runEntropy"]["digest"]["sha256"],
-            "subject": stmt["subject"][0]["digest"]["sha256"],
-            "substrate": env["substrate"]["digest"]["sha256"],
-        }
+        vals = binding_preimage(env, stmt["subject"][0]["digest"]["sha256"])
+        if vals is None:
+            return None
         return sha256_hex(jcs_dumps(vals))
     except (KeyError, IndexError, TypeError, JcsError):
         return None
@@ -2576,17 +2641,7 @@ def _selftest_build(keys: dict[str, dict[str, Any]]) -> dict[str, Any]:
         {"name": "example-agent-bundle", "digest": {"sha256": d("subject")}}
     ]
     binding = sha256_hex(
-        jcs_dumps(
-            {
-                "aeeBindingVersion": "1",
-                "catchPolicy": env["catchPolicy"]["digest"]["sha256"],
-                "corpus": env["corpus"]["digest"]["sha256"],
-                "networkPosture": env["networkPosture"]["digest"]["sha256"],
-                "runEntropy": env["runEntropy"]["digest"]["sha256"],
-                "subject": subject[0]["digest"]["sha256"],
-                "substrate": env["substrate"]["digest"]["sha256"],
-            }
-        )
+        jcs_dumps(binding_preimage(env, subject[0]["digest"]["sha256"]))
     )
     ptype = "application/vnd.example.aee-observation.v1+json"
     seed = keys[PINNED_ROLE]["seed"]

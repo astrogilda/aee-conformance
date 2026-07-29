@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """AEE v0.6 INVALID conformance-vector generator.
 
-Generates the 122 reject vectors of the adversarial-execution-evidence v0.6
+Generates the 127 reject vectors of the adversarial-execution-evidence v0.6
 conformance suite. Every vector is a COMPLETE in-toto Statement that a
 conforming verifier MUST reject for exactly ONE declared reason: each is
 derived from a fully-valid parent statement by one mutation plus the declared
@@ -2242,6 +2242,91 @@ vec("bad-815-wrong-statement-type", "ok-002",
     ["statement-type-unsupported"], _b815, spec="L237")
 
 
+# --- the timestamp profile, on both fields that carry it -------------------
+#
+# The profile is one rule cited from two places, so it needs a vector on each
+# field and in each direction. The zone half was written on armedAt only, which
+# left issuedAt admitting a non-zero offset on all five rails (bad-820); the
+# case half was written on neither field, and the rails had already split on it.
+# The accept side is ok-038 and ok-039, which carry the negative zero offset the
+# profile admits.
+#
+# The case half needs one vector per designator rather than one carrying both
+# lowercased. A rail whose zero-offset test reads the literal suffix rather than
+# the parsed offset rejects a lowercase `z` as a side effect of the zone rule,
+# so a both-lowercase mutant stays rejected however the case rule is written and
+# forces nothing. Separated, each designator has a mutant only its own rule
+# refuses, which is what makes the rule mutation-provable on every rail.
+
+vec("bad-750-armedat-lowercase-separator", "ok-002",
+    'arming armedAt: "2025-12-31t23:59:00Z" (lowercase date-time separator)',
+    ["re-sign-record", "recompute-batch-root"], [63],
+    ["arming-covers-nothing"],
+    _rec_mut(P_clean, 0,
+             lambda o: {**o, "armedAt": "2025-12-31t23:59:00Z"}),
+    spec="L823-828",
+    note="the parent's instant with the separator lowercased. The profile is "
+         "uppercase and this was already a rejection before the profile was "
+         "written down, since the clause names Z and +00:00 and admits no "
+         "lowercase spelling; the Python reference rail accepted it anyway, "
+         "which is the divergence this vector exists to hold shut")
+vec("bad-751-armedat-lowercase-zone-designator", "ok-002",
+    'arming armedAt: "2025-12-31T23:59:00z" (lowercase zone designator)',
+    ["re-sign-record", "recompute-batch-root"], [63],
+    ["arming-covers-nothing"],
+    _rec_mut(P_clean, 0,
+             lambda o: {**o, "armedAt": "2025-12-31T23:59:00z"}),
+    spec="L823-828",
+    note="the separator's twin: the other half of the case rule, isolated so a "
+         "rail that enforces the case of one designator and not the other is "
+         "caught. Distinct from bad-727 (a non-zero offset), which is the zone "
+         "half of the same profile")
+
+
+def _b820() -> dict[str, Any]:
+    st = P_artifact()
+    st["predicate"]["issuedAt"] = "2026-01-01T05:00:00+05:00"
+    return st
+
+
+vec("bad-820-issuedat-non-utc-offset", "ok-007",
+    'issuedAt: "2026-01-01T05:00:00+05:00" (a non-zero UTC offset)', [],
+    [85], ["issued-at-malformed"], _b820, spec="L1000-1002",
+    note="the parent's instant at a non-zero offset. issuedAt is typed as the "
+         "framework Timestamp, which requires the UTC timezone, so a valid "
+         "instant in a non-UTC spelling is malformed. The counterpart on the "
+         "arming record is bad-727, which every rail rejected while every rail "
+         "accepted this one")
+
+
+def _b821() -> dict[str, Any]:
+    st = P_artifact()
+    st["predicate"]["issuedAt"] = "2026-01-01t00:00:00Z"
+    return st
+
+
+vec("bad-821-issuedat-lowercase-separator", "ok-007",
+    'issuedAt: "2026-01-01t00:00:00Z" (lowercase date-time separator)', [],
+    [85], ["issued-at-malformed"], _b821, spec="L1000-1002",
+    note="the spelling the Go reference rail refused and the Python reference "
+         "rail accepted with result pass, an accept-on-one reject-on-another "
+         "split inside one repository that no vector reached")
+
+
+def _b822() -> dict[str, Any]:
+    st = P_artifact()
+    st["predicate"]["issuedAt"] = "2026-01-01T00:00:00z"
+    return st
+
+
+vec("bad-822-issuedat-lowercase-zone-designator", "ok-007",
+    'issuedAt: "2026-01-01T00:00:00z" (lowercase zone designator)', [],
+    [85], ["issued-at-malformed"], _b822, spec="L1000-1002",
+    note="the separator's twin on the predicate field, isolated for the same "
+         "reason as bad-751: a rail enforcing the case of one designator and "
+         "not the other passes every both-lowercase mutant")
+
+
 # ---------------------------------------------------------------- checks
 
 RESULT_VOCAB = {"pass", "degraded", "fail"}
@@ -2461,7 +2546,7 @@ COND = {
                      "granularity"),
     83: ("L480-484", "coverage member required"),
     84: ("L988-998", "doesNotAssert single canonical spelling"),
-    85: ("L1000-1002", "issuedAt required, RFC 3339"),
+    85: ("L1000-1002", "issuedAt required, under the Timestamp profile"),
     86: ("L133-146", "vocabulary labels/caught entries BMP-only; a "
                              "supplementary-plane entry is malformed"),
     87: ("L133-146", "covering payload member names BMP-only; a "
@@ -2726,7 +2811,7 @@ def main() -> None:
         with open(path) as f:
             json.load(f)  # every vector parses as JSON (a duplicate member is last-wins)
 
-    assert len(VECTORS) == 122, f"expected 122 vectors, built {len(VECTORS)}"
+    assert len(VECTORS) == 127, f"expected 127 vectors, built {len(VECTORS)}"
 
     # 3. index
     write_index()

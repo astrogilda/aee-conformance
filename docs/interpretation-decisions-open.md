@@ -111,14 +111,25 @@ offset (Go `time.Parse` and the Python `RFC3339_RE` both admit `[+-]HH:MM`) and
 compared `armedAt`/`issuedAt` as instants, so an offset `armedAt` whose instant
 precedes `issuedAt` was accepted. The independent-checker grok classified this
 as a real rail bug rather than an editorial call: the spec already mandates UTC,
-so accepting `+05:00` is out of spec. **Fixed:** the spec text now pins the zero
-UTC offset (`Z` or `+00:00`, never a non-zero offset) explicitly, both rails
-reject a non-zero offset (Go checks `t.Zone()` offset is 0; Python
-`_armed_utc_offset_ok`), and `bad-727-armedat-non-utc-offset` locks it (a valid
-`+05:00` instant before `issuedAt`, rejected as `arming-covers-nothing`,
-distinct from a late `armedAt`). Decision 8 in the registry now lists bad-727.
-Retained here for the audit trail. Rail propagation to the first-party
-verifier rails is a follow-up (tracked with corners A and C below).
+so accepting `+05:00` is out of spec. **Fixed:** the spec text pinned the zero
+UTC offset explicitly, both rails rejected it, and
+`bad-727-armedat-non-utc-offset` locked it (a valid `+05:00` instant before
+`issuedAt`, rejected as `arming-covers-nothing`, distinct from a late
+`armedAt`).
+
+That fix was half a fix, and the other half was invisible for two revisions
+because it was written on one field and applied at one call site. `issuedAt`
+carried no zone rule at all, so the same offset was conformant a few fields
+away and every rail accepted it there; and the sentence that pinned the zone
+never pinned the case, so a lowercase designator was refused by the Go rail and
+accepted by the Python rail, on the same bytes, inside this repository. Both
+are closed at suiteRevision 10 by adopting the framework's `Timestamp` type on
+`issuedAt` and stating the profile once on the field the arming record cites.
+Every rail now runs both timestamps through one parse that carries the whole
+profile, so a later reader cannot apply half of it; the zone half is locked by
+`bad-727` and `bad-820`, the case half by `bad-750` and `bad-821`, and `-00:00`
+is locked as admitted by `ok-038` and `ok-039`. Decision 8 in the registry
+lists all of them. Retained here for the audit trail.
 
 ---
 

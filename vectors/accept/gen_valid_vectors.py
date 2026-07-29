@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Deterministic generator for the AEE v0.6 ACCEPT (valid) conformance vectors.
 
-Emits ok-001 .. ok-036 as complete, unwrapped in-toto Statement JSON files that a
-conforming verifier MUST accept, into the directory containing this script.
+Emits ok-001 .. ok-039 (ok-037 is reserved) as complete, unwrapped in-toto
+Statement JSON files that a conforming verifier MUST accept, into the directory
+containing this script.
 
 Determinism recipe (normative for this suite):
   - Ed25519/RFC 8032 keys with seeds DERIVED from published constants:
@@ -342,7 +343,7 @@ def make_statement(  # noqa: C901 -- one guarded branch per independent option f
 
 
 # ---------------------------------------------------------------------------
-# the 33 accept vectors
+# the accept vectors
 # ---------------------------------------------------------------------------
 
 
@@ -1013,6 +1014,40 @@ def build_vectors() -> dict[str, dict[str, Any]]:
         records=[make_record("arming", b_1, extra={"aaDeep": _deep}), make_record("sealed", b_1)],
     )
 
+    # ok-038 issuedAt spelled with the negative zero offset. The timestamp
+    # profile admits `Z`, `+00:00` and `-00:00` and nothing else, and `-00:00`
+    # is the member of that set no prose named before the profile was written,
+    # so every rail accepted it without a rule and none of them recorded that it
+    # had. RFC 3339 section 4.3 gives `-00:00` the meaning that the instant in
+    # UTC is known while the offset to local time is not, which says nothing
+    # about the instant, and the instant is all the predicate reads. Same
+    # instant as ok-007, so the only variable is the spelling: a rail that reads
+    # "zero offset" as "Z or +00:00 only" is silently stricter than its peers
+    # and fails here rather than at a third party.
+    v["ok-038-issuedat-negative-zero-offset"] = make_statement(
+        man_1,
+        [make_row("XA-EXAMPLE-1", "no_egress", "artifact", "reconstructed", "none", [])],
+        with_entropy=False,
+        predicate_extra={"issuedAt": "2026-01-01T00:00:00-00:00"},
+    )
+
+    # ok-039 the same spelling on armedAt, inside a substrate-signed payload.
+    # The record is re-signed and the batch root recomputed over it, so the only
+    # fault under test is the zone spelling; the arming record must still cover
+    # the clean row and the statement must still recompute to pass.
+    v["ok-039-armedat-negative-zero-offset"] = make_statement(
+        man_1,
+        [
+            make_row(
+                "XA-EXAMPLE-1", "no_egress", "substrate", "intercepted", "none", [0, 1]
+            )
+        ],
+        records=[
+            make_record("arming", b_1, extra={"armedAt": "2025-12-31T23:59:00-00:00"}),
+            make_record("sealed", b_1),
+        ],
+    )
+
     return v
 
 
@@ -1243,7 +1278,7 @@ def verify_signatures(stmt: dict[str, Any]) -> dict[int, str]:
 
 def main() -> int:
     vectors = build_vectors()
-    assert len(vectors) == 36, len(vectors)
+    assert len(vectors) == 38, len(vectors)
     failures = 0
     for name, stmt in vectors.items():
         errs = verify(stmt)

@@ -10,7 +10,7 @@ canonical RFC 8785 / RFC 7493 `+json` carrying the reserved members with
 capped by the weakest signed `aeeMethod`, `batchRoot` recomputes under RFC 6962),
 and the carried `result` equals the recompute. Condition ids below are stable
 `aee-c-NN` ids; the suite README maps them to spec line ranges at the pinned
-spec commit. Verdict for all 34: **valid**; the per-row evidence tier
+spec commit. Verdict for every vector here: **valid**; the per-row evidence tier
 (attested / unattested / declared) is trust-relative and never alters validity
 or `result`.
 
@@ -95,6 +95,8 @@ tier-2 spec question.
 | ok-034-arming-chain-genesis | pass | aee-c-89 | arming payload carrying the optional run-chaining members in genesis form (`aeeRunSeq` 1, `aeeChainScope` present, no `aeePrevRunBinding`): syntax-checked in the reserved-member walk, nothing else normative reads them, and the record still covers |
 | ok-035-unknown-kind-excluded-from-cap | pass | aee-c-23, aee-c-45, aee-c-71 | clean intercepted row referencing an unknown-`aeeKind` record signed `aeeMethod` "reconstructed": the record covers nothing and is otherwise ignored, so it neither invalidates the row (arming + sealed satisfy class-match) nor participates in the method cap, which reads only covering records |
 | ok-036-payload-nesting-at-bound | pass | aee-c-18 | covering payload carrying a producer member nested exactly TO the bound (deepest open container at depth 128, scalar leaf): valid, and the discriminating twin of bad-741/bad-742 -- the one depth the corpus otherwise never touches, where a per-open-container counter and a per-parsed-value counter can disagree |
+| ok-038-issuedat-negative-zero-offset | pass | aee-c-85 | `issuedAt` spelled `2026-01-01T00:00:00-00:00`: the member of the timestamp profile no prose named before the profile was written, admitted because RFC 3339 section 4.3 makes `-00:00` a statement about the producer's locale and not about the instant. Same instant as ok-007, so a rail reading "zero offset" as "Z or +00:00 only" is caught here rather than at a third party |
+| ok-039-armedat-negative-zero-offset | pass | aee-c-63, aee-c-85 | the same spelling on `armedAt`, inside the substrate-signed arming payload, re-signed with the batch root recomputed: the arming record must still cover the clean row and the statement must still recompute to `pass` |
 
 ## Coverage notes
 

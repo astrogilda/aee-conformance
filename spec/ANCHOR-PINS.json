@@ -944,6 +944,36 @@
       "opens": "\"_type\": \"https://in-toto.io/Statement/v1\",",
       "closes": "\"_type\": \"https://in-toto.io/Statement/v1\","
     },
+    "vectors/reject/gen_invalid_vectors.py::bad-750-armedat-lowercase-separator#0": {
+      "anchor": "L823-828",
+      "digest": "a6cbf382b0c2f36efa27cdd4e6b509a515777b794cf3c86615da6e8b5bf618e3",
+      "opens": "carry `armedAt` in RFC 3339 with a zero UTC offset (`Z` or `+00:00`, never a",
+      "closes": "a boolean; `aeeDropCount`, an integer counting run-wide dropped"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-751-armedat-lowercase-zone-designator#0": {
+      "anchor": "L823-828",
+      "digest": "a6cbf382b0c2f36efa27cdd4e6b509a515777b794cf3c86615da6e8b5bf618e3",
+      "opens": "carry `armedAt` in RFC 3339 with a zero UTC offset (`Z` or `+00:00`, never a",
+      "closes": "a boolean; `aeeDropCount`, an integer counting run-wide dropped"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-820-issuedat-non-utc-offset#0": {
+      "anchor": "L1000-1002",
+      "digest": "c8fe4e29854c3f0417d44b7a2baa6dff554aa89c229423b92cc53eeb559974b9",
+      "opens": "`issuedAt` _string (RFC 3339 timestamp), required_",
+      "closes": "When the producer signed the evidence bundle."
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-821-issuedat-lowercase-separator#0": {
+      "anchor": "L1000-1002",
+      "digest": "c8fe4e29854c3f0417d44b7a2baa6dff554aa89c229423b92cc53eeb559974b9",
+      "opens": "`issuedAt` _string (RFC 3339 timestamp), required_",
+      "closes": "When the producer signed the evidence bundle."
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-822-issuedat-lowercase-zone-designator#0": {
+      "anchor": "L1000-1002",
+      "digest": "c8fe4e29854c3f0417d44b7a2baa6dff554aa89c229423b92cc53eeb559974b9",
+      "opens": "`issuedAt` _string (RFC 3339 timestamp), required_",
+      "closes": "When the producer signed the evidence bundle."
+    },
     "vectors/reject/gen_invalid_vectors.py::1#0": {
       "anchor": "L339",
       "digest": "60289d59ca99c5671ddbd28df6d0b8d4f41af5ed3d1c60b0a5f62beecc270f10",
@@ -1527,16 +1557,16 @@
       "closes": "`issuedAt` _string (RFC 3339 timestamp), required_"
     },
     "vectors/interpretation-decisions.json::8#2": {
-      "anchor": "L824-828",
-      "digest": "362523d8c4282a7fe42fae2dddde87bc089c6f72af4e601b4cb8a74c846e9183",
-      "opens": "non-zero offset such as `+05:00`) no later than `issuedAt` and",
-      "closes": "a boolean; `aeeDropCount`, an integer counting run-wide dropped"
-    },
-    "vectors/interpretation-decisions.json::8#3": {
       "anchor": "L998-1000",
       "digest": "568fd20afbe49e5adf9c6be8895e8ee5ab44aa30327b9b554d0d56dbde384eb9",
       "opens": "concern that the wire format does not carry.",
       "closes": "`issuedAt` _string (RFC 3339 timestamp), required_"
+    },
+    "vectors/interpretation-decisions.json::8#3": {
+      "anchor": "L824-828",
+      "digest": "362523d8c4282a7fe42fae2dddde87bc089c6f72af4e601b4cb8a74c846e9183",
+      "opens": "non-zero offset such as `+05:00`) no later than `issuedAt` and",
+      "closes": "a boolean; `aeeDropCount`, an integer counting run-wide dropped"
     },
     "vectors/interpretation-decisions.json::9#0": {
       "anchor": "L798-816",

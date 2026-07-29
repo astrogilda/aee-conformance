@@ -6,8 +6,8 @@
   "tracksUpstream": "in-toto/attestation#570",
   "specUpstreamCommit": "b9a585a3349db0e133599dff693fa799b14dbbb5",
   "counts": {
-    "accept": 36,
-    "reject": 122
+    "accept": 38,
+    "reject": 127
   },
   "vectors": [
     {
@@ -473,6 +473,31 @@
       "file": "accept/ok-036-payload-nesting-at-bound.json",
       "conditions": [
         "aee-c-18"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "ok-038-issuedat-negative-zero-offset",
+      "kind": "accept",
+      "file": "accept/ok-038-issuedat-negative-zero-offset.json",
+      "conditions": [
+        "aee-c-85"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "ok-039-armedat-negative-zero-offset",
+      "kind": "accept",
+      "file": "accept/ok-039-armedat-negative-zero-offset.json",
+      "conditions": [
+        "aee-c-63",
+        "aee-c-85"
       ],
       "expected": {
         "verdict": "valid",
@@ -2216,6 +2241,76 @@
         "verdict": "invalid",
         "codes": [
           "statement-type-unsupported"
+        ]
+      }
+    },
+    {
+      "id": "bad-750-armedat-lowercase-separator",
+      "kind": "reject",
+      "file": "reject/bad-750-armedat-lowercase-separator.json",
+      "conditions": [
+        "aee-c-63"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-751-armedat-lowercase-zone-designator",
+      "kind": "reject",
+      "file": "reject/bad-751-armedat-lowercase-zone-designator.json",
+      "conditions": [
+        "aee-c-63"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-820-issuedat-non-utc-offset",
+      "kind": "reject",
+      "file": "reject/bad-820-issuedat-non-utc-offset.json",
+      "conditions": [
+        "aee-c-85"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "issued-at-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-821-issuedat-lowercase-separator",
+      "kind": "reject",
+      "file": "reject/bad-821-issuedat-lowercase-separator.json",
+      "conditions": [
+        "aee-c-85"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "issued-at-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-822-issuedat-lowercase-zone-designator",
+      "kind": "reject",
+      "file": "reject/bad-822-issuedat-lowercase-zone-designator.json",
+      "conditions": [
+        "aee-c-85"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "issued-at-malformed"
         ]
       }
     }

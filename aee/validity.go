@@ -98,7 +98,7 @@ func gate1WithContext(s *Statement) (states []recordState, binding string, issue
 
 	binding = deriveStatementBinding(s)
 	var err error
-	issuedAt, err = time.Parse(time.RFC3339, p.IssuedAt)
+	issuedAt, err = parseTimestamp(p.IssuedAt)
 	if err != nil {
 		// GATE 0 already rejected this; defensive only.
 		return states, binding, issuedAt, appendCode(codes, CodeIssuedAtMalformed)
@@ -320,14 +320,13 @@ func evaluateKind(a payloadAnalysis, pinnedPosture string, armingPostures []stri
 		if !hasArmedAt || !hasPosture || a.method != MethodIntercepted {
 			return ev
 		}
-		t, err := time.Parse(time.RFC3339, armedAt)
+		// armedAt carries the timestamp profile issuedAt defines (spec:822), so
+		// the same parse enforces it. A spelling outside the profile names a
+		// valid instant no later than issuedAt and still makes the arming record
+		// cover nothing, which is why the profile is part of the parse rather
+		// than a separate test a later reader can forget to copy.
+		t, err := parseTimestamp(armedAt)
 		if err != nil || t.After(issuedAt) {
-			return ev
-		}
-		// armedAt MUST carry a zero UTC offset (spec: "RFC 3339 UTC"): time.RFC3339
-		// accepts any numeric offset, so a non-zero offset (e.g. +05:00) parses as a
-		// valid instant but is not UTC and makes the arming record cover nothing.
-		if _, off := t.Zone(); off != 0 {
 			return ev
 		}
 		if posture != pinnedPosture {

@@ -1139,6 +1139,7 @@ class ReferenceVerifier:
             classes = manifest.get("classes") if isinstance(manifest, dict) else None
             if isinstance(manifest, dict):
                 self._corpus_digest(out, corpus, manifest)
+                self._corpus_declares_attack(out, classes)
             if isinstance(classes, dict):
                 manifest_classes = classes
                 self._corpus_dupes(out, classes)
@@ -1152,6 +1153,41 @@ class ReferenceVerifier:
                 out.add("corpus-digest-mismatch")
         except JcsError:
             out.add("corpus-digest-mismatch")
+
+    @staticmethod
+    def _corpus_declares_attack(out: Outcome, classes: Any) -> None:
+        """The manifest MUST declare at least one attack identifier across all
+        of its classes (spec:536-559).
+
+        A corpus with no adversarial inputs is not an adversarial corpus, so
+        this sits with well-formedness and not with scoring: scoring it would
+        concede that a zero-attack run is a legitimate statement that merely
+        scores badly.
+
+        What it closes is a total bypass of the substrate rather than a lie
+        about a run. Zero declared attack identifiers means zero rows; zero
+        rows means zero `basis: substrate` rows; and with no substrate row the
+        predicate permits runEntropy, observationRecords and batchRoot all to
+        be absent. Every structure that would have required a substrate
+        signature drops out, and coverage integrity then compares an empty
+        union of row attack ids against an empty union of manifest attack ids
+        and passes vacuously, so the statement reaches a valid verdict and a
+        pass result with no substrate behind it at all.
+
+        The count is over attack identifiers and not over classes: a manifest
+        carrying a real class name with an empty id array
+        (``{"classes": {"XA": []}}``) declares no attacks just as an empty
+        classes object does, and reads far more plausibly. A manifest that
+        DOES declare an identifier is untouched here, which is what leaves the
+        honest fully-skipped run -- every class disclosed under
+        coverage.outOfScope, no rows, result degraded -- valid.
+        """
+        declared = 0
+        if isinstance(classes, dict):
+            for ids in classes.values():
+                declared += len(ids) if isinstance(ids, list) else 0
+        if declared == 0:
+            out.add("corpus-manifest-no-attacks")
 
     @staticmethod
     def _corpus_dupes(out: Outcome, classes: dict[Any, Any]) -> None:
@@ -1348,7 +1384,7 @@ class ReferenceVerifier:
             views = [RecordView(i, rec) for i, rec in enumerate(records)]
             # Envelope shape before payload bytes, mirroring Go
             # validity.go:137-143: every record's signatures member MUST carry
-            # at least one entry (spec:773-775), and an absent member is the
+            # at least one entry (spec:798-800), and an absent member is the
             # same zero as an empty array. The check is a count and proves
             # nothing about the entries it counts -- fabricated signature bytes
             # satisfy it and are caught only by verification at the tier -- but
@@ -1737,6 +1773,11 @@ _CODE_REGISTRY: dict[str, tuple[str, tuple[str, ...]]] = {
     "vocabulary-digest-mismatch": ("gate0", ("vocab",)),
     "corpus-digest-mismatch": ("gate0", ("corpus",)),
     "manifest-duplicate-attack": ("gate0", ("corpus",)),
+    # Not a corpus-family fault: a manifest that declares no attack identifier
+    # still digests to whatever the statement carries, so the corpus-digest
+    # second-fault assertion must keep running against these vectors and prove
+    # the emptied manifest was re-digested rather than left stale.
+    "corpus-manifest-no-attacks": ("gate0", ()),
     "coverage-missing": ("gate0", ()),
     "coverage-incomplete": ("gate0", ()),
     "row-attack-unknown": ("gate0", ()),
@@ -2361,7 +2402,15 @@ def _run_process_vector(
         # byte-level vector the value above is a lossy reconstruction and every
         # digest recomputed from it would mismatch for the substitution rather
         # than for a second fault.
-        exp_codes = set(((entry or {}).get("expected") or {}).get("codes") or [])
+        expected = (entry or {}).get("expected") or {}
+        # A precedence-pin vector carries a second fault on purpose, because
+        # which of two conditions a rail must report can only be asked of a
+        # statement carrying both. Its expected-code set stays a single code so
+        # the pin still discriminates, and the deliberate companion faults are
+        # declared separately. Only the declared ones are exempted, so an
+        # UNdeclared second fault in the same vector still fails this check.
+        exp_codes = set(expected.get("codes") or [])
+        exp_codes |= set(expected.get("alsoCarries") or [])
         self_check = second_fault_absence(stmt, exp_codes)
 
     ok, gates, reasons = evaluate_vector(kind, entry, observed, self_check)

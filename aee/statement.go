@@ -38,7 +38,7 @@ func Gate0(s *Statement) []Code {
 	}
 
 	// 3. Rejected snake_case spelling: single canonicalization per content
-	//    (spec:892-897).
+	//    (spec:917-922).
 	if _, ok := p.Raw[rejectedSnakeCaseSpelling]; ok {
 		codes = appendCode(codes, CodeMemberSpelling)
 	}
@@ -92,7 +92,7 @@ func Gate0(s *Statement) []Code {
 		codes = appendCode(codes, CodeSubjectCardinality)
 	}
 
-	// 10. Per-row actualLayer altitude (spec:696-710): a missing member is a
+	// 10. Per-row actualLayer altitude (spec:721-735): a missing member is a
 	//     malformed statement; a clean row must carry the literal "none".
 	vocabOK := env != nil && env.Vocabulary != nil && !containsVocabularyCodes(codes)
 	for i := range p.Rows {
@@ -119,7 +119,7 @@ func Gate0(s *Statement) []Code {
 		codes = gate0SubstrateBindingInputs(s, codes)
 	}
 
-	// 13. issuedAt (spec:899-901).
+	// 13. issuedAt (spec:924-926).
 	if !p.IssuedAtPresent {
 		codes = appendCode(codes, CodeIssuedAtMissing)
 	} else if _, err := time.Parse(time.RFC3339, p.IssuedAt); err != nil {
@@ -224,14 +224,42 @@ func gate0Corpus(c *Corpus, codes []Code) []Code {
 	}
 	// An attackId MUST NOT appear under more than one class (spec:440-441);
 	// a duplicate inside one class array is the same integrity fault.
+	declared := 0
 	seen := map[string]bool{}
 	for _, class := range sortedKeys(c.Classes) {
 		for _, id := range c.Classes[class] {
+			declared++
 			if seen[id] {
 				codes = appendCode(codes, CodeManifestDuplicateAttack)
 			}
 			seen[id] = true
 		}
+	}
+
+	// The manifest MUST declare at least one attack identifier across all of
+	// its classes. A corpus with no adversarial inputs is not an adversarial
+	// corpus, so this is well-formedness and not scoring: scoring it would
+	// concede that a zero-attack run is a legitimate statement that merely
+	// scores badly.
+	//
+	// What it closes is a total bypass of the substrate rather than a lie
+	// about a run. Zero declared attack identifiers means zero rows; zero
+	// rows means zero basis: substrate rows; and with no substrate rows the
+	// predicate legally permits runEntropy, observationRecords and batchRoot
+	// all to be absent (spec:400-402, 457-459). Every structure that would
+	// have required a substrate signature drops out, and coverage integrity
+	// then compares an empty union of row attack ids against an empty union
+	// of manifest attack ids and passes vacuously — so the statement reaches
+	// a valid verdict and a pass result with no substrate behind it at all.
+	//
+	// The count is over attack identifiers and not over classes: a manifest
+	// carrying a real class name with an empty id array ({"classes":{"CO":[]}})
+	// declares no attacks just as an empty classes object does, and reads far
+	// more plausibly. A manifest that DOES declare an identifier is untouched
+	// here, which is what leaves the honest fully-skipped run — every class
+	// disclosed under coverage.outOfScope, no rows, result degraded — valid.
+	if declared == 0 {
+		codes = appendCode(codes, CodeCorpusManifestNoAttacks)
 	}
 	return codes
 }

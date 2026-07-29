@@ -43,6 +43,7 @@ const (
 	CodeVocabularyDigestMismatch  Code = "vocabulary-digest-mismatch"
 	CodeCorpusDigestMismatch      Code = "corpus-digest-mismatch"
 	CodeManifestDuplicateAttack   Code = "manifest-duplicate-attack"
+	CodeCorpusManifestNoAttacks   Code = "corpus-manifest-no-attacks" // counts attack IDENTIFIERS, not classes; rationale at gate0Corpus
 	CodeCoverageMissing           Code = "coverage-missing"
 	CodeCoverageIncomplete        Code = "coverage-incomplete"
 	CodeRowAttackUnknown          Code = "row-attack-unknown"

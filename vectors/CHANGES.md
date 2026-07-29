@@ -5,6 +5,148 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 9 (one condition, three spellings, and a fixed precedence)
+
+- Corpus: **158 vectors (36 accept, 122 reject)**. specDigest unchanged at
+  `1590b988...`; no normative change, two new vectors closing two rail
+  divergences the corpus could not see.
+- **How they were found.** A review of the freshly landed signature-entry
+  condition read the rails side by side and found two of them answering
+  differently. Nothing in the corpus disagreed, because the condition had
+  exactly one vector and that vector could not reach either question.
+- **The first divergence: when the count is evaluated.** Four rails ask "does
+  any record carry no signature entry" once over the whole record set, before
+  any payload is decoded. One asked it per record, inside the payload-decode
+  loop. Both readings report the same condition for a statement carrying one
+  fault, which is every vector in the suite. Give a statement a first record
+  whose payload does not decode and a second carrying no signature entry and
+  they part: the per-record rail meets the decode fault first and names it, the
+  set-level rail names the missing signature. Which condition a verifier reports
+  is the conformance contract, so this is a divergence rather than a matter of
+  style.
+- **The set-level reading is the one the spec gives.** The predicate's
+  verify-then-read discipline is normative: a consumer verifies each record's
+  signature "before relying on any field inside the payload", and a payload's
+  fields "mean nothing until its signature verifies". A record with no signature
+  at all is therefore settled ahead of the bytes it carries. The spec does not
+  decide the sequencing directly and says so, since it makes only the
+  consumption preconditions and the tier normative in its two-stage ordering and
+  calls the sequencing itself informative. The suite has to decide, because a
+  primary condition is what it compares. Because the text does not force it, the
+  pick is written down as a spec ask rather than as a registry decision:
+  `docs/interpretation-decisions-open.md` carries the argument, the sentence to
+  add upstream, and the plain statement that until it lands a from-spec verifier
+  evaluating the count per record is conformant to the specification and fails
+  this corpus.
+- **The second divergence: what a wrong-typed member is.** A `signatures` member
+  holding a string, an object or a number carries no entry, so four rails report
+  the entry-count condition. One decoded the member into a typed list, failed,
+  and reported the parse catch-all for the whole statement. The catch-all names
+  neither the record nor the member, and the registry had already decided this
+  question for the absent-member spelling, which reports the specific condition
+  even though a missing required member would otherwise be a parse fault. Absent,
+  empty and wrong-type are one requirement failing three ways, so they report one
+  condition. A wrong-typed value INSIDE a signatures array is untouched and still
+  reports the catch-all: an array carries entries, so a fault in one of them is a
+  fault in the entry rather than in the count.
+- **`bad-748-signatures-empty-precedes-undecodable-record`.** Derived from the
+  `ok-002` clean shape: the arming record's payload is re-encoded as
+  non-canonical base64 so it no longer strict-decodes, and the sealed record's
+  signatures array is emptied, in that wire order. Swapping the two roles makes
+  every rail agree, so the order is the vector. Neither mutation moves a
+  commitment: signatures sit outside the PAE pre-image and a lenient decode of
+  the tampered payload returns the parent's exact bytes, so the leaf, the
+  batchRoot, the run binding and every carried signature are what the parent
+  carried.
+- **A precedence pin has to be compound, and its expectation must not widen.**
+  This is the suite's first vector that is compound by design rather than
+  because deriving it singly was impossible. Its expected set names ONE
+  condition, so a rail reporting the other fails rather than passing on a set
+  widened to accommodate it. The second-fault self-check, which exists to prove
+  a vector carries only its declared fault, would have flagged the deliberate
+  companion; the corpus now declares such companions explicitly under
+  `alsoCarries`, exempting only what was declared, so an UNdeclared second fault
+  in the same vector still fails the check.
+- **`bad-749-record-signatures-not-an-array`.** Derived from the `ok-001` caught
+  shape by replacing the covering record's signatures member with the JSON
+  string `"sig"`. It reads as the likeliest producer bug of the three spellings,
+  since a substrate that emits one signature object where the schema wants an
+  array of them produces exactly this. Nothing is rederived, for the same reason
+  `bad-745` rederives nothing.
+- **Verified by mutation, per divergence.** With the Go rail's typed decode of
+  the member restored, `bad-749` is the only failing vector of the 158 and fails
+  as "primary code statement-malformed not in expected set". With the Go rail's
+  count moved back inside the decode loop, `bad-748` is the only failing vector
+  and fails as "primary code record-undecodable not in expected set". Each
+  vector goes red for exactly the divergence it was written for.
+- **Independent checker status.** `Rul1an/aee-checker`'s last author-run remains
+  **suiteRevision 5 at 149/149** (2026-07-28, aee-checker#3). It has not run
+  suiteRevision 6, 7, 8 or 9, so this suite publishes no score for it at any of
+  the four.
+
+## suiteRevision 8 (a corpus that declares no attack is not a corpus)
+
+- Corpus: **156 vectors (36 accept, 120 reject)**. specDigest advances to
+  `1590b988...` at upstream commit `b9a585a`. Two new vectors, one normative
+  reason.
+- **The defect.** A valid, passing, policy-admitted statement about an
+  arbitrary subject could be minted with no substrate, no substrate key, no
+  substrate run, no `observationRecords`, no `batchRoot`, no `runEntropy` and
+  every carried digest fabricated. The verifier returned valid with result
+  `pass` and the shipped admission policy returned compliant. This is a total
+  bypass of the substrate, which is categorically worse than lying about a
+  real run: there is nothing to lie about.
+- **The mechanism, one step at a time.** Coverage integrity is an equality
+  between two unions of attack identifiers, and an equality between two empty
+  sets holds, so a manifest declaring nothing satisfied it vacuously. Zero
+  declared attack identifiers means zero rows. Zero rows means zero
+  `basis: substrate` rows. With no substrate row the predicate already
+  permitted `runEntropy`, `observationRecords` and `batchRoot` to be absent.
+  Every structure that would have required a substrate signature therefore
+  dropped out of the statement, and what remained still verified.
+- **The normative change.** The manifest now carries a floor: it MUST declare
+  at least one attack identifier across all of its classes, and a manifest
+  declaring none makes the statement malformed under the condition
+  `corpus-manifest-no-attacks`. It sits with well-formedness rather than with
+  `result` because a corpus declaring no adversarial inputs is not an
+  adversarial corpus; scoring it would concede that a zero-attack run is a
+  legitimate statement that merely scores badly, and that concession is the
+  thing the floor refuses.
+- **Why the rule counts identifiers and not classes.** Both
+  `{"classes": {}}` and `{"classes": {"XA": []}}` were measured valid, passing
+  and admitted before the fix. A rule phrased as "an empty classes object is
+  malformed" closes only the first and leaves the second, which carries a real
+  class name and reads far more plausibly as an assessment that found nothing.
+  Counting identifiers closes both.
+- **`bad-746-manifest-empty-classes` and
+  `bad-747-manifest-class-declares-no-attacks`.** Two vectors because the
+  bypass has two shapes and one vector leaves the other untested. Both derive
+  from the `ok-007` artifact-only recordless shape, which already carries no
+  records, no `batchRoot` and no `runEntropy`, so emptying the manifest is the
+  whole distance between a valid statement and the bypass. The rederive chain
+  drops the row the emptied manifest no longer declares and rebuilds the
+  coverage partition around what is left; leaving either behind would add
+  `row-attack-unknown` or `coverage-incomplete` and the vector would stop
+  testing the floor. Everything else in both files still checks out: the
+  corpus digest re-derives over the emptied manifest, coverage partitions it
+  exactly, and the recompute returns `pass`.
+- **What the floor does not touch.** A manifest that declares attack
+  identifiers and assesses none of them stays valid. The honest fully-skipped
+  run -- every class disclosed under `outOfScope`, no rows, result `degraded`
+  -- was measured valid before this revision and is still valid after it,
+  because its manifest declares an attack identifier. The Go rail pins that
+  case as an explicit control beside the two new rejects.
+- **Both reference rails.** The Go rail carries the check as
+  `corpus-manifest-no-attacks` in `gate0Corpus`; the Python rail gained the
+  identical condition code this revision in `_corpus_declares_attack`.
+  Verified by mutation: with the Python check disabled, `bad-746` and
+  `bad-747` are the only failing vectors of the 156 and both fail as "expected
+  invalid, observed valid" -- the pre-fix bypass, reproduced.
+- **Independent checker status.** `Rul1an/aee-checker`'s last author-run
+  remains **suiteRevision 5 at 149/149** (2026-07-28, aee-checker#3). It has
+  not run suiteRevision 6, suiteRevision 7 or suiteRevision 8, so this suite
+  publishes no score for it at any of the three.
+
 ## suiteRevision 7 (a record must carry a signature to be a record)
 
 - Corpus: **154 vectors (36 accept, 118 reject)**. specDigest advances to
@@ -178,7 +320,7 @@ byte-identically from the generators.
 
 - Corpus: 140 vectors (35 accept, 105 reject). No normative spec change; the
   specDigest is unchanged. Two forcing vectors close the reason-map side of the
-  coverage-partition membership rule already carried by the spec (L381-383): the
+  coverage-partition membership rule already carried by the spec (L487-489): the
   three coverage sets are a disjoint partition of the manifest's classes, so
   membership runs both ways, but only `bad-819` forced the `assessedClasses`
   side. New reject vectors `bad-731-outofscope-unknown-class` and
@@ -242,21 +384,21 @@ byte-identically from the generators.
   contain exactly one entry on a statement of ANY basis; only the six
   binding-digest inputs stay substrate-scoped. Both rails previously enforced
   cardinality only under `hasSubstrateRows`, so an artifact-only two-subject
-  statement was wrongly accepted. The spec text at L122-126 is split accordingly;
+  statement was wrongly accepted. The spec text at L185-189 is split accordingly;
   new reject vector `bad-728-artifact-two-subjects` (`bad-607` keeps the substrate
   case). Registry decision 12.
 - Duplicate `attackId` rows are now malformed (open corner A resolved). "One row
   per executed attack" is a well-formedness invariant; both rails detect a
   duplicate `attackId` across rows before the set-based coverage comparison
   (which silently collapsed it before) and emit `statement-malformed`. Spec
-  paragraph at L385-398 gains the uniqueness sentence; new reject vector
+  paragraph at L495-508 gains the uniqueness sentence; new reject vector
   `bad-729-duplicate-attackid-rows`. Registry decision 13.
 - Coverage sets pinned as a disjoint partition (open corner B resolved, the one
   editorial call; reversible at vetting). A class appears in exactly one of
   `assessedClasses`, `outOfScope`, `routedElsewhere`; a class in more than one is
   malformed. This was a live divergence (our rails reject overlap; the from-spec
   checker accepts it) that no vector exercised. Rails unchanged (both already
-  reject via the disjoint-partition check); the spec text at L376-381 now matches
+  reject via the disjoint-partition check); the spec text at L482-487 now matches
   them; new reject vector `bad-730-coverage-class-overlap`. Registry decision 14.
   With these three corners resolved, `interpretation-decisions.json` has no open
   corners remaining.

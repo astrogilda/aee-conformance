@@ -2,12 +2,12 @@
   "suite": "adversarial-execution-evidence-conformance",
   "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6",
   "specPath": "spec/predicates/adversarial-execution-evidence.md",
-  "specDigest": "da840f9ed0649c18cc4b80cd60c2f9c441a0f28575d34538fd6fb08d2937cbdb",
+  "specDigest": "1590b9885a46bc206497f2c17d61c1991f017de87542101a0b0950cd167d4093",
   "tracksUpstream": "in-toto/attestation#570",
-  "specUpstreamCommit": "3502c521a801f09a8ece57f60d23a17400d485b6",
+  "specUpstreamCommit": "b9a585a3349db0e133599dff693fa799b14dbbb5",
   "counts": {
     "accept": 36,
-    "reject": 118
+    "reject": 122
   },
   "vectors": [
     {
@@ -2031,6 +2031,65 @@
         "verdict": "invalid",
         "codes": [
           "record-signatures-empty"
+        ]
+      }
+    },
+    {
+      "id": "bad-748-signatures-empty-precedes-undecodable-record",
+      "kind": "reject",
+      "file": "reject/bad-748-signatures-empty-precedes-undecodable-record.json",
+      "conditions": [
+        "aee-c-91"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "record-signatures-empty"
+        ],
+        "alsoCarries": [
+          "record-undecodable"
+        ]
+      }
+    },
+    {
+      "id": "bad-749-record-signatures-not-an-array",
+      "kind": "reject",
+      "file": "reject/bad-749-record-signatures-not-an-array.json",
+      "conditions": [
+        "aee-c-91"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "record-signatures-empty"
+        ]
+      }
+    },
+    {
+      "id": "bad-746-manifest-empty-classes",
+      "kind": "reject",
+      "file": "reject/bad-746-manifest-empty-classes.json",
+      "conditions": [
+        "aee-c-92"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "corpus-manifest-no-attacks"
+        ]
+      }
+    },
+    {
+      "id": "bad-747-manifest-class-declares-no-attacks",
+      "kind": "reject",
+      "file": "reject/bad-747-manifest-class-declares-no-attacks.json",
+      "conditions": [
+        "aee-c-92"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "corpus-manifest-no-attacks"
         ]
       }
     },

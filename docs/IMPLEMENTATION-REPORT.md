@@ -1,6 +1,6 @@
 <!--
 Implementation report for the AEE v0.6 predicate conformance suite.
-Corpus SSOT: vectors/MANIFEST.json (suiteRevision 7, 154 vectors: 36 accept, 118 reject).
+Corpus SSOT: vectors/MANIFEST.json (suiteRevision 9, 158 vectors: 36 accept, 122 reject).
 Honest scoping: every claim below states exactly what each implementation was verified against.
 Independence is counted by authorship, not by implementation count; see "How independence
 is counted here" before adding any row to the table.
@@ -40,9 +40,24 @@ an empty-container leaf slipped one level past the bound while the Python rail
 rejected it — our own two rails disagreeing on identical bytes at one exact depth,
 fixed this round and now pinned by a boundary vector pair.
 
+The same shape recurred at suiteRevision 9 and is worth recording, because it
+says something about what a corpus can and cannot see. A newly landed condition
+(a record's `signatures` member must carry at least one entry) had one vector,
+that vector carried one fault, and every rail passed it. Two rails were
+nonetheless answering differently: one asked the entry count per record inside
+its payload-decode loop rather than once over the record set, so a statement
+whose first record failed to decode and whose second carried no signature
+reported a different condition there than everywhere else; and one decoded the
+member into a typed list, so a member of the wrong JSON type reported the parse
+catch-all instead of the condition. Neither divergence was reachable by a
+single-fault vector or by a vector testing only the empty-array spelling, which
+is the general lesson: a condition is under-tested until the corpus reaches every
+spelling of it and fixes its precedence against the conditions it can collide
+with. Both rails were corrected and both readings are now pinned.
+
 ## Reference corpus
 
-`vectors/MANIFEST.json`, suiteRevision 7: **154 vectors (36 accept, 118 reject)**.
+`vectors/MANIFEST.json`, suiteRevision 9: **158 vectors (36 accept, 122 reject)**.
 Each accept vector must verify valid with its expected `result` token; each reject
 vector must be invalid with a failure code drawn from the manifest's code set. The
 corpus is regenerated deterministically from the generators and its vendored spec
@@ -52,9 +67,9 @@ digest is pinned and CI-checked (`scripts/spec-drift-gate.py`).
 
 | Implementation | Language | Author | Verified against | Result |
 |---|---|---|---|---|
-| Reference rail (`aee/`) | Go | spec author | reference corpus, suiteRevision 7 | **154 / 154** |
-| Reference rail (`packaging/run_vectors.py`) | Python | spec author | reference corpus, suiteRevision 7 | **154 / 154** |
-| `Rul1an/aee-checker` | Rust | **independent, from-spec text alone** | author-run suiteRevision 5 (149), 2026-07-28 (aee-checker#3); suiteRevisions 6 and 7 not run by its author | **149 / 149** at suiteRevision 5; suiteRevisions 6 and 7 not run by author (see note 1) |
+| Reference rail (`aee/`) | Go | spec author | reference corpus, suiteRevision 9 | **158 / 158** |
+| Reference rail (`packaging/run_vectors.py`) | Python | spec author | reference corpus, suiteRevision 9 | **158 / 158** |
+| `Rul1an/aee-checker` | Rust | **independent, from-spec text alone** | author-run suiteRevision 5 (149), 2026-07-28 (aee-checker#3); suiteRevisions 6 through 9 not run by its author | **149 / 149** at suiteRevision 5; suiteRevisions 6 through 9 not run by author (see note 1) |
 | `ts-verify` | TypeScript | spec author | its vendored set (153 vectors) + cross-rail parity tests | pass (see note 2) |
 | `py-verify` | Python | spec author | its vendored set (153 vectors) + parity tests | pass (see note 2) |
 | MCP server rail `_aee.py` | Python | spec author | its vendored set (153 vectors) + parity tests | pass (see note 2) |
@@ -85,9 +100,14 @@ noncharacter vectors below — post-date that run, so those readings currently h
 no independent confirmation and are covered by first-party rails alone; the
 noncharacter pair in particular exercises a rule the checker's author has flagged
 as not yet implemented on his side. The single **suiteRevision-7** addition
-(`bad-745`, an observation record carrying zero `signatures` entries) tests a
-requirement the specification gained after that run, so it has no independent
-confirmation either.
+(`bad-745`, an observation record carrying zero `signatures` entries) and the two
+**suiteRevision-8** additions (`bad-746` and `bad-747`, a corpus manifest
+declaring no attack identifier in either of its two spellings) test requirements
+the specification gained after that run, so they have no independent confirmation
+either. The two **suiteRevision-9** additions (`bad-748` and `bad-749`) add no
+requirement: they pin the precedence and the wrong-type spelling of the
+signature-entry condition `bad-745` already carries, so they inherit that
+vector's status.
 
 | Feature | Go ref | Python ref | Rust (3rd-party) | TS rail | MCP rail |
 |---|---|---|---|---|---|
@@ -119,33 +139,41 @@ confirmation either.
    the nesting bound at 128 where his build read 256; he adopted 128 and, rather than
    only move the constant, moved his depth increment from per parsed value into the
    container branch, which is the counting rule the spec states next to the bound.
-   **He has not run suiteRevision 6 and has not run suiteRevision 7, so this report
-   publishes no score for him at either revision.** What we can say, in our own voice
+   **He has not run suiteRevision 6, 7, 8 or 9, so this
+   report publishes no score for him at any of the four.** What we can say, in our own voice
    and not his: two of the four suiteRevision-6 vectors (`bad-743`, `bad-744`)
    require rejecting the Unicode
    noncharacters RFC 7493 section 2.1 forbids, and he has stated his checker does not
    yet implement that check, so we would expect it to answer valid where the
    reference rails answer invalid on those two — a rule difference we derived, not a
    run he produced, and not a score we will report as his. The other two are the
-   depth-boundary pair his own container-branch fix already handles, and the single
-   suiteRevision-7 vector (`bad-745`) tests a requirement the specification gained
-   after his last run. His suiteRevision-6 and suiteRevision-7 cells are "not run by
-   author" until he posts a record and its source digest.
+   depth-boundary pair his own container-branch fix already handles; the single
+   suiteRevision-7 vector (`bad-745`) and the two suiteRevision-8 vectors
+   (`bad-746`, `bad-747`) test requirements the specification gained after his last
+   run, and the two suiteRevision-9 vectors (`bad-748`, `bad-749`) pin the
+   precedence and the wrong-type spelling of the requirement `bad-745` carries.
+   His suiteRevision-6 through suiteRevision-9 cells are "not run
+   by author" until he posts a record and its source digest.
 2. **The consumer rails carry the suiteRevision-6 corpus.** The TypeScript rail,
    the standalone Python rail and the MCP server rail each vendor all 153 vectors of
    suiteRevision 6 byte-for-byte (`VENDOR-STAMP.json` pins the source spec digest,
    upstream commit and a content digest; a consumer-side drift gate fails CI on any
    change without a re-vendor). "pass" means the rail implements the rule, is
    parity-tested on it, and replays the full 153. They have not yet re-vendored
-   suiteRevision 7, so `bad-745` and the signature-entry requirement it pins are not
-   yet exercised there.
+   suiteRevision 7, 8 or 9, so `bad-745` and the signature-entry
+   requirement it pins, `bad-746`/`bad-747` and the manifest floor they pin, and
+   `bad-748`/`bad-749` and the precedence and wrong-type spelling they pin, are
+   not yet exercised there. Each rail carries its own unit coverage of those
+   rules in the meantime; the MCP server rail's placement fix at suiteRevision 9
+   is pinned by a rail-local test rather than by the vector, precisely because
+   the vendored copy has not caught up.
 
 ## What this report does NOT claim
 
 One independent implementation agreeing is strong evidence the text is
 determinate; it is not proof it is unambiguous. Two readers can share a
 reasonable but unforced reading, and a single outside reader is a sample of one.
-Nor does agreement on 154 vectors say anything about the surface no vector
+Nor does agreement on 158 vectors say anything about the surface no vector
 touches, which is where the nesting-depth divergence above lived. The
 interpretation-decision registry
 (`vectors/interpretation-decisions.json`) records where the text forces the reading

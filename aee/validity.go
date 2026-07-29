@@ -22,7 +22,7 @@ import (
 	"time"
 )
 
-// Reserved payload members (spec:753-769).
+// Reserved payload members (spec:778-794).
 const (
 	memberRunBinding    = "aeeRunBinding"
 	memberKind          = "aeeKind"
@@ -119,10 +119,10 @@ func gate1WithContext(s *Statement) (states []recordState, binding string, issue
 
 // checkRecordsStatementLevel runs the record-set checks that hold for the
 // whole statement whenever observationRecords is non-empty, BEFORE any row
-// logic: signature-entry presence (spec:773-775), batchRoot presence
-// (spec:864), duplicate-record rejection (spec:872-874), root recomputation
-// (spec:876-878), and the orphaned-root case (a batchRoot with no records to
-// recompute over, spec:882-885).
+// logic: signature-entry presence (spec:798-800), batchRoot presence
+// (spec:889), duplicate-record rejection (spec:897-899), root recomputation
+// (spec:901-903), and the orphaned-root case (a batchRoot with no records to
+// recompute over, spec:907-910).
 func checkRecordsStatementLevel(p *Predicate) ([]recordState, []Code) {
 	var codes []Code
 	states := make([]recordState, len(p.Records))
@@ -138,6 +138,15 @@ func checkRecordsStatementLevel(p *Predicate) ([]recordState, []Code) {
 	// carry at least one entry. Checked here rather than at the tier because
 	// counting array entries reads no key material, so the check keeps this
 	// layer a pure function of the carried statement.
+	//
+	// Asked once over the whole record set, and asked BEFORE the decode loop
+	// below rather than inside it. Both are load-bearing. The verify-then-read
+	// discipline puts a record's signature ahead of its payload (spec:800-807),
+	// so a record with no signature at all is settled before the bytes it
+	// carries are read; and a count evaluated per record inside the loop would
+	// make the reported code depend on which record in the array happened to
+	// carry which fault, which no vector carrying a single fault can detect.
+	// The corpus pins the ordering with bad-748.
 	if anyRecordSignaturesEmpty(p) {
 		codes = appendCode(codes, CodeRecordSignaturesEmpty)
 	}
@@ -178,9 +187,10 @@ func checkRecordsStatementLevel(p *Predicate) ([]recordState, []Code) {
 
 // anyRecordSignaturesEmpty reports whether any observation record carries no
 // signature entry at all. A record is a DSSE envelope, and the spec requires
-// its signatures member to carry at least one entry, so an absent member and
-// an empty array are the same fault: zero entries. Both land here, because a
-// missing member decodes to a nil slice.
+// its signatures member to carry at least one entry, so an absent member, an
+// empty array and a value that is not an array are one fault: zero entries.
+// All three land here, because a missing member decodes to a nil slice and
+// RecordSignatures decodes a non-array to the same nil.
 //
 // What this does NOT do, stated plainly so nobody reads more into it: it
 // proves nothing whatsoever about the signatures it counts. A producer who
@@ -272,11 +282,11 @@ func analyzePayload(rec *Record, state *recordState, binding string) payloadAnal
 }
 
 // recordEval is a referenced record's covering evaluation: whether it
-// satisfies its declared aeeKind's constraints (spec:753-827), and the
+// satisfies its declared aeeKind's constraints (spec:778-852), and the
 // kind-specific code to report when it does not. A record violating any
-// constraint of its declared kind covers nothing (spec:771-774); a record
+// constraint of its declared kind covers nothing (spec:796-799); a record
 // whose kind is unrecognized covers nothing and is otherwise ignored
-// (spec:830-834).
+// (spec:855-859).
 type recordEval struct {
 	kind        string
 	method      string
@@ -343,7 +353,7 @@ func evaluateKind(a payloadAnalysis, pinnedPosture string, armingPostures []stri
 		}
 		// The two sealed posture equalities are jointly enforced: the seal's
 		// posture must equal the pinned networkPosture digest AND every
-		// referenced arming record's posture claim (spec:775-786).
+		// referenced arming record's posture claim (spec:800-811).
 		if posture != pinnedPosture {
 			return ev
 		}
@@ -506,7 +516,7 @@ func checkSubstrateRow(p *Predicate, row *Row, states []recordState, binding str
 		return codes, nil
 	}
 
-	// Kind constraints + class-match (spec:344-349, 689-710).
+	// Kind constraints + class-match (spec:344-349, 714-735).
 	pinnedPosture := p.Env.NetworkPosture.Sha256()
 	var armingPostures []string
 	for _, idx := range uniqueRefs {

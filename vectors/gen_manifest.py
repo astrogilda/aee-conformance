@@ -5,10 +5,11 @@ Derives the machine-readable expectations from the two human-authored
 index tables (accept/INDEX.md and reject/INDEX.md), which remain the
 prose source of truth. The MANIFEST is what the differential harness
 (packaging/run_vectors.py) consumes: per-vector expected verdict, the
-expected failure-code set for reject vectors (also the second-fault
-self-check exemption key), the expected recomputed result for accept
-vectors, and the expected per-row evidence tiers where the index pins
-them. Regenerate byte-identically: python3 gen_manifest.py
+expected failure-code set for reject vectors, any conditions a reject
+vector carries deliberately beyond the one it pins (the two together are
+the second-fault self-check's exemption key), the expected recomputed
+result for accept vectors, and the expected per-row evidence tiers where
+the index pins them. Regenerate byte-identically: python3 gen_manifest.py
 """
 
 from __future__ import annotations
@@ -54,8 +55,29 @@ def table_rows(md_path: str) -> list[list[str]]:
     return rows
 
 
+_ALSO_CARRIES = "(also carries:"
+
+
 def codes_of(cell: str) -> list[str]:
-    return re.findall(r"`([a-z0-9-]+)`", cell)
+    """The expected-rejection code set: a rail conforms when its code is in it.
+
+    A cell may append an "also carries" clause naming conditions the statement
+    carries deliberately but that a conforming rail is not expected to report as
+    its primary. Those are split off by also_carries_of below and never widen the
+    expectation, since widening it is exactly what a precedence pin must not do.
+    """
+    return re.findall(r"`([a-z0-9-]+)`", cell.split(_ALSO_CARRIES)[0])
+
+
+def also_carries_of(cell: str) -> list[str]:
+    """Conditions the vector carries on purpose beyond the one it pins.
+
+    They are the second-fault self-check's exemption key in the differential
+    harness, and nothing else: declaring one does not make a rail reporting it
+    conformant.
+    """
+    parts = cell.split(_ALSO_CARRIES)
+    return re.findall(r"`([a-z0-9-]+)`", parts[1]) if len(parts) > 1 else []
 
 
 def conditions_of(cell: str) -> list[str]:
@@ -85,13 +107,16 @@ def main() -> int:
         codes = codes_of(cells[5])
         if not codes:
             raise SystemExit(f"no expected codes parsed for {vid}")
+        expected_reject: dict[str, Any] = {"verdict": "invalid", "codes": codes}
+        if also := also_carries_of(cells[5]):
+            expected_reject["alsoCarries"] = also
         vectors.append(
             {
                 "id": vid,
                 "kind": "reject",
                 "file": f"reject/{vid}.json",
                 "conditions": conditions_of(cells[4]),
-                "expected": {"verdict": "invalid", "codes": codes},
+                "expected": expected_reject,
             }
         )
 

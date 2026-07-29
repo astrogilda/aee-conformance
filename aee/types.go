@@ -14,7 +14,7 @@ const StatementType = "https://in-toto.io/Statement/v1"
 // never attempts more than one construction (spec:194-199).
 const PredicateType = "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6"
 
-// Closed vocabularies (spec:321-333, 461-567).
+// Closed vocabularies (spec:321-333, 461-600).
 const (
 	ResultPass     = "pass"
 	ResultDegraded = "degraded"
@@ -155,8 +155,8 @@ type Coverage struct {
 }
 
 // Row is one attackResults row. Pointer members distinguish an absent member
-// from an empty value: absent basis/method is fail-closed (spec:599-601),
-// absent actualLayer is a malformed statement (spec:721-725).
+// from an empty value: absent basis/method is fail-closed (spec:632-634),
+// absent actualLayer is a malformed statement (spec:754-758).
 type Row struct {
 	Raw map[string]json.RawMessage
 
@@ -181,7 +181,7 @@ func (r *Row) IsSubstrate() bool {
 	return r.Basis != nil && *r.Basis == BasisSubstrate
 }
 
-// Record is one observation record: a DSSE-shaped envelope (spec:764-769).
+// Record is one observation record: a DSSE-shaped envelope (spec:797-802).
 type Record struct {
 	PayloadB64  string           `json:"payload"`
 	PayloadType string           `json:"payloadType"`
@@ -189,7 +189,7 @@ type Record struct {
 }
 
 // RecordSignatures is a record's signatures member. The requirement it has to
-// meet is a count -- the member MUST carry at least one entry (spec:798-800) --
+// meet is a count -- the member MUST carry at least one entry (spec:831-833) --
 // so the decoder's job here is to produce a count for every JSON value the
 // member can hold, including the ones that hold no entries at all.
 type RecordSignatures []RecordSignature
@@ -226,7 +226,7 @@ func (s *RecordSignatures) UnmarshalJSON(b []byte) error {
 }
 
 // RecordSignature matches the DSSE signature member shape. The keyid is an
-// unauthenticated lookup hint and never the check itself (spec:961-963).
+// unauthenticated lookup hint and never the check itself (spec:993-995).
 type RecordSignature struct {
 	KeyID string `json:"keyid"`
 	Sig   string `json:"sig"`

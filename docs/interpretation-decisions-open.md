@@ -35,7 +35,7 @@ recommended direction (open point 1): a single attack with two rows is a
 producer-assembly bug, and two contradictory rows for one attack (e.g. one
 caught, one clean) is exactly the ambiguity the recompute must not arbitrate.
 
-- **Spec.** A sentence was added to the `attackResults` paragraph (L495-508):
+- **Spec.** A sentence was added to the `attackResults` paragraph (L529-542):
   no two rows may carry the same `attackId`; coverage integrity set-compares row
   `attackId`s, so a duplicate would silently collapse under set semantics, and
   uniqueness is enforced separately, before that comparison.
@@ -61,7 +61,7 @@ among the three corners, and the converged debate chose keep-reject: a class
 both assessed and disclosed as a gap is contradictory. **Reversible at
 vetting.**
 
-- **Spec.** The coverage paragraph (L482-487) now states the three sets are a
+- **Spec.** The coverage paragraph (L516-521) now states the three sets are a
   disjoint partition: a class appears in exactly one of `assessedClasses`,
   `outOfScope`, `routedElsewhere` (a move, not a copy); a class in more than one
   is malformed.
@@ -149,7 +149,7 @@ independent from-spec checker (in-toto/attestation#570 round-8, Rul1an).
 
 ## suiteRevision 3: reason-map membership vectors
 
-The coverage-partition membership rule (spec L487-489: the three sets are a
+The coverage-partition membership rule (spec L521-523: the three sets are a
 disjoint partition of the manifest's classes) is now forced on all three sets,
 not just `assessedClasses`: `bad-819` (assessed), `bad-731` (`outOfScope`),
 `bad-732` (`routedElsewhere`). Both rails already enforced reason-map membership;
@@ -177,8 +177,8 @@ record set before that loop. Both rejected; they named different conditions.
 **The suite pins the set-level reading**, and `bad-748` locks it. The argument is
 the verify-then-read discipline the spec does make normative: a consumer verifies
 each record's signature "before relying on any field inside the payload"
-(L800-802), and a payload's fields "mean nothing until its signature verifies"
-(L949-951). A record carrying no signature at all is therefore settled before the
+(L833-835), and a payload's fields "mean nothing until its signature verifies"
+(L981-983). A record carrying no signature at all is therefore settled before the
 bytes it carries are read. That argument is a reading, not a derivation: the same
 passage explicitly permits the byte-pure gates to read payload fields without
 verifying anything, so it does not by itself force the evaluation order.

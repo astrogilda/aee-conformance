@@ -22,7 +22,7 @@ import (
 	"time"
 )
 
-// Reserved payload members (spec:778-794).
+// Reserved payload members (spec:811-827).
 const (
 	memberRunBinding    = "aeeRunBinding"
 	memberKind          = "aeeKind"
@@ -119,10 +119,10 @@ func gate1WithContext(s *Statement) (states []recordState, binding string, issue
 
 // checkRecordsStatementLevel runs the record-set checks that hold for the
 // whole statement whenever observationRecords is non-empty, BEFORE any row
-// logic: signature-entry presence (spec:798-800), batchRoot presence
-// (spec:889), duplicate-record rejection (spec:897-899), root recomputation
-// (spec:901-903), and the orphaned-root case (a batchRoot with no records to
-// recompute over, spec:907-910).
+// logic: signature-entry presence (spec:831-833), batchRoot presence
+// (spec:921), duplicate-record rejection (spec:929-931), root recomputation
+// (spec:933-935), and the orphaned-root case (a batchRoot with no records to
+// recompute over, spec:939-942).
 func checkRecordsStatementLevel(p *Predicate) ([]recordState, []Code) {
 	var codes []Code
 	states := make([]recordState, len(p.Records))
@@ -141,7 +141,7 @@ func checkRecordsStatementLevel(p *Predicate) ([]recordState, []Code) {
 	//
 	// Asked once over the whole record set, and asked BEFORE the decode loop
 	// below rather than inside it. Both are load-bearing. The verify-then-read
-	// discipline puts a record's signature ahead of its payload (spec:800-807),
+	// discipline puts a record's signature ahead of its payload (spec:833-840),
 	// so a record with no signature at all is settled before the bytes it
 	// carries are read; and a count evaluated per record inside the loop would
 	// make the reported code depend on which record in the array happened to
@@ -282,11 +282,11 @@ func analyzePayload(rec *Record, state *recordState, binding string) payloadAnal
 }
 
 // recordEval is a referenced record's covering evaluation: whether it
-// satisfies its declared aeeKind's constraints (spec:778-852), and the
+// satisfies its declared aeeKind's constraints (spec:811-884), and the
 // kind-specific code to report when it does not. A record violating any
-// constraint of its declared kind covers nothing (spec:796-799); a record
+// constraint of its declared kind covers nothing (spec:829-832); a record
 // whose kind is unrecognized covers nothing and is otherwise ignored
-// (spec:855-859).
+// (spec:887-891).
 type recordEval struct {
 	kind        string
 	method      string
@@ -320,7 +320,7 @@ func evaluateKind(a payloadAnalysis, pinnedPosture string, armingPostures []stri
 		if !hasArmedAt || !hasPosture || a.method != MethodIntercepted {
 			return ev
 		}
-		// armedAt carries the timestamp profile issuedAt defines (spec:822), so
+		// armedAt carries the timestamp profile issuedAt defines (spec:855), so
 		// the same parse enforces it. A spelling outside the profile names a
 		// valid instant no later than issuedAt and still makes the arming record
 		// cover nothing, which is why the profile is part of the parse rather
@@ -352,7 +352,7 @@ func evaluateKind(a payloadAnalysis, pinnedPosture string, armingPostures []stri
 		}
 		// The two sealed posture equalities are jointly enforced: the seal's
 		// posture must equal the pinned networkPosture digest AND every
-		// referenced arming record's posture claim (spec:800-811).
+		// referenced arming record's posture claim (spec:833-844).
 		if posture != pinnedPosture {
 			return ev
 		}
@@ -515,7 +515,7 @@ func checkSubstrateRow(p *Predicate, row *Row, states []recordState, binding str
 		return codes, nil
 	}
 
-	// Kind constraints + class-match (spec:344-349, 714-735).
+	// Kind constraints + class-match (spec:344-349, 747-768).
 	pinnedPosture := p.Env.NetworkPosture.Sha256()
 	var armingPostures []string
 	for _, idx := range uniqueRefs {

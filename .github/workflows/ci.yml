@@ -135,8 +135,12 @@ jobs:
       # whether the copy was current, so the refresh ran when somebody
       # remembered and twice it was not remembered. This gate makes a corpus
       # change here fail until the rails carry it, which is the only place the
-      # question can be asked without one repository reading another in CI.
-      - name: consumers carry the corpus this repository publishes
+      # question can be asked without one repository reading another in CI. It
+      # also holds the implementation report to that ledger: the note and the
+      # per-rail cells describing what the rails vendor were written at
+      # suiteRevision 6 and still said so at 14, and a rail the report named
+      # had no row behind it at all.
+      - name: consumers carry the corpus this repository publishes, and the report says so
         run: python3 scripts/consumer-lag-gate.py --check
       - name: replay every vector on the Python rail (must be 179/179)
         run: python3 packaging/run_vectors.py

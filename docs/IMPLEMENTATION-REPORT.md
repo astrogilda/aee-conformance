@@ -70,9 +70,9 @@ digest is pinned and CI-checked (`scripts/spec-drift-gate.py`).
 | Reference rail (`aee/`) | Go | spec author | reference corpus, suiteRevision 14 | **179 / 179** |
 | Reference rail (`packaging/run_vectors.py`) | Python | spec author | reference corpus, suiteRevision 14 | **179 / 179** |
 | `Rul1an/aee-checker` | Rust | **independent, from-spec text alone** | author-run suiteRevision 6 (153), 2026-07-28 (aee-checker#4); suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13 and 14 not run by its author | **153 / 153** at suiteRevision 6, directed; **125 / 125** blind at suiteRevision 1; suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13 and 14 not run by author (see note 1) |
-| `ts-verify` | TypeScript | spec author | its vendored set (153 vectors) + cross-rail parity tests | pass (see note 2) |
-| `py-verify` | Python | spec author | its vendored set (153 vectors) + parity tests | pass (see note 2) |
-| MCP server rail `_aee.py` | Python | spec author | its vendored set (153 vectors) + parity tests | pass (see note 2) |
+| `ts-verify` | TypeScript | spec author | its vendored set (179 vectors) + cross-rail parity tests | pass (see note 2) |
+| `py-verify` | Python | spec author | its vendored set (179 vectors) + parity tests | pass (see note 2) |
+| MCP server rail `_aee.py` | Python | spec author | its vendored set (179 vectors) + parity tests | pass (see note 2) |
 
 The five first-party rails are separate decompositions rather than shared code, so
 they do catch each other's transcription errors, and the differential fuzzer over
@@ -189,19 +189,33 @@ amendments revision 14 vendored — has been read by the first-party rails only.
    edition of this note carried our own derived expectation for `bad-743`
    and `bad-744`; his run has replaced it, which is the outcome a derived
    expectation should always have.
-2. **The consumer rails carry the suiteRevision-6 corpus.** The TypeScript rail,
-   the standalone Python rail and the MCP server rail each vendor all 153 vectors of
-   suiteRevision 6 byte-for-byte (`VENDOR-STAMP.json` pins the source spec digest,
+2. **The consumer rails carry the suiteRevision-14 corpus.** The TypeScript rail,
+   the standalone Python rail and the MCP server rail each vendor all 179 vectors of
+   suiteRevision 14 byte-for-byte (`VENDOR-STAMP.json` pins the source spec digest,
    upstream commit and a content digest; a consumer-side drift gate fails CI on any
    change without a re-vendor). "pass" means the rail implements the rule, is
-   parity-tested on it, and replays the full 153. They have not yet re-vendored
-   suiteRevision 7, 8 or 9, so `bad-745` and the signature-entry
-   requirement it pins, `bad-746`/`bad-747` and the manifest floor they pin, and
-   `bad-748`/`bad-749` and the precedence and wrong-type spelling they pin, are
-   not yet exercised there. Each rail carries its own unit coverage of those
-   rules in the meantime; the MCP server rail's placement fix at suiteRevision 9
-   is pinned by a rail-local test rather than by the vector, precisely because
-   the vendored copy has not caught up.
+   parity-tested on it, and replays the full 179. The three rails are two vendored
+   copies: the TypeScript rail and the standalone Python rail replay the same
+   directory, and the MCP server rail keeps its own. Both were read from their own
+   stamps rather than assumed, and `bad-745` through `bad-749` — the signature-entry
+   requirement, the manifest floor, and the precedence and wrong-type spelling — are
+   in both, so the sentence that used to say those vectors were not yet exercised
+   there is gone rather than softened. The MCP server rail's placement fix at
+   suiteRevision 9 kept a rail-local test from when its copy lagged; the vectors
+   that pin the same reading are now in that copy too.
+
+   This note is no longer maintained by whoever remembers it. Every figure in it,
+   and the vendored-set cell for each rail in the table above, is checked by
+   `scripts/consumer-lag-gate.py` against `vectors/CONSUMERS.json`, whose one row
+   per rail is filled from that rail's own vendor stamp; the gate fails when a row
+   is not the corpus published here and fails again when these sentences are not
+   the corpus it just measured. It is checked because it was wrong: written at
+   suiteRevision 6 and still claiming 153 vectors at suiteRevision 14, while the
+   corpus moved through eight revisions and both copies were re-vendored to
+   follow it, and nothing anywhere disagreed. The count of rails named in the
+   table is checked against the count of rows in that ledger for the same
+   reason — this note described three rails while the ledger carried two, and the
+   rail it left out was the only one nothing here was reading.
 
 ## What this report does NOT claim
 

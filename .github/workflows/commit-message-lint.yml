@@ -1,0 +1,47 @@
+name: commit-message-lint
+
+# The commit-message gate is a git hook, and a git hook is advisory:
+# `git commit --no-verify` walks past it, and `core.hooksPath` is local config
+# that no clone inherits, so a fresh clone that never ran the bootstrap has no
+# hook at all. Neither of those is detectable from inside the hook. CI runs the
+# SAME tracked file so the rule holds regardless of what any developer's clone
+# is configured to do.
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  commit-message-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Gate self-test
+        run: .githooks/commit-msg --selftest
+
+      - name: Lint the commit messages this event introduces
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          zero=0000000000000000000000000000000000000000
+          if [ -n "${PR_BASE:-}" ]; then
+            range="$(git merge-base "$PR_BASE" HEAD)..HEAD"
+          elif [ -n "${PUSH_BEFORE:-}" ] && [ "$PUSH_BEFORE" != "$zero" ] \
+               && git cat-file -e "${PUSH_BEFORE}^{commit}" 2>/dev/null; then
+            range="${PUSH_BEFORE}..HEAD"
+          elif git rev-parse -q --verify HEAD~1 >/dev/null; then
+            # New branch, or a force-push whose old tip is gone: lint the tip.
+            range="HEAD~1..HEAD"
+          else
+            range="HEAD"
+          fi
+          echo "linting $range"
+          .githooks/commit-msg --check-range "$range"

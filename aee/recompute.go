@@ -1,9 +1,9 @@
 package aee
 
-// Recompute is the pure result recompute (spec:321-333). It reads the
+// Recompute is the pure result recompute (spec:339-349). It reads the
 // predicate rows, the carried vocabulary, and the coverage maps — and
 // NOTHING else: no observationRecords, no signature outcomes, no consumer
-// policy (spec:282-290). A result that varied with the consumer's trust
+// policy (spec:299-302). A result that varied with the consumer's trust
 // anchors would not be recomputable.
 //
 // Definition: the MINIMUM, under fail < degraded < pass_indirect < pass, of

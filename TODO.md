@@ -73,24 +73,31 @@ proposal out of draft.
   reported for review. This holds for both spellings, since both now share the rule.
   Fix: compare the citation's own subject rather than its former text.
   File: `scripts/specpins.py`.
-- [ ] **Forty-three `spec:NNN` citations address prose they were not written against.**
-  The content pin stops citations drifting from here on, but it was added after the
-  drift, so it pins what is already there. Measured, not estimated: for every citation
-  live at HEAD, take the spec text it addressed in the oldest revision that carries the
-  same claim, and ask whether that text is still in the document somewhere the citation
-  no longer covers. Forty-three of one hundred citation spans answer yes, which is the
-  same moved-off rule `--sync` now enforces, applied backwards over the whole history.
-  A close reading of all eighty-seven citations agrees and adds a second class the
-  mechanical test cannot see: citations that were aimed at the wrong passage when they
-  were written. Two of those are worth separating out, because the rule they cite is not
-  in the specification at any line: `NetworkPosture` and `EgressPostures` in
-  `aee/types.go` describe a closed posture registry with an append-only minor-version
-  rule, where the vendored text names the postures illustratively ("e.g. `no_network`,
-  `allowlist`, `sinkhole`") and states no registry. Fix: correct each citation to the
-  lines its own claim names, run
-  `scripts/spec-citation-gate.py --sync`, and read every changed excerpt against the
-  claim beside it, exactly as the nine mis-aimed anchors were corrected. Files: the
-  sources under `CITING_GLOBS` in `scripts/spec-citation-gate.py`.
+- [ ] **The posture registry is asserted by three rails and stated by no line of the
+  specification.** `NetworkPosture` and `EgressPostures` in `aee/types.go` accept a
+  closed four-value registry with an append-only minor-version rule and reject anything
+  else as malformed, and `bad-823`, `bad-824` and `bad-825` lock that reading. The
+  vendored text introduces the values as examples ("the substrate-authoritative egress
+  posture, e.g. `no_network`, `allowlist`, `sinkhole`", L459-461) and names no
+  consequence for a value outside the list, at any line. The reading, its argument and
+  the upstream ask are recorded under `docs/interpretation-decisions-open.md`
+  suiteRevision 12; the two comments now attribute it to this repository rather than to
+  the document, and cite L459-461 for the part the document does state. Closing it needs
+  the upstream edit, then a re-vendor. Files: `aee/types.go`,
+  `docs/interpretation-decisions-open.md`.
+
+- [ ] **The number profile is integers-only and the specification asks only for safe
+  integers.** `checkSafeInteger` rejects any JSON number carrying a fractional part,
+  anywhere in a canonicalized payload, including inside members the specification leaves
+  to the producer ("everything else in the payload stays producer territory", L977-979).
+  What the document states is the safe-integer bound (L83-85, and L856-858 for record
+  payloads); it declares every numeric member it defines an integer and states no rule
+  against a fractional number elsewhere. The rails reject one anyway, so cross-language
+  float formatting can never split them, which is a real reason and a different one from
+  conformance. No vector distinguishes the two readings, so a from-spec verifier that
+  accepts `1.5` in producer territory is conformant and passes this corpus today. Decide
+  whether to ask upstream for the stricter profile or to narrow the rails. File:
+  `aee/jcs.go`.
 
 - [ ] **Nothing compares an interpretation entry's anchors with the anchors its own
   prose quotes, outside the registry.** The registry gate now requires an entry's
@@ -102,6 +109,20 @@ proposal out of draft.
   File: `scripts/interpretation-registry-gate.py`.
 
 ## Recently landed
+
+- [x] **Re-aim every `spec:NNN` citation onto the passage its own claim names** (2026-07-29) --
+  eighty-seven of ninety-eight citation spans across thirteen files were corrected by
+  hand, each accepted through `--accept-reaim` by name so the ledger records a decision
+  rather than a sweep. The backward measurement that found the drift returns zero over
+  every citation not named that way, and reverting any single correction turns it red
+  again. The classes separate as follows. Thirty-eight spans were mechanically drifted,
+  and correcting thirty of them put the citation back on the text it was written for.
+  Twenty-six are aimed somewhere their old text never went, because they were pointed at
+  the wrong passage when they were written; eighteen of those the mechanical test could
+  never see at all, since a citation still sitting on the prose it was first pointed at
+  looks correct from history no matter what the claim beside it says. The remaining
+  thirty-one address passages upstream has since rewritten, which the measurement cannot
+  classify either way, and they were corrected on reading like the rest.
 
 - [x] **Force reason-map membership on all three coverage sets** (2026-07-26, `cf0d540`) —
   the spec already made the three coverage sets a disjoint partition of the manifest's

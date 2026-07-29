@@ -1,12 +1,12 @@
 package aee
 
-// GATE 1 — coverage validity (spec:335-388). A consumption precondition, not
+// GATE 1 — coverage validity (spec:373-404). A consumption precondition, not
 // an optional lint: a consumer that consumes result, credits any row, or
 // applies either strength ordering MUST evaluate these first, and on failure
 // the attestation is INVALID and its result MUST NOT be consumed.
 //
 // Everything here reads record payloads but never consumer policy, so it is
-// a pure function of the carried statement (spec:337-339). It reads exactly
+// a pure function of the carried statement (spec:375-378). It reads exactly
 // one thing about signatures: how many entries the array carries, which needs
 // no key material and so costs the layer none of its purity. Signature
 // verification — the one trust-relative step — remains the evidence tier's
@@ -22,7 +22,7 @@ import (
 	"time"
 )
 
-// Reserved payload members (spec:825-841).
+// Reserved payload members (spec:865-882).
 const (
 	memberRunBinding    = "aeeRunBinding"
 	memberKind          = "aeeKind"
@@ -120,9 +120,9 @@ func gate1WithContext(s *Statement) (states []recordState, binding string, issue
 // checkRecordsStatementLevel runs the record-set checks that hold for the
 // whole statement whenever observationRecords is non-empty, BEFORE any row
 // logic: signature-entry presence (spec:845-847), batchRoot presence
-// (spec:935), duplicate-record rejection (spec:943-945), root recomputation
-// (spec:947-949), and the orphaned-root case (a batchRoot with no records to
-// recompute over, spec:953-956).
+// (spec:1005), duplicate-record rejection (spec:1013-1015), root recomputation
+// (spec:1017-1019), and the orphaned-root case (a batchRoot with no records to
+// recompute over, spec:1029-1032).
 func checkRecordsStatementLevel(p *Predicate) ([]recordState, []Code) {
 	var codes []Code
 	states := make([]recordState, len(p.Records))
@@ -218,7 +218,7 @@ func anyRecordSignaturesEmpty(p *Predicate) bool {
 }
 
 // payloadAnalysis is the outcome of the byte-level checks every REFERENCED
-// payload must pass (spec:373-375): canonical RFC 8785 + I-JSON RFC 7493
+// payload must pass (spec:854-863): canonical RFC 8785 + I-JSON RFC 7493
 // object, +json media type, reserved members, run binding equality.
 type payloadAnalysis struct {
 	codes     []Code
@@ -282,11 +282,11 @@ func analyzePayload(rec *Record, state *recordState, binding string) payloadAnal
 }
 
 // recordEval is a referenced record's covering evaluation: whether it
-// satisfies its declared aeeKind's constraints (spec:825-898), and the
+// satisfies its declared aeeKind's constraints (spec:867-893), and the
 // kind-specific code to report when it does not. A record violating any
-// constraint of its declared kind covers nothing (spec:843-846); a record
+// constraint of its declared kind covers nothing (spec:884-887); a record
 // whose kind is unrecognized covers nothing and is otherwise ignored
-// (spec:901-905).
+// (spec:971-973).
 type recordEval struct {
 	kind        string
 	method      string
@@ -320,7 +320,7 @@ func evaluateKind(a payloadAnalysis, pinnedPosture string, armingPostures []stri
 		if !hasArmedAt || !hasPosture || a.method != MethodIntercepted {
 			return ev
 		}
-		// armedAt carries the timestamp profile issuedAt defines (spec:869), so
+		// armedAt carries the timestamp profile issuedAt defines (spec:870-871), so
 		// the same parse enforces it. A spelling outside the profile names a
 		// valid instant no later than issuedAt and still makes the arming record
 		// cover nothing, which is why the profile is part of the parse rather
@@ -352,7 +352,7 @@ func evaluateKind(a payloadAnalysis, pinnedPosture string, armingPostures []stri
 		}
 		// The two sealed posture equalities are jointly enforced: the seal's
 		// posture must equal the pinned networkPosture digest AND every
-		// referenced arming record's posture claim (spec:847-858).
+		// referenced arming record's posture claim (spec:888-893).
 		if posture != pinnedPosture {
 			return ev
 		}
@@ -451,7 +451,7 @@ func anyObservationRefOutOfRange(p *Predicate) bool {
 	return false
 }
 
-// classRequirement is one class-match requirement of a row (spec:344-349).
+// classRequirement is one class-match requirement of a row (spec:385-391).
 type classRequirement struct {
 	kind        string
 	genericCode Code
@@ -468,7 +468,7 @@ func checkSubstrateRow(p *Predicate, row *Row, states []recordState, binding str
 
 	// A fail-closed substrate row (out-of-vocabulary label, or missing or
 	// out-of-vocabulary method) cannot satisfy the class-match requirement
-	// and is therefore invalid (spec:390-398).
+	// and is therefore invalid (spec:427-431).
 	labelCaught := isCaughtLabel(voc, row.ContainmentObserved)
 	labelClean := isCleanLabel(voc, row.ContainmentObserved)
 	methodValid := row.Method != nil && (*row.Method == MethodIntercepted || *row.Method == MethodReconstructed)
@@ -476,7 +476,7 @@ func checkSubstrateRow(p *Predicate, row *Row, states []recordState, binding str
 		return appendCode(codes, CodeFailClosedSubstrateRow), nil
 	}
 
-	// observationRefs shape (spec:342-343).
+	// observationRefs shape (spec:383-384).
 	if !row.RefsPresent {
 		return appendCode(codes, CodeRefsEmpty), nil
 	}
@@ -502,7 +502,7 @@ func checkSubstrateRow(p *Predicate, row *Row, states []recordState, binding str
 		return codes, nil
 	}
 
-	// Every referenced payload must pass the byte-level checks (spec:373-375).
+	// Every referenced payload must pass the byte-level checks (spec:392-395).
 	analyses := map[int]payloadAnalysis{}
 	for _, idx := range uniqueRefs {
 		a := analyzePayload(&p.Records[idx], &states[idx], binding)
@@ -515,7 +515,7 @@ func checkSubstrateRow(p *Predicate, row *Row, states []recordState, binding str
 		return codes, nil
 	}
 
-	// Kind constraints + class-match (spec:344-349, 747-768).
+	// Kind constraints + class-match (spec:884-893, 385-391).
 	pinnedPosture := p.Env.NetworkPosture.Sha256()
 	var armingPostures []string
 	for _, idx := range uniqueRefs {
@@ -580,7 +580,7 @@ func checkSubstrateRow(p *Predicate, row *Row, states []recordState, binding str
 		return codes, nil
 	}
 
-	// Method cap (spec:376-377): the row's method is no stronger than the
+	// Method cap (spec:396-397): the row's method is no stronger than the
 	// weakest signed aeeMethod across its COVERING records (reconstructed is
 	// weaker than intercepted). Registry precedence pin 3: records that
 	// cover nothing do not participate in the cap.

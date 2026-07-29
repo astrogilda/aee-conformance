@@ -35,7 +35,7 @@ recommended direction (open point 1): a single attack with two rows is a
 producer-assembly bug, and two contradictory rows for one attack (e.g. one
 caught, one clean) is exactly the ambiguity the recompute must not arbitrate.
 
-- **Spec.** A sentence was added to the `attackResults` paragraph (L385-398):
+- **Spec.** A sentence was added to the `attackResults` paragraph (L495-508):
   no two rows may carry the same `attackId`; coverage integrity set-compares row
   `attackId`s, so a duplicate would silently collapse under set semantics, and
   uniqueness is enforced separately, before that comparison.
@@ -61,7 +61,7 @@ among the three corners, and the converged debate chose keep-reject: a class
 both assessed and disclosed as a gap is contradictory. **Reversible at
 vetting.**
 
-- **Spec.** The coverage paragraph (L376-381) now states the three sets are a
+- **Spec.** The coverage paragraph (L482-487) now states the three sets are a
   disjoint partition: a class appears in exactly one of `assessedClasses`,
   `outOfScope`, `routedElsewhere` (a move, not a copy); a class in more than one
   is malformed.
@@ -87,7 +87,7 @@ converged debate's recommended direction (open point 3): one executed artifact
 per statement is the model everywhere else, and a two-subject artifact-only
 statement has no coherent meaning.
 
-- **Spec.** L122-126 was split: the cardinality half is stated unconditional
+- **Spec.** L185-189 was split: the cardinality half is stated unconditional
   ("on a statement of any basis"); the digest-input half keeps the
   substrate-row-carrying scope.
 - **Rails.** The subject-cardinality check was hoisted out of the
@@ -138,9 +138,53 @@ independent from-spec checker (in-toto/attestation#570 round-8, Rul1an).
 
 ## suiteRevision 3: reason-map membership vectors
 
-The coverage-partition membership rule (spec L381-383: the three sets are a
+The coverage-partition membership rule (spec L487-489: the three sets are a
 disjoint partition of the manifest's classes) is now forced on all three sets,
 not just `assessedClasses`: `bad-819` (assessed), `bad-731` (`outOfScope`),
 `bad-732` (`routedElsewhere`). Both rails already enforced reason-map membership;
 these vectors were the untested consequence of the written rule. Not an open
 corner (the spec forces it); recorded here for the audit trail.
+
+## suiteRevision 9: which condition wins when a statement carries two
+
+The spec does not decide the order in which a verifier evaluates its checks, and
+says so: under Parsing Rules it makes only the consumption preconditions and the
+evidence tier normative in its two-stage description, and states that "the
+sequencing itself is informative" (L317-319). Nothing else in the document ranks
+one condition against another, and it carries no failure-code registry at all,
+so two rails can both reject the same bytes for reasons the spec is equally happy
+with.
+
+That is fine until a statement carries two faults, and then it stops being fine,
+because the suite's conformance contract is which condition a verifier reports.
+A statement whose first observation record has an undecodable payload and whose
+second carries no `signatures` entry was reported as `record-undecodable` by a
+rail that counted signature entries per record inside its payload-decode loop,
+and as `record-signatures-empty` by the rails that counted them once over the
+record set before that loop. Both rejected; they named different conditions.
+
+**The suite pins the set-level reading**, and `bad-748` locks it. The argument is
+the verify-then-read discipline the spec does make normative: a consumer verifies
+each record's signature "before relying on any field inside the payload"
+(L800-802), and a payload's fields "mean nothing until its signature verifies"
+(L949-951). A record carrying no signature at all is therefore settled before the
+bytes it carries are read. That argument is a reading, not a derivation: the same
+passage explicitly permits the byte-pure gates to read payload fields without
+verifying anything, so it does not by itself force the evaluation order.
+
+**This is a spec ask, not a registry decision.** It is deliberately NOT recorded
+in `vectors/interpretation-decisions.json`, because that registry records where
+the text FORCES a reading and this text does not. The ask upstream is one
+sentence: state that an observation record's envelope shape, including the
+`signatures` entry count, is evaluated before the record's payload, so a
+from-spec implementer is not left to choose. Until it lands, a from-spec verifier
+that evaluates the count per record is conformant to the specification and fails
+this corpus, and that is the corpus overreaching rather than the verifier erring.
+
+The same paragraph applies to the second half of `bad-749`. Whether a
+`signatures` member of the wrong JSON type reports the entry-count condition or
+the parse catch-all is a failure-code question, and the spec has no failure-code
+vocabulary; both readings return invalid, which is all the spec requires. The
+suite reports the entry-count condition because it already does so for an absent
+member, and splitting one requirement across two conditions on the basis of a
+decoder's behavior is not a distinction the text makes.

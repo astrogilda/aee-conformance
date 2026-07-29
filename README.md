@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://github.com/astrogilda/aee-conformance/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/astrogilda/aee-conformance/ci.yml?branch=main&label=build" alt="build status"></a>
   <img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="license Apache-2.0">
-  <img src="https://img.shields.io/badge/conformance%20vectors-154-e8951c" alt="154 conformance vectors">
+  <img src="https://img.shields.io/badge/conformance%20vectors-158-e8951c" alt="158 conformance vectors">
   <img src="https://img.shields.io/badge/rails-Go%20%C2%B7%20Python-546274" alt="Go and Python rails">
   <img src="https://img.shields.io/badge/predicate-in--toto%20AEE%20v0.6-6f57c2" alt="in-toto AEE v0.6 predicate">
 </p>
@@ -20,11 +20,20 @@ implementation of that contract: any future producer of the predicateType
 can self-certify; any consumer can reject a lying emitter.
 
 Spec line references throughout the code are to the vendored predicate
-specification (`spec/predicates/adversarial-execution-evidence.md`). The
-upstream commit it was taken from is recorded in
-[`spec/VENDOR-PIN.json`](spec/VENDOR-PIN.json), written from git at vendor time
-rather than by hand, and `scripts/spec-citation-gate.py` checks that every
-line reference still resolves.
+specification (`spec/predicates/adversarial-execution-evidence.md`), in the
+coordinate frame of the commit it was vendored at and no other. That commit is
+recorded in [`spec/VENDOR-PIN.json`](spec/VENDOR-PIN.json), written from git at
+vendor time rather than by hand, and re-vendoring remaps every reference onto
+the new line numbers in the same pass that copies the bytes.
+
+Two gates keep the references honest, because line numbers into a file that is
+periodically re-vendored rot by construction and a reference that points at the
+wrong prose reads as evidence. `scripts/spec-citation-gate.py` checks that every
+`spec:NNN` citation resolves to a line that carries text.
+`scripts/spec-anchor-gate.py` checks the `Lnnn` anchors used by the vector
+tables against [`spec/ANCHOR-PINS.json`](spec/ANCHOR-PINS.json), which records
+the text each anchor was drawn around, so an anchor that comes to address
+different prose fails rather than resolving quietly.
 
 ## Layout
 
@@ -103,7 +112,11 @@ not independently. Signature *verification* failure is never a failure
 code; it is a tier outcome. The one signature-shaped question the
 byte-pure layer does answer is how many entries the array carries: a
 record with zero of them (`record-signatures-empty`) is malformed, since
-counting entries needs no key material.
+counting entries needs no key material. An absent member, an empty array
+and a member that is not an array at all are that one fault counted three
+ways, and the count is asked once over the record set before any payload
+is decoded, so a record carrying no signature is settled ahead of a record
+whose payload does not decode.
 
 ## Conformance vectors
 
@@ -166,17 +179,20 @@ corpus and reached 138/138 at suiteRevision 2 after a spec-diff-led update
 (132/138 on the unchanged build), cleared suiteRevision 3 at 140/140, and
 cleared suiteRevision 5 at 149/149 after it adopted the normative nesting bound
 of 128 and moved its depth counter from per parsed value into the container
-branch (aee-checker#3, 2026-07-28). It has not been run against suiteRevision 6
-or suiteRevision 7, so this suite publishes no score for it at either revision.
-In our own voice, not its author's: two of the four suiteRevision-6 vectors
-(`bad-743`, `bad-744`) require rejecting the Unicode noncharacters RFC 7493
-section 2.1 forbids, and its author has stated the checker does not yet implement
-that check, so we expect it to answer valid there where the reference rails
-answer invalid -- a rule difference we derived, not a run it produced, and we do
-not report a derived figure as its score. The other two are the depth-boundary
-pair its container-branch fix already handles, and the single suiteRevision-7
-vector (`bad-745`) tests a requirement the specification gained after its last
-run. It keeps its own authorship, history, and CI. The link is pinned to the
+branch (aee-checker#3, 2026-07-28). It has not been run against suiteRevision 6,
+7, 8 or 9, so this suite publishes no score for it at
+any of the four. In our own voice, not its author's: two of the four
+suiteRevision-6 vectors (`bad-743`, `bad-744`) require rejecting the Unicode
+noncharacters RFC 7493 section 2.1 forbids, and its author has stated the checker
+does not yet implement that check, so we expect it to answer valid there where
+the reference rails answer invalid -- a rule difference we derived, not a run it
+produced, and we do not report a derived figure as its score. The other two are
+the depth-boundary pair its container-branch fix already handles; the single
+suiteRevision-7 vector (`bad-745`) and the two suiteRevision-8 vectors
+(`bad-746`, `bad-747`) test requirements the specification gained after its last
+run, and the two suiteRevision-9 vectors (`bad-748`, `bad-749`) pin the
+precedence and the wrong-type spelling of the requirement `bad-745` carries. It
+keeps its own authorship, history, and CI. The link is pinned to the
 build that recorded the 149/149 run.
 
 That one reading has already earned its keep, twice. The specification did not

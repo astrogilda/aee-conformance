@@ -133,11 +133,28 @@ def main() -> int:
         print("pin refreshed; no corpus regeneration needed")
         return 0
 
-    moved = remap_citations(previous, spec_bytes)
+    mapping = line_map(previous, spec_bytes)
+    lines = spec_bytes.decode("utf-8", "replace").splitlines()
+    moved = remap_citations(mapping, lines)
+    moved_anchors = remap_anchors(mapping, lines)
 
     print(f"vendored {SPEC_REL} at {commit[:12]} ({digest[:12]}...)")
     if moved:
         print(f"remapped {moved} spec:NNN line citation(s) onto the new line numbers")
+    if moved_anchors:
+        print(f"remapped {moved_anchors} Lnnn anchor(s) onto the new line numbers")
+
+    # Re-pin here rather than leaving it to the operator. The anchors rotted in
+    # the first place because keeping them current was a manual step beside an
+    # automatic one, and a ledger that has to be refreshed by hand is the same
+    # bet with an extra file in it. The refreshed excerpts land in this commit's
+    # diff, which is where a remap that moved an anchor onto the wrong prose is
+    # visible.
+    subprocess.run(
+        [sys.executable, str(REPO_ROOT / "scripts" / "spec-anchor-gate.py"), "--sync"],
+        check=True,
+    )
+
     print("NORMATIVE CHANGE: regenerate the corpus, then run")
     print("  python3 vectors/gen_manifest.py")
     print("and add a suiteRevision section to vectors/CHANGES.md.")
@@ -153,6 +170,22 @@ CITING_GLOBS = (
     "vectors/*/*.py",
 )
 CITATION_RE = re.compile(r"spec:(\d+(?:-\d+)?(?:\s*,\s*\d+(?:-\d+)?)*)")
+
+# The corpus cites the same file a second way, as `Lnnn` and `Lnnn-mmm` anchors
+# in the vector generator, the interpretation registries and the prose that
+# reads them. The two spellings are one citation with two audiences: `spec:NNN`
+# sits in code comments, `Lnnn` sits in tables a reader scans. Only the first
+# was remapped for a while, and the second rotted at the first re-vendor that
+# inserted a paragraph, which is how thirty-one anchors came to address prose
+# they were never drawn against. Anything carrying an anchor is listed here.
+ANCHOR_PATHS = (
+    "vectors/reject/gen_invalid_vectors.py",
+    "vectors/interpretation-decisions.json",
+    "vectors/coverage-unforced.json",
+    "vectors/CHANGES.md",
+    "docs/interpretation-decisions-open.md",
+)
+ANCHOR_RE = re.compile(r"\bL(\d+(?:-\d+)?)\b")
 
 
 def line_map(old: bytes, new: bytes) -> dict[int, int]:
@@ -198,7 +231,35 @@ def line_map(old: bytes, new: bytes) -> dict[int, int]:
     return mapping
 
 
-def remap_citations(old: bytes, new: bytes) -> int:
+def rewrite(
+    paths: list[Path],
+    pattern: re.Pattern[str],
+    prefix: str,
+    mapping: dict[int, int],
+    lines: list[str],
+) -> int:
+    """Rewrite every citation of one spelling in `paths`, and report how many
+    tokens moved."""
+    moved = 0
+    for path in paths:
+        if not path.is_file():
+            continue
+        text = path.read_text(encoding="utf-8")
+
+        def sub(m: re.Match[str]) -> str:
+            nonlocal moved
+            token = remap_token(m.group(1), mapping, lines)
+            if token != m.group(1):
+                moved += 1
+            return f"{prefix}{token}"
+
+        updated = pattern.sub(sub, text)
+        if updated != text:
+            path.write_text(updated, encoding="utf-8")
+    return moved
+
+
+def remap_citations(mapping: dict[int, int], lines: list[str]) -> int:
     """Rewrite every `spec:NNN` citation in the citing sources onto the new
     line numbers, and report how many tokens moved.
 
@@ -211,25 +272,26 @@ def remap_citations(old: bytes, new: bytes) -> int:
     rewrite lands in the same commit as the spec change and is reviewed as a
     diff like anything else.
     """
-    mapping = line_map(old, new)
-    lines = new.decode("utf-8", "replace").splitlines()
-    moved = 0
+    paths = [p for g in CITING_GLOBS for p in sorted(REPO_ROOT.glob(g))]
+    return rewrite(paths, CITATION_RE, "spec:", mapping, lines)
 
-    for pattern in CITING_GLOBS:
-        for path in sorted(REPO_ROOT.glob(pattern)):
-            text = path.read_text(encoding="utf-8")
 
-            def sub(m: re.Match[str]) -> str:
-                nonlocal moved
-                token = remap_token(m.group(1), mapping, lines)
-                if token != m.group(1):
-                    moved += 1
-                return f"spec:{token}"
+def remap_anchors(mapping: dict[int, int], lines: list[str]) -> int:
+    """Rewrite every `Lnnn` anchor onto the new line numbers.
 
-            updated = CITATION_RE.sub(sub, text)
-            if updated != text:
-                path.write_text(updated, encoding="utf-8")
-    return moved
+    The anchors address the vendored copy exactly as the `spec:NNN` citations
+    do, so they move with the prose for exactly the same reason. Remapping keeps
+    the corpus in the coordinate frame of the commit the vendor pin names: the
+    anchors and the pin describe one revision, and neither is free to drift from
+    the other between re-vendorings.
+
+    Generated files are not listed and are not rewritten here. They carry the
+    anchors their sources carry, so regenerating them after this runs is what
+    moves them, and ``scripts/spec-anchor-gate.py`` fails if that regeneration
+    was skipped.
+    """
+    paths = [REPO_ROOT / p for p in ANCHOR_PATHS]
+    return rewrite(paths, ANCHOR_RE, "L", mapping, lines)
 
 
 def snap(n: int, lines: list[str], *, forward: bool) -> int:

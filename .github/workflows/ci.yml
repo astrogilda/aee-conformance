@@ -88,16 +88,22 @@ jobs:
       - name: sync toolchain
         run: uv sync --extra dev --extra generators
       - name: mypy --strict
-        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py
+        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/spec-anchor-gate.py
       - name: ruff
         run: uv run ruff check packaging vectors scripts
       - name: spec/corpus non-drift gate
         run: python3 scripts/spec-drift-gate.py
       - name: spec line-citation gate
         run: python3 scripts/spec-citation-gate.py
+      # The sibling of the citation gate, for the Lnnn anchors the tables use.
+      # It checks the text each anchor addresses and not only that the number
+      # resolves, because resolving is what the anchors kept doing while they
+      # drifted hundreds of lines from the rules they name.
+      - name: spec anchor gate
+        run: python3 scripts/spec-anchor-gate.py
       - name: interpretation-decision registry gate
         run: python3 scripts/interpretation-registry-gate.py
       - name: requirement-coverage matrix is current
         run: python3 scripts/coverage-matrix-gate.py --check
-      - name: replay every vector on the Python rail (must be 154/154)
+      - name: replay every vector on the Python rail (must be 158/158)
         run: python3 packaging/run_vectors.py

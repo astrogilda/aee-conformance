@@ -118,6 +118,75 @@ ways, and the count is asked once over the record set before any payload
 is decoded, so a record carrying no signature is settled ahead of a record
 whose payload does not decode.
 
+### What the suite compares
+
+`packaging/run_vectors.py` runs an external verifier once per vector as
+`<cmd> <vector-file>`, reads the verdict from the exit status, and reads the
+codes, the recomputed result and the tiers from the last line of stdout when that
+line is a JSON object of the shape `{"verdict": ..., "codes": [...],
+"result": ..., "tiers": [...]}`.
+
+What it compares against `vectors/MANIFEST.json` is not the verdict alone. A reject
+vector's manifest entry declares an expected code set, and the codes the
+implementation emits must intersect it, so a verifier that rejects a statement
+for no stated reason fails the vector. An accept vector's entry declares a
+`result`, and the recomputed result must equal it. An implementation that answers
+with an exit status and nothing else therefore fails every vector in the suite.
+That is worth stating plainly, because the runner's own description of its
+external rail said the opposite for several revisions, and nothing was checking
+the description against the evaluator it described.
+
+The codes are compared as a set. Order carries nothing and message text carries
+nothing, so a verifier that reports the first fault it finds and one that reports
+every fault it finds both pass the same entry. That is what lets a strict
+single-code implementation and a superset-emitting one certify against one
+manifest.
+
+An implementation that would rather keep its own reject reasons is not shut out
+of the corpus. It can emit a report in its own vocabulary and compare that report
+against a recorded run of itself, which is how the independent checker described
+below verifies parity without ever reading these codes. What that route does not
+give is the per-condition comparison: two verifiers can agree on every verdict
+and still disagree about which condition each statement violated, and that
+disagreement stays invisible until the codes are compared. Two of the divergences
+this suite has fixed were exactly that shape.
+
+### The registry
+
+The codes are this suite's registry rather than the specification's. The
+specification states the conditions and says nothing about what a verifier should
+call them, so the spellings, the precedence pins above, and the promise that
+neither of those moves are all contracts this repository carries and not that
+document. `aee/codes.go` is the enumerated set.
+
+Adding a code takes four things, and `scripts/code-contract-gate.py` checks the
+last three mechanically:
+
+- a condition the specification states that no existing code already names;
+- a constant in `aee/codes.go`, in the block for the gate that detects it;
+- the same spelling in the Python rail, so the two first-party rails share one
+  vocabulary rather than two that happen to agree;
+- at least one vector that emits it, which bumps `suiteRevision`.
+
+What the registry guarantees:
+
+- a published code's spelling never changes, and neither does the condition it
+  names. A changed condition is a new code, not a redefined one;
+- a code is never removed while any published `suiteRevision` names it;
+- codes are additive across revisions, so a verifier that recognises the set at
+  one revision still recognises it at the next;
+- precedence is contractual only where this README pins it. Where two conditions
+  can hold at once and nothing here decides which is reported, either is
+  conformant, and no vector is written until the question is decided. The open
+  ones live in `docs/interpretation-decisions-open.md`;
+- message text is never part of the contract, at any revision.
+
+Two codes carry a standing exemption the gate knows about.
+`corpus-anchor-mismatch` and `substrate-anchor-mismatch` are consumer-policy
+facts rather than validity conditions: they are recorded on the report's consumer
+surface and never change the byte-pure verdict, so no single-statement vector can
+exercise them, and the gate requires that none claims to.
+
 ## Conformance vectors
 
 `aee/vectors_test.go` replays the conformance vector suite in this repository
@@ -176,24 +245,45 @@ with its own I-JSON parser, RFC 8785 serializer, RFC 6962 Merkle root,
 run-binding derivation, and Ed25519 tier, built with no sight of the reference
 code. It cleared 125/125 at suiteRevision 1, then re-ran against the round-7
 corpus and reached 138/138 at suiteRevision 2 after a spec-diff-led update
-(132/138 on the unchanged build), cleared suiteRevision 3 at 140/140, and
-cleared suiteRevision 5 at 149/149 after it adopted the normative nesting bound
-of 128 and moved its depth counter from per parsed value into the container
-branch (aee-checker#3, 2026-07-28). It has not been run against suiteRevision 6,
-7, 8 or 9, so this suite publishes no score for it at
-any of the four. In our own voice, not its author's: two of the four
-suiteRevision-6 vectors (`bad-743`, `bad-744`) require rejecting the Unicode
-noncharacters RFC 7493 section 2.1 forbids, and its author has stated the checker
-does not yet implement that check, so we expect it to answer valid there where
-the reference rails answer invalid -- a rule difference we derived, not a run it
-produced, and we do not report a derived figure as its score. The other two are
-the depth-boundary pair its container-branch fix already handles; the single
-suiteRevision-7 vector (`bad-745`) and the two suiteRevision-8 vectors
-(`bad-746`, `bad-747`) test requirements the specification gained after its last
-run, and the two suiteRevision-9 vectors (`bad-748`, `bad-749`) pin the
-precedence and the wrong-type spelling of the requirement `bad-745` carries. It
-keeps its own authorship, history, and CI. The link is pinned to the
-build that recorded the 149/149 run.
+(132/138 on the unchanged build), cleared suiteRevision 3 at 140/140, cleared
+suiteRevision 5 at 149/149 after it adopted the normative nesting bound of 128
+and moved its depth counter from per parsed value into the container branch
+(aee-checker#3), and cleared suiteRevision 6 at 153/153, 36/36 accepts and
+117/117 rejects, after implementing the Unicode noncharacter exclusion RFC 7493
+section 2.1 requires (aee-checker#4, 2026-07-28; the unchanged revision-5 build
+scored 151/153 against it).
+
+Each of those figures moves this column only because a record and the source
+digest that produced it were posted with it. The revision-6 record names checker
+source `sha256:1c3e2e78` and suite commit `7098f4e`, and it is the revision his
+CI now verifies continuously. That suite commit no longer resolves in a fresh
+clone of this repository, because the history it sat on was rewritten here after
+he pinned it; the commit that carries the identical tree, and so the identical
+153 vectors, is `8959bd3`, which is where a reproduction of the record should
+point until he repins.
+
+Only two of those figures are evidence that an outside reader reached a rule on
+his own. The 125/125 was the first full corpus run with no vector-driven fixes.
+The 140/140 was a first run by an unchanged build whose rule for the two new
+vectors was derived from the spec text and predated them, so the vectors met a
+rule that was already there rather than driving it. The other figures each
+followed a spec diff he had read, and the newest one followed more than that.
+In his words,
+kept here because paraphrasing it would soften it: "This one is directed, and
+more so than revision 2 was: the rule was written and the vectors named before
+this checker ran, so what it demonstrates is that the corrected rule is
+implementable from the text, not that an independent reader found it." A
+directed 153/153 says the corrected rule is implementable by someone who has only
+the text. It is not the same evidence as 125/125 and this suite does not present
+it as such.
+
+It has not been run against suiteRevision 7, 8 or 9, so this suite publishes no
+score for it at any of the three. The single suiteRevision-7 vector (`bad-745`)
+and the two suiteRevision-8 vectors (`bad-746`, `bad-747`) test requirements the
+specification gained after its last run, and the two suiteRevision-9 vectors
+(`bad-748`, `bad-749`) pin the precedence and the wrong-type spelling of the
+requirement `bad-745` carries. It keeps its own authorship, history, and CI. The
+link is pinned to the build that recorded the 153/153 run.
 
 That one reading has already earned its keep, twice. The specification did not
 pin a maximum JSON nesting depth, so all five of my rails chose 128 and agreed at
@@ -209,9 +299,10 @@ depth. That one is fixed and pinned by a boundary vector pair; both findings cam
 from the same outside reader, and neither could have come from the rails alone.
 
 More outside implementations are wanted, and the count above is the reason.
-Wiring one in is roughly a single command against the runner's stdin/stdout
-contract, and a conformant checker passes even when it evaluates in a different
-order, since the suite compares verdicts and code sets and ignores both message
-text and evaluation order.
+Wiring one in means answering the external-verifier contract above: one
+invocation per vector, a verdict in the exit status, and a JSON line carrying the
+codes and the recomputed result. A conformant checker passes even when it
+evaluates in a different order, since the suite compares verdicts and code sets
+and ignores both message text and evaluation order.
 
-[aee-checker]: https://github.com/Rul1an/aee-checker/tree/0cf46c1fa61517c955fc8f5283be4d435010765c
+[aee-checker]: https://github.com/Rul1an/aee-checker/tree/f8bd3a787ef0b4610e96054ee1f167368f2ccdc2

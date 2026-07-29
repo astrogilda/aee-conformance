@@ -1,0 +1,54 @@
+name: no-internal-drafts
+
+# Root-cause guard, added 2026-07-28 after an internal draft carrying a section headed
+# "Notes for the operator, not part of the submission" was committed to this public
+# repository, and an issue pointing an outside maintainer here was opened two hours later.
+# The notes held a competitive assessment of that maintainer by name.
+#
+# Purging the file from history fixed one instance. This makes the class impossible:
+# the mistake was treating the public repo as a working directory because the artifact
+# under discussion lives here. Drafting notes belong in the private research tree.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reject internal-only markers in tracked files
+        run: |
+          # Phrases that only ever appear in material written for ourselves.
+          # Deliberately literal rather than clever: a reviewer must be able to read
+          # this list and know exactly what is banned.
+          PATTERNS='Notes for the operator|not part of the submission|operator-gated|NOT POSTED|NOT SENT|Held for review|Notes for the operator, not part of'
+          if git grep -nIE "$PATTERNS" -- . ':!.github/workflows/no-internal-drafts.yml'; then
+            echo "::error::A tracked file contains an internal-only marker. Drafting notes belong in the private research tree, never in this public repository."
+            exit 1
+          fi
+          echo "no internal-only markers found"
+
+      - name: Reject draft-named files
+        run: |
+          # A file named DRAFT-* in a public standards repo is a working document that
+          # escaped. Publish the finished artifact, not the draft of it.
+          if git ls-files | grep -E '(^|/)DRAFT-' ; then
+            echo "::error::A DRAFT- file is tracked. Publish the finished artifact instead."
+            exit 1
+          fi
+          echo "no DRAFT- files tracked"
+
+      - name: Reject first-party product names
+        run: |
+          # The repository is deliberately product-neutral: it is the link offered in
+          # standards correspondence and conference submissions, and the operator is in
+          # stealth. Names were purged from the forward surface on 2026-07-28.
+          if git grep -nIiE 'probity|matchlock|getprobity' -- . ':!.github/workflows/no-internal-drafts.yml'; then
+            echo "::error::A first-party product name is present. This repository must stay product-neutral."
+            exit 1
+          fi
+          echo "no product names found"

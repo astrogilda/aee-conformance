@@ -1,0 +1,485 @@
+#!/usr/bin/env python3
+"""commit-msg gate: refuse a commit message that breaks the documented rules.
+
+This file is the CANONICAL copy. It is deliberately self-contained -- stdlib
+only, no repository-local imports -- because a git hook runs before anything
+has been installed, in a clone whose dependencies may not exist yet, from a
+working directory git does not promise anything about. An earlier pair of
+copies drifted apart precisely because one of them reached into a sibling
+module (`scripts/_id_patterns.py`) that exists in one repository alone; that
+copy could never be shared, so the shared rules stopped being shared.
+
+Rules enforced (each has a matching case in `--selftest`):
+
+1. Subject line at most 72 characters.
+2. Plain ASCII only, anywhere in the message (this is also what refuses
+   emoji, smart quotes and non-breaking spaces).
+3. No AI-attribution trailer or "Generated with/by <assistant>" line.
+4. No project-internal jargon: audit identifiers, decision-log and
+   failed-attempt identifiers, risk-register and research-artefact
+   identifiers, future-work identifiers, workflow-scaffolding labels
+   (Phase N, Wave N, Round N, ...) and session-cycle labels.
+
+Why rule 4: those identifiers are durable INSIDE `DECISION_LOG.md`,
+`TODO.md` and code comments, where the surrounding document resolves them.
+They are not durable in a commit history that outlives the audit that
+minted them. A message reading "closes CR-9 + HA-M5 per Bundle 1
+(DEC-20260505-004)" is unreadable six months later. Commit messages must
+stand on their own prose.
+
+Modes:
+
+    commit-msg <path>              lint one message file (git's hook contract)
+    commit-msg --selftest          run the embedded rule fixtures
+    commit-msg --check-range A..B  lint every commit message in a range
+
+`--check-range` exists so CI can enforce the same rules from the same file.
+A hook is advisory -- `git commit --no-verify` bypasses it and a clone that
+never ran the bootstrap has no hook at all -- so the hook cannot be the only
+enforcement point.
+
+One repository-specific rule set is supported WITHOUT forking this file. If a
+file named `commit-msg.extra-patterns` sits next to the hook, each of its
+`<regex><TAB><label>` lines is checked as an additional rule. That exists
+because one of these repositories is public and product-neutral, so its
+commit messages must not name the first-party products -- a rule that would
+be meaningless in the products' own repositories. A missing file means no
+extra rules, so this hook stays byte-identical everywhere.
+
+Bypass: `git commit --no-verify`. Loud and deliberate, by design.
+"""
+
+from __future__ import annotations
+
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+SUBJECT_MAX_LEN = 72
+
+# Subjects git itself generates, or that never survive to the history.
+# Exempt from the LENGTH rule only: `git revert` quotes the reverted subject
+# verbatim, so a 72-char subject mechanically produces an 82-char revert, and
+# the only way past a length failure there is `--no-verify`, which switches
+# off every other rule as well. Trading one rule for all four is worse than
+# tolerating a long machine-written subject. All other rules still apply.
+LENGTH_EXEMPT_PREFIXES = ('Merge ', 'Revert "', "fixup! ", "squash! ")
+
+# Any code point outside 0x00-0x7F. Lone surrogates appear here too, because
+# the message is decoded with surrogateescape so that invalid UTF-8 is
+# reported as a violation instead of crashing the hook.
+NON_ASCII = re.compile(r"[^\x00-\x7f]")
+
+# Project-internal identifier families that take a `PREFIX-<suffix>` shape.
+_AUDIT_FAMILIES = (
+    r"AUD|CR|CS|GATE|HA|HEALTH|HR|IR|LI|LR|MM|MR|REVIEW|SILENT|SIMPLIFY"
+    r"|ST|STATIC|TYPE"
+)
+
+JARGON_PATTERNS: list[tuple[re.Pattern[str], str]] = [
+    # Audit identifiers, single suffix segment: CR-3, HA-M9, STATIC-PY-3's
+    # short form, ST-001, GATE-1. The suffix must be alphanumeric AND must
+    # contain at least one digit, so ordinary hyphenated words that happen
+    # to start with a family prefix ("TYPE-SAFE", "GATE-KEEPER") are not
+    # mistaken for identifiers.
+    (
+        re.compile(rf"\b(?:{_AUDIT_FAMILIES})-(?=[A-Z0-9]*[0-9])[A-Z0-9]+\b"),
+        "audit identifier",
+    ),
+    # Audit identifiers, two suffix segments: the severity-class compound
+    # form (AR-CRIT-1, CS-HIGH-3, HA-LOW-7, R1-HIGH-3) and the
+    # letter-then-number form (HA-CR-3, STATIC-GO-9). The family list is
+    # explicit rather than [A-Z]{1,3} so that an arbitrary two-letter token
+    # followed by a severity word is not swept up.
+    (
+        re.compile(rf"\b(?:AR|R\d|{_AUDIT_FAMILIES})-[A-Z]+-\d+\b"),
+        "audit identifier",
+    ),
+    # Future-work identifiers. Two arms with different digit requirements:
+    # FUT-29 / FUT-43.1a must begin with a digit, so placeholder prose like
+    # "FUT-PREFIX" does not match; FUT-NEW-... may be all letters because
+    # real IDs take that form (FUT-NEW-IDNA-2026-DISCLOSURE).
+    (
+        re.compile(
+            r"\bFUT-(?:"
+            r"NEW-[A-Za-z0-9]+(?:[.-][A-Za-z0-9]+)*"
+            r"|"
+            r"\d[A-Za-z0-9]*(?:[.-][A-Za-z0-9]+)*"
+            r")"
+        ),
+        "future-work identifier",
+    ),
+    (re.compile(r"\bDEC-\d{8}-\d+\b"), "decision-log identifier"),
+    (re.compile(r"\bFAIL-\d{8}-\d+\b"), "failed-attempt identifier"),
+    # Risk-register identifier. Fixed-width three digits on purpose: AR-1
+    # and AR-1234 are not valid IDs in this project, and a looser pattern
+    # here would flag ordinary tokens.
+    (re.compile(r"\bAR-\d{3}\b"), "risk-register identifier"),
+    (re.compile(r"\bAV-\d+\b"), "research-artefact identifier"),
+    # Workflow-scaffolding labels with a numeric suffix: "Phase 2",
+    # "Set 1.2", "Stage 2b". Case-insensitive.
+    #
+    # The separator is OPTIONAL, which both earlier copies of this hook got
+    # wrong: they required `\s+`, so the single most common spelling of the
+    # violation -- the scope token `chore(phase2): ...` -- passed, and so did
+    # 44 `round-N` / `wave-N` / `stage-N` messages that are in the history
+    # right now.
+    #
+    # `Tier` is deliberately NOT in this list, though both earlier copies had
+    # it. Measured over the four repositories' full history, `Tier N` occurs
+    # 49 times and every single occurrence is product vocabulary, not a
+    # workflow label: "the Tier-3 forensic dump", "register the Tier-1
+    # static-scan-verdict predicate", "Tier 2 monitoring uses Prometheus".
+    # A pattern whose every real-world firing is a false positive teaches
+    # developers to reach for --no-verify, which switches off the rules that
+    # do work. `Stage` was checked the same way and kept: `stage-0` appears
+    # in messages but names no durable symbol in any tree, so it is
+    # scaffolding.
+    (
+        re.compile(
+            r"\b(?:Phase|Wave|Bundle|Round|Set|Stage)[\s_-]*\d+(?:\.\d+)?[a-z]?\b",
+            re.IGNORECASE,
+        ),
+        "workflow-scaffolding label",
+    ),
+    # The same labels with a single-letter suffix: "Phase A", "Wave B".
+    # Case-SENSITIVE, unlike the numeric arm: real labels are capitalised,
+    # and a case-insensitive version of this pattern rejects ordinary
+    # English ("set a default", "round a corner").
+    (
+        re.compile(r"\b(?:Phase|Wave|Bundle|Round|Set|Stage)\s+[A-Z]\b"),
+        "workflow-scaffolding label",
+    ),
+    (re.compile(r"\bsession[\s_-]*\d+\b", re.IGNORECASE), "session-cycle label"),
+]
+
+# AI-attribution shapes. Deliberately attribution-shaped rather than a bare
+# name search: "docs: document the .claude hook wiring" is a legitimate
+# subject, while a Co-authored-by trailer naming an assistant is not.
+_AI_NAMES = (
+    r"claude|anthropic|openai|chatgpt|gpt|copilot|codex|cursor|gemini"
+    r"|devin|aider|llm|ai assistant"
+)
+
+ATTRIBUTION_PATTERNS: list[tuple[re.Pattern[str], str]] = [
+    (
+        re.compile(
+            rf"(?im)^\s*(?:co-authored-by|assisted-by|signed-off-by|committed-by)"
+            rf"\s*:.*(?:{_AI_NAMES})"
+        ),
+        "AI attribution",
+    ),
+    (
+        re.compile(
+            rf"(?i)\bgenerated\s+(?:with|by)\s+\[?\W*(?:{_AI_NAMES})",
+            ),
+        "AI attribution",
+    ),
+    (
+        re.compile(rf"(?i)\bwritten\s+by\s+(?:{_AI_NAMES})\b"),
+        "AI attribution",
+    ),
+]
+
+EXTRA_PATTERNS_FILENAME = "commit-msg.extra-patterns"
+
+
+def load_extra_patterns() -> list[tuple[re.Pattern[str], str]]:
+    """Load the optional per-repository rules that sit beside this hook.
+
+    Format is one `<regex><TAB><label>` per line; `#` comments and blank
+    lines are ignored. Reading a data file beside the hook is not the same
+    mistake as importing a repo-local module: the hook still runs correctly
+    when the file is absent, so it remains portable to a repository that has
+    no such rules.
+
+    A malformed line is a hard failure rather than a skipped rule. A guard
+    that silently drops a rule it cannot parse reports "clean" for a check
+    that never ran.
+    """
+    path = Path(__file__).resolve().parent / EXTRA_PATTERNS_FILENAME
+    if not path.is_file():
+        return []
+    return parse_extra_patterns(path.read_text(encoding="utf-8"), str(path))
+
+
+def parse_extra_patterns(text: str, origin: str) -> list[tuple[re.Pattern[str], str]]:
+    patterns: list[tuple[re.Pattern[str], str]] = []
+    for number, raw in enumerate(text.splitlines(), start=1):
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "\t" not in raw:
+            raise ValueError(
+                f"{origin}:{number}: expected '<regex><TAB><label>', found {raw!r}"
+            )
+        expression, _, label = raw.partition("\t")
+        patterns.append((re.compile(expression.strip()), label.strip() or "extra rule"))
+    return patterns
+
+
+# `git commit --verbose` appends the staged diff after this marker. Git strips
+# it after the hook has run, so the hook must strip it too, or a non-ASCII
+# byte in the diff would be reported as a message violation.
+SCISSORS = re.compile(r"^\s*#\s*-+\s*>8\s*-+")
+
+
+def strip_noise(message: str) -> list[str]:
+    """Return the message lines git will actually keep."""
+    lines: list[str] = []
+    for line in message.splitlines():
+        if SCISSORS.match(line):
+            break
+        if line.startswith("#"):
+            continue
+        lines.append(line)
+    while lines and not lines[-1].strip():
+        lines.pop()
+    return lines
+
+
+def lint(
+    message: str, extra: list[tuple[re.Pattern[str], str]] | None = None
+) -> list[str]:
+    """Return a list of human-readable violations; empty means the message passes."""
+    lines = strip_noise(message)
+    if not any(line.strip() for line in lines):
+        return ["empty commit message"]
+
+    errors: list[str] = []
+    subject = lines[0]
+
+    if len(subject) > SUBJECT_MAX_LEN and not subject.startswith(
+        LENGTH_EXEMPT_PREFIXES
+    ):
+        errors.append(
+            f"subject line is {len(subject)} chars; max is {SUBJECT_MAX_LEN}"
+        )
+
+    for idx, line in enumerate(lines, start=1):
+        match = NON_ASCII.search(line)
+        if match:
+            char = match.group(0)
+            point = ord(char)
+            if 0xDC80 <= point <= 0xDCFF:
+                shown = f"raw byte 0x{point - 0xDC00:02X} (not valid UTF-8)"
+            else:
+                shown = f"{char!r} (U+{point:04X})"
+            errors.append(
+                f"line {idx}: non-ASCII character {shown}; "
+                "commit messages must be plain ASCII"
+            )
+
+    full = "\n".join(lines)
+    for patterns in (JARGON_PATTERNS, ATTRIBUTION_PATTERNS, extra or []):
+        for pattern, label in patterns:
+            for match in pattern.finditer(full):
+                errors.append(f"forbidden {label}: {match.group(0).strip()!r}")
+
+    return errors
+
+
+def read_message(path: Path) -> str:
+    """Read a message file without letting invalid UTF-8 crash the hook.
+
+    Undecodable bytes survive as lone surrogates, which the non-ASCII rule
+    then reports. Raising here instead would abort the commit with a
+    traceback rather than with the reason.
+    """
+    return path.read_bytes().decode("utf-8", errors="surrogateescape")
+
+
+def report(errors: list[str], where: str) -> None:
+    print(f"commit-msg: REJECTED {where}", file=sys.stderr)
+    for error in errors:
+        print(f"  - {error}", file=sys.stderr)
+    print(
+        "\nRewrite the message. Bypass only with a stated reason:\n"
+        "  git commit --no-verify",
+        file=sys.stderr,
+    )
+
+
+# (message, expected-substring-of-a-violation or None for "must pass").
+SELFTEST_CASES: list[tuple[str, str | None]] = [
+    # Rule 1: subject length.
+    (
+        "feat(gate): " + "x" * 61,
+        "max is 72",
+    ),
+    ("feat(gate): " + "x" * 60, None),
+    # Rule 2: non-ASCII.
+    ("fix(api): drop the — dash", "non-ASCII"),
+    ("fix(api): add batch endpoint \U0001f680", "non-ASCII"),
+    # Rule 3: AI attribution.
+    (
+        "fix(api): add batch endpoint\n\nCo-Authored-By: Claude <noreply@anthropic.com>",
+        "AI attribution",
+    ),
+    (
+        "fix(api): add batch endpoint\n\nGenerated with [Claude Code](https://x)",
+        "AI attribution",
+    ),
+    (
+        "fix(api): add batch endpoint\n\n\U0001f916 Generated by Copilot",
+        "AI attribution",
+    ),
+    # A real DCO sign-off by a human must still pass.
+    (
+        "fix(api): add batch endpoint\n\nSigned-off-by: A Developer <dev@example.com>",
+        None,
+    ),
+    # Rule 4: internal jargon.
+    ("chore(phase2): tidy the runner", "workflow-scaffolding label"),
+    ("chore: wrap up wave-7 of the sweep", "workflow-scaffolding label"),
+    ("chore: wrap up session12", "session-cycle label"),
+    ("chore: finish Phase 2 of the runner", "workflow-scaffolding label"),
+    ("chore: finish Wave 7", "workflow-scaffolding label"),
+    ("chore: finish Wave B", "workflow-scaffolding label"),
+    ("chore: finish stage-0 of the sweep", "workflow-scaffolding label"),
+    ("fix(lint): close CR-9 and HA-M5", "audit identifier"),
+    ("fix(lint): close AR-CRIT-1", "audit identifier"),
+    ("docs: record DEC-20260505-004", "decision-log identifier"),
+    ("docs: record FAIL-20260505-004", "failed-attempt identifier"),
+    ("docs: record AR-001", "risk-register identifier"),
+    ("docs: record AV-9", "research-artefact identifier"),
+    ("docs: close FUT-NEW-IDNA-2026-DISCLOSURE", "future-work identifier"),
+    ("docs: close FUT-43.1a", "future-work identifier"),
+    ("chore: wrap up session-12", "session-cycle label"),
+    # Ordinary English that the case-sensitive letter arm must NOT reject.
+    ("fix(config): set a default timeout", None),
+    ("fix(ui): round a corner radius", None),
+    # Product vocabulary that must NOT be read as a workflow label.
+    ("feat(forensics): add the Tier-3 forensic dump", None),
+    ("feat(verdict): register the Tier-1 static-scan predicate", None),
+    # Hyphenated words that are not identifiers.
+    ("refactor(api): make the TYPE-SAFE cast explicit", None),
+    # A clean conventional commit with a body.
+    (
+        "feat(api): add batch processing endpoint\n\n"
+        "Add support for processing multiple items in a single request.\n"
+        "Reduces API calls by 80 percent for bulk operations.\n",
+        None,
+    ),
+    # Git-generated subjects: exempt from length, not from anything else.
+    ('Revert "feat(api): ' + "x" * 60 + '"', None),
+    ("Merge branch " + "x" * 70, None),
+    ('Revert "feat(api): finish Phase 2"', "workflow-scaffolding label"),
+    # Empty.
+    ("\n# a comment only\n", "empty"),
+    # A verbose-commit diff after the scissors line must not be scanned.
+    (
+        "feat(api): add batch endpoint\n"
+        "# ------------------------ >8 ------------------------\n"
+        "diff --git a/x b/x\n+café\n",
+        None,
+    ),
+]
+
+
+def selftest() -> int:
+    failures = 0
+
+    # The extension point is a rule surface, so it gets tested like one.
+    parsed = parse_extra_patterns(
+        "# comment\n\n(?i)\\bwidget\\b\tproduct name\n", "<fixture>"
+    )
+    if [error for error in lint("feat: ship the Widget", parsed) if "product name" in error] == []:
+        failures += 1
+        print("FAIL extra-patterns: loaded rule did not fire", file=sys.stderr)
+    if lint("feat: ship the thing", parsed):
+        failures += 1
+        print("FAIL extra-patterns: loaded rule over-matched", file=sys.stderr)
+    try:
+        parse_extra_patterns("no-tab-here\n", "<fixture>")
+    except ValueError:
+        pass
+    else:
+        failures += 1
+        print("FAIL extra-patterns: malformed line was accepted", file=sys.stderr)
+    for message, expected in SELFTEST_CASES:
+        errors = lint(message)
+        label = message.splitlines()[0][:58] if message.strip() else "<empty>"
+        if expected is None:
+            if errors:
+                failures += 1
+                print(f"FAIL expected-pass: {label!r} -> {errors}", file=sys.stderr)
+        else:
+            if not any(expected in error for error in errors):
+                failures += 1
+                print(
+                    f"FAIL expected {expected!r}: {label!r} -> {errors}",
+                    file=sys.stderr,
+                )
+    total = len(SELFTEST_CASES)
+    if failures:
+        print(f"commit-msg selftest: {failures}/{total} cases FAILED", file=sys.stderr)
+        return 1
+    print(f"commit-msg selftest: {total}/{total} cases passed")
+    return 0
+
+
+def check_range(rev_range: str) -> int:
+    """Lint every commit message in a revision range (used by CI)."""
+    extra = load_extra_patterns()
+    listed = subprocess.run(
+        ["git", "rev-list", rev_range],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if listed.returncode != 0:
+        print(
+            f"commit-msg: cannot resolve range {rev_range!r}: "
+            f"{listed.stderr.strip()}",
+            file=sys.stderr,
+        )
+        return 2
+    revisions = listed.stdout.split()
+    bad = 0
+    for revision in revisions:
+        shown = subprocess.run(
+            ["git", "show", "-s", "--format=%B", revision],
+            capture_output=True,
+            check=True,
+        )
+        message = shown.stdout.decode("utf-8", errors="surrogateescape")
+        errors = lint(message, extra)
+        if errors:
+            bad += 1
+            report(errors, f"commit {revision[:12]}")
+    print(
+        f"commit-msg: checked {len(revisions)} commit message(s) in {rev_range}; "
+        f"{bad} rejected"
+    )
+    return 1 if bad else 0
+
+
+def main(argv: list[str]) -> int:
+    if len(argv) < 2:
+        print("commit-msg: missing message-file path", file=sys.stderr)
+        return 2
+    if argv[1] == "--selftest":
+        return selftest()
+    if argv[1] == "--check-range":
+        if len(argv) < 3:
+            print("commit-msg: --check-range needs a revision range", file=sys.stderr)
+            return 2
+        return check_range(argv[2])
+
+    path = Path(argv[1])
+    try:
+        message = read_message(path)
+    except OSError as exc:
+        print(f"commit-msg: cannot read {path}: {exc}", file=sys.stderr)
+        return 2
+    errors = lint(message, load_extra_patterns())
+    if errors:
+        report(errors, "the commit message")
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

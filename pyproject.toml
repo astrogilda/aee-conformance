@@ -20,6 +20,10 @@ generators = ["cryptography>=43"]
 dev = ["cryptography>=43", "mypy>=1.11", "ruff>=0.6"]
 
 [tool.mypy]
+# scripts/code-contract-gate.py imports the reference rail to drive its own
+# evaluator, so the rail's directory has to be importable when that gate is
+# checked on its own rather than alongside packaging/.
+mypy_path = "packaging"
 strict = true
 warn_return_any = true
 warn_unused_configs = true

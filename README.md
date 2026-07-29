@@ -28,21 +28,26 @@ the new line numbers in the same pass that copies the bytes.
 
 Two gates keep the references honest, because line numbers into a file that is
 periodically re-vendored rot by construction and a reference that points at the
-wrong prose reads as evidence. `scripts/spec-citation-gate.py` checks that every
-`spec:NNN` citation resolves to a line that carries text.
-`scripts/spec-anchor-gate.py` checks the `Lnnn` anchors used by the vector
-tables against [`spec/ANCHOR-PINS.json`](spec/ANCHOR-PINS.json), which records
-the text each anchor was drawn around, so an anchor that comes to address
-different prose fails rather than resolving quietly.
+wrong prose reads as evidence. `scripts/spec-citation-gate.py` covers the
+`spec:NNN` citations in the sources and `scripts/spec-anchor-gate.py` covers the
+`Lnnn` anchors in the vector tables. Both ask the same two questions, and the
+second is the one that matters: not only whether a reference still resolves to a
+line carrying text, which a stale number does perfectly well, but whether it
+still addresses the prose it was written for.
+[`spec/CITATION-PINS.json`](spec/CITATION-PINS.json) and
+[`spec/ANCHOR-PINS.json`](spec/ANCHOR-PINS.json) record the text each reference
+was drawn around, keyed by the thing doing the citing rather than by the line
+range, so a reference that comes to address different prose fails rather than
+resolving quietly. The shared machinery is `scripts/specpins.py`.
 
-That ledger is refreshed by the same command that re-vendors, which is the one
-operation that moves anchors, so it also has to be trustworthy across its own
-refresh. It refuses to record an anchor that came off prose the document still
-contains: upstream may rewrite a passage freely and the excerpt follows it, but a
-remap that simply lost track of a passage stops the vendoring and names what it
-lost. A move onto genuinely different prose is still allowed, one citation at a
-time and by name, because no gate can read a claim and judge which paragraph
-settles it.
+Both ledgers are refreshed by the same command that re-vendors, which is the one
+operation that moves references, so they also have to be trustworthy across
+their own refresh. A refresh refuses to record a reference that came off prose
+the document still contains: upstream may rewrite a passage freely and the
+excerpt follows it, but a remap that simply lost track of a passage stops the
+vendoring and names what it lost. A move onto genuinely different prose is still
+allowed, one citation at a time and by name, because no gate can read a claim
+and judge which paragraph settles it.
 
 ## Layout
 

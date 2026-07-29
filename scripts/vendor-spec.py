@@ -53,6 +53,22 @@ UPSTREAM_REPO = "in-toto/attestation"
 UPSTREAM_PR = 570
 
 
+# The gates that hold a content pin for one citation spelling. Each keeps its
+# own ledger, so one refusing does not leave the other half-written.
+SYNCED_GATES = (
+    "scripts/spec-citation-gate.py",
+    "scripts/spec-anchor-gate.py",
+)
+
+
+def resync(gate: str) -> bool:
+    """Rewrite one pin ledger, and report whether it agreed to."""
+    done = subprocess.run(
+        [sys.executable, str(REPO_ROOT / gate), "--sync"], check=False
+    )
+    return done.returncode == 0
+
+
 def git(checkout: Path, *args: str) -> str:
     """Run git in checkout and return stripped stdout, or exit with its error."""
     proc = subprocess.run(
@@ -144,30 +160,29 @@ def main() -> int:
     if moved_anchors:
         print(f"remapped {moved_anchors} Lnnn anchor(s) onto the new line numbers")
 
-    # Re-pin here rather than leaving it to the operator. The anchors rotted in
-    # the first place because keeping them current was a manual step beside an
-    # automatic one, and a ledger that has to be refreshed by hand is the same
-    # bet with an extra file in it.
+    # Re-pin here rather than leaving it to the operator. The citations rotted
+    # in the first place because keeping them current was a manual step beside
+    # an automatic one, and a ledger that has to be refreshed by hand is the
+    # same bet with an extra file in it.
     #
-    # The sync is allowed to refuse. It compares each moved anchor against the
-    # revision the ledger was pinned to and will not write an anchor that came
-    # off prose still present in the document, which is the shape a mis-aimed
-    # remap has. When it refuses, the spec is already vendored and the citations
-    # are already remapped; the anchors it names are corrected by hand and the
-    # sync run again, so re-vendoring stays one command in the ordinary case and
-    # stops at the point of doubt in the case that matters.
-    synced = subprocess.run(
-        [sys.executable, str(REPO_ROOT / "scripts" / "spec-anchor-gate.py"), "--sync"],
-        check=False,
-    )
-    if synced.returncode != 0:
+    # Both ledgers are synced, because both spellings are remapped above and a
+    # remap is exactly when a citation can come off its subject. A sync is
+    # allowed to refuse: it compares each moved citation against the revision
+    # its ledger was pinned to and will not write one that came off prose still
+    # present in the document, which is the shape a mis-aimed remap has. When it
+    # refuses, the spec is already vendored and both spellings are already
+    # remapped; the citations it names are corrected by hand and the sync run
+    # again, so re-vendoring stays one command in the ordinary case and stops at
+    # the point of doubt in the case that matters.
+    failed = [gate for gate in SYNCED_GATES if not resync(gate)]
+    if failed:
         print(
-            "\nFAIL: the spec is vendored and the citations are remapped, but the "
-            "anchor ledger was not written. Correct the anchors named above, then "
-            "run scripts/spec-anchor-gate.py --sync.",
+            "\nFAIL: the spec is vendored and both spellings are remapped, but "
+            f"{' and '.join(failed)} did not write its ledger. Correct the "
+            "citations named above, then run that script with --sync.",
             file=sys.stderr,
         )
-        return synced.returncode
+        return 1
 
     print("NORMATIVE CHANGE: regenerate the corpus, then run")
     print("  python3 vectors/gen_manifest.py")

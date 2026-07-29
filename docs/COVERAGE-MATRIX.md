@@ -24,16 +24,16 @@ exactly where "two implementations agree" is untested rather than confirmed.
 
 | decision | spec anchor | forcing vectors |
 |---|---|---|
-| D1 Referenced-record validity vs covers-nothing (two altitudes) | L373-398, L391-394, L863-866, L884-885 | `bad-205-payload-missing-runbinding`, `bad-206-payload-missing-kind`, `bad-207-payload-missing-method`, `bad-201-payload-unsorted-keys`, `bad-301-run-binding-splice`, `bad-701-arming-missing-armedat`, `bad-704-arming-method-reconstructed`, `bad-712-examination-method-intercepted`, `bad-714-unknown-kind-sole-cover` |
-| D2 Method cap over covering records; unknown-kind and non-covering records excluded | L396-397, L969-970 | `bad-304-method-cap-multirecord`, `bad-302-method-inflation`, `ok-030-method-min-multirecord`, `ok-013-unknown-kind-extra-record`, `ok-035-unknown-kind-excluded-from-cap` |
-| D3 Duplicate records by leaf hash | L1011-1013 | `bad-405-duplicate-records` |
+| D1 Referenced-record validity vs covers-nothing (two altitudes) | L373-398, L391-394, L863-866, L884-887 | `bad-205-payload-missing-runbinding`, `bad-206-payload-missing-kind`, `bad-207-payload-missing-method`, `bad-201-payload-unsorted-keys`, `bad-301-run-binding-splice`, `bad-701-arming-missing-armedat`, `bad-704-arming-method-reconstructed`, `bad-712-examination-method-intercepted`, `bad-714-unknown-kind-sole-cover` |
+| D2 Method cap over covering records; unknown-kind and non-covering records excluded | L396-397, L971-972 | `bad-304-method-cap-multirecord`, `bad-302-method-inflation`, `ok-030-method-min-multirecord`, `ok-013-unknown-kind-extra-record`, `ok-035-unknown-kind-excluded-from-cap` |
+| D3 Duplicate records by leaf hash | L1013-1015 | `bad-405-duplicate-records` |
 | D4 Fail-closed vs malformed row members | L428-431, L663-666, L815-822 | `bad-501-substrate-unknown-method`, `bad-504-substrate-oov-label`, `bad-505-substrate-missing-method`, `bad-506-actuallayer-json-number` |
 | D5 Clean-row actualLayer 'none' on every basis | L822-824 | `bad-503-clean-row-layer-not-none`, `bad-818-artifact-clean-row-layer-not-none` |
 | D6 Coverage completeness at class + attack granularity; assessed classes are real manifest classes | L458-461, L514-521, L565-568 | `bad-816-coverage-class-dropped`, `bad-819-assessed-class-not-in-manifest`, `bad-806-coverage-attack-omitted`, `bad-807-coverage-attack-superset`, `bad-805-row-unknown-attackid` |
 | D7 Binding-version detection: derived mismatch and explicit read-first declaration | L196-200, L203-210 | `bad-303-binding-version-1`, `bad-726-arming-binding-version-carried` |
 | D8 One timestamp profile on both fields: RFC 3339, uppercase designators, zero UTC offset; armedAt no later than issuedAt | L870-871, L1044-1046 | `bad-701-arming-missing-armedat`, `bad-702-armedat-after-issuedat`, `bad-810-missing-issuedat`, `bad-811-issuedat-not-rfc3339`, `bad-727-armedat-non-utc-offset`, `bad-750-armedat-lowercase-separator`, `bad-751-armedat-lowercase-zone-designator`, `bad-820-issuedat-non-utc-offset`, `bad-821-issuedat-lowercase-separator`, `bad-822-issuedat-lowercase-zone-designator`, `ok-038-issuedat-negative-zero-offset`, `ok-039-armedat-negative-zero-offset` |
 | D9 Strict, canonical base64 for record payloads | L845-863 | `bad-817-payload-noncanonical-base64` |
-| D10 Evidence tier per row over covering records; DSSE any-signature-verifies; keyid never the check | L433-448, L1096-1098 | `ok-024-mixed-basis-rows`, `ok-019-wrong-keyid-sig-verifies`, `ok-020-non-pae-signature`, `ok-023-no-tofu-embedded-key` |
+| D10 Evidence tier per row over covering records; DSSE any-signature-verifies; keyid never the check | L433-448, L1098-1100 | `ok-024-mixed-basis-rows`, `ok-019-wrong-keyid-sig-verifies`, `ok-020-non-pae-signature`, `ok-023-no-tofu-embedded-key` |
 | D11 Whole statement parsed as strict I-JSON | L83-91 | `bad-725-statement-duplicate-member` |
 | D12 Subject cardinality is unconditional (one subject on a statement of any basis) | L185-189 | `bad-607-two-subjects-substrate`, `bad-728-artifact-two-subjects` |
 | D13 Duplicate attackId rows are malformed (one row per executed attack) | L529-542 | `bad-729-duplicate-attackid-rows` |

@@ -146,7 +146,7 @@ carries the authoritative id-to-spec-line table.
 | aee-c-82 | L531-534 | coverage exactly equals the manifest at attack granularity |
 | aee-c-83 | L480-484 | coverage member required |
 | aee-c-84 | L988-998 | doesNotAssert single canonical spelling |
-| aee-c-85 | L1000-1002 | issuedAt required, RFC 3339 |
+| aee-c-85 | L1000-1002 | issuedAt required, under the Timestamp profile |
 | aee-c-86 | L133-146 | vocabulary labels/caught entries BMP-only; a supplementary-plane entry is malformed |
 | aee-c-87 | L133-146 | covering payload member names BMP-only; a supplementary-plane name covers nothing |
 | aee-c-88 | L495-501 | row members are strictly typed; a wrong-JSON-type member is a malformed statement |
@@ -155,7 +155,7 @@ carries the authoritative id-to-spec-line table.
 | aee-c-91 | L798-800 | each observation record's signatures member carries at least one entry |
 | aee-c-92 | L536-559 | the corpus manifest declares at least one attack identifier across all of its classes |
 
-## Vectors (122)
+## Vectors (127)
 
 `parent` names the accept-suite shape the vector derives from (the
 accept vectors land separately; the parent statements are built
@@ -287,6 +287,11 @@ so the declared fault stays the ONLY fault.
 | `bad-813-missing-corpus` | ok-007 | drop corpus | - | aee-c-78 | `environment-incomplete` | L450-457 |
 | `bad-814-missing-substrate` | ok-007 | drop substrate | - | aee-c-78 | `environment-incomplete` | L450-454 |
 | `bad-815-wrong-statement-type` | ok-002 | _type is not the in-toto Statement/v1 URI | - | aee-c-77 | `statement-type-unsupported` | L237 |
+| `bad-750-armedat-lowercase-separator` | ok-002 | arming armedAt: "2025-12-31t23:59:00Z" (lowercase date-time separator) | re-sign-record, recompute-batch-root | aee-c-63 | `arming-covers-nothing` | L823-828 |
+| `bad-751-armedat-lowercase-zone-designator` | ok-002 | arming armedAt: "2025-12-31T23:59:00z" (lowercase zone designator) | re-sign-record, recompute-batch-root | aee-c-63 | `arming-covers-nothing` | L823-828 |
+| `bad-820-issuedat-non-utc-offset` | ok-007 | issuedAt: "2026-01-01T05:00:00+05:00" (a non-zero UTC offset) | - | aee-c-85 | `issued-at-malformed` | L1000-1002 |
+| `bad-821-issuedat-lowercase-separator` | ok-007 | issuedAt: "2026-01-01t00:00:00Z" (lowercase date-time separator) | - | aee-c-85 | `issued-at-malformed` | L1000-1002 |
+| `bad-822-issuedat-lowercase-zone-designator` | ok-007 | issuedAt: "2026-01-01T00:00:00z" (lowercase zone designator) | - | aee-c-85 | `issued-at-malformed` | L1000-1002 |
 
 ## Notes on specific vectors
 
@@ -365,6 +370,11 @@ so the declared fault stays the ONLY fault.
 - **bad-817-payload-noncanonical-base64**: encoding-layer divergence: Go decodes with StdEncoding.Strict() and the Python rail re-encode-compares, so both reject; a lenient decoder would accept. The stale signature and batch root are unreachable because a decode failure short-circuits both checks (validity.go:120).
 - **bad-809-snake-case-doesnotassert**: single-canonicalization rule: no alias.
 - **bad-810-missing-issuedat**: artifact-only parent: no armedAt comparison cascade.
+- **bad-750-armedat-lowercase-separator**: the parent's instant with the separator lowercased. The profile is uppercase and this was already a rejection before the profile was written down, since the clause names Z and +00:00 and admits no lowercase spelling; the Python reference rail accepted it anyway, which is the divergence this vector exists to hold shut.
+- **bad-751-armedat-lowercase-zone-designator**: the separator's twin: the other half of the case rule, isolated so a rail that enforces the case of one designator and not the other is caught. Distinct from bad-727 (a non-zero offset), which is the zone half of the same profile.
+- **bad-820-issuedat-non-utc-offset**: the parent's instant at a non-zero offset. issuedAt is typed as the framework Timestamp, which requires the UTC timezone, so a valid instant in a non-UTC spelling is malformed. The counterpart on the arming record is bad-727, which every rail rejected while every rail accepted this one.
+- **bad-821-issuedat-lowercase-separator**: the spelling the Go reference rail refused and the Python reference rail accepted with result pass, an accept-on-one reject-on-another split inside one repository that no vector reached.
+- **bad-822-issuedat-lowercase-zone-designator**: the separator's twin on the predicate field, isolated for the same reason as bad-751: a rail enforcing the case of one designator and not the other passes every both-lowercase mutant.
 
 ## Compound vectors and precedence pins
 

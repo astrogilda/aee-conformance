@@ -10,11 +10,36 @@ package aee
 
 import (
 	"bytes"
+	"errors"
 	"sort"
 	"time"
 )
 
 const rejectedSnakeCaseSpelling = "does_not_assert"
+
+var errTimestampOffset = errors.New("zone designator is not a zero UTC offset")
+
+// parseTimestamp parses a value carried under the predicate's Timestamp field
+// type: RFC 3339 with uppercase designators and a zero UTC offset (spec:822).
+// time.RFC3339 already refuses the lowercase `t` and `z` RFC 3339 also admits,
+// and it accepts any numeric offset, so the zone is the half that has to be
+// checked here. `Z`, `+00:00` and `-00:00` all report a zero offset, which is
+// the admitted set.
+//
+// Both timestamps the predicate carries run through this one function. The
+// profile used to be written on armedAt alone and checked at that call site
+// alone, which left issuedAt admitting `+05:00` on every rail while the same
+// instant was refused a few fields away.
+func parseTimestamp(v string) (time.Time, error) {
+	t, err := time.Parse(time.RFC3339, v)
+	if err != nil {
+		return time.Time{}, err
+	}
+	if _, off := t.Zone(); off != 0 {
+		return time.Time{}, errTimestampOffset
+	}
+	return t, nil
+}
 
 // Gate0 evaluates statement well-formedness and returns every violation
 // found, in a pinned deterministic order (the first code is the primary
@@ -122,7 +147,7 @@ func Gate0(s *Statement) []Code {
 	// 13. issuedAt (spec:924-926).
 	if !p.IssuedAtPresent {
 		codes = appendCode(codes, CodeIssuedAtMissing)
-	} else if _, err := time.Parse(time.RFC3339, p.IssuedAt); err != nil {
+	} else if _, err := parseTimestamp(p.IssuedAt); err != nil {
 		codes = appendCode(codes, CodeIssuedAtMalformed)
 	}
 

@@ -85,7 +85,7 @@ import subprocess
 import sys
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 
 AEE_PREDICATE_TYPE = (
@@ -98,7 +98,7 @@ KEY_ROLES = ("substrate-observation-test", "wrong-signer-test", "statement-test"
 PINNED_ROLE = "substrate-observation-test"
 
 RFC3339_RE = re.compile(
-    r"^\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}:\d{2}(\.\d+)?([Zz]|[+-]\d{2}:\d{2})$"
+    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$"
 )
 HEX64_RE = re.compile(r"^[0-9a-f]{64}$")
 
@@ -792,23 +792,35 @@ def _digest_of(obj: Any) -> Any:
     return None
 
 
-def _rfc3339_ok(v: Any) -> bool:
-    return isinstance(v, str) and bool(RFC3339_RE.match(v))
+def _timestamp_ok(v: Any) -> bool:
+    """Whether a value is carried under the predicate's Timestamp field type.
 
+    The type requires RFC 3339 in the UTC timezone; the predicate pins the two
+    choices that type leaves open (spec:822), and the two are checked separately
+    because they are separate rules. The pattern carries the case half: an
+    uppercase separator and zone designator, never the lowercase `t` and `z`
+    RFC 3339 also admits. The pattern accepts any numeric offset, so the zone
+    half is the test below, and it reads the parsed offset rather than the
+    literal suffix: a suffix test spelled `endswith("Z", "+00:00", "-00:00")`
+    admits exactly the same strings and would also reject a lowercase `z`, so
+    it would quietly stand in for the case rule and leave that rule untested.
 
-def _armed_utc_offset_ok(v: Any) -> bool:
-    """armedAt MUST carry a zero UTC offset (spec: "RFC 3339 UTC"). The shared
-    RFC3339 pattern accepts any numeric offset (issuedAt only needs to be a
-    valid instant), so armedAt is checked separately: Z or +/-00:00 only."""
-    if not isinstance(v, str):
+    Both timestamps the predicate carries run through this one function. The
+    zone rule used to be written on armedAt alone and applied at that call site
+    alone, so issuedAt admitted `+05:00` while the same instant was refused a
+    few fields away, and the case rule was written on neither field, so this
+    rail accepted a lowercase designator four sibling rails rejected.
+    """
+    if not isinstance(v, str) or not RFC3339_RE.match(v):
         return False
-    return v[-1:] in ("Z", "z") or v.endswith(("+00:00", "-00:00"))
+    key = _rfc3339_key(v)
+    return key is not None and key.utcoffset() == timedelta(0)
 
 
 def _rfc3339_key(v: str) -> datetime | None:
-    """Comparable key for RFC 3339 instants (suite uses UTC 'Z' timestamps)."""
+    """Comparable key for a carried Timestamp."""
     s = v.strip()
-    if s.endswith(("z", "Z")):
+    if s.endswith("Z"):
         s = s[:-1] + "+00:00"
     try:
         return datetime.fromisoformat(s)
@@ -905,12 +917,10 @@ class ReferenceVerifier:
     def _arming_ok(self, rv: RecordView, pinned_posture: Any, issued_at: Any) -> bool:
         p = rv.payload or {}
         armed = p.get("armedAt")
-        if not _rfc3339_ok(armed):
+        if not _timestamp_ok(armed):
             return False
-        if not _armed_utc_offset_ok(armed):
-            return False
-        if _rfc3339_ok(issued_at):
-            # armed/issued_at each passed _rfc3339_ok above, so both are
+        if _timestamp_ok(issued_at):
+            # armed/issued_at each passed _timestamp_ok above, so both are
             # strings here; an absent/None timestamp yields a None key and is
             # skipped for ordering exactly as a malformed one is (never crash,
             # never silently accept -- absence was already rejected above).
@@ -1079,7 +1089,7 @@ class ReferenceVerifier:
         issued_at = pred.get("issuedAt")
         if issued_at is None:
             out.add("issued-at-missing")
-        elif not _rfc3339_ok(issued_at):
+        elif not _timestamp_ok(issued_at):
             out.add("issued-at-malformed")
         st.issued_at = issued_at
 

@@ -120,5 +120,5 @@ jobs:
         run: python3 scripts/code-contract-gate.py
       - name: requirement-coverage matrix is current
         run: python3 scripts/coverage-matrix-gate.py --check
-      - name: replay every vector on the Python rail (must be 158/158)
+      - name: replay every vector on the Python rail (must be 165/165)
         run: python3 packaging/run_vectors.py

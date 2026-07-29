@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://github.com/astrogilda/aee-conformance/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/astrogilda/aee-conformance/ci.yml?branch=main&label=build" alt="build status"></a>
   <img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="license Apache-2.0">
-  <img src="https://img.shields.io/badge/conformance%20vectors-158-e8951c" alt="158 conformance vectors">
+  <img src="https://img.shields.io/badge/conformance%20vectors-165-e8951c" alt="165 conformance vectors">
   <img src="https://img.shields.io/badge/rails-Go%20%C2%B7%20Python-546274" alt="Go and Python rails">
   <img src="https://img.shields.io/badge/predicate-in--toto%20AEE%20v0.6-6f57c2" alt="in-toto AEE v0.6 predicate">
 </p>
@@ -277,13 +277,15 @@ directed 153/153 says the corrected rule is implementable by someone who has onl
 the text. It is not the same evidence as 125/125 and this suite does not present
 it as such.
 
-It has not been run against suiteRevision 7, 8 or 9, so this suite publishes no
-score for it at any of the three. The single suiteRevision-7 vector (`bad-745`)
+It has not been run against suiteRevision 7, 8, 9 or 10, so this suite publishes
+no score for it at any of the four. The single suiteRevision-7 vector (`bad-745`)
 and the two suiteRevision-8 vectors (`bad-746`, `bad-747`) test requirements the
-specification gained after its last run, and the two suiteRevision-9 vectors
+specification gained after its last run, the two suiteRevision-9 vectors
 (`bad-748`, `bad-749`) pin the precedence and the wrong-type spelling of the
-requirement `bad-745` carries. It keeps its own authorship, history, and CI. The
-link is pinned to the build that recorded the 153/153 run.
+requirement `bad-745` carries, and the seven suiteRevision-10 vectors (`bad-750`,
+`bad-751`, `bad-820`, `bad-821`, `bad-822`, `ok-038`, `ok-039`) carry a
+timestamp profile the specification gained in the same revision. It keeps its own authorship, history,
+and CI. The link is pinned to the build that recorded the 153/153 run.
 
 That one reading has already earned its keep, twice. The specification did not
 pin a maximum JSON nesting depth, so all five of my rails chose 128 and agreed at

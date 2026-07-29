@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 158,
-    "pass": 158,
+    "vectors": 165,
+    "pass": 165,
     "fail": 0
   },
   "notes": [],
@@ -871,6 +871,54 @@
     {
       "id": "ok-036-payload-nesting-at-bound",
       "file": "vectors/accept/ok-036-payload-nesting-at-bound.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "result": "pass"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "ok-038-issuedat-negative-zero-offset",
+      "file": "vectors/accept/ok-038-issuedat-negative-zero-offset.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "result": "pass"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "ok-039-armedat-negative-zero-offset",
+      "file": "vectors/accept/ok-039-armedat-negative-zero-offset.json",
       "kind": "accept",
       "status": "PASS",
       "gates": {
@@ -3803,6 +3851,62 @@
       "reasons": []
     },
     {
+      "id": "bad-750-armedat-lowercase-separator",
+      "file": "vectors/reject/bad-750-armedat-lowercase-separator.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-751-armedat-lowercase-zone-designator",
+      "file": "vectors/reject/bad-751-armedat-lowercase-zone-designator.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
       "id": "bad-801-wrong-predicatetype",
       "file": "vectors/reject/bad-801-wrong-predicatetype.json",
       "kind": "reject",
@@ -4333,6 +4437,90 @@
         "verdict": "invalid",
         "codes": [
           "coverage-incomplete"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-820-issuedat-non-utc-offset",
+      "file": "vectors/reject/bad-820-issuedat-non-utc-offset.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "issued-at-malformed"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "issued-at-malformed"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-821-issuedat-lowercase-separator",
+      "file": "vectors/reject/bad-821-issuedat-lowercase-separator.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "issued-at-malformed"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "issued-at-malformed"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-822-issuedat-lowercase-zone-designator",
+      "file": "vectors/reject/bad-822-issuedat-lowercase-zone-designator.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "issued-at-malformed"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "issued-at-malformed"
         ]
       },
       "inManifest": true,

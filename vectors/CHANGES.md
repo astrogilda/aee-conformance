@@ -5,6 +5,80 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 10 (one timestamp profile, cited from both fields that carry it)
+
+- Corpus: **165 vectors (38 accept, 127 reject)**. Five rejects and two accepts
+  for a rule the predicate now states once and cites twice.
+- **What was wrong.** `armedAt` was pinned to a zero UTC offset and `issuedAt`
+  was typed only as a lowercase "RFC 3339 timestamp", so a statement carrying
+  `"issuedAt": "2026-01-01T05:00:00+05:00"` was conformant and off-guideline at
+  the same time, and all five rails accepted it there while refusing the same
+  instant on the pinned field. The sentence that left the offset open also left
+  the case of the RFC 3339 designators open, and there the rails had already
+  parted: `"issuedAt": "2026-01-01t00:00:00z"` was refused by the Go reference
+  rail with `issued-at-malformed` and accepted by the Python reference rail with
+  zero codes and `result: pass`, an accept-on-one reject-on-another split inside
+  this repository, on the rail a third party runs standalone. No vector reached
+  it.
+- **The fix is a type adoption, not a new rule.** The framework's `Timestamp`
+  field type already requires RFC 3339 in the UTC timezone, and the predicate's
+  protobuf already typed `issued_at` as `google.protobuf.Timestamp`; only the
+  markdown was looser than both. The amended field entry types `issuedAt` as
+  `Timestamp` and states on it the two choices that type leaves open, and the
+  arming record cites the profile instead of restating half of it.
+- **Lowercase designators are not conformant.** The pinned field named `Z` and
+  `+00:00` and lowercase `z` is neither, so the Python reference rail was
+  already non-conformant against text that predates this revision. Its
+  `RFC3339_RE` carried `[Tt]` and `[Zz]`; the character classes are narrowed to
+  `T` and `Z`, and the zero-offset test folds into the same parse, so both
+  timestamps run through one function on every rail.
+- **Each half of the profile is tested by the half of the code that carries
+  it.** Four rails expressed the zero-offset rule as a suffix test,
+  `endswith("Z", "+00:00", "-00:00")`, which admits exactly the strings a
+  zero-offset test admits and also refuses a lowercase `z` on the way past. That
+  is a check reading more than it says: with it in place, no lowercase mutant
+  can distinguish a rail that enforces the case rule from one that does not, and
+  the case rule would have shipped untestable. Each of the four now reads the
+  parsed offset instead, which is the shape the Go rail already had, so the
+  pattern owns the case and the offset owns the zone. The corpus follows the
+  same split: one lowercase vector per designator per field rather than one
+  carrying both lowercased, since a both-lowercase mutant stays rejected however
+  the case rule is written.
+- **`-00:00` is conformant, and the reason is written into the specification so
+  it is not rediscovered.** RFC 3339 section 4.3 gives `-00:00` the distinct
+  meaning that the instant in UTC is known while the offset to local time is
+  not. That is a statement about where the producer stood, not about when it
+  signed, and the instant is the only thing this predicate reads from either
+  field. All five rails already accepted it; excluding it would have cost five
+  changes to gain nothing, and it went unnamed in every document, which is how
+  it stayed untested.
+- **The vectors.** `bad-820-issuedat-non-utc-offset`,
+  `bad-821-issuedat-lowercase-separator` and
+  `bad-822-issuedat-lowercase-zone-designator` derive from `ok-007`, the parent
+  the rest of the `issuedAt` block already uses, so the whole block derives from
+  one statement. `bad-750-armedat-lowercase-separator` and
+  `bad-751-armedat-lowercase-zone-designator` derive from `ok-002` and are the
+  case half of the rule `bad-727` carries the zone half of.
+  `ok-038-issuedat-negative-zero-offset` and
+  `ok-039-armedat-negative-zero-offset` carry the spelling the profile admits
+  and the old sentence never named, so a rail reading "zero offset" as "`Z` or
+  `+00:00` only" is caught by the suite rather than by a third party. Each
+  mutant names the same instant as its parent, so ordering and every digest
+  input are unchanged and the spelling is the only variable.
+- **No new failure code.** Both `issuedAt` rejections report
+  `issued-at-malformed`, which `aee-c-85` already covers whole, following the
+  precedent `bad-727` set when an offset violation folded into the field's
+  existing code. A distinct code would change the reason map an external checker
+  keys on and buy a verifier nothing it could not already conclude.
+- **Vendoring sequence.** The corpus is written against the amended `issuedAt`
+  entry, which is upstream and not yet in a commit, so the vendored copy under
+  `spec/` still carries the pre-amendment wording and the pin still names
+  `b9a585a`. `spec/ANCHOR-PINS.json` therefore records the pre-amendment excerpt
+  against the `bad-820`, `bad-821` and `bad-822` claims. Re-vendor with
+  `scripts/vendor-spec.py` once the upstream commit lands: it remaps the anchors
+  and re-pins them in the same pass, and the excerpts then describe the rule the
+  vectors were drawn against.
+
 ## suiteRevision 9 (one condition, three spellings, and a fixed precedence)
 
 - Corpus: **158 vectors (36 accept, 122 reject)**. specDigest unchanged at

@@ -69,7 +69,7 @@ digest is pinned and CI-checked (`scripts/spec-drift-gate.py`).
 |---|---|---|---|---|
 | Reference rail (`aee/`) | Go | spec author | reference corpus, suiteRevision 9 | **158 / 158** |
 | Reference rail (`packaging/run_vectors.py`) | Python | spec author | reference corpus, suiteRevision 9 | **158 / 158** |
-| `Rul1an/aee-checker` | Rust | **independent, from-spec text alone** | author-run suiteRevision 5 (149), 2026-07-28 (aee-checker#3); suiteRevisions 6 through 9 not run by its author | **149 / 149** at suiteRevision 5; suiteRevisions 6 through 9 not run by author (see note 1) |
+| `Rul1an/aee-checker` | Rust | **independent, from-spec text alone** | author-run suiteRevision 6 (153), 2026-07-28 (aee-checker#4); suiteRevisions 7 through 9 not run by its author | **153 / 153** at suiteRevision 6, directed; **125 / 125** blind at suiteRevision 1; suiteRevisions 7 through 9 not run by author (see note 1) |
 | `ts-verify` | TypeScript | spec author | its vendored set (153 vectors) + cross-rail parity tests | pass (see note 2) |
 | `py-verify` | Python | spec author | its vendored set (153 vectors) + parity tests | pass (see note 2) |
 | MCP server rail `_aee.py` | Python | spec author | its vendored set (153 vectors) + parity tests | pass (see note 2) |
@@ -95,11 +95,13 @@ the **suiteRevision-5** byte-level tier (`bad-733` through `bad-741`) at 149/149
 once it adopted the normative depth bound and moved its counter into the container
 branch (aee-checker#3, 2026-07-28). That is one independent reading of each era so
 far, corroborated by the first-party rails rather than the other way round. The
-**suiteRevision-6** additions — the two depth-boundary vectors and the two
-noncharacter vectors below — post-date that run, so those readings currently have
-no independent confirmation and are covered by first-party rails alone; the
-noncharacter pair in particular exercises a rule the checker's author has flagged
-as not yet implemented on his side. The single **suiteRevision-7** addition
+**suiteRevision-6** additions, the two depth-boundary vectors and the two
+noncharacter vectors below, have since been run as well, at 153/153
+(aee-checker#4, 2026-07-28), but that run is directed in its author's own account:
+the rule was written and the vectors named before his checker ran. It is evidence
+that the corrected rule is implementable by a reader who has only the text, and it
+is not evidence that a second reader arrived at the rule. The two readings should
+not be added together. The single **suiteRevision-7** addition
 (`bad-745`, an observation record carrying zero `signatures` entries) and the two
 **suiteRevision-8** additions (`bad-746` and `bad-747`, a corpus manifest
 declaring no attack identifier in either of its two spellings) test requirements
@@ -130,30 +132,42 @@ vector's status.
    suiteRevision 2 the unchanged build scored 132/138 and a spec-diff-led update
    reached 138/138 — the six diverging vectors were exactly the round-7 changes (two
    of which were defects in the checker, the rest spec-boundary adoptions). At
-   suiteRevision 3 the same build cleared 140/140. The author is explicit that every
-   pass after the first was not blind (the changelog was read before implementing),
-   unlike the 125/125.
+   suiteRevision 3 the same build cleared 140/140, on a first run against those
+   vectors with no change made for them: its rule for the reason-map side came from
+   the spec text and predates them, so the two met rather than one driving the
+   other. The author is explicit that the suiteRevision-2 pass was not blind, since
+   the changelog was read before implementing, unlike the 125/125.
 
-   **His last author-run is suiteRevision 5 at 149/149 (2026-07-28, aee-checker#3).**
-   The suiteRevision-5 vector `bad-741-payload-nesting-exceeds-max-depth` had pinned
-   the nesting bound at 128 where his build read 256; he adopted 128 and, rather than
-   only move the constant, moved his depth increment from per parsed value into the
-   container branch, which is the counting rule the spec states next to the bound.
-   **He has not run suiteRevision 6, 7, 8 or 9, so this
-   report publishes no score for him at any of the four.** What we can say, in our own voice
-   and not his: two of the four suiteRevision-6 vectors (`bad-743`, `bad-744`)
-   require rejecting the Unicode
-   noncharacters RFC 7493 section 2.1 forbids, and he has stated his checker does not
-   yet implement that check, so we would expect it to answer valid where the
-   reference rails answer invalid on those two — a rule difference we derived, not a
-   run he produced, and not a score we will report as his. The other two are the
-   depth-boundary pair his own container-branch fix already handles; the single
-   suiteRevision-7 vector (`bad-745`) and the two suiteRevision-8 vectors
-   (`bad-746`, `bad-747`) test requirements the specification gained after his last
-   run, and the two suiteRevision-9 vectors (`bad-748`, `bad-749`) pin the
-   precedence and the wrong-type spelling of the requirement `bad-745` carries.
-   His suiteRevision-6 through suiteRevision-9 cells are "not run
-   by author" until he posts a record and its source digest.
+   At suiteRevision 5 he scored 149/149 (aee-checker#3). The vector
+   `bad-741-payload-nesting-exceeds-max-depth` had pinned the nesting bound at 128
+   where his build read 256; he adopted 128 and, rather than only move the constant,
+   moved his depth increment from per parsed value into the container branch, which
+   is the counting rule the spec states next to the bound.
+
+   **His last author-run is suiteRevision 6 at 153/153 (2026-07-28,
+   aee-checker#4)**, 36/36 accepts and 117/117 rejects, on a record naming checker
+   source `sha256:1c3e2e78` and suite commit `7098f4e`, and it is the revision his
+   CI now verifies continuously. His unchanged revision-5 build scored 151/153
+   against it: the depth-boundary pair `ok-036` and `bad-742` passed on the counter
+   he had already moved, and `bad-743` and `bad-744` did not, because that build had
+   not implemented the RFC 7493 section 2.1 noncharacter exclusion the revision makes
+   normative. He records the run as directed and the wording is his: "the rule was
+   written and the vectors named before this checker ran, so what it demonstrates is
+   that the corrected rule is implementable from the text, not that an independent
+   reader found it." This report carries that unsoftened. The two figures that carry
+   unprompted evidence remain the blind 125/125 at suiteRevision 1 and the first-run
+   140/140 at suiteRevision 3; no other figure here may be described that way.
+
+   **He has not run suiteRevision 7, 8 or 9, so this report publishes no score for
+   him at any of the three.** The single suiteRevision-7 vector (`bad-745`) and the
+   two suiteRevision-8 vectors (`bad-746`, `bad-747`) test requirements the
+   specification gained after his last run, and the two suiteRevision-9 vectors
+   (`bad-748`, `bad-749`) pin the precedence and the wrong-type spelling of the
+   requirement `bad-745` carries. His suiteRevision-7 through suiteRevision-9 cells
+   are "not run by author" until he posts a record and its source digest. An
+   earlier edition of this note carried our own derived expectation for `bad-743`
+   and `bad-744`; his run has replaced it, which is the outcome a derived
+   expectation should always have.
 2. **The consumer rails carry the suiteRevision-6 corpus.** The TypeScript rail,
    the standalone Python rail and the MCP server rail each vendor all 153 vectors of
    suiteRevision 6 byte-for-byte (`VENDOR-STAMP.json` pins the source spec digest,

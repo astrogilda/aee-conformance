@@ -79,10 +79,10 @@ byte-identically from the generators.
   count moved back inside the decode loop, `bad-748` is the only failing vector
   and fails as "primary code record-undecodable not in expected set". Each
   vector goes red for exactly the divergence it was written for.
-- **Independent checker status.** `Rul1an/aee-checker`'s last author-run remains
-  **suiteRevision 5 at 149/149** (2026-07-28, aee-checker#3). It has not run
-  suiteRevision 6, 7, 8 or 9, so this suite publishes no score for it at any of
-  the four.
+- **Independent checker status.** `Rul1an/aee-checker`'s last author-run is
+  **suiteRevision 6 at 153/153** (2026-07-28, aee-checker#4), a run its author
+  records as directed. It has not run suiteRevision 7, 8 or 9, so this suite
+  publishes no score for it at any of the three.
 
 ## suiteRevision 8 (a corpus that declares no attack is not a corpus)
 
@@ -142,10 +142,10 @@ byte-identically from the generators.
   Verified by mutation: with the Python check disabled, `bad-746` and
   `bad-747` are the only failing vectors of the 156 and both fail as "expected
   invalid, observed valid" -- the pre-fix bypass, reproduced.
-- **Independent checker status.** `Rul1an/aee-checker`'s last author-run
-  remains **suiteRevision 5 at 149/149** (2026-07-28, aee-checker#3). It has
-  not run suiteRevision 6, suiteRevision 7 or suiteRevision 8, so this suite
-  publishes no score for it at any of the three.
+- **Independent checker status.** `Rul1an/aee-checker`'s last author-run is
+  **suiteRevision 6 at 153/153** (2026-07-28, aee-checker#4). It has not run
+  suiteRevision 7 or suiteRevision 8, so this suite publishes no score for it at
+  either revision.
 
 ## suiteRevision 7 (a record must carry a signature to be a record)
 
@@ -188,10 +188,9 @@ byte-identically from the generators.
   valid where Go answered invalid. Verified by mutation: with the Python check
   disabled, `bad-745` is the only failing vector of the 154 and fails as
   "expected invalid, observed valid".
-- **Independent checker status.** `Rul1an/aee-checker`'s last author-run remains
-  **suiteRevision 5 at 149/149** (2026-07-28, aee-checker#3). It has not run
-  suiteRevision 6 and has not run suiteRevision 7, so this suite publishes no
-  score for it at either revision.
+- **Independent checker status.** `Rul1an/aee-checker`'s last author-run is
+  **suiteRevision 6 at 153/153** (2026-07-28, aee-checker#4). It has not run
+  suiteRevision 7, so this suite publishes no score for it at this revision.
 
 ## suiteRevision 6 (the depth boundary and the noncharacter exclusion)
 
@@ -231,16 +230,27 @@ byte-identically from the generators.
   vocabulary label (statement position); `bad-744` carries it in a payload value.
   Every rail now rejects noncharacters wherever a string literal appears, at any
   depth and in both member-name and value position.
-- **Independent checker status.** `Rul1an/aee-checker` reached **149/149 on
-  suiteRevision 5** (2026-07-28, aee-checker#3): it adopted the 128 bound and,
-  rather than only move the constant, moved its depth increment into the container
-  branch, which resolves the 148/149 note recorded under revision 5 below. It has
-  not run suiteRevision 6. Its author has stated the checker does not yet reject
-  noncharacters, so on `bad-743`/`bad-744` we would expect it to answer valid
-  where the reference rails answer invalid until it adds that check — a rule
-  difference derived from his own note, not a run he produced, and not reported as
-  his score. The two depth-boundary vectors his container-branch fix already
-  handles.
+- **Independent checker status.** `Rul1an/aee-checker` reached **153/153 on this
+  revision** (2026-07-28, aee-checker#4), 36/36 accepts and 117/117 rejects, on a
+  record naming checker source `sha256:1c3e2e78` and suite commit `7098f4e`. It
+  is the revision his CI now verifies continuously. The unchanged revision-5
+  build scored 151/153 against it: `ok-036` and `bad-742` passed on the
+  container-branch counter already in place, and `bad-743` and `bad-744` did not,
+  because that build had not implemented the RFC 7493 section 2.1 noncharacter
+  exclusion this revision makes normative. His own reading of the run is that it
+  is directed, and it is his to give: "the rule was written and the vectors named
+  before this checker ran, so what it demonstrates is that the corrected rule is
+  implementable from the text, not that an independent reader found it." A
+  previous edition of this bullet carried our own derived expectation for
+  `bad-743`/`bad-744`, which the run has now replaced. The revision-5 fix that
+  precedes this one also retires the 148/149 note recorded under revision 5
+  below: with the bound at 128, no vector fails that checker for a bound
+  difference.
+- **Note on reproducing the record.** The suite commit the record names,
+  `7098f4e`, no longer resolves in a fresh clone of this repository: its history
+  was rewritten here after he pinned it. `8959bd3` carries the identical tree and
+  therefore the identical 153 vectors, and is where a reproduction should point
+  until the record is repinned.
 
 ## suiteRevision 5 (byte-level tier: the quadrant that had no coverage)
 
@@ -271,13 +281,15 @@ byte-identically from the generators.
   and skips the derived-commitment self-check when it was not, since every
   digest recomputed from a lossy reconstruction would mismatch for the
   substitution rather than for a second fault.
-- **`bad-741` currently fails the independent from-spec checker, and that is
-  the point.** On identical bytes the reference rails answer invalid and
-  `Rul1an/aee-checker` answers **valid**, because its bound is 256 and the
-  bound is now normative at 128. The 127-depth divergence recorded in revision 4
-  is no longer an argument; it is a reproducible corpus failure. The checker
-  needs a one-constant update to reach 149/149, and until it lands the honest
-  parity figure for that implementation is **148/149**.
+- **`bad-741` failed the independent from-spec checker when this revision
+  published, and that was the point.** On identical bytes the reference rails
+  answered invalid and `Rul1an/aee-checker` answered **valid**, because its bound
+  was 256 and the bound is now normative at 128. The 127-depth divergence
+  recorded in revision 4 stopped being an argument and became a reproducible
+  corpus failure. The honest parity figure for that implementation was therefore
+  **148/149**, never rounded up, until the fix landed. It landed in the fuller
+  form recorded under revision 6 above, moving both the constant and the counting
+  rule, and the figure at this revision is **149/149**.
 - Verified by mutation on both reference rails: removing the Go string-scalar
   scan changes every statement-position vector to `vocabulary-digest-mismatch`
   and the payload vectors to `payload-not-canonical`; removing the Python one

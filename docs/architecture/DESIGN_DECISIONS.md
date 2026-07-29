@@ -61,9 +61,9 @@ of scope because their branch count tracks the number of cases they enumerate,
 not the shipped verifier's structure. Every row today happens to live in `aee/`,
 which is where the specification's branching lands.
 
-`scripts/complexity-table-gate.py` enforces the table in CI. It fails the build
-on a number that no longer matches, on an in-scope function at or above the
-threshold with no row, and on a row whose function has been deleted or
+`scripts/complexity-table-gate.py --rail go` enforces the table in CI. It fails
+the build on a number that no longer matches, on an in-scope function at or above
+the threshold with no row, and on a row whose function has been deleted or
 refactored back below the threshold. Run it with `--sync` to rewrite the `Cyclo`
 column from a fresh measurement after a legitimate change; adding or dropping a
 row stays a hand edit, because the rationale is the part worth having and the
@@ -79,8 +79,19 @@ gate will not invent one.
 | `aee/types.go` `parsePredicate` | 18 | One guarded decode per optional predicate member. Each member must record presence separately from value, because the gates distinguish an absent member from one that is present but malformed, so the branch count is the predicate's member count. |
 
 The Python generators' functions carrying `# noqa: C901` are explained in
-[`docs/complexity-rationales.toml`](../complexity-rationales.toml); the ruff
-`C901` threshold is that rail's equivalent of this table's gate.
+[`docs/complexity-rationales.toml`](../complexity-rationales.toml), and
+`--rail python` gates that file against a fresh ruff measurement on exactly the
+terms above.
+
+The sentence that half replaces was wrong in a way worth recording. It said the
+ruff `C901` threshold was already that rail's equivalent of this gate, which is
+the reason no gate was written. It is not: `C901` reports a function above the
+threshold, and a recorded function is by definition one carrying a
+`# noqa: C901`, which silences the report. The linter was therefore silent about
+precisely the numbers that were written down, and both of them drifted under it,
+one by seven. The gate reads them with `--ignore-noqa` for that reason. A
+threshold a linter enforces and a number a document records are different claims,
+and only the second one was ever unchecked.
 
 ## The core is stdlib-only and go-witness-free
 

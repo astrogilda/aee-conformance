@@ -38,6 +38,28 @@ breaks. Still there means the remap had somewhere correct to land and did not,
 which is a defect and is refused by name. Gone means upstream rewrote that
 passage, which is what an ordinary amendment does, and is listed for review.
 
+That question is asked of each line of the span and not only of the span as a
+whole, and the difference is the whole of one defect class. Asked only of the
+whole, it is all or nothing: an amendment that rewrites any part of a cited
+passage makes the search for the whole text fail, the citation is filed as an
+ordinary rewrite, and whatever the remap abandoned is never looked for. That is
+how a citation can be cut short of the requirement it exists for and still pass,
+because the words it lost were beside words upstream edited. Asked line by line
+it is the same rule, never consulting the claim, and it still calls a rewrite a
+rewrite, because a rewritten line is not found either. Measured over every
+re-vendor in this repository where the remapper was live, and scoring against
+what a person did next, the finer question refuses twenty-six citations, fifteen
+of which were then repointed and eleven of which were a narrowing that person
+intended. The eleven are cleared one at a time by name below, and clearing one
+records nothing, so nothing accumulates that could later stop describing
+anything.
+
+It does not reach every truncation, and the residue is not a matter of tuning.
+A span may be cut short of its subject while every word it lost was also
+rewritten, and then nothing survives to be looked for. Separating those from a
+legitimate narrowing needs the words the claim beside the citation depends on,
+which is the check this ledger deliberately does not make.
+
 A person may still deliberately re-aim a citation onto different prose, and
 that is indistinguishable from a bad remap by looking at files alone. So it is
 allowed one citation at a time, by name, with ``--accept-reaim``. The automatic
@@ -249,6 +271,54 @@ def no_before_image(ledger: Ledger) -> int:
     return 1
 
 
+def abandoned(
+    base: list[str], was: tuple[int, int], doc: str, here: tuple[int, int]
+) -> list[str]:
+    """The lines the citation used to address that upstream left in place and
+    the citation no longer covers.
+
+    A line is only reported when its text is still somewhere in the document and
+    no occurrence of it falls inside the citation, so an amended line and a
+    deleted line are both silent. What is left is prose that survived the
+    amendment untouched and that the remap walked away from, which is the same
+    event the whole-span question refuses on, seen where the span as a whole has
+    already been rewritten past recognition.
+    """
+    lost: list[str] = []
+    for n in range(was[0], was[1] + 1):
+        text = normalize(base[n - 1])
+        if not text:
+            continue
+        where = occurrences(doc, text)
+        if not where or any(a < here[1] and here[0] < b for a, b in where):
+            continue
+        lost.append(text)
+    return lost
+
+
+def truncation(
+    cite: Cited, recorded: dict[str, str], fresh: dict[str, str], lost: list[str]
+) -> str:
+    """One refusal, naming the prose the citation dropped.
+
+    The dropped line is printed rather than counted. A reader deciding whether
+    the narrowing was intended needs the sentence that fell outside the
+    citation next to the claim the citation supports, and that sentence is
+    exactly what a reviewer reading only the new opening excerpt cannot see.
+    """
+    more = f" (and {len(lost) - 1} more line(s))" if len(lost) > 1 else ""
+    return (
+        f"{cite.key} ({cite.site}): {cite.token} no longer covers text that "
+        f"upstream left in place, so it asserts the same claim over less of "
+        f"the document than it was drawn around.\n"
+        f"      pinned: {recorded.get('opens')}\n"
+        f"          ... {recorded.get('closes')}\n"
+        f"      actual: {fresh['opens']}\n"
+        f"          ... {fresh['closes']}\n"
+        f"     dropped: {excerpt(lost[0])}{more}"
+    )
+
+
 def refuse_reaim(moved_off: list[str], ledger: Ledger) -> int:
     print(
         f"FAIL: refusing to re-pin {len(moved_off)} {ledger.noun}(s) that moved "
@@ -287,6 +357,16 @@ def reaimed(
     blocking on it would make every re-vendor a negotiation. A key named in
     ``accepted`` is a move a person has read and intends, so it is neither.
 
+    The first is asked twice, of the span and then of its lines, because those
+    are two different failures wearing one shape. A span whose whole text is
+    still in the document and which no longer sits on it collapsed onto
+    unrelated prose. A span whose text is gone may still have been cut short of
+    its subject, and the lines it dropped say so when upstream left them alone.
+    Asking only the first question is how a truncated citation reads as an
+    ordinary rewrite: the search for the whole passage fails for the same reason
+    a genuine amendment makes it fail, and the abandoned lines are never looked
+    for.
+
     The middle case is separated because folding it into the last one is how
     this check silently stopped working once already. A recorded citation that
     cannot be parsed back into a line range leaves nothing to look for, an empty
@@ -317,10 +397,14 @@ def reaimed(
             continue
         body = base_doc[base_starts[was[0]] : base_ends[was[1]]].strip()
         found = occurrences(doc, body) if body else []
-        if not found:
-            rewritten.append(f"{c.key} ({c.site}) -> {new[c.key]['opens']}")
-            continue
         here = (starts[c.lo], ends[c.hi])
+        if not found:
+            lost = abandoned(base, was, doc, here)
+            if lost:
+                moved_off.append(truncation(c, recorded, new[c.key], lost))
+            else:
+                rewritten.append(f"{c.key} ({c.site}) -> {new[c.key]['opens']}")
+            continue
         if any(a < here[1] and here[0] < b for a, b in found):
             continue
         moved_off.append(

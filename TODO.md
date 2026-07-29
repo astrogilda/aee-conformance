@@ -66,19 +66,28 @@ proposal out of draft.
   stamp check cannot see it either, since a revert plus a re-stamp is internally
   consistent. Closing it needs this repository to read the consumer, which is the
   cross-repository read the gate is built to avoid. File: `scripts/consumer-lag-gate.py`.
-- [ ] **The sync's re-aim check cannot see a truncated citation.** `--sync` refuses to move
-  a citation off text that is still in the document, which catches one whose range
-  collapsed onto unrelated prose. A citation cut short of the requirement it exists for,
-  where the prose it lost was also edited, reads as an ordinary rewrite and is only
-  reported for review. This holds for both spellings, since both now share the rule.
-  Fix: compare the citation's own subject rather than its former text.
-  File: `scripts/specpins.py`.
-  The gap was exercised at suiteRevision 14 rather than hypothesised: the re-vendor split
-  one sentence in two and collapsed another paragraph, and eight citations plus eighteen
-  anchors landed on prose that no longer carried the whole claim beside them. Every one
-  passed the sync, because the prose each had lost was also rewritten. They were found by
-  reading the excerpts the sync prints, which is the review step the check is explicitly
-  not a substitute for, and the cost of that reading grows with each amendment.
+- [ ] **A citation cut short of its subject is invisible when every word it lost was also
+  rewritten.** The sync now asks its own question line by line as well as span by span,
+  which closes the truncations that dropped prose upstream left alone. What remains is
+  the case where the dropped words were themselves amended: nothing survives to be
+  looked for, the span is simply shorter than it was, and that is the same event as a
+  legitimate narrowing onto a tightened rule. Measured over every re-vendor where the
+  remapper was live, no rule on the two documents separates them. The extent of the span
+  is the only signal left and it does not discriminate: at suiteRevision 14 a three-line
+  citation collapsed to one line inside a rewritten paragraph and was wrong
+  (`aee/pae.go::IsLowerHex64`, which lost the words naming the digest value form), while
+  at suiteRevision 13 six anchors collapsed three lines to one in the same way and were
+  right (`bad-810` and its siblings, where the heading alone carries the requirement).
+  Both narrow to a third of their former text. Further out the order inverts: a span cut
+  to a sixth was accepted (`bad-727`, where the old anchor had run past its subject into
+  the next clause) while spans cut to a fifth were repointed. Deciding between them needs
+  the words the claim beside the citation depends on, which was measured and rejected
+  when these pins were built, because a claim may name an identifier in passing and a
+  citation may legitimately cover several passages, so it needed a standing per-citation
+  exemption list. That list is the blessing the ledger exists to remove. The honest
+  position is that this residue is a review question with the evidence attached, not a
+  gate, and the sync prints the dropped prose so the reading is targeted rather than
+  exhaustive. File: `scripts/specpins.py`.
 - [ ] **The number profile is integers-only and the specification asks only for safe
   integers.** `checkSafeInteger` rejects any JSON number carrying a fractional part,
   anywhere in a canonicalized payload, including inside members the specification leaves
@@ -102,6 +111,28 @@ proposal out of draft.
   File: `scripts/interpretation-registry-gate.py`.
 
 ## Recently landed
+
+- [x] **Ask the sync's re-aim question line by line, not only span by span** (2026-07-29) --
+  the synchronise refused to move a citation off text still in the document, but only
+  ever looked for the span's text as one piece, so an amendment touching any part of a
+  cited passage made the search fail and everything the remap abandoned went unexamined.
+  The same question asked of each line refuses the citation that dropped prose upstream
+  left in place, and names that prose in the refusal. Replaying the suiteRevision 14
+  re-vendor against the parent commit reproduces the defect exactly: as the check stood,
+  all twenty-six mis-aimed spans passed and both ledgers were written; with the line
+  question, the re-vendor stops and names nine of them, every one of which the commit
+  went on to repoint. Measured over every re-vendor where the remapper was live and
+  scored against what a person did next, it refuses twenty-six spans, fifteen repointed
+  and eleven deliberate narrowings cleared one at a time through `--accept-reaim`, which
+  records nothing and so cannot rot. That aggregate carries eight of the nine above; the
+  ninth sits in a section the same commit renamed, which leaves the automated pairing
+  nothing to compare it against. Mutation-checked in
+  both directions: with the line question stubbed out the replay writes both ledgers and
+  refuses nothing, and the pre-existing whole-span refusal still fires with its own cause
+  when a citation is aimed at unrelated prose. Replaying the corrected re-vendor produces
+  ledger entries byte-identical to the committed ones for every citation the commit did
+  not add or rename, so a correctly performed re-vendor reaches the same place and only
+  stops earlier.
 
 - [x] **Vendor the two amendments the corpus already implemented** (2026-07-29) --
   the pin moves two commits along the upstream predicate branch. The first binds the

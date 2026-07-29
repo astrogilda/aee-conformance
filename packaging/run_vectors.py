@@ -77,6 +77,7 @@ from __future__ import annotations
 import argparse
 import base64
 import binascii
+import decimal
 import hashlib
 import json
 import os
@@ -88,18 +89,14 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Any
 
-AEE_PREDICATE_TYPE = (
-    "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6"
-)
+AEE_PREDICATE_TYPE = "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6"
 STATEMENT_TYPE = "https://in-toto.io/Statement/v1"
-SAFE_INT_LIMIT = 2 ** 53
+SAFE_INT_LIMIT = 2**53
 
 KEY_ROLES = ("substrate-observation-test", "wrong-signer-test", "statement-test")
 PINNED_ROLE = "substrate-observation-test"
 
-RFC3339_RE = re.compile(
-    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$"
-)
+RFC3339_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$")
 HEX64_RE = re.compile(r"^[0-9a-f]{64}$")
 
 # ---------------------------------------------------------------------------
@@ -166,6 +163,30 @@ def _jcs_string(s: str) -> str:
     return "".join(out)
 
 
+def _jcs_float(v: float) -> str:
+    """Serialize a float under the integers-only profile, by its VALUE.
+
+    RFC 8785 serializes a number as ES6 Number::toString, which emits "1" for the
+    double 1.0, so an integral float canonicalizes to plain integer form.
+    Refusing every float outright was a deviation from the RFC rather than the
+    integers-only profile being enforced: the profile is over the value, and 1.0
+    denotes the integer 1. The Go sibling keeps the literal as a number token and
+    has always canonicalized it that way -- ``TestSafeIntegerProfile`` pins
+    ``Canonicalize("1e2") == "100"``. Deciding it on the Python TYPE instead is
+    the same type-versus-value confusion the parse hook corrects, one layer down,
+    and it is what split this rail from its own reference.
+
+    A fractional value, a magnitude outside the safe range, and the non-finite
+    values a lenient parse can produce are all still refused, so nothing widens
+    except the case the RFC already decided.
+    """
+    if not v.is_integer():
+        raise JcsError("non-integer number outside the suite I-JSON profile")
+    if abs(v) >= SAFE_INT_LIMIT:
+        raise JcsError("integer outside safe range")
+    return str(int(v))
+
+
 def jcs_dumps(obj: Any) -> bytes:
     def ser(v: Any) -> str:
         if v is None:
@@ -177,16 +198,14 @@ def jcs_dumps(obj: Any) -> bytes:
         if isinstance(v, int):
             return str(v)
         if isinstance(v, float):
-            raise JcsError("non-integer number outside the suite I-JSON profile")
+            return _jcs_float(v)
         if isinstance(v, str):
             return _jcs_string(v)
         if isinstance(v, list):
             return "[" + ",".join(ser(x) for x in v) + "]"
         if isinstance(v, dict):
             keys = sorted(v.keys(), key=_utf16_sort_key)
-            return "{" + ",".join(
-                _jcs_string(k) + ":" + ser(v[k]) for k in keys
-            ) + "}"
+            return "{" + ",".join(_jcs_string(k) + ":" + ser(v[k]) for k in keys) + "}"
         raise JcsError(f"unsupported type: {type(v)!r}")
 
     return ser(obj).encode("utf-8")
@@ -308,9 +327,7 @@ def _check_string_literal(b: bytes) -> int:
             try:
                 ch = b[i : i + size].decode("utf-8")
             except UnicodeDecodeError:
-                raise StringNotScalarError(
-                    f"invalid UTF-8 at byte {i} of string"
-                ) from None
+                raise StringNotScalarError(f"invalid UTF-8 at byte {i} of string") from None
             if _is_noncharacter(ord(ch)):
                 raise StringNotScalarError(f"noncharacter U+{ord(ch):04X} in string")
             i += size
@@ -356,6 +373,38 @@ class IJsonError(ValueError):
         self.code = code
 
 
+def _safe_integer_literal(s: str) -> int:
+    """Apply the integers-only safe-integer profile to a number literal's VALUE.
+
+    ``json.loads`` routes every token carrying a '.', an 'e' or an 'E' here, so
+    this is the only place this rail sees the literal rather than the object
+    CPython made of it. The Go rail's ``checkSafeInteger`` (aee/jcs.go) tests
+    the same literals with exact rational arithmetic and accepts ``1e2`` and
+    ``100.0``, because those denote the integer 100; its own
+    ``TestSafeIntegerProfile`` pins that, and pins ``Canonicalize("1e2") ==
+    "100"`` besides. Reading the profile off the CPython type instead made this
+    rail answer ``payload-not-ijson`` for a payload satisfying every clause of
+    the I-JSON requirement the specification states, and disagree with its own
+    Go sibling about which condition a payload carrying ``1e2`` violates. The
+    condition that does hold is ``payload-not-canonical``, and the caller
+    reaches it once the value parses.
+
+    A genuinely fractional value and an integer outside the safe range are
+    still refused, so ``payload-not-ijson`` keeps naming a condition that holds.
+
+    ``Decimal`` rather than ``Fraction``: both are exact, but ``Fraction``
+    materializes the numerator, so ``1e1000000000`` -- a legal JSON token an
+    attacker writes in 13 bytes -- expands to a billion digits inside the parse.
+    ``Decimal`` keeps the exponent, and neither test below expands it.
+    """
+    d = decimal.Decimal(s)
+    if d != d.to_integral_value():
+        raise IJsonError("payload-not-ijson", f"non-integer number {s!r}")
+    if not -SAFE_INT_LIMIT < d < SAFE_INT_LIMIT:
+        raise IJsonError("payload-not-ijson", "integer outside safe range")
+    return int(d)
+
+
 def _reject_dup_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     d: dict[str, Any] = {}
     for k, v in pairs:
@@ -372,6 +421,11 @@ def _walk_check_ints(v: Any) -> None:
         if abs(v) >= SAFE_INT_LIMIT:
             raise IJsonError("payload-not-ijson", "integer outside safe range")
     elif isinstance(v, float):
+        # Unreachable while parse_json_value installs _safe_integer_literal as
+        # its parse_float hook, which turns every number literal into an int or
+        # refuses it. Kept so this walk's guarantee does not rest on a caller
+        # remembering that hook, and so a value assembled some other way still
+        # fails closed rather than reaching jcs_dumps as a float.
         raise IJsonError("payload-not-ijson", "non-integer number")
     elif isinstance(v, list):
         for x in v:
@@ -466,10 +520,13 @@ def parse_json_value(raw: bytes) -> Any:
     except UnicodeDecodeError:
         raise IJsonError("payload-not-ijson", "payload is not UTF-8") from None
     if _max_json_depth(text) > MAX_PARSE_DEPTH:
-        raise IJsonError("payload-not-ijson",
-                         "payload nesting exceeds the maximum depth")
+        raise IJsonError("payload-not-ijson", "payload nesting exceeds the maximum depth")
     try:
-        obj = json.loads(text, object_pairs_hook=_reject_dup_pairs)
+        obj = json.loads(
+            text,
+            object_pairs_hook=_reject_dup_pairs,
+            parse_float=_safe_integer_literal,
+        )
     except IJsonError:
         raise
     except (ValueError, RecursionError):
@@ -496,9 +553,7 @@ def strict_payload_parse(raw: bytes) -> dict[str, Any]:
         # covering payload cover nothing, the same handling as non-canonical
         # bytes (the payload can be byte-canonical under both member orders
         # when they happen to agree on its names; the name itself is rejected).
-        raise IJsonError(
-            "payload-not-canonical", "supplementary-plane object member name"
-        )
+        raise IJsonError("payload-not-canonical", "supplementary-plane object member name")
     _walk_check_ints(obj)
     try:
         canon = jcs_dumps(obj)
@@ -527,9 +582,7 @@ def merkle_root_hex(leaves: list[bytes]) -> str:
         k = 1
         while k * 2 < n:
             k *= 2
-        return hashlib.sha256(
-            b"\x01" + node(lo, lo + k) + node(lo + k, hi)
-        ).digest()
+        return hashlib.sha256(b"\x01" + node(lo, lo + k) + node(lo + k, hi)).digest()
 
     if not leaves:
         raise ValueError("empty leaf set has no root")
@@ -541,8 +594,8 @@ def merkle_root_hex(leaves: list[bytes]) -> str:
 # for a conformance suite; TEST keys only.
 # ---------------------------------------------------------------------------
 
-_P = 2 ** 255 - 19
-_L = 2 ** 252 + 27742317777372353535851937790883648493
+_P = 2**255 - 19
+_L = 2**252 + 27742317777372353535851937790883648493
 
 
 def _inv(x: int) -> int:
@@ -679,9 +732,7 @@ def derive_test_keys() -> dict[str, dict[str, Any]]:
     """Re-derive the suite's TEST keys from the published recipe."""
     keys = {}
     for role in KEY_ROLES:
-        seed = hashlib.sha256(
-            (f"in-toto-aee-test-key/{role}/v1").encode()
-        ).digest()
+        seed = hashlib.sha256((f"in-toto-aee-test-key/{role}/v1").encode()).digest()
         pub = ed25519_public_key(seed)
         keys[role] = {
             "seed": seed,
@@ -799,9 +850,7 @@ BINDING_VERSION = "2"
 
 # The closed registry of substrate-authoritative egress postures. An absent,
 # non-string or unregistered value makes the statement malformed, fail-closed.
-EGRESS_POSTURES = frozenset(
-    {"no_network", "allowlist", "sinkhole", "unsafe_bypass_egress"}
-)
+EGRESS_POSTURES = frozenset({"no_network", "allowlist", "sinkhole", "unsafe_bypass_egress"})
 
 
 def posture_preimage_digest(env: dict[str, Any]) -> str:
@@ -918,9 +967,7 @@ class RecordView:
                 self.payload = strict_payload_parse(self.payload_bytes)
             except IJsonError as e:
                 self.payload_error = e.code
-        media_ok = isinstance(self.payload_type, str) and self.payload_type.endswith(
-            "+json"
-        )
+        media_ok = isinstance(self.payload_type, str) and self.payload_type.endswith("+json")
         self.media_ok = media_ok
         # How many DSSE signature entries the record carries, and nothing about
         # whether any of them verifies. A record is a DSSE envelope and the spec
@@ -1211,9 +1258,7 @@ class ReferenceVerifier:
                 return False
         return True
 
-    def _vocab_check_pairs(
-        self, out: Outcome, vocab: Any, labels: Any, caught: Any
-    ) -> None:
+    def _vocab_check_pairs(self, out: Outcome, vocab: Any, labels: Any, caught: Any) -> None:
         if not (isinstance(labels, list) and isinstance(caught, list)):
             return
         if not set(caught) <= set(labels):
@@ -1436,9 +1481,7 @@ class ReferenceVerifier:
         self._binding_digest_canonical(out, env, subj_digest)
 
     @staticmethod
-    def _binding_digest_canonical(
-        out: Outcome, env: dict[str, Any], subj_digest: Any
-    ) -> None:
+    def _binding_digest_canonical(out: Outcome, env: dict[str, Any], subj_digest: Any) -> None:
         for val in (
             subj_digest,
             _digest_of(env.get("substrate")),
@@ -1534,9 +1577,7 @@ class ReferenceVerifier:
             try:
                 subject0 = stmt["subject"][0]
                 vals = binding_preimage(env, subject0["digest"]["sha256"])
-                if vals is not None and all(
-                    isinstance(v, str) for v in vals.values()
-                ):
+                if vals is not None and all(isinstance(v, str) for v in vals.values()):
                     derived_binding = sha256_hex(jcs_dumps(vals))
             except (KeyError, IndexError, TypeError):
                 derived_binding = None  # member codes already emitted
@@ -1636,9 +1677,7 @@ class ReferenceVerifier:
             self._gate1_check_payload(out, rv, derived_binding)
 
     @staticmethod
-    def _gate1_check_payload(
-        out: Outcome, rv: RecordView, derived_binding: str | None
-    ) -> None:
+    def _gate1_check_payload(out: Outcome, rv: RecordView, derived_binding: str | None) -> None:
         if not rv.media_ok:
             out.add("payload-media-type")
         if rv.payload_error is not None:
@@ -1647,11 +1686,7 @@ class ReferenceVerifier:
         if rv.payload is None:
             out.add("payload-not-canonical")
             return
-        missing = [
-            m
-            for m in ("aeeRunBinding", "aeeKind", "aeeMethod")
-            if m not in rv.payload
-        ]
+        missing = [m for m in ("aeeRunBinding", "aeeKind", "aeeMethod") if m not in rv.payload]
         if missing:
             out.add("payload-missing-reserved")
         if (
@@ -1726,9 +1761,7 @@ class ReferenceVerifier:
     ) -> list[RecordView]:
         issued_at = st.issued_at
         armings = [rv for rv in usable if rv.kind == "arming"]
-        good_arm = [
-            rv for rv in armings if self._arming_ok(rv, pinned_posture, issued_at)
-        ]
+        good_arm = [rv for rv in armings if self._arming_ok(rv, pinned_posture, issued_at)]
         if not armings:
             out.add(self._uncovered_code(unknown_ref, "clean-row-uncovered"))
         elif not good_arm:
@@ -1758,9 +1791,7 @@ class ReferenceVerifier:
         method = r.get("method")
         # the comprehension only admits records whose method is a key
         # of METHOD_ORDER, so index directly -- min never sees a None.
-        methods = [
-            METHOD_ORDER[rv.method] for rv in covering if rv.method in METHOD_ORDER
-        ]
+        methods = [METHOD_ORDER[rv.method] for rv in covering if rv.method in METHOD_ORDER]
         if methods and method in METHOD_ORDER:
             if METHOD_ORDER[method] > min(methods):
                 out.add("method-cap-exceeded")
@@ -1954,9 +1985,7 @@ def second_fault_absence(stmt: Any, expected_codes: set[str]) -> list[str]:
     return findings
 
 
-def _sfa_batch_root(
-    pred: dict[str, Any], expected_codes: set[str], findings: list[str]
-) -> None:
+def _sfa_batch_root(pred: dict[str, Any], expected_codes: set[str], findings: list[str]) -> None:
     # (i) batch root recomputes unless a root-family fault is expected
     records = pred.get("observationRecords")
     root = pred.get("batchRoot")
@@ -1978,9 +2007,7 @@ def _sfa_root_recompute(records: list[Any], root: str, findings: list[str]) -> N
         findings.append("second-fault: undecodable record payload")
 
 
-def _sfa_vocabulary(
-    env: dict[str, Any], expected_codes: set[str], findings: list[str]
-) -> None:
+def _sfa_vocabulary(env: dict[str, Any], expected_codes: set[str], findings: list[str]) -> None:
     # (ii) vocabulary digest verifies unless a vocabulary fault is expected
     vocab = env.get("observationVocabulary")
     if not (expected_codes & _VOCAB_FAULT_CODES) and isinstance(vocab, dict):
@@ -2005,9 +2032,7 @@ def _sfa_vocabulary(
                 pass
 
 
-def _sfa_corpus(
-    env: dict[str, Any], expected_codes: set[str], findings: list[str]
-) -> None:
+def _sfa_corpus(env: dict[str, Any], expected_codes: set[str], findings: list[str]) -> None:
     # (iii) corpus digest verifies unless a corpus fault is expected
     corpus = env.get("corpus")
     if not (expected_codes & _CORPUS_FAULT_CODES) and isinstance(corpus, dict):
@@ -2060,16 +2085,10 @@ def _sfa_binding_scan(
 ) -> None:
     for r in rows:
         for ref in r.get("observationRefs") or []:
-            if (
-                isinstance(ref, int)
-                and not isinstance(ref, bool)
-                and 0 <= ref < len(views)
-            ):
+            if isinstance(ref, int) and not isinstance(ref, bool) and 0 <= ref < len(views):
                 p = views[ref].payload
                 if p is not None and p.get("aeeRunBinding") != derived:
-                    findings.append(
-                        "second-fault: record binding != derived binding"
-                    )
+                    findings.append("second-fault: record binding != derived binding")
                     break
 
 
@@ -2153,7 +2172,6 @@ def run_external(cmd: list[str], vector_path: str) -> dict[str, Any]:
 GATE_NAMES = ("gate0", "gate1", "recompute", "tier", "self-check")
 
 
-
 def load_manifest(suite_dir: str) -> dict[str, Any] | None:
     path = os.path.join(suite_dir, "MANIFEST.json")
     if not os.path.isfile(path):
@@ -2201,9 +2219,7 @@ def evaluate_vector(
     reasons: list[str] = []
     gates = {g: "-" for g in GATE_NAMES}
     expected = (entry or {}).get("expected") or {}
-    exp_verdict = expected.get("verdict") or (
-        "valid" if kind == "accept" else "invalid"
-    )
+    exp_verdict = expected.get("verdict") or ("valid" if kind == "accept" else "invalid")
     obs_verdict = observed["verdict"]
     obs_codes = set(observed.get("codes") or [])
 
@@ -2212,9 +2228,7 @@ def evaluate_vector(
     # per-kind checks below by also catching a manifest whose declared verdict
     # disagrees with the vector's accept/reject placement.
     if obs_verdict != exp_verdict:
-        reasons.append(
-            f"verdict: manifest declares {exp_verdict!r}, observed {obs_verdict!r}"
-        )
+        reasons.append(f"verdict: manifest declares {exp_verdict!r}, observed {obs_verdict!r}")
 
     if kind == "accept":
         _eval_accept(expected, observed, obs_verdict, obs_codes, gates, reasons)
@@ -2246,9 +2260,7 @@ def _eval_accept(
     if obs_verdict != "valid":
         for code in obs_codes:
             gates[CODE_STAGE.get(code, "gate0")] = "FAIL"
-        reasons.append(
-            f"expected valid, observed invalid with codes {sorted(obs_codes)}"
-        )
+        reasons.append(f"expected valid, observed invalid with codes {sorted(obs_codes)}")
     exp_result = expected.get("result")
     if obs_verdict == "valid" and exp_result is not None:
         if observed.get("result") != exp_result:
@@ -2274,9 +2286,7 @@ def _eval_accept_tiers(
         if exp_tiers is not None and obs_tiers is not None:
             if list(exp_tiers) != list(obs_tiers):
                 gates["tier"] = "FAIL"
-                reasons.append(
-                    f"{field_name}: expected {exp_tiers}, observed {obs_tiers}"
-                )
+                reasons.append(f"{field_name}: expected {exp_tiers}, observed {obs_tiers}")
     # behavior assertion 1: the tier never alters the result
     if (
         observed.get("tiers_with_key") is not None
@@ -2387,9 +2397,7 @@ def run_suite(args: argparse.Namespace) -> int:
     report, report_path = _run_write_report(
         args, suite_dir, report_base, external_cmd, probe_note, suite_notes, rows_out
     )
-    _run_print_table(
-        report, rows_out, suite_notes, probe_note, report_path, report_base
-    )
+    _run_print_table(report, rows_out, suite_notes, probe_note, report_path, report_base)
     return 1 if failures else 0
 
 
@@ -2552,9 +2560,7 @@ def _run_manifest_notes(
     note_failures = 0
     if missing_files:
         note_failures += 1
-        suite_notes.append(
-            f"MANIFEST lists vectors with no file on disk: {missing_files}"
-        )
+        suite_notes.append(f"MANIFEST lists vectors with no file on disk: {missing_files}")
     if unlisted:
         suite_notes.append(f"files on disk not listed in MANIFEST: {unlisted}")
     return suite_notes, note_failures
@@ -2630,6 +2636,7 @@ def _run_print_table(
 def _selftest_build(keys: dict[str, dict[str, Any]]) -> dict[str, Any]:
     """Build a minimal valid substrate statement with arming + sealed +
     interception records signed by the derived test key."""
+
     def d(s: str) -> str:  # synthetic digest for the self-test statement
         return sha256_hex(s.encode())
 
@@ -2647,9 +2654,7 @@ def _selftest_build(keys: dict[str, dict[str, Any]]) -> dict[str, Any]:
         "catchPolicy": {"digest": {"sha256": d("catch-policy-doc")}},
         "networkPosture": {"posture": "sinkhole", "digest": {"sha256": d("posture")}},
         "observationVocabulary": {
-            "digest": {
-                "sha256": sha256_hex(jcs_dumps({"caught": caught, "labels": labels}))
-            },
+            "digest": {"sha256": sha256_hex(jcs_dumps({"caught": caught, "labels": labels}))},
             "labels": labels,
             "caught": caught,
         },
@@ -2658,9 +2663,7 @@ def _selftest_build(keys: dict[str, dict[str, Any]]) -> dict[str, Any]:
     subject: list[dict[str, Any]] = [
         {"name": "example-agent-bundle", "digest": {"sha256": d("subject")}}
     ]
-    binding = sha256_hex(
-        jcs_dumps(binding_preimage(env, subject[0]["digest"]["sha256"]))
-    )
+    binding = sha256_hex(jcs_dumps(binding_preimage(env, subject[0]["digest"]["sha256"])))
     ptype = "application/vnd.example.aee-observation.v1+json"
     seed = keys[PINNED_ROLE]["seed"]
     keyid = keys[PINNED_ROLE]["keyid"]
@@ -2671,9 +2674,7 @@ def _selftest_build(keys: dict[str, dict[str, Any]]) -> dict[str, Any]:
         return {
             "payload": base64.b64encode(payload).decode(),
             "payloadType": ptype,
-            "signatures": [
-                {"keyid": keyid, "sig": base64.b64encode(sig).decode()}
-            ],
+            "signatures": [{"keyid": keyid, "sig": base64.b64encode(sig).decode()}],
         }
 
     posture = env["networkPosture"]["digest"]["sha256"]
@@ -2705,9 +2706,7 @@ def _selftest_build(keys: dict[str, dict[str, Any]]) -> dict[str, Any]:
         }
     )
     records = [rec_arming, rec_sealed, rec_intercept]
-    leaves = [
-        pae(r["payloadType"], base64.b64decode(r["payload"])) for r in records
-    ]
+    leaves = [pae(r["payloadType"], base64.b64decode(r["payload"])) for r in records]
     stmt = {
         "_type": STATEMENT_TYPE,
         "subject": subject,
@@ -2760,13 +2759,9 @@ def self_test() -> int:
     # reproduce a reference signature computed by the `cryptography` library for
     # a fixed seed and message (regenerate the expected value from cryptography
     # if this vector ever changes).
-    _kat_seed = bytes.fromhex(
-        "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20"
-    )
+    _kat_seed = bytes.fromhex("0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20")
     _kat_msg = b"aee-conformance ed25519 known-answer test"
-    _kat_pub = bytes.fromhex(
-        "79b5562e8fe654f94078b112e8a98ba7901f853ae695bed7e0e3910bad049664"
-    )
+    _kat_pub = bytes.fromhex("79b5562e8fe654f94078b112e8a98ba7901f853ae695bed7e0e3910bad049664")
     _kat_sig = bytes.fromhex(
         "fb6b33be7173edac6bbecc0c916806fa15e58360924d26b9c60466f491193f2b"
         "3aba43873d55404a43649ca8534736ca92941456ac379899dc443f9c2a03f607"
@@ -2786,8 +2781,7 @@ def self_test() -> int:
     # expressible; reverting the sort key to code-point order turns it red.
     check(
         "utf-16 code-unit comparator (supplementary before private-use)",
-        sorted(["\uE000", "\U0001F600"], key=_utf16_sort_key)
-        == ["\U0001F600", "\uE000"],
+        sorted(["\ue000", "\U0001f600"], key=_utf16_sort_key) == ["\U0001f600", "\ue000"],
         "sort key must compare 16-bit code units, not code points",
     )
 
@@ -2823,7 +2817,7 @@ def self_test() -> int:
         # Supplementary-plane label with the digest recomputed and sortedness
         # intact under both orders: the BMP-only rule is the only violation.
         v = s["predicate"]["observationEnvironment"]["observationVocabulary"]
-        v["labels"] = [*v["labels"], "\U0001F600"]
+        v["labels"] = [*v["labels"], "\U0001f600"]
         v["digest"]["sha256"] = sha256_hex(
             jcs_dumps({"caught": v["caught"], "labels": v["labels"]})
         )
@@ -2838,7 +2832,7 @@ def self_test() -> int:
     # Supplementary-plane member NAME in a covering payload covers nothing;
     # a supplementary-plane VALUE stays legal. Checked at the payload-parse
     # layer, where the covering-payload analysis reads it.
-    bad_name = jcs_dumps({"aeeKind": "interception", "zz\U0001F600": "x"})
+    bad_name = jcs_dumps({"aeeKind": "interception", "zz\U0001f600": "x"})
     try:
         strict_payload_parse(bad_name)
         bmp_name_rejected = False
@@ -2851,7 +2845,7 @@ def self_test() -> int:
         bmp_name_rejected,
         bmp_name_detail,
     )
-    ok_value = jcs_dumps({"aeeKind": "interception", "note": "\U0001F600"})
+    ok_value = jcs_dumps({"aeeKind": "interception", "note": "\U0001f600"})
     try:
         strict_payload_parse(ok_value)
         bmp_value_ok = True
@@ -2871,11 +2865,7 @@ def self_test() -> int:
         m.verdict == "invalid" and "result-recompute-mismatch" in m.codes,
         str(m.codes),
     )
-    m = mutate(
-        lambda s: s["predicate"].__setitem__(
-            "batchRoot", "0" * 64
-        )
-    )
+    m = mutate(lambda s: s["predicate"].__setitem__("batchRoot", "0" * 64))
     check(
         "tampered batch root",
         "batch-root-mismatch" in m.codes,
@@ -2891,19 +2881,13 @@ def self_test() -> int:
         "vocabulary-not-canonical" in m.codes,
         str(m.codes),
     )
-    m = mutate(
-        lambda s: s["predicate"]["attackResults"][0].__setitem__(
-            "observationRefs", [0]
-        )
-    )
+    m = mutate(lambda s: s["predicate"]["attackResults"][0].__setitem__("observationRefs", [0]))
     check(
         "caught row referencing arming only",
         "caught-row-uncovered" in m.codes,
         str(m.codes),
     )
-    m = mutate(
-        lambda s: s["predicate"]["attackResults"][0].__setitem__("method", "examined")
-    )
+    m = mutate(lambda s: s["predicate"]["attackResults"][0].__setitem__("method", "examined"))
     check(
         "unknown method on substrate row",
         "fail-closed-substrate-row" in m.codes,
@@ -2915,11 +2899,7 @@ def self_test() -> int:
         "run-entropy-missing" in m.codes and "run-binding-mismatch" not in m.codes,
         str(m.codes),
     )
-    m = mutate(
-        lambda s: s["predicate"]["attackResults"][1].__setitem__(
-            "observationRefs", [7]
-        )
-    )
+    m = mutate(lambda s: s["predicate"]["attackResults"][1].__setitem__("observationRefs", [7]))
     check("ref out of range", "ref-out-of-range" in m.codes, str(m.codes))
 
     dup_raw = (
@@ -2936,9 +2916,7 @@ def self_test() -> int:
     def wrong_signer(s: dict[str, Any]) -> None:
         seed = keys["wrong-signer-test"]["seed"]
         rec = s["predicate"]["observationRecords"][2]
-        sig = ed25519_sign(
-            seed, pae(rec["payloadType"], base64.b64decode(rec["payload"]))
-        )
+        sig = ed25519_sign(seed, pae(rec["payloadType"], base64.b64decode(rec["payload"])))
         rec["signatures"] = [
             {
                 "keyid": keys["wrong-signer-test"]["keyid"],
@@ -2971,9 +2949,7 @@ def main() -> int:
         description="AEE v0.6 conformance vector harness (differential when an "
         "external v0.6-capable verifier is supplied; self-contained otherwise)"
     )
-    default_vectors = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), os.pardir, "vectors"
-    )
+    default_vectors = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, "vectors")
     parser.add_argument(
         "--vectors",
         default=os.path.normpath(default_vectors),

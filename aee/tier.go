@@ -8,7 +8,7 @@ package aee
 // No TOFU: a consumer with no policy-pinned substrate root MUST treat every
 // basis: substrate row as unattested and MUST NOT infer the substrate root
 // from the predicate (spec:423-425). A record's keyid is an unauthenticated
-// lookup hint and never the check itself (spec:961-963): verification below
+// lookup hint and never the check itself (spec:993-995): verification below
 // tries every policy-named key and never reads keyid.
 
 import (
@@ -55,7 +55,7 @@ type ConsumerPolicy struct {
 // already passed GATE 0 and GATE 1. Row order matches attackResults order.
 //
 //   - a basis: artifact row is declared; a row fail-closed on basis sits at
-//     the bottom of both orderings (spec:625-627) and is reported declared —
+//     the bottom of both orderings (spec:658-660) and is reported declared —
 //     it can strengthen nothing;
 //   - a basis: substrate row is attested when every covering record's
 //     signature verifies against a policy-named key, unattested otherwise.

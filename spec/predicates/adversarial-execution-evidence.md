@@ -477,6 +477,40 @@ manifest pre-image travels in the attestation, so a verifier re-derives
 `corpus.digest` offline and any edit to the assessed set (a dropped attack, a
 renamed class) fails that check.
 
+A typing discipline this predicate commits to, stated here so that a later
+reader inherits it rather than rediscovers the question. Each of these six
+members is descriptor-shaped, and two of them are [ResourceDescriptor]s.
+`substrate` and `catchPolicy` identify a resource and carry nothing beside
+that identity, so they take the framework type; the `sha256` digest required
+on each is a requirement the descriptor specification permits a context using
+the type to impose, and a producer MAY additionally carry `uri`,
+`downloadLocation` or `mediaType` there, none of which any rule in this
+document reads. Reading a pinned `sha256` off a descriptor is already what
+this predicate does in its most load-bearing place, since `subject` entries
+are [ResourceDescriptor]s by the Statement specification and the run binding
+reads `subject[0].digest.sha256`.
+
+The other four members stay locally typed, and the reasons are stated here
+rather than left to inference. Where a member carries the pre-image its digest
+is taken over, that pre-image stays on the statement's own JSON surface:
+`corpus` carries the `manifest` and `observationVocabulary` carries `labels`
+and `caught`, and the only descriptor member that could hold either is
+`content`, whose value is base64. Every byte-level rule Prerequisites imposes
+is stated over the statement's JSON, namely the duplicate-member rule at any
+depth, the well-formed-scalar-value requirement applied to the raw bytes
+before any decoded string is read, the nesting bound of 128, and the BMP
+restriction on canonical surfaces. Material inside a base64 member is outside
+all four, so carrying a digest pre-image there would open a second
+canonicalization boundary inside a signed statement, in a predicate whose
+whole encoding profile exists so that two conforming verifiers cannot
+disagree about identical bytes. Where a member instead carries further
+normative material beside an identity, this predicate keeps the member
+locally typed rather than extending a descriptor with members of its own,
+which is the shape [Runtime Traces] uses for `monitor`. `runEntropy` is
+offered as a reading rather than as a rule: its digest commits to a
+substrate-emitted run-start value rather than describing a resource, so a
+descriptor is the wrong vessel for it.
+
 `coverage` _object, required_
 
 The coverage bound: `assessedClasses` (array of class codes actually
@@ -536,19 +570,18 @@ producer still reports as assessed.
 That comparison is only as strong as the manifest it reads against, so the
 manifest carries a floor of its own: it MUST declare at least one attack
 identifier across all of its classes, and a manifest declaring zero attack
-identifiers makes the statement malformed, the condition a verifier names
-`corpus-manifest-no-attacks`. The requirement is phrased over attack
-identifiers rather than over classes because a manifest whose classes object
-is empty and a manifest carrying a named class with an empty array declare
-the same thing, nothing to execute, and only counting identifiers closes
-both; the second is the more plausible of the two, since it reads as a real
-assessment class. Without the floor a zero-attack manifest satisfies coverage
-integrity vacuously, comparing an empty union against an empty union, and the
-rest of the statement follows from there: zero rows means zero `basis:
-substrate` rows, and with no substrate row this document permits
-`runEntropy`, `observationRecords` and `batchRoot` to be absent, so every
-structure that would have required a substrate signature drops out and a
-valid `pass` about an arbitrary subject can be minted with no substrate
+identifiers makes the statement malformed. The requirement is phrased over
+attack identifiers rather than over classes because a manifest whose classes
+object is empty and a manifest carrying a named class with an empty array
+declare the same thing, nothing to execute, and only counting identifiers
+closes both; the second is the more plausible of the two, since it reads as
+a real assessment class. Without the floor a zero-attack manifest satisfies
+coverage integrity vacuously, comparing an empty union against an empty
+union, and the rest of the statement follows from there: zero rows means
+zero `basis: substrate` rows, and with no substrate row this document
+permits `runEntropy`, `observationRecords` and `batchRoot` to be absent, so
+every structure that would have required a substrate signature drops out and
+a valid `pass` about an arbitrary subject can be minted with no substrate
 participation at all. A corpus declaring no adversarial inputs is not an
 adversarial corpus, which is why this sits with well-formedness rather than
 with `result`: scoring it would concede that a zero-attack run is a
@@ -820,25 +853,24 @@ media type is not `+json`, covers nothing:
 -   `aeeKind` _string_: `interception` (per-event capture, covers caught
     rows); `arming` (run-level: a live, cooperation-independent capture
     vantage was armed for the run before corpus injection; payload MUST
-    carry `armedAt` in RFC 3339 with a zero UTC offset (`Z` or `+00:00`, never a
-    non-zero offset such as `+05:00`) no later than `issuedAt` and
-    `aeePostureDigest` equal to the pinned `networkPosture` digest, and
-    its `aeeMethod` MUST be `intercepted`); `sealed` (run-level: the
-    vantage stayed armed to run-end; payload MUST carry `aeeStillArmed`,
-    a boolean; `aeeDropCount`, an integer counting run-wide dropped
-    observations; and `aeePostureDigest`, the effective posture at
-    run-end; it MAY carry `aeeDropBound`, a producer-declared integer
-    bound; its `aeeMethod` MUST be `intercepted`); or `examination` (the
-    substrate examined artifact-independent state after the fact; its
-    `aeeMethod` MUST be `reconstructed`, and its payload SHOULD identify
-    the states compared).
+    carry `armedAt` under the timestamp profile `issuedAt` defines, no
+    later than `issuedAt`, and `aeePostureDigest` equal to the pinned
+    `networkPosture` digest, and its `aeeMethod` MUST be `intercepted`);
+    `sealed` (run-level: the vantage stayed armed to run-end; payload MUST
+    carry `aeeStillArmed`, a boolean; `aeeDropCount`, an integer counting
+    run-wide dropped observations; and `aeePostureDigest`, the effective
+    posture at run-end; it MAY carry `aeeDropBound`, a producer-declared
+    integer bound; its `aeeMethod` MUST be `intercepted`); or
+    `examination` (the substrate examined artifact-independent state after
+    the fact; its `aeeMethod` MUST be `reconstructed`, and its payload
+    SHOULD identify the states compared).
 -   `aeeMethod` _string_: `intercepted` or `reconstructed`; how the
     substrate observed, stated inside the signature.
 
 A record violating any constraint of its declared `aeeKind` (including a
 missing `armedAt` on an `arming` record, an `armedAt` after `issuedAt`, an
-`armedAt` with a non-zero UTC offset, or
-an `examination` record signed `aeeMethod: intercepted`) covers nothing.
+`armedAt` outside the timestamp profile, or an `examination` record signed
+`aeeMethod: intercepted`) covers nothing.
 A `sealed` record covers no clean row unless its `aeeStillArmed` is
 `true`, its `aeeDropCount` is zero or does not exceed an `aeeDropBound`
 declared in the same signed payload, and its `aeePostureDigest` equals
@@ -997,9 +1029,25 @@ since two accepted spellings would mean two canonicalizations for the same
 content. Migrating old producer output to the new name is a producer
 concern that the wire format does not carry.
 
-`issuedAt` _string (RFC 3339 timestamp), required_
+`issuedAt` _Timestamp, required_
 
-When the producer signed the evidence bundle.
+When the producer signed the evidence bundle. `Timestamp` is the framework's
+field type, which requires RFC 3339 in the UTC timezone, and this document
+pins the two choices that type leaves open. A statement is canonicalized
+and digested as its bytes, so no verifier may normalize the field before
+reading it and the admissible set has to be written down; left open, one
+implementation is quietly stricter than another and the divergence surfaces
+only when a statement crosses between them. The date-time separator and the
+zone designator MUST be uppercase, never the lowercase `t` and `z` that
+RFC 3339 also admits, and the zone designator MUST be `Z`, `+00:00` or
+`-00:00`, never a non-zero offset such as `+05:00`. `-00:00` is admitted
+rather than excluded because RFC 3339 Section 4.3 gives it the meaning that
+the instant in UTC is known while the offset to local time is not, which
+describes where the producer stood and not when it signed, and the instant
+is the only thing this document reads from the field. A statement whose
+`issuedAt` is absent, is not RFC 3339, or is RFC 3339 outside this profile
+is malformed. `armedAt` carries the same profile, defined here and cited
+from the arming record so that the two fields cannot drift apart.
 
 ## Example
 
@@ -1222,17 +1270,38 @@ predicate-level, and adopted the I-JSON safe-integer profile on every rail.
     changed.
 -   Required the corpus manifest to declare at least one attack identifier
     across all of its classes; a manifest declaring none makes the statement
-    malformed (`corpus-manifest-no-attacks`). Coverage integrity otherwise
-    passes vacuously on an empty union, zero rows carry no `basis: substrate`
-    row, and the statement then legally omits `runEntropy`,
-    `observationRecords` and `batchRoot`, which admitted a valid `pass` about
-    an arbitrary subject with no substrate participation at all. The
+    malformed. Coverage integrity otherwise passes vacuously on an empty
+    union, zero rows carry no `basis: substrate` row, and the statement then
+    legally omits `runEntropy`, `observationRecords` and `batchRoot`, which
+    admitted a valid `pass` about an arbitrary subject with no substrate
+    participation at all. The
     requirement is stated over attack identifiers rather than over classes so
     that a named class with an empty array is closed alongside an empty
     classes object, and it leaves the honest fully-skipped run (attack
     identifiers declared, every class disclosed under `outOfScope`, scoring
     `degraded`) valid.
+-   Typed `issuedAt` as the framework's `Timestamp` rather than as a
+    lowercase RFC 3339 timestamp, which is what the protobuf schema already
+    did, and stated on the field the timestamp profile the type leaves open:
+    uppercase designators, and a zone designator of `Z`, `+00:00` or
+    `-00:00`. The zone rule was previously written only on `armedAt`, so a
+    statement whose `issuedAt` carried `+05:00` was conformant while being
+    off-guideline, and the case rule was written nowhere, which had already
+    split two independently written verifiers on the same bytes. `armedAt`
+    now cites the profile instead of restating half of it.
+-   Typed `observationEnvironment.substrate` and
+    `observationEnvironment.catchPolicy` as the framework's
+    `ResourceDescriptor`, the type the sibling predicates already import, and
+    stated the rule the other four members of that object are held under. The
+    JSON member names and the wire shape are unchanged, so no signed byte, no
+    digest, no signature and no conformance vector moves; in the protobuf
+    schema two locally declared messages become that import. The rule is that
+    a member carrying the pre-image its digest is taken over keeps that
+    pre-image on the statement's own JSON surface, because the only descriptor
+    member that could hold it is base64 `content`, and material inside a
+    base64 member is outside every byte-level rule Prerequisites states.
 
+[ResourceDescriptor]: ../v1/resource_descriptor.md
 [Runtime Traces]: runtime-trace.md
 [SCAI]: scai.md
 [SVR]: svr.md

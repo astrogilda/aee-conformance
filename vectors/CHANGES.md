@@ -406,7 +406,7 @@ byte-identically from the generators.
 
 - Corpus: 140 vectors (35 accept, 105 reject). No normative spec change; the
   specDigest is unchanged. Two forcing vectors close the reason-map side of the
-  coverage-partition membership rule already carried by the spec (L487-489): the
+  coverage-partition membership rule already carried by the spec (L521-523): the
   three coverage sets are a disjoint partition of the manifest's classes, so
   membership runs both ways, but only `bad-819` forced the `assessedClasses`
   side. New reject vectors `bad-731-outofscope-unknown-class` and
@@ -477,14 +477,14 @@ byte-identically from the generators.
   per executed attack" is a well-formedness invariant; both rails detect a
   duplicate `attackId` across rows before the set-based coverage comparison
   (which silently collapsed it before) and emit `statement-malformed`. Spec
-  paragraph at L495-508 gains the uniqueness sentence; new reject vector
+  paragraph at L529-542 gains the uniqueness sentence; new reject vector
   `bad-729-duplicate-attackid-rows`. Registry decision 13.
 - Coverage sets pinned as a disjoint partition (open corner B resolved, the one
   editorial call; reversible at vetting). A class appears in exactly one of
   `assessedClasses`, `outOfScope`, `routedElsewhere`; a class in more than one is
   malformed. This was a live divergence (our rails reject overlap; the from-spec
   checker accepts it) that no vector exercised. Rails unchanged (both already
-  reject via the disjoint-partition check); the spec text at L482-487 now matches
+  reject via the disjoint-partition check); the spec text at L516-521 now matches
   them; new reject vector `bad-730-coverage-class-overlap`. Registry decision 14.
   With these three corners resolved, `interpretation-decisions.json` has no open
   corners remaining.

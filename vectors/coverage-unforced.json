@@ -5,7 +5,7 @@
     {
       "id": "U1",
       "requirement": "An out-of-range observationRefs index is a structural fault on ANY row, including an artifact-only row",
-      "specAnchors": ["L515-520"],
+      "specAnchors": ["L549-554"],
       "classification": "forcible-but-unforced",
       "reason": "The rule is basis-independent and implemented on every rail (ref-malformed / ref-out-of-range fire regardless of basis; bad-724 exercises out-of-range on an artifact row, bad-103/108 exercise wrong-type on substrate rows). The one untested cell is the wrong-TYPE variant on an artifact-only row specifically. A single-statement vector could pin it; the rule is already sound, so this is coverage completeness, not a soundness gap.",
       "witnessSketch": "bad-7xx-artifact-wrongtype-refs: an artifact-only statement whose observationRefs carries a non-integer or negative index; expected ref-malformed."
@@ -13,7 +13,7 @@
     {
       "id": "U2",
       "requirement": "aeeChainScope two-sided equality gate: a consumer admits only the equal declared dimension set, neither a strictly finer (scope-narrowing) nor a strictly coarser (pooling) set",
-      "specAnchors": ["L889-898"],
+      "specAnchors": ["L921-930"],
       "classification": "consumer-policy-unvectorable",
       "reason": "The comparison is consumer policy ACROSS attestations. The conformance corpus is single-statement, so the equality gate cannot be exercised by a self-contained vector; it needs a multi-statement policy vector class (pol-001 narrowed -> reject, pol-002 pooled -> reject, pol-003 exact -> accept), designed in first-party research/163/SEAM-chainscope-narrowing-attack.md and unbuilt.",
       "witnessSketch": "A policy/ vector class over statement SETS, not single statements; requires a policy-replay harness the corpus does not currently define."
@@ -21,7 +21,7 @@
     {
       "id": "U3",
       "requirement": "Set-vs-tuple reading: policy compares the declared dimension SET; the gap/fork/genesis rules key on the evaluated TUPLE, so genesis-per-subject-value is normal and only a second genesis under an identical tuple is a reset",
-      "specAnchors": ["L898-905"],
+      "specAnchors": ["L930-937"],
       "classification": "consumer-policy-unvectorable",
       "reason": "Same as U2: the distinction only manifests across two or more attestations sharing a substrate key. pol-004 (two-genesis-same-tuple -> equivocation) and pol-005 (two-genesis-different-subject -> NOT equivocation) would pin it in a multi-statement class.",
       "witnessSketch": "pol-004 / pol-005 in the unbuilt policy/ class."
@@ -29,7 +29,7 @@
     {
       "id": "U4",
       "requirement": "Gap / fork / shared-predecessor / duplicate-genesis detection over a chain",
-      "specAnchors": ["L898-905"],
+      "specAnchors": ["L930-937"],
       "classification": "consumer-policy-unvectorable",
       "reason": "Chain detection is inherently cross-attestation; a single statement carries at most one chain member and cannot exhibit a gap or a fork. Belongs to the policy/ class.",
       "witnessSketch": "Multi-statement chains in the policy/ class."
@@ -37,7 +37,7 @@
     {
       "id": "U5",
       "requirement": "The anchor comparison (expectedCorpusDigest / expectedSubstrateDigest) and the evidence tier are trust-relative consumer-policy facts, not validity",
-      "specAnchors": ["L1011-1029", "L335-386"],
+      "specAnchors": ["L1059-1077", "L335-386"],
       "classification": "consumer-policy-unvectorable",
       "reason": "By design these differ per consumer and are excluded from the byte-pure validity gate; a self-contained corpus vector cannot fix a per-consumer trust anchor. ok-024 exercises the tier under two pinned key policies, which is the most a single-statement vector can do; the anchor comparison itself is out of the corpus's reach by construction.",
       "witnessSketch": "None possible in a self-contained corpus; exercised only by a consumer-policy harness."

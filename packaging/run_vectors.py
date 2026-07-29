@@ -796,7 +796,7 @@ def _timestamp_ok(v: Any) -> bool:
     """Whether a value is carried under the predicate's Timestamp field type.
 
     The type requires RFC 3339 in the UTC timezone; the predicate pins the two
-    choices that type leaves open (spec:822), and the two are checked separately
+    choices that type leaves open (spec:855), and the two are checked separately
     because they are separate rules. The pattern carries the case half: an
     uppercase separator and zone designator, never the lowercase `t` and `z`
     RFC 3339 also admits. The pattern accepts any numeric offset, so the zone
@@ -1175,7 +1175,7 @@ class ReferenceVerifier:
     @staticmethod
     def _corpus_declares_attack(out: Outcome, classes: Any) -> None:
         """The manifest MUST declare at least one attack identifier across all
-        of its classes (spec:536-559).
+        of its classes (spec:570-592).
 
         A corpus with no adversarial inputs is not an adversarial corpus, so
         this sits with well-formedness and not with scoring: scoring it would
@@ -1290,7 +1290,7 @@ class ReferenceVerifier:
         assessed: list[Any],
     ) -> None:
         attack_class, expected_ids = self._coverage_index(manifest_classes, assessed)
-        # No two rows may carry the same attackId (spec:491-504): one row per
+        # No two rows may carry the same attackId (spec:525-538): one row per
         # executed attack is a well-formedness invariant. Detected BEFORE the
         # row_ids set is built, because the set-equality check below silently
         # collapses duplicates.
@@ -1402,7 +1402,7 @@ class ReferenceVerifier:
             views = [RecordView(i, rec) for i, rec in enumerate(records)]
             # Envelope shape before payload bytes, mirroring Go
             # validity.go:137-143: every record's signatures member MUST carry
-            # at least one entry (spec:798-800), and an absent member is the
+            # at least one entry (spec:831-833), and an absent member is the
             # same zero as an empty array. The check is a count and proves
             # nothing about the entries it counts -- fabricated signature bytes
             # satisfy it and are caught only by verification at the tier -- but

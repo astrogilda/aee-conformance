@@ -20,7 +20,7 @@ const rejectedSnakeCaseSpelling = "does_not_assert"
 var errTimestampOffset = errors.New("zone designator is not a zero UTC offset")
 
 // parseTimestamp parses a value carried under the predicate's Timestamp field
-// type: RFC 3339 with uppercase designators and a zero UTC offset (spec:822).
+// type: RFC 3339 with uppercase designators and a zero UTC offset (spec:855).
 // time.RFC3339 already refuses the lowercase `t` and `z` RFC 3339 also admits,
 // and it accepts any numeric offset, so the zone is the half that has to be
 // checked here. `Z`, `+00:00` and `-00:00` all report a zero offset, which is
@@ -63,7 +63,7 @@ func Gate0(s *Statement) []Code {
 	}
 
 	// 3. Rejected snake_case spelling: single canonicalization per content
-	//    (spec:917-922).
+	//    (spec:949-954).
 	if _, ok := p.Raw[rejectedSnakeCaseSpelling]; ok {
 		codes = appendCode(codes, CodeMemberSpelling)
 	}
@@ -117,7 +117,7 @@ func Gate0(s *Statement) []Code {
 		codes = appendCode(codes, CodeSubjectCardinality)
 	}
 
-	// 10. Per-row actualLayer altitude (spec:721-735): a missing member is a
+	// 10. Per-row actualLayer altitude (spec:754-768): a missing member is a
 	//     malformed statement; a clean row must carry the literal "none".
 	vocabOK := env != nil && env.Vocabulary != nil && !containsVocabularyCodes(codes)
 	for i := range p.Rows {
@@ -131,7 +131,7 @@ func Gate0(s *Statement) []Code {
 		}
 	}
 
-	// 11. Coverage integrity at attack granularity (spec:499-502): every row
+	// 11. Coverage integrity at attack granularity (spec:533-536): every row
 	//     attackId appears in the manifest, and the union of row attackIds
 	//     exactly equals the manifest's attackIds for the assessed classes.
 	if env != nil && env.Corpus != nil && env.Corpus.Classes != nil && p.Coverage != nil {
@@ -144,7 +144,7 @@ func Gate0(s *Statement) []Code {
 		codes = gate0SubstrateBindingInputs(s, codes)
 	}
 
-	// 13. issuedAt (spec:924-926).
+	// 13. issuedAt (spec:956-958).
 	if !p.IssuedAtPresent {
 		codes = appendCode(codes, CodeIssuedAtMissing)
 	} else if _, err := parseTimestamp(p.IssuedAt); err != nil {
@@ -337,7 +337,7 @@ func gate0CoverageIntegrity(p *Predicate, env *Environment, codes []Code) []Code
 			expected[id] = true
 		}
 	}
-	// No two rows may carry the same attackId (spec:491-504): "one row per
+	// No two rows may carry the same attackId (spec:525-538): "one row per
 	// executed attack" is a well-formedness invariant. A duplicate is detected
 	// BEFORE the rowID set is built, because the set-equality coverage check
 	// below silently collapses duplicates.

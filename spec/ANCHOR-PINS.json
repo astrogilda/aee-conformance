@@ -1,6 +1,6 @@
 {
   "specPath": "spec/predicates/adversarial-execution-evidence.md",
-  "specDigest": "1590b9885a46bc206497f2c17d61c1991f017de87542101a0b0950cd167d4093",
+  "specDigest": "e450502531405736b51d582fcfab23b88442d12c3a44ec81f533ba55b8ce049b",
   "citations": {
     "vectors/reject/gen_invalid_vectors.py::bad-001-result-uppercase#0": {
       "anchor": "L339",
@@ -123,13 +123,13 @@
       "closes": "`observationRecords`), carries the reserved members, and its"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-201-payload-unsorted-keys#1": {
-      "anchor": "L808-815",
+      "anchor": "L841-848",
       "digest": "647a40095ace8fc4136a505d4cb31ceb3b0029702a63519e8b68904ca332087c",
       "opens": "to cover a `basis: substrate` row MUST carry a",
       "closes": "top-level fields; a record whose payload is not so parseable, or whose"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-202-payload-bignum#0": {
-      "anchor": "L810-814",
+      "anchor": "L843-847",
       "digest": "99c171ba35ad2c641dfcfe712d85116f5129bddc0bd592871a50a57a782b960c",
       "opens": "RFC 7493 (no duplicate members, integers within the safe range, member",
       "closes": "media type ends in `+json`, and which carries these reserved members as"
@@ -141,13 +141,13 @@
       "closes": "(producer and verifier, in any language) derives identical bytes."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-203-payload-duplicate-member#0": {
-      "anchor": "L810-814",
+      "anchor": "L843-847",
       "digest": "99c171ba35ad2c641dfcfe712d85116f5129bddc0bd592871a50a57a782b960c",
       "opens": "RFC 7493 (no duplicate members, integers within the safe range, member",
       "closes": "media type ends in `+json`, and which carries these reserved members as"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-204-payload-media-type#0": {
-      "anchor": "L815-816",
+      "anchor": "L848-849",
       "digest": "46724f84a9d213b392520cad6a9507ab85392b1fe698b648757e1d3409c982d0",
       "opens": "top-level fields; a record whose payload is not so parseable, or whose",
       "closes": "media type is not `+json`, covers nothing:"
@@ -165,7 +165,7 @@
       "closes": "`aeeRunBinding` equals the run binding digest derived from this"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-205-payload-missing-runbinding#1": {
-      "anchor": "L816-820",
+      "anchor": "L849-853",
       "digest": "31c0cc32d2aac78eeb52d50d4af30ca19bc000c8db75196cd7110d30e6b41584",
       "opens": "media type is not `+json`, covers nothing:",
       "closes": "- `aeeKind` _string_: `interception` (per-event capture, covers caught"
@@ -177,8 +177,8 @@
       "closes": "`aeeRunBinding` equals the run binding digest derived from this"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-206-payload-missing-kind#1": {
-      "anchor": "L820-835",
-      "digest": "0834ae2baac7e15b5ddb2dd6d160ff6e86398673381a5187a3ecc8f44bb51ed2",
+      "anchor": "L853-867",
+      "digest": "0e0cb7e2765cba93d77f85dae9f4fbabd8c4a1a067244321f392eafbf89d4eab",
       "opens": "- `aeeKind` _string_: `interception` (per-event capture, covers caught",
       "closes": "- `aeeMethod` _string_: `intercepted` or `reconstructed`; how the"
     },
@@ -189,7 +189,7 @@
       "closes": "`aeeRunBinding` equals the run binding digest derived from this"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-207-payload-missing-method#1": {
-      "anchor": "L835-836",
+      "anchor": "L867-868",
       "digest": "a124f2de7ca4be1e88ed2b48f0cdc9622905106031fa36f6aa973ad4140fcfc0",
       "opens": "- `aeeMethod` _string_: `intercepted` or `reconstructed`; how the",
       "closes": "substrate observed, stated inside the signature."
@@ -237,49 +237,49 @@
       "closes": "its covering records (`reconstructed` is weaker than `intercepted`);"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-401-records-no-batchroot#0": {
-      "anchor": "L959",
+      "anchor": "L991",
       "digest": "4636ec8560cc0ead116100610dde879f5fd9c34863e805af0fdb6b5267573e9e",
       "opens": "`batchRoot` _string, required when `observationRecords` is non-empty_",
       "closes": "`batchRoot` _string, required when `observationRecords` is non-empty_"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-401-records-no-batchroot#1": {
-      "anchor": "L971-973",
+      "anchor": "L1003-1005",
       "digest": "25363553c90486607f15b24979aec89c1f462c2544a86dd2788c4a5bbbfb4f69",
       "opens": "`batchRoot` unchanged. Carried once at the predicate level. A `batchRoot`",
       "closes": "invalid. Because every `basis: substrate` row requires covering records"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-402-root-no-domain-separation#0": {
-      "anchor": "L961-964",
+      "anchor": "L993-996",
       "digest": "fe35b4fa4eb994d08cce68b9c08979782a8762e61e8498eff9ace26c3f411007",
       "opens": "An RFC 6962 Merkle root over the observation records, SHA-256, with",
       "closes": "by the RFC 6962 recursive split (never by duplicating a trailing node to"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-403-root-bitcoin-padding#0": {
-      "anchor": "L964-966",
+      "anchor": "L996-998",
       "digest": "e756c9f428996b39ed6760c3edd78e33cb9278df13492c84e1ce45605630ecf0",
       "opens": "by the RFC 6962 recursive split (never by duplicating a trailing node to",
       "closes": "single-record tree's root its leaf hash, and an empty array with no root."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-404-root-leaf-order-swapped#0": {
-      "anchor": "L966",
+      "anchor": "L998",
       "digest": "c7d07beda78a7d7ec649e0c5963b941659f3668a9e444de809493192ce5fbf1f",
       "opens": "single-record tree's root its leaf hash, and an empty array with no root.",
       "closes": "single-record tree's root its leaf hash, and an empty array with no root."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-405-duplicate-records#0": {
-      "anchor": "L968-969",
+      "anchor": "L1000-1001",
       "digest": "5ee52f2390f6d383e6b25c8907752c17d12545a6cf3f16483367a12a71c92057",
       "opens": "invalid: a record's canonical identity is its leaf hash, a positional",
       "closes": "reference is shorthand for the leaf hash at that position, and a future"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-406-root-hex-tamper#0": {
-      "anchor": "L971-973",
+      "anchor": "L1003-1005",
       "digest": "25363553c90486607f15b24979aec89c1f462c2544a86dd2788c4a5bbbfb4f69",
       "opens": "`batchRoot` unchanged. Carried once at the predicate level. A `batchRoot`",
       "closes": "invalid. Because every `basis: substrate` row requires covering records"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-407-substrate-row-no-records#0": {
-      "anchor": "L976-986",
+      "anchor": "L1008-1018",
       "digest": "ef88aa556833d8248f6faa559898f8a15e825fa8c30b465d16d03232788b47fe",
       "opens": "`arming` and `sealed` records. The root commits to the set the statement",
       "closes": "`basis: artifact` rows."
@@ -291,19 +291,19 @@
       "closes": "`observationRecords`;"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-408-batchroot-without-records#0": {
-      "anchor": "L976-986",
+      "anchor": "L1008-1018",
       "digest": "ef88aa556833d8248f6faa559898f8a15e825fa8c30b465d16d03232788b47fe",
       "opens": "`arming` and `sealed` records. The root commits to the set the statement",
       "closes": "`basis: artifact` rows."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-408-batchroot-without-records#1": {
-      "anchor": "L967",
+      "anchor": "L999",
       "digest": "c80c3dc7b6adb30311e50f58232ad57777624cadc1fbaeb9cc1f0b9ea50a9453",
       "opens": "Two byte-identical entries in `observationRecords` make the attestation",
       "closes": "Two byte-identical entries in `observationRecords` make the attestation"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-409-artifact-records-bad-root#0": {
-      "anchor": "L971-973",
+      "anchor": "L1003-1005",
       "digest": "25363553c90486607f15b24979aec89c1f462c2544a86dd2788c4a5bbbfb4f69",
       "opens": "`batchRoot` unchanged. Carried once at the predicate level. A `batchRoot`",
       "closes": "invalid. Because every `basis: substrate` row requires covering records"
@@ -315,37 +315,37 @@
       "closes": "of both orderings as before."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-501-substrate-unknown-method#1": {
-      "anchor": "L630-633",
+      "anchor": "L663-666",
       "digest": "4d52ac9e163402dfba0573bda3acae591624c69b90840a2f453093f15dea60cc",
       "opens": "Both fields are REQUIRED on every row and both vocabularies are closed: a",
       "closes": "`result` to `fail` and can support nothing stronger. The 0.4 values"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-502-missing-actual-layer#0": {
-      "anchor": "L500-501",
+      "anchor": "L534-535",
       "digest": "b06949e62a633acf01981b0ce5edd2b151b15cb694f4cf998cb3c4bc5b054b6c",
       "opens": "`actualLayer` (required; which enforcement layer acted, see below), and",
       "closes": "`observationRefs`"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-502-missing-actual-layer#1": {
-      "anchor": "L767-775",
+      "anchor": "L800-808",
       "digest": "b95e1613bd4b24a35d54fa8cf5d103671d7d7a485c6bb7575170b3254eaea995",
       "opens": "`actualLayer` names the enforcement layer that acted on the row's",
       "closes": "malformed statement, not weak evidence. On a row whose"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-503-clean-row-layer-not-none#0": {
-      "anchor": "L776-781",
+      "anchor": "L809-814",
       "digest": "de9df6c7bc49ff92e6a889c7a54f268ae5a57b68d1f10fc6db1b127c8e4a8400",
       "opens": "`containmentObserved` label is from the carried",
       "closes": "accidental omission. `none` is also valid on a caught row, and there"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-818-artifact-clean-row-layer-not-none#0": {
-      "anchor": "L776-781",
+      "anchor": "L809-814",
       "digest": "de9df6c7bc49ff92e6a889c7a54f268ae5a57b68d1f10fc6db1b127c8e4a8400",
       "opens": "`containmentObserved` label is from the carried",
       "closes": "accidental omission. `none` is also valid on a caught row, and there"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-818-artifact-clean-row-layer-not-none#1": {
-      "anchor": "L776-781",
+      "anchor": "L809-814",
       "digest": "de9df6c7bc49ff92e6a889c7a54f268ae5a57b68d1f10fc6db1b127c8e4a8400",
       "opens": "`containmentObserved` label is from the carried",
       "closes": "accidental omission. `none` is also valid on a caught row, and there"
@@ -369,7 +369,7 @@
       "closes": "iff `coverage.outOfScope` or `coverage.routedElsewhere` is non-empty;"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-505-substrate-missing-method#1": {
-      "anchor": "L630-633",
+      "anchor": "L663-666",
       "digest": "4d52ac9e163402dfba0573bda3acae591624c69b90840a2f453093f15dea60cc",
       "opens": "Both fields are REQUIRED on every row and both vocabularies are closed: a",
       "closes": "`result` to `fail` and can support nothing stronger. The 0.4 values"
@@ -381,7 +381,7 @@
       "closes": "of both orderings as before."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-506-actuallayer-json-number#0": {
-      "anchor": "L495-501",
+      "anchor": "L529-535",
       "digest": "8584ea6d5603109f1490877bca03b5b1615359b5d00a0b4063c8bd64e2f52488",
       "opens": "One row per executed attack: `attackId` (must appear in the manifest),",
       "closes": "`observationRefs`"
@@ -471,97 +471,97 @@
       "closes": "supplementary-plane vocabulary entry makes the statement malformed."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-701-arming-missing-armedat#0": {
-      "anchor": "L821-827",
-      "digest": "a1fa2e3d2db6db053022cd90fb6a78da2f297b00485094cd9d814ea1a776bfee",
+      "anchor": "L854-858",
+      "digest": "70a5392248391d25346d4a6bb1f9e90c5bad3f5094bc83e470e24ad5f2d65360",
       "opens": "rows); `arming` (run-level: a live, cooperation-independent capture",
-      "closes": "vantage stayed armed to run-end; payload MUST carry `aeeStillArmed`,"
+      "closes": "`networkPosture` digest, and its `aeeMethod` MUST be `intercepted`);"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-701-arming-missing-armedat#1": {
-      "anchor": "L838-841",
-      "digest": "22a72ddec5b77504df684f5dca9181748a71b1f6bd7ff5e29df8596df7aa4fe7",
+      "anchor": "L870-873",
+      "digest": "a0d0a3d721a2feda23d5cbe0bf539cdbc991b7796531c7abf26391b448c7113b",
       "opens": "A record violating any constraint of its declared `aeeKind` (including a",
-      "closes": "an `examination` record signed `aeeMethod: intercepted`) covers nothing."
+      "closes": "`aeeMethod: intercepted`) covers nothing."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-702-armedat-after-issuedat#0": {
-      "anchor": "L821-827",
-      "digest": "a1fa2e3d2db6db053022cd90fb6a78da2f297b00485094cd9d814ea1a776bfee",
-      "opens": "rows); `arming` (run-level: a live, cooperation-independent capture",
-      "closes": "vantage stayed armed to run-end; payload MUST carry `aeeStillArmed`,"
+      "anchor": "L856-857",
+      "digest": "d543d6ddc3202345f90a3cc30f710e95aa598ae702b77d64a99ea90205c300f6",
+      "opens": "carry `armedAt` under the timestamp profile `issuedAt` defines, no",
+      "closes": "later than `issuedAt`, and `aeePostureDigest` equal to the pinned"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-703-arming-posture-mismatch#0": {
-      "anchor": "L821-827",
-      "digest": "a1fa2e3d2db6db053022cd90fb6a78da2f297b00485094cd9d814ea1a776bfee",
+      "anchor": "L854-858",
+      "digest": "70a5392248391d25346d4a6bb1f9e90c5bad3f5094bc83e470e24ad5f2d65360",
       "opens": "rows); `arming` (run-level: a live, cooperation-independent capture",
-      "closes": "vantage stayed armed to run-end; payload MUST carry `aeeStillArmed`,"
+      "closes": "`networkPosture` digest, and its `aeeMethod` MUST be `intercepted`);"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-703-arming-posture-mismatch#1": {
-      "anchor": "L842-922",
+      "anchor": "L874-954",
       "digest": "0f78633e5e607ef5cc92fb13f296ef866ddd9c98792f09ca9a31ee847186c920",
       "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
       "closes": "(armed, stayed armed, nothing dropped, posture unchanged) rather than"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-704-arming-method-reconstructed#0": {
-      "anchor": "L825-827",
-      "digest": "0fd2976a4c5fff661a1c3f04e68475c68b18b1be291e3ee09b13e1e273783887",
-      "opens": "`aeePostureDigest` equal to the pinned `networkPosture` digest, and",
-      "closes": "vantage stayed armed to run-end; payload MUST carry `aeeStillArmed`,"
+      "anchor": "L858",
+      "digest": "5b23bc38fe128110e23d231d9d8e408d838c0e6bf1400f0aa2b8ea0ed47214bc",
+      "opens": "`networkPosture` digest, and its `aeeMethod` MUST be `intercepted`);",
+      "closes": "`networkPosture` digest, and its `aeeMethod` MUST be `intercepted`);"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-704-arming-method-reconstructed#1": {
-      "anchor": "L838-841",
-      "digest": "22a72ddec5b77504df684f5dca9181748a71b1f6bd7ff5e29df8596df7aa4fe7",
+      "anchor": "L870-873",
+      "digest": "a0d0a3d721a2feda23d5cbe0bf539cdbc991b7796531c7abf26391b448c7113b",
       "opens": "A record violating any constraint of its declared `aeeKind` (including a",
-      "closes": "an `examination` record signed `aeeMethod: intercepted`) covers nothing."
+      "closes": "`aeeMethod: intercepted`) covers nothing."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-705-sealed-missing-dropcount#0": {
-      "anchor": "L827-832",
-      "digest": "c8b5b8e43281870853ec737911163704c80a45d8d091d26472b6182fc1b4d1fc",
-      "opens": "vantage stayed armed to run-end; payload MUST carry `aeeStillArmed`,",
-      "closes": "substrate examined artifact-independent state after the fact; its"
+      "anchor": "L859-863",
+      "digest": "5ac353966477f43bab864c60006ef96c60de1623d102fc1e5549a8022b38e53c",
+      "opens": "`sealed` (run-level: the vantage stayed armed to run-end; payload MUST",
+      "closes": "integer bound; its `aeeMethod` MUST be `intercepted`); or"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-706-stillarmed-non-boolean#0": {
-      "anchor": "L827-832",
-      "digest": "c8b5b8e43281870853ec737911163704c80a45d8d091d26472b6182fc1b4d1fc",
-      "opens": "vantage stayed armed to run-end; payload MUST carry `aeeStillArmed`,",
-      "closes": "substrate examined artifact-independent state after the fact; its"
+      "anchor": "L859-863",
+      "digest": "5ac353966477f43bab864c60006ef96c60de1623d102fc1e5549a8022b38e53c",
+      "opens": "`sealed` (run-level: the vantage stayed armed to run-end; payload MUST",
+      "closes": "integer bound; its `aeeMethod` MUST be `intercepted`); or"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-707-sealed-stillarmed-false#0": {
-      "anchor": "L842-922",
+      "anchor": "L874-954",
       "digest": "0f78633e5e607ef5cc92fb13f296ef866ddd9c98792f09ca9a31ee847186c920",
       "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
       "closes": "(armed, stayed armed, nothing dropped, posture unchanged) rather than"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-708-sealed-drops-no-bound#0": {
-      "anchor": "L842-922",
+      "anchor": "L874-954",
       "digest": "0f78633e5e607ef5cc92fb13f296ef866ddd9c98792f09ca9a31ee847186c920",
       "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
       "closes": "(armed, stayed armed, nothing dropped, posture unchanged) rather than"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-709-sealed-drops-exceed-bound#0": {
-      "anchor": "L842-922",
+      "anchor": "L874-954",
       "digest": "0f78633e5e607ef5cc92fb13f296ef866ddd9c98792f09ca9a31ee847186c920",
       "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
       "closes": "(armed, stayed armed, nothing dropped, posture unchanged) rather than"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-710-sealed-posture-mismatch#0": {
-      "anchor": "L842-922",
+      "anchor": "L874-954",
       "digest": "0f78633e5e607ef5cc92fb13f296ef866ddd9c98792f09ca9a31ee847186c920",
       "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
       "closes": "(armed, stayed armed, nothing dropped, posture unchanged) rather than"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-712-examination-method-intercepted#0": {
-      "anchor": "L832-834",
-      "digest": "e0dccc71bc37868c570dbd5bd605521d022d0a4b08602694d252a19a92acc39f",
-      "opens": "substrate examined artifact-independent state after the fact; its",
-      "closes": "the states compared)."
+      "anchor": "L864-866",
+      "digest": "ea8a49537ee419a9280ba0814014a69a4e10b4b5ac258c303b0dca26bc5e08d2",
+      "opens": "`examination` (the substrate examined artifact-independent state after",
+      "closes": "SHOULD identify the states compared)."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-712-examination-method-intercepted#1": {
-      "anchor": "L838-841",
-      "digest": "22a72ddec5b77504df684f5dca9181748a71b1f6bd7ff5e29df8596df7aa4fe7",
+      "anchor": "L870-873",
+      "digest": "a0d0a3d721a2feda23d5cbe0bf539cdbc991b7796531c7abf26391b448c7113b",
       "opens": "A record violating any constraint of its declared `aeeKind` (including a",
-      "closes": "an `examination` record signed `aeeMethod: intercepted`) covers nothing."
+      "closes": "`aeeMethod: intercepted`) covers nothing."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-713-only-sealed-ref-noncovering#0": {
-      "anchor": "L717-718",
+      "anchor": "L750-751",
       "digest": "b91f82431c6b0e53845e75f258a101bb6c99a0ece1b188332e5e4c716f0d5629",
       "opens": "is attested. One or more arming or sealed records MAY cover a run; each",
       "closes": "referenced record must independently satisfy its class constraints."
@@ -573,40 +573,40 @@
       "closes": "at its class definition);"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-714-unknown-kind-sole-cover#0": {
-      "anchor": "L925-929",
+      "anchor": "L957-961",
       "digest": "c88fbba8fa1a96599633a5b69a83625d20cba1a148f82346125e743a6bc798eb",
       "opens": "record whose `aeeKind` the consumer does not recognize covers nothing and",
       "closes": "strengthen, a row (candidate future kinds, informatively: a hardware-quote"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-715-sealed-missing-stillarmed#0": {
-      "anchor": "L827-832",
-      "digest": "c8b5b8e43281870853ec737911163704c80a45d8d091d26472b6182fc1b4d1fc",
-      "opens": "vantage stayed armed to run-end; payload MUST carry `aeeStillArmed`,",
-      "closes": "substrate examined artifact-independent state after the fact; its"
+      "anchor": "L859-863",
+      "digest": "5ac353966477f43bab864c60006ef96c60de1623d102fc1e5549a8022b38e53c",
+      "opens": "`sealed` (run-level: the vantage stayed armed to run-end; payload MUST",
+      "closes": "integer bound; its `aeeMethod` MUST be `intercepted`); or"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-716-sealed-missing-posture#0": {
-      "anchor": "L827-832",
-      "digest": "c8b5b8e43281870853ec737911163704c80a45d8d091d26472b6182fc1b4d1fc",
-      "opens": "vantage stayed armed to run-end; payload MUST carry `aeeStillArmed`,",
-      "closes": "substrate examined artifact-independent state after the fact; its"
+      "anchor": "L859-863",
+      "digest": "5ac353966477f43bab864c60006ef96c60de1623d102fc1e5549a8022b38e53c",
+      "opens": "`sealed` (run-level: the vantage stayed armed to run-end; payload MUST",
+      "closes": "integer bound; its `aeeMethod` MUST be `intercepted`); or"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-716-sealed-missing-posture#1": {
-      "anchor": "L842-922",
+      "anchor": "L874-954",
       "digest": "0f78633e5e607ef5cc92fb13f296ef866ddd9c98792f09ca9a31ee847186c920",
       "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
       "closes": "(armed, stayed armed, nothing dropped, posture unchanged) rather than"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-717-arming-missing-posture#0": {
-      "anchor": "L821-827",
-      "digest": "a1fa2e3d2db6db053022cd90fb6a78da2f297b00485094cd9d814ea1a776bfee",
+      "anchor": "L854-858",
+      "digest": "70a5392248391d25346d4a6bb1f9e90c5bad3f5094bc83e470e24ad5f2d65360",
       "opens": "rows); `arming` (run-level: a live, cooperation-independent capture",
-      "closes": "vantage stayed armed to run-end; payload MUST carry `aeeStillArmed`,"
+      "closes": "`networkPosture` digest, and its `aeeMethod` MUST be `intercepted`);"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-727-armedat-non-utc-offset#0": {
-      "anchor": "L823-828",
-      "digest": "a6cbf382b0c2f36efa27cdd4e6b509a515777b794cf3c86615da6e8b5bf618e3",
-      "opens": "carry `armedAt` in RFC 3339 with a zero UTC offset (`Z` or `+00:00`, never a",
-      "closes": "a boolean; `aeeDropCount`, an integer counting run-wide dropped"
+      "anchor": "L856",
+      "digest": "799765527fe32dab1ba43069091c25fe9623f9c540291bd1504f388889fb44fc",
+      "opens": "carry `armedAt` under the timestamp profile `issuedAt` defines, no",
+      "closes": "carry `armedAt` under the timestamp profile `issuedAt` defines, no"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-728-artifact-two-subjects#0": {
       "anchor": "L185-189",
@@ -615,49 +615,49 @@
       "closes": "already lowercase 64-hex; a substrate-row-carrying statement violating this"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-729-duplicate-attackid-rows#0": {
-      "anchor": "L495-508",
+      "anchor": "L529-542",
       "digest": "b76a44051d7f20d6f9d0899f30d0c5155b1c6cc0c4a895a56b9fc126dddb23fd",
       "opens": "One row per executed attack: `attackId` (must appear in the manifest),",
       "closes": "neither can nor may invent an evidencing heuristic for shared references."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-730-coverage-class-overlap#0": {
-      "anchor": "L487-491",
+      "anchor": "L521-525",
       "digest": "65d2638eb4daa3c217c5a8f2721cfcc439506dda1dd278491b9e591802574995",
       "opens": "one. The three sets are a disjoint partition of the manifest's classes: a",
       "closes": "disclosed as a gap is contradictory."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-718-chain-runseq-zero#0": {
-      "anchor": "L849-880",
+      "anchor": "L881-912",
       "digest": "5a5bbf9c14493cb323c2386b6bccad77bc83dc021e02bb7b9162a97ecb4612fe",
       "opens": "An `arming` record's payload MAY additionally carry three reserved members",
       "closes": "validity requirements, the `result` recompute, and the evidence tier are"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-719-chain-missing-scope#0": {
-      "anchor": "L849-880",
+      "anchor": "L881-912",
       "digest": "5a5bbf9c14493cb323c2386b6bccad77bc83dc021e02bb7b9162a97ecb4612fe",
       "opens": "An `arming` record's payload MAY additionally carry three reserved members",
       "closes": "validity requirements, the `result` recompute, and the evidence tier are"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-720-chain-prev-not-hex#0": {
-      "anchor": "L849-880",
+      "anchor": "L881-912",
       "digest": "5a5bbf9c14493cb323c2386b6bccad77bc83dc021e02bb7b9162a97ecb4612fe",
       "opens": "An `arming` record's payload MAY additionally carry three reserved members",
       "closes": "validity requirements, the `result` recompute, and the evidence tier are"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-721-chain-scope-not-array#0": {
-      "anchor": "L853-857",
+      "anchor": "L885-889",
       "digest": "cb516eb6220545b8fca5acb2dc5083d871e2cf9c5fe7c4d7d0b7ed3ec03d157b",
       "opens": "and `aeeChainScope` (the population the sequence counts, declared as a",
       "closes": "3.2.3); REQUIRED whenever `aeeRunSeq` is present). The chain is always"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-722-chain-scope-unknown-dimension#0": {
-      "anchor": "L853-857",
+      "anchor": "L885-889",
       "digest": "cb516eb6220545b8fca5acb2dc5083d871e2cf9c5fe7c4d7d0b7ed3ec03d157b",
       "opens": "and `aeeChainScope` (the population the sequence counts, declared as a",
       "closes": "3.2.3); REQUIRED whenever `aeeRunSeq` is present). The chain is always"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-723-chain-scope-not-canonical#0": {
-      "anchor": "L853-857",
+      "anchor": "L885-889",
       "digest": "cb516eb6220545b8fca5acb2dc5083d871e2cf9c5fe7c4d7d0b7ed3ec03d157b",
       "opens": "and `aeeChainScope` (the population the sequence counts, declared as a",
       "closes": "3.2.3); REQUIRED whenever `aeeRunSeq` is present). The chain is always"
@@ -711,73 +711,73 @@
       "closes": "MUST NOT appear under more than one class), `catchPolicy` (JCS digest of the"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-805-row-unknown-attackid#0": {
-      "anchor": "L495",
+      "anchor": "L529",
       "digest": "7cb4534dd368683adf6aecb977f5f68aafa59cc7ae97d01ad3071605de47e6b3",
       "opens": "One row per executed attack: `attackId` (must appear in the manifest),",
       "closes": "One row per executed attack: `attackId` (must appear in the manifest),"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-805-row-unknown-attackid#1": {
-      "anchor": "L531-534",
+      "anchor": "L565-568",
       "digest": "1ff604223626486ec0980b21e4ba79911d19ef4f73f362e50175648e76fd49f0",
       "opens": "Coverage integrity is checked at attack granularity: the union of attackIds",
       "closes": "producer still reports as assessed."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-806-coverage-attack-omitted#0": {
-      "anchor": "L531-534",
+      "anchor": "L565-568",
       "digest": "1ff604223626486ec0980b21e4ba79911d19ef4f73f362e50175648e76fd49f0",
       "opens": "Coverage integrity is checked at attack granularity: the union of attackIds",
       "closes": "producer still reports as assessed."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-807-coverage-attack-superset#0": {
-      "anchor": "L531-534",
+      "anchor": "L565-568",
       "digest": "1ff604223626486ec0980b21e4ba79911d19ef4f73f362e50175648e76fd49f0",
       "opens": "Coverage integrity is checked at attack granularity: the union of attackIds",
       "closes": "producer still reports as assessed."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-816-coverage-class-dropped#0": {
-      "anchor": "L482-487",
+      "anchor": "L516-521",
       "digest": "b73dfc845473067ce2d3c18a120719dc29d6a4773047ff923a242ccbc55bf3f6",
       "opens": "The coverage bound: `assessedClasses` (array of class codes actually",
       "closes": "one. The three sets are a disjoint partition of the manifest's classes: a"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-816-coverage-class-dropped#1": {
-      "anchor": "L531-534",
+      "anchor": "L565-568",
       "digest": "1ff604223626486ec0980b21e4ba79911d19ef4f73f362e50175648e76fd49f0",
       "opens": "Coverage integrity is checked at attack granularity: the union of attackIds",
       "closes": "producer still reports as assessed."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-819-assessed-class-not-in-manifest#0": {
-      "anchor": "L487-491",
+      "anchor": "L521-525",
       "digest": "65d2638eb4daa3c217c5a8f2721cfcc439506dda1dd278491b9e591802574995",
       "opens": "one. The three sets are a disjoint partition of the manifest's classes: a",
       "closes": "disclosed as a gap is contradictory."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-819-assessed-class-not-in-manifest#1": {
-      "anchor": "L531-534",
+      "anchor": "L565-568",
       "digest": "1ff604223626486ec0980b21e4ba79911d19ef4f73f362e50175648e76fd49f0",
       "opens": "Coverage integrity is checked at attack granularity: the union of attackIds",
       "closes": "producer still reports as assessed."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-731-outofscope-unknown-class#0": {
-      "anchor": "L487-491",
+      "anchor": "L521-525",
       "digest": "65d2638eb4daa3c217c5a8f2721cfcc439506dda1dd278491b9e591802574995",
       "opens": "one. The three sets are a disjoint partition of the manifest's classes: a",
       "closes": "disclosed as a gap is contradictory."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-731-outofscope-unknown-class#1": {
-      "anchor": "L531-534",
+      "anchor": "L565-568",
       "digest": "1ff604223626486ec0980b21e4ba79911d19ef4f73f362e50175648e76fd49f0",
       "opens": "Coverage integrity is checked at attack granularity: the union of attackIds",
       "closes": "producer still reports as assessed."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-732-routedelsewhere-unknown-class#0": {
-      "anchor": "L487-491",
+      "anchor": "L521-525",
       "digest": "65d2638eb4daa3c217c5a8f2721cfcc439506dda1dd278491b9e591802574995",
       "opens": "one. The three sets are a disjoint partition of the manifest's classes: a",
       "closes": "disclosed as a gap is contradictory."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-732-routedelsewhere-unknown-class#1": {
-      "anchor": "L531-534",
+      "anchor": "L565-568",
       "digest": "1ff604223626486ec0980b21e4ba79911d19ef4f73f362e50175648e76fd49f0",
       "opens": "Coverage integrity is checked at attack granularity: the union of attackIds",
       "closes": "producer still reports as assessed."
@@ -819,13 +819,13 @@
       "closes": "it substitutes U+FFFD for them, and every check downstream of the decode then"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-739-payload-lone-surrogate-escape#0": {
-      "anchor": "L772-775",
+      "anchor": "L805-808",
       "digest": "8e5d97c95708c097c49d2f547e4882f4d1fa93cd812579b4bef0916fcb1af6b1",
       "opens": "fail-closed-row semantics are reserved for members the recompute or the",
       "closes": "malformed statement, not weak evidence. On a row whose"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-740-payload-cesu8#0": {
-      "anchor": "L772-775",
+      "anchor": "L805-808",
       "digest": "8e5d97c95708c097c49d2f547e4882f4d1fa93cd812579b4bef0916fcb1af6b1",
       "opens": "fail-closed-row semantics are reserved for members the recompute or the",
       "closes": "malformed statement, not weak evidence. On a row whose"
@@ -855,70 +855,70 @@
       "closes": "any decoded string is read."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-745-record-signatures-empty#0": {
-      "anchor": "L798-800",
+      "anchor": "L831-833",
       "digest": "e0f1c03133309284c9b105cee0d71eb793fac400fbb6acbb7f1816a982e705ff",
       "opens": "One DSSE envelope per observation: `payload` (base64 of the exact",
       "closes": "and `signatures`, which MUST carry at least one entry. A consumer verifies"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-748-signatures-empty-precedes-undecodable-record#0": {
-      "anchor": "L798-800",
+      "anchor": "L831-833",
       "digest": "e0f1c03133309284c9b105cee0d71eb793fac400fbb6acbb7f1816a982e705ff",
       "opens": "One DSSE envelope per observation: `payload` (base64 of the exact",
       "closes": "and `signatures`, which MUST carry at least one entry. A consumer verifies"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-748-signatures-empty-precedes-undecodable-record#1": {
-      "anchor": "L800-807",
+      "anchor": "L833-840",
       "digest": "0c6fbc4f2db0b8e4b200a955739cdc5f16c329cf5a0c4b04dd0eda9e4a6676fe",
       "opens": "and `signatures`, which MUST carry at least one entry. A consumer verifies",
       "closes": "Reading ahead of verification is a stage, never a conclusion. Any record used"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-749-record-signatures-not-an-array#0": {
-      "anchor": "L798-800",
+      "anchor": "L831-833",
       "digest": "e0f1c03133309284c9b105cee0d71eb793fac400fbb6acbb7f1816a982e705ff",
       "opens": "One DSSE envelope per observation: `payload` (base64 of the exact",
       "closes": "and `signatures`, which MUST carry at least one entry. A consumer verifies"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-746-manifest-empty-classes#0": {
-      "anchor": "L536-559",
-      "digest": "88dcf18effda90532dc0487227f6e54af2c6c3289706b69aa188a23e7b60d8f1",
+      "anchor": "L570-592",
+      "digest": "8bf6062b3d8dc4601f074d487349a10d4754f4a0182673ad3b5dc5e85db434a1",
       "opens": "That comparison is only as strong as the manifest it reads against, so the",
       "closes": "by this requirement, because its manifest declares an attack identifier."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-747-manifest-class-declares-no-attacks#0": {
-      "anchor": "L536-559",
-      "digest": "88dcf18effda90532dc0487227f6e54af2c6c3289706b69aa188a23e7b60d8f1",
+      "anchor": "L570-592",
+      "digest": "8bf6062b3d8dc4601f074d487349a10d4754f4a0182673ad3b5dc5e85db434a1",
       "opens": "That comparison is only as strong as the manifest it reads against, so the",
       "closes": "by this requirement, because its manifest declares an attack identifier."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-817-payload-noncanonical-base64#0": {
-      "anchor": "L786-789",
+      "anchor": "L819-822",
       "digest": "7df0a13c670d1ab810cf2f907449490564bcc1379c960e02b30f10a4217ee19c",
       "opens": "Whether anything was positioned to see is answered by `basis` and",
       "closes": "was attributed, which is the strongest claim a `pass` can rest on, a claim"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-808-coverage-absent#0": {
-      "anchor": "L480-484",
+      "anchor": "L514-518",
       "digest": "5a457f13f1323cdd7dc2a0e83eaba5b5a5cbb03345883c303d0ece172972bed2",
       "opens": "`coverage` _object, required_",
       "closes": "reason string; empty objects when complete). Disclosing a gap moves the class"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-809-snake-case-doesnotassert#0": {
-      "anchor": "L988-998",
+      "anchor": "L1020-1030",
       "digest": "4a17bc4ba2bf0b3d0a9866754ae74a82abde332c015cf68646ba40dad1a2fec0",
       "opens": "`doesNotAssert` _array of strings, optional_",
       "closes": "concern that the wire format does not carry."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-810-missing-issuedat#0": {
-      "anchor": "L1000-1002",
-      "digest": "c8fe4e29854c3f0417d44b7a2baa6dff554aa89c229423b92cc53eeb559974b9",
-      "opens": "`issuedAt` _string (RFC 3339 timestamp), required_",
-      "closes": "When the producer signed the evidence bundle."
+      "anchor": "L1032",
+      "digest": "9bff3a9b9f6ce06d35699a5a0f11d1daf2f61cc1e7eb8adcd4631fa2690bf314",
+      "opens": "`issuedAt` _Timestamp, required_",
+      "closes": "`issuedAt` _Timestamp, required_"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-811-issuedat-not-rfc3339#0": {
-      "anchor": "L1000-1002",
-      "digest": "c8fe4e29854c3f0417d44b7a2baa6dff554aa89c229423b92cc53eeb559974b9",
-      "opens": "`issuedAt` _string (RFC 3339 timestamp), required_",
-      "closes": "When the producer signed the evidence bundle."
+      "anchor": "L1032",
+      "digest": "9bff3a9b9f6ce06d35699a5a0f11d1daf2f61cc1e7eb8adcd4631fa2690bf314",
+      "opens": "`issuedAt` _Timestamp, required_",
+      "closes": "`issuedAt` _Timestamp, required_"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-812-missing-networkposture#0": {
       "anchor": "L450-461",
@@ -945,34 +945,34 @@
       "closes": "\"_type\": \"https://in-toto.io/Statement/v1\","
     },
     "vectors/reject/gen_invalid_vectors.py::bad-750-armedat-lowercase-separator#0": {
-      "anchor": "L823-828",
-      "digest": "a6cbf382b0c2f36efa27cdd4e6b509a515777b794cf3c86615da6e8b5bf618e3",
-      "opens": "carry `armedAt` in RFC 3339 with a zero UTC offset (`Z` or `+00:00`, never a",
-      "closes": "a boolean; `aeeDropCount`, an integer counting run-wide dropped"
+      "anchor": "L856",
+      "digest": "799765527fe32dab1ba43069091c25fe9623f9c540291bd1504f388889fb44fc",
+      "opens": "carry `armedAt` under the timestamp profile `issuedAt` defines, no",
+      "closes": "carry `armedAt` under the timestamp profile `issuedAt` defines, no"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-751-armedat-lowercase-zone-designator#0": {
-      "anchor": "L823-828",
-      "digest": "a6cbf382b0c2f36efa27cdd4e6b509a515777b794cf3c86615da6e8b5bf618e3",
-      "opens": "carry `armedAt` in RFC 3339 with a zero UTC offset (`Z` or `+00:00`, never a",
-      "closes": "a boolean; `aeeDropCount`, an integer counting run-wide dropped"
+      "anchor": "L856",
+      "digest": "799765527fe32dab1ba43069091c25fe9623f9c540291bd1504f388889fb44fc",
+      "opens": "carry `armedAt` under the timestamp profile `issuedAt` defines, no",
+      "closes": "carry `armedAt` under the timestamp profile `issuedAt` defines, no"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-820-issuedat-non-utc-offset#0": {
-      "anchor": "L1000-1002",
-      "digest": "c8fe4e29854c3f0417d44b7a2baa6dff554aa89c229423b92cc53eeb559974b9",
-      "opens": "`issuedAt` _string (RFC 3339 timestamp), required_",
-      "closes": "When the producer signed the evidence bundle."
+      "anchor": "L1032",
+      "digest": "9bff3a9b9f6ce06d35699a5a0f11d1daf2f61cc1e7eb8adcd4631fa2690bf314",
+      "opens": "`issuedAt` _Timestamp, required_",
+      "closes": "`issuedAt` _Timestamp, required_"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-821-issuedat-lowercase-separator#0": {
-      "anchor": "L1000-1002",
-      "digest": "c8fe4e29854c3f0417d44b7a2baa6dff554aa89c229423b92cc53eeb559974b9",
-      "opens": "`issuedAt` _string (RFC 3339 timestamp), required_",
-      "closes": "When the producer signed the evidence bundle."
+      "anchor": "L1032",
+      "digest": "9bff3a9b9f6ce06d35699a5a0f11d1daf2f61cc1e7eb8adcd4631fa2690bf314",
+      "opens": "`issuedAt` _Timestamp, required_",
+      "closes": "`issuedAt` _Timestamp, required_"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-822-issuedat-lowercase-zone-designator#0": {
-      "anchor": "L1000-1002",
-      "digest": "c8fe4e29854c3f0417d44b7a2baa6dff554aa89c229423b92cc53eeb559974b9",
-      "opens": "`issuedAt` _string (RFC 3339 timestamp), required_",
-      "closes": "When the producer signed the evidence bundle."
+      "anchor": "L1032",
+      "digest": "9bff3a9b9f6ce06d35699a5a0f11d1daf2f61cc1e7eb8adcd4631fa2690bf314",
+      "opens": "`issuedAt` _Timestamp, required_",
+      "closes": "`issuedAt` _Timestamp, required_"
     },
     "vectors/reject/gen_invalid_vectors.py::1#0": {
       "anchor": "L339",
@@ -1041,13 +1041,13 @@
       "closes": "`observationRecords`), carries the reserved members, and its"
     },
     "vectors/reject/gen_invalid_vectors.py::18#0": {
-      "anchor": "L810-814",
+      "anchor": "L843-847",
       "digest": "99c171ba35ad2c641dfcfe712d85116f5129bddc0bd592871a50a57a782b960c",
       "opens": "RFC 7493 (no duplicate members, integers within the safe range, member",
       "closes": "media type ends in `+json`, and which carries these reserved members as"
     },
     "vectors/reject/gen_invalid_vectors.py::19#0": {
-      "anchor": "L815-816",
+      "anchor": "L848-849",
       "digest": "46724f84a9d213b392520cad6a9507ab85392b1fe698b648757e1d3409c982d0",
       "opens": "top-level fields; a record whose payload is not so parseable, or whose",
       "closes": "media type is not `+json`, covers nothing:"
@@ -1071,55 +1071,55 @@
       "closes": "its covering records (`reconstructed` is weaker than `intercepted`);"
     },
     "vectors/reject/gen_invalid_vectors.py::24#0": {
-      "anchor": "L959",
+      "anchor": "L991",
       "digest": "4636ec8560cc0ead116100610dde879f5fd9c34863e805af0fdb6b5267573e9e",
       "opens": "`batchRoot` _string, required when `observationRecords` is non-empty_",
       "closes": "`batchRoot` _string, required when `observationRecords` is non-empty_"
     },
     "vectors/reject/gen_invalid_vectors.py::25#0": {
-      "anchor": "L961-964",
+      "anchor": "L993-996",
       "digest": "fe35b4fa4eb994d08cce68b9c08979782a8762e61e8498eff9ace26c3f411007",
       "opens": "An RFC 6962 Merkle root over the observation records, SHA-256, with",
       "closes": "by the RFC 6962 recursive split (never by duplicating a trailing node to"
     },
     "vectors/reject/gen_invalid_vectors.py::26#0": {
-      "anchor": "L964-966",
+      "anchor": "L996-998",
       "digest": "e756c9f428996b39ed6760c3edd78e33cb9278df13492c84e1ce45605630ecf0",
       "opens": "by the RFC 6962 recursive split (never by duplicating a trailing node to",
       "closes": "single-record tree's root its leaf hash, and an empty array with no root."
     },
     "vectors/reject/gen_invalid_vectors.py::27#0": {
-      "anchor": "L966",
+      "anchor": "L998",
       "digest": "c7d07beda78a7d7ec649e0c5963b941659f3668a9e444de809493192ce5fbf1f",
       "opens": "single-record tree's root its leaf hash, and an empty array with no root.",
       "closes": "single-record tree's root its leaf hash, and an empty array with no root."
     },
     "vectors/reject/gen_invalid_vectors.py::29#0": {
-      "anchor": "L968-969",
+      "anchor": "L1000-1001",
       "digest": "5ee52f2390f6d383e6b25c8907752c17d12545a6cf3f16483367a12a71c92057",
       "opens": "invalid: a record's canonical identity is its leaf hash, a positional",
       "closes": "reference is shorthand for the leaf hash at that position, and a future"
     },
     "vectors/reject/gen_invalid_vectors.py::30#0": {
-      "anchor": "L971-973",
+      "anchor": "L1003-1005",
       "digest": "25363553c90486607f15b24979aec89c1f462c2544a86dd2788c4a5bbbfb4f69",
       "opens": "`batchRoot` unchanged. Carried once at the predicate level. A `batchRoot`",
       "closes": "invalid. Because every `basis: substrate` row requires covering records"
     },
     "vectors/reject/gen_invalid_vectors.py::31#0": {
-      "anchor": "L976-986",
+      "anchor": "L1008-1018",
       "digest": "ef88aa556833d8248f6faa559898f8a15e825fa8c30b465d16d03232788b47fe",
       "opens": "`arming` and `sealed` records. The root commits to the set the statement",
       "closes": "`basis: artifact` rows."
     },
     "vectors/reject/gen_invalid_vectors.py::41#0": {
-      "anchor": "L561-562",
+      "anchor": "L594-595",
       "digest": "dd8790933b9d8ef12637d31c98d953d53016ddacdd1be37f3bfc869ded976f95",
       "opens": "`basis` states each observation's vantage, with a closed two-value",
       "closes": "vocabulary:"
     },
     "vectors/reject/gen_invalid_vectors.py::42#0": {
-      "anchor": "L596-597",
+      "anchor": "L629-630",
       "digest": "32b9c7bddd2e042bc85982bfbccfd7f6d8bbd31ee62e6544027756f25a9f3635",
       "opens": "`method` states how the row's claim was established, with a closed",
       "closes": "two-value vocabulary:"
@@ -1131,19 +1131,19 @@
       "closes": "of both orderings as before."
     },
     "vectors/reject/gen_invalid_vectors.py::45#0": {
-      "anchor": "L607-613",
+      "anchor": "L640-646",
       "digest": "901698c69ae8c24987c756ba96b7e26ef9879dd6f8d95df42f48fd17d7228305",
       "opens": "Like `basis`, `method` composes by weakest input: a claim inherits",
       "closes": "state examination is `reconstructed`."
     },
     "vectors/reject/gen_invalid_vectors.py::47#0": {
-      "anchor": "L767-775",
+      "anchor": "L800-808",
       "digest": "b95e1613bd4b24a35d54fa8cf5d103671d7d7a485c6bb7575170b3254eaea995",
       "opens": "`actualLayer` names the enforcement layer that acted on the row's",
       "closes": "malformed statement, not weak evidence. On a row whose"
     },
     "vectors/reject/gen_invalid_vectors.py::48#0": {
-      "anchor": "L776-781",
+      "anchor": "L809-814",
       "digest": "de9df6c7bc49ff92e6a889c7a54f268ae5a57b68d1f10fc6db1b127c8e4a8400",
       "opens": "`containmentObserved` label is from the carried",
       "closes": "accidental omission. `none` is also valid on a caught row, and there"
@@ -1203,37 +1203,37 @@
       "closes": "value it has already seen. `aeeBindingVersion` names this construction;"
     },
     "vectors/reject/gen_invalid_vectors.py::63#0": {
-      "anchor": "L821-827",
-      "digest": "a1fa2e3d2db6db053022cd90fb6a78da2f297b00485094cd9d814ea1a776bfee",
+      "anchor": "L854-858",
+      "digest": "70a5392248391d25346d4a6bb1f9e90c5bad3f5094bc83e470e24ad5f2d65360",
       "opens": "rows); `arming` (run-level: a live, cooperation-independent capture",
-      "closes": "vantage stayed armed to run-end; payload MUST carry `aeeStillArmed`,"
+      "closes": "`networkPosture` digest, and its `aeeMethod` MUST be `intercepted`);"
     },
     "vectors/reject/gen_invalid_vectors.py::64#0": {
-      "anchor": "L827-832",
-      "digest": "c8b5b8e43281870853ec737911163704c80a45d8d091d26472b6182fc1b4d1fc",
-      "opens": "vantage stayed armed to run-end; payload MUST carry `aeeStillArmed`,",
-      "closes": "substrate examined artifact-independent state after the fact; its"
+      "anchor": "L859-863",
+      "digest": "5ac353966477f43bab864c60006ef96c60de1623d102fc1e5549a8022b38e53c",
+      "opens": "`sealed` (run-level: the vantage stayed armed to run-end; payload MUST",
+      "closes": "integer bound; its `aeeMethod` MUST be `intercepted`); or"
     },
     "vectors/reject/gen_invalid_vectors.py::65#0": {
-      "anchor": "L842-922",
+      "anchor": "L874-954",
       "digest": "0f78633e5e607ef5cc92fb13f296ef866ddd9c98792f09ca9a31ee847186c920",
       "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
       "closes": "(armed, stayed armed, nothing dropped, posture unchanged) rather than"
     },
     "vectors/reject/gen_invalid_vectors.py::66#0": {
-      "anchor": "L832-834",
-      "digest": "e0dccc71bc37868c570dbd5bd605521d022d0a4b08602694d252a19a92acc39f",
-      "opens": "substrate examined artifact-independent state after the fact; its",
-      "closes": "the states compared)."
+      "anchor": "L864-866",
+      "digest": "ea8a49537ee419a9280ba0814014a69a4e10b4b5ac258c303b0dca26bc5e08d2",
+      "opens": "`examination` (the substrate examined artifact-independent state after",
+      "closes": "SHOULD identify the states compared)."
     },
     "vectors/reject/gen_invalid_vectors.py::68#0": {
-      "anchor": "L717-718",
+      "anchor": "L750-751",
       "digest": "b91f82431c6b0e53845e75f258a101bb6c99a0ece1b188332e5e4c716f0d5629",
       "opens": "is attested. One or more arming or sealed records MAY cover a run; each",
       "closes": "referenced record must independently satisfy its class constraints."
     },
     "vectors/reject/gen_invalid_vectors.py::71#0": {
-      "anchor": "L925-929",
+      "anchor": "L957-961",
       "digest": "c88fbba8fa1a96599633a5b69a83625d20cba1a148f82346125e743a6bc798eb",
       "opens": "record whose `aeeKind` the consumer does not recognize covers nothing and",
       "closes": "strengthen, a row (candidate future kinds, informatively: a hardware-quote"
@@ -1275,34 +1275,34 @@
       "closes": "MUST NOT appear under more than one class), `catchPolicy` (JCS digest of the"
     },
     "vectors/reject/gen_invalid_vectors.py::81#0": {
-      "anchor": "L495",
+      "anchor": "L529",
       "digest": "7cb4534dd368683adf6aecb977f5f68aafa59cc7ae97d01ad3071605de47e6b3",
       "opens": "One row per executed attack: `attackId` (must appear in the manifest),",
       "closes": "One row per executed attack: `attackId` (must appear in the manifest),"
     },
     "vectors/reject/gen_invalid_vectors.py::82#0": {
-      "anchor": "L531-534",
+      "anchor": "L565-568",
       "digest": "1ff604223626486ec0980b21e4ba79911d19ef4f73f362e50175648e76fd49f0",
       "opens": "Coverage integrity is checked at attack granularity: the union of attackIds",
       "closes": "producer still reports as assessed."
     },
     "vectors/reject/gen_invalid_vectors.py::83#0": {
-      "anchor": "L480-484",
+      "anchor": "L514-518",
       "digest": "5a457f13f1323cdd7dc2a0e83eaba5b5a5cbb03345883c303d0ece172972bed2",
       "opens": "`coverage` _object, required_",
       "closes": "reason string; empty objects when complete). Disclosing a gap moves the class"
     },
     "vectors/reject/gen_invalid_vectors.py::84#0": {
-      "anchor": "L988-998",
+      "anchor": "L1020-1030",
       "digest": "4a17bc4ba2bf0b3d0a9866754ae74a82abde332c015cf68646ba40dad1a2fec0",
       "opens": "`doesNotAssert` _array of strings, optional_",
       "closes": "concern that the wire format does not carry."
     },
     "vectors/reject/gen_invalid_vectors.py::85#0": {
-      "anchor": "L1000-1002",
-      "digest": "c8fe4e29854c3f0417d44b7a2baa6dff554aa89c229423b92cc53eeb559974b9",
-      "opens": "`issuedAt` _string (RFC 3339 timestamp), required_",
-      "closes": "When the producer signed the evidence bundle."
+      "anchor": "L1032",
+      "digest": "9bff3a9b9f6ce06d35699a5a0f11d1daf2f61cc1e7eb8adcd4631fa2690bf314",
+      "opens": "`issuedAt` _Timestamp, required_",
+      "closes": "`issuedAt` _Timestamp, required_"
     },
     "vectors/reject/gen_invalid_vectors.py::86#0": {
       "anchor": "L133-146",
@@ -1317,37 +1317,37 @@
       "closes": "supplementary-plane vocabulary entry makes the statement malformed."
     },
     "vectors/reject/gen_invalid_vectors.py::88#0": {
-      "anchor": "L495-501",
+      "anchor": "L529-535",
       "digest": "8584ea6d5603109f1490877bca03b5b1615359b5d00a0b4063c8bd64e2f52488",
       "opens": "One row per executed attack: `attackId` (must appear in the manifest),",
       "closes": "`observationRefs`"
     },
     "vectors/reject/gen_invalid_vectors.py::90#0": {
-      "anchor": "L509-511",
+      "anchor": "L543-545",
       "digest": "b8020da9c48b908cc807671ccb2715fc20d8cb09a8eb5695d920184ed64610ae",
       "opens": "No two `attackResults` rows may carry the same `attackId`: one row per",
       "closes": "duplicate `attackId` across rows is malformed. Coverage integrity"
     },
     "vectors/reject/gen_invalid_vectors.py::89#0": {
-      "anchor": "L849-880",
+      "anchor": "L881-912",
       "digest": "5a5bbf9c14493cb323c2386b6bccad77bc83dc021e02bb7b9162a97ecb4612fe",
       "opens": "An `arming` record's payload MAY additionally carry three reserved members",
       "closes": "validity requirements, the `result` recompute, and the evidence tier are"
     },
     "vectors/reject/gen_invalid_vectors.py::91#0": {
-      "anchor": "L798-800",
+      "anchor": "L831-833",
       "digest": "e0f1c03133309284c9b105cee0d71eb793fac400fbb6acbb7f1816a982e705ff",
       "opens": "One DSSE envelope per observation: `payload` (base64 of the exact",
       "closes": "and `signatures`, which MUST carry at least one entry. A consumer verifies"
     },
     "vectors/reject/gen_invalid_vectors.py::92#0": {
-      "anchor": "L536-559",
-      "digest": "88dcf18effda90532dc0487227f6e54af2c6c3289706b69aa188a23e7b60d8f1",
+      "anchor": "L570-592",
+      "digest": "8bf6062b3d8dc4601f074d487349a10d4754f4a0182673ad3b5dc5e85db434a1",
       "opens": "That comparison is only as strong as the manifest it reads against, so the",
       "closes": "by this requirement, because its manifest declares an attack identifier."
     },
     "vectors/reject/gen_invalid_vectors.py::write_index#0": {
-      "anchor": "L1036-1038",
+      "anchor": "L1084-1086",
       "digest": "b0306298aa252f910e3e3ac79c62e73193b85106eaa733b53e18e461324ed5ff",
       "opens": "as a live one. The check that matters is signature verification against a",
       "closes": "hint and never the check itself:"
@@ -1377,13 +1377,13 @@
       "closes": "`aeeRunBinding` equals the run binding digest derived from this"
     },
     "vectors/interpretation-decisions.json::1#2": {
-      "anchor": "L816-819",
+      "anchor": "L849-852",
       "digest": "f52c8a8ac299a0b3330e3c0bdc73ab34cda60f72f655e9d5a40af42403ddb2a3",
       "opens": "media type is not `+json`, covers nothing:",
       "closes": "Prerequisites."
     },
     "vectors/interpretation-decisions.json::1#3": {
-      "anchor": "L838-839",
+      "anchor": "L870-871",
       "digest": "dd3260ba296ec5838adcfd7751420c9937a77d9700654b3e3c8cac1dd9d8f0ba",
       "opens": "A record violating any constraint of its declared `aeeKind` (including a",
       "closes": "missing `armedAt` on an `arming` record, an `armedAt` after `issuedAt`, an"
@@ -1395,16 +1395,16 @@
       "closes": "payloads but never signatures or consumer policy, so they are a pure function"
     },
     "vectors/interpretation-decisions.json::1#5": {
-      "anchor": "L816-819",
+      "anchor": "L849-852",
       "digest": "f52c8a8ac299a0b3330e3c0bdc73ab34cda60f72f655e9d5a40af42403ddb2a3",
       "opens": "media type is not `+json`, covers nothing:",
       "closes": "Prerequisites."
     },
     "vectors/interpretation-decisions.json::1#6": {
-      "anchor": "L838-841",
-      "digest": "22a72ddec5b77504df684f5dca9181748a71b1f6bd7ff5e29df8596df7aa4fe7",
+      "anchor": "L870-873",
+      "digest": "a0d0a3d721a2feda23d5cbe0bf539cdbc991b7796531c7abf26391b448c7113b",
       "opens": "A record violating any constraint of its declared `aeeKind` (including a",
-      "closes": "an `examination` record signed `aeeMethod: intercepted`) covers nothing."
+      "closes": "`aeeMethod: intercepted`) covers nothing."
     },
     "vectors/interpretation-decisions.json::2#0": {
       "anchor": "L396-397",
@@ -1413,7 +1413,7 @@
       "closes": "its covering records (`reconstructed` is weaker than `intercepted`);"
     },
     "vectors/interpretation-decisions.json::2#1": {
-      "anchor": "L923-924",
+      "anchor": "L955-956",
       "digest": "abec7c0aa021afd2f35a79c67188fce4e5e6832bf60631bf3af07c3a740ea821",
       "opens": "mechanism-specific: how a substrate establishes them (a checkpoint chain,",
       "closes": "a sequence counter, a hardware watchdog) stays producer territory. A"
@@ -1425,19 +1425,19 @@
       "closes": "its covering records (`reconstructed` is weaker than `intercepted`);"
     },
     "vectors/interpretation-decisions.json::2#3": {
-      "anchor": "L925-926",
+      "anchor": "L957-958",
       "digest": "c18e4e04272f42ba1455361d801b05423a9f73e2294140ec7b23fe7e76a1b518",
       "opens": "record whose `aeeKind` the consumer does not recognize covers nothing and",
       "closes": "is otherwise ignored, while still contributing its leaf to `batchRoot`;"
     },
     "vectors/interpretation-decisions.json::3#0": {
-      "anchor": "L965-967",
+      "anchor": "L997-999",
       "digest": "547e9a27a6b94a93ae474211c0fde69aecaa9ef26a8d1a37856952a83a1411d8",
       "opens": "pad the leaf count), leaves in `observationRecords` array order, a",
       "closes": "Two byte-identical entries in `observationRecords` make the attestation"
     },
     "vectors/interpretation-decisions.json::3#1": {
-      "anchor": "L967-969",
+      "anchor": "L999-1001",
       "digest": "9f8ed3e077d0a6fc19a6ffa1b68d552c62384f87bcaf41a11cb3aafa40e91883",
       "opens": "Two byte-identical entries in `observationRecords` make the attestation",
       "closes": "reference is shorthand for the leaf hash at that position, and a future"
@@ -1449,43 +1449,37 @@
       "closes": "of both orderings as before."
     },
     "vectors/interpretation-decisions.json::4#1": {
-      "anchor": "L477-483",
-      "digest": "2845e6a1b154f3beb9b491b7f24f10a25c12fa971b810b27cbef4b79178acf9b",
-      "opens": "`corpus.digest` offline and any edit to the assessed set (a dropped attack, a",
-      "closes": "assessed), `outOfScope` and `routedElsewhere` (maps from class code to a"
-    },
-    "vectors/interpretation-decisions.json::4#2": {
-      "anchor": "L630-633",
+      "anchor": "L663-666",
       "digest": "4d52ac9e163402dfba0573bda3acae591624c69b90840a2f453093f15dea60cc",
       "opens": "Both fields are REQUIRED on every row and both vocabularies are closed: a",
       "closes": "`result` to `fail` and can support nothing stronger. The 0.4 values"
     },
-    "vectors/interpretation-decisions.json::4#3": {
-      "anchor": "L768-775",
+    "vectors/interpretation-decisions.json::4#2": {
+      "anchor": "L801-808",
       "digest": "4401b64b38e39a8324f445e1d4e8be7d247161543daa0c472c1d7e294899537d",
       "opens": "containment event. It is required on every row; a row missing the member",
       "closes": "malformed statement, not weak evidence. On a row whose"
     },
-    "vectors/interpretation-decisions.json::4#4": {
-      "anchor": "L630-633",
+    "vectors/interpretation-decisions.json::4#3": {
+      "anchor": "L663-666",
       "digest": "4d52ac9e163402dfba0573bda3acae591624c69b90840a2f453093f15dea60cc",
       "opens": "Both fields are REQUIRED on every row and both vocabularies are closed: a",
       "closes": "`result` to `fail` and can support nothing stronger. The 0.4 values"
     },
-    "vectors/interpretation-decisions.json::4#5": {
+    "vectors/interpretation-decisions.json::4#4": {
       "anchor": "L428-431",
       "digest": "41c401eebd7d30ca1ab35fc9e4e191a236c89cbd3e53481a2583b11dcc05d392",
       "opens": "`containmentObserved`, `basis`, or `method` is fail-closed (outside the",
       "closes": "of both orderings as before."
     },
     "vectors/interpretation-decisions.json::5#0": {
-      "anchor": "L775-777",
+      "anchor": "L808-810",
       "digest": "40b91604f347a84e7c010a6ba5a9d8a9c3f97f80c2580c7331ca94dc7c791298",
       "opens": "malformed statement, not weak evidence. On a row whose",
       "closes": "`observationVocabulary.labels` but not in the caught set (a clean row:"
     },
     "vectors/interpretation-decisions.json::5#1": {
-      "anchor": "L775-777",
+      "anchor": "L808-810",
       "digest": "40b91604f347a84e7c010a6ba5a9d8a9c3f97f80c2580c7331ca94dc7c791298",
       "opens": "malformed statement, not weak evidence. On a row whose",
       "closes": "`observationVocabulary.labels` but not in the caught set (a clean row:"
@@ -1497,25 +1491,25 @@
       "closes": "`sinkhole`, with its configuration digest), and `observationVocabulary` (the"
     },
     "vectors/interpretation-decisions.json::6#1": {
-      "anchor": "L480-487",
+      "anchor": "L514-521",
       "digest": "3a11b6f6942859ad5602796f72d9dcad498a2aaf41f7fac011e65d7621891844",
       "opens": "`coverage` _object, required_",
       "closes": "one. The three sets are a disjoint partition of the manifest's classes: a"
     },
     "vectors/interpretation-decisions.json::6#2": {
-      "anchor": "L531-534",
+      "anchor": "L565-568",
       "digest": "1ff604223626486ec0980b21e4ba79911d19ef4f73f362e50175648e76fd49f0",
       "opens": "Coverage integrity is checked at attack granularity: the union of attackIds",
       "closes": "producer still reports as assessed."
     },
     "vectors/interpretation-decisions.json::6#3": {
-      "anchor": "L480-487",
+      "anchor": "L514-521",
       "digest": "3a11b6f6942859ad5602796f72d9dcad498a2aaf41f7fac011e65d7621891844",
       "opens": "`coverage` _object, required_",
       "closes": "one. The three sets are a disjoint partition of the manifest's classes: a"
     },
     "vectors/interpretation-decisions.json::6#4": {
-      "anchor": "L531-534",
+      "anchor": "L565-568",
       "digest": "1ff604223626486ec0980b21e4ba79911d19ef4f73f362e50175648e76fd49f0",
       "opens": "Coverage integrity is checked at attack granularity: the union of attackIds",
       "closes": "producer still reports as assessed."
@@ -1545,37 +1539,37 @@
       "closes": "fail-closed (the arming record covers nothing) when the value is a version it"
     },
     "vectors/interpretation-decisions.json::8#0": {
-      "anchor": "L824-828",
-      "digest": "362523d8c4282a7fe42fae2dddde87bc089c6f72af4e601b4cb8a74c846e9183",
-      "opens": "non-zero offset such as `+05:00`) no later than `issuedAt` and",
-      "closes": "a boolean; `aeeDropCount`, an integer counting run-wide dropped"
+      "anchor": "L856-857",
+      "digest": "d543d6ddc3202345f90a3cc30f710e95aa598ae702b77d64a99ea90205c300f6",
+      "opens": "carry `armedAt` under the timestamp profile `issuedAt` defines, no",
+      "closes": "later than `issuedAt`, and `aeePostureDigest` equal to the pinned"
     },
     "vectors/interpretation-decisions.json::8#1": {
-      "anchor": "L998-1000",
-      "digest": "568fd20afbe49e5adf9c6be8895e8ee5ab44aa30327b9b554d0d56dbde384eb9",
+      "anchor": "L1030-1032",
+      "digest": "4891b176bf80a8fed79ad85d3883df3466842f9dec1df89a29a017a25bcf5d17",
       "opens": "concern that the wire format does not carry.",
-      "closes": "`issuedAt` _string (RFC 3339 timestamp), required_"
+      "closes": "`issuedAt` _Timestamp, required_"
     },
     "vectors/interpretation-decisions.json::8#2": {
-      "anchor": "L998-1000",
-      "digest": "568fd20afbe49e5adf9c6be8895e8ee5ab44aa30327b9b554d0d56dbde384eb9",
+      "anchor": "L1030-1032",
+      "digest": "4891b176bf80a8fed79ad85d3883df3466842f9dec1df89a29a017a25bcf5d17",
       "opens": "concern that the wire format does not carry.",
-      "closes": "`issuedAt` _string (RFC 3339 timestamp), required_"
+      "closes": "`issuedAt` _Timestamp, required_"
     },
     "vectors/interpretation-decisions.json::8#3": {
-      "anchor": "L824-828",
-      "digest": "362523d8c4282a7fe42fae2dddde87bc089c6f72af4e601b4cb8a74c846e9183",
-      "opens": "non-zero offset such as `+05:00`) no later than `issuedAt` and",
-      "closes": "a boolean; `aeeDropCount`, an integer counting run-wide dropped"
+      "anchor": "L856-857",
+      "digest": "d543d6ddc3202345f90a3cc30f710e95aa598ae702b77d64a99ea90205c300f6",
+      "opens": "carry `armedAt` under the timestamp profile `issuedAt` defines, no",
+      "closes": "later than `issuedAt`, and `aeePostureDigest` equal to the pinned"
     },
     "vectors/interpretation-decisions.json::9#0": {
-      "anchor": "L798-816",
+      "anchor": "L831-849",
       "digest": "63ab3995c9242ac11f8f2428d30bba7211d52e48dd82c0778e87232012b88404",
       "opens": "One DSSE envelope per observation: `payload` (base64 of the exact",
       "closes": "media type is not `+json`, covers nothing:"
     },
     "vectors/interpretation-decisions.json::9#1": {
-      "anchor": "L798-816",
+      "anchor": "L831-849",
       "digest": "63ab3995c9242ac11f8f2428d30bba7211d52e48dd82c0778e87232012b88404",
       "opens": "One DSSE envelope per observation: `payload` (base64 of the exact",
       "closes": "media type is not `+json`, covers nothing:"
@@ -1587,13 +1581,13 @@
       "closes": "prefix `aee`, MUST be ignored and MUST NOT alter the derivation."
     },
     "vectors/interpretation-decisions.json::10#1": {
-      "anchor": "L1034-1036",
+      "anchor": "L1082-1084",
       "digest": "3f1ddebb3f27bbe82d0aee45da7eef2e78be62984eec1d1af3065382c8245b1b",
       "opens": "minimal policy in the style of a witness layout, keyed on both the derived",
       "closes": "as a live one. The check that matters is signature verification against a"
     },
     "vectors/interpretation-decisions.json::10#2": {
-      "anchor": "L1036-1038",
+      "anchor": "L1084-1086",
       "digest": "b0306298aa252f910e3e3ac79c62e73193b85106eaa733b53e18e461324ed5ff",
       "opens": "as a live one. The check that matters is signature verification against a",
       "closes": "hint and never the check itself:"
@@ -1623,19 +1617,19 @@
       "closes": "already lowercase 64-hex; a substrate-row-carrying statement violating this"
     },
     "vectors/interpretation-decisions.json::13#0": {
-      "anchor": "L495-508",
+      "anchor": "L529-542",
       "digest": "b76a44051d7f20d6f9d0899f30d0c5155b1c6cc0c4a895a56b9fc126dddb23fd",
       "opens": "One row per executed attack: `attackId` (must appear in the manifest),",
       "closes": "neither can nor may invent an evidencing heuristic for shared references."
     },
     "vectors/interpretation-decisions.json::13#1": {
-      "anchor": "L495",
+      "anchor": "L529",
       "digest": "7cb4534dd368683adf6aecb977f5f68aafa59cc7ae97d01ad3071605de47e6b3",
       "opens": "One row per executed attack: `attackId` (must appear in the manifest),",
       "closes": "One row per executed attack: `attackId` (must appear in the manifest),"
     },
     "vectors/interpretation-decisions.json::14#0": {
-      "anchor": "L482-487",
+      "anchor": "L516-521",
       "digest": "b73dfc845473067ce2d3c18a120719dc29d6a4773047ff923a242ccbc55bf3f6",
       "opens": "The coverage bound: `assessedClasses` (array of class codes actually",
       "closes": "one. The three sets are a disjoint partition of the manifest's classes: a"
@@ -1671,31 +1665,31 @@
       "closes": "any decoded string is read."
     },
     "vectors/coverage-unforced.json::U1#0": {
-      "anchor": "L515-520",
+      "anchor": "L549-554",
       "digest": "f41df7e06112774b3da3d633e6754c427c043bce2e38fe28904f4f9803174b80",
       "opens": "Wherever `observationRefs` is present - on any row, regardless of `basis`,",
       "closes": "silently ignored."
     },
     "vectors/coverage-unforced.json::U2#0": {
-      "anchor": "L889-898",
+      "anchor": "L921-930",
       "digest": "ae6c39dba07b264d84e31e5eff9a8934d1a2cd0177930e20b4674744b6d14b72",
       "opens": "whatever set a producer publishes. A consumer compares each attestation's",
       "closes": "coarser. Among admitted attestations the rules key on the evaluated tuple,"
     },
     "vectors/coverage-unforced.json::U3#0": {
-      "anchor": "L898-905",
+      "anchor": "L930-937",
       "digest": "6c6c9bd7d2bd59de210916e2d6ca5e7e2b3106308421a6dc0f0f12df3f3c6a33",
       "opens": "coarser. Among admitted attestations the rules key on the evaluated tuple,",
       "closes": "under an identical tuple is a reset. A chain reset is not a fresh start. The"
     },
     "vectors/coverage-unforced.json::U4#0": {
-      "anchor": "L898-905",
+      "anchor": "L930-937",
       "digest": "6c6c9bd7d2bd59de210916e2d6ca5e7e2b3106308421a6dc0f0f12df3f3c6a33",
       "opens": "coarser. Among admitted attestations the rules key on the evaluated tuple,",
       "closes": "under an identical tuple is a reset. A chain reset is not a fresh start. The"
     },
     "vectors/coverage-unforced.json::U5#0": {
-      "anchor": "L1011-1029",
+      "anchor": "L1059-1077",
       "digest": "18021d33311d55bad5af1ed42225738c27b7dd20497f2894a33ab86ec568d975",
       "opens": "### Consumer policy obligations",
       "closes": "valid-but-wrong-context attestation as admissible."
@@ -1707,7 +1701,7 @@
       "closes": "with `method: intercepted` references at least one `interception`"
     },
     "vectors/CHANGES.md::suiteRevision 3 (round-8 reason-map membership)#0": {
-      "anchor": "L487-489",
+      "anchor": "L521-523",
       "digest": "71c96ed2cd1361ff30bdfa60e8f579a4ebf19fcb772534d7f7253c815a20f94e",
       "opens": "one. The three sets are a disjoint partition of the manifest's classes: a",
       "closes": "`routedElsewhere` (a move, not a copy). A class in more than one of the three,"
@@ -1719,25 +1713,25 @@
       "closes": "already lowercase 64-hex; a substrate-row-carrying statement violating this"
     },
     "vectors/CHANGES.md::suiteRevision 2 (round-7 chain-scope redesign)#1": {
-      "anchor": "L495-508",
+      "anchor": "L529-542",
       "digest": "b76a44051d7f20d6f9d0899f30d0c5155b1c6cc0c4a895a56b9fc126dddb23fd",
       "opens": "One row per executed attack: `attackId` (must appear in the manifest),",
       "closes": "neither can nor may invent an evidencing heuristic for shared references."
     },
     "vectors/CHANGES.md::suiteRevision 2 (round-7 chain-scope redesign)#2": {
-      "anchor": "L482-487",
+      "anchor": "L516-521",
       "digest": "b73dfc845473067ce2d3c18a120719dc29d6a4773047ff923a242ccbc55bf3f6",
       "opens": "The coverage bound: `assessedClasses` (array of class codes actually",
       "closes": "one. The three sets are a disjoint partition of the manifest's classes: a"
     },
     "docs/interpretation-decisions-open.md::RESOLVED: Corner A -- Duplicate `attackId` rows#0": {
-      "anchor": "L495-508",
+      "anchor": "L529-542",
       "digest": "b76a44051d7f20d6f9d0899f30d0c5155b1c6cc0c4a895a56b9fc126dddb23fd",
       "opens": "One row per executed attack: `attackId` (must appear in the manifest),",
       "closes": "neither can nor may invent an evidencing heuristic for shared references."
     },
     "docs/interpretation-decisions-open.md::RESOLVED: Corner B -- `assessedClasses` overlapping the gap maps#0": {
-      "anchor": "L482-487",
+      "anchor": "L516-521",
       "digest": "b73dfc845473067ce2d3c18a120719dc29d6a4773047ff923a242ccbc55bf3f6",
       "opens": "The coverage bound: `assessedClasses` (array of class codes actually",
       "closes": "one. The three sets are a disjoint partition of the manifest's classes: a"
@@ -1749,7 +1743,7 @@
       "closes": "already lowercase 64-hex; a substrate-row-carrying statement violating this"
     },
     "docs/interpretation-decisions-open.md::suiteRevision 3: reason-map membership vectors#0": {
-      "anchor": "L487-489",
+      "anchor": "L521-523",
       "digest": "71c96ed2cd1361ff30bdfa60e8f579a4ebf19fcb772534d7f7253c815a20f94e",
       "opens": "one. The three sets are a disjoint partition of the manifest's classes: a",
       "closes": "`routedElsewhere` (a move, not a copy). A class in more than one of the three,"
@@ -1761,13 +1755,13 @@
       "closes": "sequencing itself is informative."
     },
     "docs/interpretation-decisions-open.md::suiteRevision 9: which condition wins when a statement carries two#1": {
-      "anchor": "L800-802",
+      "anchor": "L833-835",
       "digest": "28be11555b417cd6685971a47a57968bbec6abe92bd31e59456ef6c9a9283a60",
       "opens": "and `signatures`, which MUST carry at least one entry. A consumer verifies",
       "closes": "relying on any field inside the payload. The order is deliberate and the"
     },
     "docs/interpretation-decisions-open.md::suiteRevision 9: which condition wins when a statement carries two#2": {
-      "anchor": "L949-951",
+      "anchor": "L981-983",
       "digest": "09477573cacc695830bd00f714525a243c0cd430b0dc4cde657a0fbfcc91cd99",
       "opens": "nothing, never create it), and the verify-then-read discipline is",
       "closes": "verifies), which closes the parse-before-verify class of deployment"

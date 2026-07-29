@@ -796,7 +796,7 @@ def _timestamp_ok(v: Any) -> bool:
     """Whether a value is carried under the predicate's Timestamp field type.
 
     The type requires RFC 3339 in the UTC timezone; the predicate pins the two
-    choices that type leaves open (spec:855), and the two are checked separately
+    choices that type leaves open (spec:869), and the two are checked separately
     because they are separate rules. The pattern carries the case half: an
     uppercase separator and zone designator, never the lowercase `t` and `z`
     RFC 3339 also admits. The pattern accepts any numeric offset, so the zone
@@ -1402,7 +1402,7 @@ class ReferenceVerifier:
             views = [RecordView(i, rec) for i, rec in enumerate(records)]
             # Envelope shape before payload bytes, mirroring Go
             # validity.go:137-143: every record's signatures member MUST carry
-            # at least one entry (spec:831-833), and an absent member is the
+            # at least one entry (spec:845-847), and an absent member is the
             # same zero as an empty array. The check is a count and proves
             # nothing about the entries it counts -- fabricated signature bytes
             # satisfy it and are caught only by verification at the tier -- but

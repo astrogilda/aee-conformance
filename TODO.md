@@ -57,6 +57,22 @@ proposal out of draft.
 - [ ] **Fail-closed client hygiene** — for any network path a verifier may use, enforce
   immutable config, single-flight, error-on-redirect, and coerce-unknown-toward-reject.
 
+## Known gaps in the gates
+
+- [ ] **A vendored copy that is refreshed, recorded, then reverted stays green.** The
+  consumer-lag gate compares `vectors/CONSUMERS.json` against the corpus published here,
+  and that ledger records what each copy carried when it was last synced. A copy reverted
+  after its sync would keep a stale ledger entry that still matches, and the copy's own
+  stamp check cannot see it either, since a revert plus a re-stamp is internally
+  consistent. Closing it needs this repository to read the consumer, which is the
+  cross-repository read the gate is built to avoid. File: `scripts/consumer-lag-gate.py`.
+- [ ] **The sync's re-aim check cannot see a truncated anchor.** `--sync` refuses to move
+  an anchor off text that is still in the document, which catches an anchor whose range
+  collapsed onto unrelated prose. An anchor cut short of the requirement it exists for,
+  where the prose it lost was also edited, reads as an ordinary rewrite and is only
+  reported for review. Fix: compare the anchor's own subject rather than its former text.
+  File: `scripts/spec-anchor-gate.py`.
+
 ## Recently landed
 
 - [x] **Force reason-map membership on all three coverage sets** (2026-07-26, `cf0d540`) —

@@ -89,7 +89,7 @@ jobs:
       - name: sync toolchain
         run: uv sync --extra dev --extra generators
       - name: mypy --strict
-        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/spec-anchor-gate.py scripts/code-contract-gate.py
+        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/spec-anchor-gate.py scripts/code-contract-gate.py scripts/consumer-lag-gate.py
       - name: ruff
         run: uv run ruff check packaging vectors scripts
       # The other half of the accepted-complexity gate. It runs here rather than
@@ -120,5 +120,13 @@ jobs:
         run: python3 scripts/code-contract-gate.py
       - name: requirement-coverage matrix is current
         run: python3 scripts/coverage-matrix-gate.py --check
+      # The corpus is vendored into rails that live in other repositories, and
+      # each of those checks its own copy against its own stamp. Nothing asked
+      # whether the copy was current, so the refresh ran when somebody
+      # remembered and twice it was not remembered. This gate makes a corpus
+      # change here fail until the rails carry it, which is the only place the
+      # question can be asked without one repository reading another in CI.
+      - name: consumers carry the corpus this repository publishes
+        run: python3 scripts/consumer-lag-gate.py --check
       - name: replay every vector on the Python rail (must be 165/165)
         run: python3 packaging/run_vectors.py

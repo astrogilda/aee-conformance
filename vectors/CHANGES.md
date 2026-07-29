@@ -5,6 +5,56 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 11 (the amendment run vendored, with the corpus unmoved)
+
+- Corpus: **165 vectors (38 accept, 127 reject)**. Every vector file is
+  byte-identical to revision 10, verified by digesting all 165 before and after
+  regeneration rather than inferred from the absence of a generator change. No
+  conformance claim moves and no rail has anything new to replay.
+- **Why a revision exists at all.** The authority the corpus certifies against
+  moved. The vendor pin advances from `b9a585a` to `a2d173a` and the recorded
+  `specDigest` to `4939d450...`, taking in four upstream amendments. A revision
+  is how this suite records which bytes of the predicate a conformance claim was
+  measured against, so a pin that moves is a revision even when the vectors do
+  not, and an implementer diffing the vendored copy against the commit the pin
+  names gets an answer that is true of exactly one revision.
+- **Why the corpus does not move.** Of the four amendments, one was already
+  forced when it was written: revision 10 carries the seven vectors for the
+  timestamp profile, drawn against upstream text that had not yet been committed,
+  which is why its closing bullet asked for this re-vendor. The other three land
+  outside what a single self-contained statement can exercise. Dropping the
+  condition code from the manifest requirement and adopting the framework's
+  descriptor type where it fits are both statements about how the document types
+  and names things the rails already agreed on. The last is a consumer
+  obligation in stage two, which the byte-pure validity gate does not reach.
+- **The correction the last amendment makes.** The document had told a consumer
+  it may bound a named key with a validity window checked against `issuedAt`.
+  That field is producer-asserted, sits inside no substrate signature, and is not
+  among the run binding digest's inputs, so the party a key bound exists to
+  constrain moves it with a one-field edit that changes no digest and breaks no
+  signature; back-dating alone rehabilitates every record a revoked key ever
+  signed. The window keeps its choice about whether to exist and loses its choice
+  of operand: it is evaluated against an `armedAt` inside an `arming` record that
+  verifies under the bounded key, and a statement carrying no such record is
+  refused rather than falling back. This suite cannot force that rule, because
+  a corpus of single statements has no key lifetime to place them in, and the
+  requirement is recorded in the unforced complement rather than left implicit.
+- **The citations and anchors were remapped, and the remap was checked rather
+  than trusted.** The completing pass moved 28 `spec:NNN` citations and 110
+  `Lnnn` anchors onto the new line numbers. All 294 pinned citations recompute
+  to the digest and the excerpts they were pinned to, so not one of them came out
+  of this remap addressing prose it was not drawn around. That is the opposite
+  outcome to the pass before it, where nine anchors came out of the remap wrong
+  and were found by a person reading the excerpt diff. The refresh now asserts
+  this for itself rather than leaving it to that reading: it refuses to record an
+  anchor that came off prose the document still contains, and re-running the
+  earlier pass against the current tooling stops it and names eight of the nine.
+- **One entry for the run, not one per pass.** The pin was caught up in two
+  passes, and neither moved a vector byte. Bumping on each would publish two
+  revisions carrying an identical corpus, which tells a reader that something
+  about the vectors changed twice when nothing about them changed at all, so the
+  earlier pass deliberately left the number alone and this entry covers both.
+
 ## suiteRevision 10 (one timestamp profile, cited from both fields that carry it)
 
 - Corpus: **165 vectors (38 accept, 127 reject)**. Five rejects and two accepts

@@ -11,10 +11,10 @@
       "specAnchors": [
         "L373-398",
         "L391-394",
-        "L849-852",
-        "L870-871"
+        "L863-866",
+        "L884-885"
       ],
-      "reading": "The coverage-validity bullets (references resolve in range and class-match; every referenced payload parses as canonical +json carrying the reserved members with aeeRunBinding equal to the derived binding; method cap; batchRoot) are a HARD validity requirement: 'the following MUST hold or the attestation is invalid' (L373-376). Kind-constraint violations (a bad armedAt, posture/method mismatch, sealed conditions, run-chaining syntax, unknown aeeKind) make the record 'cover nothing' (L849-852, L870-873), invalidating only when the row is left without its required class cover. Both altitudes are quoted verbatim in the spec.",
+      "reading": "The coverage-validity bullets (references resolve in range and class-match; every referenced payload parses as canonical +json carrying the reserved members with aeeRunBinding equal to the derived binding; method cap; batchRoot) are a HARD validity requirement: 'the following MUST hold or the attestation is invalid' (L373-376). Kind-constraint violations (a bad armedAt, posture/method mismatch, sealed conditions, run-chaining syntax, unknown aeeKind) make the record 'cover nothing' (L863-866, L884-887), invalidating only when the row is left without its required class cover. Both altitudes are quoted verbatim in the spec.",
       "forcingVectors": [
         "bad-205-payload-missing-runbinding",
         "bad-206-payload-missing-kind",
@@ -33,9 +33,9 @@
       "classification": "forced",
       "specAnchors": [
         "L396-397",
-        "L955-956"
+        "L969-970"
       ],
-      "reading": "'The row's method is no stronger than the weakest aeeMethod across its covering records' (L396-397) is computed over the referenced records that class-match and pass their kind constraints. A record whose aeeKind the consumer does not recognize 'covers nothing and is otherwise ignored' (L957-958), so it is excluded from the cap; likewise non-covering records. bad-304 locks the min-composition over covering records; ok-035 locks that a referenced unknown-kind record signed reconstructed neither invalidates an intercepted row nor lowers its cap.",
+      "reading": "'The row's method is no stronger than the weakest aeeMethod across its covering records' (L396-397) is computed over the referenced records that class-match and pass their kind constraints. A record whose aeeKind the consumer does not recognize 'covers nothing and is otherwise ignored' (L971-972), so it is excluded from the cap; likewise non-covering records. bad-304 locks the min-composition over covering records; ok-035 locks that a referenced unknown-kind record signed reconstructed neither invalidates an intercepted row nor lowers its cap.",
       "forcingVectors": [
         "bad-304-method-cap-multirecord",
         "bad-302-method-inflation",
@@ -49,9 +49,9 @@
       "title": "Duplicate records by leaf hash",
       "classification": "forced",
       "specAnchors": [
-        "L997-999"
+        "L1011-1013"
       ],
-      "reading": "'Two byte-identical entries in observationRecords make the attestation invalid: a record's canonical identity is its leaf hash' (L999-1001). The leaf hash is H(0x00 || DSSE PAE(payloadType, payload)), so a shared leaf hash and byte-identical PAE bytes are equivalent: a discriminating vector (distinct payloads, same leaf) is unconstructible, so bad-405 fully locks the reading.",
+      "reading": "'Two byte-identical entries in observationRecords make the attestation invalid: a record's canonical identity is its leaf hash' (L1013-1015). The leaf hash is H(0x00 || DSSE PAE(payloadType, payload)), so a shared leaf hash and byte-identical PAE bytes are equivalent: a discriminating vector (distinct payloads, same leaf) is unconstructible, so bad-405 fully locks the reading.",
       "forcingVectors": [
         "bad-405-duplicate-records"
       ]
@@ -63,7 +63,7 @@
       "specAnchors": [
         "L428-431",
         "L663-666",
-        "L801-808"
+        "L815-822"
       ],
       "reading": "Members the recompute reads (containmentObserved, basis, method) are fail-closed on absence or unknown token (L663-666); on a substrate row a fail-closed label or method cannot satisfy class-match and makes the attestation invalid (L428-431). A present member of the wrong JSON type is a decode-layer fault making the statement malformed (a distinct altitude from an absent one), pinned for actualLayer by bad-506.",
       "forcingVectors": [
@@ -78,9 +78,9 @@
       "title": "Clean-row actualLayer 'none' on every basis",
       "classification": "forced",
       "specAnchors": [
-        "L808-810"
+        "L822-824"
       ],
-      "reading": "'On a row whose containmentObserved label is from the carried labels but not in the caught set (a clean row), the producer MUST emit the literal string none' (L808-810). The text says 'a row', with no basis qualifier, so the rule binds artifact clean rows too. bad-503 locks the substrate twin; bad-818 locks the artifact clean row.",
+      "reading": "'On a row whose containmentObserved label is from the carried labels but not in the caught set (a clean row), the producer MUST emit the literal string none' (L822-824). The text says 'a row', with no basis qualifier, so the rule binds artifact clean rows too. bad-503 locks the substrate twin; bad-818 locks the artifact clean row.",
       "forcingVectors": [
         "bad-503-clean-row-layer-not-none",
         "bad-818-artifact-clean-row-layer-not-none"
@@ -123,10 +123,10 @@
       "title": "One timestamp profile on both fields: RFC 3339, uppercase designators, zero UTC offset; armedAt no later than issuedAt",
       "classification": "forced",
       "specAnchors": [
-        "L856-857",
-        "L1030-1032"
+        "L870-871",
+        "L1044-1046"
       ],
-      "reading": "issuedAt is typed as the framework's Timestamp field type, and the predicate pins the two choices that type leaves open (L1030-1032): the date-time separator and the zone designator are uppercase, never the lowercase t and z RFC 3339 also admits, and the zone designator is Z, +00:00 or -00:00, never a non-zero offset. An arming record's armedAt carries the same profile and is no later than issuedAt (L856-857). Both rails parse and compare the two as instants. bad-701 (absent armedAt), bad-702 (armedAt after issuedAt), bad-810 (absent issuedAt) and bad-811 (issuedAt not RFC 3339 at all) lock the base. The zone half is locked on each field by bad-727 and bad-820. The case half needs one vector per designator, because a rail whose zero-offset test reads the literal suffix rejects a lowercase z as a side effect of the zone rule: bad-750 and bad-821 lock the date-time separator on each field, bad-751 and bad-822 the zone designator. ok-038 and ok-039 lock -00:00 as admitted on each field, so a rail that reads 'zero offset' as 'Z or +00:00 only' fails rather than passing as silently stricter than its peers.",
+      "reading": "issuedAt is typed as the framework's Timestamp field type, and the predicate pins the two choices that type leaves open (L1044-1046): the date-time separator and the zone designator are uppercase, never the lowercase t and z RFC 3339 also admits, and the zone designator is Z, +00:00 or -00:00, never a non-zero offset. An arming record's armedAt carries the same profile and is no later than issuedAt (L870-871). Both rails parse and compare the two as instants. bad-701 (absent armedAt), bad-702 (armedAt after issuedAt), bad-810 (absent issuedAt) and bad-811 (issuedAt not RFC 3339 at all) lock the base. The zone half is locked on each field by bad-727 and bad-820. The case half needs one vector per designator, because a rail whose zero-offset test reads the literal suffix rejects a lowercase z as a side effect of the zone rule: bad-750 and bad-821 lock the date-time separator on each field, bad-751 and bad-822 the zone designator. ok-038 and ok-039 lock -00:00 as admitted on each field, so a rail that reads 'zero offset' as 'Z or +00:00 only' fails rather than passing as silently stricter than its peers.",
       "forcingVectors": [
         "bad-701-arming-missing-armedat",
         "bad-702-armedat-after-issuedat",
@@ -147,9 +147,9 @@
       "title": "Strict, canonical base64 for record payloads",
       "classification": "forced",
       "specAnchors": [
-        "L831-849"
+        "L845-863"
       ],
-      "reading": "A covering record payload must decode as canonical +json valid I-JSON (L831-849). A payload re-encoded as non-canonical base64 (nonzero trailing bits) does not strict-decode and covers nothing: Go decodes with base64.StdEncoding.Strict() and the Python rail re-encode-compares, so both reject where a lenient decoder would accept.",
+      "reading": "A covering record payload must decode as canonical +json valid I-JSON (L845-863). A payload re-encoded as non-canonical base64 (nonzero trailing bits) does not strict-decode and covers nothing: Go decodes with base64.StdEncoding.Strict() and the Python rail re-encode-compares, so both reject where a lenient decoder would accept.",
       "forcingVectors": [
         "bad-817-payload-noncanonical-base64"
       ]
@@ -160,9 +160,9 @@
       "classification": "forced",
       "specAnchors": [
         "L433-448",
-        "L1082-1084"
+        "L1096-1098"
       ],
-      "reading": "The per-row evidence tier (attested/unattested/declared) is derived over the row's covering records; a record verifies when any of its signatures verifies (DSSE semantics) against a consumer-pinned substrate observation key, and keyid is 'an unauthenticated lookup hint and never the check itself' (L1084-1086). The tier is trust-relative (stage two), so a signature outcome is never a validity reject code; the readings are locked by ACCEPT vectors with pinned per-row tier expectations (ok-024) rather than reject vectors.",
+      "reading": "The per-row evidence tier (attested/unattested/declared) is derived over the row's covering records; a record verifies when any of its signatures verifies (DSSE semantics) against a consumer-pinned substrate observation key, and keyid is 'an unauthenticated lookup hint and never the check itself' (L1098-1100). The tier is trust-relative (stage two), so a signature outcome is never a validity reject code; the readings are locked by ACCEPT vectors with pinned per-row tier expectations (ok-024) rather than reject vectors.",
       "forcingVectors": [
         "ok-024-mixed-basis-rows",
         "ok-019-wrong-keyid-sig-verifies",

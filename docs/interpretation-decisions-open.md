@@ -177,8 +177,8 @@ record set before that loop. Both rejected; they named different conditions.
 **The suite pins the set-level reading**, and `bad-748` locks it. The argument is
 the verify-then-read discipline the spec does make normative: a consumer verifies
 each record's signature "before relying on any field inside the payload"
-(L833-835), and a payload's fields "mean nothing until its signature verifies"
-(L981-983). A record carrying no signature at all is therefore settled before the
+(L847-849), and a payload's fields "mean nothing until its signature verifies"
+(L995-997). A record carrying no signature at all is therefore settled before the
 bytes it carries are read. That argument is a reading, not a derivation: the same
 passage explicitly permits the byte-pure gates to read payload fields without
 verifying anything, so it does not by itself force the evaluation order.

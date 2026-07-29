@@ -1,0 +1,13 @@
+{
+  "$comment": "How many copies of this corpus are vendored into consumer rails, and the corpus each one carries, read from that copy's own vendor stamp by scripts/consumer-lag-gate.py --sync. The ids are opaque: which checkout each one refers to is given on the command line at sync time and deliberately not recorded here. Do not hand-edit -- a digest typed here rather than measured makes the gate report an intention instead of a fact.",
+  "copies": [
+    {
+      "id": "typescript-consumer-rail",
+      "corpusDigest": "fed9799960e2ce9b0760f38c73b66bc8305e2f13542693c96339a40681fa4fde"
+    },
+    {
+      "id": "python-consumer-rail",
+      "corpusDigest": "fed9799960e2ce9b0760f38c73b66bc8305e2f13542693c96339a40681fa4fde"
+    }
+  ]
+}

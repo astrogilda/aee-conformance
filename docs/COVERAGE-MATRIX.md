@@ -6,8 +6,8 @@ vectors/coverage-unforced.json. Do not hand-edit; run the gate to regenerate. CI
 # AEE v0.6 requirement-coverage matrix
 
 Every normative requirement, classified by whether a conformance vector forces it. The point is one
-honest number: of 22 tracked requirements, **17 are forced by a vector**, 1 are
-forcible but not yet vectored, and 4 cannot be pinned by a self-contained corpus at all. The
+honest number: of 23 tracked requirements, **17 are forced by a vector**, 1 are
+forcible but not yet vectored, and 5 cannot be pinned by a self-contained corpus at all. The
 determinacy claim rests only on the forced rows; the other two classes are stated so a reader knows
 exactly where "two implementations agree" is untested rather than confirmed.
 
@@ -17,23 +17,23 @@ exactly where "two implementations agree" is untested rather than confirmed.
 |---|---|---|
 | forced-by-vector | 17 | a registry decision locked by a live forcing vector |
 | forcible-but-unforced | 1 | a vector could pin it; none written yet |
-| consumer-policy-unvectorable | 4 | cross-attestation or trust-relative |
-| **total tracked** | **22** |  |
+| consumer-policy-unvectorable | 5 | cross-attestation or trust-relative |
+| **total tracked** | **23** |  |
 
 ## Forced by a vector
 
 | decision | spec anchor | forcing vectors |
 |---|---|---|
-| D1 Referenced-record validity vs covers-nothing (two altitudes) | L373-398, L391-394, L849-852, L870-871 | `bad-205-payload-missing-runbinding`, `bad-206-payload-missing-kind`, `bad-207-payload-missing-method`, `bad-201-payload-unsorted-keys`, `bad-301-run-binding-splice`, `bad-701-arming-missing-armedat`, `bad-704-arming-method-reconstructed`, `bad-712-examination-method-intercepted`, `bad-714-unknown-kind-sole-cover` |
-| D2 Method cap over covering records; unknown-kind and non-covering records excluded | L396-397, L955-956 | `bad-304-method-cap-multirecord`, `bad-302-method-inflation`, `ok-030-method-min-multirecord`, `ok-013-unknown-kind-extra-record`, `ok-035-unknown-kind-excluded-from-cap` |
-| D3 Duplicate records by leaf hash | L997-999 | `bad-405-duplicate-records` |
-| D4 Fail-closed vs malformed row members | L428-431, L663-666, L801-808 | `bad-501-substrate-unknown-method`, `bad-504-substrate-oov-label`, `bad-505-substrate-missing-method`, `bad-506-actuallayer-json-number` |
-| D5 Clean-row actualLayer 'none' on every basis | L808-810 | `bad-503-clean-row-layer-not-none`, `bad-818-artifact-clean-row-layer-not-none` |
+| D1 Referenced-record validity vs covers-nothing (two altitudes) | L373-398, L391-394, L863-866, L884-885 | `bad-205-payload-missing-runbinding`, `bad-206-payload-missing-kind`, `bad-207-payload-missing-method`, `bad-201-payload-unsorted-keys`, `bad-301-run-binding-splice`, `bad-701-arming-missing-armedat`, `bad-704-arming-method-reconstructed`, `bad-712-examination-method-intercepted`, `bad-714-unknown-kind-sole-cover` |
+| D2 Method cap over covering records; unknown-kind and non-covering records excluded | L396-397, L969-970 | `bad-304-method-cap-multirecord`, `bad-302-method-inflation`, `ok-030-method-min-multirecord`, `ok-013-unknown-kind-extra-record`, `ok-035-unknown-kind-excluded-from-cap` |
+| D3 Duplicate records by leaf hash | L1011-1013 | `bad-405-duplicate-records` |
+| D4 Fail-closed vs malformed row members | L428-431, L663-666, L815-822 | `bad-501-substrate-unknown-method`, `bad-504-substrate-oov-label`, `bad-505-substrate-missing-method`, `bad-506-actuallayer-json-number` |
+| D5 Clean-row actualLayer 'none' on every basis | L822-824 | `bad-503-clean-row-layer-not-none`, `bad-818-artifact-clean-row-layer-not-none` |
 | D6 Coverage completeness at class + attack granularity; assessed classes are real manifest classes | L458-461, L514-521, L565-568 | `bad-816-coverage-class-dropped`, `bad-819-assessed-class-not-in-manifest`, `bad-806-coverage-attack-omitted`, `bad-807-coverage-attack-superset`, `bad-805-row-unknown-attackid` |
 | D7 Binding-version detection: derived mismatch and explicit read-first declaration | L196-200, L203-210 | `bad-303-binding-version-2`, `bad-726-arming-binding-version-carried` |
-| D8 One timestamp profile on both fields: RFC 3339, uppercase designators, zero UTC offset; armedAt no later than issuedAt | L856-857, L1030-1032 | `bad-701-arming-missing-armedat`, `bad-702-armedat-after-issuedat`, `bad-810-missing-issuedat`, `bad-811-issuedat-not-rfc3339`, `bad-727-armedat-non-utc-offset`, `bad-750-armedat-lowercase-separator`, `bad-751-armedat-lowercase-zone-designator`, `bad-820-issuedat-non-utc-offset`, `bad-821-issuedat-lowercase-separator`, `bad-822-issuedat-lowercase-zone-designator`, `ok-038-issuedat-negative-zero-offset`, `ok-039-armedat-negative-zero-offset` |
-| D9 Strict, canonical base64 for record payloads | L831-849 | `bad-817-payload-noncanonical-base64` |
-| D10 Evidence tier per row over covering records; DSSE any-signature-verifies; keyid never the check | L433-448, L1082-1084 | `ok-024-mixed-basis-rows`, `ok-019-wrong-keyid-sig-verifies`, `ok-020-non-pae-signature`, `ok-023-no-tofu-embedded-key` |
+| D8 One timestamp profile on both fields: RFC 3339, uppercase designators, zero UTC offset; armedAt no later than issuedAt | L870-871, L1044-1046 | `bad-701-arming-missing-armedat`, `bad-702-armedat-after-issuedat`, `bad-810-missing-issuedat`, `bad-811-issuedat-not-rfc3339`, `bad-727-armedat-non-utc-offset`, `bad-750-armedat-lowercase-separator`, `bad-751-armedat-lowercase-zone-designator`, `bad-820-issuedat-non-utc-offset`, `bad-821-issuedat-lowercase-separator`, `bad-822-issuedat-lowercase-zone-designator`, `ok-038-issuedat-negative-zero-offset`, `ok-039-armedat-negative-zero-offset` |
+| D9 Strict, canonical base64 for record payloads | L845-863 | `bad-817-payload-noncanonical-base64` |
+| D10 Evidence tier per row over covering records; DSSE any-signature-verifies; keyid never the check | L433-448, L1096-1098 | `ok-024-mixed-basis-rows`, `ok-019-wrong-keyid-sig-verifies`, `ok-020-non-pae-signature`, `ok-023-no-tofu-embedded-key` |
 | D11 Whole statement parsed as strict I-JSON | L83-91 | `bad-725-statement-duplicate-member` |
 | D12 Subject cardinality is unconditional (one subject on a statement of any basis) | L185-189 | `bad-607-two-subjects-substrate`, `bad-728-artifact-two-subjects` |
 | D13 Duplicate attackId rows are malformed (one row per executed attack) | L529-542 | `bad-729-duplicate-attackid-rows` |
@@ -52,7 +52,8 @@ exactly where "two implementations agree" is untested rather than confirmed.
 
 | requirement | spec anchor | why unvectorable |
 |---|---|---|
-| U2 aeeChainScope two-sided equality gate: a consumer admits only the equal declared dimension set, neither a strictly finer (scope-narrowing) nor a strictly coarser (pooling) set | L921-930 | The comparison is consumer policy ACROSS attestations. The conformance corpus is single-statement, so the equality gate cannot be exercised by a self-contained vector; it needs a multi-statement policy vector class (pol-001 narrowed -> reject, pol-002 pooled -> reject, pol-003 exact -> accept), designed in first-party research/163/SEAM-chainscope-narrowing-attack.md and unbuilt. |
-| U3 Set-vs-tuple reading: policy compares the declared dimension SET; the gap/fork/genesis rules key on the evaluated TUPLE, so genesis-per-subject-value is normal and only a second genesis under an identical tuple is a reset | L930-937 | Same as U2: the distinction only manifests across two or more attestations sharing a substrate key. pol-004 (two-genesis-same-tuple -> equivocation) and pol-005 (two-genesis-different-subject -> NOT equivocation) would pin it in a multi-statement class. |
-| U4 Gap / fork / shared-predecessor / duplicate-genesis detection over a chain | L930-937 | Chain detection is inherently cross-attestation; a single statement carries at most one chain member and cannot exhibit a gap or a fork. Belongs to the policy/ class. |
-| U5 The anchor comparison (expectedCorpusDigest / expectedSubstrateDigest) and the evidence tier are trust-relative consumer-policy facts, not validity | L1059-1077, L335-386 | By design these differ per consumer and are excluded from the byte-pure validity gate; a self-contained corpus vector cannot fix a per-consumer trust anchor. ok-024 exercises the tier under two pinned key policies, which is the most a single-statement vector can do; the anchor comparison itself is out of the corpus's reach by construction. |
+| U2 aeeChainScope two-sided equality gate: a consumer admits only the equal declared dimension set, neither a strictly finer (scope-narrowing) nor a strictly coarser (pooling) set | L935-944 | The comparison is consumer policy ACROSS attestations. The conformance corpus is single-statement, so the equality gate cannot be exercised by a self-contained vector; it needs a multi-statement policy vector class (pol-001 narrowed -> reject, pol-002 pooled -> reject, pol-003 exact -> accept), designed in first-party research/163/SEAM-chainscope-narrowing-attack.md and unbuilt. |
+| U3 Set-vs-tuple reading: policy compares the declared dimension SET; the gap/fork/genesis rules key on the evaluated TUPLE, so genesis-per-subject-value is normal and only a second genesis under an identical tuple is a reset | L944-951 | Same as U2: the distinction only manifests across two or more attestations sharing a substrate key. pol-004 (two-genesis-same-tuple -> equivocation) and pol-005 (two-genesis-different-subject -> NOT equivocation) would pin it in a multi-statement class. |
+| U4 Gap / fork / shared-predecessor / duplicate-genesis detection over a chain | L944-951 | Chain detection is inherently cross-attestation; a single statement carries at most one chain member and cannot exhibit a gap or a fork. Belongs to the policy/ class. |
+| U5 The anchor comparison (expectedCorpusDigest / expectedSubstrateDigest) and the evidence tier are trust-relative consumer-policy facts, not validity | L1073-1091, L335-386 | By design these differ per consumer and are excluded from the byte-pure validity gate; a self-contained corpus vector cannot fix a per-consumer trust anchor. ok-024 exercises the tier under two pinned key policies, which is the most a single-statement vector can do; the anchor comparison itself is out of the corpus's reach by construction. |
+| U6 A key-validity window a consumer places on a named substrate key is evaluated against the armedAt inside an arming record that verifies under that key, never against issuedAt, and a statement carrying no such record is refused rather than falling back | L792-808 | The rule constrains an operand a consumer supplies from outside the statement: it takes a key lifetime, and a corpus of self-contained single statements has no lifetime to place them in. Every statement the corpus can build is either inside or outside an arbitrary window depending on a bound the vector does not carry, so no vector can separate a rail that honours the operand from one that reads issuedAt. Recorded here rather than left implicit because the wording it replaced invited two implementers to build the defeated control independently, which is the shape a requirement takes when nothing is measuring whether anyone gets it right. |

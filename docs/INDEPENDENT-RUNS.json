@@ -1,0 +1,261 @@
+{
+  "$comment": "Every run of this conformance corpus by an implementation independent of the specification's author, one row per posted run. This file is the record the independence column's prose is derived from: scripts/independent-runs-gate.py computes the not-run set as the revisions from 1 to the current suiteRevision that no row here names, and fails when the prose in README.md or docs/IMPLEMENTATION-REPORT.md names a different set. A row is what licenses a figure in the prose, so do not add one for a run that was not posted with a record. Each figure is transcribed exactly as posted and names every document that carries it, so a figure cannot be quietly inflated in one of them: never rounded, never restated as a fraction of a different corpus, and never re-characterised as unprompted when their author called the run directed. Where this repository does not carry a value it records null beside a note saying so, rather than leaving the field out, because an absent field and an unrecorded fact read the same in a diff.",
+  "implementation": "Rul1an/aee-checker",
+  "independence": "from-spec Rust verifier with its own I-JSON parser, RFC 8785 serializer, RFC 6962 Merkle root, run-binding derivation and Ed25519 tier, built with no sight of the reference code",
+  "currentRevisionSource": "vectors/CHANGES.md, the per-revision changelog that owns revision numbering. It is read rather than restated here: a revision number written in this file could only ever agree with itself.",
+  "runs": [
+    {
+      "suiteRevision": 1,
+      "figures": [
+        {
+          "figure": "125/125",
+          "role": "score",
+          "carriedIn": [
+            {
+              "file": "README.md",
+              "times": 3
+            },
+            {
+              "file": "docs/IMPLEMENTATION-REPORT.md",
+              "times": 3
+            }
+          ]
+        }
+      ],
+      "evidence": "blind",
+      "unprompted": true,
+      "posting": "in-toto/attestation#570",
+      "date": null,
+      "dateNote": "not recorded in this repository; per-run dates are transcribed only from aee-checker#3 onward",
+      "checkerSourceDigest": null,
+      "digestNote": "his records are content-digest-bound in his own provenance index; this repository transcribed the digest only for the revision-6 record",
+      "suiteCommit": null,
+      "suiteCommitNote": "not recorded in this repository",
+      "note": "the first full corpus run, with no vector-driven fixes"
+    },
+    {
+      "suiteRevision": 2,
+      "figures": [
+        {
+          "figure": "138/138",
+          "role": "score",
+          "carriedIn": [
+            {
+              "file": "README.md",
+              "times": 1
+            },
+            {
+              "file": "docs/IMPLEMENTATION-REPORT.md",
+              "times": 2
+            }
+          ]
+        },
+        {
+          "figure": "132/138",
+          "role": "unchanged-build",
+          "carriedIn": [
+            {
+              "file": "README.md",
+              "times": 1
+            },
+            {
+              "file": "docs/IMPLEMENTATION-REPORT.md",
+              "times": 2
+            }
+          ]
+        }
+      ],
+      "evidence": "directed",
+      "unprompted": false,
+      "posting": "in-toto/attestation#570 (round 7)",
+      "date": null,
+      "dateNote": "not recorded in this repository; per-run dates are transcribed only from aee-checker#3 onward",
+      "checkerSourceDigest": null,
+      "digestNote": "his records are content-digest-bound in his own provenance index; this repository transcribed the digest only for the revision-6 record",
+      "suiteCommit": null,
+      "suiteCommitNote": "not recorded in this repository",
+      "note": "a spec-diff-led update reached 138/138; the six vectors the unchanged build diverged on were exactly the round-7 changes, two of them defects in the checker and the rest spec-boundary adoptions. Its author is explicit that this pass was not blind, because the changelog was read before implementing."
+    },
+    {
+      "suiteRevision": 3,
+      "figures": [
+        {
+          "figure": "140/140",
+          "role": "score",
+          "carriedIn": [
+            {
+              "file": "README.md",
+              "times": 3
+            },
+            {
+              "file": "docs/IMPLEMENTATION-REPORT.md",
+              "times": 5
+            },
+            {
+              "file": "vectors/CHANGES.md",
+              "times": null
+            }
+          ]
+        }
+      ],
+      "evidence": "first-run-unchanged-build",
+      "unprompted": true,
+      "posting": "in-toto/attestation#570 (round 8)",
+      "date": null,
+      "dateNote": "not recorded in this repository; per-run dates are transcribed only from aee-checker#3 onward",
+      "checkerSourceDigest": null,
+      "digestNote": "his records are content-digest-bound in his own provenance index; this repository transcribed the digest only for the revision-6 record",
+      "suiteCommit": null,
+      "suiteCommitNote": "not recorded in this repository",
+      "note": "a first run by an unchanged build whose reason-map rule was derived from the spec text and predated the two new vectors, so the vectors met a rule that was already there rather than driving it"
+    },
+    {
+      "suiteRevision": 5,
+      "figures": [
+        {
+          "figure": "149/149",
+          "role": "score",
+          "carriedIn": [
+            {
+              "file": "README.md",
+              "times": 1
+            },
+            {
+              "file": "docs/IMPLEMENTATION-REPORT.md",
+              "times": 3
+            },
+            {
+              "file": "vectors/CHANGES.md",
+              "times": null
+            }
+          ]
+        },
+        {
+          "figure": "148/149",
+          "role": "unchanged-build",
+          "carriedIn": [
+            {
+              "file": "vectors/CHANGES.md",
+              "times": null
+            }
+          ]
+        }
+      ],
+      "evidence": "directed",
+      "unprompted": false,
+      "posting": "Rul1an/aee-checker#3",
+      "date": "2026-07-28",
+      "dateNote": null,
+      "checkerSourceDigest": null,
+      "digestNote": "his records are content-digest-bound in his own provenance index; this repository transcribed the digest only for the revision-6 record",
+      "suiteCommit": null,
+      "suiteCommitNote": "not recorded in this repository",
+      "note": "148/149 was the honest figure while his bound read 256 and bad-741 answered valid on bytes the reference rails answered invalid on. aee-checker#3 adopted the normative bound of 128 and moved the depth increment from per parsed value into the container branch, which is the counting rule the spec states beside the bound, and the figure at this revision is 149/149."
+    },
+    {
+      "suiteRevision": 6,
+      "figures": [
+        {
+          "figure": "153/153",
+          "role": "score",
+          "carriedIn": [
+            {
+              "file": "README.md",
+              "times": 3
+            },
+            {
+              "file": "docs/IMPLEMENTATION-REPORT.md",
+              "times": 2
+            },
+            {
+              "file": "vectors/CHANGES.md",
+              "times": null
+            }
+          ]
+        },
+        {
+          "figure": "151/153",
+          "role": "unchanged-build",
+          "carriedIn": [
+            {
+              "file": "README.md",
+              "times": 1
+            },
+            {
+              "file": "docs/IMPLEMENTATION-REPORT.md",
+              "times": 1
+            },
+            {
+              "file": "vectors/CHANGES.md",
+              "times": null
+            }
+          ]
+        },
+        {
+          "figure": "36/36",
+          "role": "accepts",
+          "carriedIn": [
+            {
+              "file": "README.md",
+              "times": 1
+            },
+            {
+              "file": "docs/IMPLEMENTATION-REPORT.md",
+              "times": 1
+            },
+            {
+              "file": "vectors/CHANGES.md",
+              "times": null
+            }
+          ]
+        },
+        {
+          "figure": "117/117",
+          "role": "rejects",
+          "carriedIn": [
+            {
+              "file": "README.md",
+              "times": 1
+            },
+            {
+              "file": "docs/IMPLEMENTATION-REPORT.md",
+              "times": 1
+            },
+            {
+              "file": "vectors/CHANGES.md",
+              "times": null
+            }
+          ]
+        }
+      ],
+      "evidence": "directed",
+      "unprompted": false,
+      "posting": "Rul1an/aee-checker#4",
+      "date": "2026-07-28",
+      "dateNote": null,
+      "checkerSourceDigest": "sha256:1c3e2e78",
+      "digestNote": null,
+      "suiteCommit": "7098f4e",
+      "suiteCommitNote": null,
+      "equivalentSuiteCommit": "8959bd3",
+      "note": "his last author-run, and the revision his CI now verifies continuously. The suite commit the record names no longer resolves in a fresh clone of this repository, because the history it sat on was rewritten here after he pinned it; 8959bd3 carries the identical tree and therefore the identical 153 vectors, and is where a reproduction should point until the record is repinned. The unchanged revision-5 build scored 151/153 against it: ok-036 and bad-742 passed on the container-branch counter already in place, and bad-743 and bad-744 did not, because that build had not implemented the RFC 7493 section 2.1 noncharacter exclusion this revision makes normative."
+    }
+  ],
+  "quotedWording": [
+    {
+      "text": "This one is directed, and more so than revision 2 was: the rule was written and the vectors named before this checker ran, so what it demonstrates is that the corrected rule is implementable from the text, not that an independent reader found it.",
+      "about": 6,
+      "carriedIn": [
+        "README.md"
+      ]
+    },
+    {
+      "text": "the rule was written and the vectors named before this checker ran, so what it demonstrates is that the corrected rule is implementable from the text, not that an independent reader found it.",
+      "about": 6,
+      "carriedIn": [
+        "docs/IMPLEMENTATION-REPORT.md",
+        "vectors/CHANGES.md"
+      ]
+    }
+  ]
+}

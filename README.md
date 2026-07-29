@@ -291,15 +291,32 @@ directed 153/153 says the corrected rule is implementable by someone who has onl
 the text. It is not the same evidence as 125/125 and this suite does not present
 it as such.
 
-It has not been run against suiteRevision 7, 8, 9 or 10, so this suite publishes
-no score for it at any of the four. The single suiteRevision-7 vector (`bad-745`)
-and the two suiteRevision-8 vectors (`bad-746`, `bad-747`) test requirements the
-specification gained after its last run, the two suiteRevision-9 vectors
-(`bad-748`, `bad-749`) pin the precedence and the wrong-type spelling of the
-requirement `bad-745` carries, and the seven suiteRevision-10 vectors (`bad-750`,
-`bad-751`, `bad-820`, `bad-821`, `bad-822`, `ok-038`, `ok-039`) carry a
-timestamp profile the specification gained in the same revision. It keeps its own authorship, history,
-and CI. The link is pinned to the build that recorded the 153/153 run.
+It has not been run against suiteRevision 4, 7, 8, 9, 10, 11, 12, 13 or 14, so
+this suite publishes no score for it at any of them. They are on that list for
+two different reasons. From suiteRevision 7 onward the corpus itself moved past
+his last run: the single suiteRevision-7 vector (`bad-745`) and the two
+suiteRevision-8 vectors (`bad-746`, `bad-747`) test requirements the
+specification gained after it, the two suiteRevision-9 vectors (`bad-748`,
+`bad-749`) pin the precedence and the wrong-type spelling of the requirement
+`bad-745` carries, the seven suiteRevision-10 vectors (`bad-750`, `bad-751`,
+`bad-820`, `bad-821`, `bad-822`, `ok-038`, `ok-039`) carry a timestamp profile
+the specification gained in the same revision, suiteRevision 11 moved the
+vendored text with every vector byte-identical, suiteRevision 12 re-minted every
+decodable record identity for version 2 of the run binding and added ten
+vectors, suiteRevision 13 added four vectors and moved five results for the
+fourth `result` value, and suiteRevision 14 vendored the words the corpus had
+already implemented without moving a byte of it. suiteRevision 4 is on the list
+for the opposite reason: its corpus is the revision-3 corpus, 140 vectors with
+the same verdicts and the same codes, so the revision-3 run did put those bytes
+through this checker. What that revision changed was the text, which made
+encoding well-formedness and the 128-deep nesting bound normative over a corpus
+that, as its own changelog entry says, exercised neither. A pass at 140/140 was
+therefore compatible with getting both new rules wrong, and one of them he did
+get wrong: when suiteRevision 5 published, this checker still read the bound as
+256, and aee-checker#3 is where it adopted 128. Recording revision 4 as run
+would assert a conformance no record of his carries. It keeps its own
+authorship, history, and CI. The link is pinned to the build that recorded the
+153/153 run.
 
 That one reading has already earned its keep, twice. The specification did not
 pin a maximum JSON nesting depth, so all five of my rails chose 128 and agreed at

@@ -64,7 +64,7 @@
         "name": "example-substrate-image"
       }
     },
-    "result": "pass"
+    "result": "pass_indirect"
   },
   "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6",
   "subject": [

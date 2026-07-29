@@ -64,8 +64,8 @@ tier-2 spec question.
 | ok-003-clean-pass-bounded-drops | pass | aee-c-65 | sealed record with non-zero `aeeDropCount` 3 within self-declared `aeeDropBound` 5 still covers |
 | ok-004-degraded-out-of-scope | degraded | aee-c-1, aee-c-6 | non-empty `coverage.outOfScope` forces recompute to `degraded` |
 | ok-005-degraded-routed-elsewhere | degraded | aee-c-6 | non-empty `coverage.routedElsewhere` forces `degraded` |
-| ok-006-clean-reconstructed | pass | aee-c-13, aee-c-66 | clean (substrate, reconstructed) row class-matched by an examination record |
-| ok-007-artifact-only-recordless | pass | aee-c-31, aee-c-57 | artifact-only statement: no records, no `batchRoot`, no `runEntropy`; over-strictness discriminator |
+| ok-006-clean-reconstructed | pass_indirect | aee-c-2, aee-c-13, aee-c-66 | clean (substrate, reconstructed) row class-matched by an examination record; indirect in time rather than in vantage, so the recompute floors it below `pass` |
+| ok-007-artifact-only-recordless | pass_indirect | aee-c-2, aee-c-31, aee-c-57 | artifact-only statement: no records, no `batchRoot`, no `runEntropy`; over-strictness discriminator. The honest producer whose attack classes have no substrate vantage at all: it stays VALID and reaches the best result its evidence supports, which is the whole reason the rule prices rather than refuses |
 | ok-008-artifact-fail-closed-method | fail | aee-c-5, aee-c-44 | artifact row with unknown `method` value fail-closes the row; carried `fail` recomputes; statement VALID |
 | ok-009-artifact-oov-label-fail | fail | aee-c-4 | artifact row label outside carried `observationVocabulary.labels` fail-closes; VALID |
 | ok-010-artifact-retired-basis-fail | fail | aee-c-43 | retired 0.4 `basis` value `substrate_observed` is out-of-vocabulary, no alias; fail-closed, VALID |
@@ -87,7 +87,7 @@ tier-2 spec question.
 | ok-026-five-record-tree | fail | aee-c-26 | 5-leaf unbalanced RFC 6962 split (4+1): deep-split discriminator |
 | ok-027-artifact-missing-method | fail | aee-c-5, aee-c-42, aee-c-44 | artifact row with `method` member ABSENT: absence == unknown, fail-closed; carried `fail`; VALID |
 | ok-028-empty-caught-pass | pass | aee-c-3, aee-c-52 | `caught: []` edge: vacuously no caught rows; vocabulary digest over the empty-caught object |
-| ok-029-artifact-with-records | pass | aee-c-24, aee-c-29, aee-c-30, aee-c-32 | artifact-only rows + 2 unreferenced records + CORRECT `batchRoot`; no substrate rows so no derived binding, and record `aeeRunBinding` values are unchecked bytes |
+| ok-029-artifact-with-records | pass_indirect | aee-c-2, aee-c-24, aee-c-29, aee-c-30, aee-c-32 | artifact-only rows + 2 unreferenced records + CORRECT `batchRoot`; no substrate rows so no derived binding, and record `aeeRunBinding` values are unchecked bytes |
 | ok-030-method-min-multirecord | fail | aee-c-23, aee-c-45 | min-composition accept half: row method `reconstructed` equals the weakest signed `aeeMethod` across three referenced records {reconstructed, intercepted, reconstructed}; pairs with the cap-exceeded reject |
 | ok-031-caught-reconstructed | fail | aee-c-13 | caught (substrate, reconstructed) row class-matched by an examination record: class-match keys on method, not caught-ness |
 | ok-032-method-inferred-retired | fail | aee-c-5, aee-c-43 | retired 0.4 `method` value `inferred` is out-of-vocabulary, fail-closed; VALID |
@@ -95,17 +95,23 @@ tier-2 spec question.
 | ok-034-arming-chain-genesis | pass | aee-c-89 | arming payload carrying the optional run-chaining members in genesis form (`aeeRunSeq` 1, `aeeChainScope` present, no `aeePrevRunBinding`): syntax-checked in the reserved-member walk, nothing else normative reads them, and the record still covers |
 | ok-035-unknown-kind-excluded-from-cap | pass | aee-c-23, aee-c-45, aee-c-71 | clean intercepted row referencing an unknown-`aeeKind` record signed `aeeMethod` "reconstructed": the record covers nothing and is otherwise ignored, so it neither invalidates the row (arming + sealed satisfy class-match) nor participates in the method cap, which reads only covering records |
 | ok-036-payload-nesting-at-bound | pass | aee-c-18 | covering payload carrying a producer member nested exactly TO the bound (deepest open container at depth 128, scalar leaf): valid, and the discriminating twin of bad-741/bad-742 -- the one depth the corpus otherwise never touches, where a per-open-container counter and a per-parsed-value counter can disagree |
-| ok-038-issuedat-negative-zero-offset | pass | aee-c-85 | `issuedAt` spelled `2026-01-01T00:00:00-00:00`: the member of the timestamp profile no prose named before the profile was written, admitted because RFC 3339 section 4.3 makes `-00:00` a statement about the producer's locale and not about the instant. Same instant as ok-007, so a rail reading "zero offset" as "Z or +00:00 only" is caught here rather than at a third party |
+| ok-038-issuedat-negative-zero-offset | pass_indirect | aee-c-2, aee-c-85 | `issuedAt` spelled `2026-01-01T00:00:00-00:00`: the member of the timestamp profile no prose named before the profile was written, admitted because RFC 3339 section 4.3 makes `-00:00` a statement about the producer's locale and not about the instant. Same instant as ok-007, so a rail reading "zero offset" as "Z or +00:00 only" is caught here rather than at a third party |
 | ok-039-armedat-negative-zero-offset | pass | aee-c-63, aee-c-85 | the same spelling on `armedAt`, inside the substrate-signed arming payload, re-signed with the batch root recomputed: the arming record must still cover the clean row and the statement must still recompute to `pass` |
 | ok-040-posture-no-network | pass | aee-c-93 | `networkPosture.posture` "no_network": one of the three registered postures the rest of the corpus never carries, so the registry stopped being a set the corpus only claims to test |
 | ok-041-posture-allowlist | pass | aee-c-93 | `networkPosture.posture` "allowlist": the registered value bad-305 swaps to, which is why the swap is invisible to any vocabulary rule and has to be caught by the run binding |
 | ok-042-posture-unsafe-bypass-egress | pass | aee-c-93 | `networkPosture.posture` "unsafe_bypass_egress": the registered value the upstream prose omits from its list, admitted here because the schema beside that prose has always carried it |
 | ok-043-posture-producer-member-bound | pass | aee-c-60 | `networkPosture` carrying a producer member the records commit to: valid, and the accepted half of the pair whose rejected half (bad-307) carries the same member with records that do not. The pair says the rule is about when the member was added, not about whether the posture may carry one |
+| ok-044-clean-artifact-intercepted-indirect | pass_indirect | aee-c-2, aee-c-31 | the shape the artifact downgrade produces, and the one basis/method pairing the closed vocabularies permit that nothing else here exercised: a clean row indirect in vantage while claiming a live method. Recordless, so it needs no substrate participation to write, and `pass_indirect` is what stops it reading at the top of the ordering |
+| ok-045-mixed-clean-rows-indirect | pass_indirect | aee-c-2, aee-c-14 | two clean rows, the first a live interception covered by its arming and sealed records and the second resting on the artifact's own account. Pins the quantifier: the rule fires on SOME clean row, so a direct row cannot carry an indirect one back up to `pass` |
 
 ## Coverage notes
 
-The result vocabulary spans `fail` (ok-001), `pass` (ok-002), and `degraded`
-(ok-004); `doesNotAssert` appears only in ok-025. On the basis axis, the set
+The result vocabulary spans `fail` (ok-001), `pass` (ok-002), `degraded`
+(ok-004), and `pass_indirect` (ok-006/007/029/038/044/045);
+`doesNotAssert` appears only in ok-025. The minimum the recompute takes is
+witnessed by ok-033, whose clean row is indirect AND whose coverage
+discloses a gap: it reads `degraded`, the lower of the two, which is what
+distinguishes a minimum from a cascade written in the other order. On the basis axis, the set
 covers substrate (ok-001 family), artifact
 (ok-007/008/009/027/029/032/033), retired/out-of-vocabulary (ok-010), and
 mixed (ok-024) rows. The method axis covers intercepted (ok-001/002),

@@ -888,6 +888,9 @@ def _rfc3339_key(v: str) -> datetime | None:
 
 METHOD_ORDER = {"reconstructed": 0, "intercepted": 1}
 
+# The result vocabulary, in the order the recompute takes its minimum over.
+RESULT_ORDER = {"fail": 0, "degraded": 1, "pass_indirect": 2, "pass": 3}
+
 
 class RecordView:
     """A decoded observation record: PAE bytes always; payload object only
@@ -1140,7 +1143,7 @@ class ReferenceVerifier:
             out.add("member-spelling")
 
         result = pred.get("result")
-        if result not in ("pass", "degraded", "fail"):
+        if result not in RESULT_ORDER:
             out.add("result-vocabulary")
         st.result = result
 
@@ -1772,9 +1775,9 @@ class ReferenceVerifier:
         coverage = st.coverage
         if labels is not None and caught is not None and rows:
             recomputed = self._recompute(rows, labels, caught, coverage)
-            if result in ("pass", "degraded", "fail") and recomputed != result:
+            if result in RESULT_ORDER and recomputed != result:
                 out.add("result-recompute-mismatch")
-            elif result not in ("pass", "degraded", "fail"):
+            elif result not in RESULT_ORDER:
                 # unknown token can never equal the recompute
                 out.add("result-recompute-mismatch")
 
@@ -1792,18 +1795,33 @@ class ReferenceVerifier:
         caught: list[Any],
         coverage: Any,
     ) -> str:
+        """The minimum, under fail < degraded < pass_indirect < pass, of three
+        independent conditions over the carried bytes and nothing else.
+
+        INDIRECT, the third, reads the DECLARED basis and method of every clean
+        row and never the evidence tier: the tier is key-relative, so a result
+        that read it would not be recomputable. An unattested substrate clean
+        row therefore still reaches pass here, by design.
+        """
+        forces_fail = False
+        indirect = False
         for r in rows:
             lab = r.get("containmentObserved")
             if lab not in labels or lab in caught:
-                return "fail"
-            if r.get("basis") not in ("substrate", "artifact"):
-                return "fail"
-            if r.get("method") not in ("intercepted", "reconstructed"):
-                return "fail"
+                forces_fail = True
+            elif r.get("basis") not in ("substrate", "artifact"):
+                forces_fail = True
+            elif r.get("method") not in ("intercepted", "reconstructed"):
+                forces_fail = True
+            elif r.get("basis") != "substrate" or r.get("method") != "intercepted":
+                indirect = True
         cov = coverage if isinstance(coverage, dict) else {}
-        if cov.get("outOfScope") or cov.get("routedElsewhere"):
-            return "degraded"
-        return "pass"
+        candidates = [
+            "fail" if forces_fail else "pass",
+            "degraded" if (cov.get("outOfScope") or cov.get("routedElsewhere")) else "pass",
+            "pass_indirect" if indirect else "pass",
+        ]
+        return min(candidates, key=RESULT_ORDER.__getitem__)
 
     def _tiers(
         self,

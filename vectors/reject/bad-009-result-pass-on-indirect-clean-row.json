@@ -3,7 +3,7 @@
   "predicate": {
     "attackResults": [
       {
-        "actualLayer": "policy.egress_sinkhole",
+        "actualLayer": "none",
         "attackId": "XA-EXAMPLE-1",
         "basis": "artifact",
         "containmentObserved": "no_egress",
@@ -63,7 +63,7 @@
         "name": "example-substrate-image"
       }
     },
-    "result": "pass_indirect"
+    "result": "pass"
   },
   "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6",
   "subject": [

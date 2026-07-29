@@ -434,9 +434,11 @@ def P_artifact_oov_label() -> dict[str, Any]:  # ok-009 shape: fail-closed label
 
 
 def P_artifact_clean() -> dict[str, Any]:  # ok-007 shape: artifact-only CLEAN row, recordless
+    # pass_indirect, not pass: the single clean row is indirect in both vantage
+    # and time, which is the third condition of the recompute.
     env = environment(M1, entropy=False)
     return statement(env, [artifact_row(label="no_egress", method="reconstructed")],
-                     result="pass")
+                     result="pass_indirect")
 
 
 def P_two_attacks() -> dict[str, Any]:  # ok-011 shape: two caught rows, two interceptions
@@ -498,7 +500,7 @@ PARENTS = {
     "ok-007 shape (artifact-only recordless)": P_artifact,
     "ok-008 shape (artifact row, fail-closed method, valid fail)": P_artifact_unknown_method,
     "ok-009 shape (artifact row, fail-closed label, valid fail)": P_artifact_oov_label,
-    "ok-007 shape (artifact-only clean row, recordless, pass)": P_artifact_clean,
+    "ok-007 shape (artifact-only clean row, recordless, pass_indirect)": P_artifact_clean,
     "ok-011 shape (two caught rows, two interceptions)": P_two_attacks,
     "ok-014 shape (three-record odd-split tree)": P_three_records,
     "ok-029 shape (artifact rows + unreferenced records + root)": P_artifact_with_records,
@@ -603,6 +605,22 @@ vec("bad-007-result-degraded-on-pass", "ok-002",
 vec("bad-008-result-unknown-token", "ok-002", 'result: "error"', [],
     [1, 2], ["result-vocabulary", "result-recompute-mismatch"],
     set_result(P_clean, "error"), compound=True, spec="L339")
+vec("bad-009-result-pass-on-indirect-clean-row", "ok-007",
+    'carried result: "pass" over a clean row that is artifact-basis and '
+    "reconstructed (recompute: pass_indirect)", [],
+    [2], ["result-recompute-mismatch"],
+    set_result(P_artifact_clean, "pass"), spec="L294-297",
+    note="this is the statement a party holding only the enclosing envelope "
+         "key produces by moving every row to artifact basis and dropping the "
+         "records: valid before the fourth result value existed, and a "
+         "recompute mismatch after it")
+vec("bad-010-result-pass-indirect-on-direct-clean-row", "ok-002",
+    'carried result: "pass_indirect" where every clean row is substrate-basis '
+    "and intercepted (recompute: pass)", [],
+    [2], ["result-recompute-mismatch"],
+    set_result(P_clean, "pass_indirect"), spec="L294-297",
+    note="the new token is not a floor a producer may volunteer down to; "
+         "equality is two-directional here exactly as it is for bad-006")
 
 # --- (b1) refs / class-match ---------------------------------------------
 
@@ -2179,6 +2197,11 @@ def _no_attack_manifest(classes: dict[str, Any],
     st["predicate"]["attackResults"] = []
     st["predicate"]["coverage"] = {"assessedClasses": assessed,
                                    "outOfScope": {}, "routedElsewhere": {}}
+    # A statement with no rows has no clean row, so the indirect condition of
+    # the recompute cannot hold and the parent's pass_indirect stops matching.
+    # Carrying pass keeps this vector isolating the manifest floor rather than
+    # picking up a recompute mismatch it was not written to test.
+    st["predicate"]["result"] = "pass"
     return st
 
 
@@ -2548,25 +2571,34 @@ vec("bad-307-posture-member-added-after-arming", "ok-002",
 
 # ---------------------------------------------------------------- checks
 
-RESULT_VOCAB = {"pass", "degraded", "fail"}
+# The result vocabulary, in the order the recompute takes its minimum over.
+RESULT_ORDER = {"fail": 0, "degraded": 1, "pass_indirect": 2, "pass": 3}
+RESULT_VOCAB = frozenset(RESULT_ORDER)
 BASIS_VOCAB = {"substrate", "artifact"}
 METHOD_VOCAB = {"intercepted", "reconstructed"}
 
 
 def recompute_result(st: dict[str, Any]) -> str:
+    """The minimum of the three independent conditions, under RESULT_ORDER."""
     p = st["predicate"]
     v = p["observationEnvironment"]["observationVocabulary"]
     labels, caught = set(v["labels"]), set(v["caught"])
+    forces_fail = False
+    indirect = False
     for r in p["attackResults"]:
         lab = r.get("containmentObserved")
         if (lab in caught or lab not in labels
                 or r.get("basis") not in BASIS_VOCAB
                 or r.get("method") not in METHOD_VOCAB):
-            return "fail"
+            forces_fail = True
+        elif r.get("basis") != "substrate" or r.get("method") != "intercepted":
+            indirect = True
     cov = p["coverage"]
-    if cov["outOfScope"] or cov["routedElsewhere"]:
-        return "degraded"
-    return "pass"
+    return min(
+        ["fail" if forces_fail else "pass",
+         "degraded" if (cov["outOfScope"] or cov["routedElsewhere"]) else "pass",
+         "pass_indirect" if indirect else "pass"],
+        key=RESULT_ORDER.__getitem__)
 
 
 def verify_record_sigs(st: dict[str, Any]) -> None:
@@ -3031,7 +3063,7 @@ def main() -> None:
         with open(path) as f:
             json.load(f)  # every vector parses as JSON (a duplicate member is last-wins)
 
-    assert len(VECTORS) == 133, f"expected 133 vectors, built {len(VECTORS)}"
+    assert len(VECTORS) == 135, f"expected 135 vectors, built {len(VECTORS)}"
 
     # 3. index
     write_index()

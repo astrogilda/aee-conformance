@@ -156,7 +156,7 @@ carries the authoritative id-to-spec-line table.
 | aee-c-92 | L570-592 | the corpus manifest declares at least one attack identifier across all of its classes |
 | aee-c-93 | L459-461 | networkPosture.posture is a registered value |
 
-## Vectors (133)
+## Vectors (135)
 
 `parent` names the accept-suite shape the vector derives from (the
 accept vectors land separately; the parent statements are built
@@ -174,6 +174,8 @@ so the declared fault stays the ONLY fault.
 | `bad-006-result-fail-on-pass` | ok-002 | carried result: "fail" where the recompute derives pass | - | aee-c-2 | `result-recompute-mismatch` | L294-297 |
 | `bad-007-result-degraded-on-pass` | ok-002 | carried result: "degraded" where the recompute derives pass | - | aee-c-2 | `result-recompute-mismatch` | L294-297 |
 | `bad-008-result-unknown-token` | ok-002 | result: "error" | - | aee-c-1 aee-c-2 | `result-vocabulary`, `result-recompute-mismatch` (COMPOUND) | L339 |
+| `bad-009-result-pass-on-indirect-clean-row` | ok-007 | carried result: "pass" over a clean row that is artifact-basis and reconstructed (recompute: pass_indirect) | - | aee-c-2 | `result-recompute-mismatch` | L294-297 |
+| `bad-010-result-pass-indirect-on-direct-clean-row` | ok-002 | carried result: "pass_indirect" where every clean row is substrate-basis and intercepted (recompute: pass) | - | aee-c-2 | `result-recompute-mismatch` | L294-297 |
 | `bad-101-refs-empty` | ok-001 | caught substrate row observationRefs: [] | - | aee-c-10 aee-c-12 | `refs-empty`, `caught-row-uncovered` (COMPOUND) | L383; L385-387 |
 | `bad-102-ref-out-of-range` | ok-001 | observationRefs: [0, 7] with one record (valid cover kept) | - | aee-c-11 | `ref-out-of-range` | L383-384 |
 | `bad-103-ref-negative` | ok-001 | observationRefs: [0, -1] | - | aee-c-11 | `ref-malformed` | L383-384 |
@@ -304,6 +306,8 @@ so the declared fault stays the ONLY fault.
 
 - **bad-001-result-uppercase**: uppercase token is both out-of-vocabulary and not the recompute.
 - **bad-006-result-fail-on-pass**: equality is two-directional.
+- **bad-009-result-pass-on-indirect-clean-row**: this is the statement a party holding only the enclosing envelope key produces by moving every row to artifact basis and dropping the records: valid before the fourth result value existed, and a recompute mismatch after it.
+- **bad-010-result-pass-indirect-on-direct-clean-row**: the new token is not a floor a producer may volunteer down to; equality is two-directional here exactly as it is for bad-006.
 - **bad-101-refs-empty**: an empty ref set on a caught row inherently also uncovers it.
 - **bad-201-payload-unsorted-keys**: rawBytes: the committed base64 payload bytes are the fault; identical content, non-JCS order.
 - **bad-202-payload-bignum**: rawBytes.

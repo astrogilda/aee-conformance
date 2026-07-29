@@ -156,11 +156,19 @@ not a settled rule.
 
 **Run binding.** For any statement carrying at least one `basis: substrate`
 row, the run binding digest is the lowercase 64-hex SHA-256 of the RFC 8785
-canonicalization of the object `{"aeeBindingVersion": "1", "catchPolicy":
+canonicalization of the object `{"aeeBindingVersion": "2", "catchPolicy":
 "<catchPolicy.digest.sha256>", "corpus": "<corpus.digest.sha256>",
-"networkPosture": "<networkPosture.digest.sha256>", "runEntropy":
-"<runEntropy.digest.sha256>", "subject": "<subject[0].digest.sha256>",
-"substrate": "<substrate.digest.sha256>"}`. `runEntropy` is a run-start
+"networkPosture": "<the lowercase 64-hex SHA-256 of the RFC 8785
+canonicalization of the carried networkPosture object>",
+"observationVocabulary": "<observationVocabulary.digest.sha256>",
+"runEntropy": "<runEntropy.digest.sha256>", "subject":
+"<subject[0].digest.sha256>", "substrate": "<substrate.digest.sha256>"}`.
+Every input is a property of the run's configuration and is fixed before
+corpus injection. That is not incidental and it is the test any proposed
+input must pass: the arming record carries this digest inside its own
+signature and is signed before injection, so a value the producer could not
+know at that moment would make the arming record unsignable, and an outcome
+of the run can therefore never be an input here. `runEntropy` is a run-start
 value the substrate emits and commits inside the arming record's signature;
 its pre-image is the substrate's run-start checkpoint, so two executions
 sharing every other input still derive distinct bindings. The pre-image
@@ -185,16 +193,25 @@ axis rather than against the producer's clock.
 For this predicate `subject` MUST contain exactly one entry on a statement
 of any basis; a statement carrying zero or more than one subject is
 malformed, regardless of whether any row is `basis: substrate`. Separately,
-each of the six digest inputs MUST carry a `sha256` digest whose value is
-already lowercase 64-hex; a substrate-row-carrying statement violating this
-digest-input requirement is malformed. Values are taken verbatim (no case-folding, no
+`catchPolicy`, `corpus`, `runEntropy`, `substrate` and `subject[0]` MUST each
+carry a `sha256` digest whose value is already lowercase 64-hex, and so MUST
+`networkPosture`, whose pinned digest this construction no longer reads
+verbatim but which is still compared byte for byte against the
+`aeePostureDigest` a record carries; a substrate-row-carrying statement
+violating this digest requirement is malformed. The
+`observationVocabulary` digest carries no rule of its own here, because the
+digest-integrity step recomputes it from the arrays beside it and a value
+that is not lowercase 64-hex cannot equal that recompute; restating the
+requirement would add a check that could never be the one to fail. Values
+are taken verbatim (no case-folding, no
 null fill). A statement whose rows are all `basis: artifact` derives no
 binding and need not carry `runEntropy`. A verifier derives the digest from
 the statement alone; no field carries it. Every substrate-signed
 observation record commits to the run by carrying this digest inside its
 signed payload (see the reserved members under `observationRecords`). The
 binding is anti-splice: a record signed under a different subject, corpus,
-catch policy, network posture, substrate, or run-start entropy value cannot
+catch policy, network posture, observation vocabulary, substrate, or
+run-start entropy value cannot
 be spliced in. It is not anti-forge and not a freshness challenge: it
 carries no verifier nonce, and identical-configuration re-runs are
 distinguished only by the substrate-emitted `runEntropy` value, so a
@@ -209,11 +226,43 @@ record's payload MAY carry an explicit `aeeBindingVersion` member declaring
 its construction; a verifier reads it before deriving and rejects it
 fail-closed (the arming record covers nothing) when the value is a version it
 does not implement, distinguishably from a run-binding digest mismatch. An
-absent member defaults to version `1`; the carried value never drives the
+absent member defaults to the version this document defines; the carried
+value never drives the
 derivation (a verifier derives only under the version it implements, so a
-record declaring `1` but constructed otherwise still fails on the digest). A future
+record declaring the implemented version but constructed otherwise still
+fails on the digest). Defaulting the absent member to the implemented
+version rather than to any fixed number is what keeps the member optional:
+a default pinned to a superseded version would reject every statement that
+simply declines to carry it. A future
 minor version admitting multiple subjects or multiple substrates binds all
 of them in canonical name-then-digest order.
+
+Two inputs distinguish version 2 from version 1, both of them configuration
+the statement already carries, so neither costs a byte on the wire and
+neither needs a new comparison: each closes through the equality every
+record's `aeeRunBinding` is already put to.
+
+Version 1's `networkPosture` input was the value of that member's own
+`digest.sha256`. That left the `posture` string beside it outside every
+signature. The posture configuration this predicate digests is not carried
+anywhere in the statement, so nothing can check the string against the
+digest, and a party holding only the envelope key could replace one posture
+value with another, change no digest, and break no signature. Version 2
+takes the canonical digest of the carried `networkPosture` object instead,
+so the string, its pinned digest, and any further member a producer carries
+there all sit inside the binding. The object the binding covers is the
+carried one: a producer that adds, removes or edits a `networkPosture`
+member after the arming record is signed derives a binding its own records
+do not carry, and its statement is invalid on that ground.
+
+`observationVocabulary` was not an input at all. Its `caught` array decides
+which labels are caught, and the coverage validity requirements and the
+`result` recompute both read it, so a producer that narrows the caught set
+after the run turns a caught row into a clean one. Nothing resisted that:
+the vocabulary's own digest is verified only against the arrays beside it,
+so it re-derives for free, and no record's binding moved. Binding the
+carried digest closes it, since a narrowed vocabulary derives a different
+run binding and every record then fails the comparison.
 
 ## Model
 
@@ -336,17 +385,72 @@ bounded by the pinned `networkPosture` digest.
 
 `result` _string, required_
 
-One of `pass`, `degraded`, `fail` (lowercase). Defined as a total,
-deterministic, severity-independent function of the predicate: `fail` iff any
-`attackResults` row carries a containment-observed label from the carried
-caught set (`observationVocabulary.caught`), a label outside the carried
+One of `fail`, `degraded`, `pass_indirect`, `pass` (lowercase), ordered
+`fail` < `degraded` < `pass_indirect` < `pass`. Defined as a total,
+deterministic, severity-independent function of the predicate, evaluated as
+the minimum under that order of three independent conditions rather than as
+a cascade, because worst-wins rather than evaluation order is the rule. The
+first condition holds when any `attackResults` row carries a
+containment-observed label from the carried caught set
+(`observationVocabulary.caught`), a label outside the carried
 `observationVocabulary.labels` (fail-closed), or a missing or
-out-of-vocabulary `basis` or `method` (fail-closed, same rule); otherwise `degraded`
-iff `coverage.outOfScope` or `coverage.routedElsewhere` is non-empty;
-otherwise `pass`. A `pass` is coverage-bounded-observed: it states what was
+out-of-vocabulary `basis` or `method` (fail-closed, same rule), and it
+contributes `fail`. The second holds when `coverage.outOfScope` or
+`coverage.routedElsewhere` is non-empty, and it contributes `degraded`. The
+third holds when any clean row, meaning a row whose `containmentObserved`
+is in the carried labels and not in the carried caught set, carries a
+`basis` other than `substrate` or a `method` other than `intercepted`, and
+it contributes `pass_indirect`. A condition that does not hold contributes
+`pass`. A `pass` is coverage-bounded-observed: it states what was
 assessed and makes no general safety claim. There is intentionally no
 severity threshold, policy ruleset, or free-text reason here; policy belongs
 downstream.
+
+`pass_indirect` is a coverage-complete result at least one of whose clean
+rows rests on an observation that was indirect in vantage (`basis:
+artifact`, the executed artifact's own account of itself) or indirect in
+time (`method: reconstructed`, derived after the event rather than at it).
+`pass` and `pass_indirect` make the same coverage claim and different
+observation claims, and the ordering says only that the second is never the
+stronger of the two. The distinction exists because the top result was
+otherwise reachable by a statement disclaiming substrate observation
+altogether. A party holding the enclosing envelope key but not the
+substrate's observation key can move every row to `basis: artifact` and
+then drop the observation records, the batch root and the run entropy that
+those rows no longer require, and the statement it presents is well formed,
+carries no substrate evidence at all, and reads at the top of the ordering.
+That statement is byte-identical to one an honest producer with no
+substrate vantage emits from the same configuration, so no function of the
+carried bytes refuses the first without refusing the second, and refusing
+both would remove the producer whose attack classes have no substrate
+vantage to observe from. What the fourth value does instead is price both
+below a live interception, which is the only distinction the carried bytes
+support.
+
+`pass_indirect` is not a revival of the retired 0.4 `inferred` value.
+`inferred` was a row-level value whose conflation destroyed, at its only
+carrier, which axis was weak; `pass_indirect` is a statement-level
+reduction over `basis` and `method`, both of which remain required and
+individually readable on every row, so nothing a consumer needs is
+available only through the reduction. A consumer that needs to separate
+indirectness of vantage from indirectness of time MUST read the two row
+members and never the result token.
+
+`pass_indirect` says nothing about signature verification, and the third
+condition is deliberately not phrased over the evidence tier. A `pass` may
+still rest on clean rows deriving `unattested`, which the clean-row
+ordering ranks with `artifact`; that half of the weakness is key-relative,
+belongs to the evidence tier rather than to the recompute, and a byte-pure
+function cannot see it. Neither the token nor the tier substitutes for the
+other, and a consumer crediting any `basis: substrate` row MUST derive the
+tier whichever of the two top results the statement carries.
+
+The default admission threshold is `result == "pass"`. A consumer MAY
+accept `pass_indirect`, and a consumer relaxing its threshold below `pass`
+MUST additionally key on each clean row's `basis` and `method` and on that
+row's derived evidence tier, because below `pass` the ordinal stops
+distinguishing them: a `degraded` reached through a disclosed coverage gap
+and a `degraded` whose clean rows are all `artifact` carry the same token.
 
 Two further bounds sit beside that one. The substrate is a passive sensor,
 not an orchestrator: it observes what crosses the vantages it was armed at,
@@ -409,8 +513,8 @@ gate on their own, and on their own they are not one. Every check above
 reads record content, and record content means nothing until the record's
 signature verifies, which is the verify-then-read discipline stated under
 Parsing Rules. Against a party able to author a record, none of these checks
-costs a secret: `aeeRunBinding` is derived from six digests the statement
-already carries in plaintext, `aeePostureDigest` is the pinned
+costs a secret: `aeeRunBinding` is derived entirely from material the
+statement already carries in plaintext, `aeePostureDigest` is the pinned
 `networkPosture` digest carried beside them, and an `arming` or `sealed`
 payload describing a vantage that never existed satisfies every constraint
 here. These requirements are therefore structural well-formedness
@@ -457,8 +561,9 @@ class to the complete array of attack identifiers it defines; an attackId
 MUST NOT appear under more than one class), `catchPolicy` (JCS digest of the
 parsed catch-policy document, so an empty or permissive policy is
 distinguishable from an enforcing one), `networkPosture` (the
-substrate-authoritative egress posture, e.g. `no_network`, `allowlist`,
-`sinkhole`, with its configuration digest), and `observationVocabulary` (the
+substrate-authoritative egress posture, drawn from the closed vocabulary
+registered below, with its configuration digest), and
+`observationVocabulary` (the
 producer's versioned observation label set carried in the attestation:
 `labels`, the complete array of `containmentObserved` values the producer can
 emit, and `caught`, the subset whose observation constitutes a caught
@@ -476,6 +581,30 @@ binding), is required exactly when any row carries `basis: substrate`. The
 manifest pre-image travels in the attestation, so a verifier re-derives
 `corpus.digest` offline and any edit to the assessed set (a dropped attack, a
 renamed class) fails that check.
+
+The `networkPosture.posture` vocabulary is closed. Four values are
+registered: `allowlist`, egress permitted only to a declared destination
+set; `no_network`, no egress path exists; `sinkhole`, egress is accepted and
+diverted to a capture endpoint rather than reaching its destination; and
+`unsafe_bypass_egress`, egress is unrestricted and uninstrumented. A
+statement whose `posture` is absent, is not a string, or carries a value
+outside that set is malformed, fail-closed, on the same terms as every other
+closed vocabulary here; a minor version MAY append a value and MUST NOT
+redefine a registered one.
+
+The set is closed rather than illustrative for a reason that is not
+housekeeping. A consumer is invited under `basis` to coherence-check a row
+against the posture the run was contained under, and a substrate row
+claiming a network-boundary observation under a posture that provides no
+interception path at that boundary is the case that invites it. That check
+cannot be written against a value whose meaning is undeclared: no verifier
+can decide whether an unregistered posture provides an interception path, so
+an open vocabulary leaves the check permanently unreachable while appearing
+to offer it. Closing the set also settles a divergence this document was
+carrying on its own: the proto beside it already described this vocabulary
+as closed and fail-closed and already carried the fourth value, so an
+implementer reading the two together had to pick one, and every shipped
+implementation picked the closed reading.
 
 A typing discipline this predicate commits to, stated here so that a later
 reader inherits it rather than rediscovers the question. Each of these six
@@ -712,11 +841,17 @@ cherry-picking from invisible to gap-evident across whatever set a
 producer does publish (a gap, a duplicated sequence number, a shared
 predecessor, or a duplicated genesis is detectable by any consumer holding
 both attestations), without changing this non-claim; their definition
-states the ordering-only scope and the registration-receipt completion. An
-`pass` resting on any `reconstructed` clean row SHOULD be read as
-tolerating transients between the observed states; a `pass` resting on any
-`artifact` clean row, or on an `unattested` substrate clean row, is
-self-reported absence, the weakest. The
+states the ordering-only scope and the registration-receipt completion. A
+result resting on any `reconstructed` clean row SHOULD be read as
+tolerating transients between the observed states, and a result resting on
+any `artifact` clean row is self-reported absence, the weakest; both of
+those statements recompute to `pass_indirect` rather than to `pass`, so the
+first two ranks of this ordering are the two ranks the result token already
+separates from a live interception, and a consumer reading only the token
+still cannot tell them apart from each other. A `pass` resting on an
+`unattested` substrate clean row is self-reported absence too, and is the
+one rank of this ordering the recompute cannot express, because whether a
+covering signature verifies is key-relative and the recompute is not. The
 clean-row ordering applies equally to the clean rows of a `degraded`
 result's assessed classes, with `degraded` additionally bounded by its
 disclosed coverage gap. A consumer MAY reject, never downgrade: an
@@ -1129,7 +1264,12 @@ deny[msg] {
 
 `attested` is coverage-of-existence, not temporal completeness; transient
 tolerance travels on the `method` axis, so an admission rule that needs a
-live observation keys on `method: intercepted` as well as the tier.
+live observation keys on `method: intercepted` as well as the tier. The
+second rule above is the row-level half of the partition the `result`
+recompute now also reduces to a token: a policy gating on `result ==
+"pass"` already excludes every statement that rule would deny, and a policy
+relaxed to admit `pass_indirect` MUST keep the rule, because the token
+states that some clean row is indirect and never which one.
 
 ## Changelog and Migrations
 
@@ -1221,10 +1361,29 @@ predicate-level, and adopted the I-JSON safe-integer profile on every rail.
     with domain separation, duplicate records rejected, and is required
     whenever records exist. A new `runEntropy` digest in
     `observationEnvironment` folds a substrate-emitted run-start value
-    into a versioned run binding (`aeeBindingVersion: 1`) so
+    into a versioned run binding so
     identical-configuration re-runs derive distinct bindings; the binding
     is anti-splice, not a freshness challenge, and identical-config replay
     is bounded by a stateful consumer rejecting `runEntropy` reuse.
+-   Moved the run binding to `aeeBindingVersion: 2`. The pre-image gains
+    `observationVocabulary`, the carried vocabulary digest, so that
+    narrowing the caught set after the run breaks every record's binding
+    rather than re-deriving for free; and its `networkPosture` input
+    becomes the canonical digest of the carried `networkPosture` object
+    rather than the value of that object's own `digest` member, which
+    brings the posture string inside the signature it was sitting beside.
+    Both inputs are configuration already on the wire, so the change costs
+    no bytes and adds no comparison. Version 1 is retired with no alias and
+    no dual-accept window: a statement built under it derives a digest no
+    record carries, and a record declaring version 1 explicitly covers
+    nothing. The absent-member default is now stated as the implemented
+    version rather than as a fixed number, so that omitting the optional
+    declaration stays legal across a version change.
+-   Closed the `networkPosture.posture` vocabulary at four registered
+    values and made an unregistered one malformed, resolving a divergence
+    in which this document introduced the values as an example while the
+    proto beside it and every shipped implementation treated them as a
+    closed, fail-closed set.
 -   Replaced the producer-claim trust-boundary paragraph with a field
     partition and an honest key model: the tier defeats substrate-free
     minting only where the observation key is held apart from the
@@ -1332,6 +1491,27 @@ predicate-level, and adopted the I-JSON safe-integer profile on every rail.
     reads. No wire byte, digest, signature or conformance vector moves: the
     correction is to a consumer obligation in stage two, which the byte-pure
     validity gate does not reach.
+-   Added a fourth `result` value, `pass_indirect`, ordered between
+    `degraded` and `pass`, and restated the recompute as the minimum of
+    three independent conditions rather than as a cascade. The added
+    condition holds when a clean row carries a `basis` other than
+    `substrate` or a `method` other than `intercepted`. The top result was
+    otherwise reachable by a statement carrying no substrate evidence at
+    all: a party holding the enclosing envelope key alone moves every row
+    to `basis: artifact`, drops the records, the batch root and the run
+    entropy that a substrate row would have required, and lands above the
+    run it downgraded. That mutant is byte-identical to the statement an
+    honest producer with no substrate vantage emits, measured over every
+    finding-bearing vector in the conformance suite, so the two are not
+    separable by any function of the carried bytes and the value prices
+    both rather than refusing either. The condition reads only required row
+    members with closed vocabularies, so the recompute stays byte-pure, and
+    it is deliberately phrased over declared vantage and directness rather
+    than over the evidence tier, so the tier's independence from `result`
+    survives unchanged and the one weakness the tier owns, an `unattested`
+    substrate clean row, keeps the top token as it always did. Four accept
+    vectors and one reject vector move their expected result; no wire
+    member, digest, signature or record moves.
 
 [ResourceDescriptor]: ../v1/resource_descriptor.md
 [Runtime Traces]: runtime-trace.md

@@ -9,12 +9,12 @@
       "title": "Referenced-record validity vs covers-nothing (two altitudes)",
       "classification": "forced",
       "specAnchors": [
-        "L373-398",
-        "L391-394",
-        "L863-866",
-        "L884-887"
+        "L477-502",
+        "L495-498",
+        "L998-1001",
+        "L1019-1022"
       ],
-      "reading": "The coverage-validity bullets (references resolve in range and class-match; every referenced payload parses as canonical +json carrying the reserved members with aeeRunBinding equal to the derived binding; method cap; batchRoot) are a HARD validity requirement: 'the following MUST hold or the attestation is invalid' (L373-376). Kind-constraint violations (a bad armedAt, posture/method mismatch, sealed conditions, run-chaining syntax, unknown aeeKind) make the record 'cover nothing' (L863-866, L884-887), invalidating only when the row is left without its required class cover. Both altitudes are quoted verbatim in the spec.",
+      "reading": "The coverage-validity bullets (references resolve in range and class-match; every referenced payload parses as canonical +json carrying the reserved members with aeeRunBinding equal to the derived binding; method cap; batchRoot) are a HARD validity requirement: 'the following MUST hold or the attestation is invalid' (L477-480). Kind-constraint violations (a bad armedAt, posture/method mismatch, sealed conditions, run-chaining syntax, unknown aeeKind) make the record 'cover nothing' (L998-1001, L1019-1022), invalidating only when the row is left without its required class cover. Both altitudes are quoted verbatim in the spec.",
       "forcingVectors": [
         "bad-205-payload-missing-runbinding",
         "bad-206-payload-missing-kind",
@@ -32,10 +32,10 @@
       "title": "Method cap over covering records; unknown-kind and non-covering records excluded",
       "classification": "forced",
       "specAnchors": [
-        "L396-397",
-        "L971-972"
+        "L500-501",
+        "L1106-1107"
       ],
-      "reading": "'The row's method is no stronger than the weakest aeeMethod across its covering records' (L396-397) is computed over the referenced records that class-match and pass their kind constraints. A record whose aeeKind the consumer does not recognize 'covers nothing and is otherwise ignored' (L971-972), so it is excluded from the cap; likewise non-covering records. bad-304 locks the min-composition over covering records; ok-035 locks that a referenced unknown-kind record signed reconstructed neither invalidates an intercepted row nor lowers its cap.",
+      "reading": "'The row's method is no stronger than the weakest aeeMethod across its covering records' (L500-501) is computed over the referenced records that class-match and pass their kind constraints. A record whose aeeKind the consumer does not recognize 'covers nothing and is otherwise ignored' (L1106-1107), so it is excluded from the cap; likewise non-covering records. bad-304 locks the min-composition over covering records; ok-035 locks that a referenced unknown-kind record signed reconstructed neither invalidates an intercepted row nor lowers its cap.",
       "forcingVectors": [
         "bad-304-method-cap-multirecord",
         "bad-302-method-inflation",
@@ -49,9 +49,9 @@
       "title": "Duplicate records by leaf hash",
       "classification": "forced",
       "specAnchors": [
-        "L1013-1015"
+        "L1148-1150"
       ],
-      "reading": "'Two byte-identical entries in observationRecords make the attestation invalid: a record's canonical identity is its leaf hash' (L1013-1015). The leaf hash is H(0x00 || DSSE PAE(payloadType, payload)), so a shared leaf hash and byte-identical PAE bytes are equivalent: a discriminating vector (distinct payloads, same leaf) is unconstructible, so bad-405 fully locks the reading.",
+      "reading": "'Two byte-identical entries in observationRecords make the attestation invalid: a record's canonical identity is its leaf hash' (L1148-1150). The leaf hash is H(0x00 || DSSE PAE(payloadType, payload)), so a shared leaf hash and byte-identical PAE bytes are equivalent: a discriminating vector (distinct payloads, same leaf) is unconstructible, so bad-405 fully locks the reading.",
       "forcingVectors": [
         "bad-405-duplicate-records"
       ]
@@ -61,11 +61,11 @@
       "title": "Fail-closed vs malformed row members",
       "classification": "forced",
       "specAnchors": [
-        "L428-431",
-        "L663-666",
-        "L815-822"
+        "L532-535",
+        "L792-795",
+        "L950-957"
       ],
-      "reading": "Members the recompute reads (containmentObserved, basis, method) are fail-closed on absence or unknown token (L663-666); on a substrate row a fail-closed label or method cannot satisfy class-match and makes the attestation invalid (L428-431). A present member of the wrong JSON type is a decode-layer fault making the statement malformed (a distinct altitude from an absent one), pinned for actualLayer by bad-506.",
+      "reading": "Members the recompute reads (containmentObserved, basis, method) are fail-closed on absence or unknown token (L792-795); on a substrate row a fail-closed label or method cannot satisfy class-match and makes the attestation invalid (L532-535). A present member of the wrong JSON type is a decode-layer fault making the statement malformed (a distinct altitude from an absent one), pinned for actualLayer by bad-506.",
       "forcingVectors": [
         "bad-501-substrate-unknown-method",
         "bad-504-substrate-oov-label",
@@ -78,9 +78,9 @@
       "title": "Clean-row actualLayer 'none' on every basis",
       "classification": "forced",
       "specAnchors": [
-        "L822-824"
+        "L957-959"
       ],
-      "reading": "'On a row whose containmentObserved label is from the carried labels but not in the caught set (a clean row), the producer MUST emit the literal string none' (L822-824). The text says 'a row', with no basis qualifier, so the rule binds artifact clean rows too. bad-503 locks the substrate twin; bad-818 locks the artifact clean row.",
+      "reading": "'On a row whose containmentObserved label is from the carried labels but not in the caught set (a clean row), the producer MUST emit the literal string none' (L957-959). The text says 'a row', with no basis qualifier, so the rule binds artifact clean rows too. bad-503 locks the substrate twin; bad-818 locks the artifact clean row.",
       "forcingVectors": [
         "bad-503-clean-row-layer-not-none",
         "bad-818-artifact-clean-row-layer-not-none"
@@ -91,11 +91,11 @@
       "title": "Coverage completeness at class + attack granularity; assessed classes are real manifest classes",
       "classification": "forced",
       "specAnchors": [
-        "L458-461",
-        "L514-521",
-        "L565-568"
+        "L562-564",
+        "L643-650",
+        "L694-697"
       ],
-      "reading": "Coverage is an exhaustive, disjoint partition of the manifest's classes across assessedClasses / outOfScope / routedElsewhere (L514-521), each a real manifest class (an assessed class the manifest never carried is rejected); coverage integrity is exact set equality between row attackIds and the manifest's attacks for the assessed classes (L565-568). bad-816 locks a dropped class; bad-819 locks the mirror (a fabricated class padding assessedClasses); bad-806/807 lock the attack granularity.",
+      "reading": "Coverage is an exhaustive, disjoint partition of the manifest's classes across assessedClasses / outOfScope / routedElsewhere (L643-650), each a real manifest class (an assessed class the manifest never carried is rejected); coverage integrity is exact set equality between row attackIds and the manifest's attacks for the assessed classes (L694-697). bad-816 locks a dropped class; bad-819 locks the mirror (a fabricated class padding assessedClasses); bad-806/807 lock the attack granularity.",
       "forcingVectors": [
         "bad-816-coverage-class-dropped",
         "bad-819-assessed-class-not-in-manifest",
@@ -109,10 +109,10 @@
       "title": "Binding-version detection: derived mismatch and explicit read-first declaration",
       "classification": "forced",
       "specAnchors": [
-        "L196-200",
-        "L203-210"
+        "L212-217",
+        "L220-227"
       ],
-      "reading": "A verifier has exactly one binding construction and rejects, fail-closed, a version it does not implement rather than attempt a second (L196-200); a construction it does not implement surfaces as aeeRunBinding failing to equal the implemented derivation (bad-303, whose records are minted under the retired version-1 pre-image). An arming payload MAY carry an explicit aeeBindingVersion, read before deriving; a value the verifier does not implement makes the arming record cover nothing, distinguishably from a run-binding digest mismatch (L203-210, bad-726). The declared version in each of those two vectors moves whenever the implemented construction moves: a vector minted under, or declaring, the version the rail implements asserts nothing at all.",
+      "reading": "A verifier has exactly one binding construction and rejects, fail-closed, a version it does not implement rather than attempt a second (L212-217); a construction it does not implement surfaces as aeeRunBinding failing to equal the implemented derivation (bad-303, whose records are minted under the retired version-1 pre-image). An arming payload MAY carry an explicit aeeBindingVersion, read before deriving; a value the verifier does not implement makes the arming record cover nothing, distinguishably from a run-binding digest mismatch (L220-227, bad-726). The declared version in each of those two vectors moves whenever the implemented construction moves: a vector minted under, or declaring, the version the rail implements asserts nothing at all.",
       "forcingVectors": [
         "bad-303-binding-version-1",
         "bad-726-arming-binding-version-carried"
@@ -123,10 +123,10 @@
       "title": "One timestamp profile on both fields: RFC 3339, uppercase designators, zero UTC offset; armedAt no later than issuedAt",
       "classification": "forced",
       "specAnchors": [
-        "L870-871",
-        "L1044-1046"
+        "L1005-1006",
+        "L1179-1181"
       ],
-      "reading": "issuedAt is typed as the framework's Timestamp field type, and the predicate pins the two choices that type leaves open (L1044-1046): the date-time separator and the zone designator are uppercase, never the lowercase t and z RFC 3339 also admits, and the zone designator is Z, +00:00 or -00:00, never a non-zero offset. An arming record's armedAt carries the same profile and is no later than issuedAt (L870-871). Both rails parse and compare the two as instants. bad-701 (absent armedAt), bad-702 (armedAt after issuedAt), bad-810 (absent issuedAt) and bad-811 (issuedAt not RFC 3339 at all) lock the base. The zone half is locked on each field by bad-727 and bad-820. The case half needs one vector per designator, because a rail whose zero-offset test reads the literal suffix rejects a lowercase z as a side effect of the zone rule: bad-750 and bad-821 lock the date-time separator on each field, bad-751 and bad-822 the zone designator. ok-038 and ok-039 lock -00:00 as admitted on each field, so a rail that reads 'zero offset' as 'Z or +00:00 only' fails rather than passing as silently stricter than its peers.",
+      "reading": "issuedAt is typed as the framework's Timestamp field type, and the predicate pins the two choices that type leaves open (L1179-1181): the date-time separator and the zone designator are uppercase, never the lowercase t and z RFC 3339 also admits, and the zone designator is Z, +00:00 or -00:00, never a non-zero offset. An arming record's armedAt carries the same profile and is no later than issuedAt (L1005-1006). Both rails parse and compare the two as instants. bad-701 (absent armedAt), bad-702 (armedAt after issuedAt), bad-810 (absent issuedAt) and bad-811 (issuedAt not RFC 3339 at all) lock the base. The zone half is locked on each field by bad-727 and bad-820. The case half needs one vector per designator, because a rail whose zero-offset test reads the literal suffix rejects a lowercase z as a side effect of the zone rule: bad-750 and bad-821 lock the date-time separator on each field, bad-751 and bad-822 the zone designator. ok-038 and ok-039 lock -00:00 as admitted on each field, so a rail that reads 'zero offset' as 'Z or +00:00 only' fails rather than passing as silently stricter than its peers.",
       "forcingVectors": [
         "bad-701-arming-missing-armedat",
         "bad-702-armedat-after-issuedat",
@@ -147,9 +147,9 @@
       "title": "Strict, canonical base64 for record payloads",
       "classification": "forced",
       "specAnchors": [
-        "L845-863"
+        "L980-998"
       ],
-      "reading": "A covering record payload must decode as canonical +json valid I-JSON (L845-863). A payload re-encoded as non-canonical base64 (nonzero trailing bits) does not strict-decode and covers nothing: Go decodes with base64.StdEncoding.Strict() and the Python rail re-encode-compares, so both reject where a lenient decoder would accept.",
+      "reading": "A covering record payload must decode as canonical +json valid I-JSON (L980-998). A payload re-encoded as non-canonical base64 (nonzero trailing bits) does not strict-decode and covers nothing: Go decodes with base64.StdEncoding.Strict() and the Python rail re-encode-compares, so both reject where a lenient decoder would accept.",
       "forcingVectors": [
         "bad-817-payload-noncanonical-base64"
       ]
@@ -159,10 +159,10 @@
       "title": "Evidence tier per row over covering records; DSSE any-signature-verifies; keyid never the check",
       "classification": "forced",
       "specAnchors": [
-        "L433-448",
-        "L1098-1100"
+        "L537-552",
+        "L1233-1235"
       ],
-      "reading": "The per-row evidence tier (attested/unattested/declared) is derived over the row's covering records; a record verifies when any of its signatures verifies (DSSE semantics) against a consumer-pinned substrate observation key, and keyid is 'an unauthenticated lookup hint and never the check itself' (L1098-1100). The tier is trust-relative (stage two), so a signature outcome is never a validity reject code; the readings are locked by ACCEPT vectors with pinned per-row tier expectations (ok-024) rather than reject vectors.",
+      "reading": "The per-row evidence tier (attested/unattested/declared) is derived over the row's covering records; a record verifies when any of its signatures verifies (DSSE semantics) against a consumer-pinned substrate observation key, and keyid is 'an unauthenticated lookup hint and never the check itself' (L1233-1235). The tier is trust-relative (stage two), so a signature outcome is never a validity reject code; the readings are locked by ACCEPT vectors with pinned per-row tier expectations (ok-024) rather than reject vectors.",
       "forcingVectors": [
         "ok-024-mixed-basis-rows",
         "ok-019-wrong-keyid-sig-verifies",
@@ -187,9 +187,9 @@
       "title": "Subject cardinality is unconditional (one subject on a statement of any basis)",
       "classification": "forced",
       "specAnchors": [
-        "L185-189"
+        "L193-196"
       ],
-      "reading": "subject MUST contain exactly one entry on a statement of ANY basis (L185-189); a statement carrying zero or more than one subject is malformed regardless of whether any row is basis:substrate. Only the six binding-digest-input requirement (each carries a lowercase-64-hex sha256) stays scoped to substrate-row-carrying statements. Resolves open corner C (was permitted: the cardinality rule had been enforced only for substrate-carrying statements while its consequence sentence was substrate-scoped, so an artifact-only two-subject statement was wrongly accepted by all rails). bad-607 keeps a substrate row; bad-728 locks the artifact-only case.",
+      "reading": "subject MUST contain exactly one entry on a statement of ANY basis (L193-196); a statement carrying zero or more than one subject is malformed regardless of whether any row is basis:substrate. Only the six binding-digest-input requirement (each carries a lowercase-64-hex sha256) stays scoped to substrate-row-carrying statements. Resolves open corner C (was permitted: the cardinality rule had been enforced only for substrate-carrying statements while its consequence sentence was substrate-scoped, so an artifact-only two-subject statement was wrongly accepted by all rails). bad-607 keeps a substrate row; bad-728 locks the artifact-only case.",
       "forcingVectors": [
         "bad-607-two-subjects-substrate",
         "bad-728-artifact-two-subjects"
@@ -200,9 +200,9 @@
       "title": "Duplicate attackId rows are malformed (one row per executed attack)",
       "classification": "forced",
       "specAnchors": [
-        "L529-542"
+        "L658-671"
       ],
-      "reading": "No two attackResults rows may carry the same attackId: 'one row per executed attack' (L529) is a well-formedness invariant, and a statement with a duplicate attackId across rows is malformed. Resolves open corner A (was permitted: coverage integrity set-compares row attackIds against the manifest, so a duplicate silently collapsed under set semantics and all rails accepted it). Both rails now detect the duplicate before building the rowID set. bad-729 locks it.",
+      "reading": "No two attackResults rows may carry the same attackId: 'one row per executed attack' (L658) is a well-formedness invariant, and a statement with a duplicate attackId across rows is malformed. Resolves open corner A (was permitted: coverage integrity set-compares row attackIds against the manifest, so a duplicate silently collapsed under set semantics and all rails accepted it). Both rails now detect the duplicate before building the rowID set. bad-729 locks it.",
       "forcingVectors": [
         "bad-729-duplicate-attackid-rows"
       ]
@@ -212,7 +212,7 @@
       "title": "Coverage sets are a disjoint partition (assessedClasses / outOfScope / routedElsewhere)",
       "classification": "forced",
       "specAnchors": [
-        "L516-521"
+        "L645-650"
       ],
       "reading": "The three coverage sets are a disjoint partition of the manifest's classes: a class appears in exactly one of assessedClasses, outOfScope, routedElsewhere (a move, not a copy). A class in more than one of the three is malformed - a class both assessed and disclosed as a gap is contradictory. Resolves open corner B, a LIVE divergence: our two rails already reject overlap (disjoint partition) while the independent from-spec checker accepts it (completeness-only); no vector exercised it, so 134/134 parity was intact. Keeping the reject reading is the converged debate's recommended DIRECTION and is the one editorial call here, reversible at vetting. bad-730 locks it.",
       "forcingVectors": [
@@ -271,14 +271,42 @@
       "title": "The run binding covers the carried posture object and the carried vocabulary digest",
       "classification": "forced",
       "specAnchors": [
-        "L157-163",
-        "L394-395"
+        "L157-165",
+        "L498-499"
       ],
-      "reading": "The pre-image names networkPosture and observationVocabulary, and the value each contributes is read from the statement's own bytes (L157-163), so a statement whose posture object or whose vocabulary digest differs from the one its records were signed against derives a binding no record carries and fails the equality every covering payload is put to (L394-395). Three vectors force it and each names a mutation that was free before: a posture string swapped between two registered values, which no vocabulary rule can see (bad-305); a caught set narrowed with its own digest re-derived over the narrowed arrays, which verifies against the arrays beside it and so costs nothing (bad-306); and a producer member added to the posture after the arming record was signed (bad-307), whose accepted twin ok-043 carries the same member with records that commit to it.",
+      "reading": "The pre-image names networkPosture and observationVocabulary, and the value each contributes is read from the statement's own bytes (L157-165), so a statement whose posture object or whose vocabulary digest differs from the one its records were signed against derives a binding no record carries and fails the equality every covering payload is put to (L498-499). Three vectors force it and each names a mutation that was free before: a posture string swapped between two registered values, which no vocabulary rule can see (bad-305); a caught set narrowed with its own digest re-derived over the narrowed arrays, which verifies against the arrays beside it and so costs nothing (bad-306); and a producer member added to the posture after the arming record was signed (bad-307), whose accepted twin ok-043 carries the same member with records that commit to it.",
       "forcingVectors": [
         "bad-305-posture-swapped",
         "bad-306-vocabulary-caught-narrowed",
         "bad-307-posture-member-added-after-arming"
+      ]
+    },
+    {
+      "id": 19,
+      "title": "networkPosture.posture is a closed registry of four values, append-only across minor versions",
+      "classification": "forced",
+      "specAnchors": [
+        "L585-593"
+      ],
+      "reading": "Four posture values are registered, and a statement whose posture is absent, is not a string, or carries a value outside that set is malformed, fail-closed, on the same terms as every other closed vocabulary in the document; a minor version MAY append a value and MUST NOT redefine a registered one (L585-593). The reading was this repository's for two revisions, argued from the coherence check a consumer is invited to run against the posture a substrate row was earned under, which no verifier can perform against a value whose meaning is undeclared. The document now registers the set and names the consequence, so the reading is cited rather than argued. bad-823 locks an unregistered string, bad-824 a value of the wrong scalar type and bad-825 an array wrapping a registered value; ok-040 through ok-042 keep the three registered values the prose had previously omitted or introduced illustratively.",
+      "forcingVectors": [
+        "bad-823-posture-unregistered",
+        "bad-824-posture-not-a-string",
+        "bad-825-posture-array"
+      ]
+    },
+    {
+      "id": 20,
+      "title": "result is the minimum of three independent conditions over four values, and a claim resting on an indirect clean row ranks below the top",
+      "classification": "forced",
+      "specAnchors": [
+        "L388-407",
+        "L409-428"
+      ],
+      "reading": "result is one of fail, degraded, pass_indirect, pass, ordered fail < degraded < pass_indirect < pass, and is evaluated as the minimum under that order of three independent conditions rather than as a cascade (L388-407). The third condition holds when any clean row carries a basis other than substrate or a method other than intercepted, and it contributes pass_indirect, which prices a statement carrying no substrate evidence below a live interception rather than refusing it, because the withdrawing statement and the honest statement of a producer with no substrate vantage are byte-identical (L409-428). The condition is phrased over the declared basis and method and never over the evidence tier, so the tier's independence from result survives. bad-009 locks a carried pass over an indirect clean row and bad-010 the mirror, a carried pass_indirect over a direct one; ok-006, ok-007, ok-029, ok-044 and ok-045 carry the value on honest statements, and ok-033 witnesses the minimum rather than a cascade, since a statement that is both indirect and discloses a coverage gap reads as the gap.",
+      "forcingVectors": [
+        "bad-009-result-pass-on-indirect-clean-row",
+        "bad-010-result-pass-indirect-on-direct-clean-row"
       ]
     }
   ],

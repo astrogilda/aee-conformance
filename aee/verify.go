@@ -10,7 +10,7 @@ import (
 //
 // Behavior contract (mirrors the conformance suite's behavior assertions):
 // an invalid report carries NO Result and NO Tiers — a consumer must never
-// see a result it is forbidden to consume (spec:400-404).
+// see a result it is forbidden to consume (spec:504-508).
 type Report struct {
 	// Verdict is "valid" or "invalid".
 	Verdict string `json:"verdict"`

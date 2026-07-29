@@ -35,7 +35,7 @@ recommended direction (open point 1): a single attack with two rows is a
 producer-assembly bug, and two contradictory rows for one attack (e.g. one
 caught, one clean) is exactly the ambiguity the recompute must not arbitrate.
 
-- **Spec.** A sentence was added to the `attackResults` paragraph (L529-542):
+- **Spec.** A sentence was added to the `attackResults` paragraph (L658-671):
   no two rows may carry the same `attackId`; coverage integrity set-compares row
   `attackId`s, so a duplicate would silently collapse under set semantics, and
   uniqueness is enforced separately, before that comparison.
@@ -61,7 +61,7 @@ among the three corners, and the converged debate chose keep-reject: a class
 both assessed and disclosed as a gap is contradictory. **Reversible at
 vetting.**
 
-- **Spec.** The coverage paragraph (L516-521) now states the three sets are a
+- **Spec.** The coverage paragraph (L645-650) now states the three sets are a
   disjoint partition: a class appears in exactly one of `assessedClasses`,
   `outOfScope`, `routedElsewhere` (a move, not a copy); a class in more than one
   is malformed.
@@ -87,7 +87,7 @@ converged debate's recommended direction (open point 3): one executed artifact
 per statement is the model everywhere else, and a two-subject artifact-only
 statement has no coherent meaning.
 
-- **Spec.** L185-189 was split: the cardinality half is stated unconditional
+- **Spec.** L193-196 was split: the cardinality half is stated unconditional
   ("on a statement of any basis"); the digest-input half keeps the
   substrate-row-carrying scope.
 - **Rails.** The subject-cardinality check was hoisted out of the
@@ -149,7 +149,7 @@ independent from-spec checker (in-toto/attestation#570 round-8, Rul1an).
 
 ## suiteRevision 3: reason-map membership vectors
 
-The coverage-partition membership rule (spec L521-523: the three sets are a
+The coverage-partition membership rule (spec L650-652: the three sets are a
 disjoint partition of the manifest's classes) is now forced on all three sets,
 not just `assessedClasses`: `bad-819` (assessed), `bad-731` (`outOfScope`),
 `bad-732` (`routedElsewhere`). Both rails already enforced reason-map membership;
@@ -161,7 +161,7 @@ corner (the spec forces it); recorded here for the audit trail.
 The spec does not decide the order in which a verifier evaluates its checks, and
 says so: under Parsing Rules it makes only the consumption preconditions and the
 evidence tier normative in its two-stage description, and states that "the
-sequencing itself is informative" (L317-319). Nothing else in the document ranks
+sequencing itself is informative" (L366-368). Nothing else in the document ranks
 one condition against another, and it carries no failure-code registry at all,
 so two rails can both reject the same bytes for reasons the spec is equally happy
 with.
@@ -177,8 +177,8 @@ record set before that loop. Both rejected; they named different conditions.
 **The suite pins the set-level reading**, and `bad-748` locks it. The argument is
 the verify-then-read discipline the spec does make normative: a consumer verifies
 each record's signature "before relying on any field inside the payload"
-(L847-849), and a payload's fields "mean nothing until its signature verifies"
-(L995-997). A record carrying no signature at all is therefore settled before the
+(L982-984), and a payload's fields "mean nothing until its signature verifies"
+(L1130-1132). A record carrying no signature at all is therefore settled before the
 bytes it carries are read. That argument is a reading, not a derivation: the same
 passage explicitly permits the byte-pure gates to read payload fields without
 verifying anything, so it does not by itself force the evaluation order.
@@ -200,30 +200,35 @@ suite reports the entry-count condition because it already does so for an absent
 member, and splitting one requirement across two conditions on the basis of a
 decoder's behavior is not a distinction the text makes.
 
-## suiteRevision 13: a fourth result value the vendored copy does not define
+## CLOSED at suiteRevision 14: the fourth result value the vendored copy now defines
 
-The corpus in this revision recomputes `result` over four values rather than
-three, and the vendored copy still defines three. This is the second revision
-running in which the corpus is ahead of the text it certifies against, and it
-closes the same way the entry below closes: upstream first, then a re-vendor.
+The corpus at suiteRevision 13 recomputed `result` over four values while the
+vendored copy defined three. The upstream edit has landed, the copy is
+re-vendored at the commit carrying it, and the text and the corpus now say the
+same thing, so this entry is closed. The reading is a registry decision
+(decision 20) rather than an open ask, and what follows is retained as the
+record of why the corpus moved first.
 
-**What the corpus implements.** `result` is the minimum, under `fail` <
-`degraded` < `pass_indirect` < `pass`, of three independent conditions. The two
-that existed are unchanged. The third holds when some clean row, meaning a row
-whose `containmentObserved` is in the carried labels and not in the carried
-caught set, declares a `basis` other than `substrate` or a `method` other than
-`intercepted`, and it contributes `pass_indirect`.
+**What the text now carries.** `result` is one of `fail`, `degraded`,
+`pass_indirect`, `pass`, ordered `fail` < `degraded` < `pass_indirect` <
+`pass`, and is the minimum under that order of three independent conditions
+rather than a cascade (L388-407). The two that existed are unchanged. The third
+holds when some clean row, meaning a row whose `containmentObserved` is in the
+carried labels and not in the carried caught set, declares a `basis` other than
+`substrate` or a `method` other than `intercepted`, and it contributes
+`pass_indirect`.
 
-**Why the corpus takes this reading before the text does.** The vendored copy
-lets a statement carrying no substrate evidence whatsoever reach the top of its
-own ordering. A party holding the enclosing envelope key and not the
-substrate's observation key relabels every row clean, moves every row to
-`basis: artifact`, and drops the observation records, the batch root and the
-run entropy that only a substrate row required; the result was `pass`. The
-vendored copy's own clean-row ordering says such a statement is "self-reported
-absence, the weakest" (L717-719), so the text already ranks it lowest on the
-axis a consumer is told to read and ranks it highest on the axis a consumer
-actually gates on. Reconciling those two is the amendment.
+**Why the corpus took this reading before the text did.** The copy vendored at
+suiteRevision 13 let a statement carrying no substrate evidence whatsoever
+reach the top of its own ordering. A party holding the enclosing envelope key
+and not the substrate's observation key relabels every row clean, moves every
+row to `basis: artifact`, and drops the observation records, the batch root and
+the run entropy that only a substrate row required; the result was `pass`. That
+copy's own clean-row ordering said such a statement is self-reported absence
+and the weakest, so the text ranked it lowest on the axis a consumer is told to
+read and highest on the axis a consumer actually gates on. Reconciling those
+two is what the amendment did, and the ordering paragraph now states that both
+of those statements recompute to `pass_indirect` (L844-854).
 
 **What the reading deliberately does not claim.** Driven over all eleven
 finding-bearing accept vectors, the downgraded statement is byte-identical to
@@ -234,73 +239,69 @@ producer, `ok-007`, stays valid and reaches `pass_indirect`.
 
 **Why it is phrased over the row members and not over the tier.** The tier is
 key-relative, and the vendored copy already requires that neither the validity
-gate nor the tier alters `result` (L302-306). A condition reading the tier would
+gate nor the tier alters `result` (L351-355). A condition reading the tier would
 make `result` vary with a consumer's trust anchors and stop being recomputable.
 The cost is stated rather than hidden: an `unattested` substrate clean row still
 reaches `pass` under this reading, and that is the one rank of the clean-row
 ordering no byte-pure function can express.
 
-Until the upstream edit lands, a from-spec verifier that returns `pass` for an
-artifact-basis or reconstructed clean row is conformant to the vendored
-specification and fails `ok-006`, `ok-007`, `ok-029`, `ok-038`, `ok-044`,
-`ok-045`, `bad-009`, `bad-010` and `bad-818`. That is the corpus running ahead
-of the text rather than the verifier erring.
+While the ask was outstanding, a from-spec verifier that returned `pass` for an
+artifact-basis or reconstructed clean row was conformant to the vendored
+specification and failed `ok-006`, `ok-007`, `ok-029`, `ok-038`, `ok-044`,
+`ok-045`, `bad-009`, `bad-010` and `bad-818`. Against the copy vendored now it
+is not, because the amendment carries every part of the ask: `result` is
+defined over the four values and the ordering, the recompute is stated as the
+minimum of the three named conditions rather than as a cascade, the third
+condition is said to read the declared `basis` and `method` and never the
+evidence tier, and the default admission threshold stays `result == "pass"`
+with a consumer relaxing below it required to key additionally on each clean
+row's `basis`, `method` and derived tier (L439-453).
+## CLOSED at suiteRevision 14: the posture registry, and a vendored copy that predated the binding it certified
 
-The upstream ask is one edit: define `result` over the four values and the
-ordering, state the recompute as the minimum of the three named conditions
-rather than as a cascade, say that the third reads the declared `basis` and
-`method` and never the evidence tier, and keep the default admission threshold
-at `result == "pass"` while requiring a consumer that relaxes below it to key
-additionally on each clean row's `basis`, `method` and derived tier.
+Two readings suiteRevision 12 took were not in the bytes it certified against,
+and both needed an upstream edit before the vendored copy could be re-pinned.
+Both edits have landed and the copy is re-vendored at the commit carrying them,
+so this entry is closed. The closed posture registry is now a registry decision
+(decision 19) and the version-2 binding was already one (decision 18). What
+follows is retained as the record of why the corpus moved first.
 
-## suiteRevision 12: the posture registry, and a vendored copy that predates the binding it certifies
+**The posture registry was treated as closed before the text said so.** The
+copy vendored at suiteRevision 12 introduced the values illustratively, as the
+substrate-authoritative egress posture followed by three examples, and named no
+consequence for a value outside that list. Every other artifact in reach
+treated the set as closed and fail-closed: the predicate's own JSON Schema,
+which also carried a fourth value the prose omitted (`unsafe_bypass_egress`),
+both binding-contract surfaces, and the shipped admission policy. The argument
+for closing it was in that text already, one section away: a consumer is
+invited to coherence-check a `substrate` row's claimed observation against the
+posture the run was contained under, because a row "claiming a network-boundary
+observation under a `networkPosture` that provides no interception path at that
+boundary is incoherent" (L943-947). No verifier can decide whether an
+unregistered posture provides an interception path at a boundary, so an open
+registry left that check permanently unreachable while appearing to offer it.
+The text now registers four values, states that a statement whose `posture` is
+absent, is not a string, or carries a value outside the set is malformed and
+fail-closed, and adds the append-only rule across minor versions (L585-593),
+with the argument for closing the set written down rather than asserted
+(L595-604). Three reject vectors (`bad-823`, `bad-824`, `bad-825`) and three
+accept vectors (`ok-040` through `ok-042`) lock it, and a from-spec verifier
+admitting an unregistered posture is no longer conformant.
 
-Two readings this revision takes are not in the vendored bytes it certifies
-against, and both need an upstream edit before the vendored copy can be
-re-pinned. Recording them here rather than in
-`vectors/interpretation-decisions.json` is the same call the entry above makes:
-that registry records where the text FORCES a reading, and this text does not.
-
-**The posture registry is treated as closed.** The vendored copy introduces the
-values illustratively, as "the substrate-authoritative egress posture, e.g.
-`no_network`, `allowlist`, `sinkhole`, with its configuration digest"
-(L459-461), and names no consequence for a value outside that list. Every other
-artifact in reach treats the set as closed and fail-closed: the predicate's own
-JSON Schema, which also carries a fourth value the prose omits
-(`unsafe_bypass_egress`), both binding-contract surfaces, and the shipped
-admission policy. The argument for closing it is in the vendored text already,
-one section away: a consumer is invited to coherence-check a `substrate` row's
-claimed observation against the posture the run was contained under, because a
-row "claiming a network-boundary observation under a `networkPosture` that
-provides no interception path at that boundary is incoherent" (L808-812). No
-verifier can decide whether an unregistered posture provides an interception
-path at a boundary, so an open registry leaves that check permanently
-unreachable while appearing to offer it. Three reject vectors (`bad-823`,
-`bad-824`, `bad-825`) and three accept vectors (`ok-040` through `ok-042`) pin
-the closed reading. Until the upstream edit lands, a from-spec verifier that
-admits an unregistered posture is conformant to the vendored specification and
-fails those three rejects, and that is the corpus running ahead of the text
-rather than the verifier erring.
-
-**The vendored copy still describes version 1 of the run binding.** The corpus
-in this revision is minted under version 2, whose pre-image gains the carried
-`observationVocabulary` digest and whose `networkPosture` input is the RFC 8785
+**The vendored copy described version 1 of the run binding while the corpus was
+minted under version 2.** The version-2 pre-image gains the carried
+`observationVocabulary` digest, and its `networkPosture` input is the RFC 8785
 canonical digest of the carried posture OBJECT rather than the value of that
-object's own digest member. The vendored copy still gives the seven-member
-version-1 pre-image (L157-163). The corpus therefore cites that passage for the
-rule it means, which is that the pre-image is derived from the statement's own
-values, while the passage enumerates a member list the corpus no longer uses.
-Re-vendoring is what closes this, and re-vendoring requires the amendment to
-exist upstream first: editing the vendored copy in place would make
-`spec/VENDOR-PIN.json` name a commit that does not contain those bytes, which is
-the one thing `scripts/spec-drift-gate.py` exists to refuse. The pin and the
-recorded `specDigest` are therefore left exactly where they were, and this
-paragraph is the record that the corpus moved ahead of them.
-
-The upstream ask is two edits. State that `networkPosture.posture` is a closed
-registry of four values, that a minor version MAY append and MUST NOT redefine,
-and that an absent, non-string or unregistered value makes the statement
-malformed. And carry the version-2 pre-image, with the two changed inputs and
-the reason each is admissible: both are run configuration fixed before corpus
-injection, which is what makes them knowable when the arming record that commits
-to the binding is signed.
+object's own digest member. The copy vendored at suiteRevision 12 still gave
+the seven-member version-1 pre-image, so the corpus cited that passage for the
+rule it meant, which is that the pre-image is derived from the statement's own
+values, while the passage enumerated a member list the corpus no longer used.
+Re-vendoring is what closed it, and it could not happen sooner: editing the
+vendored copy in place would have made `spec/VENDOR-PIN.json` name a commit
+that does not contain those bytes, which is the one thing
+`scripts/spec-drift-gate.py` exists to refuse. The copy now carries the
+version-2 pre-image with both changed inputs and the reason each is admissible,
+which is that both are run configuration fixed before corpus injection and so
+knowable when the arming record that commits to the binding is signed
+(L157-165), and it states the consequence a producer inherits: a member added
+to the posture after arming derives a binding the producer's own records do not
+carry, so its statement is invalid on that ground (L253-256).

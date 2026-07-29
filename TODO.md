@@ -73,19 +73,12 @@ proposal out of draft.
   reported for review. This holds for both spellings, since both now share the rule.
   Fix: compare the citation's own subject rather than its former text.
   File: `scripts/specpins.py`.
-- [ ] **The posture registry is asserted by three rails and stated by no line of the
-  specification.** `NetworkPosture` and `EgressPostures` in `aee/types.go` accept a
-  closed four-value registry with an append-only minor-version rule and reject anything
-  else as malformed, and `bad-823`, `bad-824` and `bad-825` lock that reading. The
-  vendored text introduces the values as examples ("the substrate-authoritative egress
-  posture, e.g. `no_network`, `allowlist`, `sinkhole`", L459-461) and names no
-  consequence for a value outside the list, at any line. The reading, its argument and
-  the upstream ask are recorded under `docs/interpretation-decisions-open.md`
-  suiteRevision 12; the two comments now attribute it to this repository rather than to
-  the document, and cite L459-461 for the part the document does state. Closing it needs
-  the upstream edit, then a re-vendor. Files: `aee/types.go`,
-  `docs/interpretation-decisions-open.md`.
-
+  The gap was exercised at suiteRevision 14 rather than hypothesised: the re-vendor split
+  one sentence in two and collapsed another paragraph, and eight citations plus eighteen
+  anchors landed on prose that no longer carried the whole claim beside them. Every one
+  passed the sync, because the prose each had lost was also rewritten. They were found by
+  reading the excerpts the sync prints, which is the review step the check is explicitly
+  not a substitute for, and the cost of that reading grows with each amendment.
 - [ ] **The number profile is integers-only and the specification asks only for safe
   integers.** `checkSafeInteger` rejects any JSON number carrying a fractional part,
   anywhere in a canonicalized payload, including inside members the specification leaves
@@ -109,6 +102,17 @@ proposal out of draft.
   File: `scripts/interpretation-registry-gate.py`.
 
 ## Recently landed
+
+- [x] **Vendor the two amendments the corpus already implemented** (2026-07-29) --
+  the pin moves two commits along the upstream predicate branch. The first binds the
+  carried observation vocabulary and the carried network posture into the run identity
+  and declares the posture vocabulary a closed four-value registry with an append-only
+  rule; the second adds the fourth `result` value and restates the recompute as the
+  minimum of three independent conditions. Both readings were already in the rails and
+  the corpus, so no vector file moved and the replay was green against the new text
+  before it arrived. The two entries in `docs/interpretation-decisions-open.md` that
+  recorded the corpus running ahead are closed, and their readings become registry
+  decisions 19 and 20.
 
 - [x] **Re-aim every `spec:NNN` citation onto the passage its own claim names** (2026-07-29) --
   eighty-seven of ninety-eight citation spans across thirteen files were corrected by

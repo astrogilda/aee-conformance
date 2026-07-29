@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 154,
-    "pass": 154,
+    "vectors": 158,
+    "pass": 158,
     "fail": 0
   },
   "notes": [],
@@ -3659,6 +3659,124 @@
     {
       "id": "bad-745-record-signatures-empty",
       "file": "vectors/reject/bad-745-record-signatures-empty.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "record-signatures-empty"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "record-signatures-empty"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-746-manifest-empty-classes",
+      "file": "vectors/reject/bad-746-manifest-empty-classes.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "corpus-manifest-no-attacks"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "corpus-manifest-no-attacks"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-747-manifest-class-declares-no-attacks",
+      "file": "vectors/reject/bad-747-manifest-class-declares-no-attacks.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "corpus-manifest-no-attacks"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "corpus-manifest-no-attacks"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-748-signatures-empty-precedes-undecodable-record",
+      "file": "vectors/reject/bad-748-signatures-empty-precedes-undecodable-record.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "record-signatures-empty",
+          "record-undecodable",
+          "payload-not-canonical",
+          "clean-row-uncovered"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "record-signatures-empty"
+        ],
+        "alsoCarries": [
+          "record-undecodable"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-749-record-signatures-not-an-array",
+      "file": "vectors/reject/bad-749-record-signatures-not-an-array.json",
       "kind": "reject",
       "status": "PASS",
       "gates": {

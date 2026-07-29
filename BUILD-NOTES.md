@@ -108,12 +108,22 @@ differential findings.
   exercises it.
 - `record-signatures-empty` is a registry-extension code for a record
   carrying zero `signatures` entries, which the spec forbids. An absent
-  member and an empty array are the same fault. Counting entries needs no
-  key material, so the check sits with the other coverage-validity checks
-  and is the one signature-shaped question the byte-pure layer can answer;
-  it verifies nothing, and a record carrying fabricated signature bytes
-  passes it and is caught only at the tier.
-  `bad-745-record-signatures-empty` exercises it.
+  member, an empty array and a member of the wrong JSON type are the same
+  fault, since an entry count over a value that is not an array is
+  undefined and undefined fails closed; the wrong-type spelling reports
+  this code rather than the parse catch-all, which names neither the
+  record nor the member. Counting entries needs no key material, so the
+  check sits with the other coverage-validity checks and is the one
+  signature-shaped question the byte-pure layer can answer; it verifies
+  nothing, and a record carrying fabricated signature bytes passes it and
+  is caught only at the tier. The count is asked once over the whole
+  record set before any payload is decoded, which follows the spec's
+  verify-then-read discipline: a record with no signature at all is
+  settled ahead of the bytes it carries. `bad-745-record-signatures-empty`
+  exercises the empty array, `bad-749-record-signatures-not-an-array` the
+  wrong type, and `bad-748-signatures-empty-precedes-undecodable-record`
+  pins the ordering against a statement that also carries an undecodable
+  payload.
 - JCS floats: vector payloads are integer-only per the suite's
   serialization pin. The ES6 double path in `aee/jcs.go` is exact for the
   common range and conservative (reject, never accept) at the extreme

@@ -2,6 +2,7 @@ package aee_test
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 
 	"github.com/astrogilda/aee-conformance/aee"
@@ -74,6 +75,97 @@ func TestRecordSignaturesEmptyIsInvalid(t *testing.T) {
 			requireInvalid(t, aee.Verify(b, pinnedPolicy()), aee.CodeRecordSignaturesEmpty)
 		})
 	}
+}
+
+// TestRecordSignaturesNotAnArrayIsTheSameFault covers the third spelling of
+// zero entries. A signatures member holding a string, an object or a number
+// carries no entry, so it fails the same at-least-one-entry requirement an
+// empty array fails, and it reports the same condition rather than the parse
+// catch-all: the catch-all names neither the record nor the member, and an
+// absent member already reports the specific condition on identical reasoning.
+func TestRecordSignaturesNotAnArrayIsTheSameFault(t *testing.T) {
+	cases := []struct {
+		name        string
+		replacement any
+	}{
+		{"string", "sig"},
+		{"object", map[string]any{"keyid": "", "sig": "AA=="}},
+		{"number", 1},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			b := mutateRecordSignatures(t, aeetest.Build(aeetest.Options{}), []int{0}, tc.replacement)
+			requireInvalid(t, aee.Verify(b, pinnedPolicy()), aee.CodeRecordSignaturesEmpty)
+		})
+	}
+}
+
+// TestMalformedSignatureEntryStaysMalformed is the boundary the case above
+// must not cross. An array DOES carry entries, so a wrong-typed member inside
+// one is a fault in the entry rather than in the count, and it keeps reporting
+// the parse catch-all.
+func TestMalformedSignatureEntryStaysMalformed(t *testing.T) {
+	entry := []any{map[string]any{"keyid": 1, "sig": "AA=="}}
+	b := mutateRecordSignatures(t, aeetest.Build(aeetest.Options{}), []int{0}, entry)
+	requireInvalid(t, aee.Verify(b, pinnedPolicy()), aee.CodeStatementMalformed)
+}
+
+// TestSignatureCountPrecedesPayloadDecode pins WHEN the count is evaluated.
+// It is asked once over the whole record set before any payload is decoded, so
+// a statement whose first record does not decode and whose second carries no
+// signature entry reports the missing signature. That ordering follows the
+// verify-then-read discipline: a payload's fields mean nothing until its
+// signature verifies, so a record with no signature at all is settled ahead of
+// the bytes it carries. Counting inside the decode loop instead would make the
+// reported condition depend on which record happened to carry which fault,
+// which no single-fault vector can detect.
+func TestSignatureCountPrecedesPayloadDecode(t *testing.T) {
+	b := mutateRecordSignatures(t, aeetest.Build(aeetest.Options{Clean: true}), []int{1}, []any{})
+	b = mutateRecordPayloadUndecodable(t, b, 0)
+	requireInvalid(t, aee.Verify(b, pinnedPolicy()), aee.CodeRecordSignaturesEmpty)
+}
+
+// mutateRecordPayloadUndecodable rewrites the payload of the record at idx so
+// it is no longer canonical base64: the last pre-padding character is remapped
+// to set a trailing bit that RFC 4648 requires to be zero. A strict decoder
+// rejects it while a lenient one returns the original bytes, which is what
+// makes it usable beside another fault: every commitment over the record still
+// recomputes.
+func mutateRecordPayloadUndecodable(t *testing.T, raw []byte, idx int) []byte {
+	t.Helper()
+	const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+	var stmt map[string]any
+	if err := json.Unmarshal(raw, &stmt); err != nil {
+		t.Fatalf("built statement does not parse: %v", err)
+	}
+	predicate, ok := stmt["predicate"].(map[string]any)
+	if !ok {
+		t.Fatal("built statement carries no predicate object")
+	}
+	records, ok := predicate["observationRecords"].([]any)
+	if !ok {
+		t.Fatal("built statement carries no observationRecords array")
+	}
+	record, ok := records[idx].(map[string]any)
+	if !ok {
+		t.Fatalf("observationRecords[%d] is not an object", idx)
+	}
+	payload, ok := record["payload"].(string)
+	if !ok {
+		t.Fatalf("observationRecords[%d] carries no payload string", idx)
+	}
+	core := strings.TrimRight(payload, "=")
+	if len(core) == len(payload) {
+		t.Fatalf("observationRecords[%d] payload has no padding, so no slack trailing bits", idx)
+	}
+	tampered := alphabet[strings.IndexByte(alphabet, core[len(core)-1])|1]
+	record["payload"] = core[:len(core)-1] + string(tampered) + strings.Repeat("=", len(payload)-len(core))
+
+	out, err := json.Marshal(stmt)
+	if err != nil {
+		t.Fatalf("remarshal: %v", err)
+	}
+	return out
 }
 
 // TestRecordSignaturesEmptyOnOneOfManyRecords pins that the check is per

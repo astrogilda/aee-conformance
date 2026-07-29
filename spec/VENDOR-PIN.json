@@ -2,7 +2,7 @@
   "upstreamRepo": "in-toto/attestation",
   "upstreamPullRequest": 570,
   "ref": "predicate/adversarial-execution-evidence",
-  "commit": "3502c521a801f09a8ece57f60d23a17400d485b6",
+  "commit": "b9a585a3349db0e133599dff693fa799b14dbbb5",
   "specPath": "spec/predicates/adversarial-execution-evidence.md",
-  "specDigest": "da840f9ed0649c18cc4b80cd60c2f9c441a0f28575d34538fd6fb08d2937cbdb"
+  "specDigest": "1590b9885a46bc206497f2c17d61c1991f017de87542101a0b0950cd167d4093"
 }

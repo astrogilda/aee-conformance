@@ -52,3 +52,25 @@ jobs:
             exit 1
           fi
           echo "no product names found"
+
+      - name: No tool-state directories on a public repo
+        run: |
+          # The guard checked FILENAMES and PHRASES and missed a whole directory of
+          # tool state. `.humanizer/pending.json` keys on absolute paths, so it
+          # published the operator's home directory and an "armed" rewriting state.
+          # A leak class is only closed when the check is widened to the shape that
+          # escaped it, not to the one instance that was found.
+          found=0
+          for d in .humanizer .ledger .cache .scratch; do
+            if git ls-files --error-unmatch "$d" >/dev/null 2>&1; then
+              echo "::error::tool-state directory '$d' is tracked on a PUBLIC repo"
+              found=1
+            fi
+          done
+          # Absolute home paths are never legitimate in a published artifact.
+          if git grep -nI -E '/home/[a-z_][a-z0-9_-]*/' -- . ':!*.yml' >/dev/null 2>&1; then
+            echo "::error::an absolute /home/<user>/ path is tracked; it leaks the author's filesystem"
+            git grep -nI -E '/home/[a-z_][a-z0-9_-]*/' -- . ':!*.yml' | head -20
+            found=1
+          fi
+          exit $found

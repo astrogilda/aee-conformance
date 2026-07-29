@@ -5,6 +5,56 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 14 (the vendored text catches up with the corpus)
+
+- Corpus: **179 vectors (44 accept, 135 reject)**. Every vector file is
+  byte-identical to suiteRevision 13, and the record set, the batch roots, the
+  run bindings and every signature are untouched. This revision vendors words
+  rather than bytes: the two amendments the corpus had already implemented now
+  exist in the text it certifies against, so nothing the generators emit had to
+  move to agree with them.
+- **What was vendored.** The pin moves two commits along the upstream predicate
+  branch, from `a2d173a` to `f2ea2aa`. The first binds the carried
+  `observationVocabulary` digest and the carried `networkPosture` object into
+  the run identity as version 2 of the binding, and declares the posture
+  vocabulary a closed registry of four values with an append-only rule across
+  minor versions. The second adds the fourth `result` value, `pass_indirect`,
+  and restates the recompute as the minimum of three independent conditions
+  rather than as a cascade. Both were held back only because the vendoring
+  script reads bytes from a git ref, so an uncommitted upstream edit cannot
+  honestly be pinned.
+- **Why no vector moved.** Both readings landed in the rails and the corpus at
+  suiteRevisions 12 and 13, ahead of the text, and both were recorded at the
+  time as the corpus running ahead of what it certified against. The
+  amendments say what the corpus already does, so the replay was green against
+  the new text before the new text arrived. That is the whole of the evidence
+  that the two edits describe the implemented reading rather than a second one.
+- **The two records of that gap are closed.** The `suiteRevision 12` and
+  `suiteRevision 13` entries in `docs/interpretation-decisions-open.md` each
+  stated an upstream ask and named the vectors a from-spec verifier could fail
+  while conformant to the vendored copy. Both asks are carried in full by the
+  vendored text now, so both entries are closed and retained as the record of
+  why the corpus moved first. The closed posture registry becomes registry
+  decision 19 and the four-value recompute becomes decision 20, which is where
+  a reading goes once the text forces it.
+- **Citations and anchors moved with the prose, and twenty-six spans were
+  repointed by hand.** The re-vendor remapped 85 `spec:NNN` citations and 291
+  `Lnnn` anchors. Both ledgers were allowed to refuse and neither did, because
+  every span whose text changed sits in a passage these amendments rewrote,
+  which is what an ordinary amendment looks like to the check. Eight citations
+  and eighteen anchors were repointed afterwards, all of them cases where the
+  remap landed on prose that no longer carries the whole claim beside it: the
+  binding pre-image gained two members on lines past the end of the remapped
+  span, the digest-value-form citation lost the words `lowercase 64-hex` when
+  the sentence it cited was split in two, the coverage-gap condition became its
+  own sentence while its citations stayed on the fail-closed one, and the
+  posture citations now address the registry paragraph rather than the sentence
+  that used to introduce the values as examples. That last class is the one the
+  ledger cannot judge, since a citation truncated onto prose that was itself
+  rewritten reads as an ordinary amendment; it is a known limit of the check
+  and it held here. The refusal path was mutation-checked on each ledger rather
+  than inferred from a green run.
+
 ## suiteRevision 13 (the top result stops being reachable without a substrate)
 
 - Corpus: **179 vectors (44 accept, 135 reject)**. Four vectors move their
@@ -584,7 +634,7 @@ byte-identically from the generators.
 
 - Corpus: 140 vectors (35 accept, 105 reject). No normative spec change; the
   specDigest is unchanged. Two forcing vectors close the reason-map side of the
-  coverage-partition membership rule already carried by the spec (L521-523): the
+  coverage-partition membership rule already carried by the spec (L650-652): the
   three coverage sets are a disjoint partition of the manifest's classes, so
   membership runs both ways, but only `bad-819` forced the `assessedClasses`
   side. New reject vectors `bad-731-outofscope-unknown-class` and
@@ -648,21 +698,21 @@ byte-identically from the generators.
   contain exactly one entry on a statement of ANY basis; only the six
   binding-digest inputs stay substrate-scoped. Both rails previously enforced
   cardinality only under `hasSubstrateRows`, so an artifact-only two-subject
-  statement was wrongly accepted. The spec text at L185-189 is split accordingly;
+  statement was wrongly accepted. The spec text at L193-196 is split accordingly;
   new reject vector `bad-728-artifact-two-subjects` (`bad-607` keeps the substrate
   case). Registry decision 12.
 - Duplicate `attackId` rows are now malformed (open corner A resolved). "One row
   per executed attack" is a well-formedness invariant; both rails detect a
   duplicate `attackId` across rows before the set-based coverage comparison
   (which silently collapsed it before) and emit `statement-malformed`. Spec
-  paragraph at L529-542 gains the uniqueness sentence; new reject vector
+  paragraph at L658-671 gains the uniqueness sentence; new reject vector
   `bad-729-duplicate-attackid-rows`. Registry decision 13.
 - Coverage sets pinned as a disjoint partition (open corner B resolved, the one
   editorial call; reversible at vetting). A class appears in exactly one of
   `assessedClasses`, `outOfScope`, `routedElsewhere`; a class in more than one is
   malformed. This was a live divergence (our rails reject overlap; the from-spec
   checker accepts it) that no vector exercised. Rails unchanged (both already
-  reject via the disjoint-partition check); the spec text at L516-521 now matches
+  reject via the disjoint-partition check); the spec text at L645-650 now matches
   them; new reject vector `bad-730-coverage-class-overlap`. Registry decision 14.
   With these three corners resolved, `interpretation-decisions.json` has no open
   corners remaining.

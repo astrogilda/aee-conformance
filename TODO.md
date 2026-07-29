@@ -66,6 +66,14 @@ proposal out of draft.
   stamp check cannot see it either, since a revert plus a re-stamp is internally
   consistent. Closing it needs this repository to read the consumer, which is the
   cross-repository read the gate is built to avoid. File: `scripts/consumer-lag-gate.py`.
+- [ ] **A vendored copy no document advertises and no ledger row records is invisible.**
+  A copy absent from `vectors/CONSUMERS.json` was reported as success, because the gate
+  counts the rows it was told about and its message says it counts the copies that exist.
+  That is now closed on one axis: the number of rails the implementation report names has
+  to equal the number of rows, so a rail advertised with nothing recorded behind it fails.
+  What is left is the copy nobody wrote down anywhere. The report and the ledger agree
+  with each other, both are silent about it, and no reading of either surfaces it — only
+  a sweep of the consuming stacks would. File: `scripts/consumer-lag-gate.py`.
 - [ ] **A citation cut short of its subject is invisible when every word it lost was also
   rewritten.** The sync now asks its own question line by line as well as span by span,
   which closes the truncations that dropped prose upstream left alone. What remains is

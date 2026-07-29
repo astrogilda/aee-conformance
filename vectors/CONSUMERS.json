@@ -3,11 +3,11 @@
   "copies": [
     {
       "id": "typescript-consumer-rail",
-      "corpusDigest": "9991abd9d14e7fb2a5aecc485f4efd978e7aa7888f03fe7a8bf43b46b005a9ec"
+      "corpusDigest": "6776d5334cc638871a59f211e57b3831408bce01efefd66ba9ebf41c42e79e87"
     },
     {
       "id": "python-consumer-rail",
-      "corpusDigest": "9991abd9d14e7fb2a5aecc485f4efd978e7aa7888f03fe7a8bf43b46b005a9ec"
+      "corpusDigest": "6776d5334cc638871a59f211e57b3831408bce01efefd66ba9ebf41c42e79e87"
     }
   ]
 }

@@ -200,6 +200,59 @@ suite reports the entry-count condition because it already does so for an absent
 member, and splitting one requirement across two conditions on the basis of a
 decoder's behavior is not a distinction the text makes.
 
+## suiteRevision 13: a fourth result value the vendored copy does not define
+
+The corpus in this revision recomputes `result` over four values rather than
+three, and the vendored copy still defines three. This is the second revision
+running in which the corpus is ahead of the text it certifies against, and it
+closes the same way the entry below closes: upstream first, then a re-vendor.
+
+**What the corpus implements.** `result` is the minimum, under `fail` <
+`degraded` < `pass_indirect` < `pass`, of three independent conditions. The two
+that existed are unchanged. The third holds when some clean row, meaning a row
+whose `containmentObserved` is in the carried labels and not in the carried
+caught set, declares a `basis` other than `substrate` or a `method` other than
+`intercepted`, and it contributes `pass_indirect`.
+
+**Why the corpus takes this reading before the text does.** The vendored copy
+lets a statement carrying no substrate evidence whatsoever reach the top of its
+own ordering. A party holding the enclosing envelope key and not the
+substrate's observation key relabels every row clean, moves every row to
+`basis: artifact`, and drops the observation records, the batch root and the
+run entropy that only a substrate row required; the result was `pass`. The
+vendored copy's own clean-row ordering says such a statement is "self-reported
+absence, the weakest" (L717-719), so the text already ranks it lowest on the
+axis a consumer is told to read and ranks it highest on the axis a consumer
+actually gates on. Reconciling those two is the amendment.
+
+**What the reading deliberately does not claim.** Driven over all eleven
+finding-bearing accept vectors, the downgraded statement is byte-identical to
+one an honest producer with no substrate vantage emits forward from the same run
+configuration. So the condition does not separate the two and is not written as
+though it does: it prices both below a live interception. An honest artifact-only
+producer, `ok-007`, stays valid and reaches `pass_indirect`.
+
+**Why it is phrased over the row members and not over the tier.** The tier is
+key-relative, and the vendored copy already requires that neither the validity
+gate nor the tier alters `result` (L302-306). A condition reading the tier would
+make `result` vary with a consumer's trust anchors and stop being recomputable.
+The cost is stated rather than hidden: an `unattested` substrate clean row still
+reaches `pass` under this reading, and that is the one rank of the clean-row
+ordering no byte-pure function can express.
+
+Until the upstream edit lands, a from-spec verifier that returns `pass` for an
+artifact-basis or reconstructed clean row is conformant to the vendored
+specification and fails `ok-006`, `ok-007`, `ok-029`, `ok-038`, `ok-044`,
+`ok-045`, `bad-009`, `bad-010` and `bad-818`. That is the corpus running ahead
+of the text rather than the verifier erring.
+
+The upstream ask is one edit: define `result` over the four values and the
+ordering, state the recompute as the minimum of the three named conditions
+rather than as a cascade, say that the third reads the declared `basis` and
+`method` and never the evidence tier, and keep the default admission threshold
+at `result == "pass"` while requiring a consumer that relaxes below it to key
+additionally on each clean row's `basis`, `method` and derived tier.
+
 ## suiteRevision 12: the posture registry, and a vendored copy that predates the binding it certifies
 
 Two readings this revision takes are not in the vendored bytes it certifies

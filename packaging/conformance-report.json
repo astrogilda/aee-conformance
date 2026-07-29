@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 175,
-    "pass": 175,
+    "vectors": 179,
+    "pass": 179,
     "fail": 0
   },
   "notes": [],
@@ -153,11 +153,11 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
-        "result": "pass"
+        "result": "pass_indirect"
       },
       "expected": {
         "verdict": "valid",
-        "result": "pass"
+        "result": "pass_indirect"
       },
       "inManifest": true,
       "reasons": []
@@ -177,11 +177,11 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
-        "result": "pass"
+        "result": "pass_indirect"
       },
       "expected": {
         "verdict": "valid",
-        "result": "pass"
+        "result": "pass_indirect"
       },
       "inManifest": true,
       "reasons": []
@@ -715,11 +715,11 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
-        "result": "pass"
+        "result": "pass_indirect"
       },
       "expected": {
         "verdict": "valid",
-        "result": "pass"
+        "result": "pass_indirect"
       },
       "inManifest": true,
       "reasons": []
@@ -907,11 +907,11 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
-        "result": "pass"
+        "result": "pass_indirect"
       },
       "expected": {
         "verdict": "valid",
-        "result": "pass"
+        "result": "pass_indirect"
       },
       "inManifest": true,
       "reasons": []
@@ -1032,6 +1032,54 @@
       "expected": {
         "verdict": "valid",
         "result": "pass"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "ok-044-clean-artifact-intercepted-indirect",
+      "file": "vectors/accept/ok-044-clean-artifact-intercepted-indirect.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "result": "pass_indirect"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "pass_indirect"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "ok-045-mixed-clean-rows-indirect",
+      "file": "vectors/accept/ok-045-mixed-clean-rows-indirect.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "result": "pass_indirect"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "pass_indirect"
       },
       "inManifest": true,
       "reasons": []
@@ -1258,6 +1306,62 @@
         "verdict": "invalid",
         "codes": [
           "result-vocabulary",
+          "result-recompute-mismatch"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-009-result-pass-on-indirect-clean-row",
+      "file": "vectors/reject/bad-009-result-pass-on-indirect-clean-row.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "-",
+        "recompute": "PASS",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "result-recompute-mismatch"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "result-recompute-mismatch"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-010-result-pass-indirect-on-direct-clean-row",
+      "file": "vectors/reject/bad-010-result-pass-indirect-on-direct-clean-row.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "-",
+        "recompute": "PASS",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "result-recompute-mismatch"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
           "result-recompute-mismatch"
         ]
       },

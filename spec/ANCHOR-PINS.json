@@ -62,6 +62,18 @@
       "opens": "One of `pass`, `degraded`, `fail` (lowercase). Defined as a total,",
       "closes": "One of `pass`, `degraded`, `fail` (lowercase). Defined as a total,"
     },
+    "vectors/reject/gen_invalid_vectors.py::bad-009-result-pass-on-indirect-clean-row#0": {
+      "anchor": "L294-297",
+      "digest": "9cf3be673cdc32f4526decdd99438fdb3a215f280b9579e77d4511d68dd988f3",
+      "opens": "independent claim. A consumer MUST be able to recompute it from the rest of",
+      "closes": "follow the same verify-then-read discipline: the fields inside a payload mean"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-010-result-pass-indirect-on-direct-clean-row#0": {
+      "anchor": "L294-297",
+      "digest": "9cf3be673cdc32f4526decdd99438fdb3a215f280b9579e77d4511d68dd988f3",
+      "opens": "independent claim. A consumer MUST be able to recompute it from the rest of",
+      "closes": "follow the same verify-then-read discipline: the fields inside a payload mean"
+    },
     "vectors/reject/gen_invalid_vectors.py::bad-101-refs-empty#0": {
       "anchor": "L383",
       "digest": "0e58a086044abd53b0cebee42c9ca93ff2d2c951583bf5cc32e1c066c6ff1e1a",
@@ -1855,6 +1867,18 @@
       "digest": "09477573cacc695830bd00f714525a243c0cd430b0dc4cde657a0fbfcc91cd99",
       "opens": "nothing, never create it), and the verify-then-read discipline is",
       "closes": "verifies), which closes the parse-before-verify class of deployment"
+    },
+    "docs/interpretation-decisions-open.md::suiteRevision 13: a fourth result value the vendored copy does not define#0": {
+      "anchor": "L717-719",
+      "digest": "729873686bf5397431448b60890ab649d53192754d35465722ea464d5242157c",
+      "opens": "tolerating transients between the observed states; a `pass` resting on any",
+      "closes": "self-reported absence, the weakest. The"
+    },
+    "docs/interpretation-decisions-open.md::suiteRevision 13: a fourth result value the vendored copy does not define#1": {
+      "anchor": "L302-306",
+      "digest": "1c39c7842c527d8c054cd5ded73fc4a2c61a7284594cdf1527cc4c19f21c9bfe",
+      "opens": "not be recomputable. The coverage validity requirements below (which read",
+      "closes": "a row, but neither alters `result`."
     },
     "docs/interpretation-decisions-open.md::suiteRevision 12: the posture registry, and a vendored copy that predates the binding it certifies#0": {
       "anchor": "L459-461",

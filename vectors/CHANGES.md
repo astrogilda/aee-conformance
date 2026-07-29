@@ -5,6 +5,75 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 13 (the top result stops being reachable without a substrate)
+
+- Corpus: **179 vectors (44 accept, 135 reject)**. Four vectors move their
+  expected result and one reject vector moves the result it carries; four
+  vectors are new. Every other file is byte-identical, and the record set, the
+  batch roots, the run bindings and every signature are untouched, because the
+  change is to a function over rows and reads nothing a record carries.
+- **What moved.** The `result` recompute gains a third independent condition
+  and a fourth value. A statement is `pass_indirect` rather than `pass` when
+  some clean row declares a `basis` other than `substrate` or a `method` other
+  than `intercepted`, and the answer is now the minimum of the three
+  conditions under `fail` < `degraded` < `pass_indirect` < `pass` rather than a
+  cascade. The minimum matters on exactly one shipped shape: `ok-033` carries
+  an indirect clean row and discloses a coverage gap, and it reads `degraded`,
+  the lower of the two contributions.
+- **What the condition is for.** The top result was reachable by a statement
+  carrying no substrate evidence at all. A party holding the enclosing envelope
+  key and not the substrate's observation key takes a run that recomputes to
+  `fail`, relabels every row clean, moves every row to `basis: artifact`, and
+  drops the observation records, the batch root and the run entropy that only a
+  substrate row required. Nothing it leaves behind is malformed and the result
+  it lands on was `pass`.
+- **Why the condition does not claim to detect that.** Driven over all eleven
+  finding-bearing accept vectors, the statement that mutation produces is
+  byte-identical, under sorted canonical bytes, to one an honest producer with
+  no substrate vantage emits forward from the same run configuration. Eleven of
+  eleven, none differing. A verifier is a function of the carried statement, so
+  no rule refuses the first without refusing the second, and refusing both would
+  remove the producer whose attack classes have no substrate vantage to observe
+  from at all. The condition therefore prices both below a live interception
+  instead, which is the only separation the carried bytes support.
+- **The honest producer is the one to check first.** `ok-007` is that producer:
+  an artifact-only statement with no records, no batch root and no run entropy,
+  reporting what it saw from the executed artifact's own account. It stays
+  VALID, and it reaches the best result its evidence supports.
+- **Four new vectors, two in each direction.** `ok-044` carries the one
+  basis/method pairing the closed vocabularies permit that nothing here
+  exercised, a clean row indirect in vantage while claiming a live method,
+  which is exactly the shape the downgrade produces. `ok-045` pins the
+  quantifier: a live intercepted clean row beside an artifact-basis one still
+  reads `pass_indirect`, so a direct row cannot carry an indirect one back up.
+  `bad-009` is the downgraded statement still carrying `pass`, which is the
+  attacker's own bytes and is now a recompute mismatch. `bad-010` carries
+  `pass_indirect` over rows that are all direct, because equality is
+  two-directional and the new token is not a floor a producer may volunteer
+  down to.
+- **What moves and what does not.** `ok-006`, `ok-007`, `ok-029` and `ok-038`
+  move from `pass` to `pass_indirect`; `bad-818` moves the result it carries so
+  that it keeps isolating its `clean-row-layer-not-none` defect rather than
+  gaining a second code. `bad-003` and `bad-004` are unchanged: both recompute
+  to `fail` against a carried `pass`, and a fail-closed row is not a clean row,
+  so the new condition never reaches them. The manifest-floor vectors are
+  unchanged too, because a statement with no rows has no clean row.
+- **What the condition deliberately cannot see.** It reads the DECLARED `basis`
+  and `method` and never the evidence tier, because the tier is key-relative and
+  a result that moved with a consumer's trust anchors would not be
+  recomputable. So an `unattested` substrate clean row still reaches `pass`,
+  which the clean-row ordering ranks with `artifact`. That half of the weakness
+  belongs to the tier and is outside any byte-pure function.
+- **The vendored copy is deliberately unmoved, and the corpus runs ahead of it
+  for the second revision running.** The authority this corpus certifies against
+  still defines `result` over three values. Closing that needs the amendment to
+  exist upstream first, because editing the vendored copy in place would make
+  the vendor pin name a commit that does not contain those bytes, which is the
+  single thing the drift gate exists to refuse. The pin and the recorded
+  `specDigest` are unchanged from revision 11, and the two new reject vectors
+  anchor on the recompute-equality requirement, which is the rule they actually
+  test and which has not moved.
+
 ## suiteRevision 12 (the run identity gains the vocabulary and the posture)
 
 - Corpus: **175 vectors (42 accept, 133 reject)**. Every vector carrying a

@@ -127,6 +127,9 @@ UNCHECKED_BINDING = sha256_hex(PREIMAGES["unchecked-binding"].encode())
 DEFAULT_LABELS = ["egress_captured", "no_egress"]
 DEFAULT_CAUGHT = ["egress_captured"]
 
+# The result vocabulary, in the order the recompute takes its minimum over.
+RESULT_ORDER = {"fail": 0, "degraded": 1, "pass_indirect": 2, "pass": 3}
+
 # The networkPosture object as it travels on the wire. Version 2 of the run
 # binding folds in the JCS digest of this WHOLE object rather than the value of
 # its own digest member, so the posture string and every further member a
@@ -328,19 +331,23 @@ def make_statement(  # noqa: C901 -- one guarded branch per independent option f
 
     def carried_result() -> str:
         forced_fail = False
+        indirect = False
         for r in rows:
             lab = r.get("containmentObserved")
             if lab in caught_set or lab not in label_set:
                 forced_fail = True
-            if r.get("basis") not in ("substrate", "artifact"):
+            elif r.get("basis") not in ("substrate", "artifact"):
                 forced_fail = True
-            if r.get("method") not in ("intercepted", "reconstructed"):
+            elif r.get("method") not in ("intercepted", "reconstructed"):
                 forced_fail = True
-        if forced_fail:
-            return "fail"
-        if (out_of_scope or {}) or (routed_elsewhere or {}):
-            return "degraded"
-        return "pass"
+            elif r.get("basis") != "substrate" or r.get("method") != "intercepted":
+                indirect = True
+        candidates = [
+            "fail" if forced_fail else "pass",
+            "degraded" if ((out_of_scope or {}) or (routed_elsewhere or {})) else "pass",
+            "pass_indirect" if indirect else "pass",
+        ]
+        return min(candidates, key=RESULT_ORDER.__getitem__)
 
     predicate: dict[str, Any] = {
         "result": carried_result(),
@@ -1148,6 +1155,40 @@ def build_vectors() -> dict[str, dict[str, Any]]:
         posture=_posture_extended,
     )
 
+    # ok-044 the shape the artifact downgrade produces, and the one pairing the
+    # closed vocabularies permit that nothing in this suite exercised: a clean
+    # row that is indirect in VANTAGE while claiming a live method. It carries
+    # no substrate row, so it carries no records, no batch root and no run
+    # entropy, and it is well formed without them. Its result is pass_indirect
+    # rather than pass, which is the whole of the control: the party that holds
+    # the enclosing envelope key and not the observation key can still write
+    # this statement, and it no longer reads at the top of the ordering.
+    v["ok-044-clean-artifact-intercepted-indirect"] = make_statement(
+        man_1,
+        [make_row("XA-EXAMPLE-1", "no_egress", "artifact", "intercepted", "none", [])],
+        with_entropy=False,
+    )
+
+    # ok-045 pins the quantifier. The rule fires on SOME clean row, never on
+    # every one, so a statement whose first clean row is a live interception
+    # covered by its arming and sealed records is still pass_indirect once a
+    # second clean row rests on the artifact's own account. Read the other way,
+    # this is what stops a producer from burying an indirect row behind a direct
+    # one and keeping the top token.
+    v["ok-045-mixed-clean-rows-indirect"] = make_statement(
+        man_ab,
+        [
+            make_row(
+                "XA-EXAMPLE-1", "no_egress", "substrate", "intercepted", "none", [0, 1]
+            ),
+            make_row("XB-EXAMPLE-1", "no_egress", "artifact", "reconstructed", "none", []),
+        ],
+        records=[
+            make_record("arming", b_ab),
+            make_record("sealed", b_ab),
+        ],
+    )
+
     return v
 
 
@@ -1322,19 +1363,30 @@ def verify(stmt: dict[str, Any]) -> list[str]:  # noqa: C901 -- mirrors the full
         if ranks and METHOD_RANK.get(meth, 0) > min(ranks):
             errs.append(f"row {r['attackId']}: method cap exceeded")
 
-    # result recompute
-    forced = any(
-        r.get("containmentObserved") in caught
-        or r.get("containmentObserved") not in labels
-        or r.get("basis") not in ("substrate", "artifact")
-        or r.get("method") not in ("intercepted", "reconstructed")
+    # result recompute, re-derived here rather than reused from the builder, so
+    # the self-check is a second reading of the rule and not an echo of the first
+    def _forced(r: dict[str, Any]) -> bool:
+        return (
+            r.get("containmentObserved") in caught
+            or r.get("containmentObserved") not in labels
+            or r.get("basis") not in ("substrate", "artifact")
+            or r.get("method") not in ("intercepted", "reconstructed")
+        )
+
+    forced = any(_forced(r) for r in rows)
+    indirect = any(
+        not _forced(r)
+        and (r.get("basis") != "substrate" or r.get("method") != "intercepted")
         for r in rows
     )
     cov = pred["coverage"]
-    expect = (
-        "fail"
-        if forced
-        else ("degraded" if (cov["outOfScope"] or cov["routedElsewhere"]) else "pass")
+    expect = min(
+        [
+            "fail" if forced else "pass",
+            "degraded" if (cov["outOfScope"] or cov["routedElsewhere"]) else "pass",
+            "pass_indirect" if indirect else "pass",
+        ],
+        key=RESULT_ORDER.__getitem__,
     )
     if pred["result"] != expect:
         errs.append(f"result recompute {expect} != carried {pred['result']}")
@@ -1383,7 +1435,7 @@ def verify_signatures(stmt: dict[str, Any]) -> dict[int, str]:
 
 def main() -> int:
     vectors = build_vectors()
-    assert len(vectors) == 42, len(vectors)
+    assert len(vectors) == 44, len(vectors)
     failures = 0
     for name, stmt in vectors.items():
         errs = verify(stmt)

@@ -16,9 +16,10 @@ const PredicateType = "https://in-toto.io/attestation/adversarial-execution-evid
 
 // Closed vocabularies (spec:321-333, 461-600).
 const (
-	ResultPass     = "pass"
-	ResultDegraded = "degraded"
-	ResultFail     = "fail"
+	ResultPass         = "pass"
+	ResultPassIndirect = "pass_indirect"
+	ResultDegraded     = "degraded"
+	ResultFail         = "fail"
 
 	BasisSubstrate = "substrate"
 	BasisArtifact  = "artifact"

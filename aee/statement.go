@@ -165,7 +165,7 @@ func Gate0(s *Statement) []Code {
 }
 
 func isResultToken(v string) bool {
-	return v == ResultPass || v == ResultDegraded || v == ResultFail
+	return v == ResultPass || v == ResultPassIndirect || v == ResultDegraded || v == ResultFail
 }
 
 func containsVocabularyCodes(codes []Code) bool {

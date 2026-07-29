@@ -12,7 +12,7 @@
 # after a legitimate change; adding or dropping an entry stays a hand edit.
 
 ["vectors/accept/gen_valid_vectors.py::verify"]
-complexity = 46
+complexity = 47
 rationale = """
 The accept-vector generator carries its own independent statement verifier as a
 build-time self-check, a deliberate second opinion distinct from the Go and
@@ -24,7 +24,7 @@ the self-check from the spec it mirrors.
 """
 
 ["vectors/accept/gen_valid_vectors.py::make_statement"]
-complexity = 12
+complexity = 11
 rationale = """
 make_statement assembles a valid statement from many independent, optional
 Options fields (result, signer role, record shape, coverage sets, and so on).

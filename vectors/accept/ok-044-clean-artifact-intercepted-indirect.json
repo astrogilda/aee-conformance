@@ -3,11 +3,12 @@
   "predicate": {
     "attackResults": [
       {
-        "actualLayer": "policy.egress_sinkhole",
+        "actualLayer": "none",
         "attackId": "XA-EXAMPLE-1",
         "basis": "artifact",
         "containmentObserved": "no_egress",
-        "method": "reconstructed"
+        "method": "intercepted",
+        "observationRefs": []
       }
     ],
     "coverage": {
@@ -21,7 +22,7 @@
     "observationEnvironment": {
       "catchPolicy": {
         "digest": {
-          "sha256": "28f8fb978cae8aabc974e6557a3665523281bfd85fcee13429179120ad7667cc"
+          "sha256": "846c2ccf97b5a5f4da335fe733e7f4f786ffd224ce582fb5a9685d52184abdc3"
         }
       },
       "corpus": {
@@ -35,12 +36,12 @@
             ]
           }
         },
-        "name": "example-corpus",
-        "uri": "pkg:example/example-corpus@1.0.0"
+        "name": "example-adversarial-corpus",
+        "uri": "pkg:example/adversarial-corpus@1.0.0"
       },
       "networkPosture": {
         "digest": {
-          "sha256": "ba44e77b7861b9b7c5a7288b3d703a62289fb02b3a3e0f5612a4e74dbee0929e"
+          "sha256": "a6ebfc845bfe910a099320fd7ec33e21282a8b56d82111527a80444ca18e4352"
         },
         "posture": "sinkhole"
       },

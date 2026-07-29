@@ -6,8 +6,8 @@
   "tracksUpstream": "in-toto/attestation#570",
   "specUpstreamCommit": "a2d173a81c852853c33cad94885f14584ddbe9c0",
   "counts": {
-    "accept": 42,
-    "reject": 133
+    "accept": 44,
+    "reject": 135
   },
   "vectors": [
     {
@@ -86,12 +86,13 @@
       "kind": "accept",
       "file": "accept/ok-006-clean-reconstructed.json",
       "conditions": [
+        "aee-c-2",
         "aee-c-13",
         "aee-c-66"
       ],
       "expected": {
         "verdict": "valid",
-        "result": "pass"
+        "result": "pass_indirect"
       }
     },
     {
@@ -99,12 +100,13 @@
       "kind": "accept",
       "file": "accept/ok-007-artifact-only-recordless.json",
       "conditions": [
+        "aee-c-2",
         "aee-c-31",
         "aee-c-57"
       ],
       "expected": {
         "verdict": "valid",
-        "result": "pass"
+        "result": "pass_indirect"
       }
     },
     {
@@ -381,6 +383,7 @@
       "kind": "accept",
       "file": "accept/ok-029-artifact-with-records.json",
       "conditions": [
+        "aee-c-2",
         "aee-c-24",
         "aee-c-29",
         "aee-c-30",
@@ -388,7 +391,7 @@
       ],
       "expected": {
         "verdict": "valid",
-        "result": "pass"
+        "result": "pass_indirect"
       }
     },
     {
@@ -484,11 +487,12 @@
       "kind": "accept",
       "file": "accept/ok-038-issuedat-negative-zero-offset.json",
       "conditions": [
+        "aee-c-2",
         "aee-c-85"
       ],
       "expected": {
         "verdict": "valid",
-        "result": "pass"
+        "result": "pass_indirect"
       }
     },
     {
@@ -550,6 +554,32 @@
       "expected": {
         "verdict": "valid",
         "result": "pass"
+      }
+    },
+    {
+      "id": "ok-044-clean-artifact-intercepted-indirect",
+      "kind": "accept",
+      "file": "accept/ok-044-clean-artifact-intercepted-indirect.json",
+      "conditions": [
+        "aee-c-2",
+        "aee-c-31"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass_indirect"
+      }
+    },
+    {
+      "id": "ok-045-mixed-clean-rows-indirect",
+      "kind": "accept",
+      "file": "accept/ok-045-mixed-clean-rows-indirect.json",
+      "conditions": [
+        "aee-c-2",
+        "aee-c-14"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass_indirect"
       }
     },
     {
@@ -667,6 +697,34 @@
         "verdict": "invalid",
         "codes": [
           "result-vocabulary",
+          "result-recompute-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-009-result-pass-on-indirect-clean-row",
+      "kind": "reject",
+      "file": "reject/bad-009-result-pass-on-indirect-clean-row.json",
+      "conditions": [
+        "aee-c-2"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "result-recompute-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-010-result-pass-indirect-on-direct-clean-row",
+      "kind": "reject",
+      "file": "reject/bad-010-result-pass-indirect-on-direct-clean-row.json",
+      "conditions": [
+        "aee-c-2"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
           "result-recompute-mismatch"
         ]
       }

@@ -69,7 +69,7 @@ digest is pinned and CI-checked (`scripts/spec-drift-gate.py`).
 |---|---|---|---|---|
 | Reference rail (`aee/`) | Go | spec author | reference corpus, suiteRevision 14 | **179 / 179** |
 | Reference rail (`packaging/run_vectors.py`) | Python | spec author | reference corpus, suiteRevision 14 | **179 / 179** |
-| `Rul1an/aee-checker` | Rust | **independent, from-spec text alone** | author-run suiteRevision 6 (153), 2026-07-28 (aee-checker#4); suiteRevisions 7 through 9 not run by its author | **153 / 153** at suiteRevision 6, directed; **125 / 125** blind at suiteRevision 1; suiteRevisions 7 through 9 not run by author (see note 1) |
+| `Rul1an/aee-checker` | Rust | **independent, from-spec text alone** | author-run suiteRevision 6 (153), 2026-07-28 (aee-checker#4); suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13 and 14 not run by its author | **153 / 153** at suiteRevision 6, directed; **125 / 125** blind at suiteRevision 1; suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13 and 14 not run by author (see note 1) |
 | `ts-verify` | TypeScript | spec author | its vendored set (153 vectors) + cross-rail parity tests | pass (see note 2) |
 | `py-verify` | Python | spec author | its vendored set (153 vectors) + parity tests | pass (see note 2) |
 | MCP server rail `_aee.py` | Python | spec author | its vendored set (153 vectors) + parity tests | pass (see note 2) |
@@ -101,7 +101,12 @@ noncharacter vectors below, have since been run as well, at 153/153
 the rule was written and the vectors named before his checker ran. It is evidence
 that the corrected rule is implementable by a reader who has only the text, and it
 is not evidence that a second reader arrived at the rule. The two readings should
-not be added together. The single **suiteRevision-7** addition
+not be added together. **suiteRevision 4** is a case of its own. He posted no run
+at it, and note 1 records why that matters; but the two rules it made normative
+are exactly the two the revision-5 byte-level tier exercises, so they are read
+independently after all — in the directed revision-5 run above, not in the
+140/140 that preceded them. Nothing after revision 6 has been read independently
+at all. The single **suiteRevision-7** addition
 (`bad-745`, an observation record carrying zero `signatures` entries) and the two
 **suiteRevision-8** additions (`bad-746` and `bad-747`, a corpus manifest
 declaring no attack identifier in either of its two spellings) test requirements
@@ -109,7 +114,10 @@ the specification gained after that run, so they have no independent confirmatio
 either. The two **suiteRevision-9** additions (`bad-748` and `bad-749`) add no
 requirement: they pin the precedence and the wrong-type spelling of the
 signature-entry condition `bad-745` already carries, so they inherit that
-vector's status.
+vector's status. Everything **suiteRevision 10 through 14** carries — the
+timestamp profile and its seven vectors, the version-2 run binding that re-minted
+every decodable record identity, the fourth `result` value, and the two
+amendments revision 14 vendored — has been read by the first-party rails only.
 
 | Feature | Go ref | Python ref | Rust (3rd-party) | TS rail | MCP rail |
 |---|---|---|---|---|---|
@@ -158,14 +166,27 @@ vector's status.
    unprompted evidence remain the blind 125/125 at suiteRevision 1 and the first-run
    140/140 at suiteRevision 3; no other figure here may be described that way.
 
-   **He has not run suiteRevision 7, 8 or 9, so this report publishes no score for
-   him at any of the three.** The single suiteRevision-7 vector (`bad-745`) and the
-   two suiteRevision-8 vectors (`bad-746`, `bad-747`) test requirements the
-   specification gained after his last run, and the two suiteRevision-9 vectors
-   (`bad-748`, `bad-749`) pin the precedence and the wrong-type spelling of the
-   requirement `bad-745` carries. His suiteRevision-7 through suiteRevision-9 cells
-   are "not run by author" until he posts a record and its source digest. An
-   earlier edition of this note carried our own derived expectation for `bad-743`
+   **He has not run suiteRevision 4, 7, 8, 9, 10, 11, 12, 13 or 14, so this report
+   publishes no score for him at any of them.** Two different things put a revision
+   on that list. From suiteRevision 7 onward the corpus moved past his last run: the
+   single suiteRevision-7 vector (`bad-745`) and the two suiteRevision-8 vectors
+   (`bad-746`, `bad-747`) test requirements the specification gained after it, the
+   two suiteRevision-9 vectors (`bad-748`, `bad-749`) pin the precedence and the
+   wrong-type spelling of the requirement `bad-745` carries, and suiteRevisions 10
+   through 14 carry the timestamp profile, the version-2 run binding, the fourth
+   `result` value and the vendored text that followed. suiteRevision 4 is on the
+   list for the opposite reason. Its corpus is the revision-3 corpus — 140 vectors,
+   the same verdicts, the same codes — so his revision-3 run did put those bytes
+   through the checker. What moved at revision 4 was the text: it made encoding
+   well-formedness and the 128-deep nesting bound normative over a corpus that, in
+   the words of its own changelog entry, exercised neither, so an implementation
+   could pass it at 140/140 while getting both new rules wrong. One of them he did
+   get wrong — when suiteRevision 5 published, that checker still read the bound as
+   256, and aee-checker#3 is where it adopted 128 — which is the concrete reason a
+   revision-3 pass is not a revision-4 pass. Recording revision 4 as run would
+   assert a conformance no record of his carries. Every one of these cells reads
+   "not run by author" until he posts a record and its source digest. An earlier
+   edition of this note carried our own derived expectation for `bad-743`
    and `bad-744`; his run has replaced it, which is the outcome a derived
    expectation should always have.
 2. **The consumer rails carry the suiteRevision-6 corpus.** The TypeScript rail,

@@ -11,3 +11,11 @@ __pycache__/
 
 # Go coverage profiles (CI artifacts)
 *.cov
+
+# Tool state, never publishable. `.humanizer/pending.json` keys on ABSOLUTE PATHS,
+# so committing it leaked the operator's home directory and an "armed" rewriting
+# state onto a public repo whose entire proposition is honest verification -- and
+# it was introduced by the very commit that removed product names from the public
+# surface. One of the leaked paths also named a draft removed in an earlier
+# cleanup, so the record outlived the file it described.
+.humanizer/

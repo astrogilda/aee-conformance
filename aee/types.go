@@ -181,7 +181,7 @@ func (r *Row) IsSubstrate() bool {
 	return r.Basis != nil && *r.Basis == BasisSubstrate
 }
 
-// Record is one observation record: a DSSE-shaped envelope (spec:797-802).
+// Record is one observation record: a DSSE-shaped envelope (spec:811-816).
 type Record struct {
 	PayloadB64  string           `json:"payload"`
 	PayloadType string           `json:"payloadType"`
@@ -189,7 +189,7 @@ type Record struct {
 }
 
 // RecordSignatures is a record's signatures member. The requirement it has to
-// meet is a count -- the member MUST carry at least one entry (spec:831-833) --
+// meet is a count -- the member MUST carry at least one entry (spec:845-847) --
 // so the decoder's job here is to produce a count for every JSON value the
 // member can hold, including the ones that hold no entries at all.
 type RecordSignatures []RecordSignature
@@ -226,7 +226,7 @@ func (s *RecordSignatures) UnmarshalJSON(b []byte) error {
 }
 
 // RecordSignature matches the DSSE signature member shape. The keyid is an
-// unauthenticated lookup hint and never the check itself (spec:993-995).
+// unauthenticated lookup hint and never the check itself (spec:1007-1009).
 type RecordSignature struct {
 	KeyID string `json:"keyid"`
 	Sig   string `json:"sig"`

@@ -147,13 +147,27 @@ def main() -> int:
     # Re-pin here rather than leaving it to the operator. The anchors rotted in
     # the first place because keeping them current was a manual step beside an
     # automatic one, and a ledger that has to be refreshed by hand is the same
-    # bet with an extra file in it. The refreshed excerpts land in this commit's
-    # diff, which is where a remap that moved an anchor onto the wrong prose is
-    # visible.
-    subprocess.run(
+    # bet with an extra file in it.
+    #
+    # The sync is allowed to refuse. It compares each moved anchor against the
+    # revision the ledger was pinned to and will not write an anchor that came
+    # off prose still present in the document, which is the shape a mis-aimed
+    # remap has. When it refuses, the spec is already vendored and the citations
+    # are already remapped; the anchors it names are corrected by hand and the
+    # sync run again, so re-vendoring stays one command in the ordinary case and
+    # stops at the point of doubt in the case that matters.
+    synced = subprocess.run(
         [sys.executable, str(REPO_ROOT / "scripts" / "spec-anchor-gate.py"), "--sync"],
-        check=True,
+        check=False,
     )
+    if synced.returncode != 0:
+        print(
+            "\nFAIL: the spec is vendored and the citations are remapped, but the "
+            "anchor ledger was not written. Correct the anchors named above, then "
+            "run scripts/spec-anchor-gate.py --sync.",
+            file=sys.stderr,
+        )
+        return synced.returncode
 
     print("NORMATIVE CHANGE: regenerate the corpus, then run")
     print("  python3 vectors/gen_manifest.py")

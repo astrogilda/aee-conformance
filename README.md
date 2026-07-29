@@ -35,6 +35,15 @@ tables against [`spec/ANCHOR-PINS.json`](spec/ANCHOR-PINS.json), which records
 the text each anchor was drawn around, so an anchor that comes to address
 different prose fails rather than resolving quietly.
 
+That ledger is refreshed by the same command that re-vendors, which is the one
+operation that moves anchors, so it also has to be trustworthy across its own
+refresh. It refuses to record an anchor that came off prose the document still
+contains: upstream may rewrite a passage freely and the excerpt follows it, but a
+remap that simply lost track of a passage stops the vendoring and names what it
+lost. A move onto genuinely different prose is still allowed, one citation at a
+time and by name, because no gate can read a claim and judge which paragraph
+settles it.
+
 ## Layout
 
 ```

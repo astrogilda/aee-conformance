@@ -854,7 +854,7 @@ def _timestamp_ok(v: Any) -> bool:
     """Whether a value is carried under the predicate's Timestamp field type.
 
     The type requires RFC 3339 in the UTC timezone; the predicate pins the two
-    choices that type leaves open (spec:869), and the two are checked separately
+    choices that type leaves open (spec:1048-1057), and the two are checked separately
     because they are separate rules. The pattern carries the case half: an
     uppercase separator and zone designator, never the lowercase `t` and `z`
     RFC 3339 also admits. The pattern accepts any numeric offset, so the zone
@@ -1328,9 +1328,9 @@ class ReferenceVerifier:
     ) -> bool:
         # Coverage MUST be an exhaustive, disjoint partition of the
         # manifest's classes across assessedClasses/outOfScope/
-        # routedElsewhere, each a real manifest class (spec:466-471,
-        # 350-353): without this a whole class is silently dropped from
-        # all three sets (or a fabricated class pads assessedClasses).
+        # routedElsewhere, each a real manifest class (spec:521-525):
+        # without this a whole class is silently dropped from all three
+        # sets (or a fabricated class pads assessedClasses).
         acct: dict[str, int] = {}
         for _c in assessed:
             acct[_c] = acct.get(_c, 0) + 1
@@ -1365,7 +1365,7 @@ class ReferenceVerifier:
         assessed: list[Any],
     ) -> None:
         attack_class, expected_ids = self._coverage_index(manifest_classes, assessed)
-        # No two rows may carry the same attackId (spec:525-538): one row per
+        # No two rows may carry the same attackId (spec:543-548): one row per
         # executed attack is a well-formedness invariant. Detected BEFORE the
         # row_ids set is built, because the set-equality check below silently
         # collapses duplicates.

@@ -20,7 +20,7 @@ const rejectedSnakeCaseSpelling = "does_not_assert"
 var errTimestampOffset = errors.New("zone designator is not a zero UTC offset")
 
 // parseTimestamp parses a value carried under the predicate's Timestamp field
-// type: RFC 3339 with uppercase designators and a zero UTC offset (spec:869).
+// type: RFC 3339 with uppercase designators and a zero UTC offset (spec:1048-1057).
 // time.RFC3339 already refuses the lowercase `t` and `z` RFC 3339 also admits,
 // and it accepts any numeric offset, so the zone is the half that has to be
 // checked here. `Z`, `+00:00` and `-00:00` all report a zero offset, which is
@@ -48,7 +48,7 @@ func Gate0(s *Statement) []Code {
 	var codes []Code
 	p := s.Predicate
 
-	// 1. Statement envelope types (spec:221,225; both halves of condition
+	// 1. Statement envelope types (spec:237,241; both halves of condition
 	//    coverage: _type and predicateType).
 	if s.Type != StatementType {
 		codes = appendCode(codes, CodeStatementTypeUnsupported)
@@ -63,17 +63,17 @@ func Gate0(s *Statement) []Code {
 	}
 
 	// 3. Rejected snake_case spelling: single canonicalization per content
-	//    (spec:963-968).
+	//    (spec:1039-1043).
 	if _, ok := p.Raw[rejectedSnakeCaseSpelling]; ok {
 		codes = appendCode(codes, CodeMemberSpelling)
 	}
 
-	// 4. result vocabulary (spec:321-323).
+	// 4. result vocabulary (spec:337-339).
 	if !p.ResultPresent || !isResultToken(p.Result) {
 		codes = appendCode(codes, CodeResultVocabulary)
 	}
 
-	// 5. observationEnvironment members (spec:434-447). observationVocabulary
+	// 5. observationEnvironment members (spec:452-469). observationVocabulary
 	//    absence carries its own code; the other four report
 	//    environment-incomplete.
 	env := p.Env
@@ -99,22 +99,22 @@ func Gate0(s *Statement) []Code {
 		}
 	}
 
-	// 6. Vocabulary shape, subset, digest (spec:444-457).
+	// 6. Vocabulary shape, subset, digest (spec:461-469).
 	if env != nil && env.Vocabulary != nil {
 		codes = gate0Vocabulary(env.Vocabulary, codes)
 	}
 
-	// 7. Corpus manifest digest + duplicate attack ids (spec:438-441, 403-404).
+	// 7. Corpus manifest digest + duplicate attack ids (spec:454-457, 456-457).
 	if env != nil && env.Corpus != nil {
 		codes = gate0Corpus(env.Corpus, codes)
 	}
 
-	// 8. coverage presence (spec:464-471).
+	// 8. coverage presence (spec:514-517).
 	if !p.CoveragePresent {
 		codes = appendCode(codes, CodeCoverageMissing)
 	}
 
-	// 9. attackResults presence (required member, spec:473).
+	// 9. attackResults presence (required member, spec:527).
 	if !p.RowsPresent {
 		codes = appendCode(codes, CodeStatementMalformed)
 	}
@@ -127,7 +127,7 @@ func Gate0(s *Statement) []Code {
 		codes = appendCode(codes, CodeSubjectCardinality)
 	}
 
-	// 10. Per-row actualLayer altitude (spec:754-768): a missing member is a
+	// 10. Per-row actualLayer altitude (spec:814-825): a missing member is a
 	//     malformed statement; a clean row must carry the literal "none".
 	vocabOK := env != nil && env.Vocabulary != nil && !containsVocabularyCodes(codes)
 	for i := range p.Rows {
@@ -141,7 +141,7 @@ func Gate0(s *Statement) []Code {
 		}
 	}
 
-	// 11. Coverage integrity at attack granularity (spec:533-536): every row
+	// 11. Coverage integrity at attack granularity (spec:565-568): every row
 	//     attackId appears in the manifest, and the union of row attackIds
 	//     exactly equals the manifest's attackIds for the assessed classes.
 	if env != nil && env.Corpus != nil && env.Corpus.Classes != nil && p.Coverage != nil {
@@ -149,12 +149,12 @@ func Gate0(s *Statement) []Code {
 	}
 
 	// 12. Substrate-carrying statements: runEntropy, subject cardinality,
-	//     and the six binding digest inputs (spec:141-200, 400-402).
+	//     and the six binding digest inputs (spec:185-192, 473-475).
 	if hasSubstrateRows(p) {
 		codes = gate0SubstrateBindingInputs(s, codes)
 	}
 
-	// 13. issuedAt (spec:970-972).
+	// 13. issuedAt (spec:1061-1063).
 	if !p.IssuedAtPresent {
 		codes = appendCode(codes, CodeIssuedAtMissing)
 	} else if _, err := parseTimestamp(p.IssuedAt); err != nil {
@@ -224,7 +224,7 @@ func gate0Vocabulary(v *Vocabulary, codes []Code) []Code {
 }
 
 // canonicalVocabulary builds the JCS bytes of the digest pre-image object
-// {"caught": [...], "labels": [...]} (spec:450-453).
+// {"caught": [...], "labels": [...]} (spec:467-469).
 func canonicalVocabulary(labels, caught []string) []byte {
 	var buf bytes.Buffer
 	buf.WriteString(`{"caught":`)
@@ -257,7 +257,7 @@ func gate0Corpus(c *Corpus, codes []Code) []Code {
 	if c.Sha256() != SHA256Hex(canon) {
 		codes = appendCode(codes, CodeCorpusDigestMismatch)
 	}
-	// An attackId MUST NOT appear under more than one class (spec:440-441);
+	// An attackId MUST NOT appear under more than one class (spec:456-457);
 	// a duplicate inside one class array is the same integrity fault.
 	declared := 0
 	seen := map[string]bool{}
@@ -281,7 +281,7 @@ func gate0Corpus(c *Corpus, codes []Code) []Code {
 	// about a run. Zero declared attack identifiers means zero rows; zero
 	// rows means zero basis: substrate rows; and with no substrate rows the
 	// predicate legally permits runEntropy, observationRecords and batchRoot
-	// all to be absent (spec:400-402, 457-459). Every structure that would
+	// all to be absent (spec:580-583, 473-475). Every structure that would
 	// have required a substrate signature drops out, and coverage integrity
 	// then compares an empty union of row attack ids against an empty union
 	// of manifest attack ids and passes vacuously — so the statement reaches
@@ -308,7 +308,7 @@ func gate0CoverageIntegrity(p *Predicate, env *Environment, codes []Code) []Code
 	}
 	// Coverage MUST be an exhaustive, disjoint partition of the manifest's
 	// classes across assessedClasses / outOfScope / routedElsewhere, each a
-	// real manifest class (spec:466-471, 456-459). Enforcing this closes a
+	// real manifest class (spec:521-525, 454-457). Enforcing this closes a
 	// fail-open: without it a producer drops a failing class from all three
 	// sets (silently omitting it while still reporting pass), or pads
 	// assessedClasses with a fabricated class the manifest never carried.
@@ -347,7 +347,7 @@ func gate0CoverageIntegrity(p *Predicate, env *Environment, codes []Code) []Code
 			expected[id] = true
 		}
 	}
-	// No two rows may carry the same attackId (spec:525-538): "one row per
+	// No two rows may carry the same attackId (spec:543-548): "one row per
 	// executed attack" is a well-formedness invariant. A duplicate is detected
 	// BEFORE the rowID set is built, because the set-equality coverage check
 	// below silently collapses duplicates.
@@ -373,7 +373,7 @@ func gate0SubstrateBindingInputs(s *Statement, codes []Code) []Code {
 	env := p.Env
 
 	// runEntropy is required exactly when any row carries basis: substrate
-	// (spec:457-459). Its absence reports its member code, never a binding
+	// (spec:473-475). Its absence reports its member code, never a binding
 	// mismatch (registry precedence pin 1).
 	if env == nil || env.RunEntropy == nil {
 		codes = appendCode(codes, CodeRunEntropyMissing)
@@ -402,7 +402,7 @@ func gate0SubstrateBindingInputs(s *Statement, codes []Code) []Code {
 	}
 
 	// The remaining binding digest inputs must be lowercase 64-hex
-	// (spec:178-181). Absent parent members were already reported as
+	// (spec:188-190). Absent parent members were already reported as
 	// environment-incomplete.
 	if env != nil {
 		for _, digest := range []string{

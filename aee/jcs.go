@@ -56,13 +56,15 @@ var ErrDuplicateMember = errors.New("duplicate object member")
 var ErrStringNotScalar = errors.New("JSON string is not a sequence of Unicode scalar values")
 
 // ErrUnsafeInteger reports an integer with magnitude at or above 2^53
-// (rejected by the predicate's I-JSON safe-integer profile, spec:81-84).
+// (rejected by the predicate's I-JSON safe-integer profile, spec:83-85).
 var ErrUnsafeInteger = errors.New("integer outside the I-JSON safe range")
 
 // ErrNonIntegerNumber reports a JSON number with a fractional part. The
-// predicate's number profile is integers-only (every numeric field is an
-// integer, spec:819,834-836); a non-integer is rejected on every rail (the
-// Python rail rejects it identically as "non-integer number").
+// specification pins a safe-integer profile (spec:83-85,856-858) and declares
+// every numeric member it defines an integer, but states no rule against a
+// fractional number in producer territory. The rails reject one anyway, so
+// that cross-language float formatting can never split them (the Python rail
+// rejects it identically as "non-integer number").
 var ErrNonIntegerNumber = errors.New("non-integer number outside the integers-only profile")
 
 const maxSafeInteger = int64(1) << 53 // exclusive bound: |i| must be < 2^53
@@ -71,12 +73,13 @@ const maxSafeInteger = int64(1) << 53 // exclusive bound: |i| must be < 2^53
 // magnitude comparison in checkSafeInteger.
 var maxSafeIntBig = big.NewInt(maxSafeInteger)
 
-// checkSafeInteger enforces the predicate's integers-only, safe-integer number
-// profile (spec:81-84,819,834-836) for a JSON number token, in ANY notation:
-//   - a non-integer (1.5) is rejected: every numeric field is an integer, and
-//     rejecting non-integers keeps the two rails in lockstep (the Python rail
-//     rejects all non-integers) without needing cross-language float-format
-//     parity;
+// checkSafeInteger enforces the number profile the rails share for a JSON
+// number token, in ANY notation: the safe-integer bound the specification pins
+// (spec:83-85,856-858), tightened to integers only.
+//   - a non-integer (1.5) is rejected: every numeric member the specification
+//     defines is an integer, and rejecting non-integers keeps the two rails in
+//     lockstep (the Python rail rejects all non-integers) without needing
+//     cross-language float-format parity;
 //   - an integer with magnitude at or above 2^53 is rejected, including one
 //     written in exponent form (1e21) or with a decimal point (1.0e21) that a
 //     notation-blind check would miss.

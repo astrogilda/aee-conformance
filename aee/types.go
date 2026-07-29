@@ -6,15 +6,15 @@ import (
 	"fmt"
 )
 
-// StatementType is the only accepted in-toto statement _type (spec:221).
+// StatementType is the only accepted in-toto statement _type (spec:237).
 const StatementType = "https://in-toto.io/Statement/v1"
 
 // PredicateType is the only predicateType this implementation accepts
 // (spec:3). A different version URI is rejected fail-closed; the verifier
-// never attempts more than one construction (spec:194-199).
+// never attempts more than one construction (spec:202-206).
 const PredicateType = "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6"
 
-// Closed vocabularies (spec:321-333, 461-600).
+// Closed vocabularies (spec:321-333, 594-638).
 const (
 	ResultPass         = "pass"
 	ResultPassIndirect = "pass_indirect"
@@ -80,7 +80,7 @@ type Predicate struct {
 	IssuedAtPresent bool
 }
 
-// Environment is observationEnvironment (spec:434-462).
+// Environment is observationEnvironment (spec:450-478).
 type Environment struct {
 	Raw map[string]json.RawMessage
 
@@ -106,7 +106,7 @@ func (d *DigestRef) Sha256() string {
 	return d.Digest["sha256"]
 }
 
-// Corpus carries the digest-committed corpus manifest (spec:438-441).
+// Corpus carries the digest-committed corpus manifest (spec:454-457).
 type Corpus struct {
 	Name        string            `json:"name"`
 	URI         string            `json:"uri"`
@@ -124,9 +124,14 @@ func (c *Corpus) Sha256() string {
 	return c.Digest["sha256"]
 }
 
-// NetworkPosture is the substrate-authoritative egress posture pin. The
-// registry of posture values is closed (spec:376-386), so a value outside it
-// is a malformed statement rather than a fail-closed row.
+// NetworkPosture is the substrate-authoritative egress posture pin
+// (spec:459-461). This implementation reads the set of posture values as a
+// closed registry, so a value outside it is a malformed statement rather than
+// a fail-closed row. The specification introduces the values illustratively
+// and names no consequence for one outside the list, so the closed reading is
+// this repository's rather than the document's; the argument for it and the
+// upstream ask that would settle it are in
+// docs/interpretation-decisions-open.md.
 //
 // Posture holds the decoded string and is empty both when the member is absent
 // and when it holds a value of another JSON type. The two are not
@@ -162,10 +167,13 @@ func (n *NetworkPosture) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// EgressPostures is the closed registry of substrate-authoritative egress
-// postures (spec:376-386). A minor version MAY append a value and MUST NOT
-// redefine a registered one; an absent, non-string or unregistered value makes
-// the statement malformed, fail-closed.
+// EgressPostures is the registry of substrate-authoritative egress postures
+// this implementation accepts. The specification names three of them, and
+// names them as examples (spec:459-461); the fourth value and the append-only
+// rule below are this repository's, which is why they are stated here rather
+// than cited. A minor version MAY append a value and MUST NOT redefine a
+// registered one; an absent, non-string or unregistered value makes the
+// statement malformed, fail-closed.
 var EgressPostures = map[string]bool{
 	"no_network":           true,
 	"allowlist":            true,
@@ -196,7 +204,7 @@ func (n *NetworkPosture) Sha256() string {
 	return n.Digest["sha256"]
 }
 
-// Vocabulary is observationVocabulary (spec:444-457).
+// Vocabulary is observationVocabulary (spec:461-469).
 type Vocabulary struct {
 	Digest map[string]string `json:"digest"`
 	Labels []string          `json:"labels"`
@@ -216,7 +224,7 @@ func (v *Vocabulary) Sha256() string {
 	return v.Digest["sha256"]
 }
 
-// Coverage is the coverage bound (spec:464-471).
+// Coverage is the coverage bound (spec:516-525).
 type Coverage struct {
 	AssessedClasses []string          `json:"assessedClasses"`
 	OutOfScope      map[string]string `json:"outOfScope"`
@@ -224,8 +232,8 @@ type Coverage struct {
 }
 
 // Row is one attackResults row. Pointer members distinguish an absent member
-// from an empty value: absent basis/method is fail-closed (spec:632-634),
-// absent actualLayer is a malformed statement (spec:754-758).
+// from an empty value: absent basis/method is fail-closed (spec:663-666),
+// absent actualLayer is a malformed statement (spec:814-817).
 type Row struct {
 	Raw map[string]json.RawMessage
 
@@ -250,7 +258,7 @@ func (r *Row) IsSubstrate() bool {
 	return r.Basis != nil && *r.Basis == BasisSubstrate
 }
 
-// Record is one observation record: a DSSE-shaped envelope (spec:811-816).
+// Record is one observation record: a DSSE-shaped envelope (spec:843-847).
 type Record struct {
 	PayloadB64  string           `json:"payload"`
 	PayloadType string           `json:"payloadType"`
@@ -295,7 +303,7 @@ func (s *RecordSignatures) UnmarshalJSON(b []byte) error {
 }
 
 // RecordSignature matches the DSSE signature member shape. The keyid is an
-// unauthenticated lookup hint and never the check itself (spec:1007-1009).
+// unauthenticated lookup hint and never the check itself (spec:1098-1100).
 type RecordSignature struct {
 	KeyID string `json:"keyid"`
 	Sig   string `json:"sig"`

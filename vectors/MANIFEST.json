@@ -6,8 +6,8 @@
   "tracksUpstream": "in-toto/attestation#570",
   "specUpstreamCommit": "a2d173a81c852853c33cad94885f14584ddbe9c0",
   "counts": {
-    "accept": 38,
-    "reject": 127
+    "accept": 42,
+    "reject": 133
   },
   "vectors": [
     {
@@ -505,6 +505,54 @@
       }
     },
     {
+      "id": "ok-040-posture-no-network",
+      "kind": "accept",
+      "file": "accept/ok-040-posture-no-network.json",
+      "conditions": [
+        "aee-c-93"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "ok-041-posture-allowlist",
+      "kind": "accept",
+      "file": "accept/ok-041-posture-allowlist.json",
+      "conditions": [
+        "aee-c-93"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "ok-042-posture-unsafe-bypass-egress",
+      "kind": "accept",
+      "file": "accept/ok-042-posture-unsafe-bypass-egress.json",
+      "conditions": [
+        "aee-c-93"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "ok-043-posture-producer-member-bound",
+      "kind": "accept",
+      "file": "accept/ok-043-posture-producer-member-bound.json",
+      "conditions": [
+        "aee-c-60"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
       "id": "bad-001-result-uppercase",
       "kind": "reject",
       "file": "reject/bad-001-result-uppercase.json",
@@ -879,9 +927,9 @@
       }
     },
     {
-      "id": "bad-303-binding-version-2",
+      "id": "bad-303-binding-version-1",
       "kind": "reject",
-      "file": "reject/bad-303-binding-version-2.json",
+      "file": "reject/bad-303-binding-version-1.json",
       "conditions": [
         "aee-c-75",
         "aee-c-22"
@@ -2311,6 +2359,93 @@
         "verdict": "invalid",
         "codes": [
           "issued-at-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-823-posture-unregistered",
+      "kind": "reject",
+      "file": "reject/bad-823-posture-unregistered.json",
+      "conditions": [
+        "aee-c-93"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "posture-vocabulary"
+        ]
+      }
+    },
+    {
+      "id": "bad-824-posture-not-a-string",
+      "kind": "reject",
+      "file": "reject/bad-824-posture-not-a-string.json",
+      "conditions": [
+        "aee-c-93"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "posture-vocabulary"
+        ]
+      }
+    },
+    {
+      "id": "bad-825-posture-array",
+      "kind": "reject",
+      "file": "reject/bad-825-posture-array.json",
+      "conditions": [
+        "aee-c-93"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "posture-vocabulary"
+        ]
+      }
+    },
+    {
+      "id": "bad-305-posture-swapped",
+      "kind": "reject",
+      "file": "reject/bad-305-posture-swapped.json",
+      "conditions": [
+        "aee-c-22",
+        "aee-c-60"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "run-binding-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-306-vocabulary-caught-narrowed",
+      "kind": "reject",
+      "file": "reject/bad-306-vocabulary-caught-narrowed.json",
+      "conditions": [
+        "aee-c-22",
+        "aee-c-60"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "run-binding-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-307-posture-member-added-after-arming",
+      "kind": "reject",
+      "file": "reject/bad-307-posture-member-added-after-arming.json",
+      "conditions": [
+        "aee-c-22",
+        "aee-c-60"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "run-binding-mismatch"
         ]
       }
     }

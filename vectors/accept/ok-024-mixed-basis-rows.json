@@ -31,7 +31,7 @@
         "observationRefs": []
       }
     ],
-    "batchRoot": "f6a276576476ef7d4e277d8016054c632d8d72fe8188bde20bc5249be21db2cc",
+    "batchRoot": "46a1f9880a6755c0c6f9cd844ae78badcc5d38fb1226f9a6dea7f18b1094b533",
     "coverage": {
       "assessedClasses": [
         "XA",
@@ -97,22 +97,22 @@
     },
     "observationRecords": [
       {
-        "payload": "eyJhZWVLaW5kIjoiaW50ZXJjZXB0aW9uIiwiYWVlTWV0aG9kIjoiaW50ZXJjZXB0ZWQiLCJhZWVSdW5CaW5kaW5nIjoiMmRmN2E5ZjA0ZTdmZjFiY2Y4NGUzYjdkMDIyYjc5NWFjMmUxZTc0NTM3OTA4NjY0MmJhZWQxYzNhYzNiZDYwNSIsInByb2R1Y2VyTm90ZSI6ImV4YW1wbGUgaW50ZXJjZXB0aW9uIG9ic2VydmF0aW9uIGEifQ==",
+        "payload": "eyJhZWVLaW5kIjoiaW50ZXJjZXB0aW9uIiwiYWVlTWV0aG9kIjoiaW50ZXJjZXB0ZWQiLCJhZWVSdW5CaW5kaW5nIjoiMWY0NmNiNTQ3YTllYzAzY2JlYzFmNmUzMGIxNDVlMjlkYTY0NzkzZGNiMzE3MTc5NjMzYjVhMzk1YWQwNzQ1NiIsInByb2R1Y2VyTm90ZSI6ImV4YW1wbGUgaW50ZXJjZXB0aW9uIG9ic2VydmF0aW9uIGEifQ==",
         "payloadType": "application/vnd.example.aee-observation.v1+json",
         "signatures": [
           {
             "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
-            "sig": "mQSKm7dlvBeVOZUlXw9HVytG88OyqyS419E2fdwUQ9nPS31t7qpes4nbVwBhEMFkPTPfOE/FM+q3Ks7fohl1Cw=="
+            "sig": "iwETSENsELKBomSVJwV5dX5uU+2GZpZeua5TgSy/j0wEg6JTCGVoow5hFcIEZ7eZFrxnyE/T5mZkdTetECYpAg=="
           }
         ]
       },
       {
-        "payload": "eyJhZWVLaW5kIjoiaW50ZXJjZXB0aW9uIiwiYWVlTWV0aG9kIjoiaW50ZXJjZXB0ZWQiLCJhZWVSdW5CaW5kaW5nIjoiMmRmN2E5ZjA0ZTdmZjFiY2Y4NGUzYjdkMDIyYjc5NWFjMmUxZTc0NTM3OTA4NjY0MmJhZWQxYzNhYzNiZDYwNSIsInByb2R1Y2VyTm90ZSI6ImV4YW1wbGUgaW50ZXJjZXB0aW9uIG9ic2VydmF0aW9uIGIifQ==",
+        "payload": "eyJhZWVLaW5kIjoiaW50ZXJjZXB0aW9uIiwiYWVlTWV0aG9kIjoiaW50ZXJjZXB0ZWQiLCJhZWVSdW5CaW5kaW5nIjoiMWY0NmNiNTQ3YTllYzAzY2JlYzFmNmUzMGIxNDVlMjlkYTY0NzkzZGNiMzE3MTc5NjMzYjVhMzk1YWQwNzQ1NiIsInByb2R1Y2VyTm90ZSI6ImV4YW1wbGUgaW50ZXJjZXB0aW9uIG9ic2VydmF0aW9uIGIifQ==",
         "payloadType": "application/vnd.example.aee-observation.v1+json",
         "signatures": [
           {
             "keyid": "a0667d352125206443e3005accb7223ef487f505d5fc3d392b629b6619177e0c",
-            "sig": "V8KqVNlIxmPwHHyIIiJREoQpPh+mIdHOkEj5FGgHBkQGKtBTCFuBzVTeNyusBzddtaJrvnN7pz0fk6v706kJAw=="
+            "sig": "mLv+YW+woEA0beDq9HG1dTQRIZeH63nm2COAALn5sBuwS8Nkne91sQsZ7dQXjse8WZqBG2jkVM+kQfh5eygnAg=="
           }
         ]
       }

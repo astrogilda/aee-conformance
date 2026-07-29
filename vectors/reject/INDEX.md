@@ -72,12 +72,12 @@ validity for every parent. Regenerate byte-identically with:
 Corpus and vocabulary digests are JCS digests of the manifest and
 `{"caught": [...], "labels": [...]}` objects embedded in each vector.
 Run bindings derive per spec L157-163 from each statement's own values.
-Negative known-answer for bad-303, the v2 pre-image that MUST NOT
-match (JCS, then SHA-256):
+Negative known-answer for bad-303, the retired version-1 pre-image
+that MUST NOT match (JCS, then SHA-256):
 
 ```json
 {
-  "aeeBindingVersion": "2",
+  "aeeBindingVersion": "1",
   "catchPolicy": "28f8fb978cae8aabc974e6557a3665523281bfd85fcee13429179120ad7667cc",
   "corpus": "cc1bdef2ffca96d86a636e5a9fb27a4a111836773e0dd1368d8de94f413979be",
   "networkPosture": "ba44e77b7861b9b7c5a7288b3d703a62289fb02b3a3e0f5612a4e74dbee0929e",
@@ -154,8 +154,9 @@ carries the authoritative id-to-spec-line table.
 | aee-c-90 | L543-545 | no two attackResults rows share an attackId |
 | aee-c-91 | L845-847 | each observation record's signatures member carries at least one entry |
 | aee-c-92 | L570-592 | the corpus manifest declares at least one attack identifier across all of its classes |
+| aee-c-93 | L459-461 | networkPosture.posture is a registered value |
 
-## Vectors (127)
+## Vectors (133)
 
 `parent` names the accept-suite shape the vector derives from (the
 accept vectors land separately; the parent statements are built
@@ -191,8 +192,8 @@ so the declared fault stays the ONLY fault.
 | `bad-207-payload-missing-method` | ok-001 | drop aeeMethod from the covering payload | re-sign-record, recompute-batch-root | aee-c-20 | `payload-missing-reserved` | L393-394; L881-882 |
 | `bad-301-run-binding-splice` | ok-002 | records signed under a binding derived from a DIFFERENT corpus digest (cross-run splice) | recompute-batch-root | aee-c-22 aee-c-62 | `run-binding-mismatch` | L394-395; L193-198 |
 | `bad-302-method-inflation` | ok-001 | row method "intercepted"; sole covering record signed "reconstructed" | re-sign-record, recompute-batch-root | aee-c-23 | `method-cap-exceeded` | L396-397 |
-| `bad-303-binding-version-2` | ok-002 | records signed with a binding derived from an "aeeBindingVersion": "2" pre-image | derive-binding-v2, re-sign-record, recompute-batch-root | aee-c-75 aee-c-22 | `run-binding-mismatch` | L203-207; L394-395 |
-| `bad-726-arming-binding-version-carried` | ok-002 | arming payload carries an explicit aeeBindingVersion: "2" the verifier does not implement (read-first, distinct from the bad-303 digest mismatch) | re-sign-record, recompute-batch-root | aee-c-75 | `arming-covers-nothing` | L203-210 |
+| `bad-303-binding-version-1` | ok-002 | records signed with a binding derived from the retired "aeeBindingVersion": "1" pre-image | derive-binding-v1, re-sign-record, recompute-batch-root | aee-c-75 aee-c-22 | `run-binding-mismatch` | L203-207; L394-395 |
+| `bad-726-arming-binding-version-carried` | ok-002 | arming payload carries an explicit aeeBindingVersion: "3" the verifier does not implement (read-first, distinct from the bad-303 digest mismatch) | re-sign-record, recompute-batch-root | aee-c-75 | `arming-covers-nothing` | L203-210 |
 | `bad-304-method-cap-multirecord` | ok-030 | row method "intercepted" covered by TWO interceptions with signed methods {intercepted, reconstructed}: exceeds the weakest | re-sign-record, recompute-batch-root | aee-c-23 aee-c-45 | `method-cap-exceeded` | L396-397 |
 | `bad-401-records-no-batchroot` | ok-002 | batchRoot member removed while observationRecords is non-empty | - | aee-c-24 | `batch-root-missing` | L1005; L1017-1019 |
 | `bad-402-root-no-domain-separation` | ok-014 | root computed without the 0x00/0x01 domain-separation prefixes | - | aee-c-25 | `batch-root-mismatch` | L1007-1010 |
@@ -211,17 +212,17 @@ so the declared fault stays the ONLY fault.
 | `bad-505-substrate-missing-method` | ok-001 | substrate row method member ABSENT | - | aee-c-5 aee-c-42 aee-c-44 | `fail-closed-substrate-row` | L344-345; L663-666; L427-431 |
 | `bad-506-actuallayer-json-number` | ok-001 | caught row actualLayer carried as the JSON number 7 (wrong member type); refs, records, root, entropy intact; carried fail kept | - | aee-c-88 | `statement-malformed` | L529-535 |
 | `bad-601-vocabulary-absent` | ok-007 | drop observationVocabulary; carried fail kept | - | aee-c-51 | `vocabulary-missing` | L461-469 |
-| `bad-602-caught-not-subset` | ok-002 | caught gains "example_label_x" which is not in labels; digest recomputed over the mutated content | recompute-vocabulary-digest | aee-c-52 | `vocabulary-caught-not-subset` | L465-467 |
-| `bad-603-labels-unsorted` | ok-002 | labels in descending order; digest recomputed | recompute-vocabulary-digest | aee-c-53 | `vocabulary-not-canonical` | L467 |
-| `bad-604-caught-duplicate` | ok-002 | duplicate entry in caught; digest recomputed | recompute-vocabulary-digest | aee-c-53 | `vocabulary-not-canonical` | L467 |
-| `bad-605-vocabulary-digest-mismatch` | ok-002 | stale vocabulary digest over unchanged content | - | aee-c-54 | `vocabulary-digest-mismatch` | L467-469 |
+| `bad-602-caught-not-subset` | ok-002 | caught gains "example_label_x" which is not in labels; digest recomputed over the mutated content | recompute-vocabulary-digest, rederive-binding, re-sign-record, recompute-batch-root | aee-c-52 | `vocabulary-caught-not-subset` | L465-467 |
+| `bad-603-labels-unsorted` | ok-002 | labels in descending order; digest recomputed | recompute-vocabulary-digest, rederive-binding, re-sign-record, recompute-batch-root | aee-c-53 | `vocabulary-not-canonical` | L467 |
+| `bad-604-caught-duplicate` | ok-002 | duplicate entry in caught; digest recomputed | recompute-vocabulary-digest, rederive-binding, re-sign-record, recompute-batch-root | aee-c-53 | `vocabulary-not-canonical` | L467 |
+| `bad-605-vocabulary-digest-mismatch` | ok-002 | stale vocabulary digest over unchanged content | rederive-binding, re-sign-record, recompute-batch-root | aee-c-54 | `vocabulary-digest-mismatch` | L467-469 |
 | `bad-606-missing-runentropy` | ok-002 | drop runEntropy on a substrate-row-carrying statement | - | aee-c-57 | `run-entropy-missing` | L473-475; L191-192 |
 | `bad-607-two-subjects-substrate` | ok-002 | second subject appended to a substrate-row-carrying statement | - | aee-c-58 | `subject-cardinality` | L185-189 |
 | `bad-608-digest-uppercase` | ok-002 | runEntropy digest upper-cased; binding rederived VERBATIM over the uppercase value and records re-signed with it | rederive-run-binding-verbatim, re-sign-record, recompute-batch-root | aee-c-59 | `digest-not-canonical` | L185-191 |
 | `bad-609-digest-truncated` | ok-002 | substrate digest truncated to 63 hex chars; verbatim rederive chain | rederive-run-binding-verbatim, re-sign-record, recompute-batch-root | aee-c-59 | `digest-not-canonical` | L185-191 |
-| `bad-610-empty-labels-substrate` | ok-001 | labels: [] and caught: [] (digest recomputed) under a substrate row whose label is now out-of-vocabulary | recompute-vocabulary-digest | aee-c-4 aee-c-44 aee-c-53 | `fail-closed-substrate-row` | L427-431; L467 |
+| `bad-610-empty-labels-substrate` | ok-001 | labels: [] and caught: [] (digest recomputed) under a substrate row whose label is now out-of-vocabulary | recompute-vocabulary-digest, rederive-binding, re-sign-record, recompute-batch-root | aee-c-4 aee-c-44 aee-c-53 | `fail-closed-substrate-row` | L427-431; L467 |
 | `bad-611-subject-no-sha256` | ok-002 | subject digest carries only sha512 | - | aee-c-59 aee-c-60 | `subject-sha256-missing` | L185-191 |
-| `bad-612-labels-non-bmp` | ok-001 | labels gains the supplementary-plane entry U+1F600; digest recomputed over the mutated content | recompute-vocabulary-digest | aee-c-86 | `vocabulary-not-canonical` | L133-146 |
+| `bad-612-labels-non-bmp` | ok-001 | labels gains the supplementary-plane entry U+1F600; digest recomputed over the mutated content | recompute-vocabulary-digest, rederive-binding, re-sign-record, recompute-batch-root | aee-c-86 | `vocabulary-not-canonical` | L133-146 |
 | `bad-701-arming-missing-armedat` | ok-002 | drop armedAt from the arming payload | re-sign-record, recompute-batch-root | aee-c-63 | `arming-covers-nothing` | L868-872; L884-887 |
 | `bad-702-armedat-after-issuedat` | ok-002 | arming armedAt: "2026-01-01T00:01:00Z" (after issuedAt) | re-sign-record, recompute-batch-root | aee-c-63 | `arming-covers-nothing` | L870-871 |
 | `bad-703-arming-posture-mismatch` | ok-002 | arming aeePostureDigest differs from the pinned posture digest | re-sign-record, recompute-batch-root | aee-c-63 aee-c-65 | `arming-covers-nothing`, `sealed-covers-nothing`, `clean-row-uncovered` (COMPOUND) | L868-872; L888-968 |
@@ -261,17 +262,17 @@ so the declared fault stays the ONLY fault.
 | `bad-819-assessed-class-not-in-manifest` | ok-001 | assessedClasses padded with class XZ the manifest never carried | - | aee-c-82 | `coverage-incomplete` | L521-525; L565-568 |
 | `bad-731-outofscope-unknown-class` | ok-004 | outOfScope carries class XZ the manifest never carried | - | aee-c-82 | `coverage-incomplete` | L521-525; L565-568 |
 | `bad-732-routedelsewhere-unknown-class` | ok-004 | routedElsewhere carries class XZ the manifest never carried | - | aee-c-82 | `coverage-incomplete` | L521-525; L565-568 |
-| `bad-733-statement-lone-high-surrogate-escape` | ok-002 | vocabulary label carrying an unpaired high surrogate escape; digest recomputed over the mutated content | recompute-vocabulary-digest | aee-c-18 | `statement-malformed` | L87-113 |
-| `bad-734-statement-lone-low-surrogate-escape` | ok-002 | vocabulary label carrying an unpaired low surrogate escape; digest recomputed over the mutated content | recompute-vocabulary-digest | aee-c-18 | `statement-malformed` | L87-113 |
-| `bad-735-statement-reversed-surrogate-pair` | ok-002 | vocabulary label carrying a low surrogate followed by a high surrogate; digest recomputed over the mutated content | recompute-vocabulary-digest | aee-c-18 | `statement-malformed` | L87-113 |
-| `bad-736-statement-cesu8-vocabulary-label` | ok-002 | vocabulary label carrying a surrogate encoded directly in UTF-8 (CESU-8, ED A0 80); digest recomputed over the mutated content | recompute-vocabulary-digest | aee-c-18 | `statement-malformed` | L87-113 |
-| `bad-737-statement-overlong-utf8` | ok-002 | vocabulary label carrying the overlong encoding C0 AF; digest recomputed over the mutated content | recompute-vocabulary-digest | aee-c-18 | `statement-malformed` | L87-113 |
-| `bad-738-statement-raw-control-character` | ok-002 | vocabulary label carrying a raw unescaped U+0001; digest recomputed over the mutated content | recompute-vocabulary-digest | aee-c-18 | `statement-malformed` | L87-113 |
+| `bad-733-statement-lone-high-surrogate-escape` | ok-002 | vocabulary label carrying an unpaired high surrogate escape; digest recomputed over the mutated content | recompute-vocabulary-digest, rederive-binding, re-sign-record, recompute-batch-root | aee-c-18 | `statement-malformed` | L87-113 |
+| `bad-734-statement-lone-low-surrogate-escape` | ok-002 | vocabulary label carrying an unpaired low surrogate escape; digest recomputed over the mutated content | recompute-vocabulary-digest, rederive-binding, re-sign-record, recompute-batch-root | aee-c-18 | `statement-malformed` | L87-113 |
+| `bad-735-statement-reversed-surrogate-pair` | ok-002 | vocabulary label carrying a low surrogate followed by a high surrogate; digest recomputed over the mutated content | recompute-vocabulary-digest, rederive-binding, re-sign-record, recompute-batch-root | aee-c-18 | `statement-malformed` | L87-113 |
+| `bad-736-statement-cesu8-vocabulary-label` | ok-002 | vocabulary label carrying a surrogate encoded directly in UTF-8 (CESU-8, ED A0 80); digest recomputed over the mutated content | recompute-vocabulary-digest, rederive-binding, re-sign-record, recompute-batch-root | aee-c-18 | `statement-malformed` | L87-113 |
+| `bad-737-statement-overlong-utf8` | ok-002 | vocabulary label carrying the overlong encoding C0 AF; digest recomputed over the mutated content | recompute-vocabulary-digest, rederive-binding, re-sign-record, recompute-batch-root | aee-c-18 | `statement-malformed` | L87-113 |
+| `bad-738-statement-raw-control-character` | ok-002 | vocabulary label carrying a raw unescaped U+0001; digest recomputed over the mutated content | recompute-vocabulary-digest, rederive-binding, re-sign-record, recompute-batch-root | aee-c-18 | `statement-malformed` | L87-113 |
 | `bad-739-payload-lone-surrogate-escape` | ok-001 | covering payload gains a member whose value carries an unpaired surrogate escape | re-sign-record, recompute-batch-root | aee-c-18 | `payload-not-ijson` | L819-822 |
 | `bad-740-payload-cesu8` | ok-001 | covering payload gains a member whose value carries a surrogate encoded directly in UTF-8 (CESU-8, ED A0 80) | re-sign-record, recompute-batch-root | aee-c-18 | `payload-not-ijson` | L819-822 |
 | `bad-741-payload-nesting-exceeds-max-depth` | ok-001 | covering payload nested 129 deep, one level past the normative bound | re-sign-record, recompute-batch-root | aee-c-18 | `payload-not-ijson` | L128-135 |
 | `bad-742-payload-nesting-empty-container-leaf` | ok-001 | covering payload nested 129 deep with an empty-container leaf, one past the bound | re-sign-record, recompute-batch-root | aee-c-18 | `payload-not-ijson` | L128-135 |
-| `bad-743-statement-noncharacter-vocabulary-label` | ok-002 | vocabulary label carrying the noncharacter U+FFFF | recompute-vocabulary-digest | aee-c-18 | `statement-malformed` | L93-120 |
+| `bad-743-statement-noncharacter-vocabulary-label` | ok-002 | vocabulary label carrying the noncharacter U+FFFF | recompute-vocabulary-digest, rederive-binding, re-sign-record, recompute-batch-root | aee-c-18 | `statement-malformed` | L93-120 |
 | `bad-744-payload-noncharacter` | ok-001 | covering payload gains a member whose value carries the noncharacter U+FFFF | re-sign-record, recompute-batch-root | aee-c-18 | `payload-not-ijson` | L93-120 |
 | `bad-745-record-signatures-empty` | ok-001 | covering record's signatures array emptied to [] | - | aee-c-91 | `record-signatures-empty` | L845-847 |
 | `bad-748-signatures-empty-precedes-undecodable-record` | ok-002 | arming record payload re-encoded as non-canonical base64 AND the sealed record's signatures array emptied, in that wire order | - | aee-c-91 | `record-signatures-empty` (COMPOUND) (also carries: `record-undecodable`) | L845-847; L847-854 |
@@ -292,6 +293,12 @@ so the declared fault stays the ONLY fault.
 | `bad-820-issuedat-non-utc-offset` | ok-007 | issuedAt: "2026-01-01T05:00:00+05:00" (a non-zero UTC offset) | - | aee-c-85 | `issued-at-malformed` | L1046 |
 | `bad-821-issuedat-lowercase-separator` | ok-007 | issuedAt: "2026-01-01t00:00:00Z" (lowercase date-time separator) | - | aee-c-85 | `issued-at-malformed` | L1046 |
 | `bad-822-issuedat-lowercase-zone-designator` | ok-007 | issuedAt: "2026-01-01T00:00:00z" (lowercase zone designator) | - | aee-c-85 | `issued-at-malformed` | L1046 |
+| `bad-823-posture-unregistered` | ok-002 | networkPosture.posture: "example_posture_x", a value the registry does not carry | rederive-binding, re-sign-record, recompute-batch-root | aee-c-93 | `posture-vocabulary` | L459-461 |
+| `bad-824-posture-not-a-string` | ok-002 | networkPosture.posture: 3, a value of the wrong JSON type | rederive-binding, re-sign-record, recompute-batch-root | aee-c-93 | `posture-vocabulary` | L459-461 |
+| `bad-825-posture-array` | ok-002 | networkPosture.posture: ["sinkhole"], an array wrapping a registered value | rederive-binding, re-sign-record, recompute-batch-root | aee-c-93 | `posture-vocabulary` | L459-461 |
+| `bad-305-posture-swapped` | ok-002 | networkPosture.posture swapped from "sinkhole" to "allowlist"; every digest, signature and record left exactly as the producer signed them | - | aee-c-22 aee-c-60 | `run-binding-mismatch` | L157-163; L394-395 |
+| `bad-306-vocabulary-caught-narrowed` | ok-002 | caught narrowed to [] with the vocabulary digest re-derived over the narrowed arrays; the records keep the binding they were signed with | recompute-vocabulary-digest | aee-c-22 aee-c-60 | `run-binding-mismatch` | L157-163; L394-395 |
+| `bad-307-posture-member-added-after-arming` | ok-002 | networkPosture gains a producer member the records do not commit to | - | aee-c-22 aee-c-60 | `run-binding-mismatch` | L157-163; L394-395 |
 
 ## Notes on specific vectors
 
@@ -304,8 +311,8 @@ so the declared fault stays the ONLY fault.
 - **bad-204-payload-media-type**: PAE covers payloadType, so the record is re-signed: the media type is the ONLY fault.
 - **bad-208-payload-member-non-bmp**: rawBytes; BMP-only string profile: the name sorts last under BOTH the UTF-16 and the code-point member order, so the payload bytes stay canonical under either reading and the supplementary-plane member NAME is the single fault (a supplementary-plane member VALUE stays legal).
 - **bad-301-run-binding-splice**: the statement's own corpus is unchanged; the records were earned under another run's environment.
-- **bad-303-binding-version-2**: negative known-answer: the v2 pre-image MUST NOT match; a verifier has exactly one construction and never tries a second.
-- **bad-726-arming-binding-version-carried**: an explicit binding-version declaration the verifier does not implement is read before deriving and makes the arming record cover nothing, distinguishably from a run-binding digest mismatch.
+- **bad-303-binding-version-1**: negative known-answer: version 1 is retired with no alias and no dual-accept window, so its pre-image MUST NOT match; a verifier has exactly one construction and never tries a second. The vector is named for the construction its records were minted under, and it is the retired one rather than a future one on purpose: a vector minted under a version nobody has implemented rejects whether or not the rule holds, because its digest matches no construction at all, while this one is a digest a real producer could have emitted last revision.
+- **bad-726-arming-binding-version-carried**: an explicit binding-version declaration the verifier does not implement is read before deriving and makes the arming record cover nothing, distinguishably from a run-binding digest mismatch. The declared version has to be one no verifier implements, so it moves whenever the implemented construction does: it read "2" while the implemented construction was version 1, and left that value in place the version 2 landed, at which point the record declared exactly what the verifier derives and the vector asserted nothing.
 - **bad-304-method-cap-multirecord**: min-composition: a max()/any() rail wrongly accepts this.
 - **bad-405-duplicate-records**: single fault: duplicate identity, not root arithmetic.
 - **bad-407-substrate-row-no-records**: precedence pin: records-absent is reported when the array is absent entirely; ref-out-of-range only when records exist.
@@ -317,6 +324,7 @@ so the declared fault stays the ONLY fault.
 - **bad-505-substrate-missing-method**: pairs with ok-027 (artifact row with absent method is a VALID fail).
 - **bad-506-actuallayer-json-number**: type-strictness pin: row members are strings, and a wrong-typed member is a decode-layer fault, deliberately a DIFFERENT altitude than an absent one, a rail that maps the number to member absence (malformed-missing-actual-layer) fails conformance here.
 - **bad-601-vocabulary-absent**: artifact-only parent: no digest or binding cascade.
+- **bad-605-vocabulary-digest-mismatch**: the binding is rederived over the STALE carried digest, not over the digest the arrays recompute to, because that is the value a verifier reading the statement folds into the pre-image; deriving over the honest one would leave every record mismatched and the vector would report a binding fault instead of the digest fault.
 - **bad-606-missing-runentropy**: precedence pin: a missing binding INPUT reports its member code, never run-binding-mismatch.
 - **bad-607-two-subjects-substrate**: subject[0] unchanged, so record bindings still derive: the cardinality rule is the ONLY fault.
 - **bad-608-digest-uppercase**: a rail that derives verbatim finds the binding EQUAL; only the lowercase-64-hex format rule fails.
@@ -375,6 +383,12 @@ so the declared fault stays the ONLY fault.
 - **bad-820-issuedat-non-utc-offset**: the parent's instant at a non-zero offset. issuedAt is typed as the framework Timestamp, which requires the UTC timezone, so a valid instant in a non-UTC spelling is malformed. The counterpart on the arming record is bad-727, which every rail rejected while every rail accepted this one.
 - **bad-821-issuedat-lowercase-separator**: the spelling the Go reference rail refused and the Python reference rail accepted with result pass, an accept-on-one reject-on-another split inside one repository that no vector reached.
 - **bad-822-issuedat-lowercase-zone-designator**: the separator's twin on the predicate field, isolated for the same reason as bad-751: a rail enforcing the case of one designator and not the other passes every both-lowercase mutant.
+- **bad-823-posture-unregistered**: the pinned digest member is untouched, so both covering records still compare equal on aeePostureDigest and the unregistered string is the single fault.
+- **bad-824-posture-not-a-string**: a wrong-type posture is the same requirement failing as an unregistered one, so it reports the same condition rather than the parse catch-all; a rail that decodes the member into a string field and lets the decode failure escape names a different condition than its peers for these exact bytes.
+- **bad-825-posture-array**: the shape that separated the rails before it was fixed: testing membership of an unhashable value against a set raises rather than returning false, so two rails crashed on it while a third rejected it cleanly, which is a crash and a cross-rail split at once. It is kept distinct from the wrong-type vector because a scalar of the wrong type and a container of the wrong type reach a membership test by different paths.
+- **bad-305-posture-swapped**: both values are registered, so this is the swap no vocabulary rule can see. Under the version-1 binding this statement was VALID and the substitution cost nothing: it changed no digest and broke no signature. It is a mismatch now because the binding covers the carried posture object rather than the value of that object's own digest member.
+- **bad-306-vocabulary-caught-narrowed**: the caught set decides which labels are caught, and both the recompute and the coverage validity requirements read it, so a producer that narrows it after the run turns a caught row into a clean one. Nothing resisted that under version 1: the vocabulary's own digest re-derives from the arrays beside it and no record's binding moved. Binding the carried digest is what closes it.
+- **bad-307-posture-member-added-after-arming**: the consequence the binding change makes normative, in the direction that must fail. The binding covers the carried object, so a member added to the posture after arming invalidates the producer's own statement. Its accepted twin is ok-043, which carries the same member with records committing to it, and the pair is what makes this a rule about WHEN the member was added rather than about whether the posture may carry one at all.
 
 ## Compound vectors and precedence pins
 

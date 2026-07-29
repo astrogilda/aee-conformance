@@ -1,6 +1,6 @@
 <!--
 Implementation report for the AEE v0.6 predicate conformance suite.
-Corpus SSOT: vectors/MANIFEST.json (suiteRevision 10, 165 vectors: 38 accept, 127 reject).
+Corpus SSOT: vectors/MANIFEST.json (suiteRevision 12, 175 vectors: 42 accept, 133 reject).
 Honest scoping: every claim below states exactly what each implementation was verified against.
 Independence is counted by authorship, not by implementation count; see "How independence
 is counted here" before adding any row to the table.
@@ -57,7 +57,7 @@ with. Both rails were corrected and both readings are now pinned.
 
 ## Reference corpus
 
-`vectors/MANIFEST.json`, suiteRevision 10: **165 vectors (38 accept, 127 reject)**.
+`vectors/MANIFEST.json`, suiteRevision 12: **175 vectors (42 accept, 133 reject)**.
 Each accept vector must verify valid with its expected `result` token; each reject
 vector must be invalid with a failure code drawn from the manifest's code set. The
 corpus is regenerated deterministically from the generators and its vendored spec
@@ -67,8 +67,8 @@ digest is pinned and CI-checked (`scripts/spec-drift-gate.py`).
 
 | Implementation | Language | Author | Verified against | Result |
 |---|---|---|---|---|
-| Reference rail (`aee/`) | Go | spec author | reference corpus, suiteRevision 10 | **165 / 165** |
-| Reference rail (`packaging/run_vectors.py`) | Python | spec author | reference corpus, suiteRevision 10 | **165 / 165** |
+| Reference rail (`aee/`) | Go | spec author | reference corpus, suiteRevision 12 | **175 / 175** |
+| Reference rail (`packaging/run_vectors.py`) | Python | spec author | reference corpus, suiteRevision 12 | **175 / 175** |
 | `Rul1an/aee-checker` | Rust | **independent, from-spec text alone** | author-run suiteRevision 6 (153), 2026-07-28 (aee-checker#4); suiteRevisions 7 through 9 not run by its author | **153 / 153** at suiteRevision 6, directed; **125 / 125** blind at suiteRevision 1; suiteRevisions 7 through 9 not run by author (see note 1) |
 | `ts-verify` | TypeScript | spec author | its vendored set (153 vectors) + cross-rail parity tests | pass (see note 2) |
 | `py-verify` | Python | spec author | its vendored set (153 vectors) + parity tests | pass (see note 2) |
@@ -187,7 +187,7 @@ vector's status.
 One independent implementation agreeing is strong evidence the text is
 determinate; it is not proof it is unambiguous. Two readers can share a
 reasonable but unforced reading, and a single outside reader is a sample of one.
-Nor does agreement on 165 vectors say anything about the surface no vector
+Nor does agreement on 175 vectors say anything about the surface no vector
 touches, which is where the nesting-depth divergence above lived. The
 interpretation-decision registry
 (`vectors/interpretation-decisions.json`) records where the text forces the reading

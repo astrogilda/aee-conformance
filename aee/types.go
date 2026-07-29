@@ -123,10 +123,68 @@ func (c *Corpus) Sha256() string {
 	return c.Digest["sha256"]
 }
 
-// NetworkPosture is the substrate-authoritative egress posture pin.
+// NetworkPosture is the substrate-authoritative egress posture pin. The
+// registry of posture values is closed (spec:376-386), so a value outside it
+// is a malformed statement rather than a fail-closed row.
+//
+// Posture holds the decoded string and is empty both when the member is absent
+// and when it holds a value of another JSON type. The two are not
+// distinguished here on purpose: neither is a registered posture, and the
+// closed-registry check reports the same code for both, so keeping them apart
+// would add a distinction nothing reads. What matters is that a non-string
+// value does NOT fail the surrounding decode -- it did, and a statement
+// carrying one then reported the parse catch-all here while the other rails
+// named the posture registry, which is a cross-rail split over the same bytes.
 type NetworkPosture struct {
-	Posture string            `json:"posture"`
+	Posture string            `json:"-"`
 	Digest  map[string]string `json:"digest"`
+}
+
+// UnmarshalJSON decodes the member, mapping a posture that is not a JSON
+// string to the empty posture instead of to a decode failure.
+func (n *NetworkPosture) UnmarshalJSON(b []byte) error {
+	var shadow struct {
+		Posture json.RawMessage   `json:"posture"`
+		Digest  map[string]string `json:"digest"`
+	}
+	if err := json.Unmarshal(b, &shadow); err != nil {
+		return err
+	}
+	n.Digest = shadow.Digest
+	n.Posture = ""
+	if len(shadow.Posture) > 0 {
+		var s string
+		if json.Unmarshal(shadow.Posture, &s) == nil {
+			n.Posture = s
+		}
+	}
+	return nil
+}
+
+// EgressPostures is the closed registry of substrate-authoritative egress
+// postures (spec:376-386). A minor version MAY append a value and MUST NOT
+// redefine a registered one; an absent, non-string or unregistered value makes
+// the statement malformed, fail-closed.
+var EgressPostures = map[string]bool{
+	"no_network":           true,
+	"allowlist":            true,
+	"sinkhole":             true,
+	"unsafe_bypass_egress": true,
+}
+
+// isJSONObject reports whether raw is a JSON object. The check is on the first
+// non-whitespace byte, which is enough: the bytes have already parsed as JSON
+// by the time any caller here holds them.
+func isJSONObject(raw []byte) bool {
+	for _, c := range raw {
+		switch c {
+		case ' ', '\t', '\n', '\r':
+			continue
+		default:
+			return c == '{'
+		}
+	}
+	return false
 }
 
 // Sha256 returns the posture digest sha256 ("" when absent).
@@ -145,6 +203,16 @@ type Vocabulary struct {
 
 	LabelsPresent bool `json:"-"`
 	CaughtPresent bool `json:"-"`
+}
+
+// Sha256 returns the vocabulary digest sha256 ("" when absent). Version 2 of
+// the run binding folds this value in, so narrowing the caught set after the
+// run derives a binding the producer's own records do not carry.
+func (v *Vocabulary) Sha256() string {
+	if v == nil || v.Digest == nil {
+		return ""
+	}
+	return v.Digest["sha256"]
 }
 
 // Coverage is the coverage bound (spec:464-471).

@@ -199,3 +199,55 @@ vocabulary; both readings return invalid, which is all the spec requires. The
 suite reports the entry-count condition because it already does so for an absent
 member, and splitting one requirement across two conditions on the basis of a
 decoder's behavior is not a distinction the text makes.
+
+## suiteRevision 12: the posture registry, and a vendored copy that predates the binding it certifies
+
+Two readings this revision takes are not in the vendored bytes it certifies
+against, and both need an upstream edit before the vendored copy can be
+re-pinned. Recording them here rather than in
+`vectors/interpretation-decisions.json` is the same call the entry above makes:
+that registry records where the text FORCES a reading, and this text does not.
+
+**The posture registry is treated as closed.** The vendored copy introduces the
+values illustratively, as "the substrate-authoritative egress posture, e.g.
+`no_network`, `allowlist`, `sinkhole`, with its configuration digest"
+(L459-461), and names no consequence for a value outside that list. Every other
+artifact in reach treats the set as closed and fail-closed: the predicate's own
+JSON Schema, which also carries a fourth value the prose omits
+(`unsafe_bypass_egress`), both binding-contract surfaces, and the shipped
+admission policy. The argument for closing it is in the vendored text already,
+one section away: a consumer is invited to coherence-check a `substrate` row's
+claimed observation against the posture the run was contained under, because a
+row "claiming a network-boundary observation under a `networkPosture` that
+provides no interception path at that boundary is incoherent" (L808-812). No
+verifier can decide whether an unregistered posture provides an interception
+path at a boundary, so an open registry leaves that check permanently
+unreachable while appearing to offer it. Three reject vectors (`bad-823`,
+`bad-824`, `bad-825`) and three accept vectors (`ok-040` through `ok-042`) pin
+the closed reading. Until the upstream edit lands, a from-spec verifier that
+admits an unregistered posture is conformant to the vendored specification and
+fails those three rejects, and that is the corpus running ahead of the text
+rather than the verifier erring.
+
+**The vendored copy still describes version 1 of the run binding.** The corpus
+in this revision is minted under version 2, whose pre-image gains the carried
+`observationVocabulary` digest and whose `networkPosture` input is the RFC 8785
+canonical digest of the carried posture OBJECT rather than the value of that
+object's own digest member. The vendored copy still gives the seven-member
+version-1 pre-image (L157-163). The corpus therefore cites that passage for the
+rule it means, which is that the pre-image is derived from the statement's own
+values, while the passage enumerates a member list the corpus no longer uses.
+Re-vendoring is what closes this, and re-vendoring requires the amendment to
+exist upstream first: editing the vendored copy in place would make
+`spec/VENDOR-PIN.json` name a commit that does not contain those bytes, which is
+the one thing `scripts/spec-drift-gate.py` exists to refuse. The pin and the
+recorded `specDigest` are therefore left exactly where they were, and this
+paragraph is the record that the corpus moved ahead of them.
+
+The upstream ask is two edits. State that `networkPosture.posture` is a closed
+registry of four values, that a minor version MAY append and MUST NOT redefine,
+and that an absent, non-string or unregistered value makes the statement
+malformed. And carry the version-2 pre-image, with the two changed inputs and
+the reason each is admissible: both are run configuration fixed before corpus
+injection, which is what makes them knowable when the arming record that commits
+to the binding is signed.

@@ -72,7 +72,7 @@ gate will not invent one.
 | Function | Cyclo | Why it is inherent |
 |---|---|---|
 | `aee/validity.go` `checkSubstrateRow` | 37 | Per-row coverage: each observation kind (arming, sealed, examination, interception) has its own spec-mandated constraints, checked in one place. |
-| `aee/statement.go` `Gate0` | 34 | Statement well-formedness enumerates every reserved-member and vocabulary rule the spec lists; the branch count is the rule count. |
+| `aee/statement.go` `Gate0` | 36 | Statement well-formedness enumerates every reserved-member and vocabulary rule the spec lists; the branch count is the rule count. |
 | `aee/validity.go` `evaluateKind` | 27 | Type dispatch over the record kinds, each with a small kind-specific check. |
 | `aee/statement.go` `gate0CoverageIntegrity` | 19 | The coverage-partition invariant across three disjoint sets against the manifest. |
 | `aee/jcs.go` `decodeValue` | 18 | Recursive JSON value dispatch with the I-JSON profile checks. |

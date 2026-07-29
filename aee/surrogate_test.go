@@ -150,53 +150,56 @@ func TestCanonicalizeSurrogateCollisionIsClosed(t *testing.T) {
 // The vocabulary path, end to end
 // ---------------------------------------------------------------------------
 
-// origLabels and origCaught are the vocabulary aeetest.Build emits.
-var (
-	origLabels = []string{"egress_captured", "no_egress"}
-	origCaught = []string{"egress_captured"}
-)
+// origLabels is the labels array aeetest.Build emits before any mutation.
+var origLabels = []string{"egress_captured", "no_egress"}
 
-// vocabularyDigest derives the observationVocabulary digest exactly as GATE 0
-// derives it: over the JCS bytes of {"caught":[...],"labels":[...]} built from
-// the DECODED labels. Deriving it this way is what makes each test below a
-// single-fault vector: the digest the mutated statement carries is the one the
-// pre-fix rail computed for it, so vocabulary-digest-mismatch is not the
-// finding and the surrogate is.
-func vocabularyDigest(t *testing.T, labels []string) string {
+// withVocabularyLabels returns a statement whose observationVocabulary labels
+// array is the given RAW JSON element sources, so a test can put bytes on the
+// wire that no Go string can carry through a decode.
+//
+// It gets there by BUILDING with the decoded labels and substituting the raw
+// sources afterwards, rather than by rewriting the array and patching up the
+// digest beside it. The two produce the same bytes for the label array and
+// different bytes for everything derived from it, and the difference is what
+// makes each test below a single-fault vector. The vocabulary digest is one
+// such derived value; so is the run binding, which folds that digest in, and so
+// is every record signature and the batch root over them. Patching only the
+// digest left the records bound to a vocabulary the statement no longer
+// carried, and the mutation cases then reported a binding mismatch rather than
+// the byte-level fault they exist to pin. Deriving over the DECODED labels is
+// deliberate and unchanged: those are the values a lenient rail reads, so the
+// statement is exactly the one such a rail computed as self-consistent.
+func withVocabularyLabels(t *testing.T, rawLabels []string) []byte {
 	t.Helper()
-	pre, err := json.Marshal(map[string]any{"caught": origCaught, "labels": labels})
-	if err != nil {
-		t.Fatal(err)
-	}
-	canon, err := aee.Canonicalize(pre)
-	if err != nil {
-		t.Fatalf("canonicalize vocabulary pre-image: %v", err)
-	}
-	return aee.SHA256Hex(canon)
-}
-
-// withVocabularyLabels rewrites a built statement's observationVocabulary
-// labels array to the given RAW JSON element sources (so a test can put bytes
-// on the wire that no Go string can carry through a decode), and rewrites the
-// carried vocabulary digest to match the decoded result.
-func withVocabularyLabels(t *testing.T, statement []byte, rawLabels []string) []byte {
-	t.Helper()
-	oldArray := `"labels":["egress_captured","no_egress"]`
-	newArray := `"labels":[` + strings.Join(rawLabels, ",") + `]`
-	if bytes.Count(statement, []byte(oldArray)) != 1 {
-		t.Fatalf("built statement does not carry exactly one %s", oldArray)
-	}
-	out := bytes.Replace(statement, []byte(oldArray), []byte(newArray), 1)
-
 	var decoded []string
 	if err := json.Unmarshal([]byte(`[`+strings.Join(rawLabels, ",")+`]`), &decoded); err != nil {
 		t.Fatalf("mutated labels are not a JSON array of strings: %v", err)
 	}
-	oldDigest, newDigest := vocabularyDigest(t, origLabels), vocabularyDigest(t, decoded)
-	if bytes.Count(out, []byte(oldDigest)) != 1 {
-		t.Fatalf("built statement does not carry exactly one vocabulary digest %s", oldDigest)
+	if len(decoded) < len(origLabels) {
+		t.Fatalf("mutated labels drop one of the built-in labels: %q", decoded)
 	}
-	return bytes.Replace(out, []byte(oldDigest), []byte(newDigest), 1)
+	extras := decoded[len(origLabels):]
+	out := aeetest.Build(aeetest.Options{ExtraVocabularyLabels: extras})
+
+	// Each appended label was serialized by the builder's canonicalizer; swap
+	// that serialization for the raw source the case names. One occurrence at a
+	// time, because two distinct raw sources may share one decoded form and the
+	// second substitution must not land on the first source's site.
+	for i, extra := range extras {
+		encoded, err := json.Marshal(extra)
+		if err != nil {
+			t.Fatal(err)
+		}
+		canon, err := aee.Canonicalize(encoded)
+		if err != nil {
+			t.Fatalf("canonicalize appended label %q: %v", extra, err)
+		}
+		if !bytes.Contains(out, canon) {
+			t.Fatalf("built statement does not carry the appended label %q", extra)
+		}
+		out = bytes.Replace(out, canon, []byte(rawLabels[len(origLabels)+i]), 1)
+	}
+	return out
 }
 
 // TestVocabularyMutationHarnessIsSound is the control for every mutation test
@@ -204,7 +207,7 @@ func withVocabularyLabels(t *testing.T, statement []byte, rawLabels []string) []
 // statement that still verifies VALID. Whatever the surrogate cases report is
 // therefore caused by the surrogate and by nothing the harness did.
 func TestVocabularyMutationHarnessIsSound(t *testing.T) {
-	mutated := withVocabularyLabels(t, aeetest.Build(aeetest.Options{}),
+	mutated := withVocabularyLabels(t,
 		[]string{`"egress_captured"`, `"no_egress"`, `"zz_extra"`})
 	r := aee.Verify(mutated, pinnedPolicy())
 	if r.Verdict != aee.VerdictValid {
@@ -256,7 +259,7 @@ func TestVocabularyLoneSurrogateIsRejected(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			mutated := withVocabularyLabels(t, aeetest.Build(aeetest.Options{}), tc.rawLabels)
+			mutated := withVocabularyLabels(t, tc.rawLabels)
 
 			// The statement must not parse at all: the fault is on the bytes,
 			// and the decode that follows would erase it.
@@ -291,7 +294,7 @@ func TestVocabularyValidSurrogatePairIsRejectedAsNonBMP(t *testing.T) {
 		`"` + esc(0xD83D, 0xDE00) + `"`, // U+1F600 written as a well-formed escape pair
 		"\"\U0001F600\"",                // and as the literal character in UTF-8
 	} {
-		mutated := withVocabularyLabels(t, aeetest.Build(aeetest.Options{}),
+		mutated := withVocabularyLabels(t,
 			[]string{`"egress_captured"`, `"no_egress"`, label})
 		if _, err := aee.ParseStatement(mutated); err != nil {
 			t.Fatalf("ParseStatement(%s) = %v, want nil: a well-formed pair is legal I-JSON", label, err)

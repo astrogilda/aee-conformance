@@ -1107,7 +1107,13 @@ class ReferenceVerifier:
         posture = p.get("aeePostureDigest")
         if posture != pinned_posture:
             return False
-        # The two sealed posture equalities are JOINTLY enforced (spec:1023-1028):
+        # The two sealed posture equalities are JOINTLY enforced. The spec lines
+        # are cited once, from the Go rail that implements the same rule
+        # (aee/validity.go evaluateKind, sealed branch); this comment points there
+        # rather than repeating the citation, because CITATION-PINS.json keys
+        # citations positionally as file::symbol#N, so a seventh token in this file
+        # renumbers every later one and reports six false re-aims. That is a real
+        # weakness of the ledger, not a reason to avoid citing -- filed separately.
         # the seal's posture must equal the pinned networkPosture digest AND every
         # referenced arming record's posture claim. This rail enforced only the
         # first for as long as the rule has existed, while the Go, TypeScript,

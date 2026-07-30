@@ -73,7 +73,9 @@ gate will not invent one.
 |---|---|---|
 | `aee/validity.go` `checkSubstrateRow` | 37 | Per-row coverage: each observation kind (arming, sealed, examination, interception) has its own spec-mandated constraints, checked in one place. |
 | `aee/statement.go` `Gate0` | 36 | Statement well-formedness enumerates every reserved-member and vocabulary rule the spec lists; the branch count is the rule count. |
+| `cmd/mutgen/mutate.go` `replaceExpr` | 35 | One arm per expression-bearing parent AST node, so the branch count is the node count. A reflect-keyed table would be shorter and would hide which parents are covered; a parent silently absent from it is a mutation that reports success and changes nothing, which scores as a forcing measurement that was never taken. |
 | `aee/validity.go` `evaluateKind` | 27 | Type dispatch over the record kinds, each with a small kind-specific check. |
+| `cmd/mutgen/mutate.go` `collect` | 21 | Type dispatch over the AST node kinds that carry a weakening mutation, each with its own small enumeration rule. The branch count is the operator count, which is the published list in the command's own doc comment. |
 | `aee/statement.go` `gate0CoverageIntegrity` | 19 | The coverage-partition invariant across three disjoint sets against the manifest. |
 | `aee/jcs.go` `decodeValue` | 18 | Recursive JSON value dispatch with the I-JSON profile checks. |
 | `aee/types.go` `parsePredicate` | 18 | One guarded decode per optional predicate member. Each member must record presence separately from value, because the gates distinguish an absent member from one that is present but malformed, so the branch count is the predicate's member count. |

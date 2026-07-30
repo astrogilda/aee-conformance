@@ -66,6 +66,8 @@ aee/                        the verification core
   *_test.go                 unit tests, known answers, the conformance-vector runner
 aeetest/                    deterministic synthetic statement builder (derived TEST keys)
 cmd/aee-verify/             consumer CLI: gate0 → gate1 → recompute → tier table
+cmd/mutgen/                 forcing measurement: enumerate + apply one weakening at a time
+cmd/mutrun/                 forcing measurement: replay the whole corpus in process
 witnessattestor/            SEPARATE module: the go-witness attestor + library-mode demo
 go.work.example             wiring for building the attestor module (see BUILD-NOTES.md)
 ```
@@ -238,6 +240,35 @@ skips with an explicit message when the suite is not yet present. The
 pinned-policy key is derived from the published test-key recipe
 (`seed(role) = SHA-256("in-toto-aee-test-key/<role>/v1")`). Nothing
 private is committed anywhere in this repository.
+
+### What the corpus forces, as a measured number
+
+A vector count is an upper bound on forcing and never a measurement of it. The
+evaluator satisfies a vector when ANY expected code in a stage is observed, and
+the per-stage column the runner prints is a display rather than a verdict: delete
+the `result-vocabulary` emission from the rail and two vectors' gate-0 column goes
+FAIL while the suite still reports 186 of 186, exit 0. A rail with no
+result-vocabulary check at all clears this corpus.
+
+So forcing is measured instead. `scripts/forcing-gate.py` switches off exactly one
+rule in the reference rail, replays every vector, and asks whether the corpus
+notices — 590 single-site weakenings of `aee/`, one rebuild and one full replay
+each. A rule the corpus never notices losing is a rule no third-party implementer
+is obliged to build, whatever the vector count says.
+
+[`docs/FORCING-BASELINE.json`](docs/FORCING-BASELINE.json) is the result, held as a
+tighten-only ratchet: **331 rules forced, 17 seen-but-tolerated, 237 unforced, 5
+unmeasurable.** The four outcomes stay apart on purpose — "we could not measure it"
+and "the corpus does not force it" are different claims and only one is a gap — and
+four sites carry an annotation saying that "unforced" is the wrong word for them,
+three because the weakened rail computes exactly what the original computes and one
+because an earlier check reaches it first on every input that could get there. Those
+annotations are claims the gate falsifies: an annotated site that is ever killed
+fails the build.
+
+CI runs the ratchet on every push over the rules the baseline records as forced —
+the complete set where a regression is possible — and sweeps all 590 sites nightly,
+which is what can see forcing improve.
 
 ### Condition ids
 

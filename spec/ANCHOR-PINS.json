@@ -1052,6 +1052,12 @@
       "opens": "independent claim. A consumer MUST be able to recompute it from the rest of",
       "closes": "follow the same verify-then-read discipline: the fields inside a payload mean"
     },
+    "vectors/reject/gen_invalid_vectors.py::3#0": {
+      "anchor": "L393-395",
+      "digest": "ec00941d8e3d6b421f4e728dad52e0609e4201ebeca6355b696630fd13eccf1e",
+      "opens": "first condition holds when any `attackResults` row carries a",
+      "closes": "(`observationVocabulary.caught`), a label outside the carried"
+    },
     "vectors/reject/gen_invalid_vectors.py::4#0": {
       "anchor": "L396-397",
       "digest": "ec1c73ed105ad63867fbaad86ace70b06b0a00c28f1f2f06198abe8b5515e39f",
@@ -1069,6 +1075,12 @@
       "digest": "12c8437ebd1f7f28bbf889ec01777968416c4b3ee9cd0fad0cdc3394fa60e9cd",
       "opens": "contributes `fail`. The second holds when `coverage.outOfScope` or",
       "closes": "`coverage.routedElsewhere` is non-empty, and it contributes `degraded`. The"
+    },
+    "vectors/reject/gen_invalid_vectors.py::7#0": {
+      "anchor": "L400-403",
+      "digest": "4e6e183e90703d42c9d1247594c559545b511a019b742f02d431edd146266977",
+      "opens": "third holds when any clean row, meaning a row whose `containmentObserved`",
+      "closes": "it contributes `pass_indirect`. A condition that does not hold contributes"
     },
     "vectors/reject/gen_invalid_vectors.py::10#0": {
       "anchor": "L487",
@@ -1099,6 +1111,18 @@
       "digest": "ec4ca83192f4a9136670bc2891d52e1928d432d0055379e331ce83e977b861b1",
       "opens": "`examination` record; a clean row with `method: intercepted`",
       "closes": "at its class definition);"
+    },
+    "vectors/reject/gen_invalid_vectors.py::15#0": {
+      "anchor": "L689-691",
+      "digest": "7ef397c936777f8e3491f76fccd3a2ebad9a6f3abab4a72b44d0ac502f1b2051",
+      "opens": "gate outcome. `arming`, `sealed`, and",
+      "closes": "every row earned under it. The single normative reading of this value is its"
+    },
+    "vectors/reject/gen_invalid_vectors.py::16#0": {
+      "anchor": "L684-689",
+      "digest": "54f3548a15be2cc003cc11eb279ef4247d5bc37fed8f3545de1d1585c521d6bc",
+      "opens": "A row MAY carry `observationSelectors`, an array of",
+      "closes": "gate outcome. `arming`, `sealed`, and"
     },
     "vectors/reject/gen_invalid_vectors.py::17#0": {
       "anchor": "L496-497",
@@ -1160,6 +1184,12 @@
       "opens": "single-record tree's root its leaf hash, and an empty array with no root.",
       "closes": "single-record tree's root its leaf hash, and an empty array with no root."
     },
+    "vectors/reject/gen_invalid_vectors.py::28#0": {
+      "anchor": "L1147",
+      "digest": "c7d07beda78a7d7ec649e0c5963b941659f3668a9e444de809493192ce5fbf1f",
+      "opens": "single-record tree's root its leaf hash, and an empty array with no root.",
+      "closes": "single-record tree's root its leaf hash, and an empty array with no root."
+    },
     "vectors/reject/gen_invalid_vectors.py::29#0": {
       "anchor": "L1149-1150",
       "digest": "5ee52f2390f6d383e6b25c8907752c17d12545a6cf3f16483367a12a71c92057",
@@ -1178,11 +1208,59 @@
       "opens": "`arming` and `sealed` records. The root commits to the set the statement",
       "closes": "`basis: artifact` rows."
     },
+    "vectors/reject/gen_invalid_vectors.py::32#0": {
+      "anchor": "L1142-1146",
+      "digest": "b44c5f626d94e624cc60406f18bb6ca83adb3240358b7a659804b71c109c0c6a",
+      "opens": "An RFC 6962 Merkle root over the observation records, SHA-256, with",
+      "closes": "pad the leaf count), leaves in `observationRecords` array order, a"
+    },
+    "vectors/reject/gen_invalid_vectors.py::33#0": {
+      "anchor": "L537-546",
+      "digest": "21a982b25fbe9de5ef4b7ac5e2ee080215f4bd10352ececef8422073a366c72a",
+      "opens": "**Evidence tier (derived, never carried).** Given a valid attestation, a",
+      "closes": "key policy; it never alters `result`. Consumer policy MAY subdivide"
+    },
+    "vectors/reject/gen_invalid_vectors.py::34#0": {
+      "anchor": "L543-545",
+      "digest": "dbc09dc71078f516e14effe987354de294b77a5f5c2413a71e7b9ccece8c134e",
+      "opens": "consumer with no policy-pinned substrate root MUST treat every `basis:",
+      "closes": "the predicate. The tier is total and deterministic given the consumer's"
+    },
+    "vectors/reject/gen_invalid_vectors.py::35#0": {
+      "anchor": "L1233-1235",
+      "digest": "b0306298aa252f910e3e3ac79c62e73193b85106eaa733b53e18e461324ed5ff",
+      "opens": "as a live one. The check that matters is signature verification against a",
+      "closes": "hint and never the check itself:"
+    },
+    "vectors/reject/gen_invalid_vectors.py::36#0": {
+      "anchor": "L982-984",
+      "digest": "28be11555b417cd6685971a47a57968bbec6abe92bd31e59456ef6c9a9283a60",
+      "opens": "and `signatures`, which MUST carry at least one entry. A consumer verifies",
+      "closes": "relying on any field inside the payload. The order is deliberate and the"
+    },
+    "vectors/reject/gen_invalid_vectors.py::36#1": {
+      "anchor": "L480-481",
+      "digest": "b9250a10bcea792d3d0e810417a9c4d477ebcc1b37fb132c4b8adf247f934400",
+      "opens": "payloads but never signatures or consumer policy, so they are a pure function",
+      "closes": "of the carried statement, and that is what makes them runnable by a consumer"
+    },
+    "vectors/reject/gen_invalid_vectors.py::38#0": {
+      "anchor": "L550-552",
+      "digest": "1d61114461d32546c27221293fd5dc9c8638dc2d2ff64df27380a2d39a1e4429",
+      "opens": "beginning with `aee` are reserved. A carried predicate member named",
+      "closes": "prefix `aee`, MUST be ignored and MUST NOT alter the derivation."
+    },
     "vectors/reject/gen_invalid_vectors.py::41#0": {
       "anchor": "L723-724",
       "digest": "dd8790933b9d8ef12637d31c98d953d53016ddacdd1be37f3bfc869ded976f95",
       "opens": "`basis` states each observation's vantage, with a closed two-value",
       "closes": "vocabulary:"
+    },
+    "vectors/reject/gen_invalid_vectors.py::43#0": {
+      "anchor": "L795-799",
+      "digest": "f05d28fa9daf0d7536f0dc40d263a198e022776dd671698141cf33d211c024fd",
+      "opens": "`result` to `fail` and can support nothing stronger. The 0.4 values",
+      "closes": "rejected. `inferred` has no successor value because it conflated the two"
     },
     "vectors/reject/gen_invalid_vectors.py::42#0": {
       "anchor": "L758-759",
@@ -1213,6 +1291,18 @@
       "digest": "de9df6c7bc49ff92e6a889c7a54f268ae5a57b68d1f10fc6db1b127c8e4a8400",
       "opens": "`containmentObserved` label is from the carried",
       "closes": "accidental omission. `none` is also valid on a caught row, and there"
+    },
+    "vectors/reject/gen_invalid_vectors.py::49#0": {
+      "anchor": "L963-966",
+      "digest": "80f3f201b5efa3fbe6998eb83320ddd3a999a5969b60ad91b0442b77832a7501",
+      "opens": "accidental omission. `none` is also valid on a caught row, and there",
+      "closes": "tap, a monitor-only deployment). This is deliberate: enforcement role"
+    },
+    "vectors/reject/gen_invalid_vectors.py::50#0": {
+      "anchor": "L949-950",
+      "digest": "3e11f4c59bb79b798627db6c6318bf0de18a0f911e632cf55da2a3eddd0d32e2",
+      "opens": "`actualLayer` names the enforcement layer that acted on the row's",
+      "closes": "containment event. It is required on every row; a row missing the member"
     },
     "vectors/reject/gen_invalid_vectors.py::51#0": {
       "anchor": "L566-574",
@@ -1262,6 +1352,12 @@
       "opens": "**Run binding.** For any statement carrying at least one `basis: substrate`",
       "closes": "\"<subject[0].digest.sha256>\", \"substrate\": \"<substrate.digest.sha256>\"}`."
     },
+    "vectors/reject/gen_invalid_vectors.py::61#0": {
+      "anchor": "L550-552",
+      "digest": "1d61114461d32546c27221293fd5dc9c8638dc2d2ff64df27380a2d39a1e4429",
+      "opens": "beginning with `aee` are reserved. A carried predicate member named",
+      "closes": "prefix `aee`, MUST be ignored and MUST NOT alter the derivation."
+    },
     "vectors/reject/gen_invalid_vectors.py::62#0": {
       "anchor": "L212-220",
       "digest": "72e40e58b8f26b4c318d2fea06485514ad0e4fcdbaeac5a755b4574414c7afc6",
@@ -1303,6 +1399,12 @@
       "digest": "c88fbba8fa1a96599633a5b69a83625d20cba1a148f82346125e743a6bc798eb",
       "opens": "record whose `aeeKind` the consumer does not recognize covers nothing and",
       "closes": "strengthen, a row (candidate future kinds, informatively: a hardware-quote"
+    },
+    "vectors/reject/gen_invalid_vectors.py::73#0": {
+      "anchor": "L1112-1114",
+      "digest": "b8341ecd493faebf9795c8009b08366b3cf9ed98ee040a504ff19ed8ed8fd71a",
+      "opens": "carrying a transparency-service receipt over the arming record). The `aee` member prefix is r...",
+      "closes": "in the payload stays producer territory."
     },
     "vectors/reject/gen_invalid_vectors.py::75#0": {
       "anchor": "L220-224",

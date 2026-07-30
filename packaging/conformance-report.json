@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 179,
-    "pass": 179,
+    "vectors": 186,
+    "pass": 186,
     "fail": 0
   },
   "notes": [],
@@ -1080,6 +1080,54 @@
       "expected": {
         "verdict": "valid",
         "result": "pass_indirect"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "ok-900-fail-outranks-degraded",
+      "file": "vectors/accept/ok-900-fail-outranks-degraded.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "result": "fail"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "ok-901-row-missing-basis",
+      "file": "vectors/accept/ok-901-row-missing-basis.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "result": "fail"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
       },
       "inManifest": true,
       "reasons": []
@@ -2848,7 +2896,8 @@
       "observed": {
         "verdict": "invalid",
         "codes": [
-          "arming-covers-nothing"
+          "arming-covers-nothing",
+          "sealed-covers-nothing"
         ],
         "result": null
       },
@@ -4889,6 +4938,146 @@
         "verdict": "invalid",
         "codes": [
           "posture-vocabulary"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-900-sealed-method-reconstructed",
+      "file": "vectors/reject/bad-900-sealed-method-reconstructed.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-901-sealed-negative-dropcount",
+      "file": "vectors/reject/bad-901-sealed-negative-dropcount.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-902-sealed-posture-ne-arming",
+      "file": "vectors/reject/bad-902-sealed-posture-ne-arming.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-905-vocabulary-labels-absent",
+      "file": "vectors/reject/bad-905-vocabulary-labels-absent.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "vocabulary-not-canonical"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "vocabulary-not-canonical"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-906-corpus-manifest-absent",
+      "file": "vectors/reject/bad-906-corpus-manifest-absent.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "environment-incomplete"
+        ],
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "environment-incomplete"
         ]
       },
       "inManifest": true,

@@ -1,0 +1,225 @@
+#!/usr/bin/env python3
+"""External-rail gate: the CLI this repository ships must clear the corpus it
+ships, driven the way the README tells a third party to drive one.
+
+The README advertises `cmd/aee-verify` as a consumer implementation and, a few
+sections later, tells an outside implementer how to wire a rail into
+`packaging/run_vectors.py`. Nothing ever ran the first against the second. When
+somebody finally did, the shipped CLI scored 0 of 186: its `-json` mode wrote
+`json.MarshalIndent`, and the harness reads the LAST line of stdout, which in an
+indented object is `}`. Every vector fell back to the exit status alone, which
+the README itself says fails every vector in the suite. Two documented
+contracts, each internally consistent, each describing the other's counterpart
+wrongly, for as long as both have existed.
+
+So this gate does not assert a property of the output. It runs the real corpus
+through the real harness against the real binary and requires a clean sweep,
+because that is the claim the README makes and the only check that could have
+caught what was there.
+
+Three things are checked, each failing on a different regression:
+
+1. the shipped CLI clears every vector as an external rail;
+2. its machine-readable output is ONE line the harness's own parse function
+   reads back, rather than valid JSON that arrives unreadable;
+3. the no-pinned-key tier column is observed from outside this process AND
+   binds -- the harness skips a column it was handed nothing for, so an
+   expectation that no external rail can express is an expectation nothing can
+   fail. Check 3 drives a TOFU'd answer through the evaluator and requires it
+   to be rejected.
+
+Usage: python3 scripts/external-rail-gate.py
+Needs a Go toolchain. Exit 0 when the shipped CLI satisfies its own published
+contract; 1 on any disagreement; a missing toolchain is a FAILURE, not a skip.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+from typing import Any
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+MANIFEST = REPO_ROOT / "vectors" / "MANIFEST.json"
+HARNESS = REPO_ROOT / "packaging" / "run_vectors.py"
+
+sys.path.insert(0, str(REPO_ROOT / "packaging"))
+
+import run_vectors  # noqa: E402
+
+
+def build_cli(dest_dir: str) -> str:
+    """Build cmd/aee-verify, or fail. Never returns without a binary."""
+    binary = os.path.join(dest_dir, "aee-verify")
+    try:
+        proc = subprocess.run(
+            ["go", "build", "-o", binary, "./cmd/aee-verify"],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            timeout=600,
+        )
+    except (OSError, subprocess.TimeoutExpired) as e:
+        print(
+            f"FAIL: cmd/aee-verify could not be built ({e}). This gate needs a Go "
+            "toolchain; it does not skip, because a skipped external-rail check is "
+            "how the shipped CLI came to score 0 of 186 unnoticed.",
+            file=sys.stderr,
+        )
+        raise SystemExit(1) from e
+    if proc.returncode != 0:
+        print(
+            "FAIL: cmd/aee-verify does not build:\n"
+            + proc.stderr.decode("utf-8", "replace"),
+            file=sys.stderr,
+        )
+        raise SystemExit(1)
+    return binary
+
+
+def check_full_corpus(binary: str, work_dir: str) -> list[str]:
+    """The claim itself: this CLI, driven as the README says, clears the suite."""
+    report_path = os.path.join(work_dir, "external-rail-report.json")
+    proc = subprocess.run(
+        [
+            sys.executable,
+            str(HARNESS),
+            "--verifier",
+            f"{binary} -json",
+            "--report",
+            report_path,
+        ],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        timeout=1800,
+    )
+    if not os.path.isfile(report_path):
+        return [
+            "the harness wrote no report driving the shipped CLI (exit "
+            f"{proc.returncode}):\n{proc.stdout.decode('utf-8', 'replace')[-4000:]}"
+        ]
+    report = json.loads(Path(report_path).read_text(encoding="utf-8"))
+    errors: list[str] = []
+    if report.get("rail") != "external":
+        errors.append(
+            "the harness fell back to the reference rail "
+            f"({report.get('externalVerifierProbe')!r}), so nothing below tested "
+            "the shipped CLI at all"
+        )
+    totals = report.get("totals") or {}
+    if totals.get("fail") or proc.returncode != 0:
+        failed = [r["id"] for r in report.get("vectors", []) if r.get("status") != "PASS"]
+        errors.append(
+            f"the shipped cmd/aee-verify does not clear its own corpus as an external "
+            f"rail: {totals.get('pass')} of {totals.get('vectors')} pass, harness exit "
+            f"{proc.returncode}; first failures {failed[:5]}"
+        )
+    return errors
+
+
+def check_single_line(binary: str) -> list[str]:
+    """The harness's own parse function, against the shipped CLI's own output."""
+    vector = REPO_ROOT / "vectors" / "accept" / "ok-024-mixed-basis-rows.json"
+    parsed = run_vectors.run_external([binary, "-json"], str(vector), None, "gate")
+    errors: list[str] = []
+    if parsed["verdict"] != "valid" or parsed["result"] is None or parsed["tiers"] is None:
+        errors.append(
+            "run_external read no report back from `aee-verify -json`: got "
+            f"{parsed!r}. The last stdout line has to BE the report; valid JSON "
+            "spread over several lines arrives as nothing."
+        )
+    raw = subprocess.run(
+        [binary, "-json", str(vector)], capture_output=True, timeout=120
+    ).stdout.decode("utf-8", "replace")
+    lines = [ln for ln in raw.splitlines() if ln.strip()]
+    if len(lines) != 1:
+        errors.append(
+            f"`aee-verify -json` wrote {len(lines)} non-blank lines; the harness reads "
+            "only the last, so every earlier line is unreachable by construction"
+        )
+    return errors
+
+
+def _tier_entry(manifest: dict[str, Any]) -> dict[str, Any]:
+    for entry in manifest["vectors"]:
+        typed: dict[str, Any] = entry
+        if (typed.get("expected") or {}).get("tierWithoutKey"):
+            return typed
+    print(
+        "FAIL: no vector declares tierWithoutKey, so the corpus states GATE 2's "
+        "no-TOFU rule nowhere and this gate has nothing to hold to.",
+        file=sys.stderr,
+    )
+    raise SystemExit(1)
+
+
+def check_no_key_column_binds(binary: str, work_dir: str, manifest: dict[str, Any]) -> list[str]:
+    """Observed from outside, and fatal when wrong.
+
+    Both halves matter. The harness compares a tier column only when the rail
+    reported one, so an external rail that could not report the no-key column --
+    which, before the key policy got an environment channel, was every external
+    rail -- passed the expectation by not answering it.
+    """
+    entry = _tier_entry(manifest)
+    expected = entry["expected"]["tierWithoutKey"]
+    keys_path = run_vectors.write_pinned_key_policy(run_vectors.derive_test_keys(), work_dir)
+    vector = REPO_ROOT / "vectors" / entry["file"]
+    observed = run_vectors.observe_external([binary, "-json"], str(vector), keys_path)
+    errors: list[str] = []
+    if observed["tiers_without_key"] != expected:
+        errors.append(
+            f"`{entry['id']}` tierWithoutKey: the external rail reported "
+            f"{observed['tiers_without_key']!r}, expected {expected!r}"
+        )
+    if observed["tiers_with_key"] != entry["expected"]["tierWithPinnedKey"]:
+        errors.append(
+            f"`{entry['id']}` tierWithPinnedKey: the external rail reported "
+            f"{observed['tiers_with_key']!r}, expected "
+            f"{entry['expected']['tierWithPinnedKey']!r}"
+        )
+    # And the expectation has to be capable of failing. A rail that trusted the
+    # predicate's own substrate root on first sight would report the pinned-key
+    # column for both passes; the evaluator must reject that.
+    tofu = dict(observed, tiers_without_key=observed["tiers_with_key"])
+    passed, _gates, _reasons = run_vectors.evaluate_vector("accept", entry, tofu, None)
+    if passed:
+        errors.append(
+            f"`{entry['id']}` accepted a rail that derived the pinned-key tiers with no "
+            "pinned key (TOFU), so the no-TOFU rule is stated in the MANIFEST and "
+            "enforced against nothing"
+        )
+    return errors
+
+
+def main() -> int:
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    with tempfile.TemporaryDirectory(prefix="aee-external-rail-gate-") as work_dir:
+        binary = build_cli(work_dir)
+        errors = (
+            check_single_line(binary)
+            + check_no_key_column_binds(binary, work_dir, manifest)
+            + check_full_corpus(binary, work_dir)
+        )
+    if errors:
+        print(
+            f"FAIL: the shipped CLI and the external-rail contract it is published "
+            f"under disagree ({len(errors)} disagreement(s)):",
+            file=sys.stderr,
+        )
+        for e in errors:
+            print(f"  - {e}", file=sys.stderr)
+        return 1
+    print(
+        "OK: cmd/aee-verify clears the published corpus as an external rail, its "
+        "machine-readable output is one line the harness reads back, and the "
+        "no-pinned-key tier column is both observable from outside and fatal when wrong."
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

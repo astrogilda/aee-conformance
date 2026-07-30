@@ -42,6 +42,18 @@ jobs:
         run: |
           go test ./aee/... ./cmd/... -race -count=1
           (cd witnessattestor && go test ./... -race -count=1)
+      # The README advertises cmd/aee-verify as a consumer implementation and
+      # separately tells a third party how to wire a rail into the harness.
+      # Nothing ran the one against the other, and the shipped CLI scored 0 of
+      # 186 the first time anybody tried: its -json mode wrote indented JSON,
+      # and the harness parses the last line of stdout. This step runs the real
+      # corpus through the real harness against the freshly built binary. It
+      # lives in this job rather than the Python one because it needs the Go
+      # toolchain, and it refuses rather than skips when that toolchain is
+      # absent.
+      - name: the shipped CLI clears the published corpus as an external rail
+        run: python3 scripts/external-rail-gate.py
+
       - name: coverage (per-file 80% minimum)
         run: |
           go test ./aee/... ./cmd/... -coverprofile=core.cov -count=1
@@ -89,7 +101,7 @@ jobs:
       - name: sync toolchain
         run: uv sync --extra dev --extra generators
       - name: mypy --strict
-        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/consumer-lag-gate.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py
+        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/consumer-lag-gate.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/external-rail-gate.py
       - name: ruff
         run: uv run ruff check packaging vectors scripts
       # The other half of the accepted-complexity gate. It runs here rather than
@@ -154,5 +166,5 @@ jobs:
       # had no row behind it at all.
       - name: consumers carry the corpus this repository publishes, and the report says so
         run: python3 scripts/consumer-lag-gate.py --check
-      - name: replay every vector on the Python rail (must be 179/179)
+      - name: replay every vector on the Python rail (must be 186/186)
         run: python3 packaging/run_vectors.py

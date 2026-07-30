@@ -59,6 +59,24 @@ proposal out of draft.
 
 ## Known gaps in the gates
 
+- [ ] **Forcing is measured against ONE rail, so a rule only the Python rail states is
+  invisible to it.** `scripts/forcing-gate.py` weakens `aee/` and replays; a rule the Go rail
+  does not implement has no mutation site and therefore no row, and the two first-party rails
+  are held to one vocabulary by `scripts/code-contract-gate.py` but not to one rule set. The
+  same measurement over `packaging/run_vectors.py` needs a Python mutation operator set and a
+  second baseline. File: `scripts/forcing-gate.py`.
+- [ ] **A weakening the operator set cannot express is scored as nothing at all.** The eleven
+  operators switch off a guard, a disjunct, a conjunct, a switch arm, a bool return or an
+  emission. A rule that lives in a constant (a bound, a depth cap, a media type), in the ORDER
+  of two checks, or in a data table is not a site, so it appears in no class -- not even as a
+  gap. 590 sites is the size of what can be asked, never the size of the rail. File:
+  `cmd/mutgen/mutate.go`.
+- [ ] **The 157 unforced rules on branches no vector takes are a list, not a plan.** The
+  nightly sweep re-derives which surviving mutants sit on a branch the corpus never enters,
+  which is the evidence separating a mintable gap from one no new vector could close. Nothing
+  yet drives that number down, and nothing distinguishes the rules worth a vector from the
+  ones that are unreachable for a reason. File: `docs/FORCING-BASELINE.json`.
+
 - [ ] **A vendored copy that is refreshed, recorded, then reverted stays green.** The
   consumer-lag gate compares `vectors/CONSUMERS.json` against the corpus published here,
   and that ledger records what each copy carried when it was last synced. A copy reverted
@@ -119,6 +137,46 @@ proposal out of draft.
   File: `scripts/interpretation-registry-gate.py`.
 
 ## Recently landed
+
+- [x] **Make forcing a measured property rather than a periodic audit** (2026-07-30) -- what the
+  corpus obliges a verifier to implement is now a number CI holds, not an argument. A vector
+  count never measured it: the evaluator satisfies a vector when any expected code in a stage is
+  observed, so deleting the `result-vocabulary` emission turns two vectors' gate-0 column FAIL
+  and the suite still reports 186 of 186, exit 0. `cmd/mutgen` enumerates 590 single-site
+  weakenings of the rail and applies one at a time, `cmd/mutrun` replays the whole corpus in
+  process under both key policies, and `scripts/forcing-gate.py` scores each replay with the
+  harness's own `evaluate_vector` and holds the result as a tighten-only ratchet against
+  `docs/FORCING-BASELINE.json`: 331 KILLED, 17 SILENT, 237 DEAD, 5 INCONCLUSIVE. Site identity is
+  content-addressed (file, function, operator, digest of the mutated source), so an inserted rule
+  disturbs one row instead of renumbering every row below it. Proven able to fail in both
+  directions: deleting `bad-608-digest-uppercase`, the sole forcer of the lowercase-hex digest
+  rule, turns four rows red by name and restoring it turns them green, and deleting the
+  `len(s) != 64` check from `IsLowerHex64` is refused as two retired rules. Per push CI runs the
+  rules recorded as forced -- the complete set where a regression is possible, and the set already
+  known to terminate -- for about 1670 CPU-seconds, against about 3370 for the full sweep a nightly
+  workflow runs, which is the only scope that can see forcing improve or falsify an annotation. Two
+  independent full sweeps produce a byte-identical baseline.
+
+- [x] **Separate unmintable from unminted, and both from unmeasurable** (2026-07-30) -- the
+  baseline carries three states plus two annotations rather than a single gap list. INCONCLUSIVE
+  is its own class, never folded into unforced: two mutants do not terminate, two do not build,
+  one crashes, and nothing is asserted about any of them. Four sites are annotated as ones where
+  "unforced" is the wrong word -- three true equivalent mutants (an empty case arm in a switch with
+  no default; `case ResultFail: return 0`, whose deletion sends fail to a rank that still sorts
+  bottom; `!hasStillArmed`, which `objBool`'s contract makes redundant beside `!stillArmed`) and
+  one masked rule where an earlier check reaches every input that could distinguish it. Both
+  annotation kinds are falsifiable and the gate falsifies them: an annotated site that is ever
+  KILLED fails the build, so an annotation cannot decay into a suppression.
+
+- [x] **Correct three rules the first forcing measurement recorded as unforced** (2026-07-30) --
+  that campaign replayed each vector once, under the pinned key only, and reported
+  `tiers_without_key: None`. The evaluator skips a tier column it was handed nothing for, so
+  GATE 2's no-TOFU rule was compared against nothing and its three implementing sites --
+  `DeriveTiers`'s `policy == nil || len(keys) == 0` guard, its `policy == nil` disjunct, and
+  `anchorPolicyCodes`'s `policy == nil` -- scored DEAD on never-taken branches. Replaying under
+  both key policies, as `run_vectors.observe_external` does, kills all three: `ok-024` forces
+  them. The ground-truth gate is what surfaced it, refusing to score a run whose fast path
+  disagreed with the real CLI on that column.
 
 - [x] **Ask the sync's re-aim question line by line, not only span by span** (2026-07-29) --
   the synchronise refused to move a citation off text still in the document, but only

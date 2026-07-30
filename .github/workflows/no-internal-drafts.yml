@@ -47,7 +47,15 @@ jobs:
           # The repository is deliberately product-neutral: it is the link offered in
           # standards correspondence and conference submissions, and the operator is in
           # stealth. Names were purged from the forward surface on 2026-07-28.
-          if git grep -nIiE 'probity|matchlock|getprobity' -- . ':!.github/workflows/no-internal-drafts.yml'; then
+          #
+          # The bracket in each alternative is why this file no longer has to exempt
+          # itself. A guard that spells out what it forbids publishes the very strings
+          # it exists to keep out of a public tree, and then has to be excluded from
+          # its own scan -- so the one file nobody checks is the one that names them.
+          # `pro[b]ity` matches the word and is not the word, so the pattern can scan
+          # every tracked file including this one, and a reader still sees plainly
+          # what is being matched.
+          if git grep -nIiE 'pro[b]ity|match[l]ock|getpro[b]ity' -- .; then
             echo "::error::A first-party product name is present. This repository must stay product-neutral."
             exit 1
           fi

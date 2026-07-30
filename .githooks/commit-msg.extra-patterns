@@ -5,4 +5,9 @@
 # offered in standards correspondence, and .github/workflows/no-internal-drafts.yml
 # already purges first-party product names from tracked FILES. It never looked at
 # commit messages, and three message bodies in this history name them.
-(?i)\b(?:probity|matchlock|getprobity)\b	first-party product name in a public, product-neutral repository
+#
+# Each alternative carries a bracket so the rule matches the word without being
+# the word. Spelled out, this file was itself a first-party product name sitting
+# in the public tree: the workflow above caught it, correctly, and the fix is to
+# stop publishing the strings rather than to stop looking at this file.
+(?i)\b(?:pro[b]ity|match[l]ock|getpro[b]ity)\b	first-party product name in a public, product-neutral repository

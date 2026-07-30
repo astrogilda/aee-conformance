@@ -184,6 +184,64 @@ ATTRIBUTION_PATTERNS: list[tuple[re.Pattern[str], str]] = [
 
 EXTRA_PATTERNS_FILENAME = "commit-msg.extra-patterns"
 
+#: Optional per-repository commit from which `--check-range` takes effect. Same
+#: sidecar convention as the extra patterns above, and for the same reason: the
+#: value differs per repository, so holding it in data keeps this file
+#: byte-identical everywhere.
+#:
+#: A rule takes effect when it is adopted. Without a baseline, adding this gate
+#: to a repository makes it retroactive over whatever history a push happens to
+#: carry, so the first push after installation fails on messages written before
+#: the rule existed. That is not a finding, and a gate that reports one teaches
+#: people that the correct response to it is `--no-verify`. Commits reachable
+#: from the baseline are reported as skipped, never silently dropped: a count
+#: that vanishes is how a check stops being a check.
+BASELINE_FILENAME = "commit-msg.baseline"
+
+
+def load_baseline() -> str | None:
+    """The commit from which `--check-range` takes effect, or None if unset.
+
+    One revision, `#` comments and blank lines ignored. Absent file means no
+    baseline and the whole range is linted, so this stays portable to a
+    repository that has always had the gate.
+
+    A file that is present but unusable -- empty, more than one revision, or a
+    revision this repository cannot resolve -- is a hard failure. Treating it as
+    "no baseline" would silently widen the check, and treating it as "skip
+    everything" would silently empty it; the second is how a gate comes to
+    report success while enforcing nothing.
+    """
+    path = Path(__file__).resolve().parent / BASELINE_FILENAME
+    if not path.is_file():
+        return None
+    revisions = [
+        line.strip()
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+    if len(revisions) != 1:
+        print(
+            f"commit-msg: {path} must name exactly one revision, "
+            f"found {len(revisions)}",
+            file=sys.stderr,
+        )
+        raise SystemExit(2)
+    resolved = subprocess.run(
+        ["git", "rev-parse", "--verify", f"{revisions[0]}^{{commit}}"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if resolved.returncode != 0:
+        print(
+            f"commit-msg: baseline {revisions[0]!r} in {path} does not resolve "
+            "to a commit in this repository",
+            file=sys.stderr,
+        )
+        raise SystemExit(2)
+    return resolved.stdout.strip()
+
 
 def load_extra_patterns() -> list[tuple[re.Pattern[str], str]]:
     """Load the optional per-repository rules that sit beside this hook.
@@ -423,8 +481,16 @@ def selftest() -> int:
 def check_range(rev_range: str) -> int:
     """Lint every commit message in a revision range (used by CI)."""
     extra = load_extra_patterns()
+    baseline = load_baseline()
+    # `^<baseline>` drops everything the baseline already reaches, which is what
+    # makes the gate effective-from rather than retroactive. It is passed to the
+    # same rev-list that resolves the range, so an unresolvable baseline fails
+    # here rather than quietly widening or emptying the set.
+    argv = ["git", "rev-list", rev_range]
+    if baseline is not None:
+        argv.append(f"^{baseline}")
     listed = subprocess.run(
-        ["git", "rev-list", rev_range],
+        argv,
         capture_output=True,
         text=True,
         check=False,
@@ -449,9 +515,10 @@ def check_range(rev_range: str) -> int:
         if errors:
             bad += 1
             report(errors, f"commit {revision[:12]}")
+    scope = f" (from baseline {baseline[:12]})" if baseline is not None else ""
     print(
-        f"commit-msg: checked {len(revisions)} commit message(s) in {rev_range}; "
-        f"{bad} rejected"
+        f"commit-msg: checked {len(revisions)} commit message(s) in "
+        f"{rev_range}{scope}; {bad} rejected"
     )
     return 1 if bad else 0
 

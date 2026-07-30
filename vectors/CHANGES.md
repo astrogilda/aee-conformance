@@ -5,6 +5,60 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 15 (the corpus is measured, and forces seven rules it did not)
+
+- Corpus: **186 vectors (46 accept, 140 reject)**, up from 179. Seven vectors
+  added; no existing vector file changed, and no record set, batch root, run
+  binding or signature moved. Every addition was mutation-checked before it
+  landed: each fails on a rail with its target check removed and passes on the
+  rail as shipped.
+- **Why these seven.** The corpus was mutation-measured for the first time --
+  590 single-site weakening changes across every rail file, each replayed over
+  all 179 vectors. 316 were killed, 250 were byte-identical on the whole corpus,
+  19 were seen and tolerated. These seven vectors move twelve rules out of the
+  unforced set. The measurement, its harness and its full tables are recorded
+  outside this repository; what belongs here is the corpus delta.
+- **What the measurement corrected about this repository's own harness.** A
+  prior reading of `packaging/run_vectors.py` concluded that a vector's stage
+  passes when any expected code in that stage is observed, and therefore that a
+  rule is forced when its code is alone within its stage. Stages populate a
+  DISPLAY column only. The verdict fires on an empty intersection across all
+  stages, so a per-stage failure never fails a vector. Deleting the
+  `result-vocabulary` emission entirely leaves the suite at 179/179 and exit 0
+  while printing a failed gate on two rows -- a rail with no result-vocabulary
+  check at all was fully conformant. The forcing bar is
+  sole-across-the-whole-code-set, and it is lower than anyone had stated.
+- **Two divergences in the Python reference rail, both found by the new
+  vectors, both fixed here.** Neither was a new regression; both had existed
+  for as long as their rules had, invisible because nothing forced them.
+  - `bad-902-sealed-posture-ne-arming` -- the sealed posture must equal every
+    referenced arming record's posture claim as well as the pinned digest
+    (spec:1023-1028). Go, TypeScript, the standalone Python verifier and the
+    server rail all enforced both equalities; this rail enforced only the
+    pinned one. The vector needs TWO arming records, because with one the
+    pinned-posture check always fires first and the second equality is
+    unreachable -- a rule can be unforced because the corpus shape cannot
+    express its precondition, not because nobody wrote the vector.
+  - `bad-906-corpus-manifest-absent` -- an absent `corpus.manifest` is
+    `environment-incomplete` on the Go rail (`aee/statement.go:249-251`) and was
+    silently accepted here, so the same statement verified `invalid` on one rail
+    and `valid` on another.
+- **The largest gap closed.** `ok-900-fail-outranks-degraded` exercises the
+  composition rule that decides every mixed run. Before it, zero of 179 vectors
+  carried both a fail-forcing row and a non-empty coverage gap, so the ordering
+  that makes a real failure outrank a coverage gap had never been tested; a rail
+  that ranked them the wrong way round passed the entire suite.
+- Added: `ok-900-fail-outranks-degraded`, `ok-901-row-missing-basis`,
+  `bad-900-sealed-method-reconstructed`, `bad-901-sealed-negative-dropcount`,
+  `bad-902-sealed-posture-ne-arming`, `bad-905-vocabulary-labels-absent`,
+  `bad-906-corpus-manifest-absent`.
+- **Deliberately NOT added.** Two further candidates were built and
+  mutation-checked and do not kill: the checks they target are masked by sibling
+  conditions and cannot be forced as this corpus is shaped. They are recorded as
+  unmintable rather than unminted, because a gap list that conflates the two
+  sends the next implementer to write vectors that cannot pass. Two mutants that
+  no vector can ever kill are recorded on the same reasoning.
+
 ## suiteRevision 14 (the vendored text catches up with the corpus)
 
 - Corpus: **179 vectors (44 accept, 135 reject)**. Every vector file is

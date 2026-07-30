@@ -87,23 +87,42 @@ that MUST NOT match (JCS, then SHA-256):
 }
 ```
 
-## Conditions referenced (aee-c ids)
+## Condition registry (aee-c ids)
 
-Stable condition ids used by this suite; the conformance-repo README
-carries the authoritative id-to-spec-line table.
+This table is the id-to-spec-line registry, and it is the only one:
+no other file in this repository carries a second copy. It covers
+EVERY id the suite cites, in either direction, so an id carried only
+by an accept vector resolves here rather than nowhere. Until
+2026-07-30 the table listed only the ids the reject set happened to
+use and this paragraph named a table in the repository README that
+has never existed, which left 17 ids cited by vectors and resolvable
+to no rule at all.
+
+`scripts/condition-registry-gate.py` fails when a condition a vector
+cites has no row here, and when a row here names a condition no
+vector cites, so neither direction can drift again unnoticed.
+
+A row reading `UNRESOLVED` is one whose meaning could not be
+established from the specification and the rails. It records the
+candidate reading and says it is a candidate, because a registry row
+that guesses is worse than one that is missing: it looks resolved.
 
 | id | spec anchor | condition |
 |---|---|---|
 | aee-c-1 | L388 | closed lowercase result vocabulary |
 | aee-c-2 | L343-346 | result must equal the recompute |
+| aee-c-3 | L393-395 | a row carrying a label from the carried caught set contributes fail |
 | aee-c-4 | L396-397 | fail-closed on out-of-vocabulary label |
 | aee-c-5 | L396-397 | fail-closed on missing/out-of-vocab basis or method |
 | aee-c-6 | L398-399 | degraded iff disclosed coverage gap |
+| aee-c-7 | L400-403 | UNRESOLVED -- ok-002 is the sole carrier and the corpus does not separate this id from aee-c-2. Candidate reading, recorded rather than asserted: the third recompute condition, which contributes pass_indirect when some clean row is not (substrate, intercepted) and pass when none is |
 | aee-c-10 | L487 | observationRefs non-empty on substrate rows |
 | aee-c-11 | L487-488 | every ref index in range (integer) |
 | aee-c-12 | L489-491 | caught intercepted row refs an interception record |
 | aee-c-13 | L491-492 | reconstructed row refs an examination record |
 | aee-c-14 | L492-495 | clean intercepted row refs arming AND covering sealed |
+| aee-c-15 | L689-691 | one run-level arming/sealed/examination record covers every row earned under it |
+| aee-c-16 | L684-689 | observationSelectors is producer vocabulary positionally parallel to observationRefs; no gate reads it |
 | aee-c-17 | L496-497 | covering payload is canonical RFC 8785 |
 | aee-c-18 | L992-996 | covering payload is valid I-JSON (RFC 7493) |
 | aee-c-19 | L997-998 | covering media type ends in +json |
@@ -114,14 +133,25 @@ carries the authoritative id-to-spec-line table.
 | aee-c-25 | L1142-1145 | RFC 6962 domain-separated hashing |
 | aee-c-26 | L1145-1147 | RFC 6962 recursive split, never duplicate-pad |
 | aee-c-27 | L1147 | leaves in array order |
+| aee-c-28 | L1147 | a single-record tree's root is its leaf hash |
 | aee-c-29 | L1149-1150 | duplicate byte-identical records invalid |
 | aee-c-30 | L1152-1154 | batchRoot must recompute |
 | aee-c-31 | L1157-1167 | batchRoot omitted exactly when records absent |
+| aee-c-32 | L1142-1146 | batchRoot is over every carried record in array order, referenced by a row or not |
+| aee-c-33 | L537-546 | the evidence tier is derived per row and never carried: artifact is declared, substrate is attested when every covering signature verifies under consumer policy and unattested otherwise, and the tier never alters result |
+| aee-c-34 | L543-545 | no TOFU: a consumer with no policy-pinned substrate root treats every substrate row as unattested and MUST NOT infer the root from the predicate |
+| aee-c-35 | L1233-1235 | keyid is an unauthenticated lookup hint, never the check |
+| aee-c-36 | L982-984; L480-481 | a record signature is DSSE PAE over (payloadType, payload); the byte-pure validity gate never reads a signature, so a signature that does not verify is a tier fact and not a validity fault |
+| aee-c-38 | L550-552 | a carried predicate-level evidenceTier member MUST be ignored |
+| aee-c-41 | L723-724 | basis required, closed {substrate, artifact} |
 | aee-c-42 | L758-759 | method required, closed {intercepted, reconstructed} |
+| aee-c-43 | L795-799 | the retired 0.4 basis and method values are out-of-vocabulary, with no alias |
 | aee-c-44 | L531-535 | fail-closed substrate row invalidates; artifact row stays a valid fail |
 | aee-c-45 | L769-775 | weakest-input method composition |
 | aee-c-47 | L949-957 | missing actualLayer = malformed statement, not fail |
 | aee-c-48 | L958-963 | clean row actualLayer is the literal none |
+| aee-c-49 | L963-966 | the literal none is valid on a caught row too, and states that the event was observed and no enforcement layer acted |
+| aee-c-50 | L949-950 | actualLayer names the enforcement layer that acted on the row's containment event |
 | aee-c-51 | L566-574 | observationVocabulary required |
 | aee-c-52 | L570-572 | caught is a subset of labels |
 | aee-c-53 | L572 | vocabulary arrays sorted ascending, no duplicates |
@@ -130,6 +160,7 @@ carries the authoritative id-to-spec-line table.
 | aee-c-58 | L193-196 | exactly one subject on a statement of any basis |
 | aee-c-59 | L193-207 | binding digest inputs lowercase 64-hex sha256 |
 | aee-c-60 | L157-165 | binding pre-image construction |
+| aee-c-61 | L550-552 | a predicate-level member beginning with the reserved aee prefix MUST be ignored |
 | aee-c-62 | L212-220 | binding is anti-splice |
 | aee-c-63 | L1003-1007 | arming record kind constraints |
 | aee-c-64 | L1008-1012 | sealed record required members |
@@ -137,6 +168,7 @@ carries the authoritative id-to-spec-line table.
 | aee-c-66 | L1013-1015 | examination signed aeeMethod reconstructed |
 | aee-c-68 | L885-886 | each referenced record independently satisfies its class constraints |
 | aee-c-71 | L1106-1110 | unknown aeeKind covers nothing |
+| aee-c-73 | L1112-1114 | the aee payload member prefix is reserved; every other payload member is producer territory and does not stop a record covering |
 | aee-c-75 | L220-224 | fail-closed on unimplemented binding version |
 | aee-c-77 | L3; L286 | statement _type and predicateType URIs |
 | aee-c-78 | L554-580 | observationEnvironment required members |

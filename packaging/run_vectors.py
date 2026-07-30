@@ -1091,7 +1091,7 @@ class ReferenceVerifier:
         prev = p.get("aeePrevRunBinding")
         return isinstance(prev, str) and bool(HEX64_RE.match(prev))
 
-    def _sealed_ok(self, rv: RecordView, pinned_posture: Any) -> bool:
+    def _sealed_ok(self, rv: RecordView, pinned_posture: Any, arming_postures: list[str]) -> bool:
         p = rv.payload or {}
         if p.get("aeeStillArmed") is not True:
             return False
@@ -1104,8 +1104,22 @@ class ReferenceVerifier:
                 return False
             if drops > bound:
                 return False
-        if p.get("aeePostureDigest") != pinned_posture:
+        posture = p.get("aeePostureDigest")
+        if posture != pinned_posture:
             return False
+        # The two sealed posture equalities are JOINTLY enforced (spec:1023-1028):
+        # the seal's posture must equal the pinned networkPosture digest AND every
+        # referenced arming record's posture claim. This rail enforced only the
+        # first for as long as the rule has existed, while the Go, TypeScript,
+        # standalone-Python and server rails all enforced both -- a four-against-one
+        # divergence in the REFERENCE implementation, and invisible because no
+        # vector forced the rule. `bad-902-sealed-posture-ne-arming` forces it now:
+        # it carries a second arming record whose posture differs, which is the only
+        # shape that reaches this equality, because with one arming record the
+        # pinned-posture check above always fires first.
+        for arming_posture in arming_postures:
+            if posture != arming_posture:
+                return False
         if p.get("aeeMethod") != "intercepted":
             return False
         return True
@@ -1275,6 +1289,16 @@ class ReferenceVerifier:
         if isinstance(corpus, dict):
             manifest = corpus.get("manifest")
             classes = manifest.get("classes") if isinstance(manifest, dict) else None
+            if manifest is None:
+                # An ABSENT manifest is environment-incomplete, matching the Go
+                # rail's explicit branch (aee/statement.go:249-251,
+                # `len(c.ManifestRaw) == 0`). This rail previously fell straight
+                # through and emitted nothing, so dropping corpus.manifest
+                # produced verdict "valid" here and "invalid" on Go -- the second
+                # reference-rail divergence found by the same forcing pass that
+                # found the sealed-posture one, and invisible for the same reason:
+                # no vector forced it. `bad-906-corpus-manifest-absent` does now.
+                out.add("environment-incomplete")
             if isinstance(manifest, dict):
                 self._corpus_digest(out, corpus, manifest)
                 self._corpus_declares_attack(out, classes)
@@ -1776,7 +1800,18 @@ class ReferenceVerifier:
         pinned_posture: Any,
     ) -> list[RecordView]:
         sealeds = [rv for rv in usable if rv.kind == "sealed"]
-        good_seal = [rv for rv in sealeds if self._sealed_ok(rv, pinned_posture)]
+        # Collected from EVERY referenced arming record, not only the ones that
+        # pass _arming_ok, matching the Go rail (aee/validity.go:518-527). A
+        # malformed arming record still makes a posture claim, and a seal that
+        # contradicts it is contradicting something the producer asserted.
+        arming_postures = [
+            posture
+            for rv in usable
+            if rv.kind == "arming"
+            for posture in [(rv.payload or {}).get("aeePostureDigest")]
+            if isinstance(posture, str)
+        ]
+        good_seal = [rv for rv in sealeds if self._sealed_ok(rv, pinned_posture, arming_postures)]
         if not sealeds:
             out.add(self._uncovered_code(unknown_ref, "clean-row-uncovered"))
         elif not good_seal:

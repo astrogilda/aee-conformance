@@ -213,6 +213,19 @@ pinned-policy key is derived from the published test-key recipe
 (`seed(role) = SHA-256("in-toto-aee-test-key/<role>/v1")`). Nothing
 private is committed anywhere in this repository.
 
+### Condition ids
+
+A vector cites the specification rules it forces as `aee-c-NN` condition ids,
+and those ids are the normative link between a vector and the rule it exists to
+pin. **The registry that resolves them to spec lines is the condition table in
+[`vectors/reject/INDEX.md`](vectors/reject/INDEX.md), and it is the only one.**
+Both index files used to say the table lived in this README. It never did, in
+any revision, and the effect was not cosmetic: the table that does exist listed
+only the ids the reject set happened to use, so 17 ids cited by accept vectors
+resolved to nothing at all. The table now covers every id the suite cites, in
+either direction, and `scripts/condition-registry-gate.py` fails the build when
+a cited id has no row or a row names an id no vector cites.
+
 ## The go-witness attestor (`witnessattestor/`)
 
 A go-witness-compatible attestor package; upstream go-witness PR staged.
@@ -291,7 +304,7 @@ directed 153/153 says the corrected rule is implementable by someone who has onl
 the text. It is not the same evidence as 125/125 and this suite does not present
 it as such.
 
-It has not been run against suiteRevision 4, 7, 8, 9, 10, 11, 12, 13 or 14, so
+It has not been run against suiteRevision 4, 7, 8, 9, 10, 11, 12, 13, 14 or 15, so
 this suite publishes no score for it at any of them. They are on that list for
 two different reasons. From suiteRevision 7 onward the corpus itself moved past
 his last run: the single suiteRevision-7 vector (`bad-745`) and the two

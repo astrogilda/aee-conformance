@@ -29,7 +29,9 @@ Rails
    ``<cmd> <vector-file>``; exit 0 means valid, non-zero means invalid; and
    the LAST stdout line must be a JSON object of the shape
    ``{"verdict": "valid"|"invalid", "codes": [...], "result": "...",
-   "tiers": [...]}``.  The exit status alone does not carry a vector: a
+   "tiers": [...]}``.  ONE line: the harness reads the last line and parses
+   that line alone, so an indented encoding whose last line is ``}`` carries
+   no answer at all.  The exit status alone does not carry a vector: a
    reject vector is checked against its MANIFEST ``expected.codes`` and an
    accept vector against its ``expected.result``, so a rail that answers with
    a verdict and nothing else fails every vector declaring either.  ``codes``
@@ -39,6 +41,22 @@ Rails
    it and asserts the outcome, because the paragraph previously said the
    harness falls back to checking the verdict alone and nothing contradicted
    it.
+
+   The consumer key policy travels in the environment variable
+   ``AEE_SUBSTRATE_KEYS``, holding a path to
+   ``{"substrateObservationKeys": [{"keyid": ..., "publicKeyHex": ...}]}``.
+   Argv is fixed by the contract, so naming a flag would dictate a spelling to
+   every rail; naming a variable dictates only where to look.  Each vector is
+   run TWICE through the same argv: once with the variable set to the suite's
+   pinned TEST key policy, whose ``tiers`` are compared against
+   ``expected.tierWithPinnedKey``, and once with the variable absent, whose
+   ``tiers`` are compared against ``expected.tierWithoutKey``.  The second run
+   is what puts a third-party rail under GATE 2's no-TOFU rule -- no pinned key
+   means every substrate row derives ``unattested`` and the substrate root is
+   never inferred from the predicate -- and it is also where the assertion that
+   tier derivation never alters ``result`` becomes checkable from outside.
+   ``--verifier`` accepts a full command line, not only a path, so a rail
+   needing flags (``"./aee-verify -json"``) is drivable without a wrapper.
 
 2. REFERENCE RAIL (default, self-contained, stdlib-only): an independent
    Python implementation of the spec's checks -- statement well-formedness
@@ -82,8 +100,10 @@ import hashlib
 import json
 import os
 import re
+import shlex
 import subprocess
 import sys
+import tempfile
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -2156,13 +2176,33 @@ def probe_external_verifier(path: str) -> tuple[bool, str]:
     )
 
 
-def run_external(cmd: list[str], vector_path: str) -> dict[str, Any]:
-    name = os.path.basename(vector_path)
+EXTERNAL_KEYS_ENV = "AEE_SUBSTRATE_KEYS"
+
+
+def _external_env(keys_path: str | None) -> dict[str, str]:
+    """The child environment for one external-rail pass.
+
+    The variable is REMOVED rather than emptied for the no-key pass, so a rail
+    cannot mistake an empty string for a path it should try to open and cannot
+    tell the two passes apart by anything other than presence.
+    """
+    env = dict(os.environ)
+    env.pop(EXTERNAL_KEYS_ENV, None)
+    if keys_path is not None:
+        env[EXTERNAL_KEYS_ENV] = keys_path
+    return env
+
+
+def run_external(
+    cmd: list[str], vector_path: str, keys_path: str | None, label: str
+) -> dict[str, Any]:
+    name = f"{os.path.basename(vector_path)} ({label})"
     try:
         proc = subprocess.run(
             cmd + [vector_path],
             capture_output=True,
             timeout=120,
+            env=_external_env(keys_path),
         )
     except subprocess.TimeoutExpired:
         # A hung external verifier must not kill the whole suite run: report a
@@ -2395,6 +2435,28 @@ def _eval_reject_stages(
         gates[st] = "PASS" if seen else "FAIL"
 
 
+def write_pinned_key_policy(keys: dict[str, dict[str, Any]], directory: str) -> str:
+    """Write the suite's pinned TEST substrate observation key as a consumer key
+    policy file and return its path.
+
+    This is the object the external rail's ``AEE_SUBSTRATE_KEYS`` points at. It
+    is derived here rather than committed, for the same reason the keys
+    themselves are derived: a checked-in public key is one more thing that can
+    drift from the recipe that makes it. TEST KEY ONLY -- it proves nothing.
+    """
+    path = os.path.join(directory, "pinned-test-keys.json")
+    entry = keys[PINNED_ROLE]
+    body = {
+        "substrateObservationKeys": [
+            {"keyid": entry["keyid"], "publicKeyHex": entry["public"].hex()}
+        ]
+    }
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(body, f)
+        f.write("\n")
+    return path
+
+
 def run_suite(args: argparse.Namespace) -> int:
     suite_dir = os.path.abspath(args.vectors)
     if not os.path.isdir(suite_dir):
@@ -2423,13 +2485,15 @@ def run_suite(args: argparse.Namespace) -> int:
 
     rows_out: list[dict[str, Any]] = []
     failures = 0
-    for kind, path in vectors:
-        row, failed = _run_process_vector(
-            kind, path, idx, external_cmd, ref_with, ref_without, report_base
-        )
-        if failed:
-            failures += 1
-        rows_out.append(row)
+    with tempfile.TemporaryDirectory(prefix="aee-conformance-keys-") as tmp:
+        keys_path = write_pinned_key_policy(keys, tmp)
+        for kind, path in vectors:
+            row, failed = _run_process_vector(
+                kind, path, idx, external_cmd, ref_with, ref_without, report_base, keys_path
+            )
+            if failed:
+                failures += 1
+            rows_out.append(row)
 
     # manifest completeness both ways
     suite_notes, note_failures = _run_manifest_notes(manifest, idx, rows_out)
@@ -2443,18 +2507,57 @@ def run_suite(args: argparse.Namespace) -> int:
 
 
 def _run_rail_selection(args: argparse.Namespace) -> tuple[list[str] | None, str]:
-    # rail selection
-    external_cmd: list[str] | None = None
+    """Resolve --verifier (or AEE_EXTERNAL_VERIFIER) to an argv prefix.
+
+    The setting is a COMMAND LINE, not a path: it is split with shlex and the
+    first token is the executable that gets probed. Taking a path alone meant a
+    rail whose machine-readable output sits behind a flag could not be driven at
+    all without a wrapper script, and the wrapper would then have to carry the
+    predicate type URI in its own bytes to survive the probe. This repository's
+    own cmd/aee-verify is such a rail.
+    """
     probe_note = "no external verifier supplied; using the reference rail"
     verifier = args.verifier or os.environ.get("AEE_EXTERNAL_VERIFIER")
-    if verifier:
-        capable, probe_note = probe_external_verifier(verifier)
-        if capable:
-            if verifier.endswith(".py"):
-                external_cmd = [sys.executable, verifier]
-            else:
-                external_cmd = [verifier]
-    return external_cmd, probe_note
+    if not verifier:
+        return None, probe_note
+    parts = shlex.split(verifier)
+    if not parts:
+        return None, "external verifier setting is empty; using the reference rail"
+    capable, probe_note = probe_external_verifier(parts[0])
+    if not capable:
+        return None, probe_note
+    if parts[0].endswith(".py"):
+        return [sys.executable, *parts], probe_note
+    return parts, probe_note
+
+
+def observe_external(external_cmd: list[str], path: str, keys_path: str) -> dict[str, Any]:
+    """Drive an external rail over one vector under BOTH key policies.
+
+    One invocation cannot answer both tier questions, and for several revisions
+    the harness only asked one: it recorded ``tiers_without_key: None`` for every
+    external run, and the evaluator skips a tier column it was handed nothing
+    for. So ``ok-024``'s ``tierWithoutKey`` -- the corpus's only statement of
+    GATE 2's no-TOFU rule, that an unpinned consumer derives ``unattested`` and
+    never infers the substrate root from the predicate -- was compared against
+    nothing on every rail but this file's own, while reading in the MANIFEST as
+    a requirement on all of them.
+
+    The byte-pure facts (verdict, codes, result) are read from the pinned-key
+    pass. The no-key pass contributes its tier column and its result, which is
+    also what puts a third-party rail under the assertion that tier derivation
+    never alters ``result``.
+    """
+    with_key = run_external(external_cmd, path, keys_path, "pinned-key")
+    without_key = run_external(external_cmd, path, None, "no-key")
+    return {
+        "verdict": with_key["verdict"],
+        "codes": with_key["codes"],
+        "result": with_key["result"],
+        "tiers_with_key": with_key["tiers"],
+        "tiers_without_key": without_key["tiers"],
+        "result_without_key": without_key["result"],
+    }
 
 
 def _run_observe(
@@ -2463,18 +2566,11 @@ def _run_observe(
     ref_without: ReferenceVerifier,
     path: str,
     stmt: Any,
-    raw: bytes | None = None,
+    raw: bytes | None,
+    keys_path: str,
 ) -> dict[str, Any]:
     if external_cmd is not None:
-        ext = run_external(external_cmd, path)
-        return {
-            "verdict": ext["verdict"],
-            "codes": ext["codes"],
-            "result": ext["result"],
-            "tiers_with_key": ext["tiers"],
-            "tiers_without_key": None,
-            "result_without_key": None,
-        }
+        return observe_external(external_cmd, path, keys_path)
     o_with = ref_with.verify(stmt, raw)
     o_without = ref_without.verify(stmt, raw)
     return {
@@ -2523,6 +2619,7 @@ def _run_process_vector(
     ref_with: ReferenceVerifier,
     ref_without: ReferenceVerifier,
     report_base: str,
+    keys_path: str,
 ) -> tuple[dict[str, Any], bool]:
     vid = os.path.splitext(os.path.basename(path))[0]
     entry = idx.get(vid)
@@ -2543,7 +2640,7 @@ def _run_process_vector(
             "reasons": [f"vector unreadable: {e}"],
         }, True
 
-    observed = _run_observe(external_cmd, ref_with, ref_without, path, stmt, raw)
+    observed = _run_observe(external_cmd, ref_with, ref_without, path, stmt, raw, keys_path)
 
     self_check = None
     if kind == "reject" and faithful:
@@ -2999,8 +3096,10 @@ def main() -> int:
     parser.add_argument(
         "--verifier",
         default=None,
-        help="path to an external verifier to run differentially "
-        "(also read from AEE_EXTERNAL_VERIFIER); probed for v0.6 capability",
+        help="command line for an external verifier to run differentially, e.g. "
+        "'./aee-verify -json' (also read from AEE_EXTERNAL_VERIFIER); the first "
+        "token is probed for v0.6 capability, and the key policy is handed to it "
+        f"in ${EXTERNAL_KEYS_ENV}",
     )
     parser.add_argument(
         "--report",

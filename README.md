@@ -134,11 +134,37 @@ whose payload does not decode.
 
 ### What the suite compares
 
-`packaging/run_vectors.py` runs an external verifier once per vector as
-`<cmd> <vector-file>`, reads the verdict from the exit status, and reads the
-codes, the recomputed result and the tiers from the last line of stdout when that
-line is a JSON object of the shape `{"verdict": ..., "codes": [...],
-"result": ..., "tiers": [...]}`.
+`packaging/run_vectors.py` runs an external verifier as `<cmd> <vector-file>`,
+reads the verdict from the exit status, and reads the codes, the recomputed
+result and the tiers from the last line of stdout when that line is a JSON
+object of the shape `{"verdict": ..., "codes": [...], "result": ...,
+"tiers": [...]}`. `--verifier` takes a command line rather than a path, so a
+rail whose machine-readable output sits behind a flag needs no wrapper.
+
+That object has to be **one line**. The harness reads the last line and parses
+that line alone, so an indented encoding delivers a line reading `}` and the run
+degrades to the exit status, which as the next paragraph says fails every vector
+in the suite. This is not a hypothetical: `cmd/aee-verify -json` wrote
+`json.MarshalIndent` for as long as the flag existed, and the first time the CLI
+this repository ships was pointed at the corpus this repository ships it scored
+0 of 186. `scripts/external-rail-gate.py` now runs that exact pairing in CI, and
+a clean sweep by the shipped CLI is the gate.
+
+Each vector is run **twice**, through identical argv. The consumer key policy
+travels in the environment variable `AEE_SUBSTRATE_KEYS`, holding a path to
+`{"substrateObservationKeys": [{"keyid": ..., "publicKeyHex": ...}]}`; argv is
+fixed by the contract, so naming a flag would dictate a spelling to every rail
+while naming a variable dictates only where to look. The pinned pass answers
+`expected.tierWithPinnedKey` and the unset pass answers
+`expected.tierWithoutKey`. Two rules only the second pass can ask about are what
+the second pass is for: GATE 2's no-TOFU rule, that a consumer with no pinned
+key derives `unattested` for every substrate row and never infers the substrate
+root from the predicate, and the rule that deriving a tier never moves
+`result`. Before the variable existed there was no key channel at all, the
+harness recorded `tiers_without_key: None` for every external run, and the
+evaluator skips a column it was handed nothing for -- so `ok-024`'s
+`tierWithoutKey` read in the MANIFEST as a requirement on every implementation
+while binding two first-party rails and nothing else.
 
 What it compares against `vectors/MANIFEST.json` is not the verdict alone. A reject
 vector's manifest entry declares an expected code set, and the codes the
@@ -345,10 +371,17 @@ depth. That one is fixed and pinned by a boundary vector pair; both findings cam
 from the same outside reader, and neither could have come from the rails alone.
 
 More outside implementations are wanted, and the count above is the reason.
-Wiring one in means answering the external-verifier contract above: one
-invocation per vector, a verdict in the exit status, and a JSON line carrying the
-codes and the recomputed result. A conformant checker passes even when it
-evaluates in a different order, since the suite compares verdicts and code sets
-and ignores both message text and evaluation order.
+Wiring one in means answering the external-verifier contract above: a verdict in
+the exit status, a single-line JSON object carrying the codes and the recomputed
+result, and a key policy read from `AEE_SUBSTRATE_KEYS` so the two tier columns
+can be compared. A conformant checker passes even when it evaluates in a
+different order, since the suite compares verdicts and code sets and ignores both
+message text and evaluation order. The shortest way to see the whole contract
+working is the CLI in this repository, which CI drives through it on every push:
+
+```
+go build -o aee-verify ./cmd/aee-verify
+python3 packaging/run_vectors.py --verifier "$PWD/aee-verify -json"
+```
 
 [aee-checker]: https://github.com/Rul1an/aee-checker/tree/f8bd3a787ef0b4610e96054ee1f167368f2ccdc2

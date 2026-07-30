@@ -15,6 +15,17 @@
 //	{"substrateObservationKeys": [
 //	  {"keyid": "<hint, optional>", "publicKeyHex": "<64-hex raw ed25519 public key>"}
 //	]}
+//
+// The policy path may also arrive in AEE_SUBSTRATE_KEYS instead of -keys. That
+// is the channel the conformance harness uses to hand a rail the pinned key
+// policy without dictating a flag spelling: it runs each vector twice through
+// the same argv, once with the variable set and once with it absent, and
+// compares the two tier columns that come back. An explicit -keys always wins,
+// and an unset variable is bare conformance-replay mode exactly as before.
+//
+// In -json mode the whole report is written as ONE line, because the harness
+// reads the last line of stdout and parses that line alone. A pretty-printed
+// object ends in a line reading "}", which parses as nothing.
 package main
 
 import (
@@ -28,6 +39,14 @@ import (
 
 	"github.com/astrogilda/aee-conformance/aee"
 )
+
+// EnvSubstrateKeys names the environment variable carrying a key policy path
+// when -keys is not given. The conformance harness sets it for the pinned-key
+// pass and leaves it unset for the no-key pass, which is what makes the
+// no-pinned-key tier column ("every substrate row is unattested; the substrate
+// root is never inferred from the predicate") observable from outside this
+// process rather than only from a first-party rail.
+const EnvSubstrateKeys = "AEE_SUBSTRATE_KEYS"
 
 type keyFile struct {
 	SubstrateObservationKeys []struct {
@@ -47,7 +66,7 @@ func main() {
 func run(args []string, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("aee-verify", flag.ContinueOnError)
 	fs.SetOutput(stderr)
-	keysPath := fs.String("keys", "", "path to the consumer key policy JSON (optional; without it every substrate row derives unattested)")
+	keysPath := fs.String("keys", "", "path to the consumer key policy JSON (optional; falls back to $"+EnvSubstrateKeys+"; without either, every substrate row derives unattested)")
 	expectedCorpus := fs.String("expected-corpus-digest", "", "expected observationEnvironment.corpus.digest.sha256 (optional consumer anchor; a mismatch fails admission, never validity)")
 	expectedSubstrate := fs.String("expected-substrate-digest", "", "expected observationEnvironment.substrate.digest.sha256 (optional consumer anchor; a mismatch fails admission, never validity)")
 	jsonOut := fs.Bool("json", false, "emit the full report as JSON")
@@ -63,7 +82,11 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 
-	policy, err := loadPolicy(*keysPath, *expectedCorpus, *expectedSubstrate)
+	resolvedKeys := *keysPath
+	if resolvedKeys == "" {
+		resolvedKeys = os.Getenv(EnvSubstrateKeys)
+	}
+	policy, err := loadPolicy(resolvedKeys, *expectedCorpus, *expectedSubstrate)
 	if err != nil {
 		fmt.Fprintf(stderr, "aee-verify: %v\n", err)
 		return 2
@@ -80,7 +103,12 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 	if *jsonOut {
-		out, err := json.MarshalIndent(report, "", "  ")
+		// One line, deliberately. The suite's external-rail contract reads the
+		// LAST line of stdout and parses that line as the whole report, so an
+		// indented encoding is not a prettier form of the same answer: it is an
+		// unparseable one. cmd/aee-verify pinned this with MarshalIndent and
+		// therefore scored 0 of 186 against the corpus it ships.
+		out, err := json.Marshal(report)
 		if err != nil {
 			fmt.Fprintf(stderr, "aee-verify: %v\n", err)
 			return 2
@@ -132,7 +160,12 @@ func loadPolicy(path, expectedCorpus, expectedSubstrate string) (*aee.ConsumerPo
 	if path == "" {
 		return policy, nil
 	}
-	raw, err := os.ReadFile(path) // #nosec G304 -- this CLI verifies a policy file the caller names by design
+	// #nosec G304,G703 -- this CLI reads a policy file the caller names by
+	// design, now by -keys or by $AEE_SUBSTRATE_KEYS. G703 is the taint-analysis
+	// spelling of the same fact: the environment here is the operator's own, no
+	// privilege boundary is crossed by reading a path they set, and there is no
+	// allow-list a consumer key policy could be validated against.
+	raw, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}

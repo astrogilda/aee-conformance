@@ -164,18 +164,55 @@ under suiteRevision 17.
   count either. The two non-vector directories are named explicitly now and every other
   directory must be a manifest kind whatever it holds. Verified both ways against a real
   non-JSON vector directory. File: `aee/vectors_test.go`.
-- [ ] **The published harness scores a vector no manifest row names, and only notes it.**
-  Measured 2026-07-31: copying an accept vector to an unlisted name and running
-  `python3 packaging/run_vectors.py` exits 0, prints a total one greater than the corpus size
-  with every vector passing, scores the unlisted file PASS against a verdict derived from its
-  directory, and reports the fact as a `note:` line rather than a failure. The Go runner refuses the same tree by name. That is the
-  wrong way round twice over: the Python harness is the rail the forcing measurement replays
-  through and the one a third party runs, and the count it prints is the number the published
-  corpus size derives from, so an unlisted file inflates it silently. `discover_vectors` also
-  reads three hardcoded directory names, so a fourth directory is not walked at all -- the same
-  blind spot closed on the Go side above, still open on this one. Closing it means promoting the
-  existing note to a refusal and asserting the directory set, not adding a second listing.
+- [x] **The published harness scored a vector no manifest row named, and only noted it**
+  (2026-07-31). Copying an accept vector to an unlisted name and running
+  `python3 packaging/run_vectors.py` exited 0, printed a total one greater than the corpus size
+  with every vector passing, scored the unlisted file PASS against a verdict derived from its
+  directory, and reported the fact as a `note:` line. That was the wrong way round twice over:
+  this is the rail the forcing measurement replays through and the one a third party runs, and
+  the total it prints is where the published corpus size comes from, so an unlisted file
+  inflated it silently while the Go runner refused the same tree by name. The note is a refusal
+  now, and the closure is the one the Go runner makes: both directions per kind, the manifest's
+  own counts block checked against the tree, every row's declared file member checked against
+  the path the rail reads, and every directory under the suite root required to be a manifest
+  kind or one of two named non-vector directories whatever it holds. `discover_vectors` took
+  its three directory names from a literal, so a fourth was walked by nothing; it reads the
+  kinds the manifest declares now, and a kind no contract here scores is refused by name rather
+  than falling through to the reject contract. Suite-level refusals are carried in the totals
+  in their own right, because reporting them only through the exit status leaves a table
+  reading zero failures beside a non-zero exit. Mutation-checked over a copied tree against
+  eleven weakenings -- an unlisted file, a deleted file, a fourth directory holding JSON, the
+  same directory holding another encoding, a count inflated by one, a count naming an absent
+  kind, the counts block dropped, a row retyped to a kind nothing scores, a whole kind removed
+  from the manifest, a row's file member pointed elsewhere, and a vector smuggled into the
+  keys directory -- each refused by name with the untouched copy green.
   File: `packaging/run_vectors.py`.
+- [ ] **No statement carrying a pinned row can recompute above `fail`, so the attribution
+  assignment cannot be exercised at a result any threshold-only consumer would admit.**
+  Measured 2026-07-31 by construction and replay rather than read off the rules, because the
+  reading this replaces cited `bad-982` as the demonstration and `bad-982` cannot be one: it
+  carries `result: fail` with both rows caught, so a threshold consumer refuses it for the
+  result and the assignment is never reached. The sweep builds every statement shape the
+  reject generator can express -- record pools over every subset of the five record kinds,
+  every reference subset within each pool, both bases, both methods, a caught
+  label, a clean label and one outside the carried vocabulary, and coverage both complete and
+  incomplete -- and scores each on the reference rail twice over, changing nothing between the
+  two runs but the value of `attribution`. Under `paired` the sweep reaches `pass`,
+  `pass_indirect` and `degraded`. Under `pinned` every valid statement recomputes to `fail`
+  and not one reaches higher, and every shape the control reached above `fail` turns
+  `attribution-pinned-recordless` the moment the member is raised. The reason is two coverage
+  requirements this corpus already forces against each other: a pinned row must resolve an
+  interception record (`bad-958`, `bad-973`) and a clean row must resolve none (`bad-950`), so
+  a valid pinned row always carries a caught label, and a caught label floors the recompute.
+  The consequence for `bad-982`, which exchanges the pinned assignment between two rows, is
+  that no rewriting of it and no vector anyone could add would lift it above `fail`: a consumer
+  admitting on `result` alone refuses it for the result and never reaches the assignment. The
+  pair that does discriminate is already published -- `ok-051` carries the same two pinned rows
+  with the assignment intact -- so a consumer that credits rows separates the two and one that
+  does not gives both the same answer. What is left is a question for upstream rather than a
+  gap here: an axis that acquired a normative reader at this version is readable only on
+  statements a threshold consumer has already refused, and it is worth asking whether that is
+  intended.
 - [ ] **Three shipped reject vectors carried a signature that does not verify, and nothing
   in the corpus could see it.** `bad-900`, `bad-901` and `bad-902` were minted by copying the
   parent's signature across a mutated payload. The reject generator's own second-fault

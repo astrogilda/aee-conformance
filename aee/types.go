@@ -40,6 +40,16 @@ const (
 	KindSealed       = "sealed"
 	KindExamination  = "examination"
 
+	// The two kinds registered as non-covering (spec:1298-1370). Neither
+	// carries constraints, because there is no state in which either covers
+	// anything and therefore none in which a constraint could change an
+	// outcome. They are named here rather than left to the unknown-kind arm so
+	// the refusal a row earns by resolving one says which of the two producer
+	// errors it is: a kind that covers nothing by registration, or a kind this
+	// verifier has never heard of.
+	KindMoatDrop               = "moat-drop"
+	KindUncommittedObservation = "uncommitted-observation"
+
 	ActualLayerNone = "none"
 )
 
@@ -320,7 +330,7 @@ func (s *RecordSignatures) UnmarshalJSON(b []byte) error {
 }
 
 // RecordSignature matches the DSSE signature member shape. The keyid is an
-// unauthenticated lookup hint and never the check itself (spec:1670-1672).
+// unauthenticated lookup hint and never the check itself (spec:1746-1748).
 type RecordSignature struct {
 	KeyID string `json:"keyid"`
 	Sig   string `json:"sig"`

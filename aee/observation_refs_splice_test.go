@@ -28,7 +28,19 @@ package aee_test
 // record committed to; and a row declaring `attribution: pinned` obliges the
 // two to meet. Exchanging the assignment then points each row at a record
 // carrying the other attack's value, and the rail kills it.
-// TestPinnedAttributionKillsTheSplice is that measurement, and it is new.
+// TestPinnedAttributionKillsTheSplice is that measurement.
+//
+// That kill was proven HERE first and only here, which was a gap and not a
+// choice: every pinned vector in the corpus carried a single row, and permuting
+// one row is the identity, so the corpus could not reach the arm and none of the
+// three vendored consumer copies was ever measured against it. A control the
+// corpus cannot exercise is a control no consumer is held to.
+// `ok-051-two-pinned-rows` and `bad-982-pinned-assignment-spliced` are the same
+// operator on the same shape, in the corpus, so the kill now travels with the
+// vectors. What stays here is what the corpus cannot carry: the null and its
+// two controls side by side, built by one operator over three bases, which is
+// what makes the boundary between them a measurement rather than three
+// unrelated results.
 //
 // The boundary the three cases locate together is therefore no longer "class,
 // never assignment". It is: the rail authenticates a row's coverage CLASS
@@ -489,6 +501,12 @@ func TestCaughtToCleanSpliceIsRejected(t *testing.T) {
 // the null case uses. The only difference is that the corpus declares, per
 // attack, the commitment that attack's interception is expected to carry, and
 // each row declares the stronger attribution rather than the floor.
+//
+// The corpus now carries the same operator as a vector pair, so this case is no
+// longer the only place the kill is measured, and it is kept for what the pair
+// cannot say: that the kill and the null differ in exactly one input. A vector
+// pair states an outcome about bytes on disk; three cases sharing one builder
+// and one splice function state a boundary.
 //
 // The unspliced statement is valid: every row resolves an interception whose
 // committed value the corpus predicted for that row's attack. Exchange the

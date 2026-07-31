@@ -2,7 +2,7 @@
   "$comment": "What the conformance corpus FORCES, measured by mutation rather than counted. Each row is one single-site weakening of the Go rail in aee/, replayed over the whole corpus: KILLED means some vector goes PASS->FAIL and the corpus forces the rule; SILENT means the corpus sees the rail change and stays green; DEAD means nothing in the corpus depends on the rule; INCONCLUSIVE means the mutant did not build, crash-free, terminate, and nothing is asserted about it. `annotations` records the sites where 'unforced' would be the wrong word -- `unkillable` for a true equivalent mutant no vector can ever kill, `masked` for a real rule an earlier check reaches first, which is unmintable rather than unminted. Both are claims this gate falsifies: an annotated site that is ever KILLED fails it. scripts/forcing-gate.py holds every KILLED row as a tighten-only ratchet and rewrites this file with --scope all --sync.",
   "suite": "adversarial-execution-evidence-conformance",
   "counts": {
-    "KILLED": 415,
+    "KILLED": 417,
     "SILENT": 26,
     "DEAD": 297,
     "INCONCLUSIVE": 5
@@ -45,7 +45,8 @@
         "bad-960-pinned-commitment-unmatched",
         "bad-972-second-interception-unresolved",
         "bad-973-pinned-clean-row",
-        "bad-979-artifact-only-interception-orphaned"
+        "bad-979-artifact-only-interception-orphaned",
+        "bad-982-pinned-assignment-spliced"
       ]
     },
     "commitments.go::assessedSetDeclared::IF_DISJ::1d1f550a6ec2": {
@@ -172,7 +173,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "commitments.go::attackIDArrayOK::RET_TRUE::19921ccfad14": {
@@ -256,6 +259,7 @@
         "ok-045-mixed-clean-rows-indirect",
         "ok-046-seal-attacks-lower-bound",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -334,6 +338,7 @@
         "ok-045-mixed-clean-rows-indirect",
         "ok-046-seal-attacks-lower-bound",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -342,7 +347,8 @@
       "class": "KILLED",
       "snippet": "if code := pinMatches(row, states, kinds, expected); code != \"\" { return []Code{code} }",
       "killers": [
-        "bad-960-pinned-commitment-unmatched"
+        "bad-960-pinned-commitment-unmatched",
+        "bad-982-pinned-assignment-spliced"
       ]
     },
     "commitments.go::cleanRowsContradicted::IF_OFF::3300e7c56811": {
@@ -363,7 +369,8 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-051-two-pinned-rows"
       ]
     },
     "commitments.go::cleanRowsContradicted::IF_OFF::5ab7028efadc": {
@@ -422,7 +429,8 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-051-two-pinned-rows"
       ]
     },
     "commitments.go::commitmentArrayOK::RET_TRUE::19921ccfad14": {
@@ -530,7 +538,8 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-051-two-pinned-rows"
       ]
     },
     "commitments.go::interceptionsOrphaned::IF_CONJ::be4d2e39bf82": {
@@ -580,7 +589,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "commitments.go::interceptionsOrphaned::IF_CONJ::e7a557d2b298": {
@@ -634,7 +645,8 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-051-two-pinned-rows"
       ]
     },
     "commitments.go::interceptionsOrphaned::IF_OFF::d3a1e89f7742": {
@@ -660,7 +672,8 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-051-two-pinned-rows"
       ]
     },
     "commitments.go::observedSetDigest::IF_CONJ::b2bf80d88458": {
@@ -719,7 +732,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "commitments.go::observedSetDigest::IF_OFF::ac101107881e": {
@@ -751,7 +766,8 @@
       "class": "KILLED",
       "snippet": "if want[v] { matched = true break }",
       "killers": [
-        "ok-047-attribution-pinned"
+        "ok-047-attribution-pinned",
+        "ok-051-two-pinned-rows"
       ]
     },
     "commitments.go::pinMatches::IF_OFF::97faa7718dbd": {
@@ -763,7 +779,8 @@
       "class": "KILLED",
       "snippet": "if !matched { return CodeAttributionPinUnmatched }",
       "killers": [
-        "bad-960-pinned-commitment-unmatched"
+        "bad-960-pinned-commitment-unmatched",
+        "bad-982-pinned-assignment-spliced"
       ]
     },
     "commitments.go::pinMatches::IF_OFF::f6c32ff363e1": {
@@ -794,6 +811,7 @@
         "bad-960-pinned-commitment-unmatched",
         "bad-972-second-interception-unresolved",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-982-pinned-assignment-spliced",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -831,7 +849,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "commitments.go::recordKinds::IF_OFF::89f00348f2ae": {
@@ -883,7 +903,8 @@
         "ok-041-posture-allowlist",
         "ok-042-posture-unsafe-bypass-egress",
         "ok-043-posture-producer-member-bound",
-        "ok-045-mixed-clean-rows-indirect"
+        "ok-045-mixed-clean-rows-indirect",
+        "ok-050-registered-noncovering-kinds"
       ]
     },
     "commitments.go::rowResolves::IF_CONJ::e7a557d2b298": {
@@ -908,7 +929,9 @@
         "bad-950-clean-row-refs-interception",
         "bad-959-pinned-without-expectation",
         "bad-960-pinned-commitment-unmatched",
-        "ok-047-attribution-pinned"
+        "bad-982-pinned-assignment-spliced",
+        "ok-047-attribution-pinned",
+        "ok-051-two-pinned-rows"
       ]
     },
     "commitments.go::rowResolves::IF_OFF::b6be78b63e3c": {
@@ -923,7 +946,9 @@
         "bad-950-clean-row-refs-interception",
         "bad-959-pinned-without-expectation",
         "bad-960-pinned-commitment-unmatched",
-        "ok-047-attribution-pinned"
+        "bad-982-pinned-assignment-spliced",
+        "ok-047-attribution-pinned",
+        "ok-051-two-pinned-rows"
       ]
     },
     "commitments.go::rowResolves::RET_TRUE::19921ccfad14": {
@@ -967,7 +992,8 @@
         "ok-041-posture-allowlist",
         "ok-042-posture-unsafe-bypass-egress",
         "ok-043-posture-producer-member-bound",
-        "ok-045-mixed-clean-rows-indirect"
+        "ok-045-mixed-clean-rows-indirect",
+        "ok-050-registered-noncovering-kinds"
       ]
     },
     "commitments.go::sealNamedAttacksCaught::IF_DISJ::1d1f550a6ec2": {
@@ -1071,7 +1097,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "commitments.go::sealedRecordPresent::IF_OFF::6857830f9110": {
@@ -1175,7 +1203,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "commitments.go::sealsCommitToCarriedSet::IF_OFF::b8f9040fd3a9": {
@@ -1279,7 +1309,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "jcs.go::appendCanonical::CASE_DEL::50e0130ff584": {
@@ -1400,6 +1432,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -1450,6 +1485,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -1534,7 +1571,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "jcs.go::appendCanonical::CASE_DEL::8e5835cd2f78": {
@@ -1659,6 +1698,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -1709,6 +1751,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -1791,7 +1835,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "jcs.go::appendCanonical::IF_OFF::29eae6805a4e": {
@@ -1881,6 +1927,9 @@
         "bad-976-sealed-observedattacks-unknown",
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -1920,6 +1969,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded"
       ]
     },
@@ -2265,6 +2316,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -2315,6 +2369,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -2534,6 +2590,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -2584,6 +2643,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -2706,6 +2767,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -2756,6 +2820,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -2879,6 +2945,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -2929,6 +2998,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -3059,6 +3130,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -3109,6 +3183,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -3356,6 +3432,8 @@
         "bad-976-sealed-observedattacks-unknown",
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -3393,7 +3471,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "jcs.go::hex4::CASE_CONJ::5ceb1787ecf2": {
@@ -3572,6 +3652,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -3622,6 +3705,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -3795,6 +3880,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -3845,6 +3933,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -3966,6 +4056,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -4016,6 +4109,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -4086,6 +4181,9 @@
         "bad-976-sealed-observedattacks-unknown",
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -4125,6 +4223,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded"
       ]
     },
@@ -4242,6 +4342,9 @@
         "bad-976-sealed-observedattacks-unknown",
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -4281,7 +4384,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "pae.go::IsLowerHex64::IF_CONJ::fe2f6ba914f2": {
@@ -4386,6 +4491,9 @@
         "bad-976-sealed-observedattacks-unknown",
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -4425,7 +4533,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "pae.go::IsLowerHex64::IF_OFF::e0253f47e6df": {
@@ -4545,6 +4655,9 @@
         "bad-976-sealed-observedattacks-unknown",
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -4584,7 +4697,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "pae.go::IsLowerHex64::RET_TRUE::19921ccfad14": {
@@ -4649,6 +4764,7 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -4718,7 +4834,8 @@
         "ok-042-posture-unsafe-bypass-egress",
         "ok-043-posture-producer-member-bound",
         "ok-044-clean-artifact-intercepted-indirect",
-        "ok-045-mixed-clean-rows-indirect"
+        "ok-045-mixed-clean-rows-indirect",
+        "ok-050-registered-noncovering-kinds"
       ]
     },
     "recompute.go::Recompute::IF_OFF::f2ffa96c26d6": {
@@ -4748,6 +4865,7 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -4829,6 +4947,7 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded"
       ]
     },
@@ -4915,6 +5034,7 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -4965,6 +5085,7 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -5042,6 +5163,8 @@
         "bad-976-sealed-observedattacks-unknown",
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -5079,7 +5202,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "runbinding.go::posturePreimageDigest::IF_DISJ::4f640f451538": {
@@ -5374,6 +5499,7 @@
         "ok-043-posture-producer-member-bound",
         "ok-044-clean-artifact-intercepted-indirect",
         "ok-045-mixed-clean-rows-indirect",
+        "ok-050-registered-noncovering-kinds",
         "ok-901-row-missing-basis"
       ]
     },
@@ -5427,6 +5553,9 @@
         "bad-968-substrate-row-missing-attribution",
         "bad-969-substrate-row-attribution-oov",
         "bad-972-second-interception-unresolved",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ok-001-caught-intercepted-fail",
         "ok-014-three-record-odd-split",
         "ok-015-four-record-tree",
@@ -5438,7 +5567,8 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-051-two-pinned-rows"
       ]
     },
     "statement.go::Gate0::IF_CONJ::916d57a2c71a": {
@@ -5552,6 +5682,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -5602,6 +5735,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -5943,6 +6078,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -5993,6 +6131,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -6334,6 +6474,8 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -6382,6 +6524,7 @@
         "ok-045-mixed-clean-rows-indirect",
         "ok-046-seal-attacks-lower-bound",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -6533,6 +6676,9 @@
         "bad-976-sealed-observedattacks-unknown",
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -6572,7 +6718,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "statement.go::gate0SubstrateBindingInputs::IF_CONJ::d0d077a93799": {
@@ -6814,6 +6962,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -6864,6 +7015,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -6988,6 +7141,8 @@
         "bad-976-sealed-observedattacks-unknown",
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
         "ok-024-mixed-basis-rows"
       ]
     },
@@ -7075,6 +7230,8 @@
         "bad-976-sealed-observedattacks-unknown",
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
         "ok-024-mixed-basis-rows"
       ]
     },
@@ -7134,6 +7291,8 @@
         "bad-965-commitment-not-hex",
         "bad-966-commitment-empty-array",
         "bad-967-commitment-absent",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
         "ok-001-caught-intercepted-fail",
         "ok-014-three-record-odd-split",
         "ok-015-four-record-tree",
@@ -7148,7 +7307,8 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-051-two-pinned-rows"
       ]
     },
     "statement.go::isCaughtLabel::RET_TRUE::3ad81a7ceba5": {
@@ -7220,7 +7380,8 @@
         "ok-041-posture-allowlist",
         "ok-042-posture-unsafe-bypass-egress",
         "ok-043-posture-producer-member-bound",
-        "ok-045-mixed-clean-rows-indirect"
+        "ok-045-mixed-clean-rows-indirect",
+        "ok-050-registered-noncovering-kinds"
       ]
     },
     "statement.go::isCleanLabel::RET_FALSE::179902c37185": {
@@ -7299,7 +7460,8 @@
         "ok-041-posture-allowlist",
         "ok-042-posture-unsafe-bypass-egress",
         "ok-043-posture-producer-member-bound",
-        "ok-045-mixed-clean-rows-indirect"
+        "ok-045-mixed-clean-rows-indirect",
+        "ok-050-registered-noncovering-kinds"
       ]
     },
     "statement.go::isCleanLabel::RET_TRUE::179902c37185": {
@@ -7352,6 +7514,9 @@
         "bad-968-substrate-row-missing-attribution",
         "bad-969-substrate-row-attribution-oov",
         "bad-972-second-interception-unresolved",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ok-001-caught-intercepted-fail",
         "ok-014-three-record-odd-split",
         "ok-015-four-record-tree",
@@ -7365,7 +7530,8 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-051-two-pinned-rows"
       ]
     },
     "statement.go::isResultToken::RET_FALSE::12c2fe7a8f4d": {
@@ -7479,6 +7645,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -7529,6 +7698,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -7662,6 +7833,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -7712,6 +7886,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -7869,6 +8045,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -7919,6 +8098,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -8056,6 +8237,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -8106,6 +8290,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -8183,7 +8369,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "tier.go::(recv).DeriveTiers::IF_OFF::26cedc484876": {
@@ -8234,7 +8422,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "tier.go::(recv).DeriveTiers::IF_OFF::721c82cea962": {
@@ -8369,6 +8559,8 @@
         "bad-976-sealed-observedattacks-unknown",
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
         "ok-024-mixed-basis-rows"
       ]
     },
@@ -8572,6 +8764,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -8622,6 +8817,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -8673,7 +8870,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "types.go::(recv).UnmarshalJSON::IF_OFF::e7a59f8c651b": {
@@ -8792,6 +8991,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -8842,6 +9044,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -8996,6 +9200,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -9046,6 +9253,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -9174,6 +9383,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -9224,6 +9436,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -9247,7 +9461,9 @@
         "bad-962-expected-payloads-unsorted",
         "bad-963-expected-payloads-not-hex",
         "bad-964-expected-payloads-empty-array",
-        "ok-047-attribution-pinned"
+        "bad-982-pinned-assignment-spliced",
+        "ok-047-attribution-pinned",
+        "ok-051-two-pinned-rows"
       ]
     },
     "types.go::decodeManifest::IF_OFF::68719813eeef": {
@@ -9381,6 +9597,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -9431,6 +9650,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -9442,8 +9663,10 @@
         "bad-958-pinned-row-resolves-no-interception",
         "bad-960-pinned-commitment-unmatched",
         "bad-973-pinned-clean-row",
+        "bad-982-pinned-assignment-spliced",
         "ok-047-attribution-pinned",
-        "ok-048-attribution-paired-despite-expectation"
+        "ok-048-attribution-paired-despite-expectation",
+        "ok-051-two-pinned-rows"
       ]
     },
     "types.go::decodeManifest::RET_FALSE::35f1da5ed784": {
@@ -9557,6 +9780,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -9607,6 +9833,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -9706,6 +9934,8 @@
         "bad-976-sealed-observedattacks-unknown",
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -9743,7 +9973,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "types.go::isJSONObject::RET_TRUE::0e032dfcf99d": {
@@ -9913,6 +10145,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -9963,6 +10198,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -10091,6 +10328,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -10141,6 +10381,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -10284,6 +10526,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -10334,6 +10579,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -10449,6 +10696,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -10499,6 +10749,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -10611,6 +10863,9 @@
         "bad-976-sealed-observedattacks-unknown",
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -10650,7 +10905,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "types.go::parseEnvironment::IF_OFF::b70164081046": {
@@ -10789,6 +11046,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -10839,6 +11099,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -10967,6 +11229,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -11017,6 +11282,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -11172,6 +11439,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -11212,7 +11482,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "types.go::parsePredicate::IF_OFF::354040a2f0b5": {
@@ -11346,6 +11618,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -11396,6 +11671,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -11518,6 +11795,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -11568,6 +11848,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -11697,6 +11979,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -11747,6 +12032,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -11862,6 +12149,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -11912,6 +12202,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -12058,6 +12350,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -12108,6 +12403,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -12175,7 +12472,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "types.go::parsePredicate::IF_OFF::f573bee95773": {
@@ -12295,6 +12594,8 @@
         "bad-976-sealed-observedattacks-unknown",
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -12337,7 +12638,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "types.go::parseRow::IF_OFF::91704092c29d": {
@@ -12451,6 +12754,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -12501,6 +12807,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -12582,6 +12890,9 @@
         "bad-976-sealed-observedattacks-unknown",
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -12619,7 +12930,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "types.go::parseRow::IF_OFF::cd5643b515d3": {
@@ -12879,7 +13192,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "validity.go::anyRecordSignaturesEmpty::IF_OFF::47629c64c732": {
@@ -12945,7 +13260,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "validity.go::armingChainSyntaxValid::IF_DISJ::14ccc6cf80ec": {
@@ -12989,7 +13306,8 @@
         "ok-041-posture-allowlist",
         "ok-042-posture-unsafe-bypass-egress",
         "ok-043-posture-producer-member-bound",
-        "ok-045-mixed-clean-rows-indirect"
+        "ok-045-mixed-clean-rows-indirect",
+        "ok-050-registered-noncovering-kinds"
       ]
     },
     "validity.go::armingChainSyntaxValid::IF_OFF::29432fc74d18": {
@@ -13069,7 +13387,8 @@
         "ok-041-posture-allowlist",
         "ok-042-posture-unsafe-bypass-egress",
         "ok-043-posture-producer-member-bound",
-        "ok-045-mixed-clean-rows-indirect"
+        "ok-045-mixed-clean-rows-indirect",
+        "ok-050-registered-noncovering-kinds"
       ]
     },
     "validity.go::armingChainSyntaxValid::RET_TRUE::19921ccfad14": {
@@ -13150,7 +13469,8 @@
         "ok-041-posture-allowlist",
         "ok-042-posture-unsafe-bypass-egress",
         "ok-043-posture-producer-member-bound",
-        "ok-045-mixed-clean-rows-indirect"
+        "ok-045-mixed-clean-rows-indirect",
+        "ok-050-registered-noncovering-kinds"
       ]
     },
     "validity.go::armingConstraintsMet::IF_CONJ::cae23576d43a": {
@@ -13264,7 +13584,8 @@
         "ok-041-posture-allowlist",
         "ok-042-posture-unsafe-bypass-egress",
         "ok-043-posture-producer-member-bound",
-        "ok-045-mixed-clean-rows-indirect"
+        "ok-045-mixed-clean-rows-indirect",
+        "ok-050-registered-noncovering-kinds"
       ]
     },
     "validity.go::armingConstraintsMet::RET_TRUE::19921ccfad14": {
@@ -13452,13 +13773,6 @@
         "ok-901-row-missing-basis"
       ]
     },
-    "validity.go::checkSubstrateRow::CASE_OFF::495aafc9fd70": {
-      "class": "KILLED",
-      "snippet": "unknownSeen",
-      "killers": [
-        "bad-714-unknown-kind-sole-cover"
-      ]
-    },
     "validity.go::checkSubstrateRow::CASE_OFF::91cd8894b314": {
       "class": "KILLED",
       "snippet": "*row.Method == MethodReconstructed",
@@ -13510,6 +13824,15 @@
         "bad-978-arming-assessedattacks-unsorted"
       ]
     },
+    "validity.go::checkSubstrateRow::CASE_OFF::c7b74e0377bd": {
+      "class": "KILLED",
+      "snippet": "coversNothing != \"\"",
+      "killers": [
+        "bad-714-unknown-kind-sole-cover",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover"
+      ]
+    },
     "validity.go::checkSubstrateRow::CASE_OFF::ef02637fd913": {
       "class": "KILLED",
       "snippet": "labelCaught",
@@ -13532,7 +13855,8 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-051-two-pinned-rows"
       ]
     },
     "validity.go::checkSubstrateRow::CODE_OFF::04bf8f51afee": {
@@ -13589,11 +13913,13 @@
         "bad-969-substrate-row-attribution-oov"
       ]
     },
-    "validity.go::checkSubstrateRow::CODE_OFF::21641917bdc7": {
+    "validity.go::checkSubstrateRow::CODE_OFF::2c30a2b5164d": {
       "class": "KILLED",
-      "snippet": "appendCode(codes, CodeRecordKindUnknownCoversNothing)",
+      "snippet": "appendCode(codes, coversNothing)",
       "killers": [
-        "bad-714-unknown-kind-sole-cover"
+        "bad-714-unknown-kind-sole-cover",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover"
       ]
     },
     "validity.go::checkSubstrateRow::CODE_OFF::2cacbd99e13a": {
@@ -13714,7 +14040,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "validity.go::checkSubstrateRow::IF_OFF::02af432d03e2": {
@@ -13746,13 +14074,6 @@
       "killers": [
         "bad-103-ref-negative",
         "bad-108-ref-non-integer"
-      ]
-    },
-    "validity.go::checkSubstrateRow::IF_OFF::35047fcf530b": {
-      "class": "KILLED",
-      "snippet": "if ev.unknownKind { unknownSeen = true }",
-      "killers": [
-        "bad-714-unknown-kind-sole-cover"
       ]
     },
     "validity.go::checkSubstrateRow::IF_OFF::3c76fcd5ce51": {
@@ -13810,7 +14131,18 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
+      ]
+    },
+    "validity.go::checkSubstrateRow::IF_OFF::4a3655ff0af7": {
+      "class": "KILLED",
+      "snippet": "if coversNothing == \"\" { coversNothing = ev.coversNothingCode }",
+      "killers": [
+        "bad-714-unknown-kind-sole-cover",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover"
       ]
     },
     "validity.go::checkSubstrateRow::IF_OFF::57c03d161a3d": {
@@ -13893,6 +14225,8 @@
         "bad-976-sealed-observedattacks-unknown",
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -13930,7 +14264,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "validity.go::checkSubstrateRow::IF_OFF::7ee1bca12ff5": {
@@ -14028,7 +14364,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "validity.go::checkSubstrateRow::IF_OFF::d066fff4875e": {
@@ -14104,6 +14442,13 @@
         "bad-304-method-cap-multirecord"
       ]
     },
+    "validity.go::evaluateKind::CASE_DEL::1dc1a6248ccf": {
+      "class": "KILLED",
+      "snippet": "case KindUncommittedObservation: ev.coversNothingCode = CodeUncommittedObservationCoversNothing",
+      "killers": [
+        "bad-981-uncommitted-observation-sole-cover"
+      ]
+    },
     "validity.go::evaluateKind::CASE_DEL::418ef7273058": {
       "class": "KILLED",
       "snippet": "case KindSealed: ev.failCode = CodeSealedCoversNothing ev.valid = sealedConstraintsMet(a, pinnedPosture, armingPostures, declaredAttacks)",
@@ -14168,7 +14513,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "validity.go::evaluateKind::CASE_DEL::5e13e6662219": {
@@ -14185,6 +14532,13 @@
         "ok-017-method-weakening-allowed",
         "ok-030-method-min-multirecord",
         "ok-031-caught-reconstructed"
+      ]
+    },
+    "validity.go::evaluateKind::CASE_DEL::c2eb3fb730d1": {
+      "class": "KILLED",
+      "snippet": "case KindMoatDrop: ev.coversNothingCode = CodeMoatDropCoversNothing",
+      "killers": [
+        "bad-980-moat-drop-sole-cover"
       ]
     },
     "validity.go::evaluateKind::CASE_DEL::ce98b2d0461f": {
@@ -14236,7 +14590,8 @@
         "ok-041-posture-allowlist",
         "ok-042-posture-unsafe-bypass-egress",
         "ok-043-posture-producer-member-bound",
-        "ok-045-mixed-clean-rows-indirect"
+        "ok-045-mixed-clean-rows-indirect",
+        "ok-050-registered-noncovering-kinds"
       ]
     },
     "validity.go::evaluateKind::IF_CONJ::4d4c7eee2e28": {
@@ -14264,7 +14619,8 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-051-two-pinned-rows"
       ]
     },
     "validity.go::evaluateKind::IF_OFF::3eb82f4bd4bd": {
@@ -14428,7 +14784,9 @@
         "bad-975-sealed-missing-observedattacks",
         "bad-976-sealed-observedattacks-unknown",
         "bad-977-arming-missing-assessedattacks",
-        "bad-978-arming-assessedattacks-unsorted"
+        "bad-978-arming-assessedattacks-unsorted",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover"
       ]
     },
     "validity.go::gate1WithContext::CODE_OFF::2fce98188438#4": {
@@ -14439,7 +14797,8 @@
         "bad-959-pinned-without-expectation",
         "bad-960-pinned-commitment-unmatched",
         "bad-972-second-interception-unresolved",
-        "bad-973-pinned-clean-row"
+        "bad-973-pinned-clean-row",
+        "bad-982-pinned-assignment-spliced"
       ]
     },
     "validity.go::gate1WithContext::CODE_OFF::2fce98188438#5": {
@@ -14519,7 +14878,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "validity.go::gate1WithContext::IF_CONJ::8892bb433a9c": {
@@ -14757,6 +15118,8 @@
         "bad-976-sealed-observedattacks-unknown",
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -14794,7 +15157,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "validity.go::sealedConstraintsMet::IF_DISJ::0dbfd8e7fab2": {
@@ -14953,7 +15318,9 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows"
       ]
     },
     "validity.go::sealedConstraintsMet::RET_TRUE::0a253196ac86": {
@@ -15108,6 +15475,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable"
       ]
@@ -15378,6 +15748,9 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable"
       ]
@@ -15484,6 +15857,8 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]

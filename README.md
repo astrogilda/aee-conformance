@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://github.com/astrogilda/aee-conformance/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/astrogilda/aee-conformance/ci.yml?branch=main&label=build" alt="build status"></a>
   <img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="license Apache-2.0">
-  <img src="https://img.shields.io/badge/conformance%20vectors-221-e8951c" alt="221 conformance vectors">
+  <img src="https://img.shields.io/badge/conformance%20vectors-226-e8951c" alt="226 conformance vectors">
   <img src="https://img.shields.io/badge/rails-Go%20%C2%B7%20Python-546274" alt="Go and Python rails">
   <img src="https://img.shields.io/badge/predicate-in--toto%20AEE%20v0.7-6f57c2" alt="in-toto AEE v0.7 predicate">
 </p>
@@ -305,17 +305,17 @@ A vector count is an upper bound on forcing and never a measurement of it. The
 evaluator satisfies a vector when ANY expected code in a stage is observed, and
 the per-stage column the runner prints is a display rather than a verdict: delete
 the `result-vocabulary` emission from the rail and two vectors' gate-0 column goes
-FAIL while the suite still reports 221 of 221, exit 0. A rail with no
+FAIL while the suite still reports 226 of 226, exit 0. A rail with no
 result-vocabulary check at all clears this corpus.
 
 So forcing is measured instead. `scripts/forcing-gate.py` switches off exactly one
 rule in the reference rail, replays every vector, and asks whether the corpus
-notices — 743 single-site weakenings of `aee/`, one rebuild and one full replay
+notices — 745 single-site weakenings of `aee/`, one rebuild and one full replay
 each. A rule the corpus never notices losing is a rule no third-party implementer
 is obliged to build, whatever the vector count says.
 
 [`docs/FORCING-BASELINE.json`](docs/FORCING-BASELINE.json) is the result, held as a
-tighten-only ratchet: **415 rules forced, 26 seen-but-tolerated, 297 unforced, 5
+tighten-only ratchet: **417 rules forced, 26 seen-but-tolerated, 297 unforced, 5
 unmeasurable.** The four outcomes stay apart on purpose — "we could not measure it"
 and "the corpus does not force it" are different claims and only one is a gap — and
 four sites carry an annotation saying that "unforced" is the wrong word for them,
@@ -325,7 +325,7 @@ annotations are claims the gate falsifies: an annotated site that is ever killed
 fails the build.
 
 CI runs the ratchet on every push over the rules the baseline records as forced —
-the complete set where a regression is possible — and sweeps all 743 sites nightly,
+the complete set where a regression is possible — and sweeps all 745 sites nightly,
 which is what can see forcing improve.
 
 ### Condition ids
@@ -419,7 +419,7 @@ directed 153/153 says the corrected rule is implementable by someone who has onl
 the text. It is not the same evidence as 125/125 and this suite does not present
 it as such.
 
-It has not been run against suiteRevision 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 or 18, so
+It has not been run against suiteRevision 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 or 19, so
 this suite publishes no score for it at any of them. They are on that list for
 two different reasons. From suiteRevision 7 onward the corpus itself moved past
 his last run: the single suiteRevision-7 vector (`bad-745`) and the two

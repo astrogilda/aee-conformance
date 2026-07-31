@@ -1006,7 +1006,7 @@ def _timestamp_ok(v: Any) -> bool:
     """Whether a value is carried under the predicate's Timestamp field type.
 
     The type requires RFC 3339 in the UTC timezone; the predicate pins the two
-    choices that type leaves open (spec:1571-1580), and the two are checked separately
+    choices that type leaves open (spec:1647-1656), and the two are checked separately
     because they are separate rules. The pattern carries the case half: an
     uppercase separator and zone designator, never the lowercase `t` and `z`
     RFC 3339 also admits. The pattern accepts any numeric offset, so the zone
@@ -1890,9 +1890,37 @@ class ReferenceVerifier:
         ):
             out.add("run-binding-mismatch")
 
+    # Kinds that cover nothing whatever their payload carries. The two the
+    # document registers as non-covering report under their own names, because
+    # a citation of a kind that covers nothing by registration and a citation
+    # of a kind this rail has never heard of are different producer errors with
+    # different fixes, and telling the first to upgrade its verifier does not
+    # help it.
+    _REGISTERED_NONCOVERING = {
+        "moat-drop": "moat-drop-covers-nothing",
+        "uncommitted-observation": "uncommitted-observation-covers-nothing",
+    }
+    _COVERING_KINDS = ("interception", "arming", "sealed", "examination")
+
+    @classmethod
+    def _covers_nothing(cls, usable: list[RecordView]) -> str | None:
+        """The code for the first resolved record whose KIND covers nothing.
+
+        Reference order rather than a ranking between the registered kinds and
+        the unrecognized one: the document states no precedence, neither can be
+        made to cover, and the value is a diagnostic rather than a verdict.
+        """
+        for rv in usable:
+            registered = cls._REGISTERED_NONCOVERING.get(rv.kind or "")
+            if registered is not None:
+                return registered
+            if rv.kind not in cls._COVERING_KINDS:
+                return "record-kind-unknown-covers-nothing"
+        return None
+
     @staticmethod
-    def _uncovered_code(unknown_ref: bool, specific: str) -> str:
-        return "record-kind-unknown-covers-nothing" if unknown_ref else specific
+    def _uncovered_code(covers_nothing: str | None, specific: str) -> str:
+        return covers_nothing if covers_nothing is not None else specific
 
     def _gate1_class_match(
         self,
@@ -1903,34 +1931,33 @@ class ReferenceVerifier:
         pinned_posture: Any,
     ) -> list[RecordView]:
         usable = [rv for rv in ref_views if rv.payload is not None and rv.media_ok]
-        known_kinds = ("interception", "arming", "sealed", "examination")
-        unknown_ref = any(rv.kind not in known_kinds for rv in usable)
+        covers_nothing = self._covers_nothing(usable)
 
         lab = r.get("containmentObserved")
         method = r.get("method")
         if method == "reconstructed":
-            return self._gate1_cover_reconstructed(out, usable, unknown_ref)
+            return self._gate1_cover_reconstructed(out, usable, covers_nothing)
         if st.caught is not None and lab in st.caught:
-            return self._gate1_cover_caught(out, usable, unknown_ref)
-        return self._gate1_cover_clean(st, out, usable, unknown_ref, pinned_posture)
+            return self._gate1_cover_caught(out, usable, covers_nothing)
+        return self._gate1_cover_clean(st, out, usable, covers_nothing, pinned_posture)
 
     def _gate1_cover_reconstructed(
-        self, out: Outcome, usable: list[RecordView], unknown_ref: bool
+        self, out: Outcome, usable: list[RecordView], covers_nothing: str | None
     ) -> list[RecordView]:
         exams = [rv for rv in usable if rv.kind == "examination"]
         good = [rv for rv in exams if self._examination_ok(rv)]
         if not exams:
-            out.add(self._uncovered_code(unknown_ref, "reconstructed-row-uncovered"))
+            out.add(self._uncovered_code(covers_nothing, "reconstructed-row-uncovered"))
         elif not good:
             out.add("examination-covers-nothing")
         return good
 
     def _gate1_cover_caught(
-        self, out: Outcome, usable: list[RecordView], unknown_ref: bool
+        self, out: Outcome, usable: list[RecordView], covers_nothing: str | None
     ) -> list[RecordView]:
         inters = [rv for rv in usable if rv.kind == "interception"]
         if not inters:
-            out.add(self._uncovered_code(unknown_ref, "caught-row-uncovered"))
+            out.add(self._uncovered_code(covers_nothing, "caught-row-uncovered"))
             return inters
         # aeePayloadCommitment is required on the kind from 0.7. ABSENT takes
         # the missing-reserved code every other absent reserved member takes;
@@ -1953,11 +1980,11 @@ class ReferenceVerifier:
         st: _VerifyState,
         out: Outcome,
         usable: list[RecordView],
-        unknown_ref: bool,
+        covers_nothing: str | None,
         pinned_posture: Any,
     ) -> list[RecordView]:
-        good_arm = self._gate1_clean_arm(st, out, usable, unknown_ref, pinned_posture)
-        good_seal = self._gate1_clean_seal(st, out, usable, unknown_ref, pinned_posture)
+        good_arm = self._gate1_clean_arm(st, out, usable, covers_nothing, pinned_posture)
+        good_seal = self._gate1_clean_seal(st, out, usable, covers_nothing, pinned_posture)
         return good_arm + good_seal
 
     def _gate1_clean_arm(
@@ -1965,7 +1992,7 @@ class ReferenceVerifier:
         st: _VerifyState,
         out: Outcome,
         usable: list[RecordView],
-        unknown_ref: bool,
+        covers_nothing: str | None,
         pinned_posture: Any,
     ) -> list[RecordView]:
         issued_at = st.issued_at
@@ -1976,7 +2003,7 @@ class ReferenceVerifier:
             if self._arming_ok(rv, pinned_posture, issued_at, st.declared_attacks)
         ]
         if not armings:
-            out.add(self._uncovered_code(unknown_ref, "clean-row-uncovered"))
+            out.add(self._uncovered_code(covers_nothing, "clean-row-uncovered"))
         elif not good_arm:
             out.add("arming-covers-nothing")
         return good_arm
@@ -1986,7 +2013,7 @@ class ReferenceVerifier:
         st: _VerifyState,
         out: Outcome,
         usable: list[RecordView],
-        unknown_ref: bool,
+        covers_nothing: str | None,
         pinned_posture: Any,
     ) -> list[RecordView]:
         sealeds = [rv for rv in usable if rv.kind == "sealed"]
@@ -2007,7 +2034,7 @@ class ReferenceVerifier:
             if self._sealed_ok(rv, pinned_posture, arming_postures, st.declared_attacks)
         ]
         if not sealeds:
-            out.add(self._uncovered_code(unknown_ref, "clean-row-uncovered"))
+            out.add(self._uncovered_code(covers_nothing, "clean-row-uncovered"))
         elif not good_seal:
             out.add("sealed-covers-nothing")
         return good_seal
@@ -2398,6 +2425,8 @@ _CODE_REGISTRY: dict[str, tuple[str, tuple[str, ...]]] = {
     "sealed-covers-nothing": ("gate1", ()),
     "examination-covers-nothing": ("gate1", ()),
     "record-kind-unknown-covers-nothing": ("gate1", ()),
+    "moat-drop-covers-nothing": ("gate1", ()),
+    "uncommitted-observation-covers-nothing": ("gate1", ()),
     "result-recompute-mismatch": ("recompute", ()),
 }
 

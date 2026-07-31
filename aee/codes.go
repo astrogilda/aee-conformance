@@ -19,8 +19,13 @@
 //	GATE 2  evidence tier               (tier.go)      — {declared|unattested|attested},
 //	        trust-relative, derived per consumer key policy; never alters result
 //
-// Spec line references in this package are to the predicate specification at
-// commit 4a36b19 (spec/predicates/adversarial-execution-evidence.md).
+// Spec line references in this package are to the vendored predicate
+// specification at spec/predicates/adversarial-execution-evidence.md. Which
+// upstream commit that is, is recorded in spec/VENDOR-PIN.json and derived by
+// scripts/vendor-spec.py from git at vendor time. It is deliberately not
+// restated here: this line carried a hand-typed commit that was four normative
+// revisions stale, which is the same defect the vendor pin exists to end, and
+// every citation below is remapped and re-pinned on every re-vendor.
 package aee
 
 // Code is a stable, machine-readable failure code. The registry of codes and
@@ -102,6 +107,15 @@ const (
 	CodeSealedCoversNothing            Code = "sealed-covers-nothing"
 	CodeExaminationCoversNothing       Code = "examination-covers-nothing"
 	CodeRecordKindUnknownCoversNothing Code = "record-kind-unknown-covers-nothing"
+	// The two registered non-covering kinds report under their own names
+	// (spec:1326-1331). The specification asks a verifier to distinguish them
+	// from an unrecognized kind because the two are different producer errors
+	// with different fixes: one cites a record that can never cover anything,
+	// the other cites a record this verifier is too old to read. Reporting both
+	// as unknown tells the first producer to upgrade its verifier, which will
+	// not help.
+	CodeMoatDropCoversNothing               Code = "moat-drop-covers-nothing"
+	CodeUncommittedObservationCoversNothing Code = "uncommitted-observation-covers-nothing"
 	// CodePayloadCommitmentMalformed reports an interception record whose
 	// aeePayloadCommitment is present but violates its shape rules (empty,
 	// unsorted, duplicate-carrying, or an entry that is not lowercase 64-hex).

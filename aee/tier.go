@@ -8,7 +8,7 @@ package aee
 // No TOFU: a consumer with no policy-pinned substrate root MUST treat every
 // basis: substrate row as unattested and MUST NOT infer the substrate root
 // from the predicate (spec:731-734). A record's keyid is an unauthenticated
-// lookup hint and never the check itself (spec:1670-1672): verification below
+// lookup hint and never the check itself (spec:1746-1748): verification below
 // tries every policy-named key and never reads keyid.
 
 import (

@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 221,
-    "pass": 221,
+    "vectors": 226,
+    "pass": 226,
     "fail": 0
   },
   "notes": [
@@ -1208,6 +1208,56 @@
     {
       "id": "ok-049-seal-names-caught-attack",
       "file": "vectors/accept/ok-049-seal-names-caught-attack.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "primaryCode": null,
+        "result": "fail"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "ok-050-registered-noncovering-kinds",
+      "file": "vectors/accept/ok-050-registered-noncovering-kinds.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "primaryCode": null,
+        "result": "pass"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "ok-051-two-pinned-rows",
+      "file": "vectors/accept/ok-051-two-pinned-rows.json",
       "kind": "accept",
       "status": "PASS",
       "gates": {
@@ -6295,6 +6345,93 @@
         "verdict": "invalid",
         "codes": [
           "interception-record-orphaned"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-980-moat-drop-sole-cover",
+      "file": "vectors/reject/bad-980-moat-drop-sole-cover.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "moat-drop-covers-nothing"
+        ],
+        "primaryCode": "moat-drop-covers-nothing",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "moat-drop-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-981-uncommitted-observation-sole-cover",
+      "file": "vectors/reject/bad-981-uncommitted-observation-sole-cover.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "uncommitted-observation-covers-nothing"
+        ],
+        "primaryCode": "uncommitted-observation-covers-nothing",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "uncommitted-observation-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-982-pinned-assignment-spliced",
+      "file": "vectors/reject/bad-982-pinned-assignment-spliced.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "attribution-pin-unmatched"
+        ],
+        "primaryCode": "attribution-pin-unmatched",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "attribution-pin-unmatched"
         ]
       },
       "inManifest": true,

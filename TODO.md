@@ -263,7 +263,7 @@ under suiteRevision 17.
   operators switch off a guard, a disjunct, a conjunct, a switch arm, a bool return or an
   emission. A rule that lives in a constant (a bound, a depth cap, a media type), in the ORDER
   of two checks, or in a data table is not a site, so it appears in no class -- not even as a
-  gap. 590 sites is the size of what can be asked, never the size of the rail. File:
+  gap. 743 sites is the size of what can be asked, never the size of the rail. File:
   `cmd/mutgen/mutate.go`.
 - [ ] **The 157 unforced rules on branches no vector takes are a list, not a plan.** The
   nightly sweep re-derives which surviving mutants sit on a branch the corpus never enters,

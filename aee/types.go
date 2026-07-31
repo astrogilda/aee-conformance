@@ -540,27 +540,34 @@ func parseEnvironment(raw json.RawMessage) (*Environment, []Code) {
 // own code instead of the parse catch-all. That is the same separation
 // networkPosture already makes, and for the same reason: a producer told its
 // statement is malformed learns nothing about which member to look at.
+// The presence guard is written in the POSITIVE polarity, as `len(...) > 0`
+// around the decode, rather than as an early return on the empty case. The two
+// are equivalent to a reader and are not equivalent to the forcing campaign: an
+// early return on the empty case, switched off, falls into a decode of empty
+// bytes that fails anyway, so the corpus stops noticing the guard at all. The
+// extraction was written the other way once and the ratchet caught it.
 func decodeManifest(c *Corpus) bool {
-	if len(c.ManifestRaw) == 0 {
-		return true
-	}
-	var manifest struct {
-		Classes          map[string][]string `json:"classes"`
-		ExpectedPayloads json.RawMessage     `json:"expectedPayloads"`
-	}
-	if err := json.Unmarshal(c.ManifestRaw, &manifest); err != nil {
-		return false
-	}
-	c.Classes = manifest.Classes
-	if len(manifest.ExpectedPayloads) > 0 {
-		c.ExpectedPayloadsPresent = true
-		var ep map[string][]string
-		if json.Unmarshal(manifest.ExpectedPayloads, &ep) == nil {
-			c.ExpectedPayloads = ep
-			c.ExpectedPayloadsShapeOK = true
+	ok := true
+	if len(c.ManifestRaw) > 0 {
+		var manifest struct {
+			Classes          map[string][]string `json:"classes"`
+			ExpectedPayloads json.RawMessage     `json:"expectedPayloads"`
+		}
+		if err := json.Unmarshal(c.ManifestRaw, &manifest); err != nil {
+			ok = false
+		} else {
+			c.Classes = manifest.Classes
+			if len(manifest.ExpectedPayloads) > 0 {
+				c.ExpectedPayloadsPresent = true
+				var ep map[string][]string
+				if json.Unmarshal(manifest.ExpectedPayloads, &ep) == nil {
+					c.ExpectedPayloads = ep
+					c.ExpectedPayloadsShapeOK = true
+				}
+			}
 		}
 	}
-	return true
+	return ok
 }
 
 func parseRow(raw json.RawMessage) (Row, []Code) {

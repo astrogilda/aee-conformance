@@ -7,7 +7,7 @@ byte-identically from the generators.
 
 ## suiteRevision 18 (the predicate revision that makes four descriptions checkable)
 
-- Corpus: **220 vectors (50 accept, 168 reject, 2 indeterminate)**, up from 187.
+- Corpus: **221 vectors (50 accept, 169 reject, 2 indeterminate)**, up from 187.
   Every vector in the corpus is regenerated, because every statement carries a
   new `predicateType` and a new required row member. The vendored specification
   moves with it, so this is a normative revision on the wire, on the corpus and
@@ -451,8 +451,8 @@ byte-identically from the generators.
   a corpus of single statements has no key lifetime to place them in, and the
   requirement is recorded in the unforced complement rather than left implicit.
 - **The citations and anchors were remapped, and the remap was checked rather
-  than trusted.** The completing pass moved 28 `spec:NNN` citations and 110
-  `Lnnn` anchors onto the new line numbers. All 294 pinned citations recompute
+  than trusted.** The completing pass of that revision moved 28 `spec:NNN`
+  citations and 110 `Lnnn` anchors onto the new line numbers. All 294 pinned citations recompute
   to the digest and the excerpts they were pinned to, so not one of them came out
   of this remap addressing prose it was not drawn around. That is the opposite
   outcome to the pass before it, where nine anchors came out of the remap wrong

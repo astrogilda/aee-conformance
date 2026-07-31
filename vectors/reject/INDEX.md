@@ -188,7 +188,7 @@ that guesses is worse than one that is missing: it looks resolved.
 | aee-c-92 | L699-721 | the corpus manifest declares at least one attack identifier across all of its classes |
 | aee-c-93 | L585-593 | networkPosture.posture is a registered value |
 
-## Vectors (135)
+## Vectors (140)
 
 `parent` names the accept-suite shape the vector derives from (the
 accept vectors land separately; the parent statements are built
@@ -333,6 +333,11 @@ so the declared fault stays the ONLY fault.
 | `bad-305-posture-swapped` | ok-002 | networkPosture.posture swapped from "sinkhole" to "allowlist"; every digest, signature and record left exactly as the producer signed them | - | aee-c-22 aee-c-60 | `run-binding-mismatch` | L157-165; L498-499 |
 | `bad-306-vocabulary-caught-narrowed` | ok-002 | caught narrowed to [] with the vocabulary digest re-derived over the narrowed arrays; the records keep the binding they were signed with | recompute-vocabulary-digest | aee-c-22 aee-c-60 | `run-binding-mismatch` | L157-165; L498-499 |
 | `bad-307-posture-member-added-after-arming` | ok-002 | networkPosture gains a producer member the records do not commit to | - | aee-c-22 aee-c-60 | `run-binding-mismatch` | L157-165; L498-499 |
+| `bad-900-sealed-method-reconstructed` | ok-002 | sealed record signed aeeMethod: "reconstructed" | re-sign-record, recompute-batch-root | aee-c-65 | `sealed-covers-nothing` | L1008-1012; L1019-1022 |
+| `bad-901-sealed-negative-dropcount` | ok-003 | sealed aeeDropCount: -1 inside a declared aeeDropBound: 5 | re-sign-record, recompute-batch-root | aee-c-65 | `sealed-covers-nothing` | L1023-1103 |
+| `bad-902-sealed-posture-ne-arming` | ok-002 | a second arming record carrying a posture digest the run never pinned, referenced by the clean row alongside the valid arming and sealed pair | recompute-batch-root | aee-c-65 | `sealed-covers-nothing` | L1023-1103 |
+| `bad-905-vocabulary-labels-absent` | ok-033 | drop labels from an observationVocabulary that is otherwise present; digest re-derived over the truncated object | recompute-vocabulary-digest | aee-c-51 | `vocabulary-not-canonical` | L566-574 |
+| `bad-906-corpus-manifest-absent` | ok-033 | drop corpus.manifest, keeping the corpus name, uri and digest | - | aee-c-78 | `environment-incomplete` | L554-563 |
 
 ## Notes on specific vectors
 
@@ -425,6 +430,11 @@ so the declared fault stays the ONLY fault.
 - **bad-305-posture-swapped**: both values are registered, so this is the swap no vocabulary rule can see. Under the version-1 binding this statement was VALID and the substitution cost nothing: it changed no digest and broke no signature. It is a mismatch now because the binding covers the carried posture object rather than the value of that object's own digest member.
 - **bad-306-vocabulary-caught-narrowed**: the caught set decides which labels are caught, and both the recompute and the coverage validity requirements read it, so a producer that narrows it after the run turns a caught row into a clean one. Nothing resisted that under version 1: the vocabulary's own digest re-derives from the arrays beside it and no record's binding moved. Binding the carried digest is what closes it.
 - **bad-307-posture-member-added-after-arming**: the consequence the binding change makes normative, in the direction that must fail. The binding covers the carried object, so a member added to the posture after arming invalidates the producer's own statement. Its accepted twin is ok-043, which carries the same member with records committing to it, and the pair is what makes this a rule about WHEN the member was added rather than about whether the posture may carry one at all.
+- **bad-900-sealed-method-reconstructed**: the sealed twin of bad-704 and bad-712. Every other kind's method constraint had a vector and this one did not, so a rail that read the sealed record's aeeMethod and did nothing with it passed.
+- **bad-901-sealed-negative-dropcount**: a count of dropped observations below zero is not a count. The corpus tested the bound from above (bad-709) and never from below, so a rail comparing only against the bound accepted it.
+- **bad-902-sealed-posture-ne-arming**: the sealed-vs-arming half of the posture equality, which bad-710 cannot separate. A rule can go unforced because the corpus SHAPE cannot express its precondition rather than because nobody wrote the vector, and the two need different fixes.
+- **bad-905-vocabulary-labels-absent**: bad-601 drops the whole vocabulary and every array vector edits an array that is there. The half-present object sat between them: a rail checking that the member exists, then reading labels, accepted a statement carrying no label set at all.
+- **bad-906-corpus-manifest-absent**: one statement two rails read two ways: the Go rail called the environment incomplete and the Python rail accepted it, and nothing in the corpus made them disagree out loud.
 
 ## Compound vectors and precedence pins
 
@@ -464,15 +474,26 @@ entries shares a statement with one whose payload does not decode.
 
 ## Deferred coverage (no vector, by design)
 
-- **Missing or out-of-vocabulary `basis`** on a row: a row whose
-  `basis` is absent or unknown cannot be classified for the
-  fail-closed branch split (substrate => attestation invalid vs
-  artifact => valid `fail`), and the spec text does not state which
-  branch applies. This is a formal spec-edit ask on the PR thread;
-  shipping a reject vector now would silently resolve the reading.
-  The out-of-vocab METHOD and LABEL substrate twins (bad-501,
-  bad-504) plus the valid artifact-row twins in the accept suite
-  cover the decidable half of the fail-closed axis.
+- **Missing or out-of-vocabulary `basis` on a SUBSTRATE-carrying
+  statement**: the fail-closed branch split (substrate => the
+  attestation is invalid vs artifact => a valid `fail`) turns on a
+  classification the row itself refuses to supply, and the spec
+  text does not state which branch applies. Shipping a reject
+  vector here would silently resolve that reading, so there is
+  none; it is a formal spec-edit ask on the PR thread.
+  This bullet has NARROWED. The accept suite now ships
+  `ok-901-row-missing-basis`, a recordless statement whose single
+  row carries no `basis` member, no refs and no substrate
+  participation of any kind: it is VALID and it recomputes to
+  `fail`. That decides the half of the question a statement with
+  no substrate vantage can even ask, and it was shipped because
+  the rail's basis branch was measured to have no vector behind
+  it in either direction. What stays open is the half this
+  directory would have to answer: the same row inside a statement
+  that does carry substrate evidence. The out-of-vocab METHOD and
+  LABEL substrate twins (bad-501, bad-504) plus the valid
+  artifact-row twins in the accept suite cover the decidable rest
+  of the fail-closed axis.
 - **Duplicate-record identity discriminator** (leaf-hash vs
   byte-identical): bad-405 is invalid under BOTH readings; the
   discriminating vector waits on the spec answer.

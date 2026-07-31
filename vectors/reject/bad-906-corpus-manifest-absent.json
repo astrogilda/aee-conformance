@@ -7,8 +7,7 @@
         "attackId": "XA-EXAMPLE-1",
         "basis": "artifact",
         "containmentObserved": "no_egress",
-        "method": "reconstructed",
-        "observationRefs": []
+        "method": "intercepted"
       }
     ],
     "coverage": {
@@ -16,7 +15,7 @@
         "XA"
       ],
       "outOfScope": {
-        "XB": "example: class not assessed in this run"
+        "XB": "example scope reason"
       },
       "routedElsewhere": {}
     },
@@ -24,19 +23,19 @@
     "observationEnvironment": {
       "catchPolicy": {
         "digest": {
-          "sha256": "846c2ccf97b5a5f4da335fe733e7f4f786ffd224ce582fb5a9685d52184abdc3"
+          "sha256": "28f8fb978cae8aabc974e6557a3665523281bfd85fcee13429179120ad7667cc"
         }
       },
       "corpus": {
         "digest": {
           "sha256": "f362540fbead107e372f4105b1259d5c2cff2c7235a8c87f4bb431411e80f66d"
         },
-        "name": "example-adversarial-corpus",
-        "uri": "pkg:example/adversarial-corpus@1.0.0"
+        "name": "example-corpus",
+        "uri": "pkg:example/example-corpus@1.0.0"
       },
       "networkPosture": {
         "digest": {
-          "sha256": "a6ebfc845bfe910a099320fd7ec33e21282a8b56d82111527a80444ca18e4352"
+          "sha256": "ba44e77b7861b9b7c5a7288b3d703a62289fb02b3a3e0f5612a4e74dbee0929e"
         },
         "posture": "sinkhole"
       },

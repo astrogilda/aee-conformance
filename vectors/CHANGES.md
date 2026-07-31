@@ -5,6 +5,55 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 16 (the corpus is regenerable, and was measured to prove it)
+
+- Corpus: **186 vectors (46 accept, 140 reject)**, unchanged in size, in
+  membership, in declared conditions and in expected failure codes. Five reject
+  vector files changed bytes. Every other vector file, every record set, every
+  batch root, every run binding and every signature is untouched.
+- **Why a revision for a change that adds nothing.** The seven vectors
+  suiteRevision 15 added were minted by hand and committed as files. No builder
+  was added to either generator and no row was added to either index, so the
+  corpus had five reject vectors and two accept vectors that no generator could
+  produce, against a determinism recipe both indexes publish and nothing had ever
+  run. A published revision is not mutated in place, so the repaired corpus is a
+  new one.
+- **What was wrong with the five files, beyond being unbuildable.** Three of them
+  -- `bad-900`, `bad-901`, `bad-902` -- carried a sealed or arming record whose
+  signature does not verify: the mutated payload had been written with the
+  parent's signature copied across it. The reject generator's own second-fault
+  self-check refuses all three, and this directory's published invariant is that
+  signature verification is never a vector's fault because it is tier territory
+  rather than validity. All five also carried the ACCEPT generator's constant set
+  -- a different catch-policy digest, a different posture digest, a different
+  corpus name and uri, a different run-entropy pre-image -- inside a directory
+  whose determinism recipe names the other one. They are now built by the reject
+  generator from its own parents, its own constants and a real signature.
+- **What was checked before the bytes were allowed to move.** Each rebuilt vector
+  reports the same single failure code as the file it replaces, read from
+  `cmd/aee-verify -json`: `sealed-covers-nothing` for `bad-900`, `bad-901` and
+  `bad-902`, `vocabulary-not-canonical` for `bad-905`, `environment-incomplete`
+  for `bad-906`. The harness output over the whole corpus is byte-identical to
+  the run before the change, and the forcing ratchet rebuilt and replayed every
+  mutant it records as killed and found all of them still killed. Nothing this
+  corpus is measured to force was traded for regenerability.
+- **The manifest was also not its generator's output.** suiteRevision 15 rewrote
+  `vectors/MANIFEST.json` with the reject section first, where the generator
+  emits accept first, so the file disagreed with `vectors/gen_manifest.py` for
+  every one of its entries and not only the seven. Per-vector content is
+  unchanged; the document is now the one the generator writes.
+- **What now stops it recurring.** `scripts/regenerability-gate.py` copies the
+  tree, empties the generated set, runs all three generators and diffs, so a file
+  no generator produces fails on the push that adds it. Both generators' drop
+  tripwires read the vector directory instead of a typed count, and
+  `scripts/count-gate.py` checks each index table against the manifest rather
+  than against the heading above it. Run against suiteRevision 15 unmodified, the
+  new gate names all seven files and the manifest.
+- **Consumers must re-vendor.** The corpus content digest moved, so the
+  TypeScript rail, the standalone Python rail and the MCP server rail carry
+  suiteRevision 15 until they are refreshed;
+  `scripts/consumer-lag-gate.py` fails until they are.
+
 ## suiteRevision 15 (the corpus is measured, and forces seven rules it did not)
 
 - Corpus: **186 vectors (46 accept, 140 reject)**, up from 179. Seven vectors

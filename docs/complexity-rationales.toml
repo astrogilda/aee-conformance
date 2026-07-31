@@ -24,7 +24,7 @@ the self-check from the spec it mirrors.
 """
 
 ["vectors/accept/gen_valid_vectors.py::make_statement"]
-complexity = 11
+complexity = 12
 rationale = """
 make_statement assembles a valid statement from many independent, optional
 Options fields (result, signer role, record shape, coverage sets, and so on).
@@ -33,10 +33,37 @@ of those independent knobs, not tangled control flow.
 """
 
 ["vectors/reject/gen_invalid_vectors.py::second_fault_absence"]
-complexity = 12
+complexity = 16
 rationale = """
 second_fault_absence runs a sequence of independent second-fault checks (root
-family, vocabulary, corpus, binding) to assert each reject vector is broken
-exactly one way. The checks are independent by construction; the branch count is
-the number of fault families guarded, one per family.
+family, vocabulary, corpus, binding, signatures, result recompute, and the
+run-end record-set commitment) to assert each reject vector is broken exactly
+one way. The checks are independent by construction; the branch count is the
+number of fault families guarded, one per family.
+"""
+
+["vectors/accept/gen_valid_vectors.py::verify_commitments"]
+complexity = 29
+rationale = """
+verify_commitments reads a finished accept vector a SECOND time and asserts each
+of the coverage validity requirements this predicate version adds, one branch per
+requirement per subject it holds over: three requirements over every row, three
+over every carried record, and three over the run-level records of a statement
+carrying a substrate row. The branch count is the requirement count, and the
+duplication against the builder is the point rather than an accident -- a builder
+and a checker that share a derivation share its mistakes, and nine accept vectors
+moved when these requirements landed without anything in this file being able to
+see it. Splitting it by subject would hide the one property a reader wants, which
+is that every requirement in the specification's list has a line here.
+"""
+
+["vectors/reject/gen_invalid_vectors.py::commitments_check"]
+complexity = 19
+rationale = """
+commitments_check asserts the same list over every reject PARENT, which is the
+statement each vector derived from that parent starts as. A parent that quietly
+violates one of them gives every child a fault it was not written to test, and
+four parents did exactly that the moment the sealed record became unconditional.
+One branch per requirement, plus the guards that skip the substrate-only half on
+an artifact-only parent.
 """

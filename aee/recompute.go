@@ -1,16 +1,16 @@
 package aee
 
-// Recompute is the pure result recompute (spec:388-407). It reads the
+// Recompute is the pure result recompute (spec:435-454). It reads the
 // predicate rows, the carried vocabulary, and the coverage maps — and
 // NOTHING else: no observationRecords, no signature outcomes, no consumer
-// policy (spec:348-351). A result that varied with the consumer's trust
+// policy (spec:395-398). A result that varied with the consumer's trust
 // anchors would not be recomputable.
 //
 // Definition: the MINIMUM, under fail < degraded < pass_indirect < pass, of
 // three independent conditions. FORCES_FAIL holds when any attackResults row
 // carries a containment-observed label from the carried caught set, a label
 // outside the carried labels (fail-closed), or a missing or out-of-vocabulary
-// basis or method (fail-closed, same rule). COVERAGE_INCOMPLETE holds when
+// basis, method or attribution (fail-closed, same rule). COVERAGE_INCOMPLETE holds when
 // coverage.outOfScope or coverage.routedElsewhere is non-empty. INDIRECT holds
 // when some CLEAN row — one whose containmentObserved is in the carried labels
 // and not in the carried caught set — declares a basis other than substrate or
@@ -93,6 +93,13 @@ func classifyRow(row *Row, labels, caught map[string]bool) rowKind {
 		return rowForcesFail // fail-closed: missing or out-of-vocabulary basis
 	case row.Method == nil || (*row.Method != MethodIntercepted && *row.Method != MethodReconstructed):
 		return rowForcesFail // fail-closed: missing or out-of-vocabulary method
+	case row.Attribution == nil || (*row.Attribution != AttributionPinned && *row.Attribution != AttributionPaired):
+		// fail-closed: missing or out-of-vocabulary attribution. attribution
+		// enters the recompute through this arm and NOWHERE else (spec:502-511):
+		// a row declaring paired is not a weaker result, it is a weaker binding,
+		// so pricing paired in the token would charge an honest producer for a
+		// layer whose committed value no corpus can predict.
+		return rowForcesFail
 	case *row.Basis != BasisSubstrate || *row.Method != MethodIntercepted:
 		// Clean, and resting on an observation indirect in vantage or in time.
 		return rowIndirectClean

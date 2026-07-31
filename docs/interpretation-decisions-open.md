@@ -1,6 +1,6 @@
 # Open interpretation decisions (operator sign-off required)
 
-The AEE v0.6 spec (`spec/predicates/adversarial-execution-evidence.md`) leaves a
+The AEE v0.7 spec (`spec/predicates/adversarial-execution-evidence.md`) leaves a
 handful of corners where the correct answer is a genuine **design call with
 trade-offs**, not a reading the spec text forces. An independent from-spec
 verifier (in-toto/attestation PR #570) reached the same verdict as our two rails
@@ -35,7 +35,7 @@ recommended direction (open point 1): a single attack with two rows is a
 producer-assembly bug, and two contradictory rows for one attack (e.g. one
 caught, one clean) is exactly the ambiguity the recompute must not arbitrate.
 
-- **Spec.** A sentence was added to the `attackResults` paragraph (L658-671):
+- **Spec.** A sentence was added to the `attackResults` paragraph (L880-892):
   no two rows may carry the same `attackId`; coverage integrity set-compares row
   `attackId`s, so a duplicate would silently collapse under set semantics, and
   uniqueness is enforced separately, before that comparison.
@@ -61,7 +61,7 @@ among the three corners, and the converged debate chose keep-reject: a class
 both assessed and disclosed as a gap is contradictory. **Reversible at
 vetting.**
 
-- **Spec.** The coverage paragraph (L645-650) now states the three sets are a
+- **Spec.** The coverage paragraph (L867-872) now states the three sets are a
   disjoint partition: a class appears in exactly one of `assessedClasses`,
   `outOfScope`, `routedElsewhere` (a move, not a copy); a class in more than one
   is malformed.
@@ -87,7 +87,7 @@ converged debate's recommended direction (open point 3): one executed artifact
 per statement is the model everywhere else, and a two-subject artifact-only
 statement has no coherent meaning.
 
-- **Spec.** L193-196 was split: the cardinality half is stated unconditional
+- **Spec.** L210-213 was split: the cardinality half is stated unconditional
   ("on a statement of any basis"); the digest-input half keeps the
   substrate-row-carrying scope.
 - **Rails.** The subject-cardinality check was hoisted out of the
@@ -149,7 +149,7 @@ independent from-spec checker (in-toto/attestation#570 round-8, Rul1an).
 
 ## suiteRevision 3: reason-map membership vectors
 
-The coverage-partition membership rule (spec L650-652: the three sets are a
+The coverage-partition membership rule (spec L872-874: the three sets are a
 disjoint partition of the manifest's classes) is now forced on all three sets,
 not just `assessedClasses`: `bad-819` (assessed), `bad-731` (`outOfScope`),
 `bad-732` (`routedElsewhere`). Both rails already enforced reason-map membership;
@@ -161,7 +161,7 @@ corner (the spec forces it); recorded here for the audit trail.
 The spec does not decide the order in which a verifier evaluates its checks, and
 says so: under Parsing Rules it makes only the consumption preconditions and the
 evidence tier normative in its two-stage description, and states that "the
-sequencing itself is informative" (L366-368). Nothing else in the document ranks
+sequencing itself is informative" (L413-415). Nothing else in the document ranks
 one condition against another, and it carries no failure-code registry at all,
 so two rails can both reject the same bytes for reasons the spec is equally happy
 with.
@@ -177,8 +177,8 @@ record set before that loop. Both rejected; they named different conditions.
 **The suite pins the set-level reading**, and `bad-748` locks it. The argument is
 the verify-then-read discipline the spec does make normative: a consumer verifies
 each record's signature "before relying on any field inside the payload"
-(L982-984), and a payload's fields "mean nothing until its signature verifies"
-(L1130-1132). A record carrying no signature at all is therefore settled before the
+(L1245-1247), and a payload's fields "mean nothing until its signature verifies"
+(L1509-1511). A record carrying no signature at all is therefore settled before the
 bytes it carries are read. That argument is a reading, not a derivation: the same
 passage explicitly permits the byte-pure gates to read payload fields without
 verifying anything, so it does not by itself force the evaluation order.
@@ -235,21 +235,25 @@ because a bucket whose occupants were chosen after it existed would be a shape
 looking for content. Only the family above qualified. The other candidates
 divide three ways, and each way is a reason NOT to write a vector:
 
-- **Limits, not choices.** "The substrate is a passive sensor, not an
-  orchestrator... The set of attacks actually executed is a producer assertion"
-  (L455-463), and the shared-reference evidencing obligation, which says outright
-  that "a conforming verifier neither can nor may invent an evidencing heuristic
-  for shared references" (L664-671). Nothing in the carried bytes can see the
-  omission, so every conformant verifier must ACCEPT these statements and there
-  is no divergence to declare. They belong in `accept/`, and what is
-  implementation-defined about them is nothing at all: what is undefined is what
-  the evidence PROVES, which is a property of the predicate and not of a rail.
+- **Limits, not choices.** "The set of attacks actually executed therefore
+  remains a producer assertion under both shapes" (L513-528), and the
+  shared-reference evidencing obligation on a row declaring `paired`, of which
+  the text says outright that "a conforming verifier neither can nor may invent
+  an evidencing heuristic in its place" (L888-900). Nothing in the carried bytes
+  can see the omission, so every conformant verifier must ACCEPT these
+  statements and there is no divergence to declare. They belong in `accept/`,
+  and what is implementation-defined about them is nothing at all: what is
+  undefined is what the evidence PROVES, which is a property of the predicate
+  and not of a rail. The vendored text narrowed the second of these: the same
+  obligation on a row declaring `pinned` is checked against
+  `corpus.manifest.expectedPayloads`, so it left this class and is carried by
+  reject vectors rather than by prose.
 - **Consumer policy outside the verdict this suite reads.** A consumer MAY admit
-  `pass_indirect` (L448-449), MAY reject an attestation carrying `unattested`
-  substrate rows outright (L857-860), MAY bound a named key with a validity
-  window (L927), MAY coherence-check a row against the pinned posture
-  (L943-947). None of these can move the verdict, because validity "is a function
-  of carried bytes alone and holds identically for every consumer" (L1219-1222);
+  `pass_indirect` (L495-496), MAY reject an attestation carrying `unattested`
+  substrate rows outright (L1111-1114), MAY bound a named key with a validity
+  window (L1190), MAY coherence-check a row against the pinned posture
+  (L1206-1210). None of these can move the verdict, because validity "is a function
+  of carried bytes alone and holds identically for every consumer" (L1613-1616);
   a rail that answered the admission question in the verdict field would be wrong
   rather than free. These are real freedoms and they are invisible to a
   single-statement corpus by construction.
@@ -274,7 +278,7 @@ record of why the corpus moved first.
 **What the text now carries.** `result` is one of `fail`, `degraded`,
 `pass_indirect`, `pass`, ordered `fail` < `degraded` < `pass_indirect` <
 `pass`, and is the minimum under that order of three independent conditions
-rather than a cascade (L388-407). The two that existed are unchanged. The third
+rather than a cascade (L435-454). The two that existed are unchanged. The third
 holds when some clean row, meaning a row whose `containmentObserved` is in the
 carried labels and not in the carried caught set, declares a `basis` other than
 `substrate` or a `method` other than `intercepted`, and it contributes
@@ -290,7 +294,7 @@ copy's own clean-row ordering said such a statement is self-reported absence
 and the weakest, so the text ranked it lowest on the axis a consumer is told to
 read and highest on the axis a consumer actually gates on. Reconciling those
 two is what the amendment did, and the ordering paragraph now states that both
-of those statements recompute to `pass_indirect` (L844-854).
+of those statements recompute to `pass_indirect` (L1098-1108).
 
 **What the reading deliberately does not claim.** Driven over all eleven
 finding-bearing accept vectors, the downgraded statement is byte-identical to
@@ -301,7 +305,7 @@ producer, `ok-007`, stays valid and reaches `pass_indirect`.
 
 **Why it is phrased over the row members and not over the tier.** The tier is
 key-relative, and the vendored copy already requires that neither the validity
-gate nor the tier alters `result` (L351-355). A condition reading the tier would
+gate nor the tier alters `result` (L398-402). A condition reading the tier would
 make `result` vary with a consumer's trust anchors and stop being recomputable.
 The cost is stated rather than hidden: an `unattested` substrate clean row still
 reaches `pass` under this reading, and that is the one rank of the clean-row
@@ -317,7 +321,7 @@ minimum of the three named conditions rather than as a cascade, the third
 condition is said to read the declared `basis` and `method` and never the
 evidence tier, and the default admission threshold stays `result == "pass"`
 with a consumer relaxing below it required to key additionally on each clean
-row's `basis`, `method` and derived tier (L439-453).
+row's `basis`, `method` and derived tier (L486-500).
 ## CLOSED at suiteRevision 14: the posture registry, and a vendored copy that predated the binding it certified
 
 Two readings suiteRevision 12 took were not in the bytes it certified against,
@@ -338,14 +342,14 @@ for closing it was in that text already, one section away: a consumer is
 invited to coherence-check a `substrate` row's claimed observation against the
 posture the run was contained under, because a row "claiming a network-boundary
 observation under a `networkPosture` that provides no interception path at that
-boundary is incoherent" (L943-947). No verifier can decide whether an
+boundary is incoherent" (L1206-1210). No verifier can decide whether an
 unregistered posture provides an interception path at a boundary, so an open
 registry left that check permanently unreachable while appearing to offer it.
 The text now registers four values, states that a statement whose `posture` is
 absent, is not a string, or carries a value outside the set is malformed and
-fail-closed, and adds the append-only rule across minor versions (L585-593),
+fail-closed, and adds the append-only rule across minor versions (L807-815),
 with the argument for closing the set written down rather than asserted
-(L595-604). Three reject vectors (`bad-823`, `bad-824`, `bad-825`) and three
+(L817-826). Three reject vectors (`bad-823`, `bad-824`, `bad-825`) and three
 accept vectors (`ok-040` through `ok-042`) lock it, and a from-spec verifier
 admitting an unregistered posture is no longer conformant.
 
@@ -364,6 +368,6 @@ that does not contain those bytes, which is the one thing
 version-2 pre-image with both changed inputs and the reason each is admissible,
 which is that both are run configuration fixed before corpus injection and so
 knowable when the arming record that commits to the binding is signed
-(L157-165), and it states the consequence a producer inherits: a member added
+(L174-182), and it states the consequence a producer inherits: a member added
 to the posture after arming derives a binding the producer's own records do not
-carry, so its statement is invalid on that ground (L253-256).
+carry, so its statement is invalid on that ground (L270-273).

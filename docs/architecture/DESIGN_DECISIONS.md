@@ -71,10 +71,9 @@ gate will not invent one.
 
 | Function | Cyclo | Why it is inherent |
 |---|---|---|
-| `aee/validity.go` `checkSubstrateRow` | 37 | Per-row coverage: each observation kind (arming, sealed, examination, interception) has its own spec-mandated constraints, checked in one place. |
+| `aee/validity.go` `checkSubstrateRow` | 33 | Per-row coverage in the order the requirements are stated: reference shape, then payload validity, then class match, then the method cap, each stage short-circuiting so a later one never reports on a row an earlier one already refused. The kind-specific constraints moved out to `armingConstraintsMet` and `sealedConstraintsMet`, and the closed-vocabulary guard to `rowFailsClosed`; what remains is the sequencing itself, which is the part that cannot be split without making the order a caller's business. |
 | `aee/statement.go` `Gate0` | 36 | Statement well-formedness enumerates every reserved-member and vocabulary rule the spec lists; the branch count is the rule count. |
 | `cmd/mutgen/mutate.go` `replaceExpr` | 35 | One arm per expression-bearing parent AST node, so the branch count is the node count. A reflect-keyed table would be shorter and would hide which parents are covered; a parent silently absent from it is a mutation that reports success and changes nothing, which scores as a forcing measurement that was never taken. |
-| `aee/validity.go` `evaluateKind` | 27 | Type dispatch over the record kinds, each with a small kind-specific check. |
 | `cmd/mutgen/mutate.go` `collect` | 21 | Type dispatch over the AST node kinds that carry a weakening mutation, each with its own small enumeration rule. The branch count is the operator count, which is the published list in the command's own doc comment. |
 | `aee/statement.go` `gate0CoverageIntegrity` | 19 | The coverage-partition invariant across three disjoint sets against the manifest. |
 | `aee/jcs.go` `decodeValue` | 18 | Recursive JSON value dispatch with the I-JSON profile checks. |

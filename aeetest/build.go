@@ -1,4 +1,4 @@
-// Package aeetest builds deterministic, fully synthetic AEE v0.6 statements
+// Package aeetest builds deterministic, fully synthetic AEE v0.7 statements
 // for tests and demos. Every value is either a string the public predicate
 // specification itself publishes (posture names, observation labels) or an
 // obviously synthetic example value; every digest is DERIVED from a
@@ -16,6 +16,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"sort"
 
 	"github.com/astrogilda/aee-conformance/aee"
 )
@@ -91,7 +92,7 @@ type Options struct {
 	// matching row (coverage-incomplete at attack granularity).
 	ExtraManifestAttack bool
 
-	// PredicateType overrides the statement predicateType ("" = v0.6 URI).
+	// PredicateType overrides the statement predicateType ("" = v0.7 URI).
 	PredicateType string
 
 	// ExtraVocabularyLabels appends labels to observationVocabulary.labels,
@@ -129,6 +130,7 @@ var (
 	substrateDigest   = digestOf(map[string]any{"exampleSubstrate": "image"})
 	subjectDigest     = digestOf(map[string]any{"exampleSubject": "bundle"})
 	runEntropyDigest  = aee.SHA256Hex([]byte("example-run-start-checkpoint/1"))
+	commitmentDigest  = aee.SHA256Hex([]byte("example-intercepted-bytes/1"))
 )
 
 // Build returns the canonical bytes of one complete in-toto statement.
@@ -171,21 +173,18 @@ func Build(o Options) []byte {
 			armedAt = ArmedAt
 		}
 		arming := map[string]any{
-			"aeeKind":          "arming",
-			"aeeMethod":        "intercepted",
-			"aeePostureDigest": postureDigest,
-			"aeeRunBinding":    binding,
-			"armedAt":          armedAt,
-			"producerNote":     "example arming record",
+			"aeeAssessedAttacks": toAny(attackIDs),
+			"aeeKind":            "arming",
+			"aeeMethod":          "intercepted",
+			"aeePostureDigest":   postureDigest,
+			"aeeRunBinding":      binding,
+			"armedAt":            armedAt,
+			"producerNote":       "example arming record",
 		}
-		sealed := map[string]any{
-			"aeeDropCount":     0,
-			"aeeKind":          "sealed",
-			"aeeMethod":        "intercepted",
-			"aeePostureDigest": postureDigest,
-			"aeeRunBinding":    binding,
-			"aeeStillArmed":    !o.SealedStillArmedFalse,
-		}
+		// A clean run emits no interception and no examination, so the set the
+		// seal commits to is empty and its digest is the digest of the empty
+		// array. That is a value, not an absence: the member is required.
+		sealed := sealedRecord(binding, nil, !o.SealedStillArmedFalse)
 		records = append(records, signRecord(arming, signer), signRecord(sealed, signer))
 		refs = []int{0, 1}
 	} else {
@@ -194,12 +193,20 @@ func Build(o Options) []byte {
 			recordMethod = "intercepted"
 		}
 		interception := map[string]any{
-			"aeeKind":       "interception",
-			"aeeMethod":     recordMethod,
-			"aeeRunBinding": binding,
-			"producerNote":  "example interception commitment",
+			"aeeKind":              "interception",
+			"aeeMethod":            recordMethod,
+			"aeePayloadCommitment": []any{commitmentDigest},
+			"aeeRunBinding":        binding,
+			"producerNote":         "example interception commitment",
 		}
-		records = append(records, signRecord(interception, signer))
+		signed := signRecord(interception, signer)
+		// From 0.7 a statement carrying a basis: substrate row carries a sealed
+		// record whether or not a row resolves an index to it, so the caught
+		// shape carries one too. It is unreferenced, which is the whole of what
+		// "unconditional" buys: a rule conditioned on the presence of the record
+		// it constrains is a rule a producer switches off by omission.
+		sealed := sealedRecord(binding, []map[string]any{signed}, !o.SealedStillArmedFalse)
+		records = append(records, signed, signRecord(sealed, signer))
 		refs = []int{0}
 	}
 
@@ -220,6 +227,9 @@ func Build(o Options) []byte {
 	if rowMethod != "ABSENT" {
 		row["method"] = rowMethod
 	}
+	// paired is the floor a producer may always truthfully declare, and the
+	// only value a synthetic statement can carry without a corpus expectation.
+	row["attribution"] = "paired"
 	if o.Clean {
 		row["containmentObserved"] = "no_egress"
 		row["actualLayer"] = "none"
@@ -294,6 +304,7 @@ func BuildArtifactOnly() []byte {
 			"attackResults": []any{map[string]any{
 				"actualLayer":         "none",
 				"attackId":            "XA-EXAMPLE-1",
+				"attribution":         "paired",
 				"basis":               "artifact",
 				"containmentObserved": "egress_captured",
 				"method":              "reconstructed",
@@ -315,6 +326,47 @@ func BuildArtifactOnly() []byte {
 		},
 	}
 	return canonMust(statement)
+}
+
+// toAny widens a []string for the canonicalizer, which walks any.
+func toAny(ss []string) []any {
+	out := make([]any, len(ss))
+	for i, s := range ss {
+		out[i] = s
+	}
+	return out
+}
+
+// sealedRecord builds a seal committing to the interception and examination
+// records passed to it. The commitment is over the leaf hashes those records
+// contribute, sorted ascending and duplicate-free -- lowercase hex is ASCII,
+// so a byte sort is the UTF-16 code-unit sort the specification names.
+func sealedRecord(binding string, observed []map[string]any, stillArmed bool) map[string]any {
+	seen := map[string]bool{}
+	leaves := []string{}
+	for _, rec := range observed {
+		payload, err := base64.StdEncoding.DecodeString(rec["payload"].(string))
+		if err != nil {
+			panic(err)
+		}
+		leaf := aee.LeafHash(aee.PAE(rec["payloadType"].(string), payload))
+		hexLeaf := fmt.Sprintf("%x", leaf[:])
+		if !seen[hexLeaf] {
+			seen[hexLeaf] = true
+			leaves = append(leaves, hexLeaf)
+		}
+	}
+	sort.Strings(leaves)
+	return map[string]any{
+		"aeeDropCount":       0,
+		"aeeKind":            "sealed",
+		"aeeMethod":          "intercepted",
+		"aeeObservedAttacks": []any{},
+		"aeeObservedSet":     aee.SHA256Hex(canonMust(leaves)),
+		"aeePostureDigest":   postureDigest,
+		"aeeRunBinding":      binding,
+		"aeeStillArmed":      stillArmed,
+	}
 }
 
 func signRecord(payload map[string]any, signer ed25519.PrivateKey) map[string]any {

@@ -1,14 +1,14 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6/schema",
-  "title": "Adversarial Execution Evidence v0.6 predicate (NON-NORMATIVE convenience schema)",
-  "description": "NON-NORMATIVE convenience schema for the AEE v0.6 predicate. The predicate specification text is authoritative; conflicts are schema bugs. The schema deliberately does not encode the closed basis/method vocabularies or member-presence rules whose violation is VALID-but-fail-closed at the row level (for example an absent method on an artifact-basis row); those are verifier semantics, not shape.",
+  "$id": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.7/schema",
+  "title": "Adversarial Execution Evidence v0.7 predicate (NON-NORMATIVE convenience schema)",
+  "description": "NON-NORMATIVE convenience schema for the AEE v0.7 predicate. The predicate specification text is authoritative; conflicts are schema bugs. The schema deliberately does not encode the closed basis/method vocabularies or member-presence rules whose violation is VALID-but-fail-closed at the row level (for example an absent method on an artifact-basis row); those are verifier semantics, not shape.",
   "type": "object",
   "required": ["result", "observationEnvironment", "coverage", "attackResults", "issuedAt"],
   "properties": {
     "result": {
       "type": "string",
-      "enum": ["pass", "degraded", "fail"],
+      "enum": ["pass", "degraded", "pass_indirect", "fail"],
       "description": "Recomputable: a consumer MUST be able to recompute this from the rest of the predicate."
     },
     "observationEnvironment": {
@@ -30,6 +30,15 @@
                 "classes": {
                   "type": "object",
                   "additionalProperties": { "type": "array", "items": { "type": "string" } }
+                },
+                "expectedPayloads": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+                  }
                 }
               }
             }
@@ -83,6 +92,7 @@
           "containmentObserved": { "type": "string" },
           "basis": { "type": "string" },
           "method": { "type": "string" },
+          "attribution": { "type": "string" },
           "actualLayer": { "type": "string" },
           "observationRefs": { "type": "array", "items": { "type": "integer", "minimum": 0 } },
           "observationSelectors": { "type": "array", "items": { "type": "string" } }

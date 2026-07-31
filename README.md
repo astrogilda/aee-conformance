@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://github.com/astrogilda/aee-conformance/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/astrogilda/aee-conformance/ci.yml?branch=main&label=build" alt="build status"></a>
   <img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="license Apache-2.0">
-  <img src="https://img.shields.io/badge/conformance%20vectors-179-e8951c" alt="179 conformance vectors">
+  <img src="https://img.shields.io/badge/conformance%20vectors-186-e8951c" alt="186 conformance vectors">
   <img src="https://img.shields.io/badge/rails-Go%20%C2%B7%20Python-546274" alt="Go and Python rails">
   <img src="https://img.shields.io/badge/predicate-in--toto%20AEE%20v0.6-6f57c2" alt="in-toto AEE v0.6 predicate">
 </p>
@@ -343,8 +343,8 @@ source `sha256:1c3e2e78` and suite commit `7098f4e`, and it is the revision his
 CI now verifies continuously. That suite commit no longer resolves in a fresh
 clone of this repository, because the history it sat on was rewritten here after
 he pinned it; the commit that carries the identical tree, and so the identical
-153 vectors, is `8959bd3`, which is where a reproduction of the record should
-point until he repins.
+153 vectors of suiteRevision 6, is `8959bd3`, which is where a reproduction of
+the record should point until he repins.
 
 Only two of those figures are evidence that an outside reader reached a rule on
 his own. The 125/125 was the first full corpus run with no vector-driven fixes.

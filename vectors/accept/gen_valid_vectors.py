@@ -1097,7 +1097,8 @@ def build_vectors() -> dict[str, dict[str, Any]]:
     # ok-040 .. ok-042 the three registered postures the corpus otherwise never
     # carries. Every other vector in this suite says "sinkhole", so the closed
     # posture registry was untested by construction: a rail that admitted only
-    # the one string the corpus happens to use passed all 165 vectors, and so
+    # the one string the corpus happens to use passed all 165 vectors of
+    # suiteRevision 11, and so
     # did a rail that admitted any string at all. These three are byte-identical
     # to ok-002 apart from the posture string and everything that string moves,
     # which is now the run binding as well, since version 2 of the binding

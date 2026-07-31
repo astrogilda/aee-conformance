@@ -45,7 +45,11 @@ operation that moves references, so they also have to be trustworthy across
 their own refresh. A refresh refuses to record a reference that came off prose
 the document still contains: upstream may rewrite a passage freely and the
 excerpt follows it, but a remap that simply lost track of a passage stops the
-vendoring and names what it lost. A move onto genuinely different prose is still
+vendoring and names what it lost. Shortening counts, and it is the quiet case. A
+range that still opens on its subject and now stops before prose it used to
+cover has walked away from that prose as surely as one that jumped elsewhere, so
+the refusal prints the lines it dropped and does not care whether they were lost
+by a remap or removed by hand. A move onto genuinely different prose is still
 allowed, one citation at a time and by name, because no gate can read a claim
 and judge which paragraph settles it.
 

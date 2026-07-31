@@ -49,6 +49,14 @@ shows up in review as the prose it now points at, sitting next to the claim it
 is supposed to support, which is the one part of the judgement a numeric gate
 cannot make on anyone's behalf.
 
+An anchor may also shrink, and that is the same defect wearing a friendlier
+shape. A range that still opens on its subject and now closes before prose it
+used to cover asserts the same claim over less of the document than it was drawn
+around, so ``--sync`` refuses it and prints the lines it dropped, whether they
+were lost by a remap or removed by hand. Narrowing an anchor onto the paragraph
+that actually states a rule is a correction and stays available, by name, one
+key at a time. The point is only that it is said rather than assumed.
+
 What it does not do is decide whether a freshly written anchor cites the right
 rule. Nothing mechanical can read a claim and judge which paragraph settles it.
 The gate makes that a review question with the evidence attached rather than an

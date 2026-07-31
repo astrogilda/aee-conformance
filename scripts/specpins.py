@@ -38,27 +38,59 @@ breaks. Still there means the remap had somewhere correct to land and did not,
 which is a defect and is refused by name. Gone means upstream rewrote that
 passage, which is what an ordinary amendment does, and is listed for review.
 
-That question is asked of each line of the span and not only of the span as a
-whole, and the difference is the whole of one defect class. Asked only of the
-whole, it is all or nothing: an amendment that rewrites any part of a cited
-passage makes the search for the whole text fail, the citation is filed as an
-ordinary rewrite, and whatever the remap abandoned is never looked for. That is
-how a citation can be cut short of the requirement it exists for and still pass,
-because the words it lost were beside words upstream edited. Asked line by line
-it is the same rule, never consulting the claim, and it still calls a rewrite a
-rewrite, because a rewritten line is not found either. Measured over every
-re-vendor in this repository where the remapper was live, and scoring against
-what a person did next, the finer question refuses twenty-six citations, fifteen
-of which were then repointed and eleven of which were a narrowing that person
-intended. The eleven are cleared one at a time by name below, and clearing one
-records nothing, so nothing accumulates that could later stop describing
-anything.
+That question is asked of each line of the span, and of every citation whose
+text changed rather than only of the ones whose passage upstream rewrote. Both
+halves of that sentence were once narrower, and each omission hid the same
+event.
+
+Asked only of the span as a whole it is all or nothing: an amendment that
+rewrites any part of a cited passage makes the search for the whole text fail,
+the citation is filed as an ordinary rewrite, and whatever the remap abandoned
+is never looked for. That is how a citation can be cut short of the requirement
+it exists for and still pass, because the words it lost were beside words
+upstream edited. Asked line by line it is the same rule, never consulting the
+claim, and it still calls a rewrite a rewrite, because a rewritten line is not
+found either. Measured over every re-vendor in this repository where the
+remapper was live, and scoring against what a person did next, the finer
+question refuses twenty-six citations, fifteen of which were then repointed and
+eleven of which were a narrowing that person intended.
+
+Asked only where the whole passage had already vanished, it missed the plainer
+case entirely, which is the second narrowing and the one that cost something. If
+the pinned prose is still in the document word for word then the search for it
+succeeds, and a citation that merely TOUCHED what that search found used to be
+waved through. So a span could be cut from two hundred and sixty-eight lines to
+six, over prose nobody had edited, and the synchronise recorded the new range
+and printed nothing at all. Touching the pinned text is not covering it, and
+covering it is the whole claim a citation makes. The two-hundred-and-sixty-two
+lines that citation walked away from were found, on the same document, by the
+same function, the moment it was allowed to run.
+
+So the whole-span search no longer decides whether the coverage question gets
+asked. It still runs, because it is the only thing that can tell a citation
+which collapsed onto unrelated prose from one that was merely shortened, and
+those two want different words in the refusal. Its answer is now a choice of
+wording rather than a gate.
+
+Nothing that used to pass and was safe starts failing: a citation that widened,
+or that still covers every surviving line of what it was pinned to, is as silent
+as it was. The refusals are a strict superset of the old ones, because the line
+question now runs everywhere it used to run and in one place more.
+
+A deliberate narrowing stays possible, and it is the same escape as any other
+intended move: it is cleared one at a time by name with ``--accept-reaim``,
+which nothing generates, so a person has to read the dropped prose and type the
+key. Clearing one records nothing, so nothing accumulates that could later stop
+describing anything. What has changed is only that the narrowing must be said
+out loud instead of passing in silence.
 
 It does not reach every truncation, and the residue is not a matter of tuning.
 A span may be cut short of its subject while every word it lost was also
-rewritten, and then nothing survives to be looked for. Separating those from a
-legitimate narrowing needs the words the claim beside the citation depends on,
-which is the check this ledger deliberately does not make.
+rewritten, and then nothing survives to be looked for. A dropped line whose text
+also happens to sit inside the new range reads as covered, which short and
+repeated lines can do. Separating either from a legitimate narrowing needs the
+words the claim beside the citation depends on, which is the check this ledger
+deliberately does not make.
 
 A person may still deliberately re-aim a citation onto different prose, and
 that is indistinguishable from a bad remap by looking at files alone. So it is
@@ -188,7 +220,24 @@ def read_pins(ledger: Ledger) -> tuple[dict[str, dict[str, str]], str]:
     return pins, str(recorded.get("specDigest", ""))
 
 
-def flatten(spec: list[str]) -> tuple[str, list[int], list[int]]:
+@dataclass(frozen=True)
+class Flat:
+    """A document with every line break gone, plus where each line sits in it."""
+
+    doc: str
+    starts: list[int]
+    ends: list[int]
+
+    def span(self, lo: int, hi: int) -> tuple[int, int]:
+        """The character range lines ``lo`` to ``hi`` occupy."""
+        return self.starts[lo], self.ends[hi]
+
+    def text(self, lo: int, hi: int) -> str:
+        """What lines ``lo`` to ``hi`` say, as one run of words."""
+        return self.doc[self.starts[lo] : self.ends[hi]].strip()
+
+
+def flatten(spec: list[str]) -> Flat:
     """The document as one string with every line break gone, plus the character
     range each line occupies in it.
 
@@ -209,7 +258,7 @@ def flatten(spec: list[str]) -> tuple[str, list[int], list[int]]:
             parts.append(words)
             pos += len(words) + 1
         ends[i] = pos
-    return "".join(p + " " for p in parts), starts, ends
+    return Flat("".join(p + " " for p in parts), starts, ends)
 
 
 def occurrences(haystack: str, needle: str) -> list[tuple[int, int]]:
@@ -319,6 +368,25 @@ def truncation(
     )
 
 
+def collapsed(cite: Cited, recorded: dict[str, str], fresh: dict[str, str]) -> str:
+    """One refusal for a citation that left its subject altogether.
+
+    Kept apart from ``truncation`` because a reader has to act differently. A
+    citation that shortened still opens on its old subject and the question is
+    whether the part it dropped mattered; one that collapsed onto unrelated prose
+    is simply pointing somewhere else, and the excerpts are the fastest way to
+    see which of the two happened.
+    """
+    return (
+        f"{cite.key} ({cite.site}): {cite.token} addresses different prose, but "
+        f"the text it was pinned to is still in the document.\n"
+        f"      pinned: {recorded.get('opens')}\n"
+        f"          ... {recorded.get('closes')}\n"
+        f"      actual: {fresh['opens']}\n"
+        f"          ... {fresh['closes']}"
+    )
+
+
 def refuse_reaim(moved_off: list[str], ledger: Ledger) -> int:
     print(
         f"FAIL: refusing to re-pin {len(moved_off)} {ledger.noun}(s) that moved "
@@ -340,6 +408,79 @@ def refuse_reaim(moved_off: list[str], ledger: Ledger) -> int:
     return 1
 
 
+@dataclass(frozen=True)
+class Reaim:
+    """What a synchronise found when it looked at the citations that moved.
+
+    Every citation whose text changed lands in exactly one of these, which is
+    the property that makes the census at the end of a synchronise worth
+    printing: a run that judged nothing and a run that judged everything and
+    cleared it both used to print the same thing, and the first is the shape of
+    a check pointed at an empty set.
+    """
+
+    moved_off: list[str]
+    unreadable: list[str]
+    rewritten: list[str]
+    acknowledged: set[str]
+    covered: int
+
+    @property
+    def changed(self) -> int:
+        return (
+            len(self.moved_off)
+            + len(self.unreadable)
+            + len(self.rewritten)
+            + len(self.acknowledged)
+            + self.covered
+        )
+
+
+def judge(
+    cite: Cited,
+    recorded: dict[str, str],
+    fresh: dict[str, str],
+    base: list[str],
+    was: tuple[int, int],
+    now: Flat,
+    then: Flat,
+) -> tuple[str, str]:
+    """What happened to one citation whose text changed, and what to say about it.
+
+    Two questions, asked in this order for two different reasons.
+
+    Whether the whole pinned passage is still in the document, and whether the
+    citation still sits anywhere on it, separates a citation that collapsed onto
+    unrelated prose from every other kind of move. That one wants its own words,
+    because a reader who sees "shortened" when the citation actually jumped
+    somewhere else will go looking for a paragraph that is not the problem.
+
+    Then, and regardless of what the first question answered, which lines of the
+    pinned passage survived upstream untouched and now fall outside the citation.
+    That is the coverage question, and it is the whole claim: a citation asserts
+    that the prose it names supports the claim beside it, so prose that is still
+    there and no longer named has been quietly dropped from the argument. It used
+    to be asked only when the first question found nothing, which meant a
+    narrowing over unedited prose -- the plainest form of the defect -- was
+    waved through by the overlap test above it.
+
+    A rewrite is what is left when neither question has anything to report and
+    the passage itself is gone. That is what an ordinary amendment does, and
+    blocking on it would make every re-vendor a negotiation.
+    """
+    body = then.text(*was)
+    found = occurrences(now.doc, body) if body else []
+    here = now.span(cite.lo, cite.hi)
+    if found and not any(a < here[1] and here[0] < b for a, b in found):
+        return "moved_off", collapsed(cite, recorded, fresh)
+    lost = abandoned(base, was, now.doc, here)
+    if lost:
+        return "moved_off", truncation(cite, recorded, fresh, lost)
+    if not found:
+        return "rewritten", f"{cite.key} ({cite.site}) -> {fresh['opens']}"
+    return "covered", ""
+
+
 def reaimed(
     old: dict[str, dict[str, str]],
     new: dict[str, dict[str, str]],
@@ -348,74 +489,50 @@ def reaimed(
     cites: list[Cited],
     accepted: set[str],
     ledger: Ledger,
-) -> tuple[list[str], list[str], list[str]]:
-    """Split the citations whose text changed into the ones that moved off prose
-    that is still in the document, the ones this check cannot read at all, and
-    the ones whose prose was rewritten.
+) -> Reaim:
+    """Sort every citation whose text changed into what became of it.
 
-    Only the first is a defect. The last is what an ordinary amendment does, and
-    blocking on it would make every re-vendor a negotiation. A key named in
-    ``accepted`` is a move a person has read and intends, so it is neither.
+    Only ``moved_off`` and ``unreadable`` are defects. A key named in
+    ``accepted`` is a move a person has read and intends, so it is neither, and
+    it is counted rather than discarded so that a waiver which waives nothing can
+    be told from one that did some work.
 
-    The first is asked twice, of the span and then of its lines, because those
-    are two different failures wearing one shape. A span whose whole text is
-    still in the document and which no longer sits on it collapsed onto
-    unrelated prose. A span whose text is gone may still have been cut short of
-    its subject, and the lines it dropped say so when upstream left them alone.
-    Asking only the first question is how a truncated citation reads as an
-    ordinary rewrite: the search for the whole passage fails for the same reason
-    a genuine amendment makes it fail, and the abandoned lines are never looked
-    for.
-
-    The middle case is separated because folding it into the last one is how
-    this check silently stopped working once already. A recorded citation that
-    cannot be parsed back into a line range leaves nothing to look for, an empty
-    search finds nothing, and finding nothing is the signature of a legitimate
-    rewrite, so every move on every citation was waved through as an amendment
-    and the synchronise could not refuse anything. An instrument that cannot be
-    evaluated has to say so rather than return the answer a caller is free to
-    read as good news.
+    ``unreadable`` is separated because folding it into the rewrites is how this
+    check silently stopped working once already. A recorded citation that cannot
+    be parsed back into a line range leaves nothing to look for, an empty search
+    finds nothing, and finding nothing is the signature of a legitimate rewrite,
+    so every move on every citation was waved through as an amendment and the
+    synchronise could not refuse anything. An instrument that cannot be evaluated
+    has to say so rather than return the answer a caller is free to read as good
+    news.
     """
-    doc, starts, ends = flatten(spec)
-    base_doc, base_starts, base_ends = flatten(base)
-    moved_off: list[str] = []
-    unreadable: list[str] = []
-    rewritten: list[str] = []
+    now, then = flatten(spec), flatten(base)
+    found: dict[str, list[str]] = {"moved_off": [], "unreadable": [], "rewritten": []}
+    acknowledged: set[str] = set()
+    covered = 0
     for c in cites:
         recorded = old.get(c.key)
-        if c.key in accepted or not recorded:
+        if not recorded or recorded["digest"] == new[c.key]["digest"]:
             continue
-        if recorded["digest"] == new[c.key]["digest"]:
+        if c.key in accepted:
+            acknowledged.add(c.key)
             continue
         was = old_span(recorded, base, ledger)
         if was is None:
-            unreadable.append(
+            found["unreadable"].append(
                 f"{c.key} ({c.site}): the ledger records "
                 f"{recorded.get(ledger.token_field)!r}, which is not a line "
                 "range in the revision the ledger names."
             )
             continue
-        body = base_doc[base_starts[was[0]] : base_ends[was[1]]].strip()
-        found = occurrences(doc, body) if body else []
-        here = (starts[c.lo], ends[c.hi])
-        if not found:
-            lost = abandoned(base, was, doc, here)
-            if lost:
-                moved_off.append(truncation(c, recorded, new[c.key], lost))
-            else:
-                rewritten.append(f"{c.key} ({c.site}) -> {new[c.key]['opens']}")
-            continue
-        if any(a < here[1] and here[0] < b for a, b in found):
-            continue
-        moved_off.append(
-            f"{c.key} ({c.site}): {c.token} addresses different prose, but the "
-            f"text it was pinned to is still in the document.\n"
-            f"      pinned: {recorded.get('opens')}\n"
-            f"          ... {recorded.get('closes')}\n"
-            f"      actual: {new[c.key]['opens']}\n"
-            f"          ... {new[c.key]['closes']}"
-        )
-    return moved_off, unreadable, rewritten
+        verdict, message = judge(c, recorded, new[c.key], base, was, now, then)
+        if verdict == "covered":
+            covered += 1
+        else:
+            found[verdict].append(message)
+    return Reaim(
+        found["moved_off"], found["unreadable"], found["rewritten"], acknowledged, covered
+    )
 
 
 def refuse_unreadable(unreadable: list[str], ledger: Ledger) -> int:
@@ -448,6 +565,35 @@ def refuse_unresolved(broken: list[str], ledger: Ledger) -> int:
     return 1
 
 
+def announce(ledger: Ledger, pinned: int, outcome: Reaim) -> None:
+    """Say what was written and, of what moved, what became of it.
+
+    The census is the point rather than the courtesy. A synchronise over a
+    document nobody touched and a synchronise that judged four hundred moved
+    citations against the committed revision used to print the same single line,
+    so a run where the judgement never happened at all was indistinguishable from
+    one where it happened and cleared everything.
+    """
+    print(f"wrote {ledger.path.relative_to(REPO_ROOT)}: {pinned} citation(s) pinned")
+    if not outcome.changed:
+        print(
+            f"No {ledger.noun} addresses different text than the ledger already "
+            "recorded, so nothing was judged against the committed revision."
+        )
+        return
+    print(
+        f"{outcome.changed} of them address different text than the ledger "
+        f"recorded, each judged against the committed revision: "
+        f"{len(outcome.rewritten)} whose prose upstream rewrote, "
+        f"{len(outcome.acknowledged)} cleared by name, "
+        f"{outcome.covered} still covering every line that survived."
+    )
+    for r in sorted(outcome.rewritten):
+        print(f"  rewritten: {r}")
+    for key in sorted(outcome.acknowledged):
+        print(f"  accepted: {key}")
+
+
 def sync(ledger: Ledger, cites: list[Cited], accepted: set[str]) -> int:
     """Rewrite one ledger from the citations as they now stand, refusing any
     that came off text the document still carries."""
@@ -462,18 +608,16 @@ def sync(ledger: Ledger, cites: list[Cited], accepted: set[str]) -> int:
 
     fresh = {c.key: pin_of(c, spec, ledger) for c in cites}
     old, pinned_against = read_pins(ledger)
-    rewritten: list[str] = []
+    outcome = Reaim([], [], [], set(), 0)
     if any(k in old and old[k]["digest"] != v["digest"] for k, v in fresh.items()):
         base = committed_spec(ledger.spec_rel, pinned_against)
         if base is None:
             return no_before_image(ledger)
-        moved_off, unreadable, rewritten = reaimed(
-            old, fresh, spec, base, cites, accepted, ledger
-        )
-        if unreadable:
-            return refuse_unreadable(unreadable, ledger)
-        if moved_off:
-            return refuse_reaim(moved_off, ledger)
+        outcome = reaimed(old, fresh, spec, base, cites, accepted, ledger)
+        if outcome.unreadable:
+            return refuse_unreadable(outcome.unreadable, ledger)
+        if outcome.moved_off:
+            return refuse_reaim(outcome.moved_off, ledger)
 
     ledger.path.write_text(
         json.dumps(
@@ -483,21 +627,7 @@ def sync(ledger: Ledger, cites: list[Cited], accepted: set[str]) -> int:
         + "\n",
         encoding="utf-8",
     )
-    print(
-        f"wrote {ledger.path.relative_to(REPO_ROOT)}: {len(cites)} citation(s) pinned"
-    )
-    if rewritten:
-        print(
-            f"{len(rewritten)} citation(s) address prose upstream rewrote, so their "
-            "excerpts changed. Read each against the claim beside it:"
-        )
-        for r in sorted(rewritten):
-            print(f"  {r}")
-    if accepted:
-        print(
-            f"{len(accepted)} deliberate re-aim(s) accepted: "
-            f"{', '.join(sorted(accepted))}"
-        )
+    announce(ledger, len(cites), outcome)
     return 0
 
 

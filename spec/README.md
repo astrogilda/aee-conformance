@@ -12,7 +12,7 @@ is actually present here (they cite line numbers in this copy).
   their SHA-256. That file is written by
   [`scripts/vendor-spec.py`](../scripts/vendor-spec.py) from git at vendor time
   and is not maintained by hand.
-- **Version:** v0.6.0 (`https://in-toto.io/attestation/adversarial-execution-evidence/v0.6`).
+- **Version:** v0.7.0 (`https://in-toto.io/attestation/adversarial-execution-evidence/v0.7`).
 - **Authority:** the canonical namespace is the in-toto attestation catalog.
   This repository is the reference implementation and conformance authority for
   that predicate, not a competing source of truth. On any normative change

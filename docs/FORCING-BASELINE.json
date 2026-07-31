@@ -7143,7 +7143,10 @@
         "bad-978-arming-assessedattacks-unsorted",
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
-        "ok-024-mixed-basis-rows"
+        "ok-019-wrong-keyid-sig-verifies",
+        "ok-023-no-tofu-embedded-key",
+        "ok-024-mixed-basis-rows",
+        "ok-045-mixed-clean-rows-indirect"
       ]
     },
     "statement.go::hasSubstrateRows::RET_FALSE::7e4fe8351c22": {
@@ -7232,7 +7235,10 @@
         "bad-978-arming-assessedattacks-unsorted",
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
-        "ok-024-mixed-basis-rows"
+        "ok-019-wrong-keyid-sig-verifies",
+        "ok-023-no-tofu-embedded-key",
+        "ok-024-mixed-basis-rows",
+        "ok-045-mixed-clean-rows-indirect"
       ]
     },
     "statement.go::hasSubstrateRows::RET_TRUE::19921ccfad14": {
@@ -8378,6 +8384,7 @@
       "class": "KILLED",
       "snippet": "if !recordVerifies(&ctx.states[idx], p.Records[idx].Signatures, policy.SubstrateObservationKeys) { tiers[i] = TierUnattested break }",
       "killers": [
+        "ok-020-non-pae-signature",
         "ok-024-mixed-basis-rows"
       ]
     },
@@ -8431,7 +8438,9 @@
       "class": "KILLED",
       "snippet": "if !row.IsSubstrate() { tiers[i] = TierDeclared continue }",
       "killers": [
-        "ok-024-mixed-basis-rows"
+        "ok-024-mixed-basis-rows",
+        "ok-029-artifact-with-records",
+        "ok-045-mixed-clean-rows-indirect"
       ]
     },
     "tier.go::(recv).DeriveTiers::IF_OFF::e74234ccc43d": {
@@ -8443,7 +8452,10 @@
       "class": "KILLED",
       "snippet": "if ed25519.Verify(key, state.pae, sigBytes) { return true }",
       "killers": [
-        "ok-024-mixed-basis-rows"
+        "ok-019-wrong-keyid-sig-verifies",
+        "ok-023-no-tofu-embedded-key",
+        "ok-024-mixed-basis-rows",
+        "ok-045-mixed-clean-rows-indirect"
       ]
     },
     "tier.go::recordVerifies::IF_OFF::4b1ea499daa6": {
@@ -8460,7 +8472,10 @@
       "class": "KILLED",
       "snippet": "return true",
       "killers": [
-        "ok-024-mixed-basis-rows"
+        "ok-019-wrong-keyid-sig-verifies",
+        "ok-023-no-tofu-embedded-key",
+        "ok-024-mixed-basis-rows",
+        "ok-045-mixed-clean-rows-indirect"
       ]
     },
     "tier.go::recordVerifies::RET_TRUE::19921ccfad14": {
@@ -8472,6 +8487,7 @@
       "class": "KILLED",
       "snippet": "return false",
       "killers": [
+        "ok-020-non-pae-signature",
         "ok-024-mixed-basis-rows"
       ]
     },
@@ -8561,7 +8577,11 @@
         "bad-978-arming-assessedattacks-unsorted",
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
-        "ok-024-mixed-basis-rows"
+        "ok-019-wrong-keyid-sig-verifies",
+        "ok-020-non-pae-signature",
+        "ok-023-no-tofu-embedded-key",
+        "ok-024-mixed-basis-rows",
+        "ok-045-mixed-clean-rows-indirect"
       ]
     },
     "types.go::(recv).IsSubstrate::RET_TRUE::8b95bf3b2317": {

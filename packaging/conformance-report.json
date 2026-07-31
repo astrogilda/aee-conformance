@@ -490,7 +490,13 @@
       },
       "expected": {
         "verdict": "valid",
-        "result": "pass"
+        "result": "pass",
+        "tierWithPinnedKey": [
+          "attested"
+        ],
+        "tierWithoutKey": [
+          "unattested"
+        ]
       },
       "inManifest": true,
       "reasons": []
@@ -515,7 +521,13 @@
       },
       "expected": {
         "verdict": "valid",
-        "result": "fail"
+        "result": "fail",
+        "tierWithPinnedKey": [
+          "unattested"
+        ],
+        "tierWithoutKey": [
+          "unattested"
+        ]
       },
       "inManifest": true,
       "reasons": []
@@ -590,7 +602,13 @@
       },
       "expected": {
         "verdict": "valid",
-        "result": "pass"
+        "result": "pass",
+        "tierWithPinnedKey": [
+          "attested"
+        ],
+        "tierWithoutKey": [
+          "unattested"
+        ]
       },
       "inManifest": true,
       "reasons": []
@@ -750,7 +768,13 @@
       },
       "expected": {
         "verdict": "valid",
-        "result": "pass_indirect"
+        "result": "pass_indirect",
+        "tierWithPinnedKey": [
+          "declared"
+        ],
+        "tierWithoutKey": [
+          "declared"
+        ]
       },
       "inManifest": true,
       "reasons": []
@@ -1125,7 +1149,15 @@
       },
       "expected": {
         "verdict": "valid",
-        "result": "pass_indirect"
+        "result": "pass_indirect",
+        "tierWithPinnedKey": [
+          "attested",
+          "declared"
+        ],
+        "tierWithoutKey": [
+          "unattested",
+          "declared"
+        ]
       },
       "inManifest": true,
       "reasons": []

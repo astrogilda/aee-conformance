@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """AEE v0.6 INVALID conformance-vector generator.
 
-Generates the 127 reject vectors of the adversarial-execution-evidence v0.6
+Generates the reject vectors of the adversarial-execution-evidence v0.6
 conformance suite. Every vector is a COMPLETE in-toto Statement that a
 conforming verifier MUST reject for exactly ONE declared reason: each is
 derived from a fully-valid parent statement by one mutation plus the declared
@@ -1739,7 +1739,8 @@ vec("bad-732-routedelsewhere-unknown-class", "ok-004",
 # --- (l) byte-level string well-formedness -------------------------------
 #
 # This quadrant had ZERO corpus coverage until now. Decoding all 140 vector
-# files and all 219 base64 record payloads found no escape sequence of any
+# files of suiteRevision 4 and all 219 base64 record payloads found no escape
+# sequence of any
 # kind, no non-UTF-8 byte and no raw control character anywhere, in either
 # position. It is also the quadrant where the rails actually diverged in the
 # field: one accepted a statement the other three rejected, and a fourth

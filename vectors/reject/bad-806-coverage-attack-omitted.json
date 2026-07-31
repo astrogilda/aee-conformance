@@ -5,6 +5,7 @@
       {
         "actualLayer": "policy.egress_sinkhole",
         "attackId": "XA-EXAMPLE-1",
+        "attribution": "paired",
         "basis": "substrate",
         "containmentObserved": "egress_captured",
         "method": "intercepted",
@@ -13,7 +14,7 @@
         ]
       }
     ],
-    "batchRoot": "d426bbea46c8d222e90ce29e0cfaa356f54c3a38844b2b13894b47375f00674c",
+    "batchRoot": "fd5a1c29ff9491b4916c5ef8c1f85a1a06c4fa244763cedae7f8a82e20631077",
     "coverage": {
       "assessedClasses": [
         "XA"
@@ -75,29 +76,39 @@
     },
     "observationRecords": [
       {
-        "payload": "eyJhZWVLaW5kIjoiaW50ZXJjZXB0aW9uIiwiYWVlTWV0aG9kIjoiaW50ZXJjZXB0ZWQiLCJhZWVSdW5CaW5kaW5nIjoiNGNhNzE1NGRiZWNmNWYzNzYxNTQ3YTdmOWYxZWQ4MzhiYThhYjAwNmFhMWI1OWVjZjFiZjc3NmVkN2VkNTRjNyIsImNvbW1pdG1lbnQiOiJmMzE4MjFhZTNlMWQ2ZTA2MTFkYzRkNzUzZThmNGMwMjMyYWQwM2RmMWY0YmQzMmFhNDdiOWNkNDEwN2ZlM2JmIiwicHJvZHVjZXJOb3RlIjoiZXhhbXBsZSBpbnRlcmNlcHRpb24ifQ==",
+        "payload": "eyJhZWVLaW5kIjoiaW50ZXJjZXB0aW9uIiwiYWVlTWV0aG9kIjoiaW50ZXJjZXB0ZWQiLCJhZWVQYXlsb2FkQ29tbWl0bWVudCI6WyJmMzE4MjFhZTNlMWQ2ZTA2MTFkYzRkNzUzZThmNGMwMjMyYWQwM2RmMWY0YmQzMmFhNDdiOWNkNDEwN2ZlM2JmIl0sImFlZVJ1bkJpbmRpbmciOiI0Y2E3MTU0ZGJlY2Y1ZjM3NjE1NDdhN2Y5ZjFlZDgzOGJhOGFiMDA2YWExYjU5ZWNmMWJmNzc2ZWQ3ZWQ1NGM3IiwicHJvZHVjZXJOb3RlIjoiZXhhbXBsZSBpbnRlcmNlcHRpb24ifQ==",
         "payloadType": "application/vnd.example.aee-observation.v1+json",
         "signatures": [
           {
             "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
-            "sig": "4sA2gF/wwypyC1gwhl3k6xWyD8ueN1Whkc4OtINSbhiKTMIe7800sPqcDKNgZI+Jg7FzpWxDxfpJ7bLlZ7/lDA=="
+            "sig": "qDrxw0jur7T4lx1y5yzikmXxYvBpsg+d3EJJFve5g8ZYitZQ0OuhxZH4Z4zN9Cm6zJG3jykOkD+27o3cHkACBQ=="
           }
         ]
       },
       {
-        "payload": "eyJhZWVLaW5kIjoiaW50ZXJjZXB0aW9uIiwiYWVlTWV0aG9kIjoiaW50ZXJjZXB0ZWQiLCJhZWVSdW5CaW5kaW5nIjoiNGNhNzE1NGRiZWNmNWYzNzYxNTQ3YTdmOWYxZWQ4MzhiYThhYjAwNmFhMWI1OWVjZjFiZjc3NmVkN2VkNTRjNyIsImNvbW1pdG1lbnQiOiJjMzllMjU4MmE1ZmYxYmM4YTg0NzE4ZmQ2MTE1Yzg0NzgwODY2OGI5NjJjMWJjZDA3ZTI2M2JmNjg4Y2M2ZjcyIiwicHJvZHVjZXJOb3RlIjoiZXhhbXBsZSBpbnRlcmNlcHRpb24ifQ==",
+        "payload": "eyJhZWVLaW5kIjoiaW50ZXJjZXB0aW9uIiwiYWVlTWV0aG9kIjoiaW50ZXJjZXB0ZWQiLCJhZWVQYXlsb2FkQ29tbWl0bWVudCI6WyJjMzllMjU4MmE1ZmYxYmM4YTg0NzE4ZmQ2MTE1Yzg0NzgwODY2OGI5NjJjMWJjZDA3ZTI2M2JmNjg4Y2M2ZjcyIl0sImFlZVJ1bkJpbmRpbmciOiI0Y2E3MTU0ZGJlY2Y1ZjM3NjE1NDdhN2Y5ZjFlZDgzOGJhOGFiMDA2YWExYjU5ZWNmMWJmNzc2ZWQ3ZWQ1NGM3IiwicHJvZHVjZXJOb3RlIjoiZXhhbXBsZSBpbnRlcmNlcHRpb24ifQ==",
         "payloadType": "application/vnd.example.aee-observation.v1+json",
         "signatures": [
           {
             "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
-            "sig": "1zoud5UMSP7jDJGf9pdQkei/39G3jzjMoF8ZM1rNFMsRKJPTQXT0YKzAEqyrHz1atDE3yj3/9PLCQAhjU7NYAg=="
+            "sig": "yaQvQA+EhhZS3Y8IXvqsxJCKnEM3/knuZSW22j9vEA2joFJghzxcdOiUuATVCLjbOb1x6TakkKMrE7CCbTJOAQ=="
+          }
+        ]
+      },
+      {
+        "payload": "eyJhZWVEcm9wQ291bnQiOjAsImFlZUtpbmQiOiJzZWFsZWQiLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZU9ic2VydmVkQXR0YWNrcyI6W10sImFlZU9ic2VydmVkU2V0IjoiNjNkZDk5MTNhZWFhYTMxMTg1NWYyNDIwOTFmNGMyNGViMDM2YzZiZGY0Y2RkOTAzNGViOTc1NjhjOTNiNjkzMCIsImFlZVBvc3R1cmVEaWdlc3QiOiJiYTQ0ZTc3Yjc4NjFiOWI3YzVhNzI4OGIzZDcwM2E2MjI4OWZiMDJiM2EzZTBmNTYxMmE0ZTc0ZGJlZTA5MjllIiwiYWVlUnVuQmluZGluZyI6IjRjYTcxNTRkYmVjZjVmMzc2MTU0N2E3ZjlmMWVkODM4YmE4YWIwMDZhYTFiNTllY2YxYmY3NzZlZDdlZDU0YzciLCJhZWVTdGlsbEFybWVkIjp0cnVlfQ==",
+        "payloadType": "application/vnd.example.aee-observation.v1+json",
+        "signatures": [
+          {
+            "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
+            "sig": "O2HRpQuxvSARrYyygt2ECKmeQz6jEQRGSguMa1WcxBlqNAWm5+8WKMpfLmw7HdPt2cW+DzAitDL3nZ0hc+T+Cw=="
           }
         ]
       }
     ],
     "result": "fail"
   },
-  "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6",
+  "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.7",
   "subject": [
     {
       "digest": {

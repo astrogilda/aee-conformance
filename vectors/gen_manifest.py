@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate MANIFEST.json for the AEE v0.6 conformance vector suite.
+"""Generate MANIFEST.json for the AEE v0.7 conformance vector suite.
 
 Derives the machine-readable expectations from the three human-authored
 index tables (accept/INDEX.md, reject/INDEX.md and indeterminate/INDEX.md),
@@ -236,7 +236,7 @@ def main() -> int:
     manifest = {
         "suite": "adversarial-execution-evidence-conformance",
         "predicateType": (
-            "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6"
+            "https://in-toto.io/attestation/adversarial-execution-evidence/v0.7"
         ),
         "specPath": SPEC_REL,
         "specDigest": spec_digest,

@@ -1,0 +1,114 @@
+{
+  "_type": "https://in-toto.io/Statement/v1",
+  "predicate": {
+    "attackResults": [
+      {
+        "actualLayer": "policy.egress_sinkhole",
+        "attackId": "XA-EXAMPLE-1",
+        "attribution": "paired",
+        "basis": "substrate",
+        "containmentObserved": "egress_captured",
+        "method": "intercepted",
+        "observationRefs": [
+          0
+        ]
+      }
+    ],
+    "batchRoot": "ac3d380cc1302fae23c1fc6d381fd63ec0a5445c78483e1bfa700be35d5811f3",
+    "coverage": {
+      "assessedClasses": [
+        "XA"
+      ],
+      "outOfScope": {},
+      "routedElsewhere": {}
+    },
+    "issuedAt": "2026-01-01T00:00:00Z",
+    "observationEnvironment": {
+      "catchPolicy": {
+        "digest": {
+          "sha256": "28f8fb978cae8aabc974e6557a3665523281bfd85fcee13429179120ad7667cc"
+        }
+      },
+      "corpus": {
+        "digest": {
+          "sha256": "ee2e1272d6160fae85b2ea6aaf187e938f8d5f1f5e69521b8e8f8a4e72841b9c"
+        },
+        "manifest": {
+          "classes": {
+            "XA": [
+              "XA-EXAMPLE-1"
+            ]
+          },
+          "expectedPayloads": {
+            "XZ-EXAMPLE-9": [
+              "f31821ae3e1d6e0611dc4d753e8f4c0232ad03df1f4bd32aa47b9cd4107fe3bf"
+            ]
+          }
+        },
+        "name": "example-corpus",
+        "uri": "pkg:example/example-corpus@1.0.0"
+      },
+      "networkPosture": {
+        "digest": {
+          "sha256": "ba44e77b7861b9b7c5a7288b3d703a62289fb02b3a3e0f5612a4e74dbee0929e"
+        },
+        "posture": "sinkhole"
+      },
+      "observationVocabulary": {
+        "caught": [
+          "egress_captured"
+        ],
+        "digest": {
+          "sha256": "5e989bc82a110a9fb587284fc6035d42696fce46bd65c14c347a538cfab7c0d6"
+        },
+        "labels": [
+          "egress_captured",
+          "no_egress"
+        ]
+      },
+      "runEntropy": {
+        "digest": {
+          "sha256": "bd34c306e2295a4974787aa2b81e7e95c37580d543cbc47f0b77a026aef7e051"
+        }
+      },
+      "substrate": {
+        "digest": {
+          "sha256": "018bbaf3710e526b0653abafbd3bd3c3356150d747db166021f1e107446c85bb"
+        },
+        "name": "example-substrate-image"
+      }
+    },
+    "observationRecords": [
+      {
+        "payload": "eyJhZWVLaW5kIjoiaW50ZXJjZXB0aW9uIiwiYWVlTWV0aG9kIjoiaW50ZXJjZXB0ZWQiLCJhZWVQYXlsb2FkQ29tbWl0bWVudCI6WyJmMzE4MjFhZTNlMWQ2ZTA2MTFkYzRkNzUzZThmNGMwMjMyYWQwM2RmMWY0YmQzMmFhNDdiOWNkNDEwN2ZlM2JmIl0sImFlZVJ1bkJpbmRpbmciOiJlNWQ4ZTNhODYwYjg2NmNiNjYzNzA2NWI5YTBlNzZhMzUwMDdiNTMxYTcwZWVhZWUwYTZlN2ZkYjE4NjA1NGZmIiwicHJvZHVjZXJOb3RlIjoiZXhhbXBsZSBpbnRlcmNlcHRpb24ifQ==",
+        "payloadType": "application/vnd.example.aee-observation.v1+json",
+        "signatures": [
+          {
+            "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
+            "sig": "oDVG6/8o6V/LFuS8y9doO3EzCIivgFbDNwNhU8kyxNMJBwDKRj5EXWHuZS9jK1wd9ib/5+ltMW0zMAtJiY0WCg=="
+          }
+        ]
+      },
+      {
+        "payload": "eyJhZWVEcm9wQ291bnQiOjAsImFlZUtpbmQiOiJzZWFsZWQiLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZU9ic2VydmVkQXR0YWNrcyI6W10sImFlZU9ic2VydmVkU2V0IjoiZGYzY2QyZTk5MjBlMjVhNGRlZTRjMmUwMTFkNmI4ZTE1NzZkOTRkZTQ0OTQxYmZjYjYyMDI5NTk4OWI2YTAwMCIsImFlZVBvc3R1cmVEaWdlc3QiOiJiYTQ0ZTc3Yjc4NjFiOWI3YzVhNzI4OGIzZDcwM2E2MjI4OWZiMDJiM2EzZTBmNTYxMmE0ZTc0ZGJlZTA5MjllIiwiYWVlUnVuQmluZGluZyI6ImU1ZDhlM2E4NjBiODY2Y2I2NjM3MDY1YjlhMGU3NmEzNTAwN2I1MzFhNzBlZWFlZTBhNmU3ZmRiMTg2MDU0ZmYiLCJhZWVTdGlsbEFybWVkIjp0cnVlfQ==",
+        "payloadType": "application/vnd.example.aee-observation.v1+json",
+        "signatures": [
+          {
+            "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
+            "sig": "CgdmvVbkewR7kt3riZDF9nu5WJBbSJJhEml1pxOVyLyBgH2Yd7oU6KP0ur8Ura2ZbPfIDvwSN+EMPOaaEtCRAw=="
+          }
+        ]
+      }
+    ],
+    "result": "fail"
+  },
+  "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.7",
+  "subject": [
+    {
+      "digest": {
+        "sha256": "d14fbbcd076c6bfe5e6aa52b169c0baf7f7044ea46fe279afd7629e92baac8fc"
+      },
+      "name": "example-agent-bundle"
+    }
+  ]
+}

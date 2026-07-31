@@ -5,6 +5,7 @@
       {
         "actualLayer": "none",
         "attackId": "XA-EXAMPLE-1",
+        "attribution": "paired",
         "basis": "substrate",
         "containmentObserved": "no_egress",
         "method": "intercepted",
@@ -14,7 +15,7 @@
         ]
       }
     ],
-    "batchRoot": "143c41c687732c5c4df6d1938d24a942ae731e8e43b1dab3543b36a5103f8867",
+    "batchRoot": "dcac11b0642657795b8e2834af0204d57029bb2b2e1a8c9aee91252e32e1e2f6",
     "coverage": {
       "assessedClasses": [
         "XA"
@@ -78,29 +79,29 @@
     },
     "observationRecords": [
       {
-        "payload": "eyJhZWVLaW5kIjoiYXJtaW5nIiwiYWVlTWV0aG9kIjoiaW50ZXJjZXB0ZWQiLCJhZWVQb3N0dXJlRGlnZXN0IjoiYmE0NGU3N2I3ODYxYjliN2M1YTcyODhiM2Q3MDNhNjIyODlmYjAyYjNhM2UwZjU2MTJhNGU3NGRiZWUwOTI5ZSIsImFlZVJ1bkJpbmRpbmciOiI3ZmE0YjM0MTg3ZjM4NWZmYTMzMTkxZjcxOGJmNjJhZDA0NTQwMGI5MDc1N2QxODZhNTc0YWE4N2QxODE0NjJlIiwiYXJtZWRBdCI6IjIwMjUtMTItMzFUMjM6NTk6MDBaIn0=",
+        "payload": "eyJhZWVBc3Nlc3NlZEF0dGFja3MiOlsiWEEtRVhBTVBMRS0xIiwiWEItRVhBTVBMRS0xIl0sImFlZUtpbmQiOiJhcm1pbmciLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZVBvc3R1cmVEaWdlc3QiOiJiYTQ0ZTc3Yjc4NjFiOWI3YzVhNzI4OGIzZDcwM2E2MjI4OWZiMDJiM2EzZTBmNTYxMmE0ZTc0ZGJlZTA5MjllIiwiYWVlUnVuQmluZGluZyI6IjdmYTRiMzQxODdmMzg1ZmZhMzMxOTFmNzE4YmY2MmFkMDQ1NDAwYjkwNzU3ZDE4NmE1NzRhYTg3ZDE4MTQ2MmUiLCJhcm1lZEF0IjoiMjAyNS0xMi0zMVQyMzo1OTowMFoifQ==",
         "payloadType": "application/vnd.example.aee-observation.v1+json",
         "signatures": [
           {
             "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
-            "sig": "K3DVk5XgDah7Pc4oWIEg5OcfC82QREVt1KC7mr+xS102lfpdPeKX5+WEWab6jqe7+KZdDhFDRy6pBj5K9FXNBA=="
+            "sig": "MpcRLk9sPJSNItoru54XJlune4qytMyXJc2gxhgJmynUfocUVOihHuPQGa2WDvOLHE6K9v2kFxHouQch843kAQ=="
           }
         ]
       },
       {
-        "payload": "eyJhZWVEcm9wQ291bnQiOjAsImFlZUtpbmQiOiJzZWFsZWQiLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZVBvc3R1cmVEaWdlc3QiOiJiYTQ0ZTc3Yjc4NjFiOWI3YzVhNzI4OGIzZDcwM2E2MjI4OWZiMDJiM2EzZTBmNTYxMmE0ZTc0ZGJlZTA5MjllIiwiYWVlUnVuQmluZGluZyI6IjdmYTRiMzQxODdmMzg1ZmZhMzMxOTFmNzE4YmY2MmFkMDQ1NDAwYjkwNzU3ZDE4NmE1NzRhYTg3ZDE4MTQ2MmUiLCJhZWVTdGlsbEFybWVkIjp0cnVlfQ==",
+        "payload": "eyJhZWVEcm9wQ291bnQiOjAsImFlZUtpbmQiOiJzZWFsZWQiLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZU9ic2VydmVkQXR0YWNrcyI6W10sImFlZU9ic2VydmVkU2V0IjoiNGY1M2NkYTE4YzJiYWEwYzAzNTRiYjVmOWEzZWNiZTVlZDEyYWI0ZDhlMTFiYTg3M2MyZjExMTYxMjAyYjk0NSIsImFlZVBvc3R1cmVEaWdlc3QiOiJiYTQ0ZTc3Yjc4NjFiOWI3YzVhNzI4OGIzZDcwM2E2MjI4OWZiMDJiM2EzZTBmNTYxMmE0ZTc0ZGJlZTA5MjllIiwiYWVlUnVuQmluZGluZyI6IjdmYTRiMzQxODdmMzg1ZmZhMzMxOTFmNzE4YmY2MmFkMDQ1NDAwYjkwNzU3ZDE4NmE1NzRhYTg3ZDE4MTQ2MmUiLCJhZWVTdGlsbEFybWVkIjp0cnVlfQ==",
         "payloadType": "application/vnd.example.aee-observation.v1+json",
         "signatures": [
           {
             "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
-            "sig": "rqLSKFX9R9EHgSr1HZa4g0yIzu4w+An1fvxrv3ou7CZwx8/4gikhB153o1OiE7gBtRn2lZrwvmcYGQqMA7ioAA=="
+            "sig": "R+8EMcgipbr6bCoTFHPw4st399XX31QOhRn4oGF41WIUVO5/PvEYvQZ6XGB8h6z4GA3Ek7tJ3OvvAoogx/1+Cw=="
           }
         ]
       }
     ],
     "result": "pass"
   },
-  "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6",
+  "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.7",
   "subject": [
     {
       "digest": {

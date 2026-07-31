@@ -5,6 +5,7 @@
       {
         "actualLayer": "none",
         "attackId": "XA-EXAMPLE-1",
+        "attribution": "paired",
         "basis": "substrate",
         "containmentObserved": "egress_captured",
         "method": "reconstructed",
@@ -13,7 +14,7 @@
         ]
       }
     ],
-    "batchRoot": "6f0b707bd460502f987722d344ba251ce14ec1b0df06e53059ce65f61e004a8f",
+    "batchRoot": "525335b39ccb260267b8a3d565cb1ea916c724793fbecf9446dcfe7547824001",
     "coverage": {
       "assessedClasses": [
         "XA"
@@ -82,11 +83,21 @@
             "sig": "egOICf9/+4kZgkFykJgEgPzhWGnKO/Fy8yBNiuC7RySZQM8U7BQmruVQ2jasSLF64FDcuqux25tjXCCEAw0OAw=="
           }
         ]
+      },
+      {
+        "payload": "eyJhZWVEcm9wQ291bnQiOjAsImFlZUtpbmQiOiJzZWFsZWQiLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZU9ic2VydmVkQXR0YWNrcyI6W10sImFlZU9ic2VydmVkU2V0IjoiZmFiNGY0ZTBjMWUyZTA0ZWFiNWFiNDA0NDVhMmQ0ZmE5Y2E4OTJhODIwNWYzYTUxMzFkYTJiZWM1NDcyMzI5NSIsImFlZVBvc3R1cmVEaWdlc3QiOiJiYTQ0ZTc3Yjc4NjFiOWI3YzVhNzI4OGIzZDcwM2E2MjI4OWZiMDJiM2EzZTBmNTYxMmE0ZTc0ZGJlZTA5MjllIiwiYWVlUnVuQmluZGluZyI6IjlhMWIyMjY5MmI4M2JkZjA2ZmMwY2JiZjlmMmJjMzhmOTkxNDA0OTU1NGI5M2Y3NGI0NTAyM2FlY2E5MjBmNmYiLCJhZWVTdGlsbEFybWVkIjp0cnVlfQ==",
+        "payloadType": "application/vnd.example.aee-observation.v1+json",
+        "signatures": [
+          {
+            "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
+            "sig": "brP0QaHi4pjqO0aswyS9njcA8mmoOQNq1fZSRnUD/LpH5GNhXmKTqvQxdanIReuTCn+AhJRnW0/Y+8wY2dFRBA=="
+          }
+        ]
       }
     ],
     "result": "fail"
   },
-  "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6",
+  "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.7",
   "subject": [
     {
       "digest": {

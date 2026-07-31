@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic generator for the AEE v0.6 ACCEPT (valid) conformance vectors.
+"""Deterministic generator for the AEE v0.7 ACCEPT (valid) conformance vectors.
 
 Emits ok-001 .. ok-039 (ok-037 is reserved) as complete, unwrapped in-toto
 Statement JSON files that a conforming verifier MUST accept, into the directory
@@ -38,7 +38,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
 OUT_DIR = Path(__file__).resolve().parent
 
 STATEMENT_TYPE = "https://in-toto.io/Statement/v1"
-PREDICATE_TYPE = "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6"
+PREDICATE_TYPE = "https://in-toto.io/attestation/adversarial-execution-evidence/v0.7"
 PAYLOAD_TYPE = "application/vnd.example.aee-observation.v1+json"
 ISSUED_AT = "2026-01-01T00:00:00Z"
 ARMED_AT = "2025-12-31T23:59:00Z"
@@ -197,7 +197,33 @@ def run_binding(
 # ---------------------------------------------------------------------------
 
 
-def make_record(
+def commitment_for(note: str) -> str:
+    """The commitment value an interception record carries for one observation.
+
+    Derived, never typed, from the same published-constant recipe every other
+    digest in this suite uses. What a substrate commits to is its own choice
+    and the specification does not constrain it; what matters here is that the
+    value is reproducible by anyone re-running this generator, and that the
+    corpus manifest can declare the same value in advance -- which is the whole
+    of what makes a row's attribution checkable.
+    """
+    return sha256_hex(f"in-toto-aee-test-commitment/{note}/v1".encode())
+
+
+# The sentinel a sealed record's aeeObservedSet carries until make_statement
+# knows the record set the seal is committing to. It is never emitted: a seal
+# whose value is still the sentinel when the statement is assembled has not
+# been finalized, and finalize_records asserts that.
+OBSERVED_SET_PENDING = "PENDING"
+
+# The same device on the arming record. A run-start declaration has to be a
+# superset of the assessed set the statement ends up carrying, and only
+# make_statement knows what that is, so the record is built with a sentinel
+# and filled once the coverage is fixed.
+ASSESSED_ATTACKS_PENDING = ["PENDING"]
+
+
+def make_record(  # noqa: C901 -- one guarded branch per record kind and per independent option field; see docs/complexity-rationales.toml
     kind: str,
     binding: str,
     method: str | None = None,
@@ -208,16 +234,25 @@ def make_record(
     signer: str = "substrate",
     keyid_mode: str = "normal",  # normal | garbage | absent
     sig_mode: str = "pae",  # pae | raw
+    commitment: list[str] | None = None,
+    assessed_attacks: list[str] | None = None,
+    observed_attacks: list[str] | None = None,
 ) -> dict[str, Any]:
     payload: dict[str, Any]
     if kind == "interception":
         payload = {
             "aeeKind": "interception",
             "aeeMethod": method or "intercepted",
+            "aeePayloadCommitment": commitment
+            if commitment is not None
+            else [commitment_for(note or "default")],
             "aeeRunBinding": binding,
         }
     elif kind == "arming":
         payload = {
+            "aeeAssessedAttacks": ASSESSED_ATTACKS_PENDING
+            if assessed_attacks is None
+            else assessed_attacks,
             "aeeKind": "arming",
             "aeeMethod": "intercepted",
             "aeePostureDigest": POSTURE_DIGEST,
@@ -229,6 +264,11 @@ def make_record(
             "aeeDropCount": drop_count,
             "aeeKind": "sealed",
             "aeeMethod": "intercepted",
+            # The empty array is the honest value and is required rather than
+            # omissible: a substrate holding no probe-to-record correspondence
+            # says so on the wire instead of leaving an absence nothing records.
+            "aeeObservedAttacks": observed_attacks or [],
+            "aeeObservedSet": OBSERVED_SET_PENDING,
             "aeePostureDigest": POSTURE_DIGEST,
             "aeeRunBinding": binding,
             "aeeStillArmed": True,
@@ -251,7 +291,23 @@ def make_record(
         payload["producerNote"] = note
     if extra:
         payload.update(extra)
+    return sign_payload(payload, signer, keyid_mode, sig_mode)
 
+
+def sign_payload(
+    payload: dict[str, Any],
+    signer: str = "substrate",
+    keyid_mode: str = "normal",
+    sig_mode: str = "pae",
+) -> dict[str, Any]:
+    """Canonicalize, sign and envelope one record payload.
+
+    Split out of make_record because a sealed record is signed TWICE: once when
+    it is built, and again after make_statement fills in the record set it
+    commits to. The signing options travel with the record so the second
+    signing reproduces the first one's choices rather than silently normalizing
+    a deliberately odd signature back to the default.
+    """
     payload_bytes = jcs(payload)
     priv = SUB_PRIV if signer == "substrate" else WRONG_PRIV
     keyid = SUB_KEYID if signer == "substrate" else WRONG_KEYID
@@ -270,7 +326,66 @@ def make_record(
         "payload": base64.b64encode(payload_bytes).decode(),
         "payloadType": PAYLOAD_TYPE,
         "signatures": [entry],
+        "_opts": {"signer": signer, "keyid_mode": keyid_mode, "sig_mode": sig_mode},
     }
+
+
+def observed_set_digest(records: list[dict[str, Any]]) -> str:
+    """The value a seal's aeeObservedSet commits to.
+
+    SHA-256 of the RFC 8785 canonicalization of the duplicate-free array,
+    sorted ascending by UTF-16 code unit, of the leaf hashes of every
+    interception and examination record. The entries are lowercase hex and
+    therefore ASCII, so a byte sort IS the UTF-16 code-unit sort here.
+    """
+    leaves = set()
+    for r in records:
+        payload = base64.b64decode(r["payload"])
+        try:
+            kind = json.loads(payload).get("aeeKind")
+        except ValueError:
+            continue
+        if kind in ("interception", "examination"):
+            leaves.add(
+                hashlib.sha256(b"\x00" + pae(r["payloadType"], payload)).hexdigest()
+            )
+    return sha256_hex(jcs(sorted(leaves)))
+
+
+def finalize_records(
+    records: list[dict[str, Any]], declared: list[str] | None = None
+) -> list[dict[str, Any]]:
+    """Fill in every sealed record's aeeObservedSet and strip the build options.
+
+    The seal commits to the leaf hashes of the interception and examination
+    records the statement carries, and the seal is not one of them, so there is
+    no circularity: the set is computed over the records as built, then each
+    seal is rewritten and re-signed. A seal that reaches here already carrying a
+    concrete value keeps it -- that is how a vector that deliberately commits to
+    the wrong set is written -- and one still carrying the sentinel is filled.
+    """
+    digest = observed_set_digest(records)
+    out: list[dict[str, Any]] = []
+    for r in records:
+        opts = r.get("_opts", {})
+        payload = json.loads(base64.b64decode(r["payload"]))
+        changed = False
+        if payload.get("aeeObservedSet") == OBSERVED_SET_PENDING:
+            payload["aeeObservedSet"] = digest
+            changed = True
+        if payload.get("aeeAssessedAttacks") == ASSESSED_ATTACKS_PENDING:
+            payload["aeeAssessedAttacks"] = sorted(declared or [])
+            changed = True
+        if changed:
+            r = sign_payload(payload, **opts)
+        out.append({k: v for k, v in r.items() if k != "_opts"})
+    for r in out:
+        payload = base64.b64decode(r["payload"])
+        assert b"PENDING" not in payload, (
+            "a run-level record reached the statement still carrying a build "
+            "sentinel"
+        )
+    return out
 
 
 def make_row(
@@ -281,12 +396,23 @@ def make_row(
     layer: str,
     refs: list[int] | None,
     selectors: list[str] | None = None,
+    attribution: str | None = "paired",
 ) -> dict[str, Any]:
+    """One attackResults row.
+
+    attribution defaults to `paired`, which is the floor a producer may always
+    truthfully declare: it says this row does not carry the stronger binding,
+    never that the producer had one and withheld it. A vector that means to
+    exercise the stronger value passes `pinned` and carries the corpus
+    expectation and the record commitment that make it true.
+    """
     row: dict[str, Any] = {"attackId": attack_id, "containmentObserved": observed}
     if basis is not None:
         row["basis"] = basis
     if method is not None:
         row["method"] = method
+    if attribution is not None:
+        row["attribution"] = attribution
     row["actualLayer"] = layer
     if refs is not None:
         row["observationRefs"] = refs
@@ -340,6 +466,8 @@ def make_statement(  # noqa: C901 -- one guarded branch per independent option f
                 forced_fail = True
             elif r.get("method") not in ("intercepted", "reconstructed"):
                 forced_fail = True
+            elif r.get("attribution") not in ("pinned", "paired"):
+                forced_fail = True
             elif r.get("basis") != "substrate" or r.get("method") != "intercepted":
                 indirect = True
         candidates = [
@@ -363,6 +491,14 @@ def make_statement(  # noqa: C901 -- one guarded branch per independent option f
         "issuedAt": ISSUED_AT,
     }
     if records:
+        # The run-start declaration defaults to the whole manifest: a producer
+        # that declares every attack the corpus names has committed to the
+        # largest set the manifest permits and is bounded there by coverage
+        # integrity alone, which is the shape the subset comparison exists to
+        # leave available.
+        records = finalize_records(
+            records, [a for ids in manifest["classes"].values() for a in ids]
+        )
         predicate["observationRecords"] = records
         leaves = [
             pae(r["payloadType"], base64.b64decode(r["payload"])) for r in records
@@ -419,7 +555,8 @@ def build_vectors() -> dict[str, dict[str, Any]]:
             )
         ],
         records=[
-            make_record("interception", b_1, note="example interception observation a")
+            make_record("interception", b_1, note="example interception observation a"),
+            make_record("sealed", b_1),
         ],
     )
 
@@ -483,7 +620,8 @@ def build_vectors() -> dict[str, dict[str, Any]]:
             )
         ],
         records=[
-            make_record("examination", b_1, note="example state comparison a-to-b")
+            make_record("examination", b_1, note="example state comparison a-to-b"),
+            make_record("sealed", b_1),
         ],
     )
 
@@ -652,7 +790,8 @@ def build_vectors() -> dict[str, dict[str, Any]]:
             )
         ],
         records=[
-            make_record("interception", b_1, note="example interception observation a")
+            make_record("interception", b_1, note="example interception observation a"),
+            make_record("sealed", b_1),
         ],
     )
 
@@ -673,6 +812,7 @@ def build_vectors() -> dict[str, dict[str, Any]]:
         records=[
             make_record("examination", b_1, note="example state comparison a-to-b"),
             make_record("interception", b_1, note="example interception observation a"),
+            make_record("sealed", b_1),
         ],
     )
 
@@ -722,7 +862,8 @@ def build_vectors() -> dict[str, dict[str, Any]]:
                 b_1,
                 note="example interception observation a",
                 sig_mode="raw",
-            )
+            ),
+            make_record("sealed", b_1),
         ],
     )
 
@@ -745,7 +886,8 @@ def build_vectors() -> dict[str, dict[str, Any]]:
                 b_1,
                 note="example interception observation a",
                 extra={"extraA": "example-extra-value"},
-            )
+            ),
+            make_record("sealed", b_1),
         ],
     )
 
@@ -816,6 +958,7 @@ def build_vectors() -> dict[str, dict[str, Any]]:
                 note="example interception observation b",
                 signer="wrong",
             ),
+            make_record("sealed", b_2b),
         ],
     )
 
@@ -908,14 +1051,14 @@ def build_vectors() -> dict[str, dict[str, Any]]:
         [make_row("XA-EXAMPLE-1", "no_egress", "artifact", "reconstructed", "none", [])],
         records=[
             make_record(
-                "interception",
+                "examination",
                 UNCHECKED_BINDING,
-                note="example interception observation a",
+                note="example state comparison a-to-b",
             ),
             make_record(
-                "interception",
+                "examination",
                 UNCHECKED_BINDING,
-                note="example interception observation b",
+                note="example state comparison c-to-d",
             ),
         ],
         with_entropy=False,
@@ -950,6 +1093,7 @@ def build_vectors() -> dict[str, dict[str, Any]]:
                 method="reconstructed",
                 note="example interception observation b",
             ),
+            make_record("sealed", b_1),
         ],
     )
 
@@ -967,7 +1111,8 @@ def build_vectors() -> dict[str, dict[str, Any]]:
             )
         ],
         records=[
-            make_record("examination", b_1, note="example state comparison a-to-b")
+            make_record("examination", b_1, note="example state comparison a-to-b"),
+            make_record("sealed", b_1),
         ],
     )
 
@@ -1013,9 +1158,9 @@ def build_vectors() -> dict[str, dict[str, Any]]:
 
     # ok-035 an unknown-kind record signed aeeMethod "reconstructed", REFERENCED
     # by a clean intercepted row. An unrecognized aeeKind covers nothing and is
-    # OTHERWISE IGNORED (spec:1106-1108): it neither invalidates the row (the
+    # OTHERWISE IGNORED (spec:1485-1487): it neither invalidates the row (the
     # arming+sealed cover satisfies class-match) nor participates in the method
-    # cap, which reads only COVERING records (spec:500-501). A rail that folded
+    # cap, which reads only COVERING records (spec:565-566). A rail that folded
     # the ignored record's weaker aeeMethod into the cap would wrongly flag
     # method-cap-exceeded; this locks the exclusion. Distinct from ok-013, whose
     # unknown record is unreferenced and intercepted, so its cap is never tested.
@@ -1220,6 +1365,123 @@ def build_vectors() -> dict[str, dict[str, Any]]:
         man_1,
         [make_row("XA-EXAMPLE-1", "no_egress", None, "reconstructed", "none", [])],
         with_entropy=False,
+    )
+
+    # ok-046 pins the DIRECTION of the seal's attack set, and it is the vector
+    # that stops a rail from reading a lower bound as an equality. The run
+    # caught two attacks and the seal names one of them. A seal naming an
+    # attack obliges a caught row for it; a seal OMITTING one licenses nothing,
+    # because an observation the substrate could not attribute subtracts from
+    # what the seal claims and can never add a claim that is false. Without
+    # this vector a rail demanding the sets match passes the whole corpus.
+    v["ok-046-seal-attacks-lower-bound"] = make_statement(
+        man_2,
+        [
+            make_row(
+                "XA-EXAMPLE-1",
+                "egress_captured",
+                "substrate",
+                "intercepted",
+                "policy.egress_sinkhole",
+                [0],
+            ),
+            make_row(
+                "XA-EXAMPLE-2",
+                "egress_captured",
+                "substrate",
+                "intercepted",
+                "policy.egress_sinkhole",
+                [1],
+            ),
+        ],
+        records=[
+            make_record("interception", b_2, note="example interception observation a"),
+            make_record("interception", b_2, note="example interception observation b"),
+            make_record("sealed", b_2, observed_attacks=["XA-EXAMPLE-1"]),
+        ],
+    )
+
+    # ok-047 the satisfied form of the stronger attribution, in all three of its
+    # parts at once: the row resolves an interception, the manifest declares an
+    # expectation for the row's attack, and the record it resolves carries a
+    # value from that entry. The corpus needs this beside the three refusals
+    # below it, because a rail that rejects every `pinned` row satisfies each
+    # refusal and is wrong.
+    man_pin = {
+        "classes": {"XA": ["XA-EXAMPLE-1"]},
+        "expectedPayloads": {
+            "XA-EXAMPLE-1": [commitment_for("example interception observation a")]
+        },
+    }
+    b_pin = run_binding(sha256_hex(jcs(man_pin)))
+    v["ok-047-attribution-pinned"] = make_statement(
+        man_pin,
+        [
+            make_row(
+                "XA-EXAMPLE-1",
+                "egress_captured",
+                "substrate",
+                "intercepted",
+                "policy.egress_sinkhole",
+                [0],
+                attribution="pinned",
+            )
+        ],
+        records=[
+            make_record(
+                "interception", b_pin, note="example interception observation a"
+            ),
+            make_record("sealed", b_pin),
+        ],
+    )
+
+    # ok-048 `paired` is a floor rather than a confession. The corpus declares
+    # an expectation for this attack and the record carries the matching value,
+    # so the producer COULD have declared `pinned` truthfully and did not. That
+    # is permitted: what a consumer learns from `paired` is that this row does
+    # not carry the stronger binding, never that the producer had one and
+    # withheld it. A rail that infers the stronger value from the corpus, or
+    # that refuses a truthful weaker one, fails here and nowhere else.
+    v["ok-048-attribution-paired-despite-expectation"] = make_statement(
+        man_pin,
+        [
+            make_row(
+                "XA-EXAMPLE-1",
+                "egress_captured",
+                "substrate",
+                "intercepted",
+                "policy.egress_sinkhole",
+                [0],
+            )
+        ],
+        records=[
+            make_record(
+                "interception", b_pin, note="example interception observation a"
+            ),
+            make_record("sealed", b_pin),
+        ],
+    )
+
+    # ok-049 the satisfied form of the seal's attack obligation: the seal names
+    # an attack and the statement carries a caught row for it. ok-046 pins that
+    # the rule does not fire on omission; this pins that it is a rule at all,
+    # rather than a member nothing reads.
+    v["ok-049-seal-names-caught-attack"] = make_statement(
+        man_1,
+        [
+            make_row(
+                "XA-EXAMPLE-1",
+                "egress_captured",
+                "substrate",
+                "intercepted",
+                "policy.egress_sinkhole",
+                [0],
+            )
+        ],
+        records=[
+            make_record("interception", b_1, note="example interception observation a"),
+            make_record("sealed", b_1, observed_attacks=["XA-EXAMPLE-1"]),
+        ],
     )
 
     return v
@@ -1440,6 +1702,102 @@ def verify(stmt: dict[str, Any]) -> list[str]:  # noqa: C901 -- mirrors the full
         if c in by_class:
             errs.append(f"class {c}: rows present for non-assessed class")
 
+    errs.extend(verify_commitments(pred, set(labels), set(caught)))
+    return errs
+
+
+def verify_commitments(  # noqa: C901 -- one branch per independent requirement; see docs/complexity-rationales.toml
+    pred: dict[str, Any],
+    labels: set[str],
+    caught: set[str],
+) -> list[str]:
+    """The coverage validity requirements this version adds, read a SECOND time.
+
+    Every one of them is already satisfied by construction, which is exactly why
+    it is asserted here: a builder and a checker that share a derivation share
+    its mistakes, so this reads the finished statement rather than the inputs it
+    was assembled from. Nine accept vectors and one whole record set moved when
+    these requirements landed, and nothing in this file could see any of it.
+    """
+    errs: list[str] = []
+    rows = pred["attackResults"]
+    records = pred.get("observationRecords") or []
+    payloads = [json.loads(base64.b64decode(r["payload"])) for r in records]
+    kinds = [pl.get("aeeKind") for pl in payloads]
+    env = pred["observationEnvironment"]
+    classes = env["corpus"]["manifest"]["classes"]
+    expected = env["corpus"]["manifest"].get("expectedPayloads") or {}
+    declared = {a for ids in classes.values() for a in ids}
+
+    def refs_of(r: dict[str, Any]) -> list[int]:
+        return [
+            i
+            for i in (r.get("observationRefs") or [])
+            if isinstance(i, int) and 0 <= i < len(records)
+        ]
+
+    for r in rows:
+        if r.get("attribution") not in ("pinned", "paired"):
+            errs.append(f"row {r['attackId']}: attribution is required on every row")
+        lab = r.get("containmentObserved")
+        if lab in labels and lab not in caught:
+            if any(kinds[i] == "interception" for i in refs_of(r)):
+                errs.append(f"row {r['attackId']}: a clean row resolves an interception")
+
+    resolved: set[int] = set()
+    for r in rows:
+        if r.get("containmentObserved") in caught:
+            resolved.update(refs_of(r))
+    for i, kind in enumerate(kinds):
+        if kind == "interception":
+            if i not in resolved:
+                errs.append(f"record {i}: an interception no caught row resolves")
+            values = payloads[i].get("aeePayloadCommitment")
+            if not isinstance(values, list) or not values or values != sorted(set(values)):
+                errs.append(f"record {i}: aeePayloadCommitment absent or not canonical")
+
+    for r in rows:
+        if r.get("attribution") != "pinned":
+            continue
+        inters = [i for i in refs_of(r) if kinds[i] == "interception"]
+        if not inters:
+            errs.append(f"row {r['attackId']}: pinned and resolves no interception")
+            continue
+        want = expected.get(r["attackId"])
+        if not want:
+            errs.append(f"row {r['attackId']}: pinned with no corpus expectation")
+            continue
+        for i in inters:
+            if not set(payloads[i].get("aeePayloadCommitment") or []) & set(want):
+                errs.append(f"row {r['attackId']}: record {i} carries no expected value")
+
+    if not any(r.get("basis") == "substrate" for r in rows):
+        return errs
+
+    caught_ids = {r["attackId"] for r in rows if r.get("containmentObserved") in caught}
+    assessed = {a for c in pred["coverage"]["assessedClasses"] for a in classes.get(c, [])}
+    observed = observed_set_digest(records)
+    seals = 0
+    for i, kind in enumerate(kinds):
+        if kind == "sealed":
+            seals += 1
+            if payloads[i].get("aeeObservedSet") != observed:
+                errs.append(f"record {i}: the seal does not commit to the carried set")
+            attacks = payloads[i].get("aeeObservedAttacks")
+            if not isinstance(attacks, list) or attacks != sorted(set(attacks)):
+                errs.append(f"record {i}: aeeObservedAttacks absent or not canonical")
+            elif not set(attacks) <= declared:
+                errs.append(f"record {i}: the seal names an undeclared attack")
+            elif not set(attacks) <= caught_ids:
+                errs.append(f"record {i}: the seal names an attack with no caught row")
+        if kind == "arming":
+            decl = payloads[i].get("aeeAssessedAttacks")
+            if not isinstance(decl, list) or decl != sorted(set(decl)):
+                errs.append(f"record {i}: aeeAssessedAttacks absent or not canonical")
+            elif not assessed <= set(decl):
+                errs.append(f"record {i}: the assessed set exceeds the declaration")
+    if seals == 0:
+        errs.append("a substrate row and no sealed record")
     return errs
 
 

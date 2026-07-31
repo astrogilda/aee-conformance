@@ -7,7 +7,8 @@
   "totals": {
     "vectors": 226,
     "pass": 226,
-    "fail": 0
+    "fail": 0,
+    "suiteRefusals": 0
   },
   "notes": [
     "indeterminate family signature-count-vs-payload-decode: set-level -- the reading the rail committed to (2 member(s))"

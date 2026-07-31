@@ -104,7 +104,7 @@ import shlex
 import subprocess
 import sys
 import tempfile
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Any, TypeGuard
@@ -2704,20 +2704,77 @@ def manifest_index(manifest: dict[str, Any] | None) -> dict[str, dict[str, Any]]
     return idx
 
 
-def discover_vectors(suite_dir: str) -> list[tuple[str, str]]:
-    """Return (kind, path) pairs sorted by file name."""
+# The vector kinds this file actually scores. Nothing is selected by it:
+# evaluate_vector routes accept and indeterminate to their own contracts and
+# everything else to the reject contract, so a kind the corpus grows and this
+# rail does not know would be replayed under somebody else's rules with every
+# column green. It is the coverage claim this rail makes about itself, checked
+# against the MANIFEST by manifest_closure below.
+REPLAYED_KINDS = ("accept", "indeterminate", "reject")
+
+# The directories under the suite root that carry no conformance vectors in any
+# encoding, and so are the only ones exempt from having to be a MANIFEST kind.
+# Sorted, because the set is printed in a refusal.
+#
+#   - keys/ holds the published test-key derivation recipe and no vectors; the
+#     keys themselves are derived from that recipe rather than committed.
+#   - __pycache__/ is a gitignored artifact of running the generators in the
+#     tree. It is absent in CI, which is why nothing here requires an entry to
+#     correspond to a directory that exists.
+SUITE_NON_VECTOR_DIRS = ("__pycache__", "keys")
+
+
+def manifest_kinds(idx: dict[str, dict[str, Any]]) -> dict[str, list[str]]:
+    """The MANIFEST's vector identifiers, grouped by the kind each row declares.
+
+    A row declaring no kind lands under the empty string, which is in no
+    REPLAYED_KINDS entry and no directory name, so it is refused by name rather
+    than silently read out of whichever directory a default would have picked.
+    """
+    listed: dict[str, list[str]] = {}
+    for vid, entry in idx.items():
+        kind = entry.get("kind")
+        listed.setdefault(kind if isinstance(kind, str) else "", []).append(vid)
+    for ids in listed.values():
+        ids.sort()
+    return listed
+
+
+def discover_vectors(suite_dir: str, kinds: Sequence[str]) -> list[tuple[str, str]]:
+    """Return (kind, path) pairs sorted by file name, over the kinds given.
+
+    The kinds come from the MANIFEST, in the order it first mentions each,
+    rather than from a literal here. Three directory names were hardcoded until
+    a fourth arrived: a kind the corpus grew was walked by nothing, replayed by
+    nothing, and counted in no total, while every gate stayed green -- the same
+    blind spot the Go runner was hardened against after an indeterminate/
+    directory was vendored and exercised by nothing. Any directory the MANIFEST
+    does not name as a kind is now refused by manifest_closure instead of being
+    quietly skipped.
+    """
     found: list[tuple[str, str]] = []
-    for sub, kind in (
-        ("accept", "accept"),
-        ("reject", "reject"),
-        ("indeterminate", "indeterminate"),
-    ):
-        d = os.path.join(suite_dir, sub)
+    seen: set[str] = set()
+    for kind in kinds:
+        if kind in seen:
+            continue
+        seen.add(kind)
+        d = os.path.join(suite_dir, kind)
         if os.path.isdir(d):
             for name in sorted(os.listdir(d)):
                 if name.endswith(".json"):
                     found.append((kind, os.path.join(d, name)))
     return found
+
+
+def vector_files_in(directory: str) -> list[str]:
+    """The vector identifiers a directory holds, or an empty list if absent."""
+    if not os.path.isdir(directory):
+        return []
+    return sorted(
+        os.path.splitext(name)[0]
+        for name in os.listdir(directory)
+        if name.endswith(".json")
+    )
 
 
 def evaluate_vector(
@@ -3044,14 +3101,20 @@ def run_suite(args: argparse.Namespace) -> int:
 
     manifest = load_manifest(suite_dir)
     idx = manifest_index(manifest)
-    vectors = discover_vectors(suite_dir)
+    # The kinds to walk come from the MANIFEST when there is one, so a kind the
+    # corpus grows is replayed rather than skipped by a literal that predates
+    # it. Without a MANIFEST there is nothing to derive them from and the rail
+    # falls back to the kinds it scores, which is the only case where the set
+    # is a literal.
+    kinds = list(manifest_kinds(idx)) if manifest is not None else list(REPLAYED_KINDS)
+    vectors = discover_vectors(suite_dir, kinds)
     report_base = os.path.dirname(suite_dir) or "."
 
     if not vectors:
         rel = os.path.relpath(suite_dir, report_base)
         print(
-            f"no vectors found under {rel} (accept/ and reject/ are empty "
-            "or missing); nothing to run"
+            f"no vectors found under {rel} (the kind directories {kinds} are "
+            "empty or missing); nothing to run"
         )
         return 2
 
@@ -3074,8 +3137,9 @@ def run_suite(args: argparse.Namespace) -> int:
                 failures += 1
             rows_out.append(row)
 
-    # manifest completeness both ways
-    suite_notes, note_failures = _run_manifest_notes(manifest, idx, rows_out)
+    # manifest-to-disk closure, both ways per kind, plus the directory set and
+    # the manifest's own counts block
+    suite_notes, note_failures = _run_manifest_closure(manifest, idx, suite_dir, rows_out)
     failures += note_failures
 
     # The cross-member half of the indeterminate contract. A failure is written
@@ -3094,8 +3158,15 @@ def run_suite(args: argparse.Namespace) -> int:
                 row["gates"]["gate0"] = "FAIL"
         failures += len(coherence_failures)
 
+    # Suite-level refusals -- closure, the directory set, the counts block --
+    # belong to no one vector, so they are carried in the totals in their own
+    # right. Reported only through the exit status they produce a table reading
+    # "0 fail" beside a non-zero exit, which is the shape of report this
+    # repository exists to stop shipping.
+    suite_refusals = failures - sum(1 for r in rows_out if r["status"] == "FAIL")
     report, report_path = _run_write_report(
-        args, suite_dir, report_base, external_cmd, probe_note, suite_notes, rows_out
+        args, suite_dir, report_base, external_cmd, probe_note, suite_notes, rows_out,
+        max(suite_refusals, 0),
     )
     _run_print_table(report, rows_out, suite_notes, probe_note, report_path, report_base)
     return 1 if failures else 0
@@ -3287,9 +3358,161 @@ def _run_process_vector(
     return row, (not ok)
 
 
-def _run_manifest_notes(
+def _closure_kind_coverage(listed: dict[str, list[str]]) -> list[str]:
+    """The kinds the MANIFEST declares against the kinds this rail scores."""
+    failures: list[str] = []
+    for kind in sorted(listed):
+        if kind not in REPLAYED_KINDS:
+            failures.append(
+                f"MANIFEST lists {listed[kind]} under kind {kind!r}, which no contract in "
+                "this rail scores; evaluate_vector would read them under the reject "
+                "contract. Add the contract and name the kind in REPLAYED_KINDS -- naming "
+                "it alone is the same absence with a green tick on it"
+            )
+    for kind in REPLAYED_KINDS:
+        if not listed.get(kind):
+            failures.append(
+                f"REPLAYED_KINDS names kind {kind!r} that the MANIFEST no longer carries, "
+                "so the contract for it runs over nothing and asserts nothing"
+            )
+    return failures
+
+
+def _closure_both_directions(
+    suite_dir: str, idx: dict[str, dict[str, Any]], listed: dict[str, list[str]]
+) -> tuple[list[str], dict[str, str]]:
+    """Per kind, the MANIFEST rows against the vector files on disk, both ways.
+
+    Returns the refusals and, for the identifiers a MANIFEST row does not
+    name, the kind directory each was found in -- the caller marks those rows
+    FAIL rather than leaving a totals line reading zero failures beside a
+    non-zero exit.
+    """
+    failures: list[str] = []
+    unlisted: dict[str, str] = {}
+    for kind in sorted(listed):
+        if kind not in REPLAYED_KINDS:
+            continue  # already refused by name; do not report it twice
+        on_disk = vector_files_in(os.path.join(suite_dir, kind))
+        for vid in listed[kind]:
+            declared = idx[vid].get("file")
+            want = f"{kind}/{vid}.json"
+            if isinstance(declared, str) and declared and declared != want:
+                failures.append(
+                    f"MANIFEST row {vid} declares file {declared!r}; this rail reads {want!r}"
+                )
+            if vid not in on_disk:
+                failures.append(f"MANIFEST row {vid} has no committed vector file in {kind}/")
+        for vid in on_disk:
+            if vid not in listed[kind]:
+                unlisted[vid] = kind
+                failures.append(
+                    f"{kind}/{vid}.json is committed and has no MANIFEST row, so it is "
+                    "scored against a verdict derived from its directory and counted in a "
+                    "total no manifest backs"
+                )
+    return failures, unlisted
+
+
+def _closure_directories(suite_dir: str, listed: dict[str, list[str]]) -> list[str]:
+    """Every directory under the suite root is a MANIFEST kind or a declared
+    non-vector directory.
+
+    The rule is set equality against SUITE_NON_VECTOR_DIRS, not "holds files
+    this rail recognises as vectors". Asking whether a directory held any .json
+    decides the question by file extension, so a directory carrying the same
+    corpus in another encoding passes silently AND contributes to no per-kind
+    count, which is the pair of blind spots that lets an unreplayed set look
+    like an absent one.
+    """
+    failures: list[str] = []
+    for name in sorted(os.listdir(suite_dir)):
+        if not os.path.isdir(os.path.join(suite_dir, name)):
+            continue
+        if name in listed:
+            continue
+        if name not in SUITE_NON_VECTOR_DIRS:
+            failures.append(
+                f"{name}/ is named by no MANIFEST kind and is not one of the suite's "
+                f"declared non-vector directories {list(SUITE_NON_VECTOR_DIRS)}, so "
+                "whatever it carries is replayed by nothing. Add the kind to the MANIFEST "
+                "or name the directory in SUITE_NON_VECTOR_DIRS"
+            )
+            continue
+        held = vector_files_in(os.path.join(suite_dir, name))
+        if held:
+            failures.append(
+                f"{name}/ is declared to hold no vectors and holds {len(held)} vector file(s)"
+            )
+    return failures
+
+
+def _closure_counts(
+    suite_dir: str, counts: Any, listed: dict[str, list[str]]
+) -> list[str]:
+    """The MANIFEST's own counts block against the tree.
+
+    The block is a third copy of a number the rows and the files each already
+    carry, so it is checked against the other two rather than trusted or
+    ignored: a published corpus size that only ever agrees with itself is a
+    cache nothing invalidates.
+    """
+    if counts is None:
+        return ["MANIFEST carries no counts block, so the size it publishes is derived by nothing"]
+    if not isinstance(counts, dict):
+        return [f"MANIFEST counts is {type(counts).__name__}, not an object"]
+    failures: list[str] = []
+    for kind in sorted(listed):
+        if kind not in REPLAYED_KINDS:
+            continue
+        on_disk = vector_files_in(os.path.join(suite_dir, kind))
+        if kind not in counts:
+            failures.append(
+                f"MANIFEST counts declares no entry for kind {kind!r}, which "
+                f"{len(listed[kind])} row(s) carry"
+            )
+        elif counts[kind] != len(on_disk):
+            failures.append(
+                f"MANIFEST counts[{kind!r}] is {counts[kind]}; {kind}/ holds "
+                f"{len(on_disk)} vector file(s)"
+            )
+    for kind in sorted(counts):
+        if kind not in listed:
+            failures.append(
+                f"MANIFEST counts declares kind {kind!r} that no MANIFEST row carries"
+            )
+    return failures
+
+
+def manifest_closure(
+    suite_dir: str, manifest: dict[str, Any], idx: dict[str, dict[str, Any]]
+) -> tuple[list[str], dict[str, str]]:
+    """Assert that the MANIFEST and the vector files on disk name each other
+    exactly, in both directions and per kind.
+
+    The replay is driven by the directories the MANIFEST names, so on its own it
+    can only ever report on what it happened to walk: a .json committed into a
+    vector directory with no MANIFEST row was scored against a verdict derived
+    from its directory name, counted in the printed total, and reported as a
+    note beside exit 0 -- and that total is the number the published corpus size
+    derives from. Comparing the two listings is what makes "every vector was
+    replayed, and only those" a measured claim rather than an assumption about
+    whoever last regenerated the suite. The Go runner has refused the same tree
+    by name since the directory blind spot was closed there.
+    """
+    listed = manifest_kinds(idx)
+    failures = _closure_kind_coverage(listed)
+    direction_failures, unlisted = _closure_both_directions(suite_dir, idx, listed)
+    failures.extend(direction_failures)
+    failures.extend(_closure_directories(suite_dir, listed))
+    failures.extend(_closure_counts(suite_dir, manifest.get("counts"), listed))
+    return failures, unlisted
+
+
+def _run_manifest_closure(
     manifest: dict[str, Any] | None,
     idx: dict[str, dict[str, Any]],
+    suite_dir: str,
     rows_out: list[dict[str, Any]],
 ) -> tuple[list[str], int]:
     suite_notes: list[str] = []
@@ -3300,16 +3523,20 @@ def _run_manifest_notes(
             "exemption data)"
         )
         return suite_notes, 0
-    on_disk = {r["id"] for r in rows_out}
-    missing_files = sorted(set(idx) - on_disk)
-    unlisted = sorted(on_disk - set(idx))
-    note_failures = 0
-    if missing_files:
-        note_failures += 1
-        suite_notes.append(f"MANIFEST lists vectors with no file on disk: {missing_files}")
-    if unlisted:
-        suite_notes.append(f"files on disk not listed in MANIFEST: {unlisted}")
-    return suite_notes, note_failures
+    failures, unlisted = manifest_closure(suite_dir, manifest, idx)
+    # A closure failure attributable to one vector is written onto that vector
+    # as well as into the suite notes, because a totals line reading "0 fail"
+    # beside a non-zero exit is the shape of report this repository exists to
+    # stop shipping.
+    for row in rows_out:
+        kind = unlisted.get(row["id"])
+        if kind is None or row["kind"] != kind:
+            continue
+        row["status"] = "FAIL"
+        row["reasons"] = [*row["reasons"], "no MANIFEST row names this file"]
+        row["gates"]["gate0"] = "FAIL"
+    suite_notes.extend(failures)
+    return suite_notes, len(failures)
 
 
 def _run_write_report(
@@ -3320,6 +3547,7 @@ def _run_write_report(
     probe_note: str,
     suite_notes: list[str],
     rows_out: list[dict[str, Any]],
+    suite_refusals: int,
 ) -> tuple[dict[str, Any], str]:
     report: dict[str, Any] = {
         "suite": os.path.relpath(suite_dir, report_base),
@@ -3331,6 +3559,7 @@ def _run_write_report(
             "vectors": len(rows_out),
             "pass": sum(1 for r in rows_out if r["status"] == "PASS"),
             "fail": sum(1 for r in rows_out if r["status"] == "FAIL"),
+            "suiteRefusals": suite_refusals,
         },
         "notes": suite_notes,
         "gateColumns": list(GATE_NAMES),
@@ -3368,8 +3597,11 @@ def _run_print_table(
     for note in suite_notes:
         print(f"note: {note}")
     t = report["totals"]
+    refusals = ""
+    if t.get("suiteRefusals"):
+        refusals = f", {t['suiteRefusals']} suite-level refusal(s)"
     print(
-        f"totals: {t['vectors']} vectors, {t['pass']} pass, {t['fail']} fail; "
+        f"totals: {t['vectors']} vectors, {t['pass']} pass, {t['fail']} fail{refusals}; "
         f"report written to {os.path.relpath(report_path, report_base)}"
     )
 

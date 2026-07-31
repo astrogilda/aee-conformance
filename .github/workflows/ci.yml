@@ -101,7 +101,7 @@ jobs:
       - name: sync toolchain
         run: uv sync --extra dev --extra generators
       - name: mypy --strict
-        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/consumer-lag-gate.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py scripts/count-gate.py scripts/count-gate-test.py
+        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/consumer-lag-gate.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py scripts/count-gate.py scripts/count-gate-test.py scripts/regenerability-gate.py
       - name: ruff
         run: uv run ruff check packaging vectors scripts
       # The other half of the accepted-complexity gate. It runs here rather than
@@ -179,6 +179,16 @@ jobs:
         run: |
           python3 scripts/count-gate.py
           python3 scripts/count-gate-test.py
+      # Both vector indexes publish a determinism recipe saying the set
+      # regenerates byte-identically from the generator beside it, and until
+      # this gate nothing ran it. Seven vector files and seven manifest entries
+      # were committed with no builder and no index row behind them, and the
+      # tree stayed green: the harness replays the committed bytes against the
+      # committed manifest, and both had been written by hand. This gate
+      # regenerates everything into a copy and diffs, so a file no generator
+      # produces fails on the push that adds it.
+      - name: every generated file regenerates byte-identically
+        run: python3 scripts/regenerability-gate.py
       - name: replay every vector on the Python rail (must be 186/186)
         run: python3 packaging/run_vectors.py
 

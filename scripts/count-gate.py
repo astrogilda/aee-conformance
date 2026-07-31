@@ -128,6 +128,17 @@ right one. A sentence naming two revisions accepts a value belonging to either.
 Tightening that would mean parsing which clause a number belongs to, which is a
 reading rather than a match.
 
+Where the mechanism lives
+-------------------------
+The rule above is general and its subject is not. Everything below this line is
+about THIS corpus -- its sources, its claim sites, its frozen incidents, its
+vocabulary -- while the machinery that reads prose, masks the non-counts, finds
+the count-shaped integers and resolves each against a declaration is in
+scripts/countcensus.py, which knows about none of that. It is a library because a
+consumer in another repository now runs the same rule over a different subject,
+and one rule implemented twice is two rules that will disagree. The argument for
+the rule stays here; only the code moved.
+
 Usage:
     python3 scripts/count-gate.py
     python3 scripts/count-gate.py --root <staged copy>   (what its own tests run)
@@ -138,14 +149,25 @@ accounted for; 1 on any disagreement, naming each one.
 from __future__ import annotations
 
 import argparse
-import io
 import json
 import re
-import subprocess
 import sys
-import tokenize
 from dataclasses import dataclass
 from pathlib import Path
+
+from countcensus import (
+    Census,
+    Claim,
+    Covered,
+    Delegated,
+    Frozen,
+    Quantities,
+    Token,
+    check_claims,
+    check_declarations,
+    read_tracked,
+    run_census,
+)
 
 # The tree under check. `--root` points it at a staged copy, which is how
 # scripts/count-gate-test.py mutates one file and asserts the refusal without
@@ -439,60 +461,6 @@ def head_row_failures(src: Sources) -> list[str]:
 # --------------------------------------------------------------------------
 # Half one: the declared claims
 # --------------------------------------------------------------------------
-
-
-@dataclass(frozen=True)
-class Claim:
-    """One published sentence carrying a derived count.
-
-    ``opens`` and ``closes`` are the fixed prose either side of the value and
-    ``expected`` is what the sources say belongs between them. ``occurrences`` is
-    how many times the shape must appear: asserting the count is what makes a
-    deleted claim, a reworded one, or a second copy that will then rot on its own
-    fail here rather than pass unchecked. The same discipline
-    scripts/consumer-lag-gate.py and scripts/independent-runs-gate.py apply to
-    their own ledgers.
-    """
-
-    path: str
-    label: str
-    opens: str
-    closes: str
-    expected: str
-    occurrences: int = 1
-
-
-@dataclass(frozen=True)
-class Delegated:
-    """A count-shaped span another gate already owns.
-
-    Recorded rather than re-checked. Two gates checking one fact is harmless;
-    two gates holding one ledger is not, and the value behind each of these comes
-    from a ledger that is not this gate's.
-    """
-
-    path: str
-    label: str
-    pattern: str
-    owner: str
-
-
-@dataclass(frozen=True)
-class Frozen:
-    """A figure that records a past event and must NOT track the corpus.
-
-    An incident is not a measurement of the corpus as it stands: a CLI that
-    scored zero against 186 vectors scored zero against 186 vectors, and
-    rewriting that to 190 when the corpus grows would be inventing history. Each
-    entry carries the reason, and the occurrence count is asserted so that a
-    copy of the sentence appearing somewhere new fails here.
-    """
-
-    path: str
-    label: str
-    text: str
-    reason: str
-    occurrences: int = 1
 
 
 def claims(src: Sources) -> tuple[Claim, ...]:
@@ -848,112 +816,6 @@ FROZEN: tuple[Frozen, ...] = (
 )
 
 
-def flex(text: str) -> str:
-    """A pattern matching ``text`` with every whitespace run free to rewrap.
-
-    Repository files are hard-wrapped and rewrapped freely, so a claim matched on
-    literal bytes would fail on a reflow that changed nothing. Leading and
-    trailing whitespace is preserved as a requirement, which is what keeps
-    ``"and empty), all "`` from matching ``"...all"`` with no separator.
-    """
-    parts = re.split(r"(\s+)", text)
-    return "".join(r"\s+" if part.isspace() else re.escape(part) for part in parts)
-
-
-def claim_pattern(opens: str, closes: str) -> re.Pattern[str]:
-    return re.compile(flex(opens) + r"([\s\S]{0,80}?)" + flex(closes))
-
-
-def normalize(text: str) -> str:
-    return " ".join(text.split())
-
-
-@dataclass(frozen=True)
-class Covered:
-    """One span of a file some declaration accounts for."""
-
-    start: int
-    end: int
-    why: str
-
-
-def claim_failures(
-    src: Sources, texts: dict[str, str]
-) -> tuple[list[str], dict[str, list[Covered]]]:
-    """Check every declared claim, and record the spans they account for."""
-    failures: list[str] = []
-    covered: dict[str, list[Covered]] = {}
-    for claim in claims(src):
-        text = texts.get(claim.path)
-        if text is None:
-            failures.append(
-                f"{claim.path}: {claim.label} is declared against a file this gate "
-                "does not read. Either the file moved or the declaration is wrong; "
-                "an unreadable claim site is a check that cannot run."
-            )
-            continue
-        hits = list(claim_pattern(claim.opens, claim.closes).finditer(text))
-        if len(hits) != claim.occurrences:
-            failures.append(
-                f"{claim.path}: {claim.label} was found {len(hits)} time(s), expected "
-                f"{claim.occurrences}. The claim is matched on the words around it "
-                f"({normalize(claim.opens)!r} ... {normalize(claim.closes)!r}); "
-                "rewording or deleting it fails here rather than quietly leaving the "
-                "count unchecked."
-            )
-            continue
-        for hit in hits:
-            covered.setdefault(claim.path, []).append(
-                Covered(hit.start(), hit.end(), f"the declared claim {claim.label!r}")
-            )
-            if normalize(hit.group(1)) != normalize(claim.expected):
-                failures.append(
-                    f"{claim.path}: {claim.label} says {normalize(hit.group(1))!r} "
-                    f"where the sources say {normalize(claim.expected)!r}."
-                )
-    return failures, covered
-
-
-def declaration_failures(
-    texts: dict[str, str], covered: dict[str, list[Covered]]
-) -> list[str]:
-    """Delegated and frozen spans: find them, or say they are gone.
-
-    A declaration that matches nothing is not a harmless leftover. It is a span
-    this gate reports as accounted for, over prose that no longer exists.
-    """
-    failures: list[str] = []
-    for spec in DELEGATED:
-        text = texts.get(spec.path, "")
-        hits = list(re.finditer(spec.pattern, text))
-        if not hits:
-            failures.append(
-                f"{spec.path}: {spec.label} is delegated to {spec.owner} and no longer "
-                "appears. Either it was reworded, in which case both gates need "
-                "telling, or it was deleted and this delegation is now a span nothing "
-                "owns."
-            )
-        for hit in hits:
-            covered.setdefault(spec.path, []).append(
-                Covered(hit.start(), hit.end(), f"owned by {spec.owner}")
-            )
-    for frozen in FROZEN:
-        text = texts.get(frozen.path, "")
-        hits = list(re.finditer(flex(frozen.text), text))
-        if len(hits) != frozen.occurrences:
-            failures.append(
-                f"{frozen.path}: the frozen figure {frozen.label!r} was found "
-                f"{len(hits)} time(s), expected {frozen.occurrences}. It is frozen "
-                f"because: {frozen.reason} A copy appearing somewhere new is a second "
-                "site that will be read as current."
-            )
-        for hit in hits:
-            covered.setdefault(frozen.path, []).append(
-                Covered(hit.start(), hit.end(), f"frozen: {frozen.label}")
-            )
-    return failures
-
-
 # --------------------------------------------------------------------------
 # Half two: the census
 # --------------------------------------------------------------------------
@@ -987,9 +849,7 @@ MASKS = tuple(
     )
 )
 
-RATIO = re.compile(r"\b(\d{1,4})\s*(?:/|\s+of\s+)\s*(\d{1,4})\b")
 NOUN = re.compile(r"\b(\d{1,4})\s+(?:accept |reject )?vectors?\b", re.IGNORECASE)
-INTEGER = re.compile(r"\b\d{1,4}\b")
 # A revision the sentence names, in every spelling this repository uses. The
 # optional comment marker is not decoration: these sentences are hard-wrapped
 # inside `#` comment blocks, so `revision` and its number routinely sit on
@@ -1019,17 +879,17 @@ EXEMPT_PREFIXES: dict[str, str] = {
     ),
 }
 
-# The two files whose count-shaped integers are this gate's SUBJECT rather than
+# The three files whose count-shaped integers are this gate's SUBJECT rather than
 # claims about the corpus, so the census reads no integer in them.
 #
-# This is not a convenience. Everything the census would find in these two files
-# is control data: the declaration tables name the very values they check, the
+# This is not a convenience. Everything the census would find in these files is
+# control data: the declaration tables name the very values they check, the
 # refusal message quotes the routes a writer may take, the worked examples in the
 # prose above are the sentences other files are checked against, an ordinal list
 # marker and a regex repetition bound are digits that stand for nothing, and the
 # test writes deliberately WRONG values into a staged copy to prove the refusal
 # fires. A census over its own control data reports its vocabulary as unaccounted
-# prose, which is what it did: seventy refusals, every one of them in these two
+# prose, which is what it did: seventy refusals, every one of them in these
 # files, on the revision that introduced them.
 #
 # What it costs is one live count in the prose above, and that is not left
@@ -1041,179 +901,11 @@ SELF = {
     "scripts/count-gate-test.py": (
         "the deliberately wrong values this gate's tests write to prove it refuses"
     ),
+    "scripts/countcensus.py": (
+        "the census engine's own vocabulary and worked examples, which are the "
+        "shapes it looks for rather than claims about anything"
+    ),
 }
-
-
-def tracked_files() -> list[str]:
-    listed = subprocess.run(
-        ["git", "-C", str(REPO_ROOT), "ls-files"],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    return listed.stdout.split()
-
-
-def prose_regions(rel: str, text: str) -> list[tuple[int, int]]:
-    """The regions of a file that are prose a reader is offered.
-
-    Markdown, YAML and TOML are prose throughout. Python contributes its comments
-    and string literals, which is where its gates publish their arguments and
-    their refusal messages. Go contributes its comments only.
-    """
-    suffix = Path(rel).suffix
-    if suffix == ".py":
-        return python_prose(text)
-    if suffix == ".go":
-        return [m.span() for m in re.finditer(r"//[^\n]*|/\*[\s\S]*?\*/", text)]
-    return [(0, len(text))]
-
-
-def python_prose(text: str) -> list[tuple[int, int]]:
-    starts = line_starts(text)
-    regions: list[tuple[int, int]] = []
-    try:
-        tokens = list(tokenize.generate_tokens(io.StringIO(text).readline))
-    except (tokenize.TokenError, IndentationError, SyntaxError):
-        # A file this gate cannot tokenize is a file it cannot claim to have read.
-        raise SystemExit(
-            "FAIL: a tracked Python file did not tokenize, so its prose was not "
-            "scanned. A census that silently skips a file reports an absence it "
-            "never measured."
-        ) from None
-    for token in tokens:
-        if token.type not in (tokenize.COMMENT, tokenize.STRING):
-            continue
-        start = starts[token.start[0] - 1] + token.start[1]
-        end = starts[token.end[0] - 1] + token.end[1]
-        regions.append((start, end))
-    return regions
-
-
-def line_starts(text: str) -> list[int]:
-    starts = [0]
-    for index, char in enumerate(text):
-        if char == "\n":
-            starts.append(index + 1)
-    return starts
-
-
-def mask(text: str) -> str:
-    """Blank out the non-count forms, preserving every offset."""
-    for pattern in MASKS:
-        text = pattern.sub(lambda m: "░" * len(m.group(0)), text)
-    return text
-
-
-@dataclass(frozen=True)
-class Token:
-    """One count-shaped integer, with why it is count-shaped."""
-
-    start: int
-    end: int
-    values: tuple[int, ...]
-    figure: str
-    trigger: str
-
-
-def count_tokens(masked: str, regions: list[tuple[int, int]], src: Sources) -> list[Token]:
-    """Every count-shaped integer inside the prose regions."""
-    live = src.current()
-    found: dict[tuple[int, int], Token] = {}
-    for start, end in regions:
-        window = masked[start:end]
-        for hit in RATIO.finditer(window):
-            span = (start + hit.start(), start + hit.end())
-            found[span] = Token(
-                span[0],
-                span[1],
-                (int(hit.group(1)), int(hit.group(2))),
-                f"{hit.group(1)}/{hit.group(2)}",
-                "a ratio, whose denominator is a corpus size by construction",
-            )
-        for hit in NOUN.finditer(window):
-            span = (start + hit.start(1), start + hit.end(1))
-            found.setdefault(
-                span,
-                Token(
-                    span[0],
-                    span[1],
-                    (int(hit.group(1)),),
-                    hit.group(1),
-                    "an integer counting vectors",
-                ),
-            )
-        for hit in INTEGER.finditer(window):
-            value = int(hit.group(0))
-            if value not in live:
-                continue
-            span = (start + hit.start(), start + hit.end())
-            if value < SMALL_VALUE and not near_noun(window, hit.start(), hit.end()):
-                continue
-            found.setdefault(
-                span,
-                Token(
-                    span[0],
-                    span[1],
-                    (value,),
-                    hit.group(0),
-                    f"an integer equal to {live[value]}",
-                ),
-            )
-    return dedupe(sorted(found.values(), key=lambda token: token.start))
-
-
-def dedupe(tokens: list[Token]) -> list[Token]:
-    """A ratio is one token, not three.
-
-    ``140/140`` fires the ratio trigger over the whole figure and the value
-    trigger over each half. Reporting three would ask a writer to account for the
-    same figure three times, and the ratio is the form that carries the meaning:
-    it is a score, and the run ledger records scores.
-    """
-    ratios = [token for token in tokens if "/" in token.figure]
-    return [
-        token
-        for token in tokens
-        if token in ratios
-        or not any(
-            ratio.start <= token.start and token.end <= ratio.end for ratio in ratios
-        )
-    ]
-
-
-def near_noun(window: str, start: int, end: int) -> bool:
-    around = window[max(0, start - SMALL_VALUE_WINDOW) : end + SMALL_VALUE_WINDOW]
-    return SMALL_VALUE_NOUNS.search(around) is not None
-
-
-def sentence_at(text: str, start: int, end: int) -> str:
-    """The sentence an integer sits in.
-
-    Bounded by a blank line, a table-cell pipe, or sentence-ending punctuation
-    followed by whitespace. Wide enough to carry the revision a writer attributes
-    a number to and narrow enough that a revision mentioned three sentences away
-    does not.
-    """
-    left = max(
-        (
-            text.rfind(bound, 0, start) + len(bound)
-            for bound in (". ", ".\n", "; ", ":\n", "\n\n", "|", "**")
-            if text.rfind(bound, 0, start) != -1
-        ),
-        default=0,
-    )
-    right = min(
-        (
-            position
-            for position in (
-                text.find(bound, end) for bound in (". ", ".\n", "\n\n", "|", "**")
-            )
-            if position != -1
-        ),
-        default=len(text),
-    )
-    return text[left:right]
 
 
 def changelog_scope(text: str, position: int) -> int | None:
@@ -1226,79 +918,62 @@ def changelog_scope(text: str, position: int) -> int | None:
     return scope
 
 
-def accounted(
-    rel: str, text: str, token: Token, src: Sources, spans: list[Covered]
+def changelog_route(
+    rel: str, text: str, token: Token, quantities: Quantities
 ) -> str | None:
-    """Why this integer is accounted for, or None if nothing accounts for it."""
-    for span in spans:
-        if span.start <= token.start and token.end <= span.end:
-            return span.why
-    if token.figure in src.figures:
-        return "a score docs/INDEPENDENT-RUNS.json records as posted"
-    historical = src.historical()
-    sentence = sentence_at(text, token.start, token.end)
-    named = {int(n) for n in ATTRIBUTION.findall(sentence)}
-    if named and all(value in historical and historical[value] & named for value in token.values):
-        return "revision-attributed by the sentence it sits in"
-    if rel == "vectors/CHANGES.md":
-        scope = changelog_scope(text, token.start)
-        if scope is not None and all(
-            any(revision <= scope for revision in historical.get(value, ()))
-            for value in token.values
-        ):
-            return f"a size the corpus had at or before suiteRevision {scope}"
+    """Route 5: a changelog entry is scoped by the heading it sits under.
+
+    A revision section may cite any size the corpus had at or before that
+    revision, which is the same reason scripts/independent-runs-gate.py exempts
+    that file from its not-run check.
+    """
+    if rel != CHANGES_REL:
+        return None
+    scope = changelog_scope(text, token.start)
+    if scope is not None and all(
+        any(revision <= scope for revision in quantities.historical.get(value, ()))
+        for value in token.values
+    ):
+        return f"a size the corpus had at or before suiteRevision {scope}"
     return None
 
 
-def census_failures(
-    src: Sources, texts: dict[str, str], covered: dict[str, list[Covered]]
-) -> tuple[list[str], int]:
-    failures: list[str] = []
-    examined = 0
-    for rel, text in sorted(texts.items()):
-        if rel in SELF:
-            continue
-        regions = prose_regions(rel, text)
-        tokens = count_tokens(mask(text), regions, src)
-        examined += len(tokens)
-        spans = covered.get(rel, [])
-        starts = line_starts(text)
-        for token in tokens:
-            if accounted(rel, text, token, src, spans) is not None:
-                continue
-            line = sum(1 for start in starts if start <= token.start)
-            where = normalize(sentence_at(text, token.start, token.end))[:120]
-            failures.append(
-                f"{rel}:{line}: {token.figure!r} is {token.trigger}, and nothing "
-                f"accounts for it.\n      In: {where!r}"
-            )
-    return failures, examined
+def quantities(src: Sources) -> Quantities:
+    """What the sources currently publish, what they have published, what was posted."""
+    return Quantities(
+        current=src.current(),
+        historical=src.historical(),
+        posted=src.figures,
+        posted_why="a score docs/INDEPENDENT-RUNS.json records as posted",
+    )
+
+
+CENSUS = Census(
+    masks=MASKS,
+    nouns=((NOUN, "an integer counting vectors"),),
+    small_value_nouns=SMALL_VALUE_NOUNS,
+    small_value=SMALL_VALUE,
+    small_value_window=SMALL_VALUE_WINDOW,
+    attribution=ATTRIBUTION,
+    attribution_why="revision-attributed by the sentence it sits in",
+    scope_route=changelog_route,
+    self_files=SELF,
+)
 
 
 # --------------------------------------------------------------------------
 
 
-def read_tracked() -> dict[str, str]:
-    texts: dict[str, str] = {}
-    for rel in tracked_files():
-        if rel in EXEMPT or any(rel.startswith(p) for p in EXEMPT_PREFIXES):
-            continue
-        if Path(rel).suffix not in READ_SUFFIXES:
-            continue
-        texts[rel] = (REPO_ROOT / rel).read_text(encoding="utf-8")
-    return texts
-
-
 def collect() -> tuple[list[str], int, int]:
     src = load_sources()
-    texts = read_tracked()
+    texts = read_tracked(REPO_ROOT, READ_SUFFIXES, EXEMPT, EXEMPT_PREFIXES)
     failures = manifest_integrity_failures(src)
     failures.extend(head_row_failures(src))
-    claim_out, covered = claim_failures(src, texts)
+    claim_out, covered = check_claims(claims(src), texts)
     failures.extend(claim_out)
-    failures.extend(declaration_failures(texts, covered))
+    failures.extend(check_declarations(DELEGATED, FROZEN, texts, covered))
     failures.extend(index_failures(texts, covered))
-    census_out, examined = census_failures(src, texts, covered)
+    census_out, examined = run_census(CENSUS, quantities(src), texts, covered)
     failures.extend(census_out)
     return failures, len(texts), examined
 

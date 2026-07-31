@@ -34,11 +34,64 @@ SPEC_PATH = os.path.normpath(os.path.join(HERE, "..", SPEC_REL))
 # the corpus certifies against cannot disagree with the bytes it certifies.
 PIN_PATH = os.path.normpath(os.path.join(HERE, "..", "spec", "VENDOR-PIN.json"))
 
-# Tier expectations explicitly pinned by accept/INDEX.md (ok-024 row).
+# Tier expectations explicitly pinned by the accept/INDEX.md rows that state a
+# tier in prose. Each entry is derivable from the vector's own bytes and the
+# tier rule (spec:726-735, spec:1074-1075) without running any rail: a
+# basis: substrate row is attested exactly when a covering record's signature
+# verifies under a policy-named key, every other row is declared, and no key
+# policy promotes a row when none is pinned.
+#
+# GATE 2 is the one output a vector count cannot stand in for. The harness
+# compares a tier column only where the MANIFEST states one, so a column no
+# vector states is checked against nothing on every rail but this suite's own,
+# and for a long time ok-024 was the only row here -- which left the whole of
+# tier.go forced by a single vector, and would have let a retitle of that one
+# row retire five rules at once with every gate still green.
+#
+# This table is deliberately not the whole accept set. A column pinned on every
+# vector is a recording of what some rail did rather than a claim anybody made,
+# and it goes stale on the next regeneration; a column pinned where the index
+# already makes the claim in prose is the same claim, machine-checked. The
+# property that holds over every accept vector -- that the column partitions on
+# the row's basis -- is asserted as an invariant instead, in the runners.
 TIER_EXPECTATIONS = {
+    # Substrate row, both covering records verify under the pinned key despite a
+    # garbage keyid on one and an absent keyid on the other: keyid is a lookup
+    # hint and never the check.
+    "ok-019-wrong-keyid-sig-verifies": {
+        "tierWithPinnedKey": ["attested"],
+        "tierWithoutKey": ["unattested"],
+    },
+    # Substrate row whose covering record is signed over the raw payload rather
+    # than the DSSE PAE, so it verifies under no key: the tier's fail-closed
+    # path, and a tier fault rather than a validity fault.
+    "ok-020-non-pae-signature": {
+        "tierWithPinnedKey": ["unattested"],
+        "tierWithoutKey": ["unattested"],
+    },
+    # The payload embeds a tempting public key. Pinned out of band the row is
+    # attested; with nothing pinned it stays unattested, because the substrate
+    # root is never inferred from the predicate.
+    "ok-023-no-tofu-embedded-key": {
+        "tierWithPinnedKey": ["attested"],
+        "tierWithoutKey": ["unattested"],
+    },
     "ok-024-mixed-basis-rows": {
         "tierWithPinnedKey": ["attested", "unattested", "declared"],
         "tierWithoutKey": ["unattested", "unattested", "declared"],
+    },
+    # An artifact row with two records and a correct batchRoot sitting right
+    # beside it: verifiable material is present and the row is still declared
+    # under every policy, because basis and not availability is what decides.
+    "ok-029-artifact-with-records": {
+        "tierWithPinnedKey": ["declared"],
+        "tierWithoutKey": ["declared"],
+    },
+    # One substrate row covered by verifying records and one artifact row, so
+    # the mixed-basis column does not rest on ok-024 alone.
+    "ok-045-mixed-clean-rows-indirect": {
+        "tierWithPinnedKey": ["attested", "declared"],
+        "tierWithoutKey": ["unattested", "declared"],
     },
 }
 

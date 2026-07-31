@@ -254,7 +254,13 @@
       ],
       "expected": {
         "verdict": "valid",
-        "result": "pass"
+        "result": "pass",
+        "tierWithPinnedKey": [
+          "attested"
+        ],
+        "tierWithoutKey": [
+          "unattested"
+        ]
       }
     },
     {
@@ -266,7 +272,13 @@
       ],
       "expected": {
         "verdict": "valid",
-        "result": "fail"
+        "result": "fail",
+        "tierWithPinnedKey": [
+          "unattested"
+        ],
+        "tierWithoutKey": [
+          "unattested"
+        ]
       }
     },
     {
@@ -302,7 +314,13 @@
       ],
       "expected": {
         "verdict": "valid",
-        "result": "pass"
+        "result": "pass",
+        "tierWithPinnedKey": [
+          "attested"
+        ],
+        "tierWithoutKey": [
+          "unattested"
+        ]
       }
     },
     {
@@ -392,7 +410,13 @@
       ],
       "expected": {
         "verdict": "valid",
-        "result": "pass_indirect"
+        "result": "pass_indirect",
+        "tierWithPinnedKey": [
+          "declared"
+        ],
+        "tierWithoutKey": [
+          "declared"
+        ]
       }
     },
     {
@@ -580,7 +604,15 @@
       ],
       "expected": {
         "verdict": "valid",
-        "result": "pass_indirect"
+        "result": "pass_indirect",
+        "tierWithPinnedKey": [
+          "attested",
+          "declared"
+        ],
+        "tierWithoutKey": [
+          "unattested",
+          "declared"
+        ]
       }
     },
     {

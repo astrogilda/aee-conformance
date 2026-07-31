@@ -8,17 +8,29 @@ force -- into a single matrix (``docs/COVERAGE-MATRIX.md``) and publishes the co
 each class. "A corpus can only force what someone thought to write a vector for"
 becomes a number driven down over time rather than a caveat repeated in prose.
 
-Three classes:
+Four classes:
 
 * ``forced-by-vector`` -- a registry decision with at least one live forcing vector.
 * ``forcible-but-unforced`` -- a requirement a vector COULD pin but none is written
   yet (a coverage gap, not a soundness gap).
 * ``consumer-policy-unvectorable`` -- a trust-relative or cross-attestation rule a
   self-contained single-statement corpus cannot pin at all.
+* ``producer-obligation-ungated`` -- a requirement the specification places on the
+  PRODUCER and simultaneously puts outside every gate, so no conforming verifier may
+  check it and no vector can pin it. Kept apart from the class above because the two
+  say different things to the next person: one is unminted and wants a vector, the
+  other is unmintable and must not be handed one. That distinction is the same one
+  scripts/forcing-gate.py keeps between an unforced site and an unkillable one.
 
 ``--check`` regenerates the matrix in memory and fails if the committed file drifts,
 the same fail-closed discipline as the spec-drift gate. Run without ``--check`` to
 regenerate the committed matrix.
+
+An unrecognized classification is a FAILURE, never a skip. Selecting cells by
+classification means an unknown value matches no section: the cell would vanish from
+the matrix and from every published count, and the gate would stay green while
+under-reporting the honest number the matrix exists to publish. A silent omission is
+the one outcome a coverage gate must not have.
 """
 
 from __future__ import annotations
@@ -44,6 +56,23 @@ def _forced_rows(registry: dict[str, Any]) -> list[tuple[str, str, str]]:
     return rows
 
 
+CLASSIFICATIONS = (
+    "forcible-but-unforced",
+    "consumer-policy-unvectorable",
+    "producer-obligation-ungated",
+)
+
+
+def _check_classifications(unforced: dict[str, Any]) -> list[str]:
+    """Report every cell whose classification no section would render."""
+    return [
+        f"{c['id']}: classification {c['classification']!r} is not one of "
+        + ", ".join(repr(k) for k in CLASSIFICATIONS)
+        for c in unforced["cells"]
+        if c["classification"] not in CLASSIFICATIONS
+    ]
+
+
 def _unforced_rows(unforced: dict[str, Any], classification: str) -> list[tuple[str, str, str]]:
     rows = []
     for c in unforced["cells"]:
@@ -64,14 +93,16 @@ def render(registry: dict[str, Any], unforced: dict[str, Any]) -> str:
     forced = _forced_rows(registry)
     fbu = _unforced_rows(unforced, "forcible-but-unforced")
     cpu = _unforced_rows(unforced, "consumer-policy-unvectorable")
-    n_forced, n_fbu, n_cpu = len(forced), len(fbu), len(cpu)
-    total = n_forced + n_fbu + n_cpu
+    pog = _unforced_rows(unforced, "producer-obligation-ungated")
+    n_forced, n_fbu, n_cpu, n_pog = len(forced), len(fbu), len(cpu), len(pog)
+    total = n_forced + n_fbu + n_cpu + n_pog
     summary = "\n".join(
         f"| {name} | {count} | {meaning} |"
         for name, count, meaning in [
             ("forced-by-vector", n_forced, "a registry decision locked by a live forcing vector"),
             ("forcible-but-unforced", n_fbu, "a vector could pin it; none written yet"),
             ("consumer-policy-unvectorable", n_cpu, "cross-attestation or trust-relative"),
+            ("producer-obligation-ungated", n_pog, "outside every gate by specification"),
             ("**total tracked**", f"**{total}**", ""),
         ]
     )
@@ -84,9 +115,10 @@ vectors/coverage-unforced.json. Do not hand-edit; run the gate to regenerate. CI
 
 Every normative requirement, classified by whether a conformance vector forces it. The point is one
 honest number: of {total} tracked requirements, **{n_forced} are forced by a vector**, {n_fbu} are
-forcible but not yet vectored, and {n_cpu} cannot be pinned by a self-contained corpus at all. The
-determinacy claim rests only on the forced rows; the other two classes are stated so a reader knows
-exactly where "two implementations agree" is untested rather than confirmed.
+forcible but not yet vectored, {n_cpu} cannot be pinned by a self-contained corpus at all, and
+{n_pog} are placed outside every gate by the specification itself. The determinacy claim rests only
+on the forced rows; the other three classes are stated so a reader knows exactly where "two
+implementations agree" is untested rather than confirmed.
 
 ## Coverage summary
 
@@ -105,6 +137,10 @@ exactly where "two implementations agree" is untested rather than confirmed.
 ## Not pinnable by a self-contained corpus
 
 {_table(("requirement", "spec anchor", "why unvectorable"), cpu)}
+
+## Placed outside every gate by the specification
+
+{_table(("requirement", "spec anchor", "why no verifier may check it"), pog)}
 """
 
 
@@ -114,6 +150,16 @@ def main(argv: list[str]) -> int:
     args = ap.parse_args(argv[1:])
     registry = json.loads(REGISTRY.read_text())
     unforced = json.loads(UNFORCED.read_text())
+    unknown = _check_classifications(unforced)
+    if unknown:
+        for message in unknown:
+            print(f"coverage matrix: {message}", file=sys.stderr)
+        print(
+            f"a cell no section renders is a cell dropped from every published count; "
+            f"fix the classification in {UNFORCED}",
+            file=sys.stderr,
+        )
+        return 1
     rendered = render(registry, unforced)
     if args.check:
         current = MATRIX.read_text() if MATRIX.is_file() else ""

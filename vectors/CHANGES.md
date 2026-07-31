@@ -5,6 +5,66 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 18 (the predicate revision that makes four descriptions checkable)
+
+- Corpus: **220 vectors (50 accept, 168 reject, 2 indeterminate)**, up from 187.
+  Every vector in the corpus is regenerated, because every statement carries a
+  new `predicateType` and a new required row member. The vendored specification
+  moves with it, so this is a normative revision on the wire, on the corpus and
+  on every published conformance record.
+- **The type is `.../v0.7` and the earlier one is retired**, with no alias and
+  no dual-accept window, under the same single-canonicalization rule that
+  retired the 0.4 basis values. The bump is not housekeeping: three members
+  become required and a record that was conditionally required becomes
+  unconditional, so a statement valid under the earlier version can be
+  malformed under this one.
+- **A sealed record is required on every statement carrying a `basis:
+  substrate` row**, whether or not any row resolves an index to it, and it
+  carries `aeeObservedSet`: a commitment to the leaf hashes of every
+  interception and examination record the substrate emitted. Nine accept
+  vectors carried a substrate row and no sealed record and all nine gained one;
+  four reject parent shapes did too, which is why forty-five reject vectors
+  briefly carried the condition as a second fault and none does now.
+- **Two structural requirements join coverage validity and read no signed data
+  at all**: a clean row may resolve no index to an interception record, and
+  every carried interception record is resolved by at least one caught row. The
+  second is breaking on the accept side. `ok-029-artifact-with-records` rested
+  on two interception records no row resolved, which is the shape the rule
+  refuses; its records are now examinations, so the vector keeps its subject
+  (a batch root over records no row resolves) and stops making a claim the
+  statement then reports nothing about. Ten reject vectors carry the condition
+  as a declared consequence of the mutation they already name.
+- **`aeeObservedAttacks` on the seal names the attacks the run attributed at
+  least one of its own observations to**, and obliges a caught row for each.
+  The rule reads in one direction only, and that direction is what
+  `ok-046-seal-attacks-lower-bound` exists to pin: without it a rail reading
+  the sets as equal passes the whole corpus.
+- **`aeeAssessedAttacks` on the arming record names what the run declared,
+  before injection, that it would assess**, and the assessed set carried at run
+  end must be a SUBSET of it. A subset and not an equality, so a run that lost
+  coverage part-way can still disclose the loss, which `ok-004` already is.
+- **`expectedPayloads`, `aeePayloadCommitment` and the required row member
+  `attribution` together make the row-to-record assignment checkable** wherever
+  the corpus was willing to predict what the substrate would commit to. This is
+  the change the versioning discipline pre-authorised, and it is the one that
+  moves a measurement this repository has carried as a null since it was
+  written: exchanging `observationRefs` between two caught rows used to leave
+  the whole report byte-identical, and now does so only while both rows declare
+  `paired`. `TestPinnedAttributionKillsTheSplice` is the new half of that
+  measurement and cell U7 is narrowed rather than retired, because a producer
+  declaring `paired` throughout still violates nothing.
+- **Twenty-six reject vectors and four accept vectors are new.** Seven of the
+  twenty-six exist because a mutation campaign found the first nineteen did not
+  force what they named: each had a second acceptable condition that an older
+  rule reported first, so the newer rule could be deleted and the older one
+  carried the vector. A vector that passes for a rule other than the one it
+  names measures nothing about that rule.
+- **The generator now asserts the new requirements over its own parents.** Four
+  parent shapes violated the mandatory-seal rule the moment it landed, which no
+  existing assertion could see, so `commitments_check` runs the whole set of
+  them over every parent and the second-fault pass refuses a seal left
+  committing to a pre-mutation record set.
+
 ## suiteRevision 17 (a third bucket, for the questions the specification leaves open)
 
 - Corpus: **187 vectors (46 accept, 139 reject, 2 indeterminate)**, up from 186.
@@ -18,7 +78,7 @@ byte-identically from the generators.
   statements about which that is the only true thing to say: the specification
   carries no failure-code vocabulary at all, and of its own two-stage
   verification description it says that "the sequencing itself is informative"
-  (L366-368). Two rails can therefore reject the same bytes, name different
+  (L413-415). Two rails can therefore reject the same bytes, name different
   conditions, and both be right.
 - **What was there instead.** `bad-748` pinned one of those answers as a reject
   vector, and `docs/interpretation-decisions-open.md` said in the same breath
@@ -52,14 +112,15 @@ byte-identically from the generators.
   sets-if-unset produces. A single-fault corpus can never see it.
 - **What is not in the bucket, and the finding that says so.** The
   specification's other open corners were enumerated against the vendored text
-  before the bucket was built, and only this family qualified. The passive-sensor
-  producer assertions (L455-463) and the shared-reference evidencing obligation
-  (L664-671) are LIMITS rather than choices: every conformant verifier must
-  accept those statements, and the second says outright that "a conforming
-  verifier neither can nor may invent an evidencing heuristic". The consumer MAY
-  clauses (L448-449, L857-860, L927, L943-947) sit outside the verdict this
+  before the bucket was built, and only this family qualified. The producer
+  assertions about what the run executed (L513-528) and the shared-reference
+  evidencing obligation on a row declaring `paired` (L888-900) are LIMITS rather
+  than choices: every conformant verifier must accept those statements, and the
+  second says outright that "a conforming verifier neither can nor may invent an
+  evidencing heuristic in its place". The consumer MAY
+  clauses (L495-496, L1111-1114, L1190, L1206-1210) sit outside the verdict this
   suite reads, because validity "is a function of carried bytes alone and holds
-  identically for every consumer" (L1219-1222). The producer options are forced
+  identically for every consumer" (L1613-1616). The producer options are forced
   on the verifier and already carried by accept vectors. One family with two
   members is the honest size of this bucket.
 - **The reference rails read `set-level`, and that is now recorded rather than
@@ -806,7 +867,7 @@ byte-identically from the generators.
 
 - Corpus: 140 vectors (35 accept, 105 reject). No normative spec change; the
   specDigest is unchanged. Two forcing vectors close the reason-map side of the
-  coverage-partition membership rule already carried by the spec (L650-652): the
+  coverage-partition membership rule already carried by the spec (L872-874): the
   three coverage sets are a disjoint partition of the manifest's classes, so
   membership runs both ways, but only `bad-819` forced the `assessedClasses`
   side. New reject vectors `bad-731-outofscope-unknown-class` and
@@ -870,21 +931,21 @@ byte-identically from the generators.
   contain exactly one entry on a statement of ANY basis; only the six
   binding-digest inputs stay substrate-scoped. Both rails previously enforced
   cardinality only under `hasSubstrateRows`, so an artifact-only two-subject
-  statement was wrongly accepted. The spec text at L193-196 is split accordingly;
+  statement was wrongly accepted. The spec text at L210-213 is split accordingly;
   new reject vector `bad-728-artifact-two-subjects` (`bad-607` keeps the substrate
   case). Registry decision 12.
 - Duplicate `attackId` rows are now malformed (open corner A resolved). "One row
   per executed attack" is a well-formedness invariant; both rails detect a
   duplicate `attackId` across rows before the set-based coverage comparison
   (which silently collapsed it before) and emit `statement-malformed`. Spec
-  paragraph at L658-671 gains the uniqueness sentence; new reject vector
+  paragraph at L880-892 gains the uniqueness sentence; new reject vector
   `bad-729-duplicate-attackid-rows`. Registry decision 13.
 - Coverage sets pinned as a disjoint partition (open corner B resolved, the one
   editorial call; reversible at vetting). A class appears in exactly one of
   `assessedClasses`, `outOfScope`, `routedElsewhere`; a class in more than one is
   malformed. This was a live divergence (our rails reject overlap; the from-spec
   checker accepts it) that no vector exercised. Rails unchanged (both already
-  reject via the disjoint-partition check); the spec text at L645-650 now matches
+  reject via the disjoint-partition check); the spec text at L867-872 now matches
   them; new reject vector `bad-730-coverage-class-overlap`. Registry decision 14.
   With these three corners resolved, `interpretation-decisions.json` has no open
   corners remaining.

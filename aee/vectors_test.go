@@ -540,11 +540,80 @@ func checkQuarantinedReject(t *testing.T, body []byte, wantCodes []string, reaso
 // Shared per-vector assertions
 // ---------------------------------------------------------------------------
 
+// rowBases decodes the basis member of each attackResults row, preserving the
+// absent case. It reads the vector's own bytes rather than anything the
+// verifier derived, so the invariant it feeds is stated against the statement
+// and not against the answer under test.
+func rowBases(t *testing.T, body []byte) []*string {
+	t.Helper()
+	var shape struct {
+		Predicate struct {
+			Rows []struct {
+				Basis *string `json:"basis"`
+			} `json:"attackResults"`
+		} `json:"predicate"`
+	}
+	if err := json.Unmarshal(body, &shape); err != nil {
+		t.Fatalf("accept vector does not decode for the tier invariant: %v", err)
+	}
+	out := make([]*string, len(shape.Predicate.Rows))
+	for i := range shape.Predicate.Rows {
+		out[i] = shape.Predicate.Rows[i].Basis
+	}
+	return out
+}
+
+// checkTierPartition asserts the property that holds over the WHOLE accept
+// corpus under EVERY key policy: the tier column partitions on the row's basis
+// and on nothing else. A basis: substrate row is attested or unattested
+// depending on the consumer's keys (spec:726-735); every other row -- artifact,
+// or fail-closed on an absent or unknown basis -- is declared, because its
+// vantage can strengthen nothing and no key policy can promote it
+// (spec:1074-1075).
+//
+// This is stated as an invariant rather than as more pinned columns on purpose.
+// The suite pins the tier column for a single one of its accept vectors, and
+// the generic no-TOFU rule below can only see a promotion that survives an
+// EMPTY policy. A promotion visible only under the pinned policy, on a row
+// shape that one pinned vector does not carry, is invisible to both. Pinning a
+// column on every remaining accept vector would close that by hand and go stale
+// the first time the corpus is regenerated; the partition is derived from each
+// vector's own bytes, so it covers every accept vector the suite will ever
+// carry, including the ones nobody thought to pin.
+func checkTierPartition(t *testing.T, policyName string, bases []*string, tiers []aee.Tier) {
+	t.Helper()
+	if len(bases) != len(tiers) {
+		t.Fatalf("[%s] the statement carries %d attackResults row(s) and the tier column has %d entries",
+			policyName, len(bases), len(tiers))
+	}
+	for i, tier := range tiers {
+		substrate := bases[i] != nil && *bases[i] == aee.BasisSubstrate
+		basis := "<absent>"
+		if bases[i] != nil {
+			basis = *bases[i]
+		}
+		if substrate && tier == aee.TierDeclared {
+			t.Fatalf("[%s] tier[%d]=declared for a basis: substrate row; a substrate row is attested "+
+				"or unattested under the consumer's keys and is never demoted out of the trust-relative "+
+				"pair", policyName, i)
+		}
+		if !substrate && tier != aee.TierDeclared {
+			t.Fatalf("[%s] tier[%d]=%s for a row whose basis is %s; only a basis: substrate row can be "+
+				"promoted past declared, and no key policy may promote one that is not",
+				policyName, i, tier, basis)
+		}
+	}
+}
+
 func checkVector(t *testing.T, body []byte, accept bool, wantResult string,
 	wantCodes, tierWithPinned, tierWithout []string) {
 	t.Helper()
 	pinned := pinnedPolicy()
 	empty := &aee.ConsumerPolicy{}
+	var bases []*string
+	if accept {
+		bases = rowBases(t, body)
+	}
 
 	for _, pc := range []struct {
 		name   string
@@ -572,6 +641,10 @@ func checkVector(t *testing.T, body []byte, accept bool, wantResult string,
 					}
 				}
 			}
+			// Tier soundness, policy-independent: the column partitions on
+			// basis. This holds for every accept vector under both policies,
+			// where the pinned columns above hold for one.
+			checkTierPartition(t, pc.name, bases, r.Tiers)
 			// Tier soundness: with no pinned keys, no row may reach attested
 			// (the no-TOFU rule), regardless of what the suite pins.
 			if pc.name == "none" {

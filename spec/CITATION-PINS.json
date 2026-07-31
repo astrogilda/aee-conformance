@@ -704,6 +704,18 @@
       "opens": "- the row's `method` is no stronger than the weakest `aeeMethod` across",
       "closes": "its covering records (`reconstructed` is weaker than `intercepted`);"
     },
+    "aee/vectors_test.go::checkTierPartition#0": {
+      "cites": "spec:726-735",
+      "digest": "21a982b25fbe9de5ef4b7ac5e2ee080215f4bd10352ececef8422073a366c72a",
+      "opens": "**Evidence tier (derived, never carried).** Given a valid attestation, a",
+      "closes": "key policy; it never alters `result`. Consumer policy MAY subdivide"
+    },
+    "aee/vectors_test.go::checkTierPartition#1": {
+      "cites": "spec:1074-1075",
+      "digest": "f14502cd4c1f9c30a63711e82279cf3fddd92e88bcfbad11eb5de36e7d35d8c3",
+      "opens": "event, weaker than an interception only in that it was derived after the",
+      "closes": "fact. A row fail-closed on `basis` or `method` sits at the bottom of both"
+    },
     "aee/verify.go::Report#0": {
       "cites": "spec:611-615",
       "digest": "cc6486e4b6c9ca84fc0d8b821eb0ae9d74c44a49bd1733f7b809bfe7a9865a20",

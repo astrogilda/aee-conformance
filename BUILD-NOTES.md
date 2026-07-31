@@ -30,8 +30,9 @@ directive to at least the highest member module's).
 The core module is clean end to end: `gofmt -l` clean, `go vet ./...`
 clean, `go test ./...` green across unit tests, RFC 6962 / PAE / JCS /
 run-binding known answers, emit-refusal seam tests, and the conformance
-replay of the sibling vector suite: 46 accept vectors, 140 reject vectors,
-both key policies (pinned derived test key and empty), all 186 strict
+replay of the sibling vector suite: 46 accept vectors, 139 reject vectors,
+2 indeterminate vectors, both key policies (pinned derived test key and
+empty), all 187 strict
 passes.
 
 The attestor module compiles against the real go-witness module (workspace

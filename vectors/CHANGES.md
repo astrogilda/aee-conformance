@@ -5,6 +5,75 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 17 (a third bucket, for the questions the specification leaves open)
+
+- Corpus: **187 vectors (46 accept, 139 reject, 2 indeterminate)**, up from 186.
+  One reject vector moved into the new bucket and one vector is new. No accept
+  vector, no other reject vector, no record set, batch root, run binding or
+  signature moved.
+- **The bucket, and why the corpus needed one.** An accept vector says every
+  conformant verifier admits these bytes. A reject vector says every conformant
+  verifier refuses them and names a condition this suite pins. Neither sentence
+  can say that the verdict is settled and the condition is not, and there are
+  statements about which that is the only true thing to say: the specification
+  carries no failure-code vocabulary at all, and of its own two-stage
+  verification description it says that "the sequencing itself is informative"
+  (L366-368). Two rails can therefore reject the same bytes, name different
+  conditions, and both be right.
+- **What was there instead.** `bad-748` pinned one of those answers as a reject
+  vector, and `docs/interpretation-decisions-open.md` said in the same breath
+  that a rail giving the other answer "is conformant to the specification and
+  fails this corpus, and that is the corpus overreaching rather than the
+  verifier erring". The prose and the vector disagreed for eight revisions. The
+  other option available under two buckets was to name both codes in the
+  expected set, which is worse: the harness compares code SETS, so a widened set
+  is satisfied by either answer and by a rail that emits both, and the vector
+  would have stopped measuring the question rather than started.
+- **What an indeterminate vector declares.** A DETERMINED verdict --
+  indeterminacy is scoped to the condition, because a vector whose verdict were
+  open would certify nothing -- and a set of READINGS, each naming the condition
+  that reading predicts for that member. Three requirements follow: the verdict,
+  CLOSURE (the rail's answer is one some declared reading predicts), and
+  COHERENCE (one reading explains the rail's answers across the whole family).
+  Either answer is admissible. No answer is not, and neither is a pair of
+  answers straddling two readings, because the reported condition is then a
+  function of incidental structure rather than of a policy the rail applies.
+- **The one family, and why it has two members.**
+  `signature-count-vs-payload-decode` carries a statement with one record whose
+  payload does not strict-decode and one that carries no signature entry. The
+  readings are `set-level` (the count is asked once over the record set before
+  any payload is decoded), `positional` (asked per record inside the decode
+  loop, so wire order decides) and `decode-first` (every payload decoded before
+  any count). `ind-001` orders the faults undecodable-then-empty and separates
+  `set-level` from the other two; `ind-002` orders them the other way and
+  separates `positional` from `decode-first`. The profile no reading predicts is
+  answering `ind-001` with the missing signature and `ind-002` with the decode
+  fault, which is what a primary-code selector that overwrites rather than
+  sets-if-unset produces. A single-fault corpus can never see it.
+- **What is not in the bucket, and the finding that says so.** The
+  specification's other open corners were enumerated against the vendored text
+  before the bucket was built, and only this family qualified. The passive-sensor
+  producer assertions (L455-463) and the shared-reference evidencing obligation
+  (L664-671) are LIMITS rather than choices: every conformant verifier must
+  accept those statements, and the second says outright that "a conforming
+  verifier neither can nor may invent an evidencing heuristic". The consumer MAY
+  clauses (L448-449, L857-860, L927, L943-947) sit outside the verdict this
+  suite reads, because validity "is a function of carried bytes alone and holds
+  identically for every consumer" (L1219-1222). The producer options are forced
+  on the verifier and already carried by accept vectors. One family with two
+  members is the honest size of this bucket.
+- **The reference rails read `set-level`, and that is now recorded rather than
+  required.** The harness reports which reading each rail took, reading the
+  optional `primaryCode` a rail may publish beside its code set; a rail that
+  publishes only the set has declined to answer and is recorded as such. That
+  report is the point: two rails that agree on every verdict and disagree here
+  have had nowhere for the disagreement to show up, and the two findings this
+  corpus has taken from an outside reader were both of exactly that shape.
+- **Consumers must re-vendor.** The corpus content digest moved and the vendored
+  layout gained a directory, so the TypeScript rail, the standalone Python rail
+  and the MCP server rail carry suiteRevision 16 until they are refreshed;
+  `scripts/consumer-lag-gate.py` fails until they are.
+
 ## suiteRevision 16 (the corpus is regenerable, and was measured to prove it)
 
 - Corpus: **186 vectors (46 accept, 140 reject)**, unchanged in size, in

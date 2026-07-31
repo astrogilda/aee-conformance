@@ -188,9 +188,24 @@ in `vectors/interpretation-decisions.json`, because that registry records where
 the text FORCES a reading and this text does not. The ask upstream is one
 sentence: state that an observation record's envelope shape, including the
 `signatures` entry count, is evaluated before the record's payload, so a
-from-spec implementer is not left to choose. Until it lands, a from-spec verifier
-that evaluates the count per record is conformant to the specification and fails
-this corpus, and that is the corpus overreaching rather than the verifier erring.
+from-spec implementer is not left to choose.
+
+**RESOLVED at suiteRevision 17, and not by the ask landing.** The paragraph that
+stood here said that until the sentence lands, "a from-spec verifier that
+evaluates the count per record is conformant to the specification and fails this
+corpus, and that is the corpus overreaching rather than the verifier erring."
+That was true, it was written down, and the corpus went on overreaching for eight
+revisions, because the two buckets it had could not express anything else: pin
+one answer and a conformant rail fails, name both and the code-set comparison
+stops measuring the question. The third bucket is what the sentence needed. The
+statement is now the family `signature-count-vs-payload-decode` in
+`vectors/indeterminate/`, whose members declare the `set-level`, `positional` and
+`decode-first` readings, admit any of them, and refuse only a rail whose answers
+across the family no single reading explains. `bad-748` is retired into
+`ind-001`; nothing about the reading changed, only what the corpus requires of
+somebody who reads it differently. The upstream ask stands and is now purely an
+improvement: were it to land, this family would become a reject vector, which is
+the direction a family should be able to move.
 
 The same paragraph applies to the second half of `bad-749`. Whether a
 `signatures` member of the wrong JSON type reports the entry-count condition or
@@ -199,6 +214,53 @@ vocabulary; both readings return invalid, which is all the spec requires. The
 suite reports the entry-count condition because it already does so for an absent
 member, and splitting one requirement across two conditions on the basis of a
 decoder's behavior is not a distinction the text makes.
+
+`bad-749` stayed a reject vector when its sibling moved, and the reason is worth
+recording because it is the criterion for the bucket rather than a judgement about
+this vector. A family has to be able to SEPARATE the readings it declares: the
+generator refuses one whose declared readings predict the same condition on every
+member. Here the second reading is the parse catch-all, a code that identifies
+neither the record nor the member, and the only member that could discriminate it
+is the vector itself, so the family would have one member, two readings and no
+way for a rail's answers to be incoherent. That is a reject vector with a widened
+set wearing a different hat, which is the thing the bucket exists to avoid. If a
+discriminating member is ever constructed, the vector moves; until then the suite
+keeps the reading it argues for above, and this paragraph is where a reader learns
+that it is a reading.
+
+## suiteRevision 17: what else was considered for the bucket, and refused
+
+The vendored text was enumerated for open corners before the bucket was built,
+because a bucket whose occupants were chosen after it existed would be a shape
+looking for content. Only the family above qualified. The other candidates
+divide three ways, and each way is a reason NOT to write a vector:
+
+- **Limits, not choices.** "The substrate is a passive sensor, not an
+  orchestrator... The set of attacks actually executed is a producer assertion"
+  (L455-463), and the shared-reference evidencing obligation, which says outright
+  that "a conforming verifier neither can nor may invent an evidencing heuristic
+  for shared references" (L664-671). Nothing in the carried bytes can see the
+  omission, so every conformant verifier must ACCEPT these statements and there
+  is no divergence to declare. They belong in `accept/`, and what is
+  implementation-defined about them is nothing at all: what is undefined is what
+  the evidence PROVES, which is a property of the predicate and not of a rail.
+- **Consumer policy outside the verdict this suite reads.** A consumer MAY admit
+  `pass_indirect` (L448-449), MAY reject an attestation carrying `unattested`
+  substrate rows outright (L857-860), MAY bound a named key with a validity
+  window (L927), MAY coherence-check a row against the pinned posture
+  (L943-947). None of these can move the verdict, because validity "is a function
+  of carried bytes alone and holds identically for every consumer" (L1219-1222);
+  a rail that answered the admission question in the verdict field would be wrong
+  rather than free. These are real freedoms and they are invisible to a
+  single-statement corpus by construction.
+- **Producer options with forced verifier handling.** `observationSelectors`,
+  `aeeDropBound`, the descriptor members no rule reads, the optional run-chaining
+  members. The producer chooses; what the verifier does about the choice is
+  determined, and accept vectors already carry it.
+
+One family with two members is therefore the honest size of this bucket at
+suiteRevision 17, and the enumeration is recorded so that the next reader adds to
+it by argument rather than by rediscovering that the list is short.
 
 ## CLOSED at suiteRevision 14: the fourth result value the vendored copy now defines
 

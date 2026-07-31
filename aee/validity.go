@@ -146,7 +146,14 @@ func checkRecordsStatementLevel(p *Predicate) ([]recordState, []Code) {
 	// carries are read; and a count evaluated per record inside the loop would
 	// make the reported code depend on which record in the array happened to
 	// carry which fault, which no vector carrying a single fault can detect.
-	// The corpus pins the ordering with bad-748.
+	//
+	// This is a READING, not a rule the specification states: it carries no
+	// failure-code vocabulary and calls the sequencing of its own two stages
+	// informative (spec:366-368), so a rail that counts per record is
+	// conformant and names the other condition. The corpus records the choice
+	// rather than pinning it, in the indeterminate family ind-001 / ind-002,
+	// which admits every reading it declares and refuses only a rail whose
+	// answers no single reading explains.
 	if anyRecordSignaturesEmpty(p) {
 		codes = appendCode(codes, CodeRecordSignaturesEmpty)
 	}

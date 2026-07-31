@@ -18,6 +18,38 @@ proposal out of draft.
 - [ ] **v0.7 forward-design — HELD** until v0.6 merges. Do not start new predicate design
   while v0.6 is at the merge line.
 
+## The indeterminate bucket (added at suiteRevision 17)
+
+`vectors/indeterminate/` carries the statements on which the specification settles the
+verdict and not the condition. It has one family, `signature-count-vs-payload-decode`,
+and the enumeration behind that number is in `docs/interpretation-decisions-open.md`
+under suiteRevision 17.
+
+- [ ] **RE-VENDOR THE THREE CONSUMER COPIES — BLOCKING, cross-repo.** The published
+  corpus digest moved from `1bfb73d60bab6b81...` to `e6aa9bc2889603b9...` and the
+  vendored layout gained a `indeterminate/` directory, so
+  `scripts/consumer-lag-gate.py --check` is RED until the TypeScript rail, the standalone
+  Python rail and the MCP server rail carry it. Each vendoring script must copy the new
+  subdirectory, and each rail's replay must handle `kind: "indeterminate"` — verdict plus
+  closure per member, coherence per family — or skip those two vectors explicitly rather
+  than silently. Then `scripts/consumer-lag-gate.py --sync --copy <id>=<dir> ...`.
+- [ ] **Ask upstream for the envelope-shape-before-payload sentence.** If it lands, the
+  family becomes a reject vector and the readings collapse to one. The ask is recorded in
+  `docs/interpretation-decisions-open.md`; nothing here is blocked on it.
+- [ ] **A discriminating member for the `bad-749` wrong-type question.** The parse
+  catch-all versus the specific condition is the same class of open question, and it stays
+  a reject vector only because no second member exists that could separate the two
+  readings. A family of one member and two readings cannot be incoherent, so it would be a
+  widened expectation wearing a different hat. Construct the member or leave the reading
+  argued.
+- [ ] **The consumer-policy freedoms are still invisible.** A consumer MAY admit
+  `pass_indirect`, MAY reject `unattested` substrate rows outright, MAY bound a key with a
+  validity window, MAY run the posture coherence check. None of these can move the verdict
+  this suite reads, so no single-statement vector can see them, and two conformant
+  admission policies can differ completely while scoring identically here. Closing it needs
+  an admission-level surface in the external-rail contract, which is a bigger change than
+  this bucket and should not be smuggled into it.
+
 ## Standards-ecosystem interoperability
 
 - [ ] **SARIF v2.1.0 output** — an `aee-in-sarif` convention doc + emitter so a verifier

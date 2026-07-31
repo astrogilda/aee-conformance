@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """Generate MANIFEST.json for the AEE v0.6 conformance vector suite.
 
-Derives the machine-readable expectations from the two human-authored
-index tables (accept/INDEX.md and reject/INDEX.md), which remain the
-prose source of truth. The MANIFEST is what the differential harness
-(packaging/run_vectors.py) consumes: per-vector expected verdict, the
+Derives the machine-readable expectations from the three human-authored
+index tables (accept/INDEX.md, reject/INDEX.md and indeterminate/INDEX.md),
+which remain the prose source of truth. The MANIFEST is what the differential
+harness (packaging/run_vectors.py) consumes: per-vector expected verdict, the
 expected failure-code set for reject vectors, any conditions a reject
 vector carries deliberately beyond the one it pins (the two together are
 the second-fault self-check's exemption key), the expected recomputed
-result for accept vectors, and the expected per-row evidence tiers where
+result for accept vectors, the declared readings of each indeterminate
+vector, and the expected per-row evidence tiers where
 the index pins them. Regenerate byte-identically: python3 gen_manifest.py
 """
 
@@ -50,9 +51,47 @@ def table_rows(md_path: str) -> list[list[str]]:
             if not line.startswith("|"):
                 continue
             cells = [c.strip() for c in line.strip("|").split("|")]
-            if cells and re.match(r"^`?(ok|bad)-\d", cells[0]):
+            if cells and re.match(r"^`?(ok|bad|ind)-\d", cells[0]):
                 rows.append(cells)
     return rows
+
+
+_IND_FAMILY = re.compile(r"^### Family `([^`]+)`")
+_IND_READING = re.compile(r"reading `([a-z0-9-]+)`")
+
+
+def indeterminate_rows(md_path: str) -> list[tuple[str, list[str], list[str]]]:
+    """Return (family, reading names in column order, row cells) per vector.
+
+    The reading names come off each family table's own header row rather than
+    from a list in this file. A second copy here could disagree with the table a
+    reviewer reads, and the thing an indeterminate vector exists to publish is
+    exactly which readings were declared.
+    """
+    out: list[tuple[str, list[str], list[str]]] = []
+    family = ""
+    readings: list[str] = []
+    with open(md_path, encoding="utf-8") as f:
+        for raw in f:
+            line = raw.strip()
+            if match := _IND_FAMILY.match(line):
+                family, readings = match.group(1), []
+                continue
+            if not line.startswith("|"):
+                continue
+            if found := _IND_READING.findall(line):
+                readings = found
+                continue
+            cells = [c.strip() for c in line.strip("|").split("|")]
+            if cells and re.match(r"^`?ind-\d", cells[0]):
+                if not family or not readings:
+                    raise SystemExit(
+                        f"{cells[0]}: a vector row with no '### Family' heading or "
+                        "no reading columns above it. The family and the readings "
+                        "are the whole of what this row declares."
+                    )
+                out.append((family, readings, cells))
+    return out
 
 
 _ALSO_CARRIES = "(also carries:"
@@ -82,6 +121,43 @@ def also_carries_of(cell: str) -> list[str]:
 
 def conditions_of(cell: str) -> list[str]:
     return re.findall(r"aee-c-\d+", cell)
+
+
+def indeterminate_entries(md_path: str) -> list[dict[str, Any]]:
+    """The manifest entries for the indeterminate bucket.
+
+    Each row's expectation is a DETERMINED verdict plus one condition per
+    declared reading. Exactly one condition per column is required rather than a
+    set, because a reading that predicted several conditions could not be told
+    apart from a widened expectation, which is the thing this bucket exists so
+    that nobody has to write.
+    """
+    entries: list[dict[str, Any]] = []
+    for family, readings, cells in indeterminate_rows(md_path):
+        vid = cells[0].strip("`")
+        # cells: id | parent | mutation | conditions | <one per reading> | spec
+        predicted = [codes_of(c) for c in cells[4:4 + len(readings)]]
+        if any(len(p) != 1 for p in predicted):
+            raise SystemExit(
+                f"{vid}: each reading column names exactly one condition; got "
+                f"{predicted}"
+            )
+        entries.append(
+            {
+                "id": vid,
+                "kind": "indeterminate",
+                "file": f"indeterminate/{vid}.json",
+                "conditions": conditions_of(cells[3]),
+                "expected": {
+                    "verdict": "invalid",
+                    "family": family,
+                    "readings": dict(
+                        zip(readings, (p[0] for p in predicted), strict=True)
+                    ),
+                },
+            }
+        )
+    return entries
 
 
 def main() -> int:
@@ -120,11 +196,15 @@ def main() -> int:
             }
         )
 
+    vectors.extend(
+        indeterminate_entries(os.path.join(HERE, "indeterminate", "INDEX.md"))
+    )
+
     # Closure check: every vector file must have exactly one INDEX row and vice
     # versa. Without this a malformed INDEX row is silently skipped by table_rows
     # and its vector is omitted from the manifest -- silently untested in
     # MANIFEST-mode replay.
-    for kind in ("accept", "reject"):
+    for kind in ("accept", "reject", "indeterminate"):
         files = {
             f[: -len(".json")]
             for f in os.listdir(os.path.join(HERE, kind))
@@ -139,8 +219,9 @@ def main() -> int:
         if extra := indexed - files:
             raise SystemExit(f"{kind}: INDEX.md row(s) with no vector file: {sorted(extra)}")
 
-    ok = sum(1 for v in vectors if v["id"].startswith("ok-"))
-    bad = len(vectors) - ok
+    ok = sum(1 for v in vectors if v["kind"] == "accept")
+    bad = sum(1 for v in vectors if v["kind"] == "reject")
+    undecided = sum(1 for v in vectors if v["kind"] == "indeterminate")
     spec_digest = hashlib.sha256(
         open(SPEC_PATH, "rb").read()  # noqa: SIM115 -- one-shot read
     ).hexdigest()
@@ -161,14 +242,14 @@ def main() -> int:
         "specDigest": spec_digest,
         "tracksUpstream": f"{pin['upstreamRepo']}#{pin['upstreamPullRequest']}",
         "specUpstreamCommit": pin["commit"],
-        "counts": {"accept": ok, "reject": bad},
+        "counts": {"accept": ok, "reject": bad, "indeterminate": undecided},
         "vectors": vectors,
     }
     out = os.path.join(HERE, "MANIFEST.json")
     with open(out, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, sort_keys=False)
         f.write("\n")
-    print(f"wrote {out}: {ok} accept + {bad} reject")
+    print(f"wrote {out}: {ok} accept + {bad} reject + {undecided} indeterminate")
     return 0
 
 

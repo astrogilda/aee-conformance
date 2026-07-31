@@ -188,7 +188,7 @@ that guesses is worse than one that is missing: it looks resolved.
 | aee-c-92 | L699-721 | the corpus manifest declares at least one attack identifier across all of its classes |
 | aee-c-93 | L585-593 | networkPosture.posture is a registered value |
 
-## Vectors (140)
+## Vectors (139)
 
 `parent` names the accept-suite shape the vector derives from (the
 accept vectors land separately; the parent statements are built
@@ -309,7 +309,6 @@ so the declared fault stays the ONLY fault.
 | `bad-743-statement-noncharacter-vocabulary-label` | ok-002 | vocabulary label carrying the noncharacter U+FFFF | recompute-vocabulary-digest, rederive-binding, re-sign-record, recompute-batch-root | aee-c-18 | `statement-malformed` | L93-120 |
 | `bad-744-payload-noncharacter` | ok-001 | covering payload gains a member whose value carries the noncharacter U+FFFF | re-sign-record, recompute-batch-root | aee-c-18 | `payload-not-ijson` | L93-120 |
 | `bad-745-record-signatures-empty` | ok-001 | covering record's signatures array emptied to [] | - | aee-c-91 | `record-signatures-empty` | L980-982 |
-| `bad-748-signatures-empty-precedes-undecodable-record` | ok-002 | arming record payload re-encoded as non-canonical base64 AND the sealed record's signatures array emptied, in that wire order | - | aee-c-91 | `record-signatures-empty` (COMPOUND) (also carries: `record-undecodable`) | L980-982; L982-989 |
 | `bad-749-record-signatures-not-an-array` | ok-001 | covering record's signatures member replaced with the JSON string "sig" | - | aee-c-91 | `record-signatures-empty` | L980-982 |
 | `bad-746-manifest-empty-classes` | ok-007 | corpus manifest emptied to {"classes": {}}; the row it declared and that row's coverage entry come out with it | drop-undeclared-rows, rebuild-coverage-partition, recompute-corpus-digest | aee-c-92 | `corpus-manifest-no-attacks` | L699-721 |
 | `bad-747-manifest-class-declares-no-attacks` | ok-007 | corpus manifest keeps class XA but empties its attack-id array; the row it declared and that row's coverage entry come out with it | drop-undeclared-rows, rebuild-coverage-partition, recompute-corpus-digest | aee-c-92 | `corpus-manifest-no-attacks` | L699-721 |
@@ -412,7 +411,6 @@ so the declared fault stays the ONLY fault.
 - **bad-743-statement-noncharacter-vocabulary-label**: rawBytes: a noncharacter is a valid scalar that nothing substitutes, so this is not a live cross-rail split; it is the RFC 7493 label made true, so a from-spec verifier reading the label does not reject a record we accept..
 - **bad-744-payload-noncharacter**: rawBytes: the payload position of bad-743. RFC 7493 section 2.1 forbids noncharacters in every string literal, not only member names..
 - **bad-745-record-signatures-empty**: the count is byte-pure and verifies nothing: a record carrying one fabricated signature entry passes it and is caught only at the tier, so this vector closes the literal zero-signature case and no more. It is also the suite's one vector with an empty rederive chain, because signatures are outside the PAE pre-image and so outside batchRoot.
-- **bad-748-signatures-empty-precedes-undecodable-record**: deliberately two-fault, which is what makes it a precedence pin rather than a duplicate of bad-745: a condition that only ever appears alone cannot say which of two conditions a rail must report. The expected set names one code on purpose, so a rail that reports the decode fault instead fails rather than passing on a widened set.
 - **bad-749-record-signatures-not-an-array**: the wrong-type spelling of zero entries. It reads as the more likely producer bug of the three, since a substrate that emits one signature object where the schema wants an array of them produces exactly this. The expected set names the specific condition rather than the parse catch-all, because the catch-all identifies neither the record nor the member, and because an ABSENT signatures member already reports the specific condition on the same reasoning.
 - **bad-746-manifest-empty-classes**: the bare shape of the bypass. Every other check on this statement passes: the corpus digest re-derives over the emptied manifest, coverage is a partition of nothing, the recompute returns pass, and with no substrate row nothing requires runEntropy, observationRecords or a batchRoot. Only the manifest floor rejects it, which is why the floor sits in well-formedness and not in result: a corpus declaring no adversarial inputs is not an adversarial corpus, and scoring it would concede that the run is a legitimate statement that merely scores badly.
 - **bad-747-manifest-class-declares-no-attacks**: the twin bad-746 cannot catch, and the reason the rule counts identifiers rather than classes. This manifest carries a real class name and assessedClasses names it, so the coverage partition is exactly satisfied and the statement reads like an assessment that found nothing rather than like an empty object; a rule phrased as "an empty classes object is malformed" would admit it.
@@ -442,12 +440,11 @@ so the declared fault stays the ONLY fault.
 set and the verdict matches. Vectors marked COMPOUND carry more than
 one condition; every other vector is single-fault by construction.
 Most are compound because deriving them singly is impossible without
-introducing a different fault. `bad-748` is the exception and is
-compound on purpose: a precedence pin can only be written as a
-statement carrying both conditions at once, and its expected set names
-ONE code so that a rail reporting the other fails rather than passing
-on a set widened to accommodate it. Registry precedence pins applied
-here:
+introducing a different fault. No vector in this directory is compound
+in order to pin a precedence: a statement whose two conditions the
+specification does not order between belongs in `vectors/indeterminate/`,
+where every reading a conformant rail may take is declared and the rail
+is held to one of them. Registry precedence pins applied here:
 
 1. A missing binding INPUT reports its member code, never
    `run-binding-mismatch` (bad-606, bad-611); binding mismatch is
@@ -467,10 +464,12 @@ the evidence tier's separate, trust-relative question. Every committed
 signature here verifies under the derived test public key above. How
 many entries the array carries is a different question, answered
 without key material and therefore inside validity: `bad-745` carries
-a record with zero of them and no signature to verify, `bad-749`
-carries a member of the wrong JSON type that holds none either, and
-`bad-748` fixes which condition a rail reports when a record with no
-entries shares a statement with one whose payload does not decode.
+a record with zero of them and no signature to verify, and `bad-749`
+carries a member of the wrong JSON type that holds none either. Which
+condition a rail reports when a record with no entries shares a
+statement with one whose payload does not decode is not settled by the
+specification and is not settled here: it is the indeterminate family
+`ind-001` / `ind-002` in `vectors/indeterminate/`.
 
 ## Deferred coverage (no vector, by design)
 

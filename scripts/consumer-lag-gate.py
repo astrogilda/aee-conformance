@@ -103,7 +103,13 @@ LEDGER = VECTORS / "CONSUMERS.json"
 CHANGES = VECTORS / "CHANGES.md"
 REPORT = REPO_ROOT / "docs" / "IMPLEMENTATION-REPORT.md"
 STAMP_NAME = "VENDOR-STAMP.json"
-_SUBDIRS = ("accept", "reject")
+# Every directory the corpus publishes, and the published content digest is a
+# digest over all of them. Leaving a bucket out of this tuple would be the whole
+# of the cheap option: a set no consumer copy is measured against is a set no
+# consumer has to carry, so it goes stale on the first revision and nothing
+# reddens -- which is the shape of every defect this gate and its siblings were
+# written to close. A new bucket costs a re-vendor exactly as a new vector does.
+_SUBDIRS = ("accept", "reject", "indeterminate")
 
 # `## suiteRevision 14 (the vendored text catches up with the corpus)`
 REVISION_HEADING = re.compile(r"^## suiteRevision (\d+)\b", re.MULTILINE)

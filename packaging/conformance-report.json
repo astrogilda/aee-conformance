@@ -5,11 +5,13 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 186,
-    "pass": 186,
+    "vectors": 187,
+    "pass": 187,
     "fail": 0
   },
-  "notes": [],
+  "notes": [
+    "indeterminate family signature-count-vs-payload-decode: set-level -- the reading the rail committed to (2 member(s))"
+  ],
   "gateColumns": [
     "gate0",
     "gate1",
@@ -33,6 +35,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "fail"
       },
       "expected": {
@@ -57,6 +60,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass"
       },
       "expected": {
@@ -81,6 +85,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass"
       },
       "expected": {
@@ -105,6 +110,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "degraded"
       },
       "expected": {
@@ -129,6 +135,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "degraded"
       },
       "expected": {
@@ -153,6 +160,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass_indirect"
       },
       "expected": {
@@ -177,6 +185,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass_indirect"
       },
       "expected": {
@@ -201,6 +210,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "fail"
       },
       "expected": {
@@ -225,6 +235,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "fail"
       },
       "expected": {
@@ -249,6 +260,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "fail"
       },
       "expected": {
@@ -273,6 +285,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass"
       },
       "expected": {
@@ -297,6 +310,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass"
       },
       "expected": {
@@ -321,6 +335,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass"
       },
       "expected": {
@@ -345,6 +360,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "fail"
       },
       "expected": {
@@ -369,6 +385,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "fail"
       },
       "expected": {
@@ -393,6 +410,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "fail"
       },
       "expected": {
@@ -417,6 +435,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "fail"
       },
       "expected": {
@@ -441,6 +460,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass"
       },
       "expected": {
@@ -465,6 +485,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass"
       },
       "expected": {
@@ -489,6 +510,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "fail"
       },
       "expected": {
@@ -513,6 +535,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "fail"
       },
       "expected": {
@@ -537,6 +560,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass"
       },
       "expected": {
@@ -561,6 +585,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass"
       },
       "expected": {
@@ -585,6 +610,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "fail"
       },
       "expected": {
@@ -619,6 +645,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass"
       },
       "expected": {
@@ -643,6 +670,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "fail"
       },
       "expected": {
@@ -667,6 +695,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "fail"
       },
       "expected": {
@@ -691,6 +720,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass"
       },
       "expected": {
@@ -715,6 +745,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass_indirect"
       },
       "expected": {
@@ -739,6 +770,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "fail"
       },
       "expected": {
@@ -763,6 +795,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "fail"
       },
       "expected": {
@@ -787,6 +820,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "fail"
       },
       "expected": {
@@ -811,6 +845,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "degraded"
       },
       "expected": {
@@ -835,6 +870,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass"
       },
       "expected": {
@@ -859,6 +895,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass"
       },
       "expected": {
@@ -883,6 +920,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass"
       },
       "expected": {
@@ -907,6 +945,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass_indirect"
       },
       "expected": {
@@ -931,6 +970,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass"
       },
       "expected": {
@@ -955,6 +995,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass"
       },
       "expected": {
@@ -979,6 +1020,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass"
       },
       "expected": {
@@ -1003,6 +1045,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass"
       },
       "expected": {
@@ -1027,6 +1070,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass"
       },
       "expected": {
@@ -1051,6 +1095,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass_indirect"
       },
       "expected": {
@@ -1075,6 +1120,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "pass_indirect"
       },
       "expected": {
@@ -1099,6 +1145,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "fail"
       },
       "expected": {
@@ -1123,6 +1170,7 @@
       "observed": {
         "verdict": "valid",
         "codes": [],
+        "primaryCode": null,
         "result": "fail"
       },
       "expected": {
@@ -1150,6 +1198,7 @@
           "result-vocabulary",
           "result-recompute-mismatch"
         ],
+        "primaryCode": "result-vocabulary",
         "result": null
       },
       "expected": {
@@ -1179,6 +1228,7 @@
         "codes": [
           "result-recompute-mismatch"
         ],
+        "primaryCode": "result-recompute-mismatch",
         "result": null
       },
       "expected": {
@@ -1207,6 +1257,7 @@
         "codes": [
           "result-recompute-mismatch"
         ],
+        "primaryCode": "result-recompute-mismatch",
         "result": null
       },
       "expected": {
@@ -1235,6 +1286,7 @@
         "codes": [
           "result-recompute-mismatch"
         ],
+        "primaryCode": "result-recompute-mismatch",
         "result": null
       },
       "expected": {
@@ -1263,6 +1315,7 @@
         "codes": [
           "result-recompute-mismatch"
         ],
+        "primaryCode": "result-recompute-mismatch",
         "result": null
       },
       "expected": {
@@ -1291,6 +1344,7 @@
         "codes": [
           "result-recompute-mismatch"
         ],
+        "primaryCode": "result-recompute-mismatch",
         "result": null
       },
       "expected": {
@@ -1319,6 +1373,7 @@
         "codes": [
           "result-recompute-mismatch"
         ],
+        "primaryCode": "result-recompute-mismatch",
         "result": null
       },
       "expected": {
@@ -1348,6 +1403,7 @@
           "result-vocabulary",
           "result-recompute-mismatch"
         ],
+        "primaryCode": "result-vocabulary",
         "result": null
       },
       "expected": {
@@ -1377,6 +1433,7 @@
         "codes": [
           "result-recompute-mismatch"
         ],
+        "primaryCode": "result-recompute-mismatch",
         "result": null
       },
       "expected": {
@@ -1405,6 +1462,7 @@
         "codes": [
           "result-recompute-mismatch"
         ],
+        "primaryCode": "result-recompute-mismatch",
         "result": null
       },
       "expected": {
@@ -1434,6 +1492,7 @@
           "refs-empty",
           "caught-row-uncovered"
         ],
+        "primaryCode": "refs-empty",
         "result": null
       },
       "expected": {
@@ -1463,6 +1522,7 @@
         "codes": [
           "ref-out-of-range"
         ],
+        "primaryCode": "ref-out-of-range",
         "result": null
       },
       "expected": {
@@ -1491,6 +1551,7 @@
         "codes": [
           "ref-malformed"
         ],
+        "primaryCode": "ref-malformed",
         "result": null
       },
       "expected": {
@@ -1519,6 +1580,7 @@
         "codes": [
           "caught-row-uncovered"
         ],
+        "primaryCode": "caught-row-uncovered",
         "result": null
       },
       "expected": {
@@ -1547,6 +1609,7 @@
         "codes": [
           "reconstructed-row-uncovered"
         ],
+        "primaryCode": "reconstructed-row-uncovered",
         "result": null
       },
       "expected": {
@@ -1575,6 +1638,7 @@
         "codes": [
           "clean-row-uncovered"
         ],
+        "primaryCode": "clean-row-uncovered",
         "result": null
       },
       "expected": {
@@ -1603,6 +1667,7 @@
         "codes": [
           "clean-row-uncovered"
         ],
+        "primaryCode": "clean-row-uncovered",
         "result": null
       },
       "expected": {
@@ -1631,6 +1696,7 @@
         "codes": [
           "ref-malformed"
         ],
+        "primaryCode": "ref-malformed",
         "result": null
       },
       "expected": {
@@ -1660,6 +1726,7 @@
           "payload-not-canonical",
           "caught-row-uncovered"
         ],
+        "primaryCode": "payload-not-canonical",
         "result": null
       },
       "expected": {
@@ -1689,6 +1756,7 @@
           "payload-not-ijson",
           "caught-row-uncovered"
         ],
+        "primaryCode": "payload-not-ijson",
         "result": null
       },
       "expected": {
@@ -1718,6 +1786,7 @@
           "payload-not-ijson",
           "caught-row-uncovered"
         ],
+        "primaryCode": "payload-not-ijson",
         "result": null
       },
       "expected": {
@@ -1747,6 +1816,7 @@
           "payload-media-type",
           "caught-row-uncovered"
         ],
+        "primaryCode": "payload-media-type",
         "result": null
       },
       "expected": {
@@ -1775,6 +1845,7 @@
         "codes": [
           "payload-missing-reserved"
         ],
+        "primaryCode": "payload-missing-reserved",
         "result": null
       },
       "expected": {
@@ -1804,6 +1875,7 @@
           "payload-missing-reserved",
           "record-kind-unknown-covers-nothing"
         ],
+        "primaryCode": "payload-missing-reserved",
         "result": null
       },
       "expected": {
@@ -1832,6 +1904,7 @@
         "codes": [
           "payload-missing-reserved"
         ],
+        "primaryCode": "payload-missing-reserved",
         "result": null
       },
       "expected": {
@@ -1861,6 +1934,7 @@
           "payload-not-canonical",
           "caught-row-uncovered"
         ],
+        "primaryCode": "payload-not-canonical",
         "result": null
       },
       "expected": {
@@ -1889,6 +1963,7 @@
         "codes": [
           "run-binding-mismatch"
         ],
+        "primaryCode": "run-binding-mismatch",
         "result": null
       },
       "expected": {
@@ -1917,6 +1992,7 @@
         "codes": [
           "method-cap-exceeded"
         ],
+        "primaryCode": "method-cap-exceeded",
         "result": null
       },
       "expected": {
@@ -1945,6 +2021,7 @@
         "codes": [
           "run-binding-mismatch"
         ],
+        "primaryCode": "run-binding-mismatch",
         "result": null
       },
       "expected": {
@@ -1973,6 +2050,7 @@
         "codes": [
           "method-cap-exceeded"
         ],
+        "primaryCode": "method-cap-exceeded",
         "result": null
       },
       "expected": {
@@ -2001,6 +2079,7 @@
         "codes": [
           "run-binding-mismatch"
         ],
+        "primaryCode": "run-binding-mismatch",
         "result": null
       },
       "expected": {
@@ -2029,6 +2108,7 @@
         "codes": [
           "run-binding-mismatch"
         ],
+        "primaryCode": "run-binding-mismatch",
         "result": null
       },
       "expected": {
@@ -2057,6 +2137,7 @@
         "codes": [
           "run-binding-mismatch"
         ],
+        "primaryCode": "run-binding-mismatch",
         "result": null
       },
       "expected": {
@@ -2085,6 +2166,7 @@
         "codes": [
           "batch-root-missing"
         ],
+        "primaryCode": "batch-root-missing",
         "result": null
       },
       "expected": {
@@ -2113,6 +2195,7 @@
         "codes": [
           "batch-root-mismatch"
         ],
+        "primaryCode": "batch-root-mismatch",
         "result": null
       },
       "expected": {
@@ -2141,6 +2224,7 @@
         "codes": [
           "batch-root-mismatch"
         ],
+        "primaryCode": "batch-root-mismatch",
         "result": null
       },
       "expected": {
@@ -2169,6 +2253,7 @@
         "codes": [
           "batch-root-mismatch"
         ],
+        "primaryCode": "batch-root-mismatch",
         "result": null
       },
       "expected": {
@@ -2197,6 +2282,7 @@
         "codes": [
           "duplicate-record"
         ],
+        "primaryCode": "duplicate-record",
         "result": null
       },
       "expected": {
@@ -2225,6 +2311,7 @@
         "codes": [
           "batch-root-mismatch"
         ],
+        "primaryCode": "batch-root-mismatch",
         "result": null
       },
       "expected": {
@@ -2253,6 +2340,7 @@
         "codes": [
           "records-absent"
         ],
+        "primaryCode": "records-absent",
         "result": null
       },
       "expected": {
@@ -2282,6 +2370,7 @@
         "codes": [
           "batch-root-orphaned"
         ],
+        "primaryCode": "batch-root-orphaned",
         "result": null
       },
       "expected": {
@@ -2310,6 +2399,7 @@
         "codes": [
           "batch-root-mismatch"
         ],
+        "primaryCode": "batch-root-mismatch",
         "result": null
       },
       "expected": {
@@ -2338,6 +2428,7 @@
         "codes": [
           "fail-closed-substrate-row"
         ],
+        "primaryCode": "fail-closed-substrate-row",
         "result": null
       },
       "expected": {
@@ -2366,6 +2457,7 @@
         "codes": [
           "malformed-missing-actual-layer"
         ],
+        "primaryCode": "malformed-missing-actual-layer",
         "result": null
       },
       "expected": {
@@ -2394,6 +2486,7 @@
         "codes": [
           "clean-row-layer-not-none"
         ],
+        "primaryCode": "clean-row-layer-not-none",
         "result": null
       },
       "expected": {
@@ -2422,6 +2515,7 @@
         "codes": [
           "fail-closed-substrate-row"
         ],
+        "primaryCode": "fail-closed-substrate-row",
         "result": null
       },
       "expected": {
@@ -2450,6 +2544,7 @@
         "codes": [
           "fail-closed-substrate-row"
         ],
+        "primaryCode": "fail-closed-substrate-row",
         "result": null
       },
       "expected": {
@@ -2478,6 +2573,7 @@
         "codes": [
           "statement-malformed"
         ],
+        "primaryCode": "statement-malformed",
         "result": null
       },
       "expected": {
@@ -2506,6 +2602,7 @@
         "codes": [
           "vocabulary-missing"
         ],
+        "primaryCode": "vocabulary-missing",
         "result": null
       },
       "expected": {
@@ -2534,6 +2631,7 @@
         "codes": [
           "vocabulary-caught-not-subset"
         ],
+        "primaryCode": "vocabulary-caught-not-subset",
         "result": null
       },
       "expected": {
@@ -2562,6 +2660,7 @@
         "codes": [
           "vocabulary-not-canonical"
         ],
+        "primaryCode": "vocabulary-not-canonical",
         "result": null
       },
       "expected": {
@@ -2590,6 +2689,7 @@
         "codes": [
           "vocabulary-not-canonical"
         ],
+        "primaryCode": "vocabulary-not-canonical",
         "result": null
       },
       "expected": {
@@ -2618,6 +2718,7 @@
         "codes": [
           "vocabulary-digest-mismatch"
         ],
+        "primaryCode": "vocabulary-digest-mismatch",
         "result": null
       },
       "expected": {
@@ -2646,6 +2747,7 @@
         "codes": [
           "run-entropy-missing"
         ],
+        "primaryCode": "run-entropy-missing",
         "result": null
       },
       "expected": {
@@ -2674,6 +2776,7 @@
         "codes": [
           "subject-cardinality"
         ],
+        "primaryCode": "subject-cardinality",
         "result": null
       },
       "expected": {
@@ -2702,6 +2805,7 @@
         "codes": [
           "digest-not-canonical"
         ],
+        "primaryCode": "digest-not-canonical",
         "result": null
       },
       "expected": {
@@ -2730,6 +2834,7 @@
         "codes": [
           "digest-not-canonical"
         ],
+        "primaryCode": "digest-not-canonical",
         "result": null
       },
       "expected": {
@@ -2758,6 +2863,7 @@
         "codes": [
           "fail-closed-substrate-row"
         ],
+        "primaryCode": "fail-closed-substrate-row",
         "result": null
       },
       "expected": {
@@ -2786,6 +2892,7 @@
         "codes": [
           "subject-sha256-missing"
         ],
+        "primaryCode": "subject-sha256-missing",
         "result": null
       },
       "expected": {
@@ -2814,6 +2921,7 @@
         "codes": [
           "vocabulary-not-canonical"
         ],
+        "primaryCode": "vocabulary-not-canonical",
         "result": null
       },
       "expected": {
@@ -2842,6 +2950,7 @@
         "codes": [
           "arming-covers-nothing"
         ],
+        "primaryCode": "arming-covers-nothing",
         "result": null
       },
       "expected": {
@@ -2870,6 +2979,7 @@
         "codes": [
           "arming-covers-nothing"
         ],
+        "primaryCode": "arming-covers-nothing",
         "result": null
       },
       "expected": {
@@ -2899,6 +3009,7 @@
           "arming-covers-nothing",
           "sealed-covers-nothing"
         ],
+        "primaryCode": "arming-covers-nothing",
         "result": null
       },
       "expected": {
@@ -2929,6 +3040,7 @@
         "codes": [
           "arming-covers-nothing"
         ],
+        "primaryCode": "arming-covers-nothing",
         "result": null
       },
       "expected": {
@@ -2957,6 +3069,7 @@
         "codes": [
           "sealed-covers-nothing"
         ],
+        "primaryCode": "sealed-covers-nothing",
         "result": null
       },
       "expected": {
@@ -2985,6 +3098,7 @@
         "codes": [
           "sealed-covers-nothing"
         ],
+        "primaryCode": "sealed-covers-nothing",
         "result": null
       },
       "expected": {
@@ -3013,6 +3127,7 @@
         "codes": [
           "sealed-covers-nothing"
         ],
+        "primaryCode": "sealed-covers-nothing",
         "result": null
       },
       "expected": {
@@ -3041,6 +3156,7 @@
         "codes": [
           "sealed-covers-nothing"
         ],
+        "primaryCode": "sealed-covers-nothing",
         "result": null
       },
       "expected": {
@@ -3069,6 +3185,7 @@
         "codes": [
           "sealed-covers-nothing"
         ],
+        "primaryCode": "sealed-covers-nothing",
         "result": null
       },
       "expected": {
@@ -3097,6 +3214,7 @@
         "codes": [
           "sealed-covers-nothing"
         ],
+        "primaryCode": "sealed-covers-nothing",
         "result": null
       },
       "expected": {
@@ -3125,6 +3243,7 @@
         "codes": [
           "examination-covers-nothing"
         ],
+        "primaryCode": "examination-covers-nothing",
         "result": null
       },
       "expected": {
@@ -3153,6 +3272,7 @@
         "codes": [
           "sealed-covers-nothing"
         ],
+        "primaryCode": "sealed-covers-nothing",
         "result": null
       },
       "expected": {
@@ -3181,6 +3301,7 @@
         "codes": [
           "record-kind-unknown-covers-nothing"
         ],
+        "primaryCode": "record-kind-unknown-covers-nothing",
         "result": null
       },
       "expected": {
@@ -3209,6 +3330,7 @@
         "codes": [
           "sealed-covers-nothing"
         ],
+        "primaryCode": "sealed-covers-nothing",
         "result": null
       },
       "expected": {
@@ -3237,6 +3359,7 @@
         "codes": [
           "sealed-covers-nothing"
         ],
+        "primaryCode": "sealed-covers-nothing",
         "result": null
       },
       "expected": {
@@ -3265,6 +3388,7 @@
         "codes": [
           "arming-covers-nothing"
         ],
+        "primaryCode": "arming-covers-nothing",
         "result": null
       },
       "expected": {
@@ -3293,6 +3417,7 @@
         "codes": [
           "arming-covers-nothing"
         ],
+        "primaryCode": "arming-covers-nothing",
         "result": null
       },
       "expected": {
@@ -3321,6 +3446,7 @@
         "codes": [
           "arming-covers-nothing"
         ],
+        "primaryCode": "arming-covers-nothing",
         "result": null
       },
       "expected": {
@@ -3349,6 +3475,7 @@
         "codes": [
           "arming-covers-nothing"
         ],
+        "primaryCode": "arming-covers-nothing",
         "result": null
       },
       "expected": {
@@ -3377,6 +3504,7 @@
         "codes": [
           "arming-covers-nothing"
         ],
+        "primaryCode": "arming-covers-nothing",
         "result": null
       },
       "expected": {
@@ -3405,6 +3533,7 @@
         "codes": [
           "arming-covers-nothing"
         ],
+        "primaryCode": "arming-covers-nothing",
         "result": null
       },
       "expected": {
@@ -3433,6 +3562,7 @@
         "codes": [
           "arming-covers-nothing"
         ],
+        "primaryCode": "arming-covers-nothing",
         "result": null
       },
       "expected": {
@@ -3461,6 +3591,7 @@
         "codes": [
           "ref-out-of-range"
         ],
+        "primaryCode": "ref-out-of-range",
         "result": null
       },
       "expected": {
@@ -3489,6 +3620,7 @@
         "codes": [
           "statement-malformed"
         ],
+        "primaryCode": "statement-malformed",
         "result": null
       },
       "expected": {
@@ -3517,6 +3649,7 @@
         "codes": [
           "arming-covers-nothing"
         ],
+        "primaryCode": "arming-covers-nothing",
         "result": null
       },
       "expected": {
@@ -3545,6 +3678,7 @@
         "codes": [
           "arming-covers-nothing"
         ],
+        "primaryCode": "arming-covers-nothing",
         "result": null
       },
       "expected": {
@@ -3573,6 +3707,7 @@
         "codes": [
           "subject-cardinality"
         ],
+        "primaryCode": "subject-cardinality",
         "result": null
       },
       "expected": {
@@ -3601,6 +3736,7 @@
         "codes": [
           "statement-malformed"
         ],
+        "primaryCode": "statement-malformed",
         "result": null
       },
       "expected": {
@@ -3629,6 +3765,7 @@
         "codes": [
           "coverage-incomplete"
         ],
+        "primaryCode": "coverage-incomplete",
         "result": null
       },
       "expected": {
@@ -3657,6 +3794,7 @@
         "codes": [
           "coverage-incomplete"
         ],
+        "primaryCode": "coverage-incomplete",
         "result": null
       },
       "expected": {
@@ -3685,6 +3823,7 @@
         "codes": [
           "coverage-incomplete"
         ],
+        "primaryCode": "coverage-incomplete",
         "result": null
       },
       "expected": {
@@ -3713,6 +3852,7 @@
         "codes": [
           "statement-malformed"
         ],
+        "primaryCode": "statement-malformed",
         "result": null
       },
       "expected": {
@@ -3741,6 +3881,7 @@
         "codes": [
           "statement-malformed"
         ],
+        "primaryCode": "statement-malformed",
         "result": null
       },
       "expected": {
@@ -3769,6 +3910,7 @@
         "codes": [
           "statement-malformed"
         ],
+        "primaryCode": "statement-malformed",
         "result": null
       },
       "expected": {
@@ -3797,6 +3939,7 @@
         "codes": [
           "statement-malformed"
         ],
+        "primaryCode": "statement-malformed",
         "result": null
       },
       "expected": {
@@ -3825,6 +3968,7 @@
         "codes": [
           "statement-malformed"
         ],
+        "primaryCode": "statement-malformed",
         "result": null
       },
       "expected": {
@@ -3853,6 +3997,7 @@
         "codes": [
           "statement-malformed"
         ],
+        "primaryCode": "statement-malformed",
         "result": null
       },
       "expected": {
@@ -3882,6 +4027,7 @@
           "payload-not-ijson",
           "caught-row-uncovered"
         ],
+        "primaryCode": "payload-not-ijson",
         "result": null
       },
       "expected": {
@@ -3911,6 +4057,7 @@
           "payload-not-ijson",
           "caught-row-uncovered"
         ],
+        "primaryCode": "payload-not-ijson",
         "result": null
       },
       "expected": {
@@ -3940,6 +4087,7 @@
           "payload-not-ijson",
           "caught-row-uncovered"
         ],
+        "primaryCode": "payload-not-ijson",
         "result": null
       },
       "expected": {
@@ -3969,6 +4117,7 @@
           "payload-not-ijson",
           "caught-row-uncovered"
         ],
+        "primaryCode": "payload-not-ijson",
         "result": null
       },
       "expected": {
@@ -3997,6 +4146,7 @@
         "codes": [
           "statement-malformed"
         ],
+        "primaryCode": "statement-malformed",
         "result": null
       },
       "expected": {
@@ -4026,6 +4176,7 @@
           "payload-not-ijson",
           "caught-row-uncovered"
         ],
+        "primaryCode": "payload-not-ijson",
         "result": null
       },
       "expected": {
@@ -4054,6 +4205,7 @@
         "codes": [
           "record-signatures-empty"
         ],
+        "primaryCode": "record-signatures-empty",
         "result": null
       },
       "expected": {
@@ -4082,6 +4234,7 @@
         "codes": [
           "corpus-manifest-no-attacks"
         ],
+        "primaryCode": "corpus-manifest-no-attacks",
         "result": null
       },
       "expected": {
@@ -4110,46 +4263,13 @@
         "codes": [
           "corpus-manifest-no-attacks"
         ],
+        "primaryCode": "corpus-manifest-no-attacks",
         "result": null
       },
       "expected": {
         "verdict": "invalid",
         "codes": [
           "corpus-manifest-no-attacks"
-        ]
-      },
-      "inManifest": true,
-      "reasons": []
-    },
-    {
-      "id": "bad-748-signatures-empty-precedes-undecodable-record",
-      "file": "vectors/reject/bad-748-signatures-empty-precedes-undecodable-record.json",
-      "kind": "reject",
-      "status": "PASS",
-      "gates": {
-        "gate0": "PASS",
-        "gate1": "-",
-        "recompute": "-",
-        "tier": "-",
-        "self-check": "PASS"
-      },
-      "observed": {
-        "verdict": "invalid",
-        "codes": [
-          "record-signatures-empty",
-          "record-undecodable",
-          "payload-not-canonical",
-          "clean-row-uncovered"
-        ],
-        "result": null
-      },
-      "expected": {
-        "verdict": "invalid",
-        "codes": [
-          "record-signatures-empty"
-        ],
-        "alsoCarries": [
-          "record-undecodable"
         ]
       },
       "inManifest": true,
@@ -4172,6 +4292,7 @@
         "codes": [
           "record-signatures-empty"
         ],
+        "primaryCode": "record-signatures-empty",
         "result": null
       },
       "expected": {
@@ -4200,6 +4321,7 @@
         "codes": [
           "arming-covers-nothing"
         ],
+        "primaryCode": "arming-covers-nothing",
         "result": null
       },
       "expected": {
@@ -4228,6 +4350,7 @@
         "codes": [
           "arming-covers-nothing"
         ],
+        "primaryCode": "arming-covers-nothing",
         "result": null
       },
       "expected": {
@@ -4256,6 +4379,7 @@
         "codes": [
           "predicate-type-unsupported"
         ],
+        "primaryCode": "predicate-type-unsupported",
         "result": null
       },
       "expected": {
@@ -4284,6 +4408,7 @@
         "codes": [
           "environment-incomplete"
         ],
+        "primaryCode": "environment-incomplete",
         "result": null
       },
       "expected": {
@@ -4312,6 +4437,7 @@
         "codes": [
           "corpus-digest-mismatch"
         ],
+        "primaryCode": "corpus-digest-mismatch",
         "result": null
       },
       "expected": {
@@ -4340,6 +4466,7 @@
         "codes": [
           "manifest-duplicate-attack"
         ],
+        "primaryCode": "manifest-duplicate-attack",
         "result": null
       },
       "expected": {
@@ -4369,6 +4496,7 @@
           "row-attack-unknown",
           "coverage-incomplete"
         ],
+        "primaryCode": "row-attack-unknown",
         "result": null
       },
       "expected": {
@@ -4398,6 +4526,7 @@
         "codes": [
           "coverage-incomplete"
         ],
+        "primaryCode": "coverage-incomplete",
         "result": null
       },
       "expected": {
@@ -4426,6 +4555,7 @@
         "codes": [
           "coverage-incomplete"
         ],
+        "primaryCode": "coverage-incomplete",
         "result": null
       },
       "expected": {
@@ -4454,6 +4584,7 @@
         "codes": [
           "coverage-missing"
         ],
+        "primaryCode": "coverage-missing",
         "result": null
       },
       "expected": {
@@ -4482,6 +4613,7 @@
         "codes": [
           "member-spelling"
         ],
+        "primaryCode": "member-spelling",
         "result": null
       },
       "expected": {
@@ -4510,6 +4642,7 @@
         "codes": [
           "issued-at-missing"
         ],
+        "primaryCode": "issued-at-missing",
         "result": null
       },
       "expected": {
@@ -4538,6 +4671,7 @@
         "codes": [
           "issued-at-malformed"
         ],
+        "primaryCode": "issued-at-malformed",
         "result": null
       },
       "expected": {
@@ -4566,6 +4700,7 @@
         "codes": [
           "environment-incomplete"
         ],
+        "primaryCode": "environment-incomplete",
         "result": null
       },
       "expected": {
@@ -4594,6 +4729,7 @@
         "codes": [
           "environment-incomplete"
         ],
+        "primaryCode": "environment-incomplete",
         "result": null
       },
       "expected": {
@@ -4622,6 +4758,7 @@
         "codes": [
           "environment-incomplete"
         ],
+        "primaryCode": "environment-incomplete",
         "result": null
       },
       "expected": {
@@ -4650,6 +4787,7 @@
         "codes": [
           "statement-type-unsupported"
         ],
+        "primaryCode": "statement-type-unsupported",
         "result": null
       },
       "expected": {
@@ -4678,6 +4816,7 @@
         "codes": [
           "coverage-incomplete"
         ],
+        "primaryCode": "coverage-incomplete",
         "result": null
       },
       "expected": {
@@ -4708,6 +4847,7 @@
           "payload-not-canonical",
           "caught-row-uncovered"
         ],
+        "primaryCode": "record-undecodable",
         "result": null
       },
       "expected": {
@@ -4736,6 +4876,7 @@
         "codes": [
           "clean-row-layer-not-none"
         ],
+        "primaryCode": "clean-row-layer-not-none",
         "result": null
       },
       "expected": {
@@ -4764,6 +4905,7 @@
         "codes": [
           "coverage-incomplete"
         ],
+        "primaryCode": "coverage-incomplete",
         "result": null
       },
       "expected": {
@@ -4792,6 +4934,7 @@
         "codes": [
           "issued-at-malformed"
         ],
+        "primaryCode": "issued-at-malformed",
         "result": null
       },
       "expected": {
@@ -4820,6 +4963,7 @@
         "codes": [
           "issued-at-malformed"
         ],
+        "primaryCode": "issued-at-malformed",
         "result": null
       },
       "expected": {
@@ -4848,6 +4992,7 @@
         "codes": [
           "issued-at-malformed"
         ],
+        "primaryCode": "issued-at-malformed",
         "result": null
       },
       "expected": {
@@ -4876,6 +5021,7 @@
         "codes": [
           "posture-vocabulary"
         ],
+        "primaryCode": "posture-vocabulary",
         "result": null
       },
       "expected": {
@@ -4904,6 +5050,7 @@
         "codes": [
           "posture-vocabulary"
         ],
+        "primaryCode": "posture-vocabulary",
         "result": null
       },
       "expected": {
@@ -4932,6 +5079,7 @@
         "codes": [
           "posture-vocabulary"
         ],
+        "primaryCode": "posture-vocabulary",
         "result": null
       },
       "expected": {
@@ -4960,6 +5108,7 @@
         "codes": [
           "sealed-covers-nothing"
         ],
+        "primaryCode": "sealed-covers-nothing",
         "result": null
       },
       "expected": {
@@ -4988,6 +5137,7 @@
         "codes": [
           "sealed-covers-nothing"
         ],
+        "primaryCode": "sealed-covers-nothing",
         "result": null
       },
       "expected": {
@@ -5016,6 +5166,7 @@
         "codes": [
           "sealed-covers-nothing"
         ],
+        "primaryCode": "sealed-covers-nothing",
         "result": null
       },
       "expected": {
@@ -5044,6 +5195,7 @@
         "codes": [
           "vocabulary-not-canonical"
         ],
+        "primaryCode": "vocabulary-not-canonical",
         "result": null
       },
       "expected": {
@@ -5072,6 +5224,7 @@
         "codes": [
           "environment-incomplete"
         ],
+        "primaryCode": "environment-incomplete",
         "result": null
       },
       "expected": {
@@ -5079,6 +5232,76 @@
         "codes": [
           "environment-incomplete"
         ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "ind-001-undecodable-then-signatures-empty",
+      "file": "vectors/indeterminate/ind-001-undecodable-then-signatures-empty.json",
+      "kind": "indeterminate",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "record-signatures-empty",
+          "record-undecodable",
+          "payload-not-canonical",
+          "clean-row-uncovered"
+        ],
+        "primaryCode": "record-signatures-empty",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "family": "signature-count-vs-payload-decode",
+        "readings": {
+          "decode-first": "record-undecodable",
+          "positional": "record-undecodable",
+          "set-level": "record-signatures-empty"
+        }
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "ind-002-signatures-empty-then-undecodable",
+      "file": "vectors/indeterminate/ind-002-signatures-empty-then-undecodable.json",
+      "kind": "indeterminate",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "record-signatures-empty",
+          "record-undecodable",
+          "payload-not-canonical",
+          "clean-row-uncovered"
+        ],
+        "primaryCode": "record-signatures-empty",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "family": "signature-count-vs-payload-decode",
+        "readings": {
+          "decode-first": "record-undecodable",
+          "positional": "record-signatures-empty",
+          "set-level": "record-signatures-empty"
+        }
       },
       "inManifest": true,
       "reasons": []

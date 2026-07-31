@@ -120,10 +120,10 @@ CLAIM_CASES: list[Case] = [
         lambda root: edit(
             root,
             "README.md",
-            "conformance%20vectors-186-e8951c",
+            "conformance%20vectors-187-e8951c",
             "conformance%20vectors-179-e8951c",
         ),
-        ("says '179' where the sources say '186'",),
+        ("says '179' where the sources say '187'",),
     ),
     (
         "a forcing count drifts from the baseline",
@@ -156,8 +156,8 @@ CLAIM_CASES: list[Case] = [
         lambda root: edit(
             root,
             "docs/IMPLEMENTATION-REPORT.md",
-            "and replays the full 186.",
-            "and replays every one of the 186 vectors of suiteRevision 15.",
+            "and replays the full 187.",
+            "and replays every one of the 187 vectors of suiteRevision 15.",
         ),
         ("is delegated to scripts/consumer-lag-gate.py and no longer appears",),
     ),
@@ -181,9 +181,9 @@ CENSUS_CASES: list[Case] = [
     (
         "a new paragraph states today's corpus size",
         lambda root: append(
-            root, "BUILD-NOTES.md", "\nThe corpus holds 186 files as this is written.\n"
+            root, "BUILD-NOTES.md", "\nThe corpus holds 187 files as this is written.\n"
         ),
-        ("'186' is an integer equal to the corpus total",),
+        ("'187' is an integer equal to the corpus total",),
     ),
     (
         "a new paragraph states today's accept count",
@@ -218,25 +218,25 @@ CENSUS_CASES: list[Case] = [
         lambda root: append(
             root,
             "BUILD-NOTES.md",
-            "\nThe corpus of suiteRevision 3 held 186 vectors.\n",
+            "\nThe corpus of suiteRevision 3 held 187 vectors.\n",
         ),
-        ("'186' is an integer counting vectors",),
+        ("'187' is an integer counting vectors",),
     ),
     (
         "a count appears in a Go comment",
         lambda root: append(
-            root, "cmd/mutgen/main.go", "\n// The corpus this walks holds 186 vectors.\n"
+            root, "cmd/mutgen/main.go", "\n// The corpus this walks holds 187 vectors.\n"
         ),
-        ("cmd/mutgen/main.go:", "'186' is an integer counting vectors"),
+        ("cmd/mutgen/main.go:", "'187' is an integer counting vectors"),
     ),
     (
         "a count appears in a Python docstring",
         lambda root: append(
             root,
             "scripts/coverage-gate.py",
-            '\ndef _note() -> None:\n    """It is replayed over 186 vectors."""\n',
+            '\ndef _note() -> None:\n    """It is replayed over 187 vectors."""\n',
         ),
-        ("scripts/coverage-gate.py:", "'186' is an integer counting vectors"),
+        ("scripts/coverage-gate.py:", "'187' is an integer counting vectors"),
     ),
     (
         "a count appears in a CI step name",
@@ -253,9 +253,9 @@ CENSUS_CASES: list[Case] = [
             root,
             "vectors/CHANGES.md",
             "## suiteRevision 1 (first public release)",
-            "## suiteRevision 1 (first public release)\n\n- A note added later: 186 vectors.",
+            "## suiteRevision 1 (first public release)\n\n- A note added later: 187 vectors.",
         ),
-        ("'186' is an integer counting vectors",),
+        ("'187' is an integer counting vectors",),
     ),
 ]
 
@@ -285,20 +285,40 @@ SOURCE_CASES: list[Case] = [
             # the same three counts -- 16 and 15 do -- so the row text alone stops
             # identifying which row is being edited, and edit() refuses an
             # ambiguous match rather than mutating whichever one it finds first.
-            "- Corpus: **186 vectors (46 accept, 140 reject)**, unchanged in size",
-            "- Corpus: **185 vectors (46 accept, 139 reject)**, unchanged in size",
+            "- Corpus: **187 vectors (46 accept, 139 reject, 2 indeterminate)**, up from 186.",
+            "- Corpus: **185 vectors (46 accept, 137 reject, 2 indeterminate)**, up from 186.",
         ),
-        ("declares 185 vectors (46 accept, 139 reject)",),
+        ("declares 185 vectors (46 accept, 137 reject, 2 indeterminate)",),
     ),
     (
         "a vector index heading drifts from the corpus",
         lambda root: edit(
-            root, "vectors/reject/INDEX.md", "## Vectors (140)", "## Vectors (139)"
+            root, "vectors/reject/INDEX.md", "## Vectors (139)", "## Vectors (138)"
         ),
         (
-            "the vector-table heading says 139 and vectors/MANIFEST.json carries "
-            "140 reject vector(s)",
+            "the vector-table heading says 138 and vectors/MANIFEST.json carries "
+            "139 reject vector(s)",
         ),
+    ),
+    (
+        # The third family gets the same closure, in both directions, because a
+        # bucket whose table nothing reconciles against the manifest is exactly
+        # how five vectors once sat in a directory with no row behind them.
+        "the indeterminate index heading drifts from the corpus",
+        lambda root: edit(
+            root, "vectors/indeterminate/INDEX.md", "## Vectors (2)", "## Vectors (3)"
+        ),
+        (
+            "the vector-table heading says 3 and vectors/MANIFEST.json carries "
+            "2 indeterminate vector(s)",
+        ),
+    ),
+    (
+        "an indeterminate vector file is added without the manifest hearing about it",
+        lambda root: create(
+            root, "vectors/indeterminate/ind-999-invented.json", "{}\n"
+        ),
+        ("vectors/indeterminate/ holds 3 file(s)",),
     ),
     # The case the old heading check could not make. Its two sides lived in one
     # file, so a table short of the corpus and a heading agreeing with that short

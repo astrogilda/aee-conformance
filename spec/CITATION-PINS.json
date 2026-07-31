@@ -458,6 +458,12 @@
       "opens": "and `signatures`, which MUST carry at least one entry. A consumer verifies",
       "closes": "Reading ahead of verification is a stage, never a conclusion. Any record used"
     },
+    "aee/validity.go::checkRecordsStatementLevel#6": {
+      "cites": "spec:366-368",
+      "digest": "b07d3895670fd449b7528b92447b07346c12e6e36faca9d6f52772fce6228f23",
+      "opens": "obligations. Only the consumption preconditions stated under Coverage",
+      "closes": "sequencing itself is informative."
+    },
     "aee/validity.go::payloadAnalysis#0": {
       "cites": "spec:989-998",
       "digest": "4576d504698ba67970cdfc045d7f78b67ed3f3b11e7ef70ac8667fd12d0e44ee",

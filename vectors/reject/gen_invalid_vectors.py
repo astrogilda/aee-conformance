@@ -2073,20 +2073,20 @@ vec("bad-745-record-signatures-empty", "ok-001",
          "signatures are outside the PAE pre-image and so outside batchRoot")
 
 
-# The two vectors below extend the same condition to the shapes a single-fault
-# corpus cannot reach. bad-745 alone left two questions open, and two rails
-# answered each of them differently while every vector still passed.
+# bad-745 alone left two questions open, and two rails answered each of them
+# differently while every vector still passed.
 #
 # The first question is WHEN the count is evaluated. bad-745 carries one fault,
 # so a rail that counts entries per record inside its payload-decode loop and a
 # rail that counts them once over the whole record set before that loop report
 # the same condition. Give a statement one record that does not decode and a
-# second that carries no signature entry, and the two rails part: the per-record
-# rail reaches the decode fault first and names it, the set-level rail names the
-# missing signature. bad-748 pins the set-level answer, which is the one the
-# verify-then-read discipline gives: a payload's fields mean nothing until its
-# signature verifies, so a record with no signature at all is settled before the
-# bytes it carries are read.
+# second that carries no signature entry, and the two rails part. Neither is
+# wrong: the specification carries no failure-code vocabulary and says the
+# sequencing of its own two stages is informative (L366-368), so both rails
+# return invalid and name conditions the text is equally happy with. That
+# question is therefore not settled by a reject vector at all; it is the
+# indeterminate family below, whose members declare every reading a conformant
+# rail may take and require the rail's answers to be explained by ONE of them.
 #
 # The second question is what a signatures member of the WRONG JSON TYPE is. It
 # carries no entry, so it fails the same requirement; but a rail that decodes
@@ -2094,41 +2094,6 @@ vec("bad-745-record-signatures-empty", "ok-001",
 # neither the record nor the member. bad-749 pins the specific condition, on the
 # same reasoning that already puts an ABSENT member there rather than under the
 # catch-all: absent, empty and wrong-type are one fault counted three ways.
-
-
-def _b748() -> dict[str, Any]:
-    """A statement carrying two record faults at once: the arming record's
-    payload is re-encoded as non-canonical base64 so it no longer strict-decodes,
-    and the sealed record's signatures array is emptied.
-
-    The record ORDER is the whole point. The undecodable record is first in wire
-    order, so a rail that evaluates the signature count inside its decode loop
-    meets the decode fault first; only a rail that evaluates the count over the
-    record set, before any payload is read, names the missing signature. Swapping
-    the two roles would make every rail agree and the vector would pin nothing.
-
-    Neither mutation moves a commitment. Signatures sit outside the PAE
-    pre-image, and a lenient base64 decode of the tampered payload yields the
-    parent's exact bytes, so the leaf, the batchRoot and the run binding are
-    unchanged and the parent's signatures still verify."""
-    st = P_clean()
-    recs = st["predicate"]["observationRecords"]
-    recs[0]["payload"] = _noncanonical_b64(recs[0]["payload"])
-    recs[1]["signatures"] = []
-    return st
-
-
-vec("bad-748-signatures-empty-precedes-undecodable-record", "ok-002",
-    "arming record payload re-encoded as non-canonical base64 AND the sealed "
-    "record's signatures array emptied, in that wire order",
-    [], [91], ["record-signatures-empty"], _b748, compound=True,
-    also_carries=["record-undecodable"],
-    spec="L980-982; L982-989",
-    note="deliberately two-fault, which is what makes it a precedence pin rather "
-         "than a duplicate of bad-745: a condition that only ever appears alone "
-         "cannot say which of two conditions a rail must report. The expected set "
-         "names one code on purpose, so a rail that reports the decode fault "
-         "instead fails rather than passing on a widened set")
 
 
 def _b749() -> dict[str, Any]:
@@ -2156,6 +2121,132 @@ vec("bad-749-record-signatures-not-an-array", "ok-001",
          "catch-all, because the catch-all identifies neither the record nor the "
          "member, and because an ABSENT signatures member already reports the "
          "specific condition on the same reasoning")
+
+
+# --- (i) the indeterminate family ------------------------------------------
+#
+# Written into ../indeterminate/ rather than beside the vectors above, because
+# what these two members carry is a different claim, and the corpus had nowhere
+# to put it. An accept vector says every conformant verifier admits these bytes;
+# a reject vector says every conformant verifier refuses them AND names a
+# condition this suite pins. Neither sentence can say "the verdict is settled
+# and the condition is not", which is the whole of what the specification says
+# here: it carries no failure-code vocabulary at all, and it says of its own
+# two-stage description that "the sequencing itself is informative" (L366-368).
+#
+# So a from-spec rail that reports the decode fault where the reference rail
+# reports the missing signature is conformant to the text, and a corpus that
+# fails it is the corpus overreaching. The alternative available under two
+# buckets -- naming both codes in one reject expectation -- is worse, because
+# the harness compares code SETS and a widened set is satisfied by either
+# answer AND by a rail that emits both, so the vector would stop measuring the
+# question rather than start measuring it. That is how a check comes to measure
+# nothing.
+#
+# An indeterminate vector therefore carries a DETERMINED verdict and a set of
+# declared READINGS, one condition per reading per member, and the conformance
+# requirement is that a rail's answers across the whole family be explained by
+# ONE of them. Either answer is admissible; no answer, and no pair of answers
+# straddling two readings, is. The reference rail's reading is recorded, not
+# required.
+#
+# Two members are what it takes to discriminate the three readings, and the
+# discriminating dimension is the wire order of the two faulted records:
+#
+#   set-level     the signature-entry count is asked once over the record set
+#                 before any payload is decoded. Reports the missing signature
+#                 on both members. (The reading this suite's own failure-code
+#                 contract describes, and the one both first-party rails take.)
+#   positional    the count is asked per record inside the decode loop, so the
+#                 first faulted record in wire order wins.
+#   decode-first  every payload is decoded before any count is asked, so the
+#                 decode fault wins on both members.
+#
+# The profile a rail cannot have is (missing-signature, decode-fault): reporting
+# the LATER fault on one member and the EARLIER one on the other is not produced
+# by any policy applied uniformly, and it is the shape a primary-code selector
+# that overwrites rather than sets-if-unset produces. A single-fault corpus can
+# never see it, which is the reason this family exists at all.
+
+IND_VECTORS: list[dict[str, Any]] = []
+
+
+def ind(vid: str, family: str, parent: str, mutation: str, conds: list[int],
+        readings: dict[str, str],
+        build: Callable[[], dict[str, Any]],
+        spec: str = "", note: str = "") -> None:
+    """Register one member of an indeterminate family.
+
+    ``readings`` maps a reading name to the condition THAT reading predicts for
+    THIS member. Every member of a family declares the same reading names; the
+    union of the predictions is the closure set a rail's codes must intersect,
+    and the per-reading rows are what the coherence check is run against.
+    """
+    IND_VECTORS.append({"id": vid, "family": family, "parent": parent,
+                        "mutation": mutation, "conds": conds,
+                        "readings": readings, "spec": spec, "note": note,
+                        "build": build})
+
+
+IND_SIGNATURE_COUNT = "signature-count-vs-payload-decode"
+
+
+def _i001() -> dict[str, Any]:
+    """Two record faults at once, undecodable FIRST: the arming record's payload
+    is re-encoded as non-canonical base64 so it no longer strict-decodes, and the
+    sealed record's signatures array is emptied.
+
+    Neither mutation moves a commitment. Signatures sit outside the PAE
+    pre-image, and a lenient base64 decode of the tampered payload yields the
+    parent's exact bytes, so the leaf, the batchRoot and the run binding are
+    unchanged and the parent's signatures still verify."""
+    st = P_clean()
+    recs = st["predicate"]["observationRecords"]
+    recs[0]["payload"] = _noncanonical_b64(recs[0]["payload"])
+    recs[1]["signatures"] = []
+    return st
+
+
+def _i002() -> dict[str, Any]:
+    """The same two faults with the roles of the two records exchanged, so the
+    record carrying no signature is FIRST in wire order.
+
+    This member is what separates a rail that asks the count per record from one
+    that decodes everything first: both name the decode fault on _i001, and only
+    the decode-first rail still names it here."""
+    st = P_clean()
+    recs = st["predicate"]["observationRecords"]
+    recs[0]["signatures"] = []
+    recs[1]["payload"] = _noncanonical_b64(recs[1]["payload"])
+    return st
+
+
+ind("ind-001-undecodable-then-signatures-empty", IND_SIGNATURE_COUNT, "ok-002",
+    "arming record payload re-encoded as non-canonical base64 AND the sealed "
+    "record's signatures array emptied, in that wire order",
+    [91],
+    {"set-level": "record-signatures-empty",
+     "positional": "record-undecodable",
+     "decode-first": "record-undecodable"},
+    _i001, spec="L366-368; L980-982; L982-989",
+    note="the member that separates the set-level reading from the other two. "
+         "It is the statement suiteRevision 9 shipped as a reject vector pinning "
+         "the set-level answer alone; the pin was this suite's registry rather "
+         "than the specification's, and this directory is where that difference "
+         "can be said out loud")
+
+ind("ind-002-signatures-empty-then-undecodable", IND_SIGNATURE_COUNT, "ok-002",
+    "arming record's signatures array emptied AND the sealed record's payload "
+    "re-encoded as non-canonical base64, in that wire order",
+    [91],
+    {"set-level": "record-signatures-empty",
+     "positional": "record-signatures-empty",
+     "decode-first": "record-undecodable"},
+    _i002, spec="L366-368; L980-982; L982-989",
+    note="the member that separates the positional reading from decode-first, "
+         "and the one that makes the family falsifiable: without it a rail that "
+         "reports the later fault on one order and the earlier on the other is "
+         "indistinguishable from a rail with a policy")
 
 
 # --- (m) the manifest floor -----------------------------------------------
@@ -3122,12 +3213,11 @@ def write_index() -> None:
     L.append("set and the verdict matches. Vectors marked COMPOUND carry more than")
     L.append("one condition; every other vector is single-fault by construction.")
     L.append("Most are compound because deriving them singly is impossible without")
-    L.append("introducing a different fault. `bad-748` is the exception and is")
-    L.append("compound on purpose: a precedence pin can only be written as a")
-    L.append("statement carrying both conditions at once, and its expected set names")
-    L.append("ONE code so that a rail reporting the other fails rather than passing")
-    L.append("on a set widened to accommodate it. Registry precedence pins applied")
-    L.append("here:")
+    L.append("introducing a different fault. No vector in this directory is compound")
+    L.append("in order to pin a precedence: a statement whose two conditions the")
+    L.append("specification does not order between belongs in `vectors/indeterminate/`,")
+    L.append("where every reading a conformant rail may take is declared and the rail")
+    L.append("is held to one of them. Registry precedence pins applied here:")
     L.append("")
     L.append("1. A missing binding INPUT reports its member code, never")
     L.append("   `run-binding-mismatch` (bad-606, bad-611); binding mismatch is")
@@ -3147,10 +3237,12 @@ def write_index() -> None:
     L.append("signature here verifies under the derived test public key above. How")
     L.append("many entries the array carries is a different question, answered")
     L.append("without key material and therefore inside validity: `bad-745` carries")
-    L.append("a record with zero of them and no signature to verify, `bad-749`")
-    L.append("carries a member of the wrong JSON type that holds none either, and")
-    L.append("`bad-748` fixes which condition a rail reports when a record with no")
-    L.append("entries shares a statement with one whose payload does not decode.")
+    L.append("a record with zero of them and no signature to verify, and `bad-749`")
+    L.append("carries a member of the wrong JSON type that holds none either. Which")
+    L.append("condition a rail reports when a record with no entries shares a")
+    L.append("statement with one whose payload does not decode is not settled by the")
+    L.append("specification and is not settled here: it is the indeterminate family")
+    L.append("`ind-001` / `ind-002` in `vectors/indeterminate/`.")
     L.append("")
     L.append("## Deferred coverage (no vector, by design)")
     L.append("")
@@ -3188,6 +3280,180 @@ def write_index() -> None:
     L.append("  statement-shape vectors.")
     L.append("")
     with open(os.path.join(OUT, "INDEX.md"), "w") as f:
+        f.write("\n".join(L) + "\n")
+
+
+IND_OUT = os.path.normpath(os.path.join(OUT, "..", "indeterminate"))
+
+
+def ind_families() -> dict[str, list[dict[str, Any]]]:
+    fams: dict[str, list[dict[str, Any]]] = {}
+    for v in IND_VECTORS:
+        fams.setdefault(str(v["family"]), []).append(v)
+    return fams
+
+
+def ind_family_check() -> None:
+    """Refuse a family that cannot discriminate the readings it declares.
+
+    Two ways a declared reading set is a claim nothing measures, and both are
+    refused here rather than shipped. A member that declares a different set of
+    reading NAMES than its siblings makes the coherence check unrunnable, since
+    there is then no single reading to hold a rail to. And two readings that
+    predict the same condition on EVERY member are one reading written twice: a
+    rail's answers can never separate them, so declaring both advertises a
+    distinction the corpus cannot see -- the shape of a check that measures
+    nothing.
+    """
+    for family, members in sorted(ind_families().items()):
+        names = {frozenset(m["readings"]) for m in members}
+        assert len(names) == 1, (
+            f"{family}: members declare different reading names {names}; a "
+            "coherence check has no single reading to hold a rail to"
+        )
+        declared = sorted(next(iter(names)))
+        assert len(declared) >= 2, (
+            f"{family}: declares {len(declared)} reading(s). A family with one "
+            "reading is a reject vector wearing a different hat"
+        )
+        for i, left in enumerate(declared):
+            for right in declared[i + 1:]:
+                assert any(m["readings"][left] != m["readings"][right]
+                           for m in members), (
+                    f"{family}: readings {left!r} and {right!r} predict the same "
+                    "condition on every member, so no rail's answers can ever "
+                    "separate them; add a discriminating member or drop one"
+                )
+
+
+def write_ind_index() -> None:
+    L: list[str] = []
+    L.append("# INDETERMINATE conformance vectors "
+             "(adversarial-execution-evidence v0.6)")
+    L.append("")
+    L.append("This directory is the conformance suite's `vectors/indeterminate/`")
+    L.append("layout. It carries the statements on which the specification settles")
+    L.append("the VERDICT and does not settle the CONDITION.")
+    L.append("")
+    L.append("Ground truth: `spec/predicates/adversarial-execution-evidence.md` @")
+    L.append(f"`{vendored_commit()}` (in-toto/attestation PR #570 branch),")
+    L.append("version 0.6.0, type URI")
+    L.append(f"`{PREDICATE_TYPE}`.")
+    L.append("")
+    L.append("## What an indeterminate vector claims")
+    L.append("")
+    L.append("The other two directories each make a claim every conformant verifier")
+    L.append("has to satisfy identically: `accept/` says these bytes are valid and")
+    L.append("recompute to a named result, `reject/` says they are invalid and a")
+    L.append("conformant rail names a condition from a declared set. Neither can say")
+    L.append("that the verdict is settled while the condition is not, and that is")
+    L.append("exactly what the specification says about the statements here. It")
+    L.append("carries no failure-code vocabulary of any kind, and of its own")
+    L.append("two-stage verification description it says that \"the sequencing")
+    L.append("itself is informative\" (L366-368). Two rails can therefore both")
+    L.append("reject the same bytes and name different conditions, and the text is")
+    L.append("equally happy with both.")
+    L.append("")
+    L.append("Widening a reject vector's expected set to name both conditions does")
+    L.append("not express this. The harness compares code SETS, so a widened set is")
+    L.append("satisfied by either answer and by a rail that emits both, and the")
+    L.append("vector stops measuring the question instead of starting to. The")
+    L.append("difference between \"either answer is conformant\" and \"a rail may")
+    L.append("report a superset\" would be invisible in the manifest, which is the")
+    L.append("condition under which a divergence goes unnoticed for revisions.")
+    L.append("")
+    L.append("So a member of this directory declares:")
+    L.append("")
+    L.append("- a DETERMINED verdict. Indeterminacy is scoped to the condition and")
+    L.append("  never to the verdict; a vector whose verdict is open would certify")
+    L.append("  nothing at all.")
+    L.append("- a set of READINGS, each naming the condition that reading predicts")
+    L.append("  for this member. A family is the set of members sharing one reading")
+    L.append("  vocabulary, and it is written so that the readings are separable by")
+    L.append("  some member's answer; the generator refuses a family in which two")
+    L.append("  declared readings predict the same condition on every member.")
+    L.append("")
+    L.append("## What a rail must satisfy")
+    L.append("")
+    L.append("1. **Verdict.** Every member's declared verdict, exactly as a reject")
+    L.append("   vector's.")
+    L.append("2. **Closure.** On each member, the rail's codes intersect the union")
+    L.append("   of that member's predicted conditions. An answer no declared")
+    L.append("   reading predicts is a failure and not a widening: the corpus then")
+    L.append("   has an undeclared reading, and it is added by name, with its")
+    L.append("   argument, never by relaxing the set.")
+    L.append("3. **Coherence.** Across the whole family, the rail's answers are")
+    L.append("   explained by ONE declared reading. Either answer is admissible; no")
+    L.append("   answer is not, and neither is a pair of answers straddling two")
+    L.append("   readings, because that is a rail whose reported condition turns on")
+    L.append("   incidental structure rather than on a policy it applies.")
+    L.append("")
+    L.append("The reference rails' reading is RECORDED, in the manifest and in the")
+    L.append("harness report, and is not required of anybody. That is the whole")
+    L.append("point: the corpus stops failing a from-spec rail for a non-defect and")
+    L.append("starts saying which reading each rail took, which is the thing two")
+    L.append("agreeing rails can never tell each other.")
+    L.append("")
+    L.append("Regenerate byte-identically with:")
+    L.append("`python3 ../reject/gen_invalid_vectors.py`. These vectors are built by")
+    L.append("the reject generator because they are built the same way, from the")
+    L.append("same parents,")
+    L.append("the same derived keys and the same second-fault self-check; only the")
+    L.append("claim their manifest entry makes differs.")
+    L.append("")
+    L.append(f"## Vectors ({len(IND_VECTORS)})")
+    L.append("")
+    for family, members in sorted(ind_families().items()):
+        declared = sorted(next(iter(members))["readings"])
+        L.append(f"### Family `{family}`")
+        L.append("")
+        header = ("| vector | parent | single mutation | conditions (aee-c ids) | "
+                  + " | ".join(f"reading `{r}`" for r in declared) + " | spec |")
+        L.append(header)
+        L.append("|---|---|---|" + "---|" * (len(declared) + 2))
+        for m in members:
+            conds = " ".join(f"aee-c-{c}" for c in m["conds"])
+            cells = " | ".join(f"`{m['readings'][r]}`" for r in declared)
+            L.append(f"| `{m['id']}` | {m['parent']} | {m['mutation']} | {conds} "
+                     f"| {cells} | {m['spec']} |")
+        L.append("")
+    L.append("## Notes on specific vectors")
+    L.append("")
+    for v in IND_VECTORS:
+        if v["note"]:
+            L.append(f"- **{v['id']}**: {v['note']}.")
+    L.append("")
+    L.append("## What is NOT in here")
+    L.append("")
+    L.append("The specification leaves other things open, and most of them cannot")
+    L.append("be a vector. They divide four ways and only the first is admissible")
+    L.append("here:")
+    L.append("")
+    L.append("- **Two conformant answers to a question the harness observes.**")
+    L.append("  This directory.")
+    L.append("- **A limit rather than a choice.** \"The substrate is a passive")
+    L.append("  sensor... The set of attacks actually executed is a producer")
+    L.append("  assertion\" (L455-463), and the shared-reference evidencing rule,")
+    L.append("  which says outright that \"a conforming verifier neither can nor")
+    L.append("  may invent an evidencing heuristic\" (L664-671). Every conformant")
+    L.append("  verifier must ACCEPT those statements: nothing in the carried bytes")
+    L.append("  can see the omission, so there is no divergence to declare. They")
+    L.append("  are accept vectors, and their limit is prose.")
+    L.append("- **Consumer policy the byte-pure surface does not carry.** A")
+    L.append("  consumer MAY reject an attestation carrying `unattested` substrate")
+    L.append("  rows (L857-860), MAY admit `pass_indirect` (L448-449), MAY")
+    L.append("  coherence-check a row against the pinned posture (L943-947), MAY")
+    L.append("  bound a key with a validity window (L927). None of these moves the")
+    L.append("  verdict this suite reads, because validity \"is a function of")
+    L.append("  carried bytes alone and holds identically for every consumer\"")
+    L.append("  (L1219-1222). A rail that answered the admission question in the")
+    L.append("  verdict field would be wrong, not free.")
+    L.append("- **Producer options.** `observationSelectors`, `aeeDropBound`, the")
+    L.append("  descriptor members no rule reads, the optional run-chaining")
+    L.append("  members. The producer chooses; the verifier's handling is forced,")
+    L.append("  and accept vectors already carry it.")
+    L.append("")
+    with open(os.path.join(IND_OUT, "INDEX.md"), "w") as f:
         f.write("\n".join(L) + "\n")
 
 
@@ -3257,9 +3523,35 @@ def main() -> None:
         "be regenerated and a builder with no file was silently dropped"
     )
 
-    # 3. index
+    # 3. the indeterminate family, built the same way into the sibling directory
+    ind_family_check()
+    os.makedirs(IND_OUT, exist_ok=True)
+    for iv in IND_VECTORS:
+        assert iv["id"] not in ids, "duplicate id " + iv["id"]
+        ids.add(iv["id"])
+        ist = iv["build"]()
+        # The same second-fault assertion the reject set runs. An indeterminate
+        # vector is indeterminate in WHICH condition is reported, never in how
+        # many faults it carries: an undeclared third fault would give a rail a
+        # third answer and the declared readings would stop being exhaustive.
+        second_fault_absence(iv, ist)
+        with open(os.path.join(IND_OUT, iv["id"] + ".json"), "w") as f:
+            json.dump(ist, f, indent=2, sort_keys=True, ensure_ascii=False)
+            f.write("\n")
+
+    ind_on_disk = len([f for f in os.listdir(IND_OUT) if f.startswith("ind-")
+                       and f.endswith(".json")])
+    assert len(IND_VECTORS) == ind_on_disk, (
+        f"built {len(IND_VECTORS)} indeterminate vectors but {ind_on_disk} "
+        "ind-*.json files are committed in vectors/indeterminate/; the same "
+        "tripwire the reject set carries, for the same reason"
+    )
+
+    # 4. indexes
     write_index()
+    write_ind_index()
     print(f"OK: {len(VECTORS)} invalid vectors + INDEX.md")
+    print(f"    {len(IND_VECTORS)} indeterminate vectors + INDEX.md")
     print(f"    test pub {SUB_PUB.hex()[:16]}... keyid {SUB_KEYID[:16]}...")
 
 

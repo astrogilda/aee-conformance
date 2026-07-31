@@ -192,14 +192,17 @@ def jsonl(text: str) -> list[dict[str, Any]]:
 
 
 def self_check_cache(index: dict[str, dict[str, Any]]) -> dict[str, list[str]]:
-    """Per-reject-vector second-fault findings.
+    """Per-vector second-fault findings, for every vector the harness checks.
 
     Computed from the STATEMENT BYTES rather than from the rail, so it is
     invariant under every mutation and is computed once for the whole campaign.
+    The indeterminate bucket is included because the harness includes it, and the
+    ground-truth gate compares this scoring with the harness column by column: a
+    kind omitted here reads as a fast-path discrepancy on every run.
     """
     out: dict[str, list[str]] = {}
     for vid, entry in index.items():
-        if entry.get("kind") != "reject":
+        if entry.get("kind") not in ("reject", "indeterminate"):
             continue
         raw = (VECTORS / entry["file"]).read_bytes()
         stmt, faithful = rv._load_statement(raw)
@@ -207,6 +210,7 @@ def self_check_cache(index: dict[str, dict[str, Any]]) -> dict[str, list[str]]:
             continue
         expected = entry.get("expected") or {}
         codes = set(expected.get("codes") or []) | set(expected.get("alsoCarries") or [])
+        codes |= {str(v) for v in (expected.get("readings") or {}).values()}
         out[vid] = rv.second_fault_absence(stmt, codes)
     return out
 
@@ -222,6 +226,7 @@ def as_observed(line: dict[str, Any]) -> Observation:
     return {
         "verdict": line["verdict"],
         "codes": line.get("codes") or [],
+        "primaryCode": line.get("primaryCode") or None,
         "result": line.get("result") or None,
         "tiers_with_key": line.get("tiers") or None,
         "tiers_without_key": line.get("tiersWithoutKey") or None,
@@ -245,7 +250,7 @@ def score(
         entry = index.get(vid)
         kind = (entry or {}).get("kind") or ("accept" if vid.startswith("ok-") else "reject")
         observed = as_observed(line)
-        findings = selfchk.get(vid) if kind == "reject" else None
+        findings = selfchk.get(vid) if kind in ("reject", "indeterminate") else None
         ok, gates, reasons = rv.evaluate_vector(kind, entry, observed, findings)
         rows[vid] = {
             "status": "PASS" if ok else "FAIL",
@@ -253,6 +258,19 @@ def score(
             "observed": observed,
             "reasons": reasons,
         }
+    # The cross-member half of the indeterminate contract. Left out, a mutation
+    # that makes the rail answer two members of one family under two different
+    # readings would replay green and be recorded as a rule the corpus does not
+    # force -- which is precisely the claim the family exists to refuse.
+    _, coherence = rv.family_coherence_failures(
+        index, [{"id": vid, "kind": (index.get(vid) or {}).get("kind"), "observed": row["observed"]}
+                for vid, row in rows.items()]
+    )
+    if coherence:
+        for vid, row in rows.items():
+            if (index.get(vid) or {}).get("kind") == "indeterminate":
+                row["status"] = "FAIL"
+                row["reasons"] = [*row["reasons"], *coherence]
     return rows
 
 
@@ -261,6 +279,12 @@ def observation_key(observed: Observation) -> tuple[Any, ...]:
     return (
         observed["verdict"],
         tuple(sorted(observed["codes"])),
+        # The condition the rail COMMITS to, which the indeterminate families
+        # read and nothing else does. Outside the key the ground-truth gate
+        # compares, the fast path and the real CLI could disagree about it while
+        # every scored verdict matched, and the families would then be measured
+        # against a number this gate never proved.
+        observed.get("primaryCode"),
         observed["result"],
         tuple(observed["tiers_with_key"] or ()),
         tuple(observed["tiers_without_key"] or ()),

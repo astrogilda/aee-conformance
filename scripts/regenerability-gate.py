@@ -80,6 +80,14 @@ OWNED = (
     ("vectors/accept", "ok-*.json"),
     ("vectors/reject", "bad-*.json"),
     ("vectors/reject", "INDEX.md"),
+    # The indeterminate family is built by the reject generator, from the same
+    # parents, the same derived keys and the same second-fault self-check; only
+    # the claim its manifest entry makes differs. It is listed here and not
+    # under its own generator for that reason, and it is listed at all because a
+    # bucket outside this gate is a bucket whose files can be hand-placed, which
+    # is the defect the gate was written for.
+    ("vectors/indeterminate", "ind-*.json"),
+    ("vectors/indeterminate", "INDEX.md"),
     ("vectors", "MANIFEST.json"),
 )
 

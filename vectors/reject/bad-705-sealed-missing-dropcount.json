@@ -5,6 +5,7 @@
       {
         "actualLayer": "none",
         "attackId": "XA-EXAMPLE-1",
+        "attribution": "paired",
         "basis": "substrate",
         "containmentObserved": "no_egress",
         "method": "intercepted",
@@ -14,7 +15,7 @@
         ]
       }
     ],
-    "batchRoot": "b861b2a454f7b44e9f785784d776d3c563bcb01cb9067b4ab0aea6ef83e0d658",
+    "batchRoot": "77e5b8ed9387c980ed8e58eaf3469ca66afd31646177149a37f2021884c9e70b",
     "coverage": {
       "assessedClasses": [
         "XA"
@@ -75,29 +76,39 @@
     },
     "observationRecords": [
       {
-        "payload": "eyJhZWVLaW5kIjoiYXJtaW5nIiwiYWVlTWV0aG9kIjoiaW50ZXJjZXB0ZWQiLCJhZWVQb3N0dXJlRGlnZXN0IjoiYmE0NGU3N2I3ODYxYjliN2M1YTcyODhiM2Q3MDNhNjIyODlmYjAyYjNhM2UwZjU2MTJhNGU3NGRiZWUwOTI5ZSIsImFlZVJ1bkJpbmRpbmciOiI5YTFiMjI2OTJiODNiZGYwNmZjMGNiYmY5ZjJiYzM4Zjk5MTQwNDk1NTRiOTNmNzRiNDUwMjNhZWNhOTIwZjZmIiwiYXJtZWRBdCI6IjIwMjUtMTItMzFUMjM6NTk6MDBaIn0=",
+        "payload": "eyJhZWVBc3Nlc3NlZEF0dGFja3MiOlsiWEEtRVhBTVBMRS0xIl0sImFlZUtpbmQiOiJhcm1pbmciLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZVBvc3R1cmVEaWdlc3QiOiJiYTQ0ZTc3Yjc4NjFiOWI3YzVhNzI4OGIzZDcwM2E2MjI4OWZiMDJiM2EzZTBmNTYxMmE0ZTc0ZGJlZTA5MjllIiwiYWVlUnVuQmluZGluZyI6IjlhMWIyMjY5MmI4M2JkZjA2ZmMwY2JiZjlmMmJjMzhmOTkxNDA0OTU1NGI5M2Y3NGI0NTAyM2FlY2E5MjBmNmYiLCJhcm1lZEF0IjoiMjAyNS0xMi0zMVQyMzo1OTowMFoifQ==",
         "payloadType": "application/vnd.example.aee-observation.v1+json",
         "signatures": [
           {
             "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
-            "sig": "PRVrgFXY0xarPrD3OVcNyohY6wEB4M/Q+wYAmvq9djPpMQwPvRHiXDVfqGk5fkrapKpbml5pTl9V2MBoYb1kAw=="
+            "sig": "+IJvX4tT1kJMAWeRAszrJfj6utVN3g8BB5cSRzYRoUC4IJbIT3ho3OkzAlFzW5lSHZPpmUhoZRflDWA9Pn5rAg=="
           }
         ]
       },
       {
-        "payload": "eyJhZWVLaW5kIjoic2VhbGVkIiwiYWVlTWV0aG9kIjoiaW50ZXJjZXB0ZWQiLCJhZWVQb3N0dXJlRGlnZXN0IjoiYmE0NGU3N2I3ODYxYjliN2M1YTcyODhiM2Q3MDNhNjIyODlmYjAyYjNhM2UwZjU2MTJhNGU3NGRiZWUwOTI5ZSIsImFlZVJ1bkJpbmRpbmciOiI5YTFiMjI2OTJiODNiZGYwNmZjMGNiYmY5ZjJiYzM4Zjk5MTQwNDk1NTRiOTNmNzRiNDUwMjNhZWNhOTIwZjZmIiwiYWVlU3RpbGxBcm1lZCI6dHJ1ZX0=",
+        "payload": "eyJhZWVLaW5kIjoic2VhbGVkIiwiYWVlTWV0aG9kIjoiaW50ZXJjZXB0ZWQiLCJhZWVPYnNlcnZlZEF0dGFja3MiOltdLCJhZWVPYnNlcnZlZFNldCI6IjRmNTNjZGExOGMyYmFhMGMwMzU0YmI1ZjlhM2VjYmU1ZWQxMmFiNGQ4ZTExYmE4NzNjMmYxMTE2MTIwMmI5NDUiLCJhZWVQb3N0dXJlRGlnZXN0IjoiYmE0NGU3N2I3ODYxYjliN2M1YTcyODhiM2Q3MDNhNjIyODlmYjAyYjNhM2UwZjU2MTJhNGU3NGRiZWUwOTI5ZSIsImFlZVJ1bkJpbmRpbmciOiI5YTFiMjI2OTJiODNiZGYwNmZjMGNiYmY5ZjJiYzM4Zjk5MTQwNDk1NTRiOTNmNzRiNDUwMjNhZWNhOTIwZjZmIiwiYWVlU3RpbGxBcm1lZCI6dHJ1ZX0=",
         "payloadType": "application/vnd.example.aee-observation.v1+json",
         "signatures": [
           {
             "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
-            "sig": "UYDH32Sp9xgAltbCP7cFdglvXS8LQOyWfqpQKSQDla2mFEiTtp6P0IWT0D6wjM9i+7V96A0O20eOT8wEDAB0BA=="
+            "sig": "2wsPsO6kuoY+mV2rHSFzETO0BtLNVXc8PByOy74i630VTtTUMlni0GEFFlwSa/clXFV5xFFMCyFSMQVwKmqQBg=="
+          }
+        ]
+      },
+      {
+        "payload": "eyJhZWVEcm9wQ291bnQiOjAsImFlZUtpbmQiOiJzZWFsZWQiLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZU9ic2VydmVkQXR0YWNrcyI6W10sImFlZU9ic2VydmVkU2V0IjoiNGY1M2NkYTE4YzJiYWEwYzAzNTRiYjVmOWEzZWNiZTVlZDEyYWI0ZDhlMTFiYTg3M2MyZjExMTYxMjAyYjk0NSIsImFlZVBvc3R1cmVEaWdlc3QiOiJiYTQ0ZTc3Yjc4NjFiOWI3YzVhNzI4OGIzZDcwM2E2MjI4OWZiMDJiM2EzZTBmNTYxMmE0ZTc0ZGJlZTA5MjllIiwiYWVlUnVuQmluZGluZyI6IjlhMWIyMjY5MmI4M2JkZjA2ZmMwY2JiZjlmMmJjMzhmOTkxNDA0OTU1NGI5M2Y3NGI0NTAyM2FlY2E5MjBmNmYiLCJhZWVTdGlsbEFybWVkIjp0cnVlfQ==",
+        "payloadType": "application/vnd.example.aee-observation.v1+json",
+        "signatures": [
+          {
+            "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
+            "sig": "aP2OzYq5p9VRpfxWYTzQbNnCzs9GlQjed4iUkvV3+0OfY6xLh5ZhhSqGxrFVj4C4KsPiT16hyX9N5j4t78RjAw=="
           }
         ]
       }
     ],
     "result": "pass"
   },
-  "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6",
+  "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.7",
   "subject": [
     {
       "digest": {

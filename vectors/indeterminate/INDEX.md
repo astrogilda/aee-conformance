@@ -5,9 +5,9 @@ layout. It carries the statements on which the specification settles
 the VERDICT and does not settle the CONDITION.
 
 Ground truth: `spec/predicates/adversarial-execution-evidence.md` @
-`f2ea2aa` (in-toto/attestation PR #570 branch),
+`a81f0eb` (in-toto/attestation PR #570 branch),
 version 0.6.0, type URI
-`https://in-toto.io/attestation/adversarial-execution-evidence/v0.6`.
+`https://in-toto.io/attestation/adversarial-execution-evidence/v0.7`.
 
 ## What an indeterminate vector claims
 
@@ -19,7 +19,7 @@ that the verdict is settled while the condition is not, and that is
 exactly what the specification says about the statements here. It
 carries no failure-code vocabulary of any kind, and of its own
 two-stage verification description it says that "the sequencing
-itself is informative" (L366-368). Two rails can therefore both
+itself is informative" (L413-415). Two rails can therefore both
 reject the same bytes and name different conditions, and the text is
 equally happy with both.
 
@@ -76,8 +76,8 @@ claim their manifest entry makes differs.
 
 | vector | parent | single mutation | conditions (aee-c ids) | reading `decode-first` | reading `positional` | reading `set-level` | spec |
 |---|---|---|---|---|---|---|---|
-| `ind-001-undecodable-then-signatures-empty` | ok-002 | arming record payload re-encoded as non-canonical base64 AND the sealed record's signatures array emptied, in that wire order | aee-c-91 | `record-undecodable` | `record-undecodable` | `record-signatures-empty` | L366-368; L980-982; L982-989 |
-| `ind-002-signatures-empty-then-undecodable` | ok-002 | arming record's signatures array emptied AND the sealed record's payload re-encoded as non-canonical base64, in that wire order | aee-c-91 | `record-undecodable` | `record-signatures-empty` | `record-signatures-empty` | L366-368; L980-982; L982-989 |
+| `ind-001-undecodable-then-signatures-empty` | ok-002 | arming record payload re-encoded as non-canonical base64 AND the sealed record's signatures array emptied, in that wire order | aee-c-91 | `record-undecodable` | `record-undecodable` | `record-signatures-empty` | L413-415; L1243-1245; L1245-1252 |
+| `ind-002-signatures-empty-then-undecodable` | ok-002 | arming record's signatures array emptied AND the sealed record's payload re-encoded as non-canonical base64, in that wire order | aee-c-91 | `record-undecodable` | `record-signatures-empty` | `record-signatures-empty` | L413-415; L1243-1245; L1245-1252 |
 
 ## Notes on specific vectors
 
@@ -92,22 +92,26 @@ here:
 
 - **Two conformant answers to a question the harness observes.**
   This directory.
-- **A limit rather than a choice.** "The substrate is a passive
-  sensor... The set of attacks actually executed is a producer
-  assertion" (L455-463), and the shared-reference evidencing rule,
-  which says outright that "a conforming verifier neither can nor
-  may invent an evidencing heuristic" (L664-671). Every conformant
-  verifier must ACCEPT those statements: nothing in the carried bytes
-  can see the omission, so there is no divergence to declare. They
-  are accept vectors, and their limit is prose.
+- **A limit rather than a choice.** "The set of attacks actually
+  executed therefore remains a producer assertion under both
+  shapes" (L513-528), and the shared-reference evidencing rule on
+  a row declaring `paired`, of which the text says outright that
+  "a conforming verifier neither can nor may invent an evidencing
+  heuristic in its place" (L888-900). Every conformant verifier
+  must ACCEPT those statements: nothing in the carried bytes can
+  see the omission, so there is no divergence to declare. They are
+  accept vectors, and their limit is prose. The same obligation on
+  a row declaring `pinned` is not in this class: the corpus
+  declares the expected commitment and the verifier compares, so a
+  row that fails it is a reject vector.
 - **Consumer policy the byte-pure surface does not carry.** A
   consumer MAY reject an attestation carrying `unattested` substrate
-  rows (L857-860), MAY admit `pass_indirect` (L448-449), MAY
-  coherence-check a row against the pinned posture (L943-947), MAY
-  bound a key with a validity window (L927). None of these moves the
+  rows (L1111-1114), MAY admit `pass_indirect` (L495-496), MAY
+  coherence-check a row against the pinned posture (L1206-1210), MAY
+  bound a key with a validity window (L1190). None of these moves the
   verdict this suite reads, because validity "is a function of
   carried bytes alone and holds identically for every consumer"
-  (L1219-1222). A rail that answered the admission question in the
+  (L1613-1616). A rail that answered the admission question in the
   verdict field would be wrong, not free.
 - **Producer options.** `observationSelectors`, `aeeDropBound`, the
   descriptor members no rule reads, the optional run-chaining

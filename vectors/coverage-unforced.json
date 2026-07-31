@@ -5,7 +5,9 @@
     {
       "id": "U1",
       "requirement": "An out-of-range observationRefs index is a structural fault on ANY row, including an artifact-only row",
-      "specAnchors": ["L678-683"],
+      "specAnchors": [
+        "L907-912"
+      ],
       "classification": "forcible-but-unforced",
       "reason": "The rule is basis-independent and implemented on every rail (ref-malformed / ref-out-of-range fire regardless of basis; bad-724 exercises out-of-range on an artifact row, bad-103/108 exercise wrong-type on substrate rows). The one untested cell is the wrong-TYPE variant on an artifact-only row specifically. A single-statement vector could pin it; the rule is already sound, so this is coverage completeness, not a soundness gap.",
       "witnessSketch": "bad-7xx-artifact-wrongtype-refs: an artifact-only statement whose observationRefs carries a non-integer or negative index; expected ref-malformed."
@@ -13,7 +15,9 @@
     {
       "id": "U2",
       "requirement": "aeeChainScope two-sided equality gate: a consumer admits only the equal declared dimension set, neither a strictly finer (scope-narrowing) nor a strictly coarser (pooling) set",
-      "specAnchors": ["L1070-1079"],
+      "specAnchors": [
+        "L1449-1458"
+      ],
       "classification": "consumer-policy-unvectorable",
       "reason": "The comparison is consumer policy ACROSS attestations. The conformance corpus is single-statement, so the equality gate cannot be exercised by a self-contained vector; it needs a multi-statement policy vector class (pol-001 narrowed -> reject, pol-002 pooled -> reject, pol-003 exact -> accept), designed in first-party research/163/SEAM-chainscope-narrowing-attack.md and unbuilt.",
       "witnessSketch": "A policy/ vector class over statement SETS, not single statements; requires a policy-replay harness the corpus does not currently define."
@@ -21,7 +25,9 @@
     {
       "id": "U3",
       "requirement": "Set-vs-tuple reading: policy compares the declared dimension SET; the gap/fork/genesis rules key on the evaluated TUPLE, so genesis-per-subject-value is normal and only a second genesis under an identical tuple is a reset",
-      "specAnchors": ["L1079-1086"],
+      "specAnchors": [
+        "L1458-1465"
+      ],
       "classification": "consumer-policy-unvectorable",
       "reason": "Same as U2: the distinction only manifests across two or more attestations sharing a substrate key. pol-004 (two-genesis-same-tuple -> equivocation) and pol-005 (two-genesis-different-subject -> NOT equivocation) would pin it in a multi-statement class.",
       "witnessSketch": "pol-004 / pol-005 in the unbuilt policy/ class."
@@ -29,7 +35,9 @@
     {
       "id": "U4",
       "requirement": "Gap / fork / shared-predecessor / duplicate-genesis detection over a chain",
-      "specAnchors": ["L1079-1086"],
+      "specAnchors": [
+        "L1458-1465"
+      ],
       "classification": "consumer-policy-unvectorable",
       "reason": "Chain detection is inherently cross-attestation; a single statement carries at most one chain member and cannot exhibit a gap or a fork. Belongs to the policy/ class.",
       "witnessSketch": "Multi-statement chains in the policy/ class."
@@ -37,7 +45,10 @@
     {
       "id": "U5",
       "requirement": "The anchor comparison (expectedCorpusDigest / expectedSubstrateDigest) and the evidence tier are trust-relative consumer-policy facts, not validity",
-      "specAnchors": ["L1208-1226", "L384-490"],
+      "specAnchors": [
+        "L1596-1620",
+        "L431-555"
+      ],
       "classification": "consumer-policy-unvectorable",
       "reason": "By design these differ per consumer and are excluded from the byte-pure validity gate; a self-contained corpus vector cannot fix a per-consumer trust anchor. ok-024 exercises the tier under two pinned key policies, which is the most a single-statement vector can do; the anchor comparison itself is out of the corpus's reach by construction.",
       "witnessSketch": "None possible in a self-contained corpus; exercised only by a consumer-policy harness."
@@ -45,18 +56,24 @@
     {
       "id": "U6",
       "requirement": "A key-validity window a consumer places on a named substrate key is evaluated against the armedAt inside an arming record that verifies under that key, never against issuedAt, and a statement carrying no such record is refused rather than falling back",
-      "specAnchors": ["L927-943"],
+      "specAnchors": [
+        "L1190-1206"
+      ],
       "classification": "consumer-policy-unvectorable",
       "reason": "The rule constrains an operand a consumer supplies from outside the statement: it takes a key lifetime, and a corpus of self-contained single statements has no lifetime to place them in. Every statement the corpus can build is either inside or outside an arbitrary window depending on a bound the vector does not carry, so no vector can separate a rail that honours the operand from one that reads issuedAt. Recorded here rather than left implicit because the wording it replaced invited two implementers to build the defeated control independently, which is the shape a requirement takes when nothing is measuring whether anyone gets it right.",
       "witnessSketch": "A policy-replay vector supplying a key window alongside the statement, in the same unbuilt policy/ class U2 through U4 need; the accept and reject pair is one statement whose arming record verifies inside the window and one whose issuedAt alone would place it there."
     },
     {
       "id": "U7",
-      "requirement": "The row-to-record assignment: a producer MUST NOT reference a record from a row whose attack the record's committed payload does not evidence, and no conforming verifier may invent an evidencing heuristic for a shared reference",
-      "specAnchors": ["L667-671", "L910-914"],
+      "requirement": "The row-to-record assignment on a row declaring attribution: paired, which is every row whose attack the pinned corpus declares no expectedPayloads entry for: a producer MUST NOT reference a record from a row whose attack the record's committed payload does not evidence, and no conforming verifier may invent an evidencing heuristic in its place",
+      "specAnchors": [
+        "L892-900",
+        "L1164-1173",
+        "L600-609"
+      ],
       "classification": "producer-obligation-ungated",
-      "reason": "The statement carries no ground truth to check the assignment against: no record names its attack, because a substrate signs at observation time and before attribution, so the honest assignment and any permutation of it differ only in the field that declares the mapping. Measured rather than argued -- exchanging observationRefs between two caught rows of the same coverage class leaves the rail's whole report byte-identical, under a pinned key policy and under none, while the same operator applied across coverage classes is killed with caught-row-uncovered. The pair locates the boundary: the rail authenticates a row's coverage CLASS and never its ASSIGNMENT. The consequence belongs beside the rule, because it is the reason this cell is not a footnote: any consumer policy that discriminates between attacks, by severity or class or regulatory mapping or attack identifier, is reading a mapping the producer may permute at will with every signature, count, root and validity rule still satisfied. Filed apart from the unvectorable class on purpose. A vector would have to separate a conforming rail from one that reads the assignment, and no such rail may exist, so a vector here would be a widened expectation wearing the clothes of a forcing one, and a gap list that called this unminted would send the next person to write something that cannot work.",
-      "witnessSketch": "None possible while no record commits to the attack it evidences. The requirement becomes forcible only if a revision binds a record to its attack -- the attribution-pin family whose proposed conditions are attribution-pinned-recordless, attribution-unpinnable and attribution-pin-unmatched. Until then the live measurement is TestCrossRowObservationRefsSpliceIsInvisible in aee/observation_refs_splice_test.go, with TestCaughtToCleanSpliceIsRejected beside it as the control that keeps the null honest; the first turns red on the push that lands such a rule, which is the notice this cell is stale."
+      "reason": "NARROWED, not retired, and the narrowing is what this cell predicted. The requirement used to be ungated over every row, for a reason the statement itself supplied: no record named its attack, so the honest assignment and any permutation of it differed only in the field that declared the mapping. That is no longer true wherever the corpus was willing to predict what the substrate would commit to. corpus.manifest.expectedPayloads names the expected commitment per attack, aeePayloadCommitment carries what the record committed to, and a row declaring attribution: pinned obliges the two to meet, so the same splice that used to leave the report byte-identical is now killed with attribution-pin-unmatched. TestPinnedAttributionKillsTheSplice is that measurement. What remains here is the other half, and it remains for the same reason as before rather than by oversight: a row declaring paired rests on a correspondence the statement carries no ground truth for, and paired is a value an honest producer may always truthfully declare, including where the corpus offers an expectation. So a producer that declares paired throughout satisfies every rule in the document and emits a statement no rail can distinguish from the honest one. The consequence still belongs beside the rule: a consumer policy that discriminates between attacks reads a mapping the producer may still permute at will on every row that declares paired. What changed is that the statement now SAYS which rows those are, in a required member, on the wire, and the closure against a producer that declares paired everywhere is therefore a consumer obligation the document states rather than a gap nothing records.",
+      "witnessSketch": "None possible, and the reason is now first-principles rather than pending a revision: on a row declaring paired the statement carries no value to compare the assignment against, and a vector separating a conforming rail from one that reads the assignment would need such a rail to be conformant, which the text forbids in the same sentence. The forcible half moved out of this cell and into the corpus: bad-958-pinned-row-resolves-no-interception, bad-973-pinned-clean-row, bad-959-pinned-without-expectation and bad-960-pinned-commitment-unmatched force the three parts of the pinned rule, with ok-047-attribution-pinned as the satisfied form and ok-048-attribution-paired-despite-expectation pinning that the weaker value stays truthful. The live measurement of what remains is TestCrossRowObservationRefsSpliceIsInvisible in aee/observation_refs_splice_test.go, with TestCaughtToCleanSpliceIsRejected and TestPinnedAttributionKillsTheSplice beside it as the two controls that keep the null honest from both sides."
     }
   ]
 }

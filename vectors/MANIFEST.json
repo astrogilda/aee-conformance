@@ -1,13 +1,13 @@
 {
   "suite": "adversarial-execution-evidence-conformance",
-  "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6",
+  "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.7",
   "specPath": "spec/predicates/adversarial-execution-evidence.md",
-  "specDigest": "1172a3be183b53a3f69af7a7b07f69118b0a0ff66be61e24bf763393d665e142",
+  "specDigest": "639c66a1a640bb038bc48eb6857a4a23cb3185ed31f8934d7e8bae9f1f72e500",
   "tracksUpstream": "in-toto/attestation#570",
-  "specUpstreamCommit": "f2ea2aa4e0a8a2f9eb458b10f5cffb15535e2350",
+  "specUpstreamCommit": "a81f0eb041a1d04df161ac1cb257dfd96be9cce4",
   "counts": {
-    "accept": 46,
-    "reject": 139,
+    "accept": 50,
+    "reject": 169,
     "indeterminate": 2
   },
   "vectors": [
@@ -584,6 +584,57 @@
       }
     },
     {
+      "id": "ok-046-seal-attacks-lower-bound",
+      "kind": "accept",
+      "file": "accept/ok-046-seal-attacks-lower-bound.json",
+      "conditions": [
+        "aee-c-98"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-047-attribution-pinned",
+      "kind": "accept",
+      "file": "accept/ok-047-attribution-pinned.json",
+      "conditions": [
+        "aee-c-100",
+        "aee-c-101",
+        "aee-c-102",
+        "aee-c-103"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-048-attribution-paired-despite-expectation",
+      "kind": "accept",
+      "file": "accept/ok-048-attribution-paired-despite-expectation.json",
+      "conditions": [
+        "aee-c-105"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-049-seal-names-caught-attack",
+      "kind": "accept",
+      "file": "accept/ok-049-seal-names-caught-attack.json",
+      "conditions": [
+        "aee-c-98"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
       "id": "ok-900-fail-outranks-degraded",
       "kind": "accept",
       "file": "accept/ok-900-fail-outranks-degraded.json",
@@ -767,6 +818,9 @@
         "codes": [
           "refs-empty",
           "caught-row-uncovered"
+        ],
+        "alsoCarries": [
+          "interception-record-orphaned"
         ]
       }
     },
@@ -795,6 +849,9 @@
         "verdict": "invalid",
         "codes": [
           "ref-malformed"
+        ],
+        "alsoCarries": [
+          "interception-record-orphaned"
         ]
       }
     },
@@ -809,6 +866,9 @@
         "verdict": "invalid",
         "codes": [
           "caught-row-uncovered"
+        ],
+        "alsoCarries": [
+          "interception-record-orphaned"
         ]
       }
     },
@@ -823,6 +883,9 @@
         "verdict": "invalid",
         "codes": [
           "reconstructed-row-uncovered"
+        ],
+        "alsoCarries": [
+          "interception-record-orphaned"
         ]
       }
     },
@@ -865,6 +928,9 @@
         "verdict": "invalid",
         "codes": [
           "ref-malformed"
+        ],
+        "alsoCarries": [
+          "interception-record-orphaned"
         ]
       }
     },
@@ -893,6 +959,9 @@
         "verdict": "invalid",
         "codes": [
           "payload-not-ijson"
+        ],
+        "alsoCarries": [
+          "observed-set-mismatch"
         ]
       }
     },
@@ -907,6 +976,9 @@
         "verdict": "invalid",
         "codes": [
           "payload-not-ijson"
+        ],
+        "alsoCarries": [
+          "observed-set-mismatch"
         ]
       }
     },
@@ -992,6 +1064,9 @@
         "verdict": "invalid",
         "codes": [
           "run-binding-mismatch"
+        ],
+        "alsoCarries": [
+          "sealed-record-absent"
         ]
       }
     },
@@ -1021,6 +1096,9 @@
         "verdict": "invalid",
         "codes": [
           "run-binding-mismatch"
+        ],
+        "alsoCarries": [
+          "sealed-record-absent"
         ]
       }
     },
@@ -1252,6 +1330,9 @@
         "verdict": "invalid",
         "codes": [
           "fail-closed-substrate-row"
+        ],
+        "alsoCarries": [
+          "interception-record-orphaned"
         ]
       }
     },
@@ -1282,6 +1363,9 @@
         "verdict": "invalid",
         "codes": [
           "statement-malformed"
+        ],
+        "alsoCarries": [
+          "malformed-missing-actual-layer"
         ]
       }
     },
@@ -1424,6 +1508,9 @@
         "verdict": "invalid",
         "codes": [
           "fail-closed-substrate-row"
+        ],
+        "alsoCarries": [
+          "interception-record-orphaned"
         ]
       }
     },
@@ -2103,6 +2190,9 @@
         "verdict": "invalid",
         "codes": [
           "payload-not-ijson"
+        ],
+        "alsoCarries": [
+          "observed-set-mismatch"
         ]
       }
     },
@@ -2117,6 +2207,9 @@
         "verdict": "invalid",
         "codes": [
           "payload-not-ijson"
+        ],
+        "alsoCarries": [
+          "observed-set-mismatch"
         ]
       }
     },
@@ -2131,6 +2224,9 @@
         "verdict": "invalid",
         "codes": [
           "payload-not-ijson"
+        ],
+        "alsoCarries": [
+          "observed-set-mismatch"
         ]
       }
     },
@@ -2145,6 +2241,9 @@
         "verdict": "invalid",
         "codes": [
           "payload-not-ijson"
+        ],
+        "alsoCarries": [
+          "observed-set-mismatch"
         ]
       }
     },
@@ -2173,6 +2272,9 @@
         "verdict": "invalid",
         "codes": [
           "payload-not-ijson"
+        ],
+        "alsoCarries": [
+          "observed-set-mismatch"
         ]
       }
     },
@@ -2243,6 +2345,9 @@
         "verdict": "invalid",
         "codes": [
           "record-undecodable"
+        ],
+        "alsoCarries": [
+          "observed-set-mismatch"
         ]
       }
     },
@@ -2482,6 +2587,9 @@
         "verdict": "invalid",
         "codes": [
           "run-binding-mismatch"
+        ],
+        "alsoCarries": [
+          "sealed-record-absent"
         ]
       }
     },
@@ -2497,6 +2605,9 @@
         "verdict": "invalid",
         "codes": [
           "run-binding-mismatch"
+        ],
+        "alsoCarries": [
+          "sealed-record-absent"
         ]
       }
     },
@@ -2512,6 +2623,432 @@
         "verdict": "invalid",
         "codes": [
           "run-binding-mismatch"
+        ],
+        "alsoCarries": [
+          "sealed-record-absent"
+        ]
+      }
+    },
+    {
+      "id": "bad-950-clean-row-refs-interception",
+      "kind": "reject",
+      "file": "reject/bad-950-clean-row-refs-interception.json",
+      "conditions": [
+        "aee-c-94"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "clean-row-contradicted"
+        ]
+      }
+    },
+    {
+      "id": "bad-951-interception-no-caught-row",
+      "kind": "reject",
+      "file": "reject/bad-951-interception-no-caught-row.json",
+      "conditions": [
+        "aee-c-95"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "caught-row-uncovered",
+          "interception-record-orphaned"
+        ]
+      }
+    },
+    {
+      "id": "bad-952-substrate-row-no-seal",
+      "kind": "reject",
+      "file": "reject/bad-952-substrate-row-no-seal.json",
+      "conditions": [
+        "aee-c-96"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-record-absent"
+        ]
+      }
+    },
+    {
+      "id": "bad-953-observed-set-drops-a-record",
+      "kind": "reject",
+      "file": "reject/bad-953-observed-set-drops-a-record.json",
+      "conditions": [
+        "aee-c-97"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "observed-set-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-954-observed-set-gains-a-record",
+      "kind": "reject",
+      "file": "reject/bad-954-observed-set-gains-a-record.json",
+      "conditions": [
+        "aee-c-97"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "observed-set-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-955-seal-names-clean-attack",
+      "kind": "reject",
+      "file": "reject/bad-955-seal-names-clean-attack.json",
+      "conditions": [
+        "aee-c-98"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "observed-attack-uncaught"
+        ]
+      }
+    },
+    {
+      "id": "bad-956-seal-names-rowless-attack",
+      "kind": "reject",
+      "file": "reject/bad-956-seal-names-rowless-attack.json",
+      "conditions": [
+        "aee-c-98"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "coverage-incomplete",
+          "observed-attack-uncaught"
+        ]
+      }
+    },
+    {
+      "id": "bad-957-assessed-exceeds-declaration",
+      "kind": "reject",
+      "file": "reject/bad-957-assessed-exceeds-declaration.json",
+      "conditions": [
+        "aee-c-99"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "assessed-set-exceeds-declaration"
+        ]
+      }
+    },
+    {
+      "id": "bad-958-pinned-row-resolves-no-interception",
+      "kind": "reject",
+      "file": "reject/bad-958-pinned-row-resolves-no-interception.json",
+      "conditions": [
+        "aee-c-100"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "caught-row-uncovered",
+          "attribution-pinned-recordless"
+        ]
+      }
+    },
+    {
+      "id": "bad-959-pinned-without-expectation",
+      "kind": "reject",
+      "file": "reject/bad-959-pinned-without-expectation.json",
+      "conditions": [
+        "aee-c-101"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "attribution-unpinnable"
+        ]
+      }
+    },
+    {
+      "id": "bad-960-pinned-commitment-unmatched",
+      "kind": "reject",
+      "file": "reject/bad-960-pinned-commitment-unmatched.json",
+      "conditions": [
+        "aee-c-102"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "attribution-pin-unmatched"
+        ]
+      }
+    },
+    {
+      "id": "bad-961-expected-payloads-unknown-attack",
+      "kind": "reject",
+      "file": "reject/bad-961-expected-payloads-unknown-attack.json",
+      "conditions": [
+        "aee-c-103"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "manifest-expected-payloads-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-962-expected-payloads-unsorted",
+      "kind": "reject",
+      "file": "reject/bad-962-expected-payloads-unsorted.json",
+      "conditions": [
+        "aee-c-103"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "manifest-expected-payloads-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-963-expected-payloads-not-hex",
+      "kind": "reject",
+      "file": "reject/bad-963-expected-payloads-not-hex.json",
+      "conditions": [
+        "aee-c-103"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "manifest-expected-payloads-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-964-expected-payloads-empty-array",
+      "kind": "reject",
+      "file": "reject/bad-964-expected-payloads-empty-array.json",
+      "conditions": [
+        "aee-c-103"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "manifest-expected-payloads-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-965-commitment-not-hex",
+      "kind": "reject",
+      "file": "reject/bad-965-commitment-not-hex.json",
+      "conditions": [
+        "aee-c-104"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "payload-commitment-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-966-commitment-empty-array",
+      "kind": "reject",
+      "file": "reject/bad-966-commitment-empty-array.json",
+      "conditions": [
+        "aee-c-104"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "payload-commitment-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-967-commitment-absent",
+      "kind": "reject",
+      "file": "reject/bad-967-commitment-absent.json",
+      "conditions": [
+        "aee-c-104"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "payload-missing-reserved"
+        ]
+      }
+    },
+    {
+      "id": "bad-968-substrate-row-missing-attribution",
+      "kind": "reject",
+      "file": "reject/bad-968-substrate-row-missing-attribution.json",
+      "conditions": [
+        "aee-c-105"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "fail-closed-substrate-row"
+        ]
+      }
+    },
+    {
+      "id": "bad-969-substrate-row-attribution-oov",
+      "kind": "reject",
+      "file": "reject/bad-969-substrate-row-attribution-oov.json",
+      "conditions": [
+        "aee-c-105"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "fail-closed-substrate-row"
+        ]
+      }
+    },
+    {
+      "id": "bad-970-artifact-row-missing-attribution",
+      "kind": "reject",
+      "file": "reject/bad-970-artifact-row-missing-attribution.json",
+      "conditions": [
+        "aee-c-105"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "result-recompute-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-971-artifact-row-attribution-oov",
+      "kind": "reject",
+      "file": "reject/bad-971-artifact-row-attribution-oov.json",
+      "conditions": [
+        "aee-c-105"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "result-recompute-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-972-second-interception-unresolved",
+      "kind": "reject",
+      "file": "reject/bad-972-second-interception-unresolved.json",
+      "conditions": [
+        "aee-c-95"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "interception-record-orphaned"
+        ]
+      }
+    },
+    {
+      "id": "bad-973-pinned-clean-row",
+      "kind": "reject",
+      "file": "reject/bad-973-pinned-clean-row.json",
+      "conditions": [
+        "aee-c-100"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "attribution-pinned-recordless"
+        ]
+      }
+    },
+    {
+      "id": "bad-974-sealed-missing-observedset",
+      "kind": "reject",
+      "file": "reject/bad-974-sealed-missing-observedset.json",
+      "conditions": [
+        "aee-c-97"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-975-sealed-missing-observedattacks",
+      "kind": "reject",
+      "file": "reject/bad-975-sealed-missing-observedattacks.json",
+      "conditions": [
+        "aee-c-98"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-976-sealed-observedattacks-unknown",
+      "kind": "reject",
+      "file": "reject/bad-976-sealed-observedattacks-unknown.json",
+      "conditions": [
+        "aee-c-98"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-977-arming-missing-assessedattacks",
+      "kind": "reject",
+      "file": "reject/bad-977-arming-missing-assessedattacks.json",
+      "conditions": [
+        "aee-c-99"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-979-artifact-only-interception-orphaned",
+      "kind": "reject",
+      "file": "reject/bad-979-artifact-only-interception-orphaned.json",
+      "conditions": [
+        "aee-c-95"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "interception-record-orphaned"
+        ]
+      }
+    },
+    {
+      "id": "bad-978-arming-assessedattacks-unsorted",
+      "kind": "reject",
+      "file": "reject/bad-978-arming-assessedattacks-unsorted.json",
+      "conditions": [
+        "aee-c-99"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
         ]
       }
     },

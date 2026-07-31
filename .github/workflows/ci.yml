@@ -189,6 +189,28 @@ jobs:
       # produces fails on the push that adds it.
       - name: every generated file regenerates byte-identically
         run: python3 scripts/regenerability-gate.py
+      # The rail's own oracle, which is a different question from the corpus.
+      # A vector states what the rail must decide about bytes on disk; the
+      # self-test states what the rail must decide about a statement it builds
+      # itself, and it reaches two layers no vector can: the hand-rolled RFC
+      # 8032 signer, checked against a value the cryptography library produced,
+      # and the UTF-16 comparator, whose order stops being expressible once the
+      # BMP-only profile is enforced.
+      #
+      # It shipped with the harness and nothing ran it. Held that way it decayed
+      # exactly as an uncalled capability decays: four members the rail now
+      # requires were missing from the statement it builds, so its base was
+      # invalid, five checks were red, and one of the checks still reporting
+      # PASS was satisfied by a code the invalid base emitted anyway rather than
+      # by the mutation it names. It runs before the corpus replay because a
+      # rail that cannot verify its own statement should be reported as a rail
+      # fault rather than as a corpus-wide replay failure.
+      #
+      # The step name carries no check count on purpose. The self-test prints
+      # its own total on every run, which is the one derived source; a number
+      # typed here would be a copy of it that nothing invalidates.
+      - name: the reference rail clears its own oracle
+        run: python3 packaging/run_vectors.py --self-test
       - name: replay every vector on the Python rail (must be 221/221)
         run: python3 packaging/run_vectors.py
 

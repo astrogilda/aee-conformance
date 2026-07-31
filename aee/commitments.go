@@ -387,7 +387,7 @@ func attributionBindings(p *Predicate, states []recordState, kinds []string) []C
 		if len(expected) == 0 {
 			return []Code{CodeAttributionUnpinnable}
 		}
-		if code := pinMatches(p, row, states, kinds, expected); code != "" {
+		if code := pinMatches(row, states, kinds, expected); code != "" {
 			return []Code{code}
 		}
 	}
@@ -409,7 +409,7 @@ func expectedFor(p *Predicate, attackID string) []string {
 // pinMatches checks the third part: every interception record the row resolves
 // carries in its aeePayloadCommitment at least one value from the manifest's
 // entry for the row's attack.
-func pinMatches(p *Predicate, row *Row, states []recordState, kinds []string, expected []string) Code {
+func pinMatches(row *Row, states []recordState, kinds []string, expected []string) Code {
 	want := stringSet(expected)
 	for _, idx := range row.Refs {
 		if idx < 0 || idx >= len(kinds) || kinds[idx] != KindInterception {

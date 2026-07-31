@@ -274,13 +274,6 @@
         "bad-973-pinned-clean-row"
       ]
     },
-    "commitments.go::attributionBindings::IF_OFF::8169f16b705c": {
-      "class": "KILLED",
-      "snippet": "if code := pinMatches(p, row, states, kinds, expected); code != \"\" { return []Code{code} }",
-      "killers": [
-        "bad-960-pinned-commitment-unmatched"
-      ]
-    },
     "commitments.go::attributionBindings::IF_OFF::9ceb288da940": {
       "class": "KILLED",
       "snippet": "if row.Attribution == nil || *row.Attribution != AttributionPinned { continue }",
@@ -343,6 +336,13 @@
         "ok-049-seal-names-caught-attack",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
+      ]
+    },
+    "commitments.go::attributionBindings::IF_OFF::b0fa48903492": {
+      "class": "KILLED",
+      "snippet": "if code := pinMatches(row, states, kinds, expected); code != \"\" { return []Code{code} }",
+      "killers": [
+        "bad-960-pinned-commitment-unmatched"
       ]
     },
     "commitments.go::cleanRowsContradicted::IF_OFF::3300e7c56811": {

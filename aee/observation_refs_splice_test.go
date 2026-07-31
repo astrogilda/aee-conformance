@@ -3,39 +3,49 @@ package aee_test
 // Cross-row observationRefs splice: exchanging the record ASSIGNMENT between
 // two rows while leaving the record SET untouched.
 //
-// Every other mutation in this suite moves a byte some gate reads. This one
-// moves the one field that binds a row to its evidence, and no gate reads the
-// binding: L664-671 of the predicate states the rule as a producer obligation
-// ("A producer MUST NOT reference a record from a row whose attack the
-// record's committed payload does not evidence") and then states, in the same
-// sentence, that no validity requirement, recompute input or tier evaluation
-// reads it, so a conforming verifier "neither can nor may invent an evidencing
-// heuristic for shared references". L913 spells out the consequence: no record
-// names its attack, because a substrate signs at observation time and before
-// attribution.
+// This file was written to record an expected NULL, and the null was real: no
+// gate read the assignment, so the permutation left the rail's whole report
+// byte-identical. It said so in the way a measurement should be said -- pinned
+// rather than assumed, with a positive control beside it -- and it named the
+// exact claim a future revision would falsify, so that a rail which started
+// authenticating the assignment would turn this file red and bring whoever
+// wrote that rule here to say so instead of leaving the record stale.
 //
-// The measurement below is therefore an expected NULL, and it is pinned rather
-// than assumed for two reasons. A null result nothing asserts is
-// indistinguishable from a check that was never run; and the null is the exact
-// claim a future revision would falsify, so a rail that starts authenticating
-// the assignment turns this file red and brings whoever wrote that rule here to
-// say so, instead of leaving the record stale.
+// A revision falsified it, in one direction and not the other, and the file now
+// measures both directions rather than one.
 //
-// What makes the null trustworthy is TestCaughtToCleanSpliceIsRejected, the
-// positive control. It applies the SAME operator to a different row pair and
-// the rail kills it. The two together locate the boundary precisely: the rail
-// authenticates a row's coverage CLASS -- that a caught row resolves some
-// interception, that a clean row resolves an arming and a sealed record -- and
-// never the ASSIGNMENT within a class. A consumer policy that discriminates
-// between attacks by severity, class, regulatory mapping or attack identifier
-// is reading a mapping the producer may permute at will, with every signature,
-// count, root and validity rule still satisfied.
+// Where the corpus declares nothing, the null STANDS. On a row declaring
+// `paired` the obligation is still exactly what it was, a producer obligation
+// outside every gate ("a conforming verifier neither can nor may invent an
+// evidencing heuristic in its place"), and no record names its attack, because
+// a substrate signs an interception at observation time and before attribution.
+// TestCrossRowObservationRefsSpliceIsInvisible is that measurement, unchanged
+// in what it asserts.
+//
+// Where the corpus declares an expectation, the null FALLS.
+// `corpus.manifest.expectedPayloads` names, per attack, the commitment its
+// interception is expected to carry; `aeePayloadCommitment` carries what the
+// record committed to; and a row declaring `attribution: pinned` obliges the
+// two to meet. Exchanging the assignment then points each row at a record
+// carrying the other attack's value, and the rail kills it.
+// TestPinnedAttributionKillsTheSplice is that measurement, and it is new.
+//
+// The boundary the three cases locate together is therefore no longer "class,
+// never assignment". It is: the rail authenticates a row's coverage CLASS
+// always, and the ASSIGNMENT within a class exactly where the corpus was
+// willing to predict what the substrate would commit to. A consumer policy
+// that discriminates between attacks -- by severity, class, regulatory mapping
+// or attack identifier -- is reading a mapping the producer may still permute
+// at will on every attack the pinned corpus declares no expectation for, and
+// the statement says which rows those are, in the `attribution` member, on the
+// wire.
 
 import (
 	"crypto/ed25519"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"testing"
 
 	"github.com/astrogilda/aee-conformance/aee"
@@ -196,9 +206,14 @@ func (e spliceEnv) assemble(t *testing.T, rows []any, records []map[string]any, 
 }
 
 func caughtRow(attackID string, refs []any) map[string]any {
+	return caughtRowAttributed(attackID, refs, aee.AttributionPaired)
+}
+
+func caughtRowAttributed(attackID string, refs []any, attribution string) map[string]any {
 	return map[string]any{
 		"actualLayer":         "policy.egress_sinkhole",
 		"attackId":            attackID,
+		"attribution":         attribution,
 		"basis":               "substrate",
 		"containmentObserved": "egress_captured",
 		"method":              "intercepted",
@@ -210,11 +225,44 @@ func cleanRow(attackID string, refs []any) map[string]any {
 	return map[string]any{
 		"actualLayer":         "none",
 		"attackId":            attackID,
+		"attribution":         aee.AttributionPaired,
 		"basis":               "substrate",
 		"containmentObserved": "no_egress",
 		"method":              "intercepted",
 		"observationRefs":     refs,
 	}
+}
+
+// spliceSealed builds the run-end seal 0.7 requires on any statement carrying a
+// basis: substrate row, committing to the interception and examination records
+// passed to it.
+func spliceSealed(t *testing.T, e spliceEnv, observed []map[string]any) map[string]any {
+	t.Helper()
+	seen := map[string]bool{}
+	leaves := []string{}
+	for _, rec := range observed {
+		payload, err := base64.StdEncoding.DecodeString(rec["payload"].(string))
+		if err != nil {
+			t.Fatal(err)
+		}
+		leaf := aee.LeafHash(aee.PAE(rec["payloadType"].(string), payload))
+		hexLeaf := fmt.Sprintf("%x", leaf[:])
+		if !seen[hexLeaf] {
+			seen[hexLeaf] = true
+			leaves = append(leaves, hexLeaf)
+		}
+	}
+	sort.Strings(leaves)
+	return signSpliceRecord(t, map[string]any{
+		"aeeDropCount":       0,
+		"aeeKind":            "sealed",
+		"aeeMethod":          "intercepted",
+		"aeeObservedAttacks": []any{},
+		"aeeObservedSet":     spliceDigest(t, leaves),
+		"aeePostureDigest":   e.postureDigest(t),
+		"aeeRunBinding":      e.binding,
+		"aeeStillArmed":      true,
+	})
 }
 
 // twoCaughtRows builds a statement whose two rows are IDENTICAL in every member
@@ -228,23 +276,62 @@ func twoCaughtRows(t *testing.T) ([]byte, spliceEnv) {
 		"XA": []any{"XA-EXAMPLE-1"},
 		"XB": []any{"XB-EXAMPLE-1"},
 	}})
-	interception := func(note string) map[string]any {
-		return signSpliceRecord(t, map[string]any{
-			"aeeKind":       "interception",
-			"aeeMethod":     "intercepted",
-			"aeeRunBinding": e.binding,
-			"producerNote":  note,
-		})
-	}
 	records := []map[string]any{
-		interception("example interception commitment A"),
-		interception("example interception commitment B"),
+		spliceInterception(t, e, "A"),
+		spliceInterception(t, e, "B"),
 	}
+	records = append(records, spliceSealed(t, e, records))
 	rows := []any{
 		caughtRow("XA-EXAMPLE-1", []any{0}),
 		caughtRow("XB-EXAMPLE-1", []any{1}),
 	}
 	return e.assemble(t, rows, records, []any{"XA", "XB"}), e
+}
+
+// spliceCommitment is the value the substrate commits to for one observation,
+// derived from a committed one-liner exactly as every other digest here is.
+func spliceCommitment(t *testing.T, which string) string {
+	t.Helper()
+	return aee.SHA256Hex([]byte("example-intercepted-bytes/" + which))
+}
+
+func spliceInterception(t *testing.T, e spliceEnv, which string) map[string]any {
+	t.Helper()
+	return signSpliceRecord(t, map[string]any{
+		"aeeKind":              "interception",
+		"aeeMethod":            "intercepted",
+		"aeePayloadCommitment": []any{spliceCommitment(t, which)},
+		"aeeRunBinding":        e.binding,
+		"producerNote":         "example interception commitment " + which,
+	})
+}
+
+// twoPinnedCaughtRows is the same two-row shape with the ONE difference 0.7
+// adds: the corpus declares, per attack, the commitment its interception is
+// expected to carry, each record carries its own attack's value, and each row
+// declares the stronger attribution rather than the floor.
+func twoPinnedCaughtRows(t *testing.T) []byte {
+	t.Helper()
+	e := newSpliceEnv(t, map[string]any{
+		"classes": map[string]any{
+			"XA": []any{"XA-EXAMPLE-1"},
+			"XB": []any{"XB-EXAMPLE-1"},
+		},
+		"expectedPayloads": map[string]any{
+			"XA-EXAMPLE-1": []any{spliceCommitment(t, "A")},
+			"XB-EXAMPLE-1": []any{spliceCommitment(t, "B")},
+		},
+	})
+	records := []map[string]any{
+		spliceInterception(t, e, "A"),
+		spliceInterception(t, e, "B"),
+	}
+	records = append(records, spliceSealed(t, e, records))
+	rows := []any{
+		caughtRowAttributed("XA-EXAMPLE-1", []any{0}, aee.AttributionPinned),
+		caughtRowAttributed("XB-EXAMPLE-1", []any{1}, aee.AttributionPinned),
+	}
+	return e.assemble(t, rows, records, []any{"XA", "XB"})
 }
 
 // caughtAndCleanRows builds the control base: one caught row resolving an
@@ -256,29 +343,19 @@ func caughtAndCleanRows(t *testing.T) []byte {
 	e := newSpliceEnv(t, map[string]any{"classes": map[string]any{
 		"XA": []any{"XA-EXAMPLE-1", "XA-EXAMPLE-2"},
 	}})
+	interception := spliceInterception(t, e, "A")
 	records := []map[string]any{
+		interception,
 		signSpliceRecord(t, map[string]any{
-			"aeeKind":       "interception",
-			"aeeMethod":     "intercepted",
-			"aeeRunBinding": e.binding,
-			"producerNote":  "example interception commitment",
+			"aeeAssessedAttacks": []any{"XA-EXAMPLE-1", "XA-EXAMPLE-2"},
+			"aeeKind":            "arming",
+			"aeeMethod":          "intercepted",
+			"aeePostureDigest":   e.postureDigest(t),
+			"aeeRunBinding":      e.binding,
+			"armedAt":            aeetest.ArmedAt,
+			"producerNote":       "example arming record",
 		}),
-		signSpliceRecord(t, map[string]any{
-			"aeeKind":          "arming",
-			"aeeMethod":        "intercepted",
-			"aeePostureDigest": e.postureDigest(t),
-			"aeeRunBinding":    e.binding,
-			"armedAt":          aeetest.ArmedAt,
-			"producerNote":     "example arming record",
-		}),
-		signSpliceRecord(t, map[string]any{
-			"aeeDropCount":     0,
-			"aeeKind":          "sealed",
-			"aeeMethod":        "intercepted",
-			"aeePostureDigest": e.postureDigest(t),
-			"aeeRunBinding":    e.binding,
-			"aeeStillArmed":    true,
-		}),
+		spliceSealed(t, e, []map[string]any{interception}),
 	}
 	rows := []any{
 		caughtRow("XA-EXAMPLE-1", []any{0}),
@@ -405,4 +482,43 @@ func TestCaughtToCleanSpliceIsRejected(t *testing.T) {
 
 	r := aee.Verify(mutated, pinnedPolicy())
 	requireInvalid(t, r, aee.CodeCaughtRowUncovered)
+}
+
+// TestPinnedAttributionKillsTheSplice is what the version above this one
+// bought, measured with the SAME operator on the SAME two-caught-row shape that
+// the null case uses. The only difference is that the corpus declares, per
+// attack, the commitment that attack's interception is expected to carry, and
+// each row declares the stronger attribution rather than the floor.
+//
+// The unspliced statement is valid: every row resolves an interception whose
+// committed value the corpus predicted for that row's attack. Exchange the
+// assignment and each row resolves the other attack's record, whose commitment
+// the corpus predicted for a different attack, so the check the row's own
+// declaration invited now fails.
+//
+// It is worth being exact about what this does and does not close, because the
+// member is a declaration and not a detector. A producer that declares `paired`
+// on both rows emits a statement this rail cannot distinguish from the null
+// case, and violates nothing: `paired` is a claim an honest producer with a
+// weaker binding makes truthfully. What the format does is put the weakness on
+// the wire where a policy can read it, which is why the closure against that
+// producer is a consumer obligation and not a rule here.
+func TestPinnedAttributionKillsTheSplice(t *testing.T) {
+	base := twoPinnedCaughtRows(t)
+	requireValid(t, aee.Verify(base, pinnedPolicy()))
+
+	mutated := splice(t, base, 0, 1)
+	requireSpliceMoved(t, base, mutated, 0, 1)
+
+	for name, policy := range map[string]*aee.ConsumerPolicy{
+		"pinned key": pinnedPolicy(),
+		"no key":     nil,
+	} {
+		t.Run(name, func(t *testing.T) {
+			// Byte-pure: the assignment check reads the corpus and the record
+			// payloads and no key at all, so it kills the splice with a pinned
+			// consumer policy and without one alike.
+			requireInvalid(t, aee.Verify(mutated, policy), aee.CodeAttributionPinUnmatched)
+		})
+	}
 }

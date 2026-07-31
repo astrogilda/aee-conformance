@@ -6,9 +6,9 @@ vectors/coverage-unforced.json. Do not hand-edit; run the gate to regenerate. CI
 # AEE v0.6 requirement-coverage matrix
 
 Every normative requirement, classified by whether a conformance vector forces it. The point is one
-honest number: of 26 tracked requirements, **20 are forced by a vector**, 1 are
+honest number: of 27 tracked requirements, **20 are forced by a vector**, 1 are
 forcible but not yet vectored, 5 cannot be pinned by a self-contained corpus at all, and
-0 are placed outside every gate by the specification itself. The determinacy claim rests only
+1 are placed outside every gate by the specification itself. The determinacy claim rests only
 on the forced rows; the other three classes are stated so a reader knows exactly where "two
 implementations agree" is untested rather than confirmed.
 
@@ -19,8 +19,8 @@ implementations agree" is untested rather than confirmed.
 | forced-by-vector | 20 | a registry decision locked by a live forcing vector |
 | forcible-but-unforced | 1 | a vector could pin it; none written yet |
 | consumer-policy-unvectorable | 5 | cross-attestation or trust-relative |
-| producer-obligation-ungated | 0 | outside every gate by specification |
-| **total tracked** | **26** |  |
+| producer-obligation-ungated | 1 | outside every gate by specification |
+| **total tracked** | **27** |  |
 
 ## Forced by a vector
 
@@ -67,3 +67,4 @@ implementations agree" is untested rather than confirmed.
 
 | requirement | spec anchor | why no verifier may check it |
 |---|---|---|
+| U7 The row-to-record assignment: a producer MUST NOT reference a record from a row whose attack the record's committed payload does not evidence, and no conforming verifier may invent an evidencing heuristic for a shared reference | L667-671, L910-914 | The statement carries no ground truth to check the assignment against: no record names its attack, because a substrate signs at observation time and before attribution, so the honest assignment and any permutation of it differ only in the field that declares the mapping. Measured rather than argued -- exchanging observationRefs between two caught rows of the same coverage class leaves the rail's whole report byte-identical, under a pinned key policy and under none, while the same operator applied across coverage classes is killed with caught-row-uncovered. The pair locates the boundary: the rail authenticates a row's coverage CLASS and never its ASSIGNMENT. The consequence belongs beside the rule, because it is the reason this cell is not a footnote: any consumer policy that discriminates between attacks, by severity or class or regulatory mapping or attack identifier, is reading a mapping the producer may permute at will with every signature, count, root and validity rule still satisfied. Filed apart from the unvectorable class on purpose. A vector would have to separate a conforming rail from one that reads the assignment, and no such rail may exist, so a vector here would be a widened expectation wearing the clothes of a forcing one, and a gap list that called this unminted would send the next person to write something that cannot work. |

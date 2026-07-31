@@ -345,8 +345,11 @@ func TestPayloadLoneSurrogateIsNotIJSON(t *testing.T) {
 	if err := json.Unmarshal(pred["observationRecords"], &records); err != nil {
 		t.Fatal(err)
 	}
-	if len(records) != 1 {
-		t.Fatalf("expected a single-record statement, got %d", len(records))
+	// The caught shape carries an interception and the seal that 0.7 makes
+	// unconditional. The interception is the record under test and it is
+	// first; the seal is rerooted over unchanged.
+	if len(records) != 2 {
+		t.Fatalf("expected the interception and the seal, got %d record(s)", len(records))
 	}
 
 	// "zz" sorts last, so the payload stays canonically ordered and the lone
@@ -357,8 +360,14 @@ func TestPayloadLoneSurrogateIsNotIJSON(t *testing.T) {
 	}
 	payload := append(bytes.TrimSuffix(old, []byte("}")), []byte(`,"zz":"\ud800"}`)...)
 
-	leaf := aee.LeafHash(aee.PAE(records[0].PayloadType, payload))
-	root := aee.MerkleRoot([][32]byte{leaf})
+	other, err := base64.StdEncoding.DecodeString(records[1].Payload)
+	if err != nil {
+		t.Fatal(err)
+	}
+	root := aee.MerkleRoot([][32]byte{
+		aee.LeafHash(aee.PAE(records[0].PayloadType, payload)),
+		aee.LeafHash(aee.PAE(records[1].PayloadType, other)),
+	})
 	mutated := bytes.Replace(statement, []byte(records[0].Payload),
 		[]byte(base64.StdEncoding.EncodeToString(payload)), 1)
 	mutated = bytes.Replace(mutated, []byte(mustBatchRoot(t, pred)),

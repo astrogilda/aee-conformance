@@ -25,8 +25,51 @@ func pred(rows []Row, outOfScope map[string]string) *Predicate {
 	}
 }
 
+// row builds a row carrying the WEAKEST truthful attribution. The member is
+// required from 0.7 and fail-closes exactly as basis and method do, so a helper
+// that omitted it would make every case below read `fail` for a reason none of
+// them is about. Attribution has its own cases in TestRecomputeAttributionArm.
 func row(label, basis, method string) Row {
-	return Row{ContainmentObserved: label, Basis: s(basis), Method: s(method)}
+	return Row{
+		ContainmentObserved: label,
+		Basis:               s(basis),
+		Method:              s(method),
+		Attribution:         s(AttributionPaired),
+	}
+}
+
+// TestRecomputeAttributionArm pins where attribution enters the recompute, and
+// where it does not. It enters through the fail-closed arm every required row
+// member with a closed vocabulary shares, and NOWHERE else: a row declaring
+// `paired` is not a weaker result, it is a weaker binding between the row and
+// the records that cover it, and pricing that in the token would charge an
+// honest producer for a layer whose committed value no corpus can predict.
+func TestRecomputeAttributionArm(t *testing.T) {
+	clean := func(attribution *string) []Row {
+		return []Row{{
+			ContainmentObserved: "no_egress",
+			Basis:               s(BasisSubstrate),
+			Method:              s(MethodIntercepted),
+			Attribution:         attribution,
+		}}
+	}
+	cases := []struct {
+		name        string
+		attribution *string
+		want        string
+	}{
+		{"paired reaches the top", s(AttributionPaired), ResultPass},
+		{"pinned reaches the same top", s(AttributionPinned), ResultPass},
+		{"absent fail-closes", nil, ResultFail},
+		{"out of vocabulary fail-closes", s("example_strong"), ResultFail},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := Recompute(pred(clean(tc.attribution), nil)); got != tc.want {
+				t.Fatalf("Recompute = %q, want %q", got, tc.want)
+			}
+		})
+	}
 }
 
 func TestRecomputeIndirectCondition(t *testing.T) {

@@ -1506,7 +1506,7 @@ vec("bad-703-arming-posture-mismatch", "ok-002",
      "clean-row-uncovered"],
     _rec_mut(P_clean, 0,
              lambda o: {**o, "aeePostureDigest": D["other-posture"]}),
-    compound=True, spec="L1266-1270; L1291-1558",
+    compound=True, spec="L1266-1270; L1291-1296",
     note="inherently compound: the sealed record must equal BOTH the "
          "arming record's and the pinned digest, so one arming edit "
          "un-covers the sealed record too")
@@ -1534,19 +1534,19 @@ vec("bad-707-sealed-stillarmed-false", "ok-002",
     ["re-sign-record", "recompute-batch-root"], [65],
     ["sealed-covers-nothing"],
     _seal_mut(P_clean, 1, lambda o: {**o, "aeeStillArmed": False}),
-    spec="L1291-1558")
+    spec="L1291-1296")
 vec("bad-708-sealed-drops-no-bound", "ok-002",
     "sealed aeeDropCount: 3 with no aeeDropBound declared",
     ["re-sign-record", "recompute-batch-root"], [65],
     ["sealed-covers-nothing"],
     _seal_mut(P_clean, 1, lambda o: {**o, "aeeDropCount": 3}),
-    spec="L1291-1558")
+    spec="L1291-1296")
 vec("bad-709-sealed-drops-exceed-bound", "ok-003",
     "sealed aeeDropCount: 6 exceeding the declared aeeDropBound: 5",
     ["re-sign-record", "recompute-batch-root"], [65],
     ["sealed-covers-nothing"],
     _seal_mut(P_clean_bounded, 1, lambda o: {**o, "aeeDropCount": 6}),
-    spec="L1291-1558")
+    spec="L1291-1296")
 vec("bad-710-sealed-posture-mismatch", "ok-002",
     "sealed aeePostureDigest edited (differs from the arming record's AND "
     "the pinned digest, which the arming constraint makes equivalent)",
@@ -1554,7 +1554,7 @@ vec("bad-710-sealed-posture-mismatch", "ok-002",
     ["sealed-covers-nothing"],
     _seal_mut(P_clean, 1,
               lambda o: {**o, "aeePostureDigest": D["other-posture"]}),
-    compound=True, spec="L1291-1558",
+    compound=True, spec="L1291-1296",
     note="both posture sub-clauses fire together; they are distinguishable "
          "only in already-invalid statements")
 vec("bad-712-examination-method-intercepted", "ok-006",
@@ -1610,7 +1610,7 @@ vec("bad-716-sealed-missing-posture", "ok-002",
     _seal_mut(P_clean, 1,
               lambda o: {k: v for k, v in o.items()
                          if k != "aeePostureDigest"}),
-    spec="L1273-1278; L1291-1558")
+    spec="L1273-1278; L1291-1296")
 vec("bad-717-arming-missing-posture", "ok-002",
     "drop aeePostureDigest from the arming payload",
     ["re-sign-record", "recompute-batch-root"], [63],
@@ -3642,7 +3642,7 @@ vec("bad-901-sealed-negative-dropcount", "ok-003",
     "sealed aeeDropCount: -1 inside a declared aeeDropBound: 5",
     ["re-sign-record", "recompute-batch-root"], [65],
     ["sealed-covers-nothing"], _b901,
-    spec="L1291-1558",
+    spec="L1291-1296",
     note="a count of dropped observations below zero is not a count. The "
          "corpus tested the bound from above (bad-709) and never from below, "
          "so a rail comparing only against the bound accepted it")
@@ -3669,7 +3669,7 @@ vec("bad-902-sealed-posture-ne-arming", "ok-002",
     "referenced by the clean row alongside the valid arming and sealed pair",
     ["recompute-batch-root"], [65],
     ["sealed-covers-nothing"], _b902,
-    spec="L1291-1558",
+    spec="L1291-1296",
     note="the sealed-vs-arming half of the posture equality, which bad-710 "
          "cannot separate. A rule can go unforced because the corpus SHAPE "
          "cannot express its precondition rather than because nobody wrote "
@@ -4092,7 +4092,7 @@ COND = {
     62: ("L229-237", "binding is anti-splice"),
     63: ("L1266-1270", "arming record kind constraints"),
     64: ("L1273-1278", "sealed record required members"),
-    65: ("L1291-1558", "sealed covering conditions"),
+    65: ("L1291-1296", "sealed covering conditions"),
     66: ("L1279-1281", "examination signed aeeMethod reconstructed"),
     68: ("L1139-1140", "each referenced record independently satisfies its "
                      "class constraints"),

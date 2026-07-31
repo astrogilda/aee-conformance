@@ -101,7 +101,7 @@ jobs:
       - name: sync toolchain
         run: uv sync --extra dev --extra generators
       - name: mypy --strict
-        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/consumer-lag-gate.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py
+        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/consumer-lag-gate.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py scripts/count-gate.py scripts/count-gate-test.py
       - name: ruff
         run: uv run ruff check packaging vectors scripts
       # The other half of the accepted-complexity gate. It runs here rather than
@@ -166,6 +166,19 @@ jobs:
       # had no row behind it at all.
       - name: consumers carry the corpus this repository publishes, and the report says so
         run: python3 scripts/consumer-lag-gate.py --check
+      # A count is a derived fact with exactly one source, and every copy of it
+      # in prose is a cache nothing invalidates. The copies went stale at
+      # different rates until two documents here disagreed about the size of the
+      # same corpus: a badge, a build note and a published crosswalk were each
+      # wrong by a different amount, and the crosswalk cited the manifest it
+      # disagreed with. This gate checks every published count against its
+      # source, and then takes a census: a count-shaped integer that nothing
+      # declares fails, so the next one typed into a new paragraph fails on the
+      # push that adds it rather than on the revision that outdates it.
+      - name: every published count is derived, and no new one is hand-written
+        run: |
+          python3 scripts/count-gate.py
+          python3 scripts/count-gate-test.py
       - name: replay every vector on the Python rail (must be 186/186)
         run: python3 packaging/run_vectors.py
 

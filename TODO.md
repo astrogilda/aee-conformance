@@ -59,6 +59,25 @@ proposal out of draft.
 
 ## Known gaps in the gates
 
+- [ ] **The corpus cannot be regenerated from the sources it declares.** `vectors/gen_manifest.py`
+  refuses outright: seven vector files exist that no `INDEX.md` row declares, so the manifest
+  every gate here resolves through is currently unreproducible from the generators the README
+  says produce it. `vectors/reject/gen_invalid_vectors.py` builds five fewer reject vectors
+  than the corpus carries and `vectors/accept/gen_valid_vectors.py` two fewer accepts; the
+  reject index table and its `## Vectors (N)` heading are short by the same five, which is why
+  that heading is checked against the table under it rather than against the manifest.
+  Recipe: add a builder to each generator for the vectors it is missing, emitting bytes
+  identical to the files already committed; add the index rows the builders declare, with the
+  spec anchors those rows carry; re-run `python3 scripts/spec-anchor-gate.py --sync` for the
+  new anchors; then `python3 vectors/gen_manifest.py` and require a byte-identical manifest.
+  Once that holds, move the index heading check in `scripts/count-gate.py` onto the manifest,
+  and add a gate asserting each index table has one row per vector of its family. File:
+  `vectors/reject/gen_invalid_vectors.py`, `vectors/accept/gen_valid_vectors.py`.
+- [ ] **Nothing asserts that the manifest is reproducible.** `scripts/spec-drift-gate.py` reads
+  the recorded spec digest and stops there, so the discipline its own docstring states --
+  regenerate the vectors, regenerate the manifest -- is documented and unenforced. A gate that
+  re-ran `gen_manifest.py` into a temporary file and diffed would have caught the gap above on
+  the push that opened it. File: `scripts/spec-drift-gate.py`.
 - [ ] **Forcing is measured against ONE rail, so a rule only the Python rail states is
   invisible to it.** `scripts/forcing-gate.py` weakens `aee/` and replays; a rule the Go rail
   does not implement has no mutation site and therefore no row, and the two first-party rails

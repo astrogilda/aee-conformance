@@ -143,17 +143,29 @@ def check_single_line(binary: str) -> list[str]:
     return errors
 
 
-def _tier_entry(manifest: dict[str, Any]) -> dict[str, Any]:
+def _tier_entries(manifest: dict[str, Any]) -> list[dict[str, Any]]:
+    """Every vector that states a tier column, not the first one that does.
+
+    This read the first match for as long as the corpus had exactly one such
+    vector, which made the gate's subject an accident of MANIFEST order: adding
+    a second pinned vector silently moved what was checked instead of adding to
+    it, and the five other pinned columns would have been observed from outside
+    by nothing.
+    """
+    out: list[dict[str, Any]] = []
     for entry in manifest["vectors"]:
         typed: dict[str, Any] = entry
-        if (typed.get("expected") or {}).get("tierWithoutKey"):
-            return typed
-    print(
-        "FAIL: no vector declares tierWithoutKey, so the corpus states GATE 2's "
-        "no-TOFU rule nowhere and this gate has nothing to hold to.",
-        file=sys.stderr,
-    )
-    raise SystemExit(1)
+        expected = typed.get("expected") or {}
+        if expected.get("tierWithoutKey") or expected.get("tierWithPinnedKey"):
+            out.append(typed)
+    if not out:
+        print(
+            "FAIL: no vector declares tierWithoutKey, so the corpus states GATE 2's "
+            "no-TOFU rule nowhere and this gate has nothing to hold to.",
+            file=sys.stderr,
+        )
+        raise SystemExit(1)
+    return out
 
 
 def check_no_key_column_binds(binary: str, work_dir: str, manifest: dict[str, Any]) -> list[str]:
@@ -164,33 +176,48 @@ def check_no_key_column_binds(binary: str, work_dir: str, manifest: dict[str, An
     which, before the key policy got an environment channel, was every external
     rail -- passed the expectation by not answering it.
     """
-    entry = _tier_entry(manifest)
-    expected = entry["expected"]["tierWithoutKey"]
+    entries = _tier_entries(manifest)
     keys_path = run_vectors.write_pinned_key_policy(run_vectors.derive_test_keys(), work_dir)
-    vector = REPO_ROOT / "vectors" / entry["file"]
-    observed = run_vectors.observe_external([binary, "-json"], str(vector), keys_path)
     errors: list[str] = []
-    if observed["tiers_without_key"] != expected:
+    falsifiable = 0
+    for entry in entries:
+        expected = entry["expected"]
+        vector = REPO_ROOT / "vectors" / entry["file"]
+        observed = run_vectors.observe_external([binary, "-json"], str(vector), keys_path)
+        for field, key in (("tierWithoutKey", "tiers_without_key"),
+                           ("tierWithPinnedKey", "tiers_with_key")):
+            if field in expected and observed[key] != expected[field]:
+                errors.append(
+                    f"`{entry['id']}` {field}: the external rail reported "
+                    f"{observed[key]!r}, expected {expected[field]!r}"
+                )
+        # And the expectation has to be capable of failing. A rail that trusted
+        # the predicate's own substrate root on first sight would report the
+        # pinned-key column for both passes; the evaluator must reject that.
+        #
+        # Only a vector whose two columns DIFFER can ask that question. On one
+        # whose columns are equal -- an artifact-only row, or a substrate row
+        # that verifies under no key -- the substitution below is the identity,
+        # so the evaluator passes it for the same reason it passes the real
+        # answer, and reading that as a finding would report a healthy rail as a
+        # TOFU rail. The count is asserted afterwards so that a corpus which
+        # somehow pinned only equal-column vectors fails here rather than
+        # reporting a check it never ran.
+        if observed["tiers_with_key"] == observed["tiers_without_key"]:
+            continue
+        falsifiable += 1
+        tofu = dict(observed, tiers_without_key=observed["tiers_with_key"])
+        passed, _gates, _reasons = run_vectors.evaluate_vector("accept", entry, tofu, None)
+        if passed:
+            errors.append(
+                f"`{entry['id']}` accepted a rail that derived the pinned-key tiers with no "
+                "pinned key (TOFU), so the no-TOFU rule is stated in the MANIFEST and "
+                "enforced against nothing"
+            )
+    if falsifiable == 0:
         errors.append(
-            f"`{entry['id']}` tierWithoutKey: the external rail reported "
-            f"{observed['tiers_without_key']!r}, expected {expected!r}"
-        )
-    if observed["tiers_with_key"] != entry["expected"]["tierWithPinnedKey"]:
-        errors.append(
-            f"`{entry['id']}` tierWithPinnedKey: the external rail reported "
-            f"{observed['tiers_with_key']!r}, expected "
-            f"{entry['expected']['tierWithPinnedKey']!r}"
-        )
-    # And the expectation has to be capable of failing. A rail that trusted the
-    # predicate's own substrate root on first sight would report the pinned-key
-    # column for both passes; the evaluator must reject that.
-    tofu = dict(observed, tiers_without_key=observed["tiers_with_key"])
-    passed, _gates, _reasons = run_vectors.evaluate_vector("accept", entry, tofu, None)
-    if passed:
-        errors.append(
-            f"`{entry['id']}` accepted a rail that derived the pinned-key tiers with no "
-            "pinned key (TOFU), so the no-TOFU rule is stated in the MANIFEST and "
-            "enforced against nothing"
+            "no pinned vector has a pinned-key column differing from its no-key column, so "
+            "the no-TOFU substitution is the identity everywhere and this gate asserts nothing"
         )
     return errors
 

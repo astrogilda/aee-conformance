@@ -3402,8 +3402,35 @@ def _selftest_build(keys: dict[str, dict[str, Any]]) -> dict[str, Any]:
             "aeeMethod": "intercepted",
             "armedAt": "2025-12-31T23:59:00Z",
             "aeePostureDigest": posture,
+            # Required on the kind from 0.7, and it must cover every identifier
+            # the assessed classes name, or the statement is invalid on
+            # assessed-set-exceeds-declaration.
+            "aeeAssessedAttacks": ["XA-EXAMPLE-1", "XA-EXAMPLE-2"],
         }
     )
+    rec_intercept = record(
+        {
+            "aeeRunBinding": binding,
+            "aeeKind": "interception",
+            "aeeMethod": "intercepted",
+            # Required on the kind from 0.7. Its VALUES only have to resolve
+            # against corpus.manifest.expectedPayloads on a row declaring
+            # attribution: pinned, and neither row here does, so the shape rule
+            # is the whole obligation: non-empty, sorted, duplicate-free,
+            # lowercase 64-hex.
+            "aeePayloadCommitment": [d("synthetic-payload")],
+            "producerNote": "synthetic",
+        }
+    )
+    # The seal commits to the interception set, so it is built AFTER the record
+    # it commits to. The commitment is the same construction observed_set_digest
+    # recomputes: the sorted, duplicate-free array of H(0x00 || PAE) over every
+    # interception and examination record. Nothing here is circular, because the
+    # sealed record is not itself a member of that set.
+    intercept_pae = pae(
+        rec_intercept["payloadType"], base64.b64decode(rec_intercept["payload"])
+    )
+    observed_leaves = sorted({hashlib.sha256(b"\x00" + intercept_pae).hexdigest()})
     rec_sealed = record(
         {
             "aeeRunBinding": binding,
@@ -3412,14 +3439,8 @@ def _selftest_build(keys: dict[str, dict[str, Any]]) -> dict[str, Any]:
             "aeeStillArmed": True,
             "aeeDropCount": 0,
             "aeePostureDigest": posture,
-        }
-    )
-    rec_intercept = record(
-        {
-            "aeeRunBinding": binding,
-            "aeeKind": "interception",
-            "aeeMethod": "intercepted",
-            "producerNote": "synthetic",
+            "aeeObservedAttacks": ["XA-EXAMPLE-1"],
+            "aeeObservedSet": sha256_hex(jcs_dumps(observed_leaves)),
         }
     )
     records = [rec_arming, rec_sealed, rec_intercept]
@@ -3442,6 +3463,13 @@ def _selftest_build(keys: dict[str, dict[str, Any]]) -> dict[str, Any]:
                     "containmentObserved": "example_label_a",
                     "basis": "substrate",
                     "method": "intercepted",
+                    # paired, not pinned: the stronger label additionally
+                    # obliges corpus.manifest.expectedPayloads and an
+                    # aeePayloadCommitment on every resolved interception
+                    # record, which is a surface of its own. What this statement
+                    # needs from attribution is a value the closed vocabulary
+                    # admits, because at 0.7 an absent one is fail-closed.
+                    "attribution": "paired",
                     "actualLayer": "example.layer-a",
                     "observationRefs": [2],
                 },
@@ -3450,6 +3478,7 @@ def _selftest_build(keys: dict[str, dict[str, Any]]) -> dict[str, Any]:
                     "containmentObserved": "example_label_b",
                     "basis": "substrate",
                     "method": "intercepted",
+                    "attribution": "paired",
                     "actualLayer": "none",
                     "observationRefs": [0, 1],
                 },

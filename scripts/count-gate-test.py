@@ -120,10 +120,10 @@ CLAIM_CASES: list[Case] = [
         lambda root: edit(
             root,
             "README.md",
-            "conformance%20vectors-187-e8951c",
+            "conformance%20vectors-220-e8951c",
             "conformance%20vectors-179-e8951c",
         ),
-        ("says '179' where the sources say '187'",),
+        ("says '179' where the sources say '220'",),
     ),
     (
         "a forcing count drifts from the baseline",
@@ -156,8 +156,8 @@ CLAIM_CASES: list[Case] = [
         lambda root: edit(
             root,
             "docs/IMPLEMENTATION-REPORT.md",
-            "and replays the full 187.",
-            "and replays every one of the 187 vectors of suiteRevision 15.",
+            "and replays the full 220.",
+            "and replays every one of the 220 vectors of suiteRevision 15.",
         ),
         ("is delegated to scripts/consumer-lag-gate.py and no longer appears",),
     ),
@@ -181,16 +181,16 @@ CENSUS_CASES: list[Case] = [
     (
         "a new paragraph states today's corpus size",
         lambda root: append(
-            root, "BUILD-NOTES.md", "\nThe corpus holds 187 files as this is written.\n"
+            root, "BUILD-NOTES.md", "\nThe corpus holds 220 files as this is written.\n"
         ),
-        ("'187' is an integer equal to the corpus total",),
+        ("'220' is an integer equal to the corpus total",),
     ),
     (
         "a new paragraph states today's accept count",
         lambda root: append(
-            root, "BUILD-NOTES.md", "\nOf those, 46 are statements a verifier accepts.\n"
+            root, "BUILD-NOTES.md", "\nOf those, 50 are statements a verifier accepts.\n"
         ),
-        ("'46' is an integer equal to the accept count",),
+        ("'50' is an integer equal to the accept count",),
     ),
     (
         "a new paragraph counts vectors at a size the corpus has never had",
@@ -218,25 +218,25 @@ CENSUS_CASES: list[Case] = [
         lambda root: append(
             root,
             "BUILD-NOTES.md",
-            "\nThe corpus of suiteRevision 3 held 187 vectors.\n",
+            "\nThe corpus of suiteRevision 3 held 220 vectors.\n",
         ),
-        ("'187' is an integer counting vectors",),
+        ("'220' is an integer counting vectors",),
     ),
     (
         "a count appears in a Go comment",
         lambda root: append(
-            root, "cmd/mutgen/main.go", "\n// The corpus this walks holds 187 vectors.\n"
+            root, "cmd/mutgen/main.go", "\n// The corpus this walks holds 220 vectors.\n"
         ),
-        ("cmd/mutgen/main.go:", "'187' is an integer counting vectors"),
+        ("cmd/mutgen/main.go:", "'220' is an integer counting vectors"),
     ),
     (
         "a count appears in a Python docstring",
         lambda root: append(
             root,
             "scripts/coverage-gate.py",
-            '\ndef _note() -> None:\n    """It is replayed over 187 vectors."""\n',
+            '\ndef _note() -> None:\n    """It is replayed over 220 vectors."""\n',
         ),
-        ("scripts/coverage-gate.py:", "'187' is an integer counting vectors"),
+        ("scripts/coverage-gate.py:", "'220' is an integer counting vectors"),
     ),
     (
         "a count appears in a CI step name",
@@ -253,9 +253,9 @@ CENSUS_CASES: list[Case] = [
             root,
             "vectors/CHANGES.md",
             "## suiteRevision 1 (first public release)",
-            "## suiteRevision 1 (first public release)\n\n- A note added later: 187 vectors.",
+            "## suiteRevision 1 (first public release)\n\n- A note added later: 220 vectors.",
         ),
-        ("'187' is an integer counting vectors",),
+        ("'220' is an integer counting vectors",),
     ),
 ]
 
@@ -267,14 +267,14 @@ SOURCE_CASES: list[Case] = [
     (
         "the manifest's declared count disagrees with the entries it carries",
         lambda root: edit(
-            root, "vectors/MANIFEST.json", '"accept": 46', '"accept": 45'
+            root, "vectors/MANIFEST.json", '"accept": 50', '"accept": 49'
         ),
-        ("it declares 45 accept vector(s), carries 46",),
+        ("it declares 49 accept vector(s), carries 50",),
     ),
     (
         "a vector file is added without the manifest hearing about it",
         lambda root: create(root, "vectors/accept/ok-999-invented.json", "{}\n"),
-        ("vectors/accept/ holds 47 file(s)",),
+        ("vectors/accept/ holds 51 file(s)",),
     ),
     (
         "the changelog's newest row drifts from the manifest",
@@ -285,19 +285,19 @@ SOURCE_CASES: list[Case] = [
             # the same three counts -- 16 and 15 do -- so the row text alone stops
             # identifying which row is being edited, and edit() refuses an
             # ambiguous match rather than mutating whichever one it finds first.
-            "- Corpus: **187 vectors (46 accept, 139 reject, 2 indeterminate)**, up from 186.",
-            "- Corpus: **185 vectors (46 accept, 137 reject, 2 indeterminate)**, up from 186.",
+            "- Corpus: **220 vectors (50 accept, 168 reject, 2 indeterminate)**, up from 187.",
+            "- Corpus: **185 vectors (50 accept, 133 reject, 2 indeterminate)**, up from 187.",
         ),
-        ("declares 185 vectors (46 accept, 137 reject, 2 indeterminate)",),
+        ("declares 185 vectors (50 accept, 133 reject, 2 indeterminate)",),
     ),
     (
         "a vector index heading drifts from the corpus",
         lambda root: edit(
-            root, "vectors/reject/INDEX.md", "## Vectors (139)", "## Vectors (138)"
+            root, "vectors/reject/INDEX.md", "## Vectors (168)", "## Vectors (138)"
         ),
         (
             "the vector-table heading says 138 and vectors/MANIFEST.json carries "
-            "139 reject vector(s)",
+            "168 reject vector(s)",
         ),
     ),
     (

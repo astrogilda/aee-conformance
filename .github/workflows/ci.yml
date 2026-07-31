@@ -189,14 +189,14 @@ jobs:
       # produces fails on the push that adds it.
       - name: every generated file regenerates byte-identically
         run: python3 scripts/regenerability-gate.py
-      - name: replay every vector on the Python rail (must be 187/187)
+      - name: replay every vector on the Python rail (must be 220/220)
         run: python3 packaging/run_vectors.py
 
   # What the corpus FORCES, held as a tighten-only ratchet. A vector count is an
   # upper bound on forcing and never a measurement of it: a vector declaring
   # several expected codes is satisfied by any one of them, so deleting the
   # result-vocabulary emission from the rail turns two vectors' gate-0 column
-  # FAIL and the suite still reports 187 of 187, exit 0. The only way to know
+  # FAIL and the suite still reports 220 of 220, exit 0. The only way to know
   # what this corpus obliges a third party to implement is to switch one rule
   # off at a time and replay, which is what this job does.
   #

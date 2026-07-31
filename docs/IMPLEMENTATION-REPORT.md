@@ -1,11 +1,11 @@
 <!--
-Implementation report for the AEE v0.6 predicate conformance suite.
-Corpus SSOT: vectors/MANIFEST.json (suiteRevision 17, 187 vectors: 46 accept, 139 reject, 2 indeterminate).
+Implementation report for the AEE v0.7 predicate conformance suite.
+Corpus SSOT: vectors/MANIFEST.json (suiteRevision 18, 220 vectors: 50 accept, 168 reject, 2 indeterminate).
 Honest scoping: every claim below states exactly what each implementation was verified against.
 Independence is counted by authorship, not by implementation count; see "How independence
 is counted here" before adding any row to the table.
 -->
-# AEE v0.6 implementation report
+# AEE v0.7 implementation report
 
 A W3C-style "multiple independent interoperable implementations" report for the
 Adversarial Execution Evidence predicate (in-toto/attestation PR #570). The
@@ -57,7 +57,7 @@ with. Both rails were corrected and both readings are now pinned.
 
 ## Reference corpus
 
-`vectors/MANIFEST.json`, suiteRevision 17: **187 vectors (46 accept, 139 reject, 2 indeterminate)**.
+`vectors/MANIFEST.json`, suiteRevision 18: **220 vectors (50 accept, 168 reject, 2 indeterminate)**.
 Each accept vector must verify valid with its expected `result` token; each reject
 vector must be invalid with a failure code drawn from the manifest's code set. The
 corpus is regenerated deterministically from the generators and its vendored spec
@@ -67,12 +67,12 @@ digest is pinned and CI-checked (`scripts/spec-drift-gate.py`).
 
 | Implementation | Language | Author | Verified against | Result |
 |---|---|---|---|---|
-| Reference rail (`aee/`) | Go | spec author | reference corpus, suiteRevision 17 | **187 / 187** |
-| Reference rail (`packaging/run_vectors.py`) | Python | spec author | reference corpus, suiteRevision 17 | **187 / 187** |
+| Reference rail (`aee/`) | Go | spec author | reference corpus, suiteRevision 18 | **220 / 220** |
+| Reference rail (`packaging/run_vectors.py`) | Python | spec author | reference corpus, suiteRevision 18 | **220 / 220** |
 | `Rul1an/aee-checker` | Rust | **independent, from-spec text alone** | author-run suiteRevision 6 (153), 2026-07-28 (aee-checker#4); suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 and 17 not run by its author | **153 / 153** at suiteRevision 6, directed; **125 / 125** blind at suiteRevision 1; suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 and 17 not run by author (see note 1) |
-| `ts-verify` | TypeScript | spec author | its vendored set (187 vectors) + cross-rail parity tests | pass (see note 2) |
-| `py-verify` | Python | spec author | its vendored set (187 vectors) + parity tests | pass (see note 2) |
-| MCP server rail `_aee.py` | Python | spec author | its vendored set (187 vectors) + parity tests | pass (see note 2) |
+| `ts-verify` | TypeScript | spec author | its vendored set (220 vectors) + cross-rail parity tests | pass (see note 2) |
+| `py-verify` | Python | spec author | its vendored set (220 vectors) + parity tests | pass (see note 2) |
+| MCP server rail `_aee.py` | Python | spec author | its vendored set (220 vectors) + parity tests | pass (see note 2) |
 
 The five first-party rails are separate decompositions rather than shared code, so
 they do catch each other's transcription errors, and the differential fuzzer over
@@ -191,11 +191,11 @@ has been read by the first-party rails only.
    and `bad-744`; his run has replaced it, which is the outcome a derived
    expectation should always have.
 2. **The consumer rails carry the suiteRevision-17 corpus.** The TypeScript rail,
-   the standalone Python rail and the MCP server rail each vendor all 187 vectors of
-   suiteRevision 17 byte-for-byte (`VENDOR-STAMP.json` pins the source spec digest,
+   the standalone Python rail and the MCP server rail each vendor all 220 vectors of
+   suiteRevision 18 byte-for-byte (`VENDOR-STAMP.json` pins the source spec digest,
    upstream commit and a content digest; a consumer-side drift gate fails CI on any
    change without a re-vendor). "pass" means the rail implements the rule, is
-   parity-tested on it, and replays the full 187. The three rails are two vendored
+   parity-tested on it, and replays the full 220. The three rails are two vendored
    copies: the TypeScript rail and the standalone Python rail replay the same
    directory, and the MCP server rail keeps its own. Both were read from their own
    stamps rather than assumed, and `bad-745` through `bad-749` together with the
@@ -224,7 +224,7 @@ has been read by the first-party rails only.
 One independent implementation agreeing is strong evidence the text is
 determinate; it is not proof it is unambiguous. Two readers can share a
 reasonable but unforced reading, and a single outside reader is a sample of one.
-Nor does agreement on 187 vectors say anything about the surface no vector
+Nor does agreement on 220 vectors say anything about the surface no vector
 touches, which is where the nesting-depth divergence above lived. The
 interpretation-decision registry
 (`vectors/interpretation-decisions.json`) records where the text forces the reading

@@ -1262,6 +1262,12 @@
       "opens": "`aeeAssessedAttacks` _array of strings_, required on an `arming` record: the",
       "closes": "this array, and a statement violating that is invalid."
     },
+    "vectors/reject/gen_invalid_vectors.py::bad-979-artifact-only-interception-orphaned#0": {
+      "anchor": "L569-585",
+      "digest": "1c9e6f2eb4a60050afc28df7a2ee5490c199e7ecb679a296319bf88107b1e111",
+      "opens": "Five further coverage validity requirements hold on the statement, or on",
+      "closes": "none of the sharing this document already permits;"
+    },
     "vectors/reject/gen_invalid_vectors.py::bad-978-arming-assessedattacks-unsorted#0": {
       "anchor": "L1314-1320",
       "digest": "73613b4a9907be27fe0349c0a706b5d927d8912f2988f23b94ea24f52de8a9d5",

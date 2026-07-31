@@ -281,17 +281,64 @@ SOURCE_CASES: list[Case] = [
         lambda root: edit(
             root,
             "vectors/CHANGES.md",
-            "- Corpus: **186 vectors (46 accept, 140 reject)**",
-            "- Corpus: **185 vectors (46 accept, 139 reject)**",
+            # Anchored on the newest entry's own wording. Two revisions can carry
+            # the same three counts -- 16 and 15 do -- so the row text alone stops
+            # identifying which row is being edited, and edit() refuses an
+            # ambiguous match rather than mutating whichever one it finds first.
+            "- Corpus: **186 vectors (46 accept, 140 reject)**, unchanged in size",
+            "- Corpus: **185 vectors (46 accept, 139 reject)**, unchanged in size",
         ),
         ("declares 185 vectors (46 accept, 139 reject)",),
     ),
     (
-        "a vector index heading drifts from the table under it",
+        "a vector index heading drifts from the corpus",
         lambda root: edit(
-            root, "vectors/reject/INDEX.md", "## Vectors (135)", "## Vectors (134)"
+            root, "vectors/reject/INDEX.md", "## Vectors (140)", "## Vectors (139)"
         ),
-        ("the vector-table heading says 134 and the table under it carries 135",),
+        (
+            "the vector-table heading says 139 and vectors/MANIFEST.json carries "
+            "140 reject vector(s)",
+        ),
+    ),
+    # The case the old heading check could not make. Its two sides lived in one
+    # file, so a table short of the corpus and a heading agreeing with that short
+    # table passed, which is what five vectors did until the manifest generator
+    # refused to run. Deleting a row now leaves the heading untouched and fails
+    # anyway, because the row is compared with the corpus and not with the
+    # heading above it.
+    (
+        "an index table loses a row while its heading still agrees with it",
+        lambda root: edit(
+            root,
+            "vectors/reject/INDEX.md",
+            "| `bad-906-corpus-manifest-absent` |",
+            "| skipped-bad-906-corpus-manifest-absent |",
+        ),
+        (
+            "the corpus carries ['bad-906-corpus-manifest-absent'] and this table "
+            "has no row for them",
+        ),
+    ),
+    (
+        "an index table carries a row for a vector the corpus does not have",
+        lambda root: edit(
+            root,
+            "vectors/accept/INDEX.md",
+            "| ok-901-row-missing-basis |",
+            "| ok-901-row-missing-basis |\n| ok-902-invented | fail | aee-c-1 | none |",
+        ),
+        ("['ok-902-invented'] have a row here and no entry",),
+    ),
+    (
+        "one vector is given two index rows, which are then free to disagree",
+        lambda root: edit(
+            root,
+            "vectors/accept/INDEX.md",
+            "| ok-901-row-missing-basis |",
+            "| ok-901-row-missing-basis | fail | aee-c-1 | a second row |\n"
+            "| ok-901-row-missing-basis |",
+        ),
+        ("['ok-901-row-missing-basis'] each carry more than one row",),
     ),
 ]
 

@@ -4,12 +4,15 @@ not writable by hand.
 
 Why a count needs a gate at all
 -------------------------------
-This corpus has been 125, 138, 140, 149, 153, 154, 156, 158, 165, 175, 179 and now
-186 vectors. Every one of those numbers was typed into prose in several places at
-once, and the copies went stale at different rates, so two documents in this
-repository disagreed about the size of the same corpus while both looked
-authoritative. A count is a DERIVED fact. It has exactly one source, and every
-appearance of it elsewhere is a cache with no invalidation.
+This corpus has been 125, 138, 140, 149, 153, 154, 156, 158, 165, 175 and 179
+vectors, and it is larger again now. vectors/MANIFEST.json says by how much and
+this sentence deliberately does not, because the census below reads no integer in
+this file, so a live count written here would be exactly the unchecked cache the
+gate exists to refuse. Every one of those historical numbers was typed into prose
+in several places at once and the copies went stale at different rates, until two
+documents in this repository disagreed about the size of the same corpus while
+both looked authoritative. A count is a DERIVED fact. It has exactly one source,
+and every appearance of it elsewhere is a cache with no invalidation.
 
 The sources are named once, here:
 
@@ -37,10 +40,11 @@ independence column and scripts/specpins.py makes it for line-range pins; the
 same argument holds here, and holding it in two shapes in one repository would be
 worse than holding it in one.
 
-Second, the numbers live inside sentences that argue. "331 rules forced, 17
-seen-but-tolerated, 237 unforced, 5 unmeasurable" sits in a paragraph explaining
-why the four outcomes are kept apart. An emitter would have to either drop that
-argument or carry it inside a script no reviewer of the README opens.
+Second, the numbers live inside sentences that argue. A sentence of the shape
+"N rules forced, N seen-but-tolerated, N unforced, N unmeasurable" sits in a
+paragraph explaining why the four outcomes are kept apart. An emitter would have
+to either drop that argument or carry it inside a script no reviewer of the
+README opens.
 
 Third, an emitting generator over a reviewed artifact defeats the review gate: a
 reviewer approves prose and a later run rewrites it underneath them. A check
@@ -156,7 +160,7 @@ RUNS_REL = "docs/INDEPENDENT-RUNS.json"
 def source(rel: str) -> Path:
     return REPO_ROOT / rel
 
-# `## suiteRevision 15 (the corpus is measured, and forces seven rules it did not)`
+# `## suiteRevision 16 (the corpus is regenerable, and was measured to prove it)`
 REVISION_HEADING = re.compile(r"^## suiteRevision (\d+)\b", re.MULTILINE)
 # `- Corpus: **186 vectors (46 accept, 140 reject)**, up from 179.` and the
 # unbolded spelling the earlier entries use.
@@ -308,37 +312,76 @@ def manifest_integrity_failures(src: Sources) -> list[str]:
 
 
 INDEX_HEADING = re.compile(r"^## Vectors \((\d+)\)$", re.MULTILINE)
-INDEX_ROW = re.compile(r"^\| *`?(?:ok|bad)-\d", re.MULTILINE)
+# The first cell of a vector row, in the spelling gen_manifest.py reads it: the
+# reject index backticks its ids and the accept index does not. This mirrors
+# gen_manifest.table_rows deliberately -- a second, looser parser here would let
+# a row the manifest generator skips be counted as present by this gate.
+INDEX_ROW_ID = re.compile(r"^\| *`?((?:ok|bad)-[0-9][0-9a-z-]*)`? *\|", re.MULTILINE)
+# Which family of the corpus each index table is the table of.
+INDEX_FAMILY = {
+    "vectors/accept/INDEX.md": "accept",
+    "vectors/reject/INDEX.md": "reject",
+}
 
 
-def index_heading_failures(
+def index_failures(
     texts: dict[str, str], covered: dict[str, list[Covered]]
 ) -> list[str]:
-    """A vector index's `## Vectors (N)` heading counts the table beneath it.
+    """Each index table carries exactly one row per corpus vector of its family.
 
-    The heading is emitted by the generator from its own vector list, so the
-    honest thing to check it against is the table it heads, not the manifest.
-    This is the one check here whose two sides live in one file, and it is worth
-    saying what that costs: it catches a heading that has drifted from its table
-    and it CANNOT catch a table that has drifted from the corpus. The reject
-    index is short of the manifest by five rows as this is written; closing that
-    is generator work, and it is tracked rather than hidden behind a heading that
-    would then contradict the rows under it.
+    This used to check a `## Vectors (N)` heading against the table beneath it,
+    and said in its own docstring what that cost: it catches a heading that has
+    drifted from its table and it CANNOT catch a table that has drifted from the
+    corpus. It then ran green through exactly that, for five vectors, until the
+    manifest generator refused to run.
+
+    Both sides now come from outside the file. The heading is compared with the
+    manifest's entries for that family, and the rows are compared with the
+    manifest's ids, in both directions and counting duplicates. The manifest is
+    not a free-standing authority either -- manifest_integrity_failures grounds
+    its counts in the vector files on disk before any of this is read -- so the
+    chain a row has to satisfy runs table, manifest, directory, and no link in it
+    is checkable against itself.
     """
+    manifest = json.loads(source(MANIFEST_REL).read_text(encoding="utf-8"))
+    by_family: dict[str, list[str]] = {}
+    for vector in manifest["vectors"]:
+        by_family.setdefault(str(vector["kind"]), []).append(str(vector["id"]))
     out: list[str] = []
     for rel, text in sorted(texts.items()):
-        if not rel.startswith("vectors/") or not rel.endswith("INDEX.md"):
+        family = INDEX_FAMILY.get(rel)
+        if family is None:
             continue
+        expected = by_family.get(family, [])
+        rows = INDEX_ROW_ID.findall(text)
         for heading in INDEX_HEADING.finditer(text):
-            rows = len(INDEX_ROW.findall(text))
             covered.setdefault(rel, []).append(
                 Covered(heading.start(), heading.end(), "the vector-table heading")
             )
-            if int(heading.group(1)) != rows:
+            if int(heading.group(1)) != len(expected):
                 out.append(
-                    f"{rel}: the vector-table heading says {heading.group(1)} and the "
-                    f"table under it carries {rows} row(s)."
+                    f"{rel}: the vector-table heading says {heading.group(1)} and "
+                    f"vectors/MANIFEST.json carries {len(expected)} {family} "
+                    "vector(s)."
                 )
+        seen: dict[str, int] = {}
+        for vid in rows:
+            seen[vid] = seen.get(vid, 0) + 1
+        if duplicated := sorted(vid for vid, n in seen.items() if n > 1):
+            out.append(
+                f"{rel}: {duplicated} each carry more than one row. A vector with two "
+                "rows is a vector whose two rows can disagree."
+            )
+        if missing := [vid for vid in expected if vid not in seen]:
+            out.append(
+                f"{rel}: the corpus carries {missing} and this table has no row for "
+                "them, so nothing here says what they test."
+            )
+        if extra := sorted(set(rows) - set(expected)):
+            out.append(
+                f"{rel}: {extra} have a row here and no entry in "
+                "vectors/MANIFEST.json."
+            )
     return out
 
 
@@ -876,6 +919,12 @@ MASKS = tuple(
         r"spec:\d+(?:-\d+)?",  # spec line citations in the sources
         r"\b\d{4}-\d{2}-\d{2}\b",  # dates
         r"RFC\s*\d+",  # RFC numbers
+        # Encoding names. The digit in UTF-16 is part of the name of a character
+        # encoding and never a quantity of anything, and this corpus argues about
+        # UTF-16 code-unit ordering in a dozen places. It went unmasked only
+        # because no published count had yet collided with it, which is the
+        # false-positive mode this gate's own prose warns about.
+        r"\bUTF-\d+\b",
         r"#\d+",  # upstream issue and pull-request numbers
         r"\bv?\d+\.\d+(?:\.\d+)*\b",  # version strings
         r"\bgo\d[\d.]*",  # toolchain versions
@@ -913,6 +962,30 @@ EXEMPT_PREFIXES: dict[str, str] = {
     "spec/predicates/": (
         "vendored upstream bytes; scripts/spec-drift-gate.py owns them and an edit "
         "here is a re-vendor, not a count"
+    ),
+}
+
+# The two files whose count-shaped integers are this gate's SUBJECT rather than
+# claims about the corpus, so the census reads no integer in them.
+#
+# This is not a convenience. Everything the census would find in these two files
+# is control data: the declaration tables name the very values they check, the
+# refusal message quotes the routes a writer may take, the worked examples in the
+# prose above are the sentences other files are checked against, an ordinal list
+# marker and a regex repetition bound are digits that stand for nothing, and the
+# test writes deliberately WRONG values into a staged copy to prove the refusal
+# fires. A census over its own control data reports its vocabulary as unaccounted
+# prose, which is what it did: seventy refusals, every one of them in these two
+# files, on the revision that introduced them.
+#
+# What it costs is one live count in the prose above, and that is not left
+# unchecked: it is declared as a claim like any other, so a corpus that grows
+# still fails here. Only the census is skipped; the claims, the delegations and
+# the frozen figures are all still read out of these files.
+SELF = {
+    "scripts/count-gate.py": "this gate's own declarations, examples and vocabulary",
+    "scripts/count-gate-test.py": (
+        "the deliberately wrong values this gate's tests write to prove it refuses"
     ),
 }
 
@@ -1129,6 +1202,8 @@ def census_failures(
     failures: list[str] = []
     examined = 0
     for rel, text in sorted(texts.items()):
+        if rel in SELF:
+            continue
         regions = prose_regions(rel, text)
         tokens = count_tokens(mask(text), regions, src)
         examined += len(tokens)
@@ -1168,7 +1243,7 @@ def collect() -> tuple[list[str], int, int]:
     claim_out, covered = claim_failures(src, texts)
     failures.extend(claim_out)
     failures.extend(declaration_failures(texts, covered))
-    failures.extend(index_heading_failures(texts, covered))
+    failures.extend(index_failures(texts, covered))
     census_out, examined = census_failures(src, texts, covered)
     failures.extend(census_out)
     return failures, len(texts), examined

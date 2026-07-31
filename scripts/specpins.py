@@ -565,6 +565,54 @@ def refuse_unresolved(broken: list[str], ledger: Ledger) -> int:
     return 1
 
 
+def refuse_empty(ledger: Ledger) -> int:
+    """A synchronise that found nothing to pin.
+
+    Writing an empty ledger would be the worst outcome available: every later
+    check would read it, find a pin for nothing, report that nothing failed, and
+    exit zero for as long as it took somebody to notice. A collector that has
+    stopped matching its files looks exactly like a repository with no citations
+    in it, so the only safe reading of an empty set is that the instrument is
+    broken.
+    """
+    print(
+        f"FAIL: no {ledger.noun}s were collected, so there is nothing to pin. "
+        "Either the files that carry them were moved and the collector was not "
+        "told, or its pattern no longer matches what they contain. Writing the "
+        "ledger from here would arm every later run against an empty set.",
+        file=sys.stderr,
+    )
+    return 1
+
+
+def refuse_unused_waivers(stale: set[str], ledger: Ledger) -> int:
+    """A named acceptance that accepted nothing.
+
+    ``--accept-reaim`` is the one way a person overrides this ledger, and its
+    whole weight is that somebody read a refusal and decided the move was
+    intended. A key that names a citation this run did not refuse waives nothing
+    and says so nowhere: it survives in a script or a shell history, reads in the
+    commit message as a decision that was made, and covers whatever the next
+    refusal turns out to be. So it is refused rather than ignored, on the same
+    grounds as everything else here -- an override that overrides nothing has
+    stopped describing anything.
+    """
+    print(
+        f"FAIL: {len(stale)} accepted key(s) name {ledger.article} {ledger.noun} "
+        "this run did not refuse:",
+        file=sys.stderr,
+    )
+    for key in sorted(stale):
+        print(f"  {key}", file=sys.stderr)
+    print(
+        "\nEither the key is misspelled, in which case the move it was meant to "
+        "clear is still being refused above, or it was cleared on an earlier run "
+        f"and the ledger already carries the new {ledger.noun}. Drop it.",
+        file=sys.stderr,
+    )
+    return 1
+
+
 def announce(ledger: Ledger, pinned: int, outcome: Reaim) -> None:
     """Say what was written and, of what moved, what became of it.
 
@@ -597,6 +645,8 @@ def announce(ledger: Ledger, pinned: int, outcome: Reaim) -> None:
 def sync(ledger: Ledger, cites: list[Cited], accepted: set[str]) -> int:
     """Rewrite one ledger from the citations as they now stand, refusing any
     that came off text the document still carries."""
+    if not cites:
+        return refuse_empty(ledger)
     spec, digest = spec_state(ledger.spec_rel)
     broken = [
         f"{c.site}: {c.token} {'; '.join(resolution_failures(c, spec))}"
@@ -618,6 +668,9 @@ def sync(ledger: Ledger, cites: list[Cited], accepted: set[str]) -> int:
             return refuse_unreadable(outcome.unreadable, ledger)
         if outcome.moved_off:
             return refuse_reaim(outcome.moved_off, ledger)
+    stale = accepted - outcome.acknowledged
+    if stale:
+        return refuse_unused_waivers(stale, ledger)
 
     ledger.path.write_text(
         json.dumps(
@@ -677,6 +730,22 @@ def orphan_failures(
 
 
 def report(failures: list[str], checked: int, ledger: Ledger, remedy: str) -> int:
+    """The verdict, with the size of what it was asked about.
+
+    A count of nothing is refused rather than reported. Every failure this gate
+    can raise is raised per citation, so a run that collected none raises none
+    and prints a clean green line while measuring an empty set -- which is what
+    a collector whose files moved under it looks like from the outside, and is
+    indistinguishable from a repository that cites nothing.
+    """
+    if checked == 0:
+        print(
+            f"FAIL: no {ledger.noun}s were collected, so this run checked "
+            "nothing and its result means nothing. The files that carry them "
+            "have moved, or the pattern that finds them no longer matches.",
+            file=sys.stderr,
+        )
+        return 1
     if not failures:
         print(
             f"OK: {checked} spec {ledger.noun}(s) resolve and match their "

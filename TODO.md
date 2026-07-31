@@ -143,6 +143,39 @@ under suiteRevision 17.
   `scripts/regenerability-gate.py`, wired into `.github/workflows/ci.yml`. It copies the tree,
   empties the generated set, runs all three generators and diffs. Run against suiteRevision 15
   unmodified it names all seven vector files and the manifest.
+- [x] **The whole tier derivation was forced by one vector** (2026-07-31) -- the corpus pinned
+  the derived per-row evidence tier for one of its fifty-two accept vectors, and the harness
+  compares a tier column only where the manifest states one. Measured by mutation, five
+  single-site weakenings of `aee/tier.go` were killed by `ok-024` and by nothing else, so
+  retitling or dropping it would have retired five rules at once with every gate green. The
+  tier-partition invariant added the same day hardens the Go rail and cannot see this: the
+  measurement replays through `cmd/aee-verify` under `packaging/run_vectors.py` and never loads
+  a Go test file. Five more accept vectors now pin their columns -- three whose index rows
+  already asserted a tier in prose, two that gained the claim -- each derivable from the
+  vector's own bytes rather than recorded from a rail's answer. The five sites move to between
+  two and four forcing vectors, three sites outside `tier.go` gain vectors for the same reason,
+  and the delta is additive everywhere: nothing lost a vector, nothing changed class.
+  Mutation-checked by deleting `ok-024` outright: without the new pins all five go SILENT, with
+  them all five stay KILLED.
+- [x] **A directory of vectors in another encoding was invisible to the corpus runner**
+  (2026-07-31) -- `checkManifestClosure` asked whether an unrecognised directory held vector
+  files and decided vector-ness by file suffix, so a directory carrying the same statements as
+  `.cbor` held no matching file, passed the kind check silently, and contributed to no per-kind
+  count either. The two non-vector directories are named explicitly now and every other
+  directory must be a manifest kind whatever it holds. Verified both ways against a real
+  non-JSON vector directory. File: `aee/vectors_test.go`.
+- [ ] **The published harness scores a vector no manifest row names, and only notes it.**
+  Measured 2026-07-31: copying an accept vector to an unlisted name and running
+  `python3 packaging/run_vectors.py` exits 0, prints a total one greater than the corpus size
+  with every vector passing, scores the unlisted file PASS against a verdict derived from its
+  directory, and reports the fact as a `note:` line rather than a failure. The Go runner refuses the same tree by name. That is the
+  wrong way round twice over: the Python harness is the rail the forcing measurement replays
+  through and the one a third party runs, and the count it prints is the number the published
+  corpus size derives from, so an unlisted file inflates it silently. `discover_vectors` also
+  reads three hardcoded directory names, so a fourth directory is not walked at all -- the same
+  blind spot closed on the Go side above, still open on this one. Closing it means promoting the
+  existing note to a refusal and asserting the directory set, not adding a second listing.
+  File: `packaging/run_vectors.py`.
 - [ ] **Three shipped reject vectors carried a signature that does not verify, and nothing
   in the corpus could see it.** `bad-900`, `bad-901` and `bad-902` were minted by copying the
   parent's signature across a mutated payload. The reject generator's own second-fault

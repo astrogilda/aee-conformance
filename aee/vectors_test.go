@@ -169,6 +169,17 @@ var replayedKinds = map[string]bool{
 	"indeterminate": true,
 }
 
+// suiteNonVectorDirs are the directories under the suite root that carry no
+// conformance vectors in any encoding, and so are the only ones exempt from
+// having to be a MANIFEST kind. Sorted, because it is printed in a failure.
+//
+//   - keys/ holds the published test-key derivation recipe and no vectors;
+//     the keys themselves are derived from that recipe rather than committed.
+//   - __pycache__/ is a gitignored artifact of running the Python generators
+//     in the tree. It is absent in CI, which is why nothing here requires an
+//     entry to correspond to a directory that exists.
+var suiteNonVectorDirs = []string{"__pycache__", "keys"}
+
 // checkManifestClosure asserts that the MANIFEST and the vector files on disk
 // name each other exactly, in both directions and per kind.
 //
@@ -194,6 +205,10 @@ func checkManifestClosure(t *testing.T, dir string, m *suiteManifest, vectors []
 	}
 
 	listed := map[string][]string{}
+	declaredKinds := map[string]bool{}
+	for _, v := range vectors {
+		declaredKinds[v.Kind] = true
+	}
 	for _, v := range vectors {
 		if !replayedKinds[v.Kind] {
 			t.Errorf("MANIFEST lists %s under kind %q, which no assertion in this file replays. "+
@@ -213,10 +228,26 @@ func checkManifestClosure(t *testing.T, dir string, m *suiteManifest, vectors []
 		}
 	}
 
-	// A directory holding vector files that the MANIFEST does not name as a
-	// kind is the exact shape the downstream rails were hardened against: the
-	// files are on disk, the listing walks past them because the directory's
-	// name is in no literal, and nothing reports it.
+	// A directory the MANIFEST does not name as a kind is the exact shape the
+	// downstream rails were hardened against: the files are on disk, the
+	// listing walks past them because the directory's name is in no literal,
+	// and nothing reports it.
+	//
+	// The rule is set equality against suiteNonVectorDirs, not "holds files
+	// this runner recognises as vectors". The earlier formulation asked whether
+	// the directory held any .json, which decided the question by file
+	// extension: a directory carrying the same corpus in another encoding --
+	// .cbor, .yaml, a tarball -- holds zero .json, so it passed the kind check
+	// silently AND contributed nothing to any per-kind count, which is the pair
+	// of blind spots that lets an unreplayed set look like an absent one. Naming
+	// the exceptions costs one line per exception and stops inferring
+	// vector-ness from a suffix.
+	//
+	// An allowlisted directory keeps the old contents check on top, so keys/
+	// cannot quietly become a vector directory in the corpus's own encoding
+	// either. A stale entry here exempts nothing (there is no directory to
+	// exempt), so presence is not required -- which matters because
+	// __pycache__ is a gitignored local artifact and is simply absent in CI.
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		t.Fatal(err)
@@ -225,12 +256,18 @@ func checkManifestClosure(t *testing.T, dir string, m *suiteManifest, vectors []
 		if !e.IsDir() {
 			continue
 		}
-		if _, ok := listed[e.Name()]; ok {
+		if declaredKinds[e.Name()] {
+			continue
+		}
+		if !containsString(suiteNonVectorDirs, e.Name()) {
+			t.Errorf("%s/ is named by no MANIFEST kind and is not one of the suite's declared "+
+				"non-vector directories %v, so whatever it carries is replayed by nothing. "+
+				"Add the kind to the MANIFEST or name the directory in suiteNonVectorDirs",
+				e.Name(), suiteNonVectorDirs)
 			continue
 		}
 		if n := len(jsonVectors(t, filepath.Join(dir, e.Name()))); n > 0 {
-			t.Errorf("%s/ holds %d vector file(s) and is named by no MANIFEST kind, so nothing replays them",
-				e.Name(), n)
+			t.Errorf("%s/ is declared to hold no vectors and holds %d vector file(s)", e.Name(), n)
 		}
 	}
 

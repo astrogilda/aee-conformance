@@ -361,7 +361,7 @@ directed 153/153 says the corrected rule is implementable by someone who has onl
 the text. It is not the same evidence as 125/125 and this suite does not present
 it as such.
 
-It has not been run against suiteRevision 4, 7, 8, 9, 10, 11, 12, 13, 14 or 15, so
+It has not been run against suiteRevision 4, 7, 8, 9, 10, 11, 12, 13, 14, 15 or 16, so
 this suite publishes no score for it at any of them. They are on that list for
 two different reasons. From suiteRevision 7 onward the corpus itself moved past
 his last run: the single suiteRevision-7 vector (`bad-745`) and the two

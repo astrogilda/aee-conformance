@@ -2570,6 +2570,109 @@ vec("bad-307-posture-member-added-after-arming", "ok-002",
          "whether the posture may carry one at all")
 
 
+# --- (i) rules the corpus was measured not to force ------------------------
+# Every vector below closes a rule a mutation campaign found the corpus did not
+# force: the rail's check could be switched off and the whole suite stayed green.
+# They are the only vectors here that exist because of a measurement rather than
+# a reading of the specification, which is why each note says what went unseen.
+
+vec("bad-900-sealed-method-reconstructed", "ok-002",
+    'sealed record signed aeeMethod: "reconstructed"',
+    ["re-sign-record", "recompute-batch-root"], [65],
+    ["sealed-covers-nothing"],
+    _rec_mut(P_clean, 1, lambda o: {**o, "aeeMethod": "reconstructed"}),
+    spec="L1008-1012; L1019-1022",
+    note="the sealed twin of bad-704 and bad-712. Every other kind's method "
+         "constraint had a vector and this one did not, so a rail that read "
+         "the sealed record's aeeMethod and did nothing with it passed")
+
+
+def _b901() -> dict[str, Any]:
+    # The bounded parent, not the drop-zero one: a negative count on a record
+    # carrying no aeeDropBound is caught by the bound clause first (bad-708),
+    # so the sign rule is only reachable where a bound is declared and the
+    # count is inside it by arithmetic that reads the sign the wrong way.
+    return mutate_record_payload(P_clean_bounded(), 1,
+                                 lambda o: {**o, "aeeDropCount": -1})
+
+
+vec("bad-901-sealed-negative-dropcount", "ok-003",
+    "sealed aeeDropCount: -1 inside a declared aeeDropBound: 5",
+    ["re-sign-record", "recompute-batch-root"], [65],
+    ["sealed-covers-nothing"], _b901,
+    spec="L1023-1103",
+    note="a count of dropped observations below zero is not a count. The "
+         "corpus tested the bound from above (bad-709) and never from below, "
+         "so a rail comparing only against the bound accepted it")
+
+
+def _b902() -> dict[str, Any]:
+    # Two arming records, one of them carrying a posture the run never pinned.
+    # With a single arming record this rule is unreachable: the sealed record's
+    # posture must equal both the arming record's and the pinned digest, and
+    # the pinned comparison fires first on every input that could reach the
+    # arming comparison. The set of arming postures is built from ALL of the
+    # row's referenced arming records while class-match needs only one of them
+    # to be valid, so a second arming record is what separates the two clauses.
+    st = P_clean()
+    env = st["predicate"]["observationEnvironment"]
+    st["predicate"]["observationRecords"].append(
+        record(arming_payload(binding_for(env), posture=D["other-posture"])))
+    st["predicate"]["attackResults"][0]["observationRefs"] = [0, 1, 2]
+    return reroot(st)
+
+
+vec("bad-902-sealed-posture-ne-arming", "ok-002",
+    "a second arming record carrying a posture digest the run never pinned, "
+    "referenced by the clean row alongside the valid arming and sealed pair",
+    ["recompute-batch-root"], [65],
+    ["sealed-covers-nothing"], _b902,
+    spec="L1023-1103",
+    note="the sealed-vs-arming half of the posture equality, which bad-710 "
+         "cannot separate. A rule can go unforced because the corpus SHAPE "
+         "cannot express its precondition rather than because nobody wrote "
+         "the vector, and the two need different fixes")
+
+
+def _b905() -> dict[str, Any]:
+    # The vocabulary object is present and one of its two required arrays is
+    # not. The digest is re-derived over the object as carried so the vector
+    # cannot be dismissed as a stale digest: it is the shape that is wrong.
+    st = P_artifact_degraded()
+    voc = st["predicate"]["observationEnvironment"]["observationVocabulary"]
+    del voc["labels"]
+    voc["digest"]["sha256"] = jcs_digest({"caught": voc["caught"]})
+    return st
+
+
+vec("bad-905-vocabulary-labels-absent", "ok-033",
+    "drop labels from an observationVocabulary that is otherwise present; "
+    "digest re-derived over the truncated object",
+    ["recompute-vocabulary-digest"], [51],
+    ["vocabulary-not-canonical"], _b905, spec="L566-574",
+    note="bad-601 drops the whole vocabulary and every array vector edits an "
+         "array that is there. The half-present object sat between them: a "
+         "rail checking that the member exists, then reading labels, accepted "
+         "a statement carrying no label set at all")
+
+
+def _b906() -> dict[str, Any]:
+    # The corpus keeps its name, uri and digest and loses the manifest that
+    # digest is taken over, so the pinned value has no pre-image anywhere in
+    # the statement and the coverage rules have no class map to read.
+    st = P_artifact_degraded()
+    del st["predicate"]["observationEnvironment"]["corpus"]["manifest"]
+    return st
+
+
+vec("bad-906-corpus-manifest-absent", "ok-033",
+    "drop corpus.manifest, keeping the corpus name, uri and digest", [],
+    [78], ["environment-incomplete"], _b906, spec="L554-563",
+    note="one statement two rails read two ways: the Go rail called the "
+         "environment incomplete and the Python rail accepted it, and nothing "
+         "in the corpus made them disagree out loud")
+
+
 # ---------------------------------------------------------------- checks
 
 # The result vocabulary, in the order the recompute takes its minimum over.
@@ -2710,8 +2813,12 @@ def second_fault_absence(v: dict[str, Any], st: Any) -> None:  # noqa: C901 -- o
         voc = env["observationVocabulary"]
         assert voc["digest"]["sha256"] == jcs_digest(
             {"caught": voc["caught"], "labels": voc["labels"]}), v["id"]
-    # (iii) corpus digest verifies unless targeted
-    if not conds & {79} and "corpus" in env:
+    # (iii) corpus digest verifies unless targeted. A corpus carrying no
+    # manifest has no pre-image to re-derive from, and that absence is itself
+    # the fault under test (bad-906), so there is nothing here to assert rather
+    # than an assertion being waived: re-deriving would be reading a member the
+    # vector exists to remove.
+    if not conds & {79} and "manifest" in env.get("corpus", {}):
         assert env["corpus"]["digest"]["sha256"] == jcs_digest(
             env["corpus"]["manifest"]), v["id"]
     # (iv) record bindings equal the derived binding unless targeted
@@ -3047,15 +3154,26 @@ def write_index() -> None:
     L.append("")
     L.append("## Deferred coverage (no vector, by design)")
     L.append("")
-    L.append("- **Missing or out-of-vocabulary `basis`** on a row: a row whose")
-    L.append("  `basis` is absent or unknown cannot be classified for the")
-    L.append("  fail-closed branch split (substrate => attestation invalid vs")
-    L.append("  artifact => valid `fail`), and the spec text does not state which")
-    L.append("  branch applies. This is a formal spec-edit ask on the PR thread;")
-    L.append("  shipping a reject vector now would silently resolve the reading.")
-    L.append("  The out-of-vocab METHOD and LABEL substrate twins (bad-501,")
-    L.append("  bad-504) plus the valid artifact-row twins in the accept suite")
-    L.append("  cover the decidable half of the fail-closed axis.")
+    L.append("- **Missing or out-of-vocabulary `basis` on a SUBSTRATE-carrying")
+    L.append("  statement**: the fail-closed branch split (substrate => the")
+    L.append("  attestation is invalid vs artifact => a valid `fail`) turns on a")
+    L.append("  classification the row itself refuses to supply, and the spec")
+    L.append("  text does not state which branch applies. Shipping a reject")
+    L.append("  vector here would silently resolve that reading, so there is")
+    L.append("  none; it is a formal spec-edit ask on the PR thread.")
+    L.append("  This bullet has NARROWED. The accept suite now ships")
+    L.append("  `ok-901-row-missing-basis`, a recordless statement whose single")
+    L.append("  row carries no `basis` member, no refs and no substrate")
+    L.append("  participation of any kind: it is VALID and it recomputes to")
+    L.append("  `fail`. That decides the half of the question a statement with")
+    L.append("  no substrate vantage can even ask, and it was shipped because")
+    L.append("  the rail's basis branch was measured to have no vector behind")
+    L.append("  it in either direction. What stays open is the half this")
+    L.append("  directory would have to answer: the same row inside a statement")
+    L.append("  that does carry substrate evidence. The out-of-vocab METHOD and")
+    L.append("  LABEL substrate twins (bad-501, bad-504) plus the valid")
+    L.append("  artifact-row twins in the accept suite cover the decidable rest")
+    L.append("  of the fail-closed axis.")
     L.append("- **Duplicate-record identity discriminator** (leaf-hash vs")
     L.append("  byte-identical): bad-405 is invalid under BOTH readings; the")
     L.append("  discriminating vector waits on the spec answer.")
@@ -3121,7 +3239,23 @@ def main() -> None:
         with open(path) as f:
             json.load(f)  # every vector parses as JSON (a duplicate member is last-wins)
 
-    assert len(VECTORS) == 135, f"expected 135 vectors, built {len(VECTORS)}"
+    # Drop tripwire, read from the committed corpus rather than typed here. A
+    # typed count only ever states what was true when someone last edited it,
+    # and it is blind in the direction that actually went wrong: five vector
+    # files were once committed into this directory with no builder behind
+    # them, which leaves a typed count agreeing with the builders it still has
+    # while the directory holds more files than this generator can produce.
+    # Reading the directory fails on that, on a builder deleted without its
+    # file, and on a file deleted without its builder, and it cannot itself go
+    # stale. Deleting a vector deliberately means deleting both, which is the
+    # act the tripwire should permit and the only one it does.
+    on_disk = len([f for f in os.listdir(OUT) if f.startswith("bad-")
+                   and f.endswith(".json")])
+    assert len(VECTORS) == on_disk, (
+        f"built {len(VECTORS)} reject vectors but {on_disk} bad-*.json files "
+        "are committed beside this generator; a file with no builder cannot "
+        "be regenerated and a builder with no file was silently dropped"
+    )
 
     # 3. index
     write_index()

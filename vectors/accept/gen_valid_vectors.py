@@ -1190,6 +1190,38 @@ def build_vectors() -> dict[str, dict[str, Any]]:
         ],
     )
 
+    # ok-900 the composition law that decides every mixed run, which nothing
+    # here exercised: a caught row forcing `fail` in the same statement as a
+    # disclosed coverage gap forcing `degraded`. The recompute takes the
+    # minimum, so the carried token is `fail`. Measured rather than argued: a
+    # mutation dropping `degraded` below `fail` in the rail's result ordering
+    # was invisible to the whole corpus, because no vector carried both halves
+    # at once and a rail that ranked them the wrong way round reported the
+    # softer verdict on every mixed run and still passed.
+    v["ok-900-fail-outranks-degraded"] = make_statement(
+        man_ab,
+        [
+            make_row(
+                "XA-EXAMPLE-1", "egress_captured", "artifact", "reconstructed", "none", []
+            )
+        ],
+        assessed=["XA"],
+        out_of_scope={"XB": "example: class not assessed in this run"},
+        with_entropy=False,
+    )
+
+    # ok-901 a row carrying no `basis` at all. Absence is not a value, so the
+    # row cannot be classified and fail-closes exactly as an out-of-vocabulary
+    # one does; the statement stays VALID and carries `fail`. Recordless and
+    # artifact-shaped, so nothing cascades. The rail's basis branch had no
+    # vector behind it in either direction: removing it is a panic rather than a
+    # wrong answer, and nothing in the corpus reached it.
+    v["ok-901-row-missing-basis"] = make_statement(
+        man_1,
+        [make_row("XA-EXAMPLE-1", "no_egress", None, "reconstructed", "none", [])],
+        with_entropy=False,
+    )
+
     return v
 
 
@@ -1434,9 +1466,30 @@ def verify_signatures(stmt: dict[str, Any]) -> dict[int, str]:
     return out
 
 
+def committed_count() -> int:
+    """How many accept vector files sit beside this generator.
+
+    The drop-tripwire at the end of main compares the built set against this
+    rather than against a number typed here. A typed number only ever states
+    what was true when someone last edited it, and it is blind in the direction
+    that actually went wrong: seven vector files were once committed with no
+    builder behind them, which leaves a typed count agreeing with the builders it
+    still has while the directory holds more files than the generator can
+    produce. Reading the directory fails on exactly that, and it cannot itself go
+    stale.
+
+    It is read AFTER the write pass on purpose. Read before, it also refuses a
+    builder whose file was deleted, which is a state this generator exists to
+    repair rather than refuse, and it makes the generator unrunnable in an empty
+    directory -- which is where scripts/regenerability-gate.py runs it, precisely
+    so that a file nothing writes is visible as an absence rather than as bytes
+    left over from the copy.
+    """
+    return len(list(OUT_DIR.glob("ok-*.json")))
+
+
 def main() -> int:
     vectors = build_vectors()
-    assert len(vectors) == 44, len(vectors)
     failures = 0
     for name, stmt in vectors.items():
         errs = verify(stmt)
@@ -1448,6 +1501,12 @@ def main() -> int:
         path.write_text(text, encoding="utf-8")
         json.loads(path.read_text())  # parse check
         print(f"wrote {path.name}  result={stmt['predicate']['result']}")
+    on_disk = committed_count()
+    assert len(vectors) == on_disk, (
+        f"built {len(vectors)} accept vectors and {on_disk} ok-*.json files now "
+        "sit beside this generator; a file with no builder cannot be regenerated "
+        "by anyone"
+    )
     print(f"keyids: substrate-observation-test={SUB_KEYID}")
     print(f"        wrong-signer-test={WRONG_KEYID}")
     print(f"        statement-test={STMT_KEYID}")

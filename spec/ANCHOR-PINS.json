@@ -1040,6 +1040,42 @@
       "opens": "`aeeRunBinding` equals the run binding digest derived from this",
       "closes": "statement;"
     },
+    "vectors/reject/gen_invalid_vectors.py::bad-900-sealed-method-reconstructed#0": {
+      "anchor": "L1008-1012",
+      "digest": "5ac353966477f43bab864c60006ef96c60de1623d102fc1e5549a8022b38e53c",
+      "opens": "`sealed` (run-level: the vantage stayed armed to run-end; payload MUST",
+      "closes": "integer bound; its `aeeMethod` MUST be `intercepted`); or"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-900-sealed-method-reconstructed#1": {
+      "anchor": "L1019-1022",
+      "digest": "a0d0a3d721a2feda23d5cbe0bf539cdbc991b7796531c7abf26391b448c7113b",
+      "opens": "A record violating any constraint of its declared `aeeKind` (including a",
+      "closes": "`aeeMethod: intercepted`) covers nothing."
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-901-sealed-negative-dropcount#0": {
+      "anchor": "L1023-1103",
+      "digest": "0f78633e5e607ef5cc92fb13f296ef866ddd9c98792f09ca9a31ee847186c920",
+      "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
+      "closes": "(armed, stayed armed, nothing dropped, posture unchanged) rather than"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-902-sealed-posture-ne-arming#0": {
+      "anchor": "L1023-1103",
+      "digest": "0f78633e5e607ef5cc92fb13f296ef866ddd9c98792f09ca9a31ee847186c920",
+      "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
+      "closes": "(armed, stayed armed, nothing dropped, posture unchanged) rather than"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-905-vocabulary-labels-absent#0": {
+      "anchor": "L566-574",
+      "digest": "f799432041ad760164a9a1ed7c907288ffe39983a6f6dadfa1c1f1298484f88f",
+      "opens": "`observationVocabulary` (the",
+      "closes": "of these is malformed)."
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-906-corpus-manifest-absent#0": {
+      "anchor": "L554-563",
+      "digest": "697fbab07a4f33e4911d0ae23a56e495a308e9426da9140c20b8022632a589ab",
+      "opens": "`observationEnvironment` _object, required_",
+      "closes": "distinguishable from an enforcing one), `networkPosture` (the"
+    },
     "vectors/reject/gen_invalid_vectors.py::1#0": {
       "anchor": "L388",
       "digest": "e58d4982b42d4b938ac6109ec8c7b8d7f5e50e8afa747fdea110d0000416da36",

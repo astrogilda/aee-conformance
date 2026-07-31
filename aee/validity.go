@@ -532,12 +532,22 @@ type classRequirement struct {
 // invalid. attribution joined the list at 0.7 and joins it HERE rather than in
 // a rule of its own, because the specification states the three closed row
 // vocabularies as one rule with one consequence.
+// The guard is written as an `if` over three disjuncts rather than as one
+// returned expression, and that is a measurement decision rather than a style
+// one. The forcing campaign enumerates a mutation site per DISJUNCT of an `if`
+// and only whole-expression sites on a `return`, so a returned form proves the
+// corpus forces the guard while proving nothing about which of the three
+// vocabularies it forces. Extracting this helper collapsed exactly that
+// granularity once already, and the ratchet caught it.
 func rowFailsClosed(row *Row, labelCaught, labelClean bool) bool {
 	methodValid := row.Method != nil &&
 		(*row.Method == MethodIntercepted || *row.Method == MethodReconstructed)
 	attributionValid := row.Attribution != nil &&
 		(*row.Attribution == AttributionPinned || *row.Attribution == AttributionPaired)
-	return (!labelCaught && !labelClean) || !methodValid || !attributionValid
+	if (!labelCaught && !labelClean) || !methodValid || !attributionValid {
+		return true
+	}
+	return false
 }
 
 // checkSubstrateRow evaluates one basis: substrate row. It returns the

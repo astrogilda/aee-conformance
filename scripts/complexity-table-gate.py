@@ -11,8 +11,9 @@ tangled structure. That argument is only worth reading if the number attached to
 it is the number a reader gets when they measure.
 
 The numbers drift because nothing checks them, and they have now drifted on both
-rails. On the Go side ``Gate0`` grew from 33 to 34 and ``evaluateKind`` from 24
-to 28 without a check going red, and two functions crossed the inclusion
+rails. On the Go side, as gocyclo measured them at suiteRevision 15, ``Gate0``
+grew from 33 to 34 and ``evaluateKind`` from 24 to 28 without a check going red,
+and two functions crossed the inclusion
 threshold without ever being written down. The Python side was described here and
 in ``DESIGN_DECISIONS.md`` as already covered, on the reasoning that ruff's C901
 fails the build; that reasoning was wrong, and the correction is the reason this

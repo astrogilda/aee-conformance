@@ -164,8 +164,13 @@ def source(rel: str) -> Path:
 REVISION_HEADING = re.compile(r"^## suiteRevision (\d+)\b", re.MULTILINE)
 # `- Corpus: **186 vectors (46 accept, 140 reject)**, up from 179.` and the
 # unbolded spelling the earlier entries use.
+# The indeterminate group is optional because the ledger is history: every
+# revision before the bucket existed declares a two-part row, and a regex that
+# demanded three parts would fail on rows that were complete when written.
 CORPUS_ROW = re.compile(
-    r"Corpus:\s*\*{0,2}(\d+) vectors \((\d+) accept, (\d+) reject\)", re.MULTILINE
+    r"Corpus:\s*\*{0,2}(\d+) vectors \((\d+) accept, (\d+) reject"
+    r"(?:, (\d+) indeterminate)?\)",
+    re.MULTILINE,
 )
 
 # Numbers this repository spells as words. Only the counts actually published
@@ -185,6 +190,7 @@ class Sources:
     total: int
     accept: int
     reject: int
+    indeterminate: int
     revision: int
     forced: int
     tolerated: int
@@ -192,7 +198,7 @@ class Sources:
     unmeasurable: int
     sites: int
     annotated: int
-    ledger: dict[int, tuple[int, int, int]]
+    ledger: dict[int, tuple[int, int, int, int]]
     figures: frozenset[str]
 
     def current(self) -> dict[int, str]:
@@ -201,6 +207,18 @@ class Sources:
             self.total: "the corpus total",
             self.accept: "the accept count",
             self.reject: "the reject count",
+            # The indeterminate count is deliberately NOT here. This map drives
+            # the census's VALUE rule, which fires on any integer equal to a
+            # published count, and the bucket is two vectors: `2` collides with
+            # "GATE 2", "version 2" and "the second pass" throughout this
+            # repository, all of them within the small-value window of a noun in
+            # SMALL_VALUE_NOUNS. Every one of those would fail as an unaccounted
+            # count. The value is not unchecked -- it is grounded harder than the
+            # census could ground it, by manifest_integrity_failures against the
+            # entries and the files on disk, by head_row_failures against the
+            # changelog, and by the three declared claims that publish the corpus
+            # as a whole -- so what the exclusion drops is a heuristic that
+            # produces only false positives at this magnitude.
             self.revision: "the current suiteRevision",
             self.forced: "the count of forced rules",
             self.tolerated: "the count of seen-but-tolerated rules",
@@ -215,11 +233,16 @@ class Sources:
         out: dict[int, set[int]] = {}
         for rev, row in self.ledger.items():
             for value in row:
-                out.setdefault(value, set()).add(rev)
+                # A revision predating the indeterminate bucket carries zero of
+                # them, and admitting 0 here would exempt every "0" written next
+                # to a count noun in a revision-naming sentence. An absent bucket
+                # is not a size the corpus ever published.
+                if value:
+                    out.setdefault(value, set()).add(rev)
         return out
 
 
-def revision_ledger() -> dict[int, tuple[int, int, int]]:
+def revision_ledger() -> dict[int, tuple[int, int, int, int]]:
     """Every size the corpus has had, read from the changelog that owns revision
     numbering.
 
@@ -236,7 +259,7 @@ def revision_ledger() -> dict[int, tuple[int, int, int]]:
             f"FAIL: {CHANGES_REL} carries no '## suiteRevision N' "
             "heading, so nothing says what size the corpus has ever been."
         )
-    ledger: dict[int, tuple[int, int, int]] = {}
+    ledger: dict[int, tuple[int, int, int, int]] = {}
     for index, heading in enumerate(headings):
         end = headings[index + 1].start() if index + 1 < len(headings) else len(text)
         row = CORPUS_ROW.search(text, heading.end(), end)
@@ -251,6 +274,7 @@ def revision_ledger() -> dict[int, tuple[int, int, int]]:
             int(row.group(1)),
             int(row.group(2)),
             int(row.group(3)),
+            int(row.group(4) or 0),
         )
     return ledger
 
@@ -265,6 +289,7 @@ def load_sources() -> Sources:
         total=len(manifest["vectors"]),
         accept=manifest["counts"]["accept"],
         reject=manifest["counts"]["reject"],
+        indeterminate=manifest["counts"]["indeterminate"],
         revision=max(ledger),
         forced=counts["KILLED"],
         tolerated=counts["SILENT"],
@@ -292,7 +317,11 @@ def manifest_integrity_failures(src: Sources) -> list[str]:
     """
     manifest = json.loads(source(MANIFEST_REL).read_text(encoding="utf-8"))
     out: list[str] = []
-    for kind, declared in (("accept", src.accept), ("reject", src.reject)):
+    for kind, declared in (
+        ("accept", src.accept),
+        ("reject", src.reject),
+        ("indeterminate", src.indeterminate),
+    ):
         entries = sum(1 for v in manifest["vectors"] if v.get("kind") == kind)
         on_disk = len(list((REPO_ROOT / "vectors" / kind).glob("*.json")))
         if declared == entries == on_disk:
@@ -316,11 +345,12 @@ INDEX_HEADING = re.compile(r"^## Vectors \((\d+)\)$", re.MULTILINE)
 # reject index backticks its ids and the accept index does not. This mirrors
 # gen_manifest.table_rows deliberately -- a second, looser parser here would let
 # a row the manifest generator skips be counted as present by this gate.
-INDEX_ROW_ID = re.compile(r"^\| *`?((?:ok|bad)-[0-9][0-9a-z-]*)`? *\|", re.MULTILINE)
+INDEX_ROW_ID = re.compile(r"^\| *`?((?:ok|bad|ind)-[0-9][0-9a-z-]*)`? *\|", re.MULTILINE)
 # Which family of the corpus each index table is the table of.
 INDEX_FAMILY = {
     "vectors/accept/INDEX.md": "accept",
     "vectors/reject/INDEX.md": "reject",
+    "vectors/indeterminate/INDEX.md": "indeterminate",
 }
 
 
@@ -393,13 +423,14 @@ def head_row_failures(src: Sources) -> list[str]:
     corpus while every rule below it kept passing.
     """
     row = src.ledger[src.revision]
-    if row == (src.total, src.accept, src.reject):
+    if row == (src.total, src.accept, src.reject, src.indeterminate):
         return []
     return [
         f"vectors/CHANGES.md: suiteRevision {src.revision} declares "
-        f"{row[0]} vectors ({row[1]} accept, {row[2]} reject) and "
-        f"vectors/MANIFEST.json carries {src.total} ({src.accept} accept, "
-        f"{src.reject} reject). The changelog is the ledger every historical count "
+        f"{row[0]} vectors ({row[1]} accept, {row[2]} reject, {row[3]} "
+        f"indeterminate) and vectors/MANIFEST.json carries {src.total} "
+        f"({src.accept} accept, {src.reject} reject, {src.indeterminate} "
+        "indeterminate). The changelog is the ledger every historical count "
         "in this repository resolves through, so its newest row is the manifest or "
         "nothing else can be trusted."
     ]
@@ -467,7 +498,10 @@ class Frozen:
 def claims(src: Sources) -> tuple[Claim, ...]:
     """Every live count this repository publishes, and what the sources say it is."""
     rev = src.revision
-    corpus = f"{src.total} vectors ({src.accept} accept, {src.reject} reject)"
+    corpus = (
+        f"{src.total} vectors ({src.accept} accept, {src.reject} reject, "
+        f"{src.indeterminate} indeterminate)"
+    )
     return (
         Claim(
             "README.md",
@@ -524,7 +558,8 @@ def claims(src: Sources) -> tuple[Claim, ...]:
             "the corpus line in the document header comment",
             f"Corpus SSOT: vectors/MANIFEST.json (suiteRevision {rev}, ",
             ").",
-            f"{src.total} vectors: {src.accept} accept, {src.reject} reject",
+            f"{src.total} vectors: {src.accept} accept, {src.reject} reject, "
+            f"{src.indeterminate} indeterminate",
         ),
         Claim(
             "docs/IMPLEMENTATION-REPORT.md",
@@ -553,7 +588,8 @@ def claims(src: Sources) -> tuple[Claim, ...]:
             "the verified-state paragraph, what the replay covers",
             "sibling vector suite: ",
             ", both key policies",
-            f"{src.accept} accept vectors, {src.reject} reject vectors",
+            f"{src.accept} accept vectors, {src.reject} reject vectors, "
+            f"{src.indeterminate} indeterminate vectors",
         ),
         Claim(
             "BUILD-NOTES.md",
@@ -567,7 +603,8 @@ def claims(src: Sources) -> tuple[Claim, ...]:
             "the provenance paragraph's statement of this corpus",
             "The conformance suite is at revision ",
             ", per vectors/MANIFEST.json.",
-            f"{rev} with {src.total} vectors, {src.accept} accept and {src.reject} reject",
+            f"{rev} with {src.total} vectors, {src.accept} accept, {src.reject} "
+            f"reject and {src.indeterminate} indeterminate",
         ),
         Claim(
             ".github/workflows/ci.yml",

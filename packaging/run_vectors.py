@@ -2213,6 +2213,7 @@ def run_external(
             "codes": ["external-verifier-timeout"],
             "result": None,
             "tiers": None,
+            "primaryCode": None,
         }
     except OSError as e:
         # Covers a missing, non-executable, or otherwise unrunnable --verifier.
@@ -2222,6 +2223,7 @@ def run_external(
             "codes": ["external-verifier-unrunnable"],
             "result": None,
             "tiers": None,
+            "primaryCode": None,
         }
     # Surface the external verifier's own diagnostics rather than swallowing
     # them: captured stderr is otherwise invisible when a run misbehaves.
@@ -2232,6 +2234,7 @@ def run_external(
     codes: list[str] = []
     result = None
     tiers = None
+    primary = None
     lines = [ln for ln in proc.stdout.decode("utf-8", "replace").splitlines() if ln.strip()]
     if lines:
         try:
@@ -2241,9 +2244,18 @@ def run_external(
                 codes = parsed.get("codes") or []
                 result = parsed.get("result")
                 tiers = parsed.get("tiers")
+                # OPTIONAL, and the only field a rail may omit without losing a
+                # comparison: the condition the rail COMMITS to when several
+                # hold. Nothing in the reject contract reads it, because that
+                # contract compares code sets and says so. The indeterminate
+                # families read it, because a rail that reports every condition
+                # has declined to answer the question they ask, and a rail that
+                # names one has answered it.
+                primary = parsed.get("primaryCode")
         except ValueError:
             pass
-    return {"verdict": verdict, "codes": codes, "result": result, "tiers": tiers}
+    return {"verdict": verdict, "codes": codes, "result": result, "tiers": tiers,
+            "primaryCode": primary}
 
 
 # ---------------------------------------------------------------------------
@@ -2281,7 +2293,11 @@ def manifest_index(manifest: dict[str, Any] | None) -> dict[str, dict[str, Any]]
 def discover_vectors(suite_dir: str) -> list[tuple[str, str]]:
     """Return (kind, path) pairs sorted by file name."""
     found: list[tuple[str, str]] = []
-    for sub, kind in (("accept", "accept"), ("reject", "reject")):
+    for sub, kind in (
+        ("accept", "accept"),
+        ("reject", "reject"),
+        ("indeterminate", "indeterminate"),
+    ):
         d = os.path.join(suite_dir, sub)
         if os.path.isdir(d):
             for name in sorted(os.listdir(d)):
@@ -2313,6 +2329,10 @@ def evaluate_vector(
 
     if kind == "accept":
         _eval_accept(expected, observed, obs_verdict, obs_codes, gates, reasons)
+    elif kind == "indeterminate":
+        _eval_indeterminate(
+            expected, observed, obs_verdict, obs_codes, self_check_findings, gates, reasons
+        )
     else:
         _eval_reject(
             expected,
@@ -2326,6 +2346,151 @@ def evaluate_vector(
 
     ok = not reasons
     return ok, gates, reasons
+
+
+def readings_of(entry: dict[str, Any] | None) -> dict[str, str]:
+    """The declared readings of an indeterminate vector, or an empty map."""
+    expected = (entry or {}).get("expected") or {}
+    declared = expected.get("readings")
+    return {str(k): str(v) for k, v in declared.items()} if isinstance(declared, dict) else {}
+
+
+def _eval_indeterminate(
+    expected: dict[str, Any],
+    observed: dict[str, Any],
+    obs_verdict: Any,
+    obs_codes: set[Any],
+    self_check_findings: list[str] | None,
+    gates: dict[str, str],
+    reasons: list[str],
+) -> None:
+    """Per-member half of the indeterminate contract: verdict and CLOSURE.
+
+    The verdict is determined and is checked exactly as a reject vector's. The
+    condition is not, so what is checked here is that the rail's answer is one
+    the corpus DECLARED somebody could give: its codes must intersect the union
+    of this member's predicted conditions. An answer outside that union is a
+    failure and not an invitation to widen the union -- widening is how a
+    two-answer expectation becomes a set that any answer satisfies, which is the
+    thing this bucket exists so that nobody has to do.
+
+    Coherence across the family is the other half and cannot be asked here,
+    because it is a property of several members' answers at once. It runs over
+    the finished rows in family_coherence_failures.
+    """
+    predicted = {str(v) for v in (expected.get("readings") or {}).values()}
+    if obs_verdict != "invalid":
+        gates["gate0"] = gates["gate1"] = gates["recompute"] = "FAIL"
+        reasons.append("expected invalid, observed valid")
+    else:
+        gates["gate0"] = "PASS"
+        if predicted and not (predicted & obs_codes):
+            gates["gate0"] = "FAIL"
+            reasons.append(
+                f"no declared reading's condition observed: the readings predict "
+                f"{sorted(predicted)}, the rail reported {sorted(obs_codes)}. A "
+                "condition no declared reading predicts is an undeclared reading: "
+                "add it to the family by name with its argument, never by widening "
+                "the set."
+            )
+        if observed.get("result") is not None or observed.get("tiers_with_key"):
+            gates["recompute"] = "FAIL"
+            reasons.append("invalid vector emitted a result or tiers")
+    if self_check_findings is not None:
+        gates["self-check"] = "FAIL" if self_check_findings else "PASS"
+        reasons.extend(self_check_findings)
+
+
+def _answers(
+    row: dict[str, Any], reading: str, idx: dict[str, dict[str, Any]], committed: bool
+) -> bool:
+    """Does this member's answer match what ``reading`` predicts for it?
+
+    Two strengths, and which one applies is the rail's own choice rather than
+    this harness's. A rail that publishes ``primaryCode`` has named the one
+    condition it reports when several hold, so the reading must predict exactly
+    that. A rail that publishes only a code set has not answered the question
+    these families ask -- reporting every condition is a legitimate response to a
+    statement carrying several -- so membership is all that can be asked, and
+    such a rail is compatible with every reading and is reported as committing to
+    none. Inferring a primary from the set's order is the one thing not done
+    here: the reject contract states that order carries nothing, and a harness
+    that read order anyway would be enforcing a rule the corpus tells rails to
+    ignore.
+    """
+    predicted = readings_of(idx.get(str(row["id"]))).get(reading)
+    observed: dict[str, Any] = row.get("observed") or {}
+    if committed:
+        return predicted == observed.get("primaryCode")
+    return predicted in {str(c) for c in (observed.get("codes") or [])}
+
+
+def family_coherence_failures(
+    idx: dict[str, dict[str, Any]], rows_out: list[dict[str, Any]]
+) -> tuple[list[str], list[str]]:
+    """Coherence half of the indeterminate contract, plus the reading it records.
+
+    A rail may take any declared reading of a family. What it may not do is
+    answer one member under one reading and another member under a different
+    one: the specification leaves the condition open, it does not license a rail
+    whose reported condition turns on incidental structure. So the requirement is
+    that at least ONE declared reading predicts, for every member of the family,
+    a condition the rail actually reported.
+
+    Returns (notes, failures). The notes name the reading each family matched,
+    which is the whole reason the bucket exists: two rails that agree on every
+    verdict and disagree here have, until now, had nowhere for that disagreement
+    to show up.
+    """
+    families: dict[str, list[dict[str, Any]]] = {}
+    for row in rows_out:
+        if row.get("kind") != "indeterminate":
+            continue
+        entry = idx.get(str(row["id"]))
+        family = str(((entry or {}).get("expected") or {}).get("family") or "")
+        if family:
+            families.setdefault(family, []).append(row)
+
+    notes: list[str] = []
+    failures: list[str] = []
+    for family, members in sorted(families.items()):
+        declared = sorted(readings_of(idx.get(str(members[0]["id"]))))
+        committed = all(m.get("observed", {}).get("primaryCode") for m in members)
+        matched = [
+            name
+            for name in declared
+            if all(_answers(m, name, idx, committed) for m in members)
+        ]
+        if matched:
+            how = (
+                "the reading the rail committed to"
+                if committed and len(matched) == 1
+                else "compatible with the rail's reported code set, which commits "
+                "to no single reading"
+            )
+            notes.append(
+                f"indeterminate family {family}: {', '.join(matched)} -- {how} "
+                f"({len(members)} member(s))"
+            )
+            continue
+        failures.append(
+            f"indeterminate family {family}: no declared reading explains the "
+            "rail's answers across the family. Per member: "
+            + "; ".join(
+                f"{m['id']} -> "
+                + str(
+                    m.get("observed", {}).get("primaryCode")
+                    if committed
+                    else sorted(m.get("observed", {}).get("codes") or [])
+                )
+                for m in members
+            )
+            + f". Declared readings: {declared}. Either answer is admissible; "
+            "answering two members under different readings is not, because the "
+            "reported condition is then a function of incidental structure rather "
+            "than of a policy the rail applies."
+        )
+    return notes, failures
 
 
 def _eval_accept(
@@ -2499,6 +2664,22 @@ def run_suite(args: argparse.Namespace) -> int:
     suite_notes, note_failures = _run_manifest_notes(manifest, idx, rows_out)
     failures += note_failures
 
+    # The cross-member half of the indeterminate contract. A failure is written
+    # onto every member of the family as well as into the suite notes: the
+    # profile is what fails, no one member of it is at fault on its own, and a
+    # totals line reading "0 fail" beside a non-zero exit is the shape of report
+    # this repository exists to stop shipping.
+    coherence_notes, coherence_failures = family_coherence_failures(idx, rows_out)
+    suite_notes.extend(coherence_notes)
+    suite_notes.extend(coherence_failures)
+    if coherence_failures:
+        for row in rows_out:
+            if row.get("kind") == "indeterminate":
+                row["status"] = "FAIL"
+                row["reasons"] = [*row["reasons"], *coherence_failures]
+                row["gates"]["gate0"] = "FAIL"
+        failures += len(coherence_failures)
+
     report, report_path = _run_write_report(
         args, suite_dir, report_base, external_cmd, probe_note, suite_notes, rows_out
     )
@@ -2553,6 +2734,7 @@ def observe_external(external_cmd: list[str], path: str, keys_path: str) -> dict
     return {
         "verdict": with_key["verdict"],
         "codes": with_key["codes"],
+        "primaryCode": with_key["primaryCode"],
         "result": with_key["result"],
         "tiers_with_key": with_key["tiers"],
         "tiers_without_key": without_key["tiers"],
@@ -2576,6 +2758,12 @@ def _run_observe(
     return {
         "verdict": o_with.verdict,
         "codes": o_with.codes,
+        # This rail appends codes in detection order, so its first code is the
+        # deterministic primary the README names as the contract. Publishing it
+        # here rather than inferring it in the evaluator keeps the inference to
+        # the one rail whose ordering is defined; an external rail says so
+        # itself or is recorded as having declined to.
+        "primaryCode": o_with.codes[0] if o_with.codes else None,
         "result": o_with.result,
         "tiers_with_key": o_with.tiers_with_key,
         "tiers_without_key": o_without.tiers_without_key,
@@ -2643,7 +2831,7 @@ def _run_process_vector(
     observed = _run_observe(external_cmd, ref_with, ref_without, path, stmt, raw, keys_path)
 
     self_check = None
-    if kind == "reject" and faithful:
+    if kind in ("reject", "indeterminate") and faithful:
         # The second-fault check recomputes derived commitments from the parsed
         # statement, so it is meaningful only when the parse was faithful. On a
         # byte-level vector the value above is a lossy reconstruction and every
@@ -2658,6 +2846,11 @@ def _run_process_vector(
         # UNdeclared second fault in the same vector still fails this check.
         exp_codes = set(expected.get("codes") or [])
         exp_codes |= set(expected.get("alsoCarries") or [])
+        # An indeterminate member carries one fault per declared reading, all of
+        # them on purpose, so the union of the predicted conditions is its
+        # exemption key. Anything beyond that union is still an undeclared second
+        # fault, and it would hand a rail an answer the readings do not cover.
+        exp_codes |= {str(v) for v in (expected.get("readings") or {}).values()}
         self_check = second_fault_absence(stmt, exp_codes)
 
     ok, gates, reasons = evaluate_vector(kind, entry, observed, self_check)
@@ -2670,6 +2863,7 @@ def _run_process_vector(
         "observed": {
             "verdict": observed["verdict"],
             "codes": observed["codes"],
+            "primaryCode": observed.get("primaryCode"),
             "result": observed["result"],
         },
         "expected": (entry or {}).get("expected"),

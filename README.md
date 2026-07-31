@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://github.com/astrogilda/aee-conformance/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/astrogilda/aee-conformance/ci.yml?branch=main&label=build" alt="build status"></a>
   <img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="license Apache-2.0">
-  <img src="https://img.shields.io/badge/conformance%20vectors-186-e8951c" alt="186 conformance vectors">
+  <img src="https://img.shields.io/badge/conformance%20vectors-187-e8951c" alt="187 conformance vectors">
   <img src="https://img.shields.io/badge/rails-Go%20%C2%B7%20Python-546274" alt="Go and Python rails">
   <img src="https://img.shields.io/badge/predicate-in--toto%20AEE%20v0.6-6f57c2" alt="in-toto AEE v0.6 predicate">
 </p>
@@ -132,7 +132,9 @@ counting entries needs no key material. An absent member, an empty array
 and a member that is not an array at all are that one fault counted three
 ways, and the count is asked once over the record set before any payload
 is decoded, so a record carrying no signature is settled ahead of a record
-whose payload does not decode.
+whose payload does not decode. That last sentence is this rail's READING and
+not a rule the specification states, and it is the one place where saying so
+required a third kind of vector; see Indeterminate vectors below.
 
 ### What the suite compares
 
@@ -141,7 +143,12 @@ reads the verdict from the exit status, and reads the codes, the recomputed
 result and the tiers from the last line of stdout when that line is a JSON
 object of the shape `{"verdict": ..., "codes": [...], "result": ...,
 "tiers": [...]}`. `--verifier` takes a command line rather than a path, so a
-rail whose machine-readable output sits behind a flag needs no wrapper.
+rail whose machine-readable output sits behind a flag needs no wrapper. One
+further member is read and is OPTIONAL: `primaryCode`, the single condition the
+rail reports when several hold. Nothing in the accept or reject contract reads
+it, because that contract compares code sets and says so below; the
+indeterminate families read it and a rail that omits it is recorded as having
+committed to no reading rather than as failing.
 
 That object has to be **one line**. The harness reads the last line and parses
 that line alone, so an indented encoding delivers a line reading `}` and the run
@@ -182,7 +189,10 @@ The codes are compared as a set. Order carries nothing and message text carries
 nothing, so a verifier that reports the first fault it finds and one that reports
 every fault it finds both pass the same entry. That is what lets a strict
 single-code implementation and a superset-emitting one certify against one
-manifest.
+manifest. It is also why the optional `primaryCode` exists rather than the
+harness reading the first entry of the set: a harness that inferred precedence
+from an order this paragraph tells rails to ignore would be enforcing a rule the
+corpus disclaims.
 
 An implementation that would rather keep its own reject reasons is not shut out
 of the corpus. It can emit a report in its own vocabulary and compare that report
@@ -219,9 +229,57 @@ What the registry guarantees:
   one revision still recognises it at the next;
 - precedence is contractual only where this README pins it. Where two conditions
   can hold at once and nothing here decides which is reported, either is
-  conformant, and no vector is written until the question is decided. The open
-  ones live in `docs/interpretation-decisions-open.md`;
+  conformant — and that no longer means no vector. It means an INDETERMINATE
+  vector, which declares every reading a conformant rail may take and holds the
+  rail to one of them rather than to ours. The reasoning behind each open
+  question still lives in `docs/interpretation-decisions-open.md`;
 - message text is never part of the contract, at any revision.
+
+### Indeterminate vectors
+
+Two buckets can make two claims. `accept/` says every conformant verifier admits
+these bytes and recomputes this result; `reject/` says every conformant verifier
+refuses them and names a condition from a declared set. Neither can say that the
+verdict is settled and the condition is not, and about some statements that is
+the only true thing to say. The specification carries no failure-code vocabulary
+at all, and of its own two-stage verification description it says that "the
+sequencing itself is informative" (L366-368). Two rails can therefore reject the
+same bytes, name different conditions, and both be right.
+
+Saying it by widening a reject vector's expected set does not work: the harness
+compares code SETS, so a set naming both conditions is satisfied by either
+answer and by a rail that emits both, and the vector stops measuring the
+question instead of starting to. `vectors/indeterminate/` is the third bucket.
+A member declares a DETERMINED verdict — indeterminacy is scoped to the
+condition, because a vector whose verdict were open would certify nothing — and
+a set of READINGS, each naming the condition that reading predicts for that
+member. A family is the members sharing one reading vocabulary, and the
+generator refuses a family whose declared readings no member's answer can
+separate.
+
+A rail satisfies three requirements: the verdict; CLOSURE, its answer on each
+member is one some declared reading predicts; and COHERENCE, one reading
+explains its answers across the whole family. Either answer is admissible. No
+answer is not, and neither is a pair of answers straddling two readings, because
+the reported condition is then a function of incidental structure rather than of
+a policy the rail applies — the shape a primary-code selector that overwrites
+rather than sets-if-unset produces, and a shape no single-fault vector can see.
+
+Which reading a rail took is READ and REPORTED rather than required. A rail may
+publish an optional `primaryCode` beside its code set, naming the one condition
+it reports when several hold; the families read it, and nothing else does. A rail
+that publishes only the set has declined to answer — reporting every condition a
+statement carries is a legitimate response — and is recorded as committing to no
+reading. That report is the point. Both findings this corpus has taken from an
+outside reader were divergences five agreeing rails could not show each other,
+and a bucket that records which reading each rail took is where the next one
+becomes visible without anybody having to arbitrate.
+
+`vectors/indeterminate/INDEX.md` carries the families, the readings, and the
+enumeration of what is deliberately NOT in the bucket: the specification's limits
+(the passive-sensor producer assertions, the shared-reference evidencing
+obligation), the consumer MAY clauses that sit outside the verdict this suite
+reads, and the producer options whose verifier handling is forced.
 
 Two codes carry a standing exemption the gate knows about.
 `corpus-anchor-mismatch` and `substrate-anchor-mismatch` are consumer-policy
@@ -247,7 +305,7 @@ A vector count is an upper bound on forcing and never a measurement of it. The
 evaluator satisfies a vector when ANY expected code in a stage is observed, and
 the per-stage column the runner prints is a display rather than a verdict: delete
 the `result-vocabulary` emission from the rail and two vectors' gate-0 column goes
-FAIL while the suite still reports 186 of 186, exit 0. A rail with no
+FAIL while the suite still reports 187 of 187, exit 0. A rail with no
 result-vocabulary check at all clears this corpus.
 
 So forcing is measured instead. `scripts/forcing-gate.py` switches off exactly one
@@ -361,7 +419,7 @@ directed 153/153 says the corrected rule is implementable by someone who has onl
 the text. It is not the same evidence as 125/125 and this suite does not present
 it as such.
 
-It has not been run against suiteRevision 4, 7, 8, 9, 10, 11, 12, 13, 14, 15 or 16, so
+It has not been run against suiteRevision 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 or 17, so
 this suite publishes no score for it at any of them. They are on that list for
 two different reasons. From suiteRevision 7 onward the corpus itself moved past
 his last run: the single suiteRevision-7 vector (`bad-745`) and the two

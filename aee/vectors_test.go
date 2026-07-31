@@ -8,6 +8,17 @@ package aee_test
 //	reject  → verdict invalid, primary code ∈ the suite's expected code set,
 //	          NO result and NO tiers (invalid-emits-nothing behavior)
 //
+//	indeterminate → verdict invalid and NO result/tiers, exactly as a reject;
+//	          the primary code is one the suite DECLARED some conformant
+//	          reading predicts, and across each family the primary codes are
+//	          all predicted by ONE declared reading. The specification settles
+//	          the verdict here and not the condition (it carries no
+//	          failure-code vocabulary and calls its own stage ordering
+//	          informative), so pinning a single condition would fail a
+//	          from-spec rail for a non-defect and naming both would stop
+//	          measuring the question. What is required instead is that the
+//	          rail have A reading and keep to it.
+//
 // Two suite layouts are supported:
 //
 //  1. MANIFEST mode — a MANIFEST.json at the suite root with accept/ and
@@ -42,11 +53,13 @@ type manifestVector struct {
 	ID       string `json:"id"`
 	Kind     string `json:"kind"`
 	Expected struct {
-		Verdict           string   `json:"verdict"`
-		Codes             []string `json:"codes"`
-		Result            string   `json:"result"`
-		TierWithPinnedKey []string `json:"tierWithPinnedKey"`
-		TierWithoutKey    []string `json:"tierWithoutKey"`
+		Verdict           string            `json:"verdict"`
+		Codes             []string          `json:"codes"`
+		Result            string            `json:"result"`
+		TierWithPinnedKey []string          `json:"tierWithPinnedKey"`
+		TierWithoutKey    []string          `json:"tierWithoutKey"`
+		Family            string            `json:"family"`
+		Readings          map[string]string `json:"readings"`
 	} `json:"expected"`
 }
 
@@ -106,20 +119,126 @@ func runManifestMode(t *testing.T, dir string) {
 		t.Fatal("MANIFEST.json carries no vectors under 'vectors' or 'index'")
 	}
 
+	// Primary code this rail reports per indeterminate vector, collected as the
+	// vectors run and asserted family-wide afterwards. The per-vector check can
+	// only ask whether the answer is one somebody declared; whether the answers
+	// hang together is a property of several of them at once.
+	answers := map[string]string{}
+
 	for _, v := range vectors {
 		v := v
 		t.Run(v.ID, func(t *testing.T) {
 			sub := "accept"
-			if v.Kind == "reject" {
+			switch v.Kind {
+			case "reject":
 				sub = "reject"
+			case "indeterminate":
+				sub = "indeterminate"
 			}
 			body, err := os.ReadFile(filepath.Join(dir, sub, v.ID+".json"))
 			if err != nil {
 				t.Fatalf("vector body missing: %v", err)
 			}
+			if v.Kind == "indeterminate" {
+				answers[v.ID] = checkIndeterminate(t, body, v)
+				return
+			}
 			checkVector(t, body, v.Kind == "accept", v.Expected.Result,
 				v.Expected.Codes, v.Expected.TierWithPinnedKey, v.Expected.TierWithoutKey)
 		})
+	}
+
+	t.Run("indeterminate-family-coherence", func(t *testing.T) {
+		checkFamilyCoherence(t, vectors, answers)
+	})
+}
+
+// checkIndeterminate asserts the determined half of an indeterminate vector's
+// contract and returns the condition this rail committed to.
+//
+// The verdict is checked exactly as a reject vector's, because indeterminacy is
+// scoped to the condition: a vector whose verdict were open would certify
+// nothing. CLOSURE is then the per-vector half -- the primary code must be one
+// some declared reading predicts. An answer outside that set is a failure and
+// never a reason to widen it, because a set widened until every answer fits is
+// how a vector stops measuring the thing it was written for.
+func checkIndeterminate(t *testing.T, body []byte, v manifestVector) string {
+	t.Helper()
+	if len(v.Expected.Readings) < 2 {
+		t.Fatalf("%s declares %d reading(s); a family with fewer than two is a reject vector",
+			v.ID, len(v.Expected.Readings))
+	}
+	var committed string
+	for _, pc := range []struct {
+		name   string
+		policy *aee.ConsumerPolicy
+	}{{"pinned", pinnedPolicy()}, {"none", &aee.ConsumerPolicy{}}} {
+		r := aee.Verify(body, pc.policy)
+		if r.Verdict != aee.VerdictInvalid {
+			t.Fatalf("[%s] %s: expected invalid, got valid (result %q)", pc.name, v.ID, r.Result)
+		}
+		if r.Result != "" || r.Tiers != nil {
+			t.Fatalf("[%s] %s: invalid verdict leaked result/tiers", pc.name, v.ID)
+		}
+		predicted := false
+		for _, want := range v.Expected.Readings {
+			if want == string(r.PrimaryCode) {
+				predicted = true
+			}
+		}
+		if !predicted {
+			t.Fatalf("[%s] %s: primary code %s is predicted by no declared reading %v (all: %v). "+
+				"An undeclared reading is added to the family by name, never by widening the set",
+				pc.name, v.ID, r.PrimaryCode, v.Expected.Readings, r.Codes)
+		}
+		if committed != "" && committed != string(r.PrimaryCode) {
+			t.Fatalf("%s: the reported condition moved with the key policy (%s vs %s); "+
+				"which condition is reported is byte-pure and cannot depend on consumer trust",
+				v.ID, committed, r.PrimaryCode)
+		}
+		committed = string(r.PrimaryCode)
+	}
+	return committed
+}
+
+// checkFamilyCoherence asserts that one declared reading explains every member
+// of each family. Either answer is admissible; answering two members under
+// different readings is not, because the reported condition is then a function
+// of incidental structure -- here, the wire order of two faulted records --
+// rather than of a policy the rail applies. A single-fault corpus can never see
+// that, which is why the families carry more than one member.
+func checkFamilyCoherence(t *testing.T, vectors []manifestVector, answers map[string]string) {
+	t.Helper()
+	families := map[string][]manifestVector{}
+	for _, v := range vectors {
+		if v.Kind == "indeterminate" && v.Expected.Family != "" {
+			families[v.Expected.Family] = append(families[v.Expected.Family], v)
+		}
+	}
+	for family, members := range families {
+		var matched []string
+		for reading := range members[0].Expected.Readings {
+			all := true
+			for _, m := range members {
+				if m.Expected.Readings[reading] != answers[m.ID] {
+					all = false
+				}
+			}
+			if all {
+				matched = append(matched, reading)
+			}
+		}
+		if len(matched) == 0 {
+			var got []string
+			for _, m := range members {
+				got = append(got, m.ID+" -> "+answers[m.ID])
+			}
+			sort.Strings(got)
+			t.Fatalf("family %s: no declared reading explains this rail's answers (%v); "+
+				"declared readings %v", family, got, members[0].Expected.Readings)
+		}
+		sort.Strings(matched)
+		t.Logf("family %s: this rail reads %s", family, strings.Join(matched, ", "))
 	}
 }
 

@@ -872,23 +872,59 @@
       "opens": "One DSSE envelope per observation: `payload` (base64 of the exact",
       "closes": "and `signatures`, which MUST carry at least one entry. A consumer verifies"
     },
-    "vectors/reject/gen_invalid_vectors.py::bad-748-signatures-empty-precedes-undecodable-record#0": {
-      "anchor": "L980-982",
-      "digest": "e0f1c03133309284c9b105cee0d71eb793fac400fbb6acbb7f1816a982e705ff",
-      "opens": "One DSSE envelope per observation: `payload` (base64 of the exact",
-      "closes": "and `signatures`, which MUST carry at least one entry. A consumer verifies"
-    },
-    "vectors/reject/gen_invalid_vectors.py::bad-748-signatures-empty-precedes-undecodable-record#1": {
-      "anchor": "L982-989",
-      "digest": "0c6fbc4f2db0b8e4b200a955739cdc5f16c329cf5a0c4b04dd0eda9e4a6676fe",
-      "opens": "and `signatures`, which MUST carry at least one entry. A consumer verifies",
-      "closes": "Reading ahead of verification is a stage, never a conclusion. Any record used"
+    "vectors/reject/gen_invalid_vectors.py::sequencing of its own two stages is informative (L366-368), so both rails#0": {
+      "anchor": "L366-368",
+      "digest": "b07d3895670fd449b7528b92447b07346c12e6e36faca9d6f52772fce6228f23",
+      "opens": "obligations. Only the consumption preconditions stated under Coverage",
+      "closes": "sequencing itself is informative."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-749-record-signatures-not-an-array#0": {
       "anchor": "L980-982",
       "digest": "e0f1c03133309284c9b105cee0d71eb793fac400fbb6acbb7f1816a982e705ff",
       "opens": "One DSSE envelope per observation: `payload` (base64 of the exact",
       "closes": "and `signatures`, which MUST carry at least one entry. A consumer verifies"
+    },
+    "vectors/reject/gen_invalid_vectors.py::two-stage description that \"the sequencing itself is informative\" (L366-368).#0": {
+      "anchor": "L366-368",
+      "digest": "b07d3895670fd449b7528b92447b07346c12e6e36faca9d6f52772fce6228f23",
+      "opens": "obligations. Only the consumption preconditions stated under Coverage",
+      "closes": "sequencing itself is informative."
+    },
+    "vectors/reject/gen_invalid_vectors.py::_i002#0": {
+      "anchor": "L366-368",
+      "digest": "b07d3895670fd449b7528b92447b07346c12e6e36faca9d6f52772fce6228f23",
+      "opens": "obligations. Only the consumption preconditions stated under Coverage",
+      "closes": "sequencing itself is informative."
+    },
+    "vectors/reject/gen_invalid_vectors.py::_i002#1": {
+      "anchor": "L980-982",
+      "digest": "e0f1c03133309284c9b105cee0d71eb793fac400fbb6acbb7f1816a982e705ff",
+      "opens": "One DSSE envelope per observation: `payload` (base64 of the exact",
+      "closes": "and `signatures`, which MUST carry at least one entry. A consumer verifies"
+    },
+    "vectors/reject/gen_invalid_vectors.py::_i002#2": {
+      "anchor": "L982-989",
+      "digest": "0c6fbc4f2db0b8e4b200a955739cdc5f16c329cf5a0c4b04dd0eda9e4a6676fe",
+      "opens": "and `signatures`, which MUST carry at least one entry. A consumer verifies",
+      "closes": "Reading ahead of verification is a stage, never a conclusion. Any record used"
+    },
+    "vectors/reject/gen_invalid_vectors.py::_i002#3": {
+      "anchor": "L366-368",
+      "digest": "b07d3895670fd449b7528b92447b07346c12e6e36faca9d6f52772fce6228f23",
+      "opens": "obligations. Only the consumption preconditions stated under Coverage",
+      "closes": "sequencing itself is informative."
+    },
+    "vectors/reject/gen_invalid_vectors.py::_i002#4": {
+      "anchor": "L980-982",
+      "digest": "e0f1c03133309284c9b105cee0d71eb793fac400fbb6acbb7f1816a982e705ff",
+      "opens": "One DSSE envelope per observation: `payload` (base64 of the exact",
+      "closes": "and `signatures`, which MUST carry at least one entry. A consumer verifies"
+    },
+    "vectors/reject/gen_invalid_vectors.py::_i002#5": {
+      "anchor": "L982-989",
+      "digest": "0c6fbc4f2db0b8e4b200a955739cdc5f16c329cf5a0c4b04dd0eda9e4a6676fe",
+      "opens": "and `signatures`, which MUST carry at least one entry. A consumer verifies",
+      "closes": "Reading ahead of verification is a stage, never a conclusion. Any record used"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-746-manifest-empty-classes#0": {
       "anchor": "L699-721",
@@ -1574,6 +1610,54 @@
       "opens": "For this predicate `subject` MUST contain exactly one entry on a statement",
       "closes": "For this predicate `subject` MUST contain exactly one entry on a statement"
     },
+    "vectors/reject/gen_invalid_vectors.py::write_ind_index#0": {
+      "anchor": "L366-368",
+      "digest": "b07d3895670fd449b7528b92447b07346c12e6e36faca9d6f52772fce6228f23",
+      "opens": "obligations. Only the consumption preconditions stated under Coverage",
+      "closes": "sequencing itself is informative."
+    },
+    "vectors/reject/gen_invalid_vectors.py::write_ind_index#1": {
+      "anchor": "L455-463",
+      "digest": "2fa572635b415a239c8c2bb49deb91eb39fc8ef2831f44b9dbf9e2bc212df172",
+      "opens": "Two further bounds sit beside that one. The substrate is a passive sensor,",
+      "closes": "integrity that nothing was silently skipped."
+    },
+    "vectors/reject/gen_invalid_vectors.py::write_ind_index#2": {
+      "anchor": "L664-671",
+      "digest": "dbf4a62d2f42cba2da9709f8c58cfe5c5c986c49120e933483f83fc4f4898c6b",
+      "opens": "`observationRefs`",
+      "closes": "neither can nor may invent an evidencing heuristic for shared references."
+    },
+    "vectors/reject/gen_invalid_vectors.py::write_ind_index#3": {
+      "anchor": "L857-860",
+      "digest": "a6e563ab32203f95ffa0a45f22b7668b3739d8e75121b5252a638c8c5c3a2bc3",
+      "opens": "disclosed coverage gap. A consumer MAY reject, never downgrade: an",
+      "closes": "rank is not a downgrade of signed bytes, exactly as declining to trust a"
+    },
+    "vectors/reject/gen_invalid_vectors.py::write_ind_index#4": {
+      "anchor": "L448-449",
+      "digest": "09a6cf5e3c54fddd1cda245a4d8a58786cf9f7d30bfc34587d93afeafbfc94b4",
+      "opens": "The default admission threshold is `result == \"pass\"`. A consumer MAY",
+      "closes": "accept `pass_indirect`, and a consumer relaxing its threshold below `pass`"
+    },
+    "vectors/reject/gen_invalid_vectors.py::write_ind_index#5": {
+      "anchor": "L943-947",
+      "digest": "2d6ca2442e911e945498173213b855d048482898a492ef813da6a56aab3d2634",
+      "opens": "to `issuedAt`. Consumers MAY additionally coherence-check row claims against",
+      "closes": "reject on that ground."
+    },
+    "vectors/reject/gen_invalid_vectors.py::write_ind_index#6": {
+      "anchor": "L927",
+      "digest": "b637178cf8733bf85303f6c1d28ac1389d032ef72c0cf8e656ffea3cbf46c21a",
+      "opens": "failure, and a consumer's policy MAY bound a named key with a validity",
+      "closes": "failure, and a consumer's policy MAY bound a named key with a validity"
+    },
+    "vectors/reject/gen_invalid_vectors.py::write_ind_index#7": {
+      "anchor": "L1219-1222",
+      "digest": "02fce896243f98a8862f60bf5b08220d2cee6eae7cfb04788de0541d439954f8",
+      "opens": "verify is not admitted. The comparison is deliberately not a validity",
+      "closes": "consumer. An anchor-mismatched attestation is valid evidence about the"
+    },
     "vectors/interpretation-decisions.json::1#0": {
       "anchor": "L477-502",
       "digest": "c40d5d586eb99095d1d1ce0c2e18b5b2952ef2f8cb827d01cb1a3f2ff824cb82",
@@ -1976,6 +2060,54 @@
       "opens": "failure, and a consumer's policy MAY bound a named key with a validity",
       "closes": "to `issuedAt`. Consumers MAY additionally coherence-check row claims against"
     },
+    "vectors/CHANGES.md::suiteRevision 17 (a third bucket, for the questions the specification leaves open)#0": {
+      "anchor": "L366-368",
+      "digest": "b07d3895670fd449b7528b92447b07346c12e6e36faca9d6f52772fce6228f23",
+      "opens": "obligations. Only the consumption preconditions stated under Coverage",
+      "closes": "sequencing itself is informative."
+    },
+    "vectors/CHANGES.md::suiteRevision 17 (a third bucket, for the questions the specification leaves open)#1": {
+      "anchor": "L455-463",
+      "digest": "2fa572635b415a239c8c2bb49deb91eb39fc8ef2831f44b9dbf9e2bc212df172",
+      "opens": "Two further bounds sit beside that one. The substrate is a passive sensor,",
+      "closes": "integrity that nothing was silently skipped."
+    },
+    "vectors/CHANGES.md::suiteRevision 17 (a third bucket, for the questions the specification leaves open)#2": {
+      "anchor": "L664-671",
+      "digest": "dbf4a62d2f42cba2da9709f8c58cfe5c5c986c49120e933483f83fc4f4898c6b",
+      "opens": "`observationRefs`",
+      "closes": "neither can nor may invent an evidencing heuristic for shared references."
+    },
+    "vectors/CHANGES.md::suiteRevision 17 (a third bucket, for the questions the specification leaves open)#3": {
+      "anchor": "L448-449",
+      "digest": "09a6cf5e3c54fddd1cda245a4d8a58786cf9f7d30bfc34587d93afeafbfc94b4",
+      "opens": "The default admission threshold is `result == \"pass\"`. A consumer MAY",
+      "closes": "accept `pass_indirect`, and a consumer relaxing its threshold below `pass`"
+    },
+    "vectors/CHANGES.md::suiteRevision 17 (a third bucket, for the questions the specification leaves open)#4": {
+      "anchor": "L857-860",
+      "digest": "a6e563ab32203f95ffa0a45f22b7668b3739d8e75121b5252a638c8c5c3a2bc3",
+      "opens": "disclosed coverage gap. A consumer MAY reject, never downgrade: an",
+      "closes": "rank is not a downgrade of signed bytes, exactly as declining to trust a"
+    },
+    "vectors/CHANGES.md::suiteRevision 17 (a third bucket, for the questions the specification leaves open)#5": {
+      "anchor": "L927",
+      "digest": "b637178cf8733bf85303f6c1d28ac1389d032ef72c0cf8e656ffea3cbf46c21a",
+      "opens": "failure, and a consumer's policy MAY bound a named key with a validity",
+      "closes": "failure, and a consumer's policy MAY bound a named key with a validity"
+    },
+    "vectors/CHANGES.md::suiteRevision 17 (a third bucket, for the questions the specification leaves open)#6": {
+      "anchor": "L943-947",
+      "digest": "2d6ca2442e911e945498173213b855d048482898a492ef813da6a56aab3d2634",
+      "opens": "to `issuedAt`. Consumers MAY additionally coherence-check row claims against",
+      "closes": "reject on that ground."
+    },
+    "vectors/CHANGES.md::suiteRevision 17 (a third bucket, for the questions the specification leaves open)#7": {
+      "anchor": "L1219-1222",
+      "digest": "02fce896243f98a8862f60bf5b08220d2cee6eae7cfb04788de0541d439954f8",
+      "opens": "verify is not admitted. The comparison is deliberately not a validity",
+      "closes": "consumer. An anchor-mismatched attestation is valid evidence about the"
+    },
     "vectors/CHANGES.md::suiteRevision 3 (round-8 reason-map membership)#0": {
       "anchor": "L650-652",
       "digest": "71c96ed2cd1361ff30bdfa60e8f579a4ebf19fcb772534d7f7253c815a20f94e",
@@ -2041,6 +2173,48 @@
       "digest": "09477573cacc695830bd00f714525a243c0cd430b0dc4cde657a0fbfcc91cd99",
       "opens": "nothing, never create it), and the verify-then-read discipline is",
       "closes": "verifies), which closes the parse-before-verify class of deployment"
+    },
+    "docs/interpretation-decisions-open.md::suiteRevision 17: what else was considered for the bucket, and refused#0": {
+      "anchor": "L455-463",
+      "digest": "2fa572635b415a239c8c2bb49deb91eb39fc8ef2831f44b9dbf9e2bc212df172",
+      "opens": "Two further bounds sit beside that one. The substrate is a passive sensor,",
+      "closes": "integrity that nothing was silently skipped."
+    },
+    "docs/interpretation-decisions-open.md::suiteRevision 17: what else was considered for the bucket, and refused#1": {
+      "anchor": "L664-671",
+      "digest": "dbf4a62d2f42cba2da9709f8c58cfe5c5c986c49120e933483f83fc4f4898c6b",
+      "opens": "`observationRefs`",
+      "closes": "neither can nor may invent an evidencing heuristic for shared references."
+    },
+    "docs/interpretation-decisions-open.md::suiteRevision 17: what else was considered for the bucket, and refused#2": {
+      "anchor": "L448-449",
+      "digest": "09a6cf5e3c54fddd1cda245a4d8a58786cf9f7d30bfc34587d93afeafbfc94b4",
+      "opens": "The default admission threshold is `result == \"pass\"`. A consumer MAY",
+      "closes": "accept `pass_indirect`, and a consumer relaxing its threshold below `pass`"
+    },
+    "docs/interpretation-decisions-open.md::suiteRevision 17: what else was considered for the bucket, and refused#3": {
+      "anchor": "L857-860",
+      "digest": "a6e563ab32203f95ffa0a45f22b7668b3739d8e75121b5252a638c8c5c3a2bc3",
+      "opens": "disclosed coverage gap. A consumer MAY reject, never downgrade: an",
+      "closes": "rank is not a downgrade of signed bytes, exactly as declining to trust a"
+    },
+    "docs/interpretation-decisions-open.md::suiteRevision 17: what else was considered for the bucket, and refused#4": {
+      "anchor": "L927",
+      "digest": "b637178cf8733bf85303f6c1d28ac1389d032ef72c0cf8e656ffea3cbf46c21a",
+      "opens": "failure, and a consumer's policy MAY bound a named key with a validity",
+      "closes": "failure, and a consumer's policy MAY bound a named key with a validity"
+    },
+    "docs/interpretation-decisions-open.md::suiteRevision 17: what else was considered for the bucket, and refused#5": {
+      "anchor": "L943-947",
+      "digest": "2d6ca2442e911e945498173213b855d048482898a492ef813da6a56aab3d2634",
+      "opens": "to `issuedAt`. Consumers MAY additionally coherence-check row claims against",
+      "closes": "reject on that ground."
+    },
+    "docs/interpretation-decisions-open.md::suiteRevision 17: what else was considered for the bucket, and refused#6": {
+      "anchor": "L1219-1222",
+      "digest": "02fce896243f98a8862f60bf5b08220d2cee6eae7cfb04788de0541d439954f8",
+      "opens": "verify is not admitted. The comparison is deliberately not a validity",
+      "closes": "consumer. An anchor-mismatched attestation is valid evidence about the"
     },
     "docs/interpretation-decisions-open.md::CLOSED at suiteRevision 14: the fourth result value the vendored copy now defines#0": {
       "anchor": "L388-407",

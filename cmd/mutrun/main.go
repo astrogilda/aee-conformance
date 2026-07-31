@@ -53,6 +53,7 @@ type observation struct {
 	ID               string   `json:"id"`
 	Verdict          string   `json:"verdict"`
 	Codes            []string `json:"codes"`
+	PrimaryCode      string   `json:"primaryCode,omitempty"`
 	Result           string   `json:"result,omitempty"`
 	Tiers            []string `json:"tiers,omitempty"`
 	TiersWithoutKey  []string `json:"tiersWithoutKey,omitempty"`
@@ -108,7 +109,11 @@ func vectorID(path string) string {
 
 func vectorPaths(vecDir string) ([]string, error) {
 	var paths []string
-	for _, sub := range []string{"accept", "reject"} {
+	// Every directory the corpus publishes, indeterminate included. A bucket the
+	// forcing campaign does not replay is a bucket whose rules the campaign
+	// records as unforced whether they are or not, which would make the
+	// measurement wrong about the newest part of the corpus first.
+	for _, sub := range []string{"accept", "reject", "indeterminate"} {
 		matches, err := filepath.Glob(filepath.Join(vecDir, sub, "*.json"))
 		if err != nil {
 			return nil, err
@@ -116,7 +121,7 @@ func vectorPaths(vecDir string) ([]string, error) {
 		paths = append(paths, matches...)
 	}
 	if len(paths) == 0 {
-		return nil, fmt.Errorf("no vectors under %s/{accept,reject}", vecDir)
+		return nil, fmt.Errorf("no vectors under %s/{accept,reject,indeterminate}", vecDir)
 	}
 	sort.Strings(paths)
 	return paths, nil
@@ -162,6 +167,7 @@ func observe(id string, body []byte, policy *aee.ConsumerPolicy) observation {
 	for _, c := range withKey.Codes {
 		o.Codes = append(o.Codes, string(c))
 	}
+	o.PrimaryCode = string(withKey.PrimaryCode)
 	o.Result = withKey.Result
 	o.Tiers = tierStrings(withKey.Tiers)
 

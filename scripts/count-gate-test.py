@@ -156,8 +156,8 @@ CLAIM_CASES: list[Case] = [
         lambda root: edit(
             root,
             "docs/IMPLEMENTATION-REPORT.md",
-            "and replays the full 220.",
-            "and replays every one of the 220 vectors of suiteRevision 15.",
+            "and replays the full 221.",
+            "and replays every one of the 221 vectors of suiteRevision 15.",
         ),
         ("is delegated to scripts/consumer-lag-gate.py and no longer appears",),
     ),

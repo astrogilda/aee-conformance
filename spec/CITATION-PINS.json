@@ -608,31 +608,31 @@
       "opens": "`aeePayloadCommitment` _array of strings_, required on an `interception`",
       "closes": "entry lowercase 64-hex. The member names what an `interception` record has"
     },
-    "aee/validity.go::evaluateKind#3": {
+    "aee/validity.go::armingConstraintsMet#0": {
       "cites": "spec:1269-1270",
       "digest": "16260ef8cf4e441e23c26d47a93bf87522a53e01365624614e00d0aa264c598f",
       "opens": "carry `armedAt` under the timestamp profile `issuedAt` defines, no",
       "closes": "later than `issuedAt`, `aeePostureDigest` equal to the pinned"
     },
-    "aee/validity.go::evaluateKind#4": {
+    "aee/validity.go::armingConstraintsMet#1": {
       "cites": "spec:1314-1318",
       "digest": "ea775b075ac374aff4ff7c684f07135dd174d5c6c1d7b1ac21d0a1ce2b22b1d1",
       "opens": "`aeeAssessedAttacks` _array of strings_, required on an `arming` record: the",
       "closes": "violating any of these covers nothing. The union of the manifest's"
     },
-    "aee/validity.go::evaluateKind#5": {
+    "aee/validity.go::sealedConstraintsMet#0": {
       "cites": "spec:1289-1294",
       "digest": "69e180e36d7e8fd7d3dff275d38e6c394041539409953f93109d9729e3bed3ba",
       "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
       "closes": "failure, never a silent pass."
     },
-    "aee/validity.go::evaluateKind#6": {
+    "aee/validity.go::sealedConstraintsMet#1": {
       "cites": "spec:1346-1353",
       "digest": "d02cc6c0891bf9b1873f418078ec97aec43a2e3e563134589efe33aabf9dfb0e",
       "opens": "`aeeObservedSet` _string_, required on a `sealed` record: the lowercase",
       "closes": "record whose `aeeObservedSet` does not equal that recompute covers nothing,"
     },
-    "aee/validity.go::evaluateKind#7": {
+    "aee/validity.go::sealedConstraintsMet#2": {
       "cites": "spec:1382-1386",
       "digest": "8de3ea21d3a7c652a2a3d52f73d7f67aee8722c13151ccc5425e839d05068724",
       "opens": "`aeeObservedAttacks` _array of strings_, required on a `sealed` record: the",
@@ -644,43 +644,43 @@
       "opens": "- the referenced records match the class the row requires: a caught row",
       "closes": "at its class definition);"
     },
-    "aee/validity.go::checkSubstrateRow#0": {
+    "aee/validity.go::rowFailsClosed#0": {
       "cites": "spec:720-724",
       "digest": "27a76885ec66acb5a8eaf3a1e29d73079df9e14bc25f991828d1d391db2ce68b",
       "opens": "function of carried bytes. A `basis: substrate` row whose",
       "closes": "of both orderings as before."
     },
-    "aee/validity.go::checkSubstrateRow#1": {
+    "aee/validity.go::rowFailsClosed#1": {
       "cites": "spec:1045-1049",
       "digest": "2732fbfef3931823a202d6d1139e9b9ffe7fe759f30d1f695d724bed7d3169a2",
       "opens": "`basis`, `method` and `attribution` are REQUIRED on every row and all three",
       "closes": "`result` to `fail` and can support nothing stronger. The 0.4 values"
     },
-    "aee/validity.go::checkSubstrateRow#2": {
+    "aee/validity.go::checkSubstrateRow#0": {
       "cites": "spec:552-553",
       "digest": "37927ecc5e852c49e9b3c8865fe8bba048cef7ed0095b81ea68c95c681129c47",
       "opens": "- its `observationRefs` is non-empty and every index is in range for",
       "closes": "`observationRecords`;"
     },
-    "aee/validity.go::checkSubstrateRow#3": {
+    "aee/validity.go::checkSubstrateRow#1": {
       "cites": "spec:561-564",
       "digest": "d5d1ab766eaa84b4ecb4fc2a8681c0501e3e89d4aeb733e8fa085a4167fd15ff",
       "opens": "- every referenced payload parses as a canonical `+json` object (see",
       "closes": "statement;"
     },
-    "aee/validity.go::checkSubstrateRow#4": {
+    "aee/validity.go::checkSubstrateRow#2": {
       "cites": "spec:1285-1294",
       "digest": "d09bd485026853db21328f710356d120796af7b146f6756fe5cc72a3ffdcc395",
       "opens": "A record violating any constraint of its declared `aeeKind` (including a",
       "closes": "failure, never a silent pass."
     },
-    "aee/validity.go::checkSubstrateRow#5": {
+    "aee/validity.go::checkSubstrateRow#3": {
       "cites": "spec:554-560",
       "digest": "4673535bbd113884ee293b8da14104a76eb7eeb82ac053062cc8416ea523c690",
       "opens": "- the referenced records match the class the row requires: a caught row",
       "closes": "at its class definition);"
     },
-    "aee/validity.go::checkSubstrateRow#6": {
+    "aee/validity.go::checkSubstrateRow#4": {
       "cites": "spec:565-566",
       "digest": "8124d779a936503bcd78bc05e44404e4612aff2a237871cc99641a4fb598c054",
       "opens": "- the row's `method` is no stronger than the weakest `aeeMethod` across",

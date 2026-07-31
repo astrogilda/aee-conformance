@@ -507,10 +507,10 @@
       "closes": "later than `issuedAt`, `aeePostureDigest` equal to the pinned"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-703-arming-posture-mismatch#1": {
-      "anchor": "L1291-1558",
-      "digest": "c6db2b685a263c1e5e6beeddc8c0edc11062cf346233ef0001c9ea453427c798",
+      "anchor": "L1291-1296",
+      "digest": "69e180e36d7e8fd7d3dff275d38e6c394041539409953f93109d9729e3bed3ba",
       "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
-      "closes": "(armed, stayed armed, nothing dropped, posture unchanged) rather than"
+      "closes": "failure, never a silent pass."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-704-arming-method-reconstructed#0": {
       "anchor": "L1270",
@@ -537,28 +537,28 @@
       "closes": "MUST be `intercepted`);"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-707-sealed-stillarmed-false#0": {
-      "anchor": "L1291-1558",
-      "digest": "c6db2b685a263c1e5e6beeddc8c0edc11062cf346233ef0001c9ea453427c798",
+      "anchor": "L1291-1296",
+      "digest": "69e180e36d7e8fd7d3dff275d38e6c394041539409953f93109d9729e3bed3ba",
       "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
-      "closes": "(armed, stayed armed, nothing dropped, posture unchanged) rather than"
+      "closes": "failure, never a silent pass."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-708-sealed-drops-no-bound#0": {
-      "anchor": "L1291-1558",
-      "digest": "c6db2b685a263c1e5e6beeddc8c0edc11062cf346233ef0001c9ea453427c798",
+      "anchor": "L1291-1296",
+      "digest": "69e180e36d7e8fd7d3dff275d38e6c394041539409953f93109d9729e3bed3ba",
       "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
-      "closes": "(armed, stayed armed, nothing dropped, posture unchanged) rather than"
+      "closes": "failure, never a silent pass."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-709-sealed-drops-exceed-bound#0": {
-      "anchor": "L1291-1558",
-      "digest": "c6db2b685a263c1e5e6beeddc8c0edc11062cf346233ef0001c9ea453427c798",
+      "anchor": "L1291-1296",
+      "digest": "69e180e36d7e8fd7d3dff275d38e6c394041539409953f93109d9729e3bed3ba",
       "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
-      "closes": "(armed, stayed armed, nothing dropped, posture unchanged) rather than"
+      "closes": "failure, never a silent pass."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-710-sealed-posture-mismatch#0": {
-      "anchor": "L1291-1558",
-      "digest": "c6db2b685a263c1e5e6beeddc8c0edc11062cf346233ef0001c9ea453427c798",
+      "anchor": "L1291-1296",
+      "digest": "69e180e36d7e8fd7d3dff275d38e6c394041539409953f93109d9729e3bed3ba",
       "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
-      "closes": "(armed, stayed armed, nothing dropped, posture unchanged) rather than"
+      "closes": "failure, never a silent pass."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-712-examination-method-intercepted#0": {
       "anchor": "L1279-1281",
@@ -603,10 +603,10 @@
       "closes": "MUST be `intercepted`);"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-716-sealed-missing-posture#1": {
-      "anchor": "L1291-1558",
-      "digest": "c6db2b685a263c1e5e6beeddc8c0edc11062cf346233ef0001c9ea453427c798",
+      "anchor": "L1291-1296",
+      "digest": "69e180e36d7e8fd7d3dff275d38e6c394041539409953f93109d9729e3bed3ba",
       "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
-      "closes": "(armed, stayed armed, nothing dropped, posture unchanged) rather than"
+      "closes": "failure, never a silent pass."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-717-arming-missing-posture#0": {
       "anchor": "L1266-1270",
@@ -1317,16 +1317,16 @@
       "closes": "`aeeMethod: intercepted`) covers nothing."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-901-sealed-negative-dropcount#0": {
-      "anchor": "L1291-1558",
-      "digest": "c6db2b685a263c1e5e6beeddc8c0edc11062cf346233ef0001c9ea453427c798",
+      "anchor": "L1291-1296",
+      "digest": "69e180e36d7e8fd7d3dff275d38e6c394041539409953f93109d9729e3bed3ba",
       "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
-      "closes": "(armed, stayed armed, nothing dropped, posture unchanged) rather than"
+      "closes": "failure, never a silent pass."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-902-sealed-posture-ne-arming#0": {
-      "anchor": "L1291-1558",
-      "digest": "c6db2b685a263c1e5e6beeddc8c0edc11062cf346233ef0001c9ea453427c798",
+      "anchor": "L1291-1296",
+      "digest": "69e180e36d7e8fd7d3dff275d38e6c394041539409953f93109d9729e3bed3ba",
       "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
-      "closes": "(armed, stayed armed, nothing dropped, posture unchanged) rather than"
+      "closes": "failure, never a silent pass."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-905-vocabulary-labels-absent#0": {
       "anchor": "L756-764",
@@ -1677,10 +1677,10 @@
       "closes": "MUST be `intercepted`);"
     },
     "vectors/reject/gen_invalid_vectors.py::65#0": {
-      "anchor": "L1291-1558",
-      "digest": "c6db2b685a263c1e5e6beeddc8c0edc11062cf346233ef0001c9ea453427c798",
+      "anchor": "L1291-1296",
+      "digest": "69e180e36d7e8fd7d3dff275d38e6c394041539409953f93109d9729e3bed3ba",
       "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
-      "closes": "(armed, stayed armed, nothing dropped, posture unchanged) rather than"
+      "closes": "failure, never a silent pass."
     },
     "vectors/reject/gen_invalid_vectors.py::66#0": {
       "anchor": "L1279-1281",

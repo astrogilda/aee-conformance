@@ -164,7 +164,7 @@ that guesses is worse than one that is missing: it looks resolved.
 | aee-c-62 | L229-237 | binding is anti-splice |
 | aee-c-63 | L1266-1270 | arming record kind constraints |
 | aee-c-64 | L1273-1278 | sealed record required members |
-| aee-c-65 | L1291-1558 | sealed covering conditions |
+| aee-c-65 | L1291-1296 | sealed covering conditions |
 | aee-c-66 | L1279-1281 | examination signed aeeMethod reconstructed |
 | aee-c-68 | L1139-1140 | each referenced record independently satisfies its class constraints |
 | aee-c-71 | L1561-1565 | unknown aeeKind covers nothing |
@@ -273,19 +273,19 @@ so the declared fault stays the ONLY fault.
 | `bad-612-labels-non-bmp` | ok-001 | labels gains the supplementary-plane entry U+1F600; digest recomputed over the mutated content | recompute-vocabulary-digest, rederive-binding, re-sign-record, recompute-batch-root | aee-c-86 | `vocabulary-not-canonical` | L150-163 |
 | `bad-701-arming-missing-armedat` | ok-002 | drop armedAt from the arming payload | re-sign-record, recompute-batch-root | aee-c-63 | `arming-covers-nothing` | L1266-1270; L1287-1290 |
 | `bad-702-armedat-after-issuedat` | ok-002 | arming armedAt: "2026-01-01T00:01:00Z" (after issuedAt) | re-sign-record, recompute-batch-root | aee-c-63 | `arming-covers-nothing` | L1269-1270 |
-| `bad-703-arming-posture-mismatch` | ok-002 | arming aeePostureDigest differs from the pinned posture digest | re-sign-record, recompute-batch-root | aee-c-63 aee-c-65 | `arming-covers-nothing`, `sealed-covers-nothing`, `clean-row-uncovered` (COMPOUND) | L1266-1270; L1291-1558 |
+| `bad-703-arming-posture-mismatch` | ok-002 | arming aeePostureDigest differs from the pinned posture digest | re-sign-record, recompute-batch-root | aee-c-63 aee-c-65 | `arming-covers-nothing`, `sealed-covers-nothing`, `clean-row-uncovered` (COMPOUND) | L1266-1270; L1291-1296 |
 | `bad-704-arming-method-reconstructed` | ok-002 | arming record signed aeeMethod: "reconstructed" | re-sign-record, recompute-batch-root | aee-c-63 | `arming-covers-nothing` | L1270; L1287-1290 |
 | `bad-705-sealed-missing-dropcount` | ok-002 | drop aeeDropCount from the sealed payload | re-sign-record, recompute-batch-root | aee-c-64 | `sealed-covers-nothing` | L1273-1278 |
 | `bad-706-stillarmed-non-boolean` | ok-002 | sealed aeeStillArmed: "true" (string, not boolean) | re-sign-record, recompute-batch-root | aee-c-64 | `sealed-covers-nothing` | L1273-1278 |
-| `bad-707-sealed-stillarmed-false` | ok-002 | sealed aeeStillArmed: false | re-sign-record, recompute-batch-root | aee-c-65 | `sealed-covers-nothing` | L1291-1558 |
-| `bad-708-sealed-drops-no-bound` | ok-002 | sealed aeeDropCount: 3 with no aeeDropBound declared | re-sign-record, recompute-batch-root | aee-c-65 | `sealed-covers-nothing` | L1291-1558 |
-| `bad-709-sealed-drops-exceed-bound` | ok-003 | sealed aeeDropCount: 6 exceeding the declared aeeDropBound: 5 | re-sign-record, recompute-batch-root | aee-c-65 | `sealed-covers-nothing` | L1291-1558 |
-| `bad-710-sealed-posture-mismatch` | ok-002 | sealed aeePostureDigest edited (differs from the arming record's AND the pinned digest, which the arming constraint makes equivalent) | re-sign-record, recompute-batch-root | aee-c-65 | `sealed-covers-nothing` (COMPOUND) | L1291-1558 |
+| `bad-707-sealed-stillarmed-false` | ok-002 | sealed aeeStillArmed: false | re-sign-record, recompute-batch-root | aee-c-65 | `sealed-covers-nothing` | L1291-1296 |
+| `bad-708-sealed-drops-no-bound` | ok-002 | sealed aeeDropCount: 3 with no aeeDropBound declared | re-sign-record, recompute-batch-root | aee-c-65 | `sealed-covers-nothing` | L1291-1296 |
+| `bad-709-sealed-drops-exceed-bound` | ok-003 | sealed aeeDropCount: 6 exceeding the declared aeeDropBound: 5 | re-sign-record, recompute-batch-root | aee-c-65 | `sealed-covers-nothing` | L1291-1296 |
+| `bad-710-sealed-posture-mismatch` | ok-002 | sealed aeePostureDigest edited (differs from the arming record's AND the pinned digest, which the arming constraint makes equivalent) | re-sign-record, recompute-batch-root | aee-c-65 | `sealed-covers-nothing` (COMPOUND) | L1291-1296 |
 | `bad-712-examination-method-intercepted` | ok-006 | examination record signed aeeMethod: "intercepted" | re-sign-record, recompute-batch-root | aee-c-66 | `examination-covers-nothing` | L1279-1281; L1287-1290 |
 | `bad-713-only-sealed-ref-noncovering` | ok-002 | clean row refs [good-arming, non-covering-sealed]; a fully-covering sealed record sits UNREFERENCED in the tree | recompute-batch-root | aee-c-68 | `sealed-covers-nothing` | L1139-1140; L557-560 |
 | `bad-714-unknown-kind-sole-cover` | ok-002 | the arming record's aeeKind becomes "aee-future-x" (record otherwise fully valid); the clean row's only arming ref now covers nothing | re-sign-record, recompute-batch-root | aee-c-71 | `record-kind-unknown-covers-nothing` | L1561-1565 |
 | `bad-715-sealed-missing-stillarmed` | ok-002 | drop aeeStillArmed from the sealed payload | re-sign-record, recompute-batch-root | aee-c-64 | `sealed-covers-nothing` | L1273-1278 |
-| `bad-716-sealed-missing-posture` | ok-002 | drop aeePostureDigest from the sealed payload | re-sign-record, recompute-batch-root | aee-c-64 aee-c-65 | `sealed-covers-nothing` | L1273-1278; L1291-1558 |
+| `bad-716-sealed-missing-posture` | ok-002 | drop aeePostureDigest from the sealed payload | re-sign-record, recompute-batch-root | aee-c-64 aee-c-65 | `sealed-covers-nothing` | L1273-1278; L1291-1296 |
 | `bad-717-arming-missing-posture` | ok-002 | drop aeePostureDigest from the arming payload | re-sign-record, recompute-batch-root | aee-c-63 | `arming-covers-nothing` | L1266-1270 |
 | `bad-727-armedat-non-utc-offset` | ok-002 | armedAt carries a non-zero UTC offset (+05:00): a valid instant no later than issuedAt, but not RFC 3339 UTC | re-sign-record, recompute-batch-root | aee-c-63 | `arming-covers-nothing` | L1269 |
 | `bad-728-artifact-two-subjects` | ok-007 | a second subject appended to an ARTIFACT-ONLY statement (no substrate rows) | - | aee-c-58 | `subject-cardinality` | L210-213 |
@@ -380,8 +380,8 @@ so the declared fault stays the ONLY fault.
 | `bad-981-uncommitted-observation-sole-cover` | ok-001 | the caught row's only resolved record is an uncommitted-observation, which covers nothing in every state | rederive-binding, re-sign-record, recompute-batch-root | aee-c-107 | `uncommitted-observation-covers-nothing` | L1317-1331; L1348-1361 |
 | `bad-982-pinned-assignment-spliced` | ok-051 | the two pinned rows exchange observationRefs; the record set, every signature and the batch root are untouched | - | aee-c-102 | `attribution-pin-unmatched` | L600-609 |
 | `bad-900-sealed-method-reconstructed` | ok-002 | sealed record signed aeeMethod: "reconstructed" | re-sign-record, recompute-batch-root | aee-c-65 | `sealed-covers-nothing` | L1273-1278; L1287-1290 |
-| `bad-901-sealed-negative-dropcount` | ok-003 | sealed aeeDropCount: -1 inside a declared aeeDropBound: 5 | re-sign-record, recompute-batch-root | aee-c-65 | `sealed-covers-nothing` | L1291-1558 |
-| `bad-902-sealed-posture-ne-arming` | ok-002 | a second arming record carrying a posture digest the run never pinned, referenced by the clean row alongside the valid arming and sealed pair | recompute-batch-root | aee-c-65 | `sealed-covers-nothing` | L1291-1558 |
+| `bad-901-sealed-negative-dropcount` | ok-003 | sealed aeeDropCount: -1 inside a declared aeeDropBound: 5 | re-sign-record, recompute-batch-root | aee-c-65 | `sealed-covers-nothing` | L1291-1296 |
+| `bad-902-sealed-posture-ne-arming` | ok-002 | a second arming record carrying a posture digest the run never pinned, referenced by the clean row alongside the valid arming and sealed pair | recompute-batch-root | aee-c-65 | `sealed-covers-nothing` | L1291-1296 |
 | `bad-905-vocabulary-labels-absent` | ok-033 | drop labels from an observationVocabulary that is otherwise present; digest re-derived over the truncated object | recompute-vocabulary-digest | aee-c-51 | `vocabulary-not-canonical` | L756-764 |
 | `bad-906-corpus-manifest-absent` | ok-033 | drop corpus.manifest, keeping the corpus name, uri and digest | - | aee-c-78 | `environment-incomplete` | L743-753 |
 

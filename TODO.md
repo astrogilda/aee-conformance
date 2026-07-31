@@ -119,6 +119,17 @@ the rule, the witness and the proposed failure code, in the shape
   substrate and an artifact row, since the member is required regardless of basis. The
   existing `fail-closed-substrate-row` code covers the substrate side; the artifact side
   reaches the recompute and wants a `result-recompute-mismatch` vector.
+- [ ] **Keep the declared fault the only fault on the reject side.** Every reject vector
+  carries exactly one fault and the generator asserts the absence of a second, so a new
+  unconditional requirement can silently give a reject vector a fault it was not written
+  to test. Measured against the current corpus: thirty-eight reject vectors carry a
+  substrate row and no sealed record, so each acquires a second fault the moment the
+  sealed record becomes unconditional and each needs a valid sealed record added; ten
+  acquire one under the anti-orphan rule, among them the batch-root family, whose whole
+  subject is a root over records no row was ever meant to resolve; and none acquires one
+  under the clean-row contradiction rule. Do this before writing a single new vector: a
+  reject vector with two faults passes for the wrong reason and stops measuring the rule
+  it names.
 - [ ] **Score the new vectors on the forcing harness before the revision closes.** The
   mutation oracle these rules were designed against carries no cross-row splice, so a
   permutation vector written without a matching mutation would not be forced by anything.

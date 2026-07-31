@@ -15,8 +15,115 @@ proposal out of draft.
 
 - [ ] **Await reviewer's read on moving v0.6 out of draft** — no code change pending on
   our side; the next step is the reviewer's call.
-- [ ] **v0.7 forward-design — HELD** until v0.6 merges. Do not start new predicate design
-  while v0.6 is at the merge line.
+- [ ] **v0.7 forward-design — no longer held.** The hold said "not while v0.6 is at the
+  merge line", and it was lifted before the design was written. The design converged and
+  the specification text for v0.7 is now written upstream on the predicate branch; what
+  this repository owes it is the section below. Left open rather than ticked because
+  nothing has landed here: a spec written elsewhere is not a corpus.
+
+## The predicate moved to v0.7 and this corpus has not moved with it
+
+The specification text for v0.7 is written and sits upstream on the predicate branch.
+Nothing here has been re-vendored to it, and that is a decision rather than a backlog
+item that slipped.
+
+`scripts/spec-drift-gate.py` exists to refuse the state between a normative
+specification change and the corpus regeneration that answers it, and this is exactly
+that state. Vendoring the new bytes and re-pinning `specDigest` would turn the gate green
+by asserting a regeneration that did not happen, over a corpus in which every statement
+carries the retired predicate type. Vendoring without re-pinning leaves the gate red,
+which is honest and is what the gate is for, but a red gate is not a landing. So the
+vendoring belongs in the same revision as the regeneration, and the rows below are that
+revision.
+
+Measured while deciding this, so nobody re-derives it: re-vendoring remaps the citations
+and anchors and then refuses to write either pin ledger, because nineteen anchors come to
+address prose they were not drawn around — the new text splits paragraphs several of them
+were aimed at. Each needs a by-hand correction or an explicit `--accept-reaim`, and that
+is corpus work, not spec work.
+
+- [ ] **Re-vendor and regenerate in one revision.** `scripts/vendor-spec.py --from
+  <attestation checkout>`, then correct the nineteen refused anchors by reading each
+  against the claim beside it, then the generators, then `vectors/gen_manifest.py`, then a
+  `suiteRevision` section in `vectors/CHANGES.md`. The drift gate stays red until the last
+  of those, which is the ordering the gate documents.
+- [ ] **Re-type every statement and every rail to the new predicate type.** The type URI
+  is a constant in `aee/types.go`, `witnessattestor/aee.go` and `packaging/run_vectors.py`,
+  the schema file under `witnessattestor/schema/` carries it in its name and its `$id`, and
+  both generators emit it. Every vector in the corpus carries the retired value, so this is
+  the whole corpus and not a subset of it. It is also the reason the previous row cannot be
+  split: a re-vendor without this leaves the rails rejecting the corpus, and this without a
+  re-vendor leaves the corpus certifying against bytes nobody has.
+- [ ] **Re-run the independent implementation.** A breaking version spends the strongest
+  external evidence this text has that it is determinate, and the disclosure discipline for
+  the revised vectors applies: publish the vectors without the text or the text without the
+  vectors, never a note naming the failing vector and its fix.
+
+### Conformance conditions v0.7 needs, and the vector that would force each
+
+These have no `aee-c` ids yet, on purpose. A condition id is the link between a vector and
+the rule it forces, and `scripts/condition-registry-gate.py` refuses a registry row that no
+vector cites, in that direction as well as the other. Minting ids here would put rows in the
+registry that resolve to nothing until the vectors exist, which is the failure the gate was
+written for. The ids are minted in the same change as the vectors; what is recorded now is
+the rule, the witness and the proposed failure code, in the shape
+`vectors/coverage-unforced.json` uses for a requirement no vector pins yet.
+
+- [ ] **A clean row resolves no reference to an interception record.** Witness: derive from
+  a caught intercepted parent by relabelling the row clean and keeping the reference.
+  Proposed code `clean-row-contradicted`. Costs no accept vector: measured over the accept
+  corpus, no vector pairs a clean row with an interception record today.
+- [ ] **Every carried interception record is resolved by at least one caught row.** Witness:
+  derive from a caught parent by emptying the row's references while keeping the record.
+  Proposed code `interception-record-orphaned`. This one is breaking on the accept side:
+  `ok-029-artifact-with-records` is the sole accept vector resting on an interception record
+  no row resolves, measured against the current corpus, and it becomes malformed. Its
+  replacement is part of the same change.
+- [ ] **A statement carrying a substrate row carries a valid sealed record.** Witness:
+  derive from a caught substrate parent by deleting the sealed record. Proposed code
+  `sealed-record-absent`. Nine accept vectors carry a substrate row and no sealed record and
+  all nine are regenerated: `ok-001`, `ok-006`, `ok-016`, `ok-017`, `ok-020`, `ok-021`,
+  `ok-024`, `ok-030`, `ok-031`. Two of them are the vectors the run-end commitment exists
+  for, which is why the requirement is unconditional.
+- [ ] **The seal's committed record set equals the carried one.** Witnesses, two: drop an
+  interception and recompute the batch root over what remains, leaving the seal intact; and
+  add a record the seal does not commit to. Proposed code `observed-set-mismatch`. A third
+  witness is worth writing on the accept side: a run that emitted nothing commits to the
+  digest of the empty array.
+- [ ] **A seal naming an attack obliges a caught row for it.** Witnesses: a seal naming an
+  attack whose row is clean, and a seal naming an attack with no row at all. Proposed code
+  `observed-attack-uncaught`. The complementary accept vector is the one that pins the
+  direction: a seal omitting an attack whose row is caught stays valid, because the set is a
+  lower bound, and without that vector a rail reading the rule as an equality passes the
+  suite.
+- [ ] **The assessed set is a subset of the run-start declaration.** Witness: an assessed
+  class whose attacks the arming record never declared. Proposed code
+  `assessed-set-exceeds-declaration`. The accept vector that pins the subset reading against
+  an equality reading is again the load-bearing one: a run that declared two classes,
+  assessed one and disclosed the other stays valid.
+- [ ] **A row declaring the stronger attribution carries the binding it claims.** Witnesses,
+  three, because the rule has three parts and a vector per part is what stops a rail from
+  implementing one and passing: a pinned row resolving no interception record at all, which
+  is the vacuity the rule was written against; a pinned row whose attack the manifest offers
+  no expectation for; and a pinned row resolving an interception whose commitment is not the
+  one the manifest declared. Proposed codes `attribution-pinned-recordless`,
+  `attribution-unpinnable`, `attribution-pin-unmatched`.
+- [ ] **The manifest's expected-payload map is well formed.** Witnesses: a key naming an
+  attack the classes do not declare, an unsorted or duplicate-carrying array, and a
+  non-64-hex entry. Proposed code `manifest-expected-payloads-malformed`.
+- [ ] **An interception record carries its commitment member.** Witness: drop the member from
+  an interception payload and re-sign. The existing `payload-missing-reserved` code covers
+  the absence; a malformed value wants its own, proposed `payload-commitment-malformed`.
+- [ ] **The attribution member is required and fail-closed on every row.** Witnesses: a row
+  with the member absent and a row carrying a value outside the vocabulary, on both a
+  substrate and an artifact row, since the member is required regardless of basis. The
+  existing `fail-closed-substrate-row` code covers the substrate side; the artifact side
+  reaches the recompute and wants a `result-recompute-mismatch` vector.
+- [ ] **Score the new vectors on the forcing harness before the revision closes.** The
+  mutation oracle these rules were designed against carries no cross-row splice, so a
+  permutation vector written without a matching mutation would not be forced by anything.
+  A vector that passes because nothing tries to break it is the defect the forcing ratchet
+  exists to expose, and it should expose this one rather than certify it.
 
 ## The indeterminate bucket (added at suiteRevision 17)
 

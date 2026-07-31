@@ -7,9 +7,10 @@ vectors/coverage-unforced.json. Do not hand-edit; run the gate to regenerate. CI
 
 Every normative requirement, classified by whether a conformance vector forces it. The point is one
 honest number: of 26 tracked requirements, **20 are forced by a vector**, 1 are
-forcible but not yet vectored, and 5 cannot be pinned by a self-contained corpus at all. The
-determinacy claim rests only on the forced rows; the other two classes are stated so a reader knows
-exactly where "two implementations agree" is untested rather than confirmed.
+forcible but not yet vectored, 5 cannot be pinned by a self-contained corpus at all, and
+0 are placed outside every gate by the specification itself. The determinacy claim rests only
+on the forced rows; the other three classes are stated so a reader knows exactly where "two
+implementations agree" is untested rather than confirmed.
 
 ## Coverage summary
 
@@ -18,6 +19,7 @@ exactly where "two implementations agree" is untested rather than confirmed.
 | forced-by-vector | 20 | a registry decision locked by a live forcing vector |
 | forcible-but-unforced | 1 | a vector could pin it; none written yet |
 | consumer-policy-unvectorable | 5 | cross-attestation or trust-relative |
+| producer-obligation-ungated | 0 | outside every gate by specification |
 | **total tracked** | **26** |  |
 
 ## Forced by a vector
@@ -60,3 +62,8 @@ exactly where "two implementations agree" is untested rather than confirmed.
 | U4 Gap / fork / shared-predecessor / duplicate-genesis detection over a chain | L1079-1086 | Chain detection is inherently cross-attestation; a single statement carries at most one chain member and cannot exhibit a gap or a fork. Belongs to the policy/ class. |
 | U5 The anchor comparison (expectedCorpusDigest / expectedSubstrateDigest) and the evidence tier are trust-relative consumer-policy facts, not validity | L1208-1226, L384-490 | By design these differ per consumer and are excluded from the byte-pure validity gate; a self-contained corpus vector cannot fix a per-consumer trust anchor. ok-024 exercises the tier under two pinned key policies, which is the most a single-statement vector can do; the anchor comparison itself is out of the corpus's reach by construction. |
 | U6 A key-validity window a consumer places on a named substrate key is evaluated against the armedAt inside an arming record that verifies under that key, never against issuedAt, and a statement carrying no such record is refused rather than falling back | L927-943 | The rule constrains an operand a consumer supplies from outside the statement: it takes a key lifetime, and a corpus of self-contained single statements has no lifetime to place them in. Every statement the corpus can build is either inside or outside an arbitrary window depending on a bound the vector does not carry, so no vector can separate a rail that honours the operand from one that reads issuedAt. Recorded here rather than left implicit because the wording it replaced invited two implementers to build the defeated control independently, which is the shape a requirement takes when nothing is measuring whether anyone gets it right. |
+
+## Placed outside every gate by the specification
+
+| requirement | spec anchor | why no verifier may check it |
+|---|---|---|

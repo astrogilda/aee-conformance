@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Differential conformance harness for the Adversarial Execution Evidence
-(AEE) predicate, v0.6.
+(AEE) predicate, v0.7.
 
 Predicate type URI:
-    https://in-toto.io/attestation/adversarial-execution-evidence/v0.6
+    https://in-toto.io/attestation/adversarial-execution-evidence/v0.7
 
 This harness loads every conformance vector under ``vectors/`` (a sibling of
 this script's parent directory by default) and checks each one against the
@@ -20,8 +20,8 @@ Rails
 1. EXTERNAL RAIL (optional): pass ``--verifier <path>`` (or set the
    ``AEE_EXTERNAL_VERIFIER`` environment variable) to run every vector
    through an external verifier.  The harness first probes the verifier
-   for v0.6 capability by scanning its bytes for the v0.6 predicate type
-   URI; a verifier that does not know the v0.6 type is reported and the
+   for capability by scanning its bytes for the predicate type URI this
+   rail implements; a verifier that does not know that type is reported and
    harness falls back to the reference rail, so the suite is verifiable
    standalone.
 
@@ -2544,7 +2544,7 @@ def _sfa_binding_scan(
 
 
 def probe_external_verifier(path: str) -> tuple[bool, str]:
-    """Return (v0.6-capable, note)."""
+    """Return (capable of the predicate type this rail implements, note)."""
     if not os.path.isfile(path):
         return False, "external verifier not found at the given path"
     try:
@@ -2553,11 +2553,11 @@ def probe_external_verifier(path: str) -> tuple[bool, str]:
     except OSError as e:
         return False, f"external verifier unreadable: {e}"
     if AEE_PREDICATE_TYPE.encode() in data:
-        return True, "v0.6 predicate type URI found; external rail enabled"
+        return True, f"{AEE_PREDICATE_TYPE} found in the verifier; external rail enabled"
     return (
         False,
-        "external verifier located but the v0.6 predicate type URI was not "
-        "found in it (not v0.6-capable); using the self-contained reference rail",
+        f"external verifier located but {AEE_PREDICATE_TYPE} was not found in "
+        "it; using the self-contained reference rail",
     )
 
 
@@ -3692,8 +3692,8 @@ def self_test() -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="AEE v0.6 conformance vector harness (differential when an "
-        "external v0.6-capable verifier is supplied; self-contained otherwise)"
+        description="AEE v0.7 conformance vector harness (differential when an "
+        "external v0.7-capable verifier is supplied; self-contained otherwise)"
     )
     default_vectors = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, "vectors")
     parser.add_argument(
@@ -3706,7 +3706,7 @@ def main() -> int:
         default=None,
         help="command line for an external verifier to run differentially, e.g. "
         "'./aee-verify -json' (also read from AEE_EXTERNAL_VERIFIER); the first "
-        "token is probed for v0.6 capability, and the key policy is handed to it "
+        "token is probed for that predicate type, and the key policy is handed to it "
         f"in ${EXTERNAL_KEYS_ENV}",
     )
     parser.add_argument(

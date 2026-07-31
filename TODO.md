@@ -130,11 +130,20 @@ the rule, the witness and the proposed failure code, in the shape
   under the clean-row contradiction rule. Do this before writing a single new vector: a
   reject vector with two faults passes for the wrong reason and stops measuring the rule
   it names.
-- [ ] **Score the new vectors on the forcing harness before the revision closes.** The
-  mutation oracle these rules were designed against carries no cross-row splice, so a
-  permutation vector written without a matching mutation would not be forced by anything.
-  A vector that passes because nothing tries to break it is the defect the forcing ratchet
-  exists to expose, and it should expose this one rather than certify it.
+- [ ] **Score the new vectors on the forcing harness before the revision closes.** A vector
+  that passes because nothing tries to break it is the defect the forcing ratchet exists to
+  expose, and it should expose these rather than certify them. The cross-row splice half of
+  this row is now closed and the answer was not the one the row assumed: the splice exists
+  as a live measurement in `aee/observation_refs_splice_test.go`, with a control beside it,
+  and it is UNKILLABLE rather than merely unforced. Exchanging `observationRefs` between two
+  caught rows of one coverage class leaves the whole report byte-identical, because no
+  record commits to the attack it evidences and the specification puts the assignment
+  outside every gate; cell U7 of `vectors/coverage-unforced.json` carries the reasoning.
+  So a permutation vector must NOT be written against the predicate as it stands -- there is
+  no conforming rail for it to separate from another. What remains here is the rest of the
+  row: the attribution, manifest and seal rules above still need scoring once their vectors
+  exist, and the splice becomes forcible only when a revision binds a record to its attack,
+  at which point the measurement turns red and says so.
 
 ## The indeterminate bucket (added at suiteRevision 17)
 

@@ -1,6 +1,6 @@
 // Package aee implements the verification core for the in-toto
-// Adversarial Execution Evidence predicate, version 0.6
-// (predicateType https://in-toto.io/attestation/adversarial-execution-evidence/v0.6).
+// Adversarial Execution Evidence predicate, version 0.7
+// (predicateType https://in-toto.io/attestation/adversarial-execution-evidence/v0.7).
 //
 // The category of attestation this predicate defines is a recomputable
 // execution attestation: the consumer recomputes the outcome from carried
@@ -45,17 +45,25 @@ const (
 	CodeCorpusDigestMismatch      Code = "corpus-digest-mismatch"
 	CodeManifestDuplicateAttack   Code = "manifest-duplicate-attack"
 	CodeCorpusManifestNoAttacks   Code = "corpus-manifest-no-attacks" // counts attack IDENTIFIERS, not classes; rationale at gate0Corpus
-	CodeCoverageMissing           Code = "coverage-missing"
-	CodeCoverageIncomplete        Code = "coverage-incomplete"
-	CodeRowAttackUnknown          Code = "row-attack-unknown"
-	CodeMissingActualLayer        Code = "malformed-missing-actual-layer"
-	CodeCleanRowLayerNotNone      Code = "clean-row-layer-not-none"
-	CodeSubjectCardinality        Code = "subject-cardinality"
-	CodeSubjectSha256Missing      Code = "subject-sha256-missing"
-	CodeDigestNotCanonical        Code = "digest-not-canonical"
-	CodeRunEntropyMissing         Code = "run-entropy-missing"
-	CodeIssuedAtMissing           Code = "issued-at-missing"
-	CodeIssuedAtMalformed         Code = "issued-at-malformed"
+	// CodeManifestExpectedPayloadsMalformed reports a corpus manifest whose
+	// optional expectedPayloads map violates any of its shape rules: a key
+	// naming an attack the same manifest's classes do not declare, an empty,
+	// unsorted or duplicate-carrying array, or an entry that is not lowercase
+	// 64-hex. The map is a manifest member, so its violation is a malformed
+	// statement at GATE 0 and never a row-level fault: nothing on a row can
+	// repair a manifest whose pre-image is already inside the run binding.
+	CodeManifestExpectedPayloadsMalformed Code = "manifest-expected-payloads-malformed"
+	CodeCoverageMissing                   Code = "coverage-missing"
+	CodeCoverageIncomplete                Code = "coverage-incomplete"
+	CodeRowAttackUnknown                  Code = "row-attack-unknown"
+	CodeMissingActualLayer                Code = "malformed-missing-actual-layer"
+	CodeCleanRowLayerNotNone              Code = "clean-row-layer-not-none"
+	CodeSubjectCardinality                Code = "subject-cardinality"
+	CodeSubjectSha256Missing              Code = "subject-sha256-missing"
+	CodeDigestNotCanonical                Code = "digest-not-canonical"
+	CodeRunEntropyMissing                 Code = "run-entropy-missing"
+	CodeIssuedAtMissing                   Code = "issued-at-missing"
+	CodeIssuedAtMalformed                 Code = "issued-at-malformed"
 )
 
 // GATE 1 — statement-level observation-record codes (evaluated whenever
@@ -94,6 +102,72 @@ const (
 	CodeSealedCoversNothing            Code = "sealed-covers-nothing"
 	CodeExaminationCoversNothing       Code = "examination-covers-nothing"
 	CodeRecordKindUnknownCoversNothing Code = "record-kind-unknown-covers-nothing"
+	// CodePayloadCommitmentMalformed reports an interception record whose
+	// aeePayloadCommitment is present but violates its shape rules (empty,
+	// unsorted, duplicate-carrying, or an entry that is not lowercase 64-hex).
+	// The ABSENCE of the member keeps reporting payload-missing-reserved,
+	// which is the code every other missing reserved member already takes; a
+	// present-but-malformed value is a different fault and says so, because a
+	// producer reading "missing" for a value it plainly carries has been told
+	// the wrong thing about its own record.
+	CodePayloadCommitmentMalformed Code = "payload-commitment-malformed"
+)
+
+// GATE 1 — statement-level coverage validity requirements added at 0.7. Each
+// is a function of carried bytes on the same terms as the per-row list above,
+// and each violation makes the attestation invalid.
+const (
+	// CodeCleanRowContradicted reports a clean row that resolves an
+	// observationRefs index to an interception record. The row states nothing
+	// was caught while pointing at a record in which the substrate signed that
+	// it intercepted traffic. Stated over EVERY row, not only a substrate row,
+	// because the contradiction does not depend on the vantage the row declares.
+	CodeCleanRowContradicted Code = "clean-row-contradicted"
+	// CodeInterceptionRecordOrphaned reports a carried interception record that
+	// no caught row resolves. One record MAY be resolved by several rows, so
+	// this costs none of the sharing the predicate permits; what it refuses is
+	// the escalation of dropping the reference instead of the record.
+	CodeInterceptionRecordOrphaned Code = "interception-record-orphaned"
+	// CodeSealedRecordAbsent reports a statement carrying at least one
+	// basis: substrate row and no sealed record that satisfies every constraint
+	// of its kind and whose aeeRunBinding equals the derived binding. The
+	// requirement is unconditional at 0.7: a rule conditioned on the presence
+	// of the record it constrains is a rule a producer switches off by omission.
+	CodeSealedRecordAbsent Code = "sealed-record-absent"
+	// CodeObservedSetMismatch reports a sealed record whose aeeObservedSet does
+	// not equal the value recomputed over the carried interception and
+	// examination records.
+	CodeObservedSetMismatch Code = "observed-set-mismatch"
+	// CodeObservedAttackUncaught reports an attack identifier the seal names in
+	// aeeObservedAttacks for which the statement carries no row whose
+	// containmentObserved is in the carried caught set. The rule reads in ONE
+	// direction: a seal omitting an attack licenses nothing.
+	CodeObservedAttackUncaught Code = "observed-attack-uncaught"
+	// CodeAssessedSetExceedsDeclaration reports a statement whose union of
+	// manifest identifiers for the carried coverage.assessedClasses is not a
+	// subset of the arming record's aeeAssessedAttacks. A subset and not an
+	// equality, so a run that loses coverage part-way can still disclose it.
+	CodeAssessedSetExceedsDeclaration Code = "assessed-set-exceeds-declaration"
+)
+
+// GATE 1 — attribution binding codes. A row declaring the stronger value
+// carries the binding it claims, in three parts, because a rail implementing
+// one of the three and not the others would pass a corpus that named the rule
+// once.
+const (
+	// CodeAttributionPinnedRecordless reports a pinned row resolving no
+	// interception record at all. Not redundant beside the other two: a
+	// requirement universally quantified over an empty set is vacuously true,
+	// so without it a producer deletes the interception records, relabels the
+	// row, resolves only run-level records, and keeps the stronger value.
+	CodeAttributionPinnedRecordless Code = "attribution-pinned-recordless"
+	// CodeAttributionUnpinnable reports a pinned row whose attackId carries no
+	// entry in corpus.manifest.expectedPayloads. Such a row MUST declare paired.
+	CodeAttributionUnpinnable Code = "attribution-unpinnable"
+	// CodeAttributionPinUnmatched reports a pinned row resolving an interception
+	// record that carries none of the values the manifest declared for the row's
+	// attack.
+	CodeAttributionPinUnmatched Code = "attribution-pin-unmatched"
 )
 
 // Recompute-equality gate.

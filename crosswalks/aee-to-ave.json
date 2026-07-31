@@ -2,8 +2,8 @@
   "$schema": "https://aveproject.org/schema/crosswalk-1.0.0.schema.json",
   "source": {
     "standard": "AEE (Adversarial Execution Evidence)",
-    "version": "v0.6",
-    "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6",
+    "version": "v0.7",
+    "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.7",
     "url": "https://github.com/astrogilda/aee-conformance",
     "upstream": "https://github.com/in-toto/attestation/pull/570",
     "conformance_suite": {

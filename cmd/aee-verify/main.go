@@ -1,4 +1,4 @@
-// Command aee-verify is the consumer MVP for AEE v0.6 statements: it runs
+// Command aee-verify is the consumer MVP for AEE v0.7 statements: it runs
 // GATE 0 (well-formedness), GATE 1 (coverage validity), the result
 // recompute, derives the per-row evidence tier against a consumer policy,
 // and evaluates the consumer-policy step (expected corpus and substrate

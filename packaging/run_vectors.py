@@ -107,9 +107,9 @@ import tempfile
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, TypeGuard
 
-AEE_PREDICATE_TYPE = "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6"
+AEE_PREDICATE_TYPE = "https://in-toto.io/attestation/adversarial-execution-evidence/v0.7"
 STATEMENT_TYPE = "https://in-toto.io/Statement/v1"
 SAFE_INT_LIMIT = 2**53
 
@@ -863,6 +863,89 @@ def _digest_of(obj: Any) -> Any:
     return None
 
 
+def _sorted_no_dupes(values: list[Any]) -> bool:
+    """Ascending by UTF-16 code unit, with no duplicates.
+
+    The same canonicality rule the observation vocabulary arrays carry, applied
+    to the three arrays 0.7 adds. It reuses this file's UTF-16 sort key rather
+    than Python's code-point comparison, because the two orders differ on
+    supplementary-plane strings and a rail that sorted the wrong way would
+    accept an array the specification calls malformed.
+    """
+    keys = [_utf16_sort_key(v) for v in values]
+    return all(a < b for a, b in zip(keys, keys[1:], strict=False))
+
+
+def _attack_id_array_ok(values: Any, declared: set[str]) -> TypeGuard[list[str]]:
+    """The shared shape rule for aeeAssessedAttacks and aeeObservedAttacks.
+
+    Duplicate-free, sorted ascending by UTF-16 code unit, every entry an attack
+    identifier the carried manifest declares. The EMPTY array satisfies it: on
+    the seal that is the honest value a substrate holding no probe-to-record
+    correspondence carries, and it is required rather than omissible so the
+    control is not escapable by omission.
+    """
+    if not isinstance(values, list) or not all(isinstance(v, str) for v in values):
+        return False
+    if not _sorted_no_dupes(values):
+        return False
+    return all(v in declared for v in values)
+
+
+def _commitment_array_ok(values: Any) -> bool:
+    """The shape rule for aeePayloadCommitment: duplicate-free, sorted ascending
+    by UTF-16 code unit, non-empty, every entry lowercase 64-hex."""
+    if not isinstance(values, list) or not values:
+        return False
+    if not all(_is_hex64_lower(v) for v in values):
+        return False
+    return _sorted_no_dupes(values)
+
+
+def _expected_payloads_ok(expected: Any, declared: set[str]) -> bool:
+    """The shape rule for corpus.manifest.expectedPayloads.
+
+    Every key an attack identifier the same manifest's classes declares, every
+    array non-empty, sorted ascending by UTF-16 code unit, duplicate-free, and
+    every entry lowercase 64-hex. A manifest violating any of these is
+    malformed, which is a GATE 0 fault and never a row-level one: nothing on a
+    row can repair a manifest whose pre-image is already a run binding input.
+    """
+    if not isinstance(expected, dict):
+        return False
+    for attack, values in expected.items():
+        if not isinstance(attack, str) or attack not in declared:
+            return False
+        if not _commitment_array_ok(values):
+            return False
+    return True
+
+
+def observed_set_digest(views: list[RecordView]) -> str:
+    """The value a seal's aeeObservedSet commits to.
+
+    SHA-256 of the RFC 8785 canonicalization of the duplicate-free array, sorted
+    ascending by UTF-16 code unit, of the lowercase 64-hex leaf hashes of every
+    interception and examination record, where a leaf hash is
+    H(0x00 || the record's DSSE PAE bytes) -- the same leaf construction
+    batchRoot uses.
+
+    A record whose payload does not decode, does not parse as strict I-JSON, or
+    carries no readable aeeKind contributes nothing, because a verifier cannot
+    classify the kind of a record it cannot read. The specification names that
+    outcome where it defines the member: such a statement is invalid on the
+    recompute without the verifier ever learning why.
+    """
+    leaves = sorted(
+        {
+            hashlib.sha256(b"\x00" + rv.pae).hexdigest()
+            for rv in views
+            if rv.pae is not None and rv.kind in ("interception", "examination")
+        }
+    )
+    return sha256_hex(jcs_dumps(leaves))
+
+
 # The run-binding construction this rail implements. A record declaring any
 # other version covers nothing: the spec forbids attempting more than one
 # construction, so there is no version-1 path left in this file to fall back to.
@@ -923,7 +1006,7 @@ def _timestamp_ok(v: Any) -> bool:
     """Whether a value is carried under the predicate's Timestamp field type.
 
     The type requires RFC 3339 in the UTC timezone; the predicate pins the two
-    choices that type leaves open (spec:1183-1192), and the two are checked separately
+    choices that type leaves open (spec:1571-1580), and the two are checked separately
     because they are separate rules. The pattern carries the case half: an
     uppercase separator and zone designator, never the lowercase `t` and `z`
     RFC 3339 also admits. The pattern accepts any numeric offset, so the zone
@@ -1034,6 +1117,12 @@ class _VerifyState:
     derived_binding: str | None = None
     pinned_posture: Any = None
     row_covering: dict[int, list[RecordView]] = field(default_factory=dict)
+    # The attack identifiers the carried corpus.manifest.classes declares, and
+    # the optional per-attack expectation map beside them. Two record kinds
+    # carry arrays of the first from 0.7, and the attribution rule reads the
+    # second, so both are derived once where the corpus is read.
+    declared_attacks: set[str] = field(default_factory=set)
+    expected_payloads: Any = None
 
 
 class ReferenceVerifier:
@@ -1042,7 +1131,13 @@ class ReferenceVerifier:
 
     # -- record cover validity -------------------------------------------
 
-    def _arming_ok(self, rv: RecordView, pinned_posture: Any, issued_at: Any) -> bool:
+    def _arming_ok(
+        self,
+        rv: RecordView,
+        pinned_posture: Any,
+        issued_at: Any,
+        declared_attacks: set[str],
+    ) -> bool:
         p = rv.payload or {}
         armed = p.get("armedAt")
         if not _timestamp_ok(armed):
@@ -1063,13 +1158,23 @@ class ReferenceVerifier:
         # Read-first binding-version declaration: an explicit aeeBindingVersion
         # the verifier does not implement makes the arming record cover nothing,
         # distinguishably from a run-binding digest mismatch. Absent defaults to
-        # the implemented version "1"; the derivation is unchanged.
+        # the implemented version; the derivation is unchanged.
+        #
+        # The constant was the literal "1" here for as long as version 2 has been
+        # the implemented construction, so this rail refused an arming record
+        # declaring the version it actually derives while every other rail
+        # accepted it. No vector carries the member, which is why a five-rail
+        # divergence sat in the reference implementation unseen.
         bv = p.get("aeeBindingVersion")
-        if bv is not None and bv != "1":
+        if bv is not None and bv != BINDING_VERSION:
             return False
         if not self._arming_chain_ok(p):
             return False
-        return True
+        # aeeAssessedAttacks is required on the kind from 0.7. The SUBSET
+        # comparison against the carried coverage is a statement rule and lives
+        # in _check_commitments; what the kind requires is that the array is
+        # there and well formed.
+        return _attack_id_array_ok(p.get("aeeAssessedAttacks"), declared_attacks)
 
     _CHAIN_SCOPE_VOCAB = frozenset({"subject", "corpus", "networkPosture"})
 
@@ -1111,7 +1216,13 @@ class ReferenceVerifier:
         prev = p.get("aeePrevRunBinding")
         return isinstance(prev, str) and bool(HEX64_RE.match(prev))
 
-    def _sealed_ok(self, rv: RecordView, pinned_posture: Any, arming_postures: list[str]) -> bool:
+    def _sealed_ok(
+        self,
+        rv: RecordView,
+        pinned_posture: Any,
+        arming_postures: list[str],
+        declared_attacks: set[str],
+    ) -> bool:
         p = rv.payload or {}
         if p.get("aeeStillArmed") is not True:
             return False
@@ -1148,7 +1259,22 @@ class ReferenceVerifier:
                 return False
         if p.get("aeeMethod") != "intercepted":
             return False
-        return True
+        return self._sealed_commitments_ok(p, declared_attacks)
+
+    @staticmethod
+    def _sealed_commitments_ok(p: dict[str, Any], declared_attacks: set[str]) -> bool:
+        """The two members 0.7 requires of the sealed kind.
+
+        The equality of aeeObservedSet against the recompute and the caught-row
+        obligation of aeeObservedAttacks are STATEMENT rules and live in
+        _check_commitments; what the kind requires is only that both are there
+        in the shapes it names. The EMPTY attack array satisfies it, which is
+        deliberate: a substrate holding no probe-to-record correspondence
+        declares that on the wire rather than by omission.
+        """
+        if not _is_hex64_lower(p.get("aeeObservedSet")):
+            return False
+        return _attack_id_array_ok(p.get("aeeObservedAttacks"), declared_attacks)
 
     def _examination_ok(self, rv: RecordView) -> bool:
         return (rv.payload or {}).get("aeeMethod") == "reconstructed"
@@ -1198,6 +1324,7 @@ class ReferenceVerifier:
         self._check_records(st, out)
         self._check_run_binding(st, out)
         self._check_gate1_coverage(st, out)
+        self._check_commitments(st, out)
         self._check_result_recompute(st, out)
         if out.codes:
             return out  # invalid: no result, no tiers (behavior assertion 2)
@@ -1307,7 +1434,7 @@ class ReferenceVerifier:
         if _digest_of(vocab) != expect:
             out.add("vocabulary-digest-mismatch")
 
-    def _check_corpus(self, st: _VerifyState, out: Outcome) -> None:
+    def _check_corpus(self, st: _VerifyState, out: Outcome) -> None:  # noqa: C901 -- one guarded branch per independent manifest member; see docs/complexity-rationales.toml
         env = st.env
         corpus = env.get("corpus")
         st.corpus = corpus
@@ -1331,6 +1458,19 @@ class ReferenceVerifier:
             if isinstance(classes, dict):
                 manifest_classes = classes
                 self._corpus_dupes(out, classes)
+                st.declared_attacks = {
+                    aid
+                    for ids in classes.values()
+                    if isinstance(ids, list)
+                    for aid in ids
+                    if isinstance(aid, str)
+                }
+            if isinstance(manifest, dict) and "expectedPayloads" in manifest:
+                expected = manifest["expectedPayloads"]
+                if _expected_payloads_ok(expected, st.declared_attacks):
+                    st.expected_payloads = expected
+                else:
+                    out.add("manifest-expected-payloads-malformed")
         st.manifest_classes = manifest_classes
 
     @staticmethod
@@ -1345,7 +1485,7 @@ class ReferenceVerifier:
     @staticmethod
     def _corpus_declares_attack(out: Outcome, classes: Any) -> None:
         """The manifest MUST declare at least one attack identifier across all
-        of its classes (spec:699-721).
+        of its classes (spec:928-950).
 
         A corpus with no adversarial inputs is not an adversarial corpus, so
         this sits with well-formedness and not with scoring: scoring it would
@@ -1423,7 +1563,7 @@ class ReferenceVerifier:
     ) -> bool:
         # Coverage MUST be an exhaustive, disjoint partition of the
         # manifest's classes across assessedClasses/outOfScope/
-        # routedElsewhere, each a real manifest class (spec:650-654):
+        # routedElsewhere, each a real manifest class (spec:872-876):
         # without this a whole class is silently dropped from all three
         # sets (or a fabricated class pads assessedClasses).
         acct: dict[str, int] = {}
@@ -1460,7 +1600,7 @@ class ReferenceVerifier:
         assessed: list[Any],
     ) -> None:
         attack_class, expected_ids = self._coverage_index(manifest_classes, assessed)
-        # No two rows may carry the same attackId (spec:672-677): one row per
+        # No two rows may carry the same attackId (spec:901-906): one row per
         # executed attack is a well-formedness invariant. Detected BEFORE the
         # row_ids set is built, because the set-equality check below silently
         # collapses duplicates.
@@ -1509,7 +1649,7 @@ class ReferenceVerifier:
 
     def _check_subject_cardinality(self, st: _VerifyState, out: Outcome) -> None:
         # subject MUST contain exactly one entry on a statement of ANY basis
-        # (spec:193-196). The six binding-digest-input requirement stays
+        # (spec:210-213). The six binding-digest-input requirement stays
         # substrate-scoped (_check_substrate_binding_inputs).
         subject = st.stmt.get("subject")
         subject = subject if isinstance(subject, list) else []
@@ -1553,7 +1693,11 @@ class ReferenceVerifier:
             lab_bad = labels is not None and r.get("containmentObserved") not in labels
             basis_bad = r.get("basis") not in ("substrate", "artifact")
             method_bad = r.get("method") not in ("intercepted", "reconstructed")
-            if lab_bad or basis_bad or method_bad:
+            # attribution joined basis and method at 0.7, and joins them HERE
+            # rather than in a rule of its own, because the specification states
+            # the three closed row vocabularies as one rule with one consequence.
+            attribution_bad = r.get("attribution") not in ("pinned", "paired")
+            if lab_bad or basis_bad or method_bad or attribution_bad:
                 fail_closed_rows.add(i)
                 if r.get("basis") == "substrate":
                     out.add("fail-closed-substrate-row")
@@ -1570,7 +1714,7 @@ class ReferenceVerifier:
             views = [RecordView(i, rec) for i, rec in enumerate(records)]
             # Envelope shape before payload bytes, mirroring Go
             # validity.go:137-143: every record's signatures member MUST carry
-            # at least one entry (spec:980-982), and an absent member is the
+            # at least one entry (spec:1243-1245), and an absent member is the
             # same zero as an empty array. The check is a count and proves
             # nothing about the entries it counts -- fabricated signature bytes
             # satisfy it and are caught only by verification at the tier -- but
@@ -1787,7 +1931,22 @@ class ReferenceVerifier:
         inters = [rv for rv in usable if rv.kind == "interception"]
         if not inters:
             out.add(self._uncovered_code(unknown_ref, "caught-row-uncovered"))
-        return inters
+            return inters
+        # aeePayloadCommitment is required on the kind from 0.7. ABSENT takes
+        # the missing-reserved code every other absent reserved member takes;
+        # PRESENT-but-malformed takes its own, because a producer told its
+        # record is missing a value the record plainly carries has been told
+        # the wrong thing about its own record.
+        good = []
+        for rv in inters:
+            values = (rv.payload or {}).get("aeePayloadCommitment")
+            if values is None:
+                out.add("payload-missing-reserved")
+            elif not _commitment_array_ok(values):
+                out.add("payload-commitment-malformed")
+            else:
+                good.append(rv)
+        return good
 
     def _gate1_cover_clean(
         self,
@@ -1798,7 +1957,7 @@ class ReferenceVerifier:
         pinned_posture: Any,
     ) -> list[RecordView]:
         good_arm = self._gate1_clean_arm(st, out, usable, unknown_ref, pinned_posture)
-        good_seal = self._gate1_clean_seal(out, usable, unknown_ref, pinned_posture)
+        good_seal = self._gate1_clean_seal(st, out, usable, unknown_ref, pinned_posture)
         return good_arm + good_seal
 
     def _gate1_clean_arm(
@@ -1811,7 +1970,11 @@ class ReferenceVerifier:
     ) -> list[RecordView]:
         issued_at = st.issued_at
         armings = [rv for rv in usable if rv.kind == "arming"]
-        good_arm = [rv for rv in armings if self._arming_ok(rv, pinned_posture, issued_at)]
+        good_arm = [
+            rv
+            for rv in armings
+            if self._arming_ok(rv, pinned_posture, issued_at, st.declared_attacks)
+        ]
         if not armings:
             out.add(self._uncovered_code(unknown_ref, "clean-row-uncovered"))
         elif not good_arm:
@@ -1820,6 +1983,7 @@ class ReferenceVerifier:
 
     def _gate1_clean_seal(
         self,
+        st: _VerifyState,
         out: Outcome,
         usable: list[RecordView],
         unknown_ref: bool,
@@ -1837,7 +2001,11 @@ class ReferenceVerifier:
             for posture in [(rv.payload or {}).get("aeePostureDigest")]
             if isinstance(posture, str)
         ]
-        good_seal = [rv for rv in sealeds if self._sealed_ok(rv, pinned_posture, arming_postures)]
+        good_seal = [
+            rv
+            for rv in sealeds
+            if self._sealed_ok(rv, pinned_posture, arming_postures, st.declared_attacks)
+        ]
         if not sealeds:
             out.add(self._uncovered_code(unknown_ref, "clean-row-uncovered"))
         elif not good_seal:
@@ -1858,6 +2026,218 @@ class ReferenceVerifier:
                 out.add("method-cap-exceeded")
 
     # ---- result recompute (pure function of carried rows) ---------------
+
+    # ---- the coverage validity requirements 0.7 adds --------------------
+    #
+    # They sit apart from the per-row gate above for the reason the
+    # specification states in the sentence that introduces them: they hold on
+    # the STATEMENT, or on every row rather than only on a basis: substrate
+    # row. The per-row gate returns early on any row that is not substrate, so
+    # a rule written there would silently acquire that scope.
+    #
+    # They run LAST, after the per-row gate, because they describe a
+    # consequence rather than a cause: a row whose refs are emptied leaves the
+    # record it used to resolve orphaned, and the code a reader wants first is
+    # the one naming what the producer did.
+
+    def _check_commitments(self, st: _VerifyState, out: Outcome) -> None:
+        self._commit_clean_row_contradicted(st, out)
+        self._commit_interception_orphaned(st, out)
+        self._commit_attribution(st, out)
+        if not st.has_substrate or not st.has_records:
+            return
+        self._commit_observed_set(st, out)
+        self._commit_sealed_present(st, out)
+        self._commit_seal_attacks(st, out)
+        self._commit_assessed_subset(st, out)
+
+    @staticmethod
+    def _resolved_views(st: _VerifyState, r: dict[str, Any]) -> list[RecordView]:
+        """The in-range records one row resolves. A malformed refs member
+        resolves nothing here: ref-malformed owns that fault."""
+        refs = r.get("observationRefs")
+        if not isinstance(refs, list):
+            return []
+        return [
+            st.views[ref]
+            for ref in refs
+            if not isinstance(ref, bool)
+            and isinstance(ref, int)
+            and 0 <= ref < len(st.views)
+        ]
+
+    def _commit_clean_row_contradicted(self, st: _VerifyState, out: Outcome) -> None:
+        """A clean row resolves no observationRefs index to an interception
+        record. Stated over EVERY row, so the loop reads no basis: the
+        contradiction does not depend on the vantage the row declares."""
+        if st.labels is None or st.caught is None:
+            return
+        for r in st.rows:
+            lab = r.get("containmentObserved")
+            if lab not in st.labels or lab in st.caught:
+                continue
+            if any(rv.kind == "interception" for rv in self._resolved_views(st, r)):
+                out.add("clean-row-contradicted")
+                return
+
+    def _commit_interception_orphaned(self, st: _VerifyState, out: Outcome) -> None:
+        """Every carried interception record is resolved by at least one
+        observationRefs index on a CAUGHT row. One record MAY be resolved by
+        several rows, so the test is existence and never a count."""
+        if st.caught is None or not st.has_records:
+            return
+        resolved: set[int] = set()
+        for r in st.rows:
+            if r.get("containmentObserved") not in st.caught:
+                continue
+            resolved.update(rv.idx for rv in self._resolved_views(st, r))
+        for rv in st.views:
+            if rv.kind == "interception" and rv.idx not in resolved:
+                out.add("interception-record-orphaned")
+                return
+
+    def _commit_observed_set(self, st: _VerifyState, out: Outcome) -> None:
+        """aeeObservedSet on every carried sealed record equals the recompute.
+
+        A seal whose member is absent or is not lowercase 64-hex is NOT
+        reported here: that record covers nothing by its own kind's
+        constraints, which is a different fault with a different code, and
+        reporting both would give one mutation two codes.
+        """
+        want: str | None = None
+        for rv in st.views:
+            if rv.kind != "sealed" or not isinstance(rv.payload, dict):
+                continue
+            if rv.payload.get("aeeRunBinding") != st.derived_binding:
+                continue
+            got = rv.payload.get("aeeObservedSet")
+            if not _is_hex64_lower(got):
+                continue
+            if want is None:
+                want = observed_set_digest(st.views)
+            if got != want:
+                out.add("observed-set-mismatch")
+                return
+
+    def _commit_sealed_present(self, st: _VerifyState, out: Outcome) -> None:
+        """A statement carrying at least one basis: substrate row carries at
+        least one sealed record satisfying every constraint of its kind and
+        binding to this run, whether or not a row resolves an index to it.
+
+        Unconditional at 0.7: a rule conditioned on the presence of the record
+        it constrains is a rule a producer switches off by omission, and the
+        statements it was switched off on were exactly the statements a record
+        deletion works against.
+        """
+        arming_postures = [
+            posture
+            for rv in st.views
+            if rv.kind == "arming"
+            for posture in [(rv.payload or {}).get("aeePostureDigest")]
+            if isinstance(posture, str)
+        ]
+        for rv in st.views:
+            if rv.kind != "sealed" or not isinstance(rv.payload, dict) or not rv.media_ok:
+                continue
+            if rv.payload.get("aeeRunBinding") != st.derived_binding:
+                continue
+            if self._sealed_ok(rv, st.pinned_posture, arming_postures, st.declared_attacks):
+                return
+        out.add("sealed-record-absent")
+
+    def _commit_seal_attacks(self, st: _VerifyState, out: Outcome) -> None:
+        """For every identifier the seal names in aeeObservedAttacks the
+        statement carries a row with that attackId whose containmentObserved is
+        in the carried caught set.
+
+        The rule reads in ONE direction. A seal naming an attack obliges a
+        caught row; a seal omitting one licenses nothing, and in particular
+        does not oblige a clean row. That is what makes a lower bound sound
+        without asking the substrate to resolve every ambiguous case.
+        """
+        if st.caught is None:
+            return
+        caught_ids = {
+            r.get("attackId")
+            for r in st.rows
+            if r.get("containmentObserved") in st.caught
+        }
+        for rv in st.views:
+            if rv.kind != "sealed" or not isinstance(rv.payload, dict):
+                continue
+            if rv.payload.get("aeeRunBinding") != st.derived_binding:
+                continue
+            attacks = rv.payload.get("aeeObservedAttacks")
+            if not _attack_id_array_ok(attacks, st.declared_attacks):
+                continue
+            if any(a not in caught_ids for a in attacks):
+                out.add("observed-attack-uncaught")
+                return
+
+    def _commit_assessed_subset(self, st: _VerifyState, out: Outcome) -> None:
+        """The union of the manifest identifiers for the carried
+        coverage.assessedClasses is a SUBSET of the arming record's
+        aeeAssessedAttacks.
+
+        A subset and not an equality. An equality would refuse the honest run
+        that declared two classes, lost one part-way and disclosed the loss,
+        and would buy, against the withdrawal it appears to catch, only the
+        version of that withdrawal that leaves the arming record in place.
+        """
+        cov = st.coverage if isinstance(st.coverage, dict) else {}
+        assessed_classes = cov.get("assessedClasses")
+        if not isinstance(assessed_classes, list) or not isinstance(
+            st.manifest_classes, dict
+        ):
+            return
+        assessed: set[str] = set()
+        for cls in assessed_classes:
+            ids = st.manifest_classes.get(cls)
+            if isinstance(ids, list):
+                assessed.update(a for a in ids if isinstance(a, str))
+        for rv in st.views:
+            if rv.kind != "arming" or not isinstance(rv.payload, dict):
+                continue
+            if rv.payload.get("aeeRunBinding") != st.derived_binding:
+                continue
+            declared = rv.payload.get("aeeAssessedAttacks")
+            if not _attack_id_array_ok(declared, st.declared_attacks):
+                continue
+            if not assessed <= set(declared):
+                out.add("assessed-set-exceeds-declaration")
+                return
+
+    def _commit_attribution(self, st: _VerifyState, out: Outcome) -> None:
+        """A row declaring attribution: pinned carries the binding it claims,
+        in the three parts the specification writes it in.
+
+        The EXISTENCE part is checked first because it is the part the other
+        two are vacuous without: a universally quantified rule over an empty
+        set is true, so a producer that deletes the interception records keeps
+        the stronger label unless something asks whether any remain.
+        """
+        expected_map = st.expected_payloads if isinstance(st.expected_payloads, dict) else {}
+        for r in st.rows:
+            if r.get("attribution") != "pinned":
+                continue
+            resolved = self._resolved_views(st, r)
+            inters = [rv for rv in resolved if rv.kind == "interception"]
+            if not inters:
+                out.add("attribution-pinned-recordless")
+                return
+            expected = expected_map.get(r.get("attackId"))
+            if not isinstance(expected, list) or not expected:
+                out.add("attribution-unpinnable")
+                return
+            for rv in inters:
+                values = (rv.payload or {}).get("aeePayloadCommitment")
+                if not isinstance(values, list):
+                    # Absent or wrong-typed: the record covers nothing by its
+                    # own kind's constraints, and that is the fault reported.
+                    continue
+                if not any(v in expected for v in values):
+                    out.add("attribution-pin-unmatched")
+                    return
 
     def _check_result_recompute(self, st: _VerifyState, out: Outcome) -> None:
         labels = st.labels
@@ -1904,6 +2284,11 @@ class ReferenceVerifier:
             elif r.get("basis") not in ("substrate", "artifact"):
                 forces_fail = True
             elif r.get("method") not in ("intercepted", "reconstructed"):
+                forces_fail = True
+            elif r.get("attribution") not in ("pinned", "paired"):
+                # attribution enters the recompute through this arm and NOWHERE
+                # else. A row declaring paired is not a weaker RESULT, it is a
+                # weaker binding between the row and the records that cover it.
                 forces_fail = True
             elif r.get("basis") != "substrate" or r.get("method") != "intercepted":
                 indirect = True

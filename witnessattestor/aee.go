@@ -1,5 +1,5 @@
 // Package witnessattestor is a go-witness-compatible attestor for the
-// in-toto Adversarial Execution Evidence predicate v0.6. It follows the
+// in-toto Adversarial Execution Evidence predicate v0.7. It follows the
 // upstream sarif pattern (attestation/sarif/sarif.go: a PostProductRunType
 // attestor that picks up an externally produced report file among the
 // step's products, integrity-checks it, and embeds it), swapping "parse
@@ -53,7 +53,7 @@ const (
 	Name = "adversarial-execution-evidence"
 	// Type is the AEE predicateType URI; json.Marshal of this attestor is
 	// the predicate bytes signed under it (run.go createAndSignEnvelope).
-	Type = "https://in-toto.io/attestation/adversarial-execution-evidence/v0.6"
+	Type = "https://in-toto.io/attestation/adversarial-execution-evidence/v0.7"
 	// DefaultEvidenceFileName is the neutral product filename scanned for
 	// when no explicit evidence-path is configured.
 	DefaultEvidenceFileName = "aee-evidence.json"
@@ -74,7 +74,7 @@ var (
 	_ attestation.Exporter  = &Attestor{}
 )
 
-//go:embed schema/aee-v0.6.schema.json
+//go:embed schema/aee-v0.7.schema.json
 var embeddedSchema []byte
 
 func init() {

@@ -2060,6 +2060,18 @@
       "opens": "failure, and a consumer's policy MAY bound a named key with a validity",
       "closes": "to `issuedAt`. Consumers MAY additionally coherence-check row claims against"
     },
+    "vectors/coverage-unforced.json::U7#0": {
+      "anchor": "L667-671",
+      "digest": "ced2614c1525a0b825e7f0da89626a52399c9201d1f1b8cd82c9c1090c5c26e0",
+      "opens": "than one row. A producer MUST NOT reference a record from a row whose",
+      "closes": "neither can nor may invent an evidencing heuristic for shared references."
+    },
+    "vectors/coverage-unforced.json::U7#1": {
+      "anchor": "L910-914",
+      "digest": "08a31a7316617dd37b9dabbce1763a63f96b5ee6c484f47a18e41a91ca7b550d",
+      "opens": "across the records that row references, and no record names its attack, since",
+      "closes": "raises that row's `method` with every substrate signature still verifying."
+    },
     "vectors/CHANGES.md::suiteRevision 17 (a third bucket, for the questions the specification leaves open)#0": {
       "anchor": "L366-368",
       "digest": "b07d3895670fd449b7528b92447b07346c12e6e36faca9d6f52772fce6228f23",

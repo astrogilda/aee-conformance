@@ -21,8 +21,10 @@ package aee_test
 //
 // Two suite layouts are supported:
 //
-//  1. MANIFEST mode — a MANIFEST.json at the suite root with accept/ and
-//     reject/ subdirectories (the conformance-repo landing layout).
+//  1. MANIFEST mode — a MANIFEST.json at the suite root with one subdirectory
+//     per vector kind (the conformance-repo landing layout). The MANIFEST is
+//     the machine-readable SSOT here, and the runner fails if any committed
+//     vector file lacks a MANIFEST row or vice versa.
 //  2. STAGED mode — the draft-local layout produced by the vector
 //     generators: valid/ + invalid/ subdirectories whose INDEX.md files
 //     carry the per-vector expectations (result for accepts, failure-code
@@ -52,6 +54,7 @@ import (
 type manifestVector struct {
 	ID       string `json:"id"`
 	Kind     string `json:"kind"`
+	File     string `json:"file"`
 	Expected struct {
 		Verdict           string            `json:"verdict"`
 		Codes             []string          `json:"codes"`
@@ -64,8 +67,10 @@ type manifestVector struct {
 }
 
 type suiteManifest struct {
-	Vectors []manifestVector `json:"vectors"`
-	Index   []manifestVector `json:"index"` // tolerated alternate key
+	PredicateType string           `json:"predicateType"`
+	Counts        map[string]int   `json:"counts"`
+	Vectors       []manifestVector `json:"vectors"`
+	Index         []manifestVector `json:"index"` // tolerated alternate key
 }
 
 func suiteDir() string {
@@ -118,6 +123,7 @@ func runManifestMode(t *testing.T, dir string) {
 	if len(vectors) == 0 {
 		t.Fatal("MANIFEST.json carries no vectors under 'vectors' or 'index'")
 	}
+	checkManifestClosure(t, dir, &manifest, vectors)
 
 	// Primary code this rail reports per indeterminate vector, collected as the
 	// vectors run and asserted family-wide afterwards. The per-vector check can
@@ -128,14 +134,12 @@ func runManifestMode(t *testing.T, dir string) {
 	for _, v := range vectors {
 		v := v
 		t.Run(v.ID, func(t *testing.T) {
-			sub := "accept"
-			switch v.Kind {
-			case "reject":
-				sub = "reject"
-			case "indeterminate":
-				sub = "indeterminate"
-			}
-			body, err := os.ReadFile(filepath.Join(dir, sub, v.ID+".json"))
+			// The kind names the directory directly. It used to select one
+			// through a switch whose default was "accept", so a kind nobody
+			// had taught this runner about would have been read out of
+			// accept/ and replayed as an accept. checkManifestClosure refuses
+			// an unreplayed kind by name before the loop is reached.
+			body, err := os.ReadFile(filepath.Join(dir, v.Kind, v.ID+".json"))
 			if err != nil {
 				t.Fatalf("vector body missing: %v", err)
 			}
@@ -151,6 +155,112 @@ func runManifestMode(t *testing.T, dir string) {
 	t.Run("indeterminate-family-coherence", func(t *testing.T) {
 		checkFamilyCoherence(t, vectors, answers)
 	})
+}
+
+// replayedKinds are the vector kinds the assertions in this file actually
+// cover. Nothing is selected by it: it is the coverage claim this runner makes
+// about itself, checked against the corpus by checkManifestClosure. A kind the
+// corpus grows and this file does not replay fails there by name, rather than
+// being routed to some default directory and scored under somebody else's
+// contract.
+var replayedKinds = map[string]bool{
+	"accept":        true,
+	"reject":        true,
+	"indeterminate": true,
+}
+
+// checkManifestClosure asserts that the MANIFEST and the vector files on disk
+// name each other exactly, in both directions and per kind.
+//
+// The replay below is driven by the MANIFEST, so it can only ever exercise the
+// vectors the MANIFEST names: a .json committed into a vector directory with no
+// MANIFEST row would sit there replayed by nothing and compared to nothing while
+// every assertion in this file still passed. Comparing the two listings is what
+// makes "every vector was replayed" a measured claim rather than an assumption
+// about whoever last regenerated the suite. The sibling STAGED runner has
+// enforced exactly this against its own layout since it was written, and both
+// downstream rails that vendor this corpus were hardened for it after an
+// indeterminate/ directory arrived, was vendored, and was exercised by nothing.
+//
+// The counts come from the tree. MANIFEST.json also publishes a counts block,
+// which is a third copy of the same number, so it is checked against the other
+// two rather than trusted or ignored.
+func checkManifestClosure(t *testing.T, dir string, m *suiteManifest, vectors []manifestVector) {
+	t.Helper()
+
+	if m.PredicateType != "" && m.PredicateType != aee.PredicateType {
+		t.Errorf("MANIFEST predicateType %q is not the type this rail verifies (%q)",
+			m.PredicateType, aee.PredicateType)
+	}
+
+	listed := map[string][]string{}
+	for _, v := range vectors {
+		if !replayedKinds[v.Kind] {
+			t.Errorf("MANIFEST lists %s under kind %q, which no assertion in this file replays. "+
+				"Add the replay and name the kind in replayedKinds -- naming it alone is the same "+
+				"absence with a green tick on it", v.ID, v.Kind)
+			continue
+		}
+		if want := v.Kind + "/" + v.ID + ".json"; v.File != "" && v.File != want {
+			t.Errorf("MANIFEST row %s declares file %q; this runner reads %q", v.ID, v.File, want)
+		}
+		listed[v.Kind] = append(listed[v.Kind], v.ID)
+	}
+	for kind := range replayedKinds {
+		if len(listed[kind]) == 0 {
+			t.Errorf("replayedKinds names kind %q that the MANIFEST no longer carries, so the "+
+				"replay for it runs over nothing and asserts nothing", kind)
+		}
+	}
+
+	// A directory holding vector files that the MANIFEST does not name as a
+	// kind is the exact shape the downstream rails were hardened against: the
+	// files are on disk, the listing walks past them because the directory's
+	// name is in no literal, and nothing reports it.
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, e := range entries {
+		if !e.IsDir() {
+			continue
+		}
+		if _, ok := listed[e.Name()]; ok {
+			continue
+		}
+		if n := len(jsonVectors(t, filepath.Join(dir, e.Name()))); n > 0 {
+			t.Errorf("%s/ holds %d vector file(s) and is named by no MANIFEST kind, so nothing replays them",
+				e.Name(), n)
+		}
+	}
+
+	for kind, ids := range listed {
+		onDisk := jsonVectors(t, filepath.Join(dir, kind))
+		sort.Strings(ids)
+		if strings.Join(ids, ",") != strings.Join(onDisk, ",") {
+			for _, id := range ids {
+				if !containsString(onDisk, id) {
+					t.Errorf("MANIFEST row %s has no committed vector file in %s/", id, kind)
+				}
+			}
+			for _, id := range onDisk {
+				if !containsString(ids, id) {
+					t.Errorf("%s/%s.json is committed and has no MANIFEST row, so it is replayed by "+
+						"nothing and compared to nothing", kind, id)
+				}
+			}
+		}
+		if got, ok := m.Counts[kind]; !ok {
+			t.Errorf("MANIFEST counts declares no entry for kind %q, which %d rows carry", kind, len(ids))
+		} else if got != len(onDisk) {
+			t.Errorf("MANIFEST counts[%q] is %d; %s/ holds %d vector file(s)", kind, got, kind, len(onDisk))
+		}
+	}
+	for kind := range m.Counts {
+		if _, ok := listed[kind]; !ok {
+			t.Errorf("MANIFEST counts declares kind %q that no MANIFEST row carries", kind)
+		}
+	}
 }
 
 // checkIndeterminate asserts the determined half of an indeterminate vector's

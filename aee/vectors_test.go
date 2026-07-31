@@ -39,6 +39,7 @@ package aee_test
 
 import (
 	"crypto/ed25519"
+	"crypto/sha256"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -48,7 +49,6 @@ import (
 	"testing"
 
 	"github.com/astrogilda/aee-conformance/aee"
-	"github.com/astrogilda/aee-conformance/aeetest"
 )
 
 type manifestVector struct {
@@ -607,9 +607,33 @@ func containsString(ss []string, s string) bool {
 
 // Guard: the pinned-policy key used against the suite must be the DERIVED
 // test key, so the runner never depends on any committed private material.
+//
+// The recipe is spelled out below rather than called, and that is the whole
+// point of the test. Deriving the expected key through aeetest.TestKey would
+// make this a comparison of a function with itself, which passes under every
+// possible recipe; the earlier version compared the key's LENGTH against
+// ed25519.PublicKeySize, which is 32 for every seed there has ever been. The
+// literal here is the published recipe, so an edit to aeetest/build.go
+// diverges from it rather than being followed by it.
+//
+// The recipe is cross-rail load-bearing: the TypeScript rail re-derives the
+// same key from the same published string, so a change made on one side and
+// not the other stops the two rails from agreeing about which vectors are
+// attested, while both stay green against their own key.
 func TestPinnedPolicyIsDerived(t *testing.T) {
-	pub := aeetest.TestKey(aeetest.RoleSubstrateObservation).Public().(ed25519.PublicKey)
-	if len(pub) != ed25519.PublicKeySize {
-		t.Fatal("derived key has unexpected size")
+	const recipe = "in-toto-aee-test-key/substrate-observation-test/v1"
+	seed := sha256.Sum256([]byte(recipe))
+	want := ed25519.NewKeyFromSeed(seed[:]).Public().(ed25519.PublicKey)
+
+	policy := pinnedPolicy()
+	if len(policy.SubstrateObservationKeys) != 1 {
+		t.Fatalf("pinned policy names %d substrate-observation key(s), want exactly 1",
+			len(policy.SubstrateObservationKeys))
+	}
+	if got := policy.SubstrateObservationKeys[0]; !got.Equal(want) {
+		t.Fatalf("the pinned policy's substrate-observation key is %x, but the published recipe "+
+			"sha256(%q) derives %x. The suite is signed under the published recipe and the sibling "+
+			"rails re-derive it, so the key the runner pins is the recipe or the rails have diverged",
+			[]byte(got), recipe, []byte(want))
 	}
 }

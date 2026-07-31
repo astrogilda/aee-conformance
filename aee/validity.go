@@ -22,7 +22,7 @@ import (
 	"time"
 )
 
-// Reserved payload members (spec:1263-1283).
+// Reserved payload members (spec:1263-1285).
 const (
 	memberRunBinding    = "aeeRunBinding"
 	memberKind          = "aeeKind"
@@ -33,7 +33,7 @@ const (
 	memberDropCount     = "aeeDropCount"
 	memberDropBound     = "aeeDropBound"
 
-	// The four members carrying the commitments 0.7 adds (spec:1296-1299).
+	// The four members carrying the commitments 0.7 adds (spec:1372-1375).
 	// Each is required on exactly one kind, and a record missing or malforming
 	// the member its kind requires covers nothing, on the same terms as a
 	// missing armedAt.
@@ -144,9 +144,9 @@ func gate1WithContext(s *Statement) (states []recordState, binding string, issue
 // checkRecordsStatementLevel runs the record-set checks that hold for the
 // whole statement whenever observationRecords is non-empty, BEFORE any row
 // logic: signature-entry presence (spec:1243-1245), batchRoot presence
-// (spec:1527), duplicate-record rejection (spec:1535-1537), root recomputation
-// (spec:1539-1541), and the orphaned-root case (a batchRoot with no records to
-// recompute over, spec:1552-1555).
+// (spec:1603), duplicate-record rejection (spec:1611-1613), root recomputation
+// (spec:1615-1617), and the orphaned-root case (a batchRoot with no records to
+// recompute over, spec:1628-1631).
 func checkRecordsStatementLevel(p *Predicate) ([]recordState, []Code) {
 	var codes []Code
 	states := make([]recordState, len(p.Records))
@@ -313,23 +313,30 @@ func analyzePayload(rec *Record, state *recordState, binding string) payloadAnal
 }
 
 // recordEval is a referenced record's covering evaluation: whether it
-// satisfies its declared aeeKind's constraints (spec:1265-1294), and the
+// satisfies its declared aeeKind's constraints (spec:1265-1296), and the
 // kind-specific code to report when it does not. A record violating any
-// constraint of its declared kind covers nothing (spec:1285-1288); a record
+// constraint of its declared kind covers nothing (spec:1287-1290); a record
 // whose kind is unrecognized covers nothing and is otherwise ignored
-// (spec:1485-1487).
+// (spec:1561-1563).
 type recordEval struct {
-	kind        string
-	method      string
-	valid       bool
-	failCode    Code
-	unknownKind bool
+	kind     string
+	method   string
+	valid    bool
+	failCode Code
+	// coversNothingCode is set on a record whose KIND covers nothing whatever
+	// its payload says: an unrecognized kind, or one of the two the document
+	// registers as non-covering. It is the code a row's refusal takes when the
+	// row resolved such a record and nothing of the class it needed, and it
+	// carries the kind's own name so the two producer errors stay apart. It is
+	// distinct from failCode, which reports a record of the RIGHT class whose
+	// constraints were not met.
+	coversNothingCode Code
 }
 
 // declaredAttacks is the set of attack identifiers the carried
 // corpus.manifest.classes declares. Two kinds now carry arrays of them, and a
 // record naming an identifier the manifest does not declare covers nothing
-// (spec:1316-1318, 1384-1386), so the set is an input to the kind evaluation
+// (spec:1392-1394, 1460-1462), so the set is an input to the kind evaluation
 // rather than a statement rule applied afterwards.
 func evaluateKind(a payloadAnalysis, pinnedPosture string, armingPostures []string, issuedAt time.Time, declaredAttacks map[string]bool) recordEval {
 	ev := recordEval{kind: a.kind, method: a.method}
@@ -339,7 +346,7 @@ func evaluateKind(a payloadAnalysis, pinnedPosture string, armingPostures []stri
 	case KindInterception:
 		// An out-of-vocabulary aeeMethod cannot participate in the method cap,
 		// so the record covers nothing. From 0.7 the kind also requires
-		// aeePayloadCommitment (spec:1301-1305): absent takes the missing-reserved
+		// aeePayloadCommitment (spec:1377-1381): absent takes the missing-reserved
 		// code every other absent reserved member takes, present-but-malformed
 		// takes its own, because a producer told "missing" for a value it
 		// plainly carries has been told the wrong thing about its own record.
@@ -359,9 +366,16 @@ func evaluateKind(a payloadAnalysis, pinnedPosture string, armingPostures []stri
 	case KindExamination:
 		ev.failCode = CodeExaminationCoversNothing
 		ev.valid = a.method == MethodReconstructed
+	case KindMoatDrop:
+		// Registered non-covering (spec:1317-1331). ev.valid stays false with no
+		// constraint consulted: the kind covers nothing in every state, so there
+		// is no member whose value could move the outcome, and reading one to
+		// decide would invent a consequence the document does not define.
+		ev.coversNothingCode = CodeMoatDropCoversNothing
+	case KindUncommittedObservation:
+		ev.coversNothingCode = CodeUncommittedObservationCoversNothing
 	default:
-		ev.unknownKind = true
-		ev.failCode = CodeRecordKindUnknownCoversNothing
+		ev.coversNothingCode = CodeRecordKindUnknownCoversNothing
 	}
 	return ev
 }
@@ -394,7 +408,7 @@ func armingConstraintsMet(a payloadAnalysis, pinnedPosture string, issuedAt time
 	if !armingChainSyntaxValid(a.obj) {
 		return false
 	}
-	// aeeAssessedAttacks is required on the kind from 0.7 (spec:1314-1318). The
+	// aeeAssessedAttacks is required on the kind from 0.7 (spec:1390-1394). The
 	// subset comparison against the carried coverage is a statement rule and
 	// lives in commitments.go; what the kind requires is that the array is
 	// there and well formed.
@@ -419,7 +433,7 @@ func sealedConstraintsMet(a payloadAnalysis, pinnedPosture string, armingPosture
 	}
 	// The two sealed posture equalities are jointly enforced: the seal's posture
 	// must equal the pinned networkPosture digest AND every referenced arming
-	// record's posture claim (spec:1289-1294).
+	// record's posture claim (spec:1291-1296).
 	if posture != pinnedPosture {
 		return false
 	}
@@ -429,7 +443,7 @@ func sealedConstraintsMet(a payloadAnalysis, pinnedPosture string, armingPosture
 		}
 	}
 	// aeeObservedSet and aeeObservedAttacks are required on the kind from 0.7
-	// (spec:1346-1353, 1382-1386). The equality of the first against the
+	// (spec:1422-1429, 1458-1462). The equality of the first against the
 	// recompute and the caught-row obligation of the second are statement rules
 	// and live in commitments.go; what the kind requires is that both are there
 	// in the shapes it names.
@@ -604,7 +618,7 @@ func checkSubstrateRow(p *Predicate, row *Row, states []recordState, binding str
 		return codes, nil
 	}
 
-	// Kind constraints + class-match (spec:1285-1294, 554-560).
+	// Kind constraints + class-match (spec:1287-1296, 554-560).
 	pinnedPosture := p.Env.NetworkPosture.Sha256()
 	var armingPostures []string
 	for _, idx := range uniqueRefs {
@@ -617,12 +631,18 @@ func checkSubstrateRow(p *Predicate, row *Row, states []recordState, binding str
 	}
 
 	evals := map[int]recordEval{}
-	unknownSeen := false
+	// The first resolved record, in reference order, whose kind covers nothing
+	// at all. Taking the first rather than ranking the kinds keeps the
+	// diagnostic deterministic without inventing a precedence between a kind
+	// that covers nothing by registration and one this verifier cannot read;
+	// the document states no order between them and neither can be made to
+	// cover, so the choice is a display and never a verdict.
+	coversNothing := Code("")
 	for _, idx := range uniqueRefs {
 		ev := evaluateKind(analyses[idx], pinnedPosture, armingPostures, issuedAt, declaredAttackIDs(p))
 		evals[idx] = ev
-		if ev.unknownKind {
-			unknownSeen = true
+		if coversNothing == "" {
+			coversNothing = ev.coversNothingCode
 		}
 	}
 
@@ -659,8 +679,8 @@ func checkSubstrateRow(p *Predicate, row *Row, states []recordState, binding str
 		switch {
 		case candidateFail != "":
 			codes = appendCode(codes, candidateFail)
-		case unknownSeen:
-			codes = appendCode(codes, CodeRecordKindUnknownCoversNothing)
+		case coversNothing != "":
+			codes = appendCode(codes, coversNothing)
 		default:
 			codes = appendCode(codes, req.genericCode)
 		}

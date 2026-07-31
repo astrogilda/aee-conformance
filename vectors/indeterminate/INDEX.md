@@ -5,7 +5,7 @@ layout. It carries the statements on which the specification settles
 the VERDICT and does not settle the CONDITION.
 
 Ground truth: `spec/predicates/adversarial-execution-evidence.md` @
-`a81f0eb` (in-toto/attestation PR #570 branch),
+`23bee58` (in-toto/attestation PR #570 branch),
 version 0.6.0, type URI
 `https://in-toto.io/attestation/adversarial-execution-evidence/v0.7`.
 
@@ -111,7 +111,7 @@ here:
   bound a key with a validity window (L1190). None of these moves the
   verdict this suite reads, because validity "is a function of
   carried bytes alone and holds identically for every consumer"
-  (L1613-1616). A rail that answered the admission question in the
+  (L1689-1692). A rail that answered the admission question in the
   verdict field would be wrong, not free.
 - **Producer options.** `observationSelectors`, `aeeDropBound`, the
   descriptor members no rule reads, the optional run-chaining

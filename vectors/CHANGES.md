@@ -5,6 +5,69 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 19 (two kinds get a name, and the splice gets a vector)
+
+- Corpus: **226 vectors (52 accept, 172 reject, 2 indeterminate)**, up from 221.
+  Every vector is regenerated, because the vendored specification moves and its
+  digest is a corpus input. No statement changes shape, no run binding moves and
+  the predicate type is unchanged: the revision carries two additions that make
+  no verdict on any earlier statement different.
+- **`moat-drop` and `uncommitted-observation` are registered kinds, and neither
+  covers anything.** Producers were already signing both under this run binding
+  with no spelling in the document for either, and forward compatibility was
+  carrying them: an unrecognized kind covers nothing, is otherwise ignored,
+  still contributes its leaf to `batchRoot`, and can only weaken a claim. That
+  is the right outcome reached by accident, and the alternative a producer
+  reaches for when a name is missing is worse than the absence, because a record
+  of either shape stamped `interception` carries no `aeePayloadCommitment`, and a
+  malformed interception is still a carried interception, so the whole statement
+  falls.
+- **The registration is verdict-preserving, which is why the type does not
+  move.** A verifier that does not implement the two names treats each as
+  unrecognized and reaches the same answer over the same bytes. What changes is
+  the name of the refusal: a rail reports `moat-drop-covers-nothing` or
+  `uncommitted-observation-covers-nothing` rather than the unrecognized-kind
+  condition, because a citation of a kind that covers nothing by registration
+  and a citation of a kind the verifier has never heard of are different
+  producer errors, and telling the first to upgrade a current verifier does not
+  help it. `bad-980` and `bad-981` force that distinction; `bad-714` keeps
+  forcing the unrecognized case beside them, and a rail routing both through one
+  condition passes it and fails the new pair.
+- **What each kind CANNOT be used to claim is stated in the document, in its own
+  voice, beside what it is.** A `moat-drop` record evidences that one path
+  refused one packet and nothing about another path, a retry that succeeded, or
+  a payload that never reached the enforcement point; it cannot make a caught row
+  caught or a clean row clean, and it is not the run's dropped-observation
+  counter, which counts what the substrate failed to record rather than an
+  enforcement action it did. An `uncommitted-observation` record cannot stand in
+  for an interception anywhere, including the existence requirement a `pinned`
+  row must satisfy, and may not carry `aeePayloadCommitment` at all.
+  `ok-050-registered-noncovering-kinds` is the accept side: both records are
+  referenced by a clean row and signed with the weaker `aeeMethod`, so the vector
+  fails on any rail that lets either cover, enter the method cap, enter
+  `aeeObservedSet`, or demand a caught row.
+- **The cross-row `observationRefs` splice is now a vector rather than a rail's
+  own unit test.** `attribution: pinned` kills the splice, and that was proven at
+  suiteRevision 18 -- but against a statement hand-built inside `aee/`, because
+  every pinned vector in the corpus carried a single row and permuting one row is
+  the identity. A control the corpus cannot exercise is a control no consumer
+  copy is measured against, and three vendored copies replay this suite.
+  `ok-051-two-pinned-rows` carries two pinned rows in different coverage classes,
+  each resolving its own interception; `bad-982-pinned-assignment-spliced` is
+  that statement with the two rows' `observationRefs` exchanged and the record
+  set, every signature and the batch root left exactly as the producer signed
+  them. Measured both ways: the splice reports `attribution-pin-unmatched`, and
+  with the comparison switched off it is accepted, so the vector forces the rule
+  rather than passing beside it.
+- **Cell U7 is not narrowed further and not retired.** Its residual is the
+  `paired` half, which is unchanged: a producer declaring `paired` on every row
+  violates nothing and emits a statement no rail can distinguish from the honest
+  one, so the closure against it stays a consumer obligation the document states.
+  What moved is the evidence for the other half. The cell's witness sketch used
+  to read as though four single-row vectors covered the splice, and they did not;
+  they force the three parts of the pinned rule while the operator the rule
+  exists to refuse was unreachable from the corpus.
+
 ## suiteRevision 18 (the predicate revision that makes four descriptions checkable)
 
 - Corpus: **221 vectors (50 accept, 169 reject, 2 indeterminate)**, up from 187.
@@ -120,7 +183,7 @@ byte-identically from the generators.
   evidencing heuristic in its place". The consumer MAY
   clauses (L495-496, L1111-1114, L1190, L1206-1210) sit outside the verdict this
   suite reads, because validity "is a function of carried bytes alone and holds
-  identically for every consumer" (L1613-1616). The producer options are forced
+  identically for every consumer" (L1689-1692). The producer options are forced
   on the verifier and already carried by accept vectors. One family with two
   members is the honest size of this bucket.
 - **The reference rails read `set-level`, and that is now recorded rather than

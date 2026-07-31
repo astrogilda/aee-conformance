@@ -70,4 +70,4 @@ The two conformance-relevant limits, stated plainly: AEE is presently exercised 
 
 ## Provenance
 
-AVE records were read from the published corpus on 2026-07-28, 59 in total. The AEE field vocabulary comes from spec/predicates/adversarial-execution-evidence.md in this repository. The conformance suite is at revision 18 with 221 vectors, 50 accept, 169 reject and 2 indeterminate, per vectors/MANIFEST.json. The predicate is under review as in-toto/attestation pull request 570.
+AVE records were read from the published corpus on 2026-07-28, 59 in total. The AEE field vocabulary comes from spec/predicates/adversarial-execution-evidence.md in this repository. The conformance suite is at revision 19 with 226 vectors, 52 accept, 172 reject and 2 indeterminate, per vectors/MANIFEST.json. The predicate is under review as in-toto/attestation pull request 570.

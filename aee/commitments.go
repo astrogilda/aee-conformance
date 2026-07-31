@@ -169,7 +169,7 @@ func interceptionsOrphaned(p *Predicate, kinds []string) []Code {
 }
 
 // observedSetDigest recomputes the value a sealed record's aeeObservedSet
-// commits to (spec:1346-1351): the lowercase 64-hex SHA-256 of the RFC 8785
+// commits to (spec:1422-1427): the lowercase 64-hex SHA-256 of the RFC 8785
 // canonicalization of the duplicate-free array, sorted ascending by UTF-16
 // code unit, of the leaf hashes of every interception and examination record.
 //
@@ -271,7 +271,7 @@ func declaredAttackIDs(p *Predicate) map[string]bool {
 
 // attackIDArrayOK is the shared shape rule for the two arrays of attack
 // identifiers 0.7 adds, aeeAssessedAttacks and aeeObservedAttacks
-// (spec:1316-1318, 1384-1386): duplicate-free, sorted ascending by UTF-16 code
+// (spec:1392-1394, 1460-1462): duplicate-free, sorted ascending by UTF-16 code
 // unit, every entry an identifier the carried manifest declares. The EMPTY
 // array satisfies it, which is deliberate on the seal: a substrate holding no
 // correspondence declares that on the wire rather than by omission.
@@ -288,7 +288,7 @@ func attackIDArrayOK(attacks []string, declared map[string]bool) bool {
 }
 
 // sealNamedAttacksCaught implements the aeeObservedAttacks statement rule
-// (spec:1386-1389): for every identifier the array names, the
+// (spec:1462-1465): for every identifier the array names, the
 // statement MUST carry a row with that attackId whose containmentObserved is
 // in the carried caught set.
 //
@@ -328,7 +328,7 @@ func sealNamedAttacksCaught(p *Predicate, states []recordState, kinds []string, 
 }
 
 // assessedSetDeclared implements the aeeAssessedAttacks statement rule
-// (spec:1318-1320): the union of the manifest's identifiers for
+// (spec:1394-1396): the union of the manifest's identifiers for
 // the carried coverage.assessedClasses MUST be a subset of the array the
 // arming record signed before injection.
 //
@@ -437,7 +437,7 @@ func pinMatches(row *Row, states []recordState, kinds []string, expected []strin
 }
 
 // commitmentArrayOK is the shared shape rule for aeePayloadCommitment
-// (spec:1301-1305): duplicate-free, sorted ascending by UTF-16 code unit,
+// (spec:1377-1381): duplicate-free, sorted ascending by UTF-16 code unit,
 // non-empty, every entry lowercase 64-hex.
 func commitmentArrayOK(values []string) bool {
 	if len(values) == 0 || !isSortedNoDuplicates(values) {

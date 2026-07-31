@@ -969,12 +969,12 @@ vec("bad-206-payload-missing-kind", "ok-001",
     "drop aeeKind from the covering payload",
     ["re-sign-record", "recompute-batch-root"], [20],
     ["payload-missing-reserved"], _drop_member("aeeKind"),
-    spec="L562-563; L1265-1282")
+    spec="L562-563; L1265-1284")
 vec("bad-207-payload-missing-method", "ok-001",
     "drop aeeMethod from the covering payload",
     ["re-sign-record", "recompute-batch-root"], [20],
     ["payload-missing-reserved"], _drop_member("aeeMethod"),
-    spec="L562-563; L1282-1283")
+    spec="L562-563; L1284-1285")
 
 # --- (b3/b4) binding + method cap ----------------------------------------
 
@@ -1080,7 +1080,7 @@ def _b401() -> dict[str, Any]:
 
 vec("bad-401-records-no-batchroot", "ok-002",
     "batchRoot member removed while observationRecords is non-empty", [],
-    [24], ["batch-root-missing"], _b401, spec="L1527; L1539-1541")
+    [24], ["batch-root-missing"], _b401, spec="L1603; L1615-1617")
 
 
 def _b402() -> dict[str, Any]:
@@ -1092,7 +1092,7 @@ def _b402() -> dict[str, Any]:
 
 vec("bad-402-root-no-domain-separation", "ok-014",
     "root computed without the 0x00/0x01 domain-separation prefixes", [],
-    [25], ["batch-root-mismatch"], _b402, spec="L1529-1532")
+    [25], ["batch-root-mismatch"], _b402, spec="L1605-1608")
 
 
 def _b403() -> dict[str, Any]:
@@ -1105,7 +1105,7 @@ def _b403() -> dict[str, Any]:
 vec("bad-403-root-bitcoin-padding", "ok-014",
     "3-leaf root computed by duplicate-last-leaf padding instead of the "
     "RFC 6962 recursive split", [], [26], ["batch-root-mismatch"], _b403,
-    spec="L1532-1534")
+    spec="L1608-1610")
 
 
 def _b404() -> dict[str, Any]:
@@ -1117,7 +1117,7 @@ def _b404() -> dict[str, Any]:
 
 vec("bad-404-root-leaf-order-swapped", "ok-014",
     "root computed over leaves in swapped order", [], [27],
-    ["batch-root-mismatch"], _b404, spec="L1534")
+    ["batch-root-mismatch"], _b404, spec="L1610")
 
 
 def _b405() -> dict[str, Any]:
@@ -1130,7 +1130,7 @@ def _b405() -> dict[str, Any]:
 vec("bad-405-duplicate-records", "ok-002",
     "two byte-identical records in the tree; root recomputes CORRECTLY "
     "over all three leaves", ["recompute-batch-root"], [29],
-    ["duplicate-record"], _b405, spec="L1536-1537",
+    ["duplicate-record"], _b405, spec="L1612-1613",
     note="single fault: duplicate identity, not root arithmetic")
 
 
@@ -1142,7 +1142,7 @@ def _b406() -> dict[str, Any]:
 
 vec("bad-406-root-hex-tamper", "ok-002",
     "one hex digit of batchRoot flipped", [], [30], ["batch-root-mismatch"],
-    _b406, spec="L1539-1541")
+    _b406, spec="L1615-1617")
 
 
 def _b407() -> dict[str, Any]:
@@ -1155,7 +1155,7 @@ def _b407() -> dict[str, Any]:
 vec("bad-407-substrate-row-no-records", "ok-001",
     "remove observationRecords AND batchRoot under a substrate row "
     "(2-op mutation)", [], [31, 11], ["records-absent", "ref-out-of-range"],
-    _b407, compound=True, spec="L1543-1555; L552-553",
+    _b407, compound=True, spec="L1619-1631; L552-553",
     note="precedence pin: records-absent is reported when the array is "
          "absent entirely; ref-out-of-range only when records exist")
 
@@ -1168,7 +1168,7 @@ def _b408() -> dict[str, Any]:
 
 vec("bad-408-batchroot-without-records", "ok-007",
     "orphan batchRoot added to a recordless artifact-only statement", [],
-    [31], ["batch-root-orphaned"], _b408, spec="L1543-1555; L1535")
+    [31], ["batch-root-orphaned"], _b408, spec="L1619-1631; L1611")
 
 
 def _b409() -> dict[str, Any]:
@@ -1179,7 +1179,7 @@ def _b409() -> dict[str, Any]:
 
 vec("bad-409-artifact-records-bad-root", "ok-029",
     "one hex digit off on an artifact-only-with-records statement", [],
-    [30, 24], ["batch-root-mismatch"], _b409, spec="L1539-1541",
+    [30, 24], ["batch-root-mismatch"], _b409, spec="L1615-1617",
     note="the root check is statement-level: it runs even with zero "
          "substrate rows")
 
@@ -1491,7 +1491,7 @@ vec("bad-701-arming-missing-armedat", "ok-002",
     ["arming-covers-nothing"],
     _rec_mut(P_clean, 0,
              lambda o: {k: v for k, v in o.items() if k != "armedAt"}),
-    spec="L1266-1270; L1285-1288")
+    spec="L1266-1270; L1287-1290")
 vec("bad-702-armedat-after-issuedat", "ok-002",
     'arming armedAt: "2026-01-01T00:01:00Z" (after issuedAt)',
     ["re-sign-record", "recompute-batch-root"], [63],
@@ -1506,7 +1506,7 @@ vec("bad-703-arming-posture-mismatch", "ok-002",
      "clean-row-uncovered"],
     _rec_mut(P_clean, 0,
              lambda o: {**o, "aeePostureDigest": D["other-posture"]}),
-    compound=True, spec="L1266-1270; L1289-1482",
+    compound=True, spec="L1266-1270; L1291-1558",
     note="inherently compound: the sealed record must equal BOTH the "
          "arming record's and the pinned digest, so one arming edit "
          "un-covers the sealed record too")
@@ -1515,7 +1515,7 @@ vec("bad-704-arming-method-reconstructed", "ok-002",
     ["re-sign-record", "recompute-batch-root"], [63],
     ["arming-covers-nothing"],
     _rec_mut(P_clean, 0, lambda o: {**o, "aeeMethod": "reconstructed"}),
-    spec="L1270; L1285-1288")
+    spec="L1270; L1287-1290")
 vec("bad-705-sealed-missing-dropcount", "ok-002",
     "drop aeeDropCount from the sealed payload",
     ["re-sign-record", "recompute-batch-root"], [64],
@@ -1534,19 +1534,19 @@ vec("bad-707-sealed-stillarmed-false", "ok-002",
     ["re-sign-record", "recompute-batch-root"], [65],
     ["sealed-covers-nothing"],
     _seal_mut(P_clean, 1, lambda o: {**o, "aeeStillArmed": False}),
-    spec="L1289-1482")
+    spec="L1291-1558")
 vec("bad-708-sealed-drops-no-bound", "ok-002",
     "sealed aeeDropCount: 3 with no aeeDropBound declared",
     ["re-sign-record", "recompute-batch-root"], [65],
     ["sealed-covers-nothing"],
     _seal_mut(P_clean, 1, lambda o: {**o, "aeeDropCount": 3}),
-    spec="L1289-1482")
+    spec="L1291-1558")
 vec("bad-709-sealed-drops-exceed-bound", "ok-003",
     "sealed aeeDropCount: 6 exceeding the declared aeeDropBound: 5",
     ["re-sign-record", "recompute-batch-root"], [65],
     ["sealed-covers-nothing"],
     _seal_mut(P_clean_bounded, 1, lambda o: {**o, "aeeDropCount": 6}),
-    spec="L1289-1482")
+    spec="L1291-1558")
 vec("bad-710-sealed-posture-mismatch", "ok-002",
     "sealed aeePostureDigest edited (differs from the arming record's AND "
     "the pinned digest, which the arming constraint makes equivalent)",
@@ -1554,7 +1554,7 @@ vec("bad-710-sealed-posture-mismatch", "ok-002",
     ["sealed-covers-nothing"],
     _seal_mut(P_clean, 1,
               lambda o: {**o, "aeePostureDigest": D["other-posture"]}),
-    compound=True, spec="L1289-1482",
+    compound=True, spec="L1291-1558",
     note="both posture sub-clauses fire together; they are distinguishable "
          "only in already-invalid statements")
 vec("bad-712-examination-method-intercepted", "ok-006",
@@ -1563,7 +1563,7 @@ vec("bad-712-examination-method-intercepted", "ok-006",
     ["examination-covers-nothing"],
     _rec_mut(P_reconstructed, 0,
              lambda o: {**o, "aeeMethod": "intercepted"}),
-    spec="L1279-1281; L1285-1288")
+    spec="L1279-1281; L1287-1290")
 
 
 def _b713() -> dict[str, Any]:
@@ -1592,7 +1592,7 @@ vec("bad-714-unknown-kind-sole-cover", "ok-002",
     ["re-sign-record", "recompute-batch-root"], [71],
     ["record-kind-unknown-covers-nothing"],
     _rec_mut(P_clean, 0, lambda o: {**o, "aeeKind": "aee-future-x"}),
-    spec="L1485-1489",
+    spec="L1561-1565",
     note="pairs with ok-013: an unknown kind that no row NEEDS is ignored "
          "and only contributes its leaf")
 vec("bad-715-sealed-missing-stillarmed", "ok-002",
@@ -1610,7 +1610,7 @@ vec("bad-716-sealed-missing-posture", "ok-002",
     _seal_mut(P_clean, 1,
               lambda o: {k: v for k, v in o.items()
                          if k != "aeePostureDigest"}),
-    spec="L1273-1278; L1289-1482")
+    spec="L1273-1278; L1291-1558")
 vec("bad-717-arming-missing-posture", "ok-002",
     "drop aeePostureDigest from the arming payload",
     ["re-sign-record", "recompute-batch-root"], [63],
@@ -1696,7 +1696,7 @@ vec("bad-718-chain-runseq-zero", "ok-002",
     ["arming-covers-nothing"],
     _rec_mut(P_clean, 0,
              lambda o: {**o, "aeeChainScope": CHAIN_SCOPE, "aeeRunSeq": 0}),
-    spec="L1409-1440",
+    spec="L1485-1516",
     note="pairs with the genesis accept vector ok-034 (aeeRunSeq 1, scope "
          "present, no predecessor)")
 vec("bad-719-chain-missing-scope", "ok-002",
@@ -1705,7 +1705,7 @@ vec("bad-719-chain-missing-scope", "ok-002",
     ["re-sign-record", "recompute-batch-root"], [89],
     ["arming-covers-nothing"],
     _rec_mut(P_clean, 0, lambda o: {**o, "aeeRunSeq": 1}),
-    spec="L1409-1440",
+    spec="L1485-1516",
     note="an unscoped counter makes every chain rule vacuous, so the "
          "syntax check rejects it fail-closed")
 vec("bad-720-chain-prev-not-hex", "ok-002",
@@ -1717,7 +1717,7 @@ vec("bad-720-chain-prev-not-hex", "ok-002",
              lambda o: {**o, "aeeChainScope": CHAIN_SCOPE,
                         "aeePrevRunBinding": "EXAMPLE-NOT-64-HEX",
                         "aeeRunSeq": 2}),
-    spec="L1409-1440",
+    spec="L1485-1516",
     note="a predecessor binding is a lowercase 64-hex run binding digest, "
          "present exactly when aeeRunSeq exceeds 1")
 
@@ -1729,7 +1729,7 @@ vec("bad-721-chain-scope-not-array", "ok-002",
     _rec_mut(P_clean, 0,
              lambda o: {**o, "aeeChainScope": "example-substrate-key-and-subject/v1",
                         "aeeRunSeq": 1}),
-    spec="L1413-1417",
+    spec="L1489-1493",
     note="the old free-form string form is rejected fail-closed; array of "
          "registered tokens is the sole accepted shape (no alias)")
 vec("bad-722-chain-scope-unknown-dimension", "ok-002",
@@ -1739,7 +1739,7 @@ vec("bad-722-chain-scope-unknown-dimension", "ok-002",
     ["arming-covers-nothing"],
     _rec_mut(P_clean, 0,
              lambda o: {**o, "aeeChainScope": ["bogus-dimension"], "aeeRunSeq": 1}),
-    spec="L1413-1417",
+    spec="L1489-1493",
     note="an unrecognized dimension token fails closed, as every closed "
          "vocabulary in this spec does")
 vec("bad-723-chain-scope-not-canonical", "ok-002",
@@ -1749,7 +1749,7 @@ vec("bad-723-chain-scope-not-canonical", "ok-002",
     ["arming-covers-nothing"],
     _rec_mut(P_clean, 0,
              lambda o: {**o, "aeeChainScope": ["subject", "corpus"], "aeeRunSeq": 1}),
-    spec="L1413-1417",
+    spec="L1489-1493",
     note="canonical order is corpus < networkPosture < subject; the same "
          "canonicality rule as observationVocabulary.labels")
 vec("bad-724-artifact-ref-out-of-range", "ok-029",
@@ -2622,7 +2622,7 @@ def _b809() -> dict[str, Any]:
 
 vec("bad-809-snake-case-doesnotassert", "ok-002",
     "statement carries the rejected snake_case spelling of doesNotAssert",
-    [], [84], ["member-spelling"], _b809, spec="L1557-1567",
+    [], [84], ["member-spelling"], _b809, spec="L1633-1643",
     note="single-canonicalization rule: no alias")
 
 
@@ -2633,7 +2633,7 @@ def _b810() -> dict[str, Any]:
 
 
 vec("bad-810-missing-issuedat", "ok-007", "drop issuedAt", [], [85],
-    ["issued-at-missing"], _b810, spec="L1569",
+    ["issued-at-missing"], _b810, spec="L1645",
     note="artifact-only parent: no armedAt comparison cascade")
 
 
@@ -2644,7 +2644,7 @@ def _b811() -> dict[str, Any]:
 
 
 vec("bad-811-issuedat-not-rfc3339", "ok-007", 'issuedAt: "yesterday"', [],
-    [85], ["issued-at-malformed"], _b811, spec="L1569")
+    [85], ["issued-at-malformed"], _b811, spec="L1645")
 vec("bad-812-missing-networkposture", "ok-007", "drop networkPosture", [],
     [78], ["environment-incomplete"], _drop_env("networkPosture"),
     spec="L743-754")
@@ -2714,7 +2714,7 @@ def _b820() -> dict[str, Any]:
 
 vec("bad-820-issuedat-non-utc-offset", "ok-007",
     'issuedAt: "2026-01-01T05:00:00+05:00" (a non-zero UTC offset)', [],
-    [85], ["issued-at-malformed"], _b820, spec="L1569",
+    [85], ["issued-at-malformed"], _b820, spec="L1645",
     note="the parent's instant at a non-zero offset. issuedAt is typed as the "
          "framework Timestamp, which requires the UTC timezone, so a valid "
          "instant in a non-UTC spelling is malformed. The counterpart on the "
@@ -2730,7 +2730,7 @@ def _b821() -> dict[str, Any]:
 
 vec("bad-821-issuedat-lowercase-separator", "ok-007",
     'issuedAt: "2026-01-01t00:00:00Z" (lowercase date-time separator)', [],
-    [85], ["issued-at-malformed"], _b821, spec="L1569",
+    [85], ["issued-at-malformed"], _b821, spec="L1645",
     note="the spelling the Go reference rail refused and the Python reference "
          "rail accepted with result pass, an accept-on-one reject-on-another "
          "split inside one repository that no vector reached")
@@ -2744,7 +2744,7 @@ def _b822() -> dict[str, Any]:
 
 vec("bad-822-issuedat-lowercase-zone-designator", "ok-007",
     'issuedAt: "2026-01-01T00:00:00z" (lowercase zone designator)', [],
-    [85], ["issued-at-malformed"], _b822, spec="L1569",
+    [85], ["issued-at-malformed"], _b822, spec="L1645",
     note="the separator's twin on the predicate field, isolated for the same "
          "reason as bad-751: a rail enforcing the case of one designator and "
          "not the other passes every both-lowercase mutant")
@@ -3030,7 +3030,7 @@ vec("bad-953-observed-set-drops-a-record", "ok-011",
     "what remains, while the seal still commits to the deleted record",
     ["rederive-binding", "re-sign-record", "recompute-batch-root"],
     [97], ["observed-set-mismatch"], _b953,
-    spec="L595-599; L1346-1355",
+    spec="L595-599; L1422-1431",
     note="the attack the run-end commitment is for. batchRoot recomputes over "
          "the carried records and can never detect a missing member; the seal "
          "is signed by a party that does not control the carried set, so a "
@@ -3056,7 +3056,7 @@ vec("bad-954-observed-set-gains-a-record", "ok-001",
     "an interception record the seal does not commit to is appended and "
     "resolved by the caught row",
     ["recompute-batch-root"], [97], ["observed-set-mismatch"], _b954,
-    spec="L595-599; L1346-1355")
+    spec="L595-599; L1422-1431")
 
 
 def _b955() -> dict[str, Any]:
@@ -3073,7 +3073,7 @@ vec("bad-955-seal-names-clean-attack", "ok-002",
     "the seal names an attack whose only row reports a clean containment",
     ["re-sign-record", "recompute-batch-root"], [98],
     ["observed-attack-uncaught"], _b955,
-    spec="L1382-1389",
+    spec="L1458-1465",
     note="the seal claims the run attributed an observation to this attack "
          "while the row says nothing was caught. The rule reads one way only, "
          "so it is the naming that obliges the caught row and never the "
@@ -3098,7 +3098,7 @@ vec("bad-956-seal-names-rowless-attack", "ok-011",
     "the seal names two attacks and the statement carries a row for only one",
     ["re-sign-record", "recompute-batch-root"], [98],
     ["coverage-incomplete", "observed-attack-uncaught"], _b956,
-    compound=True, spec="L1382-1389",
+    compound=True, spec="L1458-1465",
     note="inherently compound: an attack the manifest declares under an "
          "assessed class and no row reports is a coverage-integrity fault at "
          "the older gate, and the seal naming it is the newer one. The pair "
@@ -3121,7 +3121,7 @@ vec("bad-957-assessed-exceeds-declaration", "ok-004",
     "the assessed set is not a subset of the run-start declaration",
     ["re-sign-record", "recompute-batch-root"], [99],
     ["assessed-set-exceeds-declaration"], _b957,
-    spec="L1314-1320",
+    spec="L1390-1396",
     note="coverage inflation is the withdrawal's mirror image and the only "
          "half of that pair a commitment can reach: inflation must keep the "
          "run-level records its fabricated rows point at, and withdrawal need "
@@ -3260,7 +3260,7 @@ vec("bad-965-commitment-not-hex", "ok-001",
     ["payload-commitment-malformed"],
     _rec_mut(P_caught, 0, lambda o: {
         **o, "aeePayloadCommitment": ["not-a-commitment"]}),
-    spec="L1301-1312",
+    spec="L1377-1388",
     note="the ABSENCE of the member keeps reporting payload-missing-reserved, "
          "which is the code every other missing reserved member takes. A "
          "present-but-malformed value is a different fault: a producer told "
@@ -3272,7 +3272,7 @@ vec("bad-966-commitment-empty-array", "ok-001",
     ["re-sign-record", "recompute-batch-root"], [104],
     ["payload-commitment-malformed"],
     _rec_mut(P_caught, 0, lambda o: {**o, "aeePayloadCommitment": []}),
-    spec="L1301-1312")
+    spec="L1377-1388")
 
 vec("bad-967-commitment-absent", "ok-001",
     "the interception record carries no aeePayloadCommitment at all",
@@ -3280,7 +3280,7 @@ vec("bad-967-commitment-absent", "ok-001",
     ["payload-missing-reserved"],
     _rec_mut(P_caught, 0, lambda o: {
         k: v for k, v in o.items() if k != "aeePayloadCommitment"}),
-    spec="L1301-1312",
+    spec="L1377-1388",
     note="the absent half of the pair above, kept as its own vector because "
          "the two report different conditions and a rail collapsing them "
          "passes whichever one it implemented")
@@ -3416,7 +3416,7 @@ vec("bad-974-sealed-missing-observedset", "ok-002",
     ["sealed-covers-nothing"],
     _seal_mut(P_clean, 1,
               lambda o: {k: v for k, v in o.items() if k != "aeeObservedSet"}),
-    spec="L1346-1355",
+    spec="L1422-1431",
     note="the member is required on the kind, so its ABSENCE makes the record "
          "cover nothing rather than making the recompute disagree. bad-953 "
          "and bad-954 carry the disagreement; nothing carried the absence, so "
@@ -3429,7 +3429,7 @@ vec("bad-975-sealed-missing-observedattacks", "ok-002",
     _seal_mut(P_clean, 1,
               lambda o: {k: v for k, v in o.items()
                          if k != "aeeObservedAttacks"}),
-    spec="L1382-1389",
+    spec="L1458-1465",
     note="the empty array is the honest value and is REQUIRED rather than "
          "omissible: a substrate holding no probe-to-record correspondence "
          "says so on the wire. Allowing the member to be absent would make "
@@ -3444,7 +3444,7 @@ vec("bad-976-sealed-observedattacks-unknown", "ok-002",
     ["sealed-covers-nothing"],
     _seal_mut(P_clean, 1,
               lambda o: {**o, "aeeObservedAttacks": ["XZ-EXAMPLE-9"]}),
-    spec="L1382-1389")
+    spec="L1458-1465")
 
 vec("bad-977-arming-missing-assessedattacks", "ok-002",
     "drop aeeAssessedAttacks from the arming payload",
@@ -3453,7 +3453,7 @@ vec("bad-977-arming-missing-assessedattacks", "ok-002",
     _rec_mut(P_clean, 0,
              lambda o: {k: v for k, v in o.items()
                         if k != "aeeAssessedAttacks"}),
-    spec="L1314-1320",
+    spec="L1390-1396",
     note="bad-957 carries the subset comparison failing; nothing carried the "
          "member missing, so a rail could implement the comparison over a "
          "member it never required and skip every statement that omitted it")
@@ -3493,10 +3493,119 @@ vec("bad-978-arming-assessedattacks-unsorted", "ok-011",
     _rec_mut(P_clean_two, 0,
              lambda o: {**o, "aeeAssessedAttacks": ["XA-EXAMPLE-2",
                                                     "XA-EXAMPLE-1"]}),
-    spec="L1314-1320",
+    spec="L1390-1396",
     note="sorted ascending by UTF-16 code unit, the canonicality rule the "
          "vocabulary arrays already carry. Two entries are the fewest that "
          "can be out of order, and a one-attack manifest cannot express it")
+
+
+# --- (h2) the two kinds registered as non-covering -------------------------
+
+def noncovering_payload(binding: str, kind: str) -> dict[str, Any]:
+    """A record of one of the two kinds the document registers as non-covering.
+
+    Neither kind carries constraints, so the payload carries the three reserved
+    members every record carries and nothing else. In particular neither carries
+    aeePayloadCommitment: a substrate holding a commitment emits an
+    interception, and a record declaring it holds none while carrying one says
+    two things."""
+    return {"aeeKind": kind, "aeeMethod": "intercepted",
+            "aeeRunBinding": binding,
+            "producerNote": "example non-covering observation"}
+
+
+def _noncovering_sole_cover(kind: str) -> Callable[[], dict[str, Any]]:
+    def b() -> dict[str, Any]:
+        env = environment(M1)
+        bv = binding_for(env)
+        return statement(env, [caught_row()],
+                         [record(noncovering_payload(bv, kind)),
+                          record(sealed_payload(bv))],
+                         result="fail")
+    return b
+
+
+vec("bad-980-moat-drop-sole-cover", "ok-001",
+    "the caught row's only resolved record is a moat-drop, which covers "
+    "nothing in every state",
+    ["rederive-binding", "re-sign-record", "recompute-batch-root"], [106],
+    ["moat-drop-covers-nothing"], _noncovering_sole_cover("moat-drop"),
+    spec="L1317-1331; L1333-1346",
+    note="the kind is registered rather than unknown, so the refusal names it "
+         "rather than reporting the unrecognized-kind condition. A rail that "
+         "routes both through one condition passes bad-714 and fails here, and "
+         "the producer it answers is told to upgrade a verifier that is "
+         "already current. It also pins what the record cannot buy: a drop the "
+         "containment layer performed is not an interception of the traffic, "
+         "so it cannot make a caught row caught")
+
+vec("bad-981-uncommitted-observation-sole-cover", "ok-001",
+    "the caught row's only resolved record is an uncommitted-observation, "
+    "which covers nothing in every state",
+    ["rederive-binding", "re-sign-record", "recompute-batch-root"], [107],
+    ["uncommitted-observation-covers-nothing"],
+    _noncovering_sole_cover("uncommitted-observation"),
+    spec="L1317-1331; L1348-1361",
+    note="an observation the substrate declined or was unable to commit to "
+         "cannot stand in for an interception anywhere. The record is bound to "
+         "the run and signed by the substrate, which is exactly what makes the "
+         "substitution tempting and is why the refusal is worth a vector")
+
+
+# --- (h3) the assignment a pinned row declares, over two rows --------------
+
+M_PIN2 = {"classes": {"XA": ["XA-EXAMPLE-1"], "XB": ["XB-EXAMPLE-1"]},
+          "expectedPayloads": {"XA-EXAMPLE-1": [D["intercepted-bytes-1"]],
+                               "XB-EXAMPLE-1": [D["intercepted-bytes-2"]]}}
+
+
+def P_two_pinned() -> dict[str, Any]:  # ok-051 shape: two satisfied pinned rows
+    env = environment(M_PIN2)
+    b = binding_for(env)
+    return statement(
+        env,
+        [caught_row(refs=(0,), attack="XA-EXAMPLE-1", attribution="pinned"),
+         caught_row(refs=(1,), attack="XB-EXAMPLE-1", attribution="pinned")],
+        [record(interception_payload(b, commit="intercepted-bytes-1")),
+         record(interception_payload(b, commit="intercepted-bytes-2")),
+         record(sealed_payload(b))],
+        result="fail",
+        coverage={"assessedClasses": ["XA", "XB"], "outOfScope": {},
+                  "routedElsewhere": {}})
+
+
+PARENTS["ok-051 shape (two pinned rows, one interception each)"] = P_two_pinned
+
+
+def _b982() -> dict[str, Any]:
+    """The cross-row assignment splice, on two rows that declare `pinned`.
+
+    The two rows exchange their observationRefs and NOTHING else moves: the
+    record set, every signature, every digest and the batch root are the bytes
+    the producer signed, and the multiset of references across the statement is
+    unchanged. What changes is which attack each record is claimed to evidence.
+
+    Until this vector the corpus could not reach the arm that decides it. Every
+    other pinned vector carries a single row, and permuting one row is the
+    identity, so the kill was proven against a statement built outside the
+    corpus and no vendored copy was ever measured against it."""
+    st = P_two_pinned()
+    rows = st["predicate"]["attackResults"]
+    rows[0]["observationRefs"], rows[1]["observationRefs"] = (
+        rows[1]["observationRefs"], rows[0]["observationRefs"])
+    return st
+
+
+vec("bad-982-pinned-assignment-spliced", "ok-051",
+    "the two pinned rows exchange observationRefs; the record set, every "
+    "signature and the batch root are untouched",
+    [], [102], ["attribution-pin-unmatched"], _b982,
+    spec="L600-609",
+    note="the permutation a consumer policy keyed on attack class would act "
+         "on. Where the corpus declares no expectation the same operator is "
+         "invisible and stays so, which is what cell U7 records; here the "
+         "corpus predicted what each attack's interception would commit to, "
+         "so each row now resolves a record carrying the other attack's value")
 
 
 # --- (i) rules the corpus was measured not to force ------------------------
@@ -3510,7 +3619,7 @@ vec("bad-900-sealed-method-reconstructed", "ok-002",
     ["re-sign-record", "recompute-batch-root"], [65],
     ["sealed-covers-nothing"],
     _seal_mut(P_clean, 1, lambda o: {**o, "aeeMethod": "reconstructed"}),
-    spec="L1273-1278; L1285-1288",
+    spec="L1273-1278; L1287-1290",
     note="the sealed twin of bad-704 and bad-712. Every other kind's method "
          "constraint had a vector and this one did not, so a rail that read "
          "the sealed record's aeeMethod and did nothing with it passed")
@@ -3533,7 +3642,7 @@ vec("bad-901-sealed-negative-dropcount", "ok-003",
     "sealed aeeDropCount: -1 inside a declared aeeDropBound: 5",
     ["re-sign-record", "recompute-batch-root"], [65],
     ["sealed-covers-nothing"], _b901,
-    spec="L1289-1482",
+    spec="L1291-1558",
     note="a count of dropped observations below zero is not a count. The "
          "corpus tested the bound from above (bad-709) and never from below, "
          "so a rail comparing only against the bound accepted it")
@@ -3560,7 +3669,7 @@ vec("bad-902-sealed-posture-ne-arming", "ok-002",
     "referenced by the clean row alongside the valid arming and sealed pair",
     ["recompute-batch-root"], [65],
     ["sealed-covers-nothing"], _b902,
-    spec="L1289-1482",
+    spec="L1291-1558",
     note="the sealed-vs-arming half of the posture equality, which bad-710 "
          "cannot separate. A rule can go unforced because the corpus SHAPE "
          "cannot express its precondition rather than because nobody wrote "
@@ -3930,15 +4039,15 @@ COND = {
     20: ("L562-563", "covering payload carries the reserved aee members"),
     22: ("L563-564", "aeeRunBinding equals the derived run binding"),
     23: ("L565-566", "row method capped by weakest signed aeeMethod"),
-    24: ("L1527", "batchRoot required when records exist"),
-    25: ("L1529-1532", "RFC 6962 domain-separated hashing"),
-    26: ("L1532-1534", "RFC 6962 recursive split, never duplicate-pad"),
-    27: ("L1534", "leaves in array order"),
-    28: ("L1534", "a single-record tree's root is its leaf hash"),
-    29: ("L1536-1537", "duplicate byte-identical records invalid"),
-    30: ("L1539-1541", "batchRoot must recompute"),
-    31: ("L1543-1555", "batchRoot omitted exactly when records absent"),
-    32: ("L1529-1533", "batchRoot is over every carried record in array "
+    24: ("L1603", "batchRoot required when records exist"),
+    25: ("L1605-1608", "RFC 6962 domain-separated hashing"),
+    26: ("L1608-1610", "RFC 6962 recursive split, never duplicate-pad"),
+    27: ("L1610", "leaves in array order"),
+    28: ("L1610", "a single-record tree's root is its leaf hash"),
+    29: ("L1612-1613", "duplicate byte-identical records invalid"),
+    30: ("L1615-1617", "batchRoot must recompute"),
+    31: ("L1619-1631", "batchRoot omitted exactly when records absent"),
+    32: ("L1605-1609", "batchRoot is over every carried record in array "
                        "order, referenced by a row or not"),
     33: ("L726-735", "the evidence tier is derived per row and never carried: "
                      "artifact is declared, substrate is attested when every "
@@ -3947,7 +4056,7 @@ COND = {
     34: ("L732-734", "no TOFU: a consumer with no policy-pinned substrate "
                      "root treats every substrate row as unattested and MUST "
                      "NOT infer the root from the predicate"),
-    35: ("L1670-1672", "keyid is an unauthenticated lookup hint, never the "
+    35: ("L1746-1748", "keyid is an unauthenticated lookup hint, never the "
                        "check"),
     36: ("L1245-1247; L545-546", "a record signature is DSSE PAE over "
                                "(payloadType, payload); the byte-pure "
@@ -3983,12 +4092,12 @@ COND = {
     62: ("L229-237", "binding is anti-splice"),
     63: ("L1266-1270", "arming record kind constraints"),
     64: ("L1273-1278", "sealed record required members"),
-    65: ("L1289-1482", "sealed covering conditions"),
+    65: ("L1291-1558", "sealed covering conditions"),
     66: ("L1279-1281", "examination signed aeeMethod reconstructed"),
     68: ("L1139-1140", "each referenced record independently satisfies its "
                      "class constraints"),
-    71: ("L1485-1489", "unknown aeeKind covers nothing"),
-    73: ("L1491-1493", "the aee payload member prefix is reserved; every "
+    71: ("L1561-1565", "unknown aeeKind covers nothing"),
+    73: ("L1567-1569", "the aee payload member prefix is reserved; every "
                        "other payload member is producer territory and does "
                        "not stop a record covering"),
     75: ("L237-241", "fail-closed on unimplemented binding version"),
@@ -4000,8 +4109,8 @@ COND = {
     82: ("L923-926", "coverage exactly equals the manifest at attack "
                      "granularity"),
     83: ("L865-869", "coverage member required"),
-    84: ("L1557-1567", "doesNotAssert single canonical spelling"),
-    85: ("L1569", "issuedAt required, under the Timestamp profile"),
+    84: ("L1633-1643", "doesNotAssert single canonical spelling"),
+    85: ("L1645", "issuedAt required, under the Timestamp profile"),
     86: ("L150-163", "vocabulary labels/caught entries BMP-only; a "
                              "supplementary-plane entry is malformed"),
     87: ("L150-163", "covering payload member names BMP-only; a "
@@ -4009,7 +4118,7 @@ COND = {
     88: ("L880-888", "row members are strictly typed; a wrong-JSON-type "
                      "member is a malformed statement"),
     90: ("L901-903", "no two attackResults rows share an attackId"),
-    89: ("L1409-1440", "arming chain-member syntax: positive "
+    89: ("L1485-1516", "arming chain-member syntax: positive "
                                "aeeRunSeq; aeeChainScope required with it; "
                                "aeePrevRunBinding lowercase 64-hex, absent "
                                "exactly when aeeRunSeq is 1"),
@@ -4028,10 +4137,10 @@ COND = {
     97: ("L595-599", "aeeObservedSet on every carried sealed record equals "
                      "the value recomputed over the carried interception and "
                      "examination records"),
-    98: ("L1382-1389", "every attack the seal names in aeeObservedAttacks has "
+    98: ("L1458-1465", "every attack the seal names in aeeObservedAttacks has "
                        "a row whose containmentObserved is in the carried "
                        "caught set; the rule reads in one direction only"),
-    99: ("L1314-1320", "the union of the manifest identifiers for the carried "
+    99: ("L1390-1396", "the union of the manifest identifiers for the carried "
                        "assessedClasses is a SUBSET of the arming record's "
                        "aeeAssessedAttacks"),
     100: ("L600-609", "a row declaring attribution: pinned resolves at least "
@@ -4045,12 +4154,24 @@ COND = {
                       "key a declared attack, every array non-empty, sorted "
                       "by UTF-16 code unit, duplicate-free and lowercase "
                       "64-hex"),
-    104: ("L1301-1312", "an interception record carries aeePayloadCommitment, "
+    104: ("L1377-1388", "an interception record carries aeePayloadCommitment, "
                         "non-empty, sorted by UTF-16 code unit, duplicate-free "
                         "and lowercase 64-hex"),
     105: ("L1045-1049", "attribution is required on every row and its "
                         "vocabulary is closed; a missing or out-of-vocabulary "
                         "value is fail-closed exactly as basis and method are"),
+    106: ("L1317-1331", "a moat-drop record covers nothing in every state and "
+                        "carries no constraint that could change that; it "
+                        "still contributes its leaf to batchRoot, never enters "
+                        "aeeObservedSet or the method cap, and the refusal a "
+                        "row earns by resolving one names the kind rather than "
+                        "reporting an unrecognized kind"),
+    107: ("L1317-1331", "an uncommitted-observation record covers nothing in "
+                        "every state on the same terms, and in particular "
+                        "cannot stand in for an interception: not for a caught "
+                        "row's coverage, not for the existence requirement a "
+                        "pinned row must satisfy, and not for the "
+                        "expectedPayloads comparison"),
 }
 
 
@@ -4109,7 +4230,7 @@ def write_index() -> None:
     L.append("  `substrate-observation-test` for every record signature in this set.")
     L.append(f"  - public key (hex): `{SUB_PUB.hex()}`")
     L.append(f"  - keyid = SHA-256 of the raw public key: `{SUB_KEYID}`")
-    L.append("  - `keyid` is an unauthenticated hint, never the check (spec L1670-1672).")
+    L.append("  - `keyid` is an unauthenticated hint, never the check (spec L1746-1748).")
     L.append(f"- Fixed timestamps: `issuedAt: {ISSUED_AT}`, `armedAt: {ARMED_AT}`")
     L.append("  (a later `armedAt` appears only in bad-702).")
     L.append(f"- Record `payloadType`: `{PAYLOAD_TYPE}`.")
@@ -4445,7 +4566,7 @@ def write_ind_index() -> None:
     L.append("  bound a key with a validity window (L1190). None of these moves the")
     L.append("  verdict this suite reads, because validity \"is a function of")
     L.append("  carried bytes alone and holds identically for every consumer\"")
-    L.append("  (L1613-1616). A rail that answered the admission question in the")
+    L.append("  (L1689-1692). A rail that answered the admission question in the")
     L.append("  verdict field would be wrong, not free.")
     L.append("- **Producer options.** `observationSelectors`, `aeeDropBound`, the")
     L.append("  descriptor members no rule reads, the optional run-chaining")

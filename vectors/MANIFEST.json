@@ -2,12 +2,12 @@
   "suite": "adversarial-execution-evidence-conformance",
   "predicateType": "https://in-toto.io/attestation/adversarial-execution-evidence/v0.7",
   "specPath": "spec/predicates/adversarial-execution-evidence.md",
-  "specDigest": "639c66a1a640bb038bc48eb6857a4a23cb3185ed31f8934d7e8bae9f1f72e500",
+  "specDigest": "94de8da54af6a2fe4c897f606ca22bfd054f4238b3c85db031ddc703516331b5",
   "tracksUpstream": "in-toto/attestation#570",
-  "specUpstreamCommit": "a81f0eb041a1d04df161ac1cb257dfd96be9cce4",
+  "specUpstreamCommit": "23bee586d651c79ba6a1dd55d4b29b7c2ef2cff2",
   "counts": {
-    "accept": 50,
-    "reject": 169,
+    "accept": 52,
+    "reject": 172,
     "indeterminate": 2
   },
   "vectors": [
@@ -628,6 +628,36 @@
       "file": "accept/ok-049-seal-names-caught-attack.json",
       "conditions": [
         "aee-c-98"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-050-registered-noncovering-kinds",
+      "kind": "accept",
+      "file": "accept/ok-050-registered-noncovering-kinds.json",
+      "conditions": [
+        "aee-c-23",
+        "aee-c-45",
+        "aee-c-106",
+        "aee-c-107"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "ok-051-two-pinned-rows",
+      "kind": "accept",
+      "file": "accept/ok-051-two-pinned-rows.json",
+      "conditions": [
+        "aee-c-100",
+        "aee-c-101",
+        "aee-c-102",
+        "aee-c-103"
       ],
       "expected": {
         "verdict": "valid",
@@ -3049,6 +3079,48 @@
         "verdict": "invalid",
         "codes": [
           "arming-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-980-moat-drop-sole-cover",
+      "kind": "reject",
+      "file": "reject/bad-980-moat-drop-sole-cover.json",
+      "conditions": [
+        "aee-c-106"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "moat-drop-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-981-uncommitted-observation-sole-cover",
+      "kind": "reject",
+      "file": "reject/bad-981-uncommitted-observation-sole-cover.json",
+      "conditions": [
+        "aee-c-107"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "uncommitted-observation-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-982-pinned-assignment-spliced",
+      "kind": "reject",
+      "file": "reject/bad-982-pinned-assignment-spliced.json",
+      "conditions": [
+        "aee-c-102"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "attribution-pin-unmatched"
         ]
       }
     },

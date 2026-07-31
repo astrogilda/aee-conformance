@@ -717,6 +717,23 @@ FROZEN: tuple[Frozen, ...] = (
         "The same incident, cited as the reason a gate's own tests assert refusals.",
     ),
     Frozen(
+        "crosswalks/aee-to-ave.md",
+        "the evidence-basis table's semgrep row",
+        "| semgrep | 52 |",
+        "A reading of ANOTHER project's corpus, taken on the date the document "
+        "states, and it collides with this suite's accept count only by "
+        "coincidence. Tracking it to the accept count would rewrite a fact "
+        "about 59 AVE records into a fact about these vectors.",
+    ),
+    Frozen(
+        "vectors/CHANGES.md",
+        "suiteRevision 15's mutation-campaign tally",
+        "19 were seen and tolerated",
+        "The result of a campaign run against a corpus of 179 vectors, recorded "
+        "in the revision section that reports it. It equals the current "
+        "suiteRevision by coincidence and must not follow it.",
+    ),
+    Frozen(
         "cmd/aee-verify/main.go",
         "the -json flag's comment",
         "scored 0 of 186 against the corpus it ships",

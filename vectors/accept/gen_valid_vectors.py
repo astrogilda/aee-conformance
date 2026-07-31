@@ -1158,7 +1158,7 @@ def build_vectors() -> dict[str, dict[str, Any]]:
 
     # ok-035 an unknown-kind record signed aeeMethod "reconstructed", REFERENCED
     # by a clean intercepted row. An unrecognized aeeKind covers nothing and is
-    # OTHERWISE IGNORED (spec:1485-1487): it neither invalidates the row (the
+    # OTHERWISE IGNORED (spec:1561-1563): it neither invalidates the row (the
     # arming+sealed cover satisfies class-match) nor participates in the method
     # cap, which reads only COVERING records (spec:565-566). A rail that folded
     # the ignored record's weaker aeeMethod into the cap would wrongly flag
@@ -1481,6 +1481,103 @@ def build_vectors() -> dict[str, dict[str, Any]]:
         records=[
             make_record("interception", b_1, note="example interception observation a"),
             make_record("sealed", b_1, observed_attacks=["XA-EXAMPLE-1"]),
+        ],
+    )
+
+    # ok-050 the two kinds the document registers as non-covering, referenced by
+    # a clean intercepted row and signed with the weaker aeeMethod. Both cover
+    # nothing in every state, so the row is covered by the arming and sealed
+    # pair beside them; neither participates in the method cap, which reads only
+    # COVERING records; neither enters the seal's aeeObservedSet, which is
+    # defined over interception and examination records alone; and neither is
+    # owed a caught row, which only an interception is. Every leaf is still in
+    # the batch root.
+    #
+    # Distinct from ok-035, whose record carries a kind no version registers. A
+    # rail that gave either of these names covering semantics -- the reading a
+    # producer emitting them invites, since both describe something real that
+    # happened -- passes ok-035 and fails here.
+    v["ok-050-registered-noncovering-kinds"] = make_statement(
+        man_1,
+        [
+            make_row(
+                "XA-EXAMPLE-1",
+                "no_egress",
+                "substrate",
+                "intercepted",
+                "none",
+                [0, 1, 2, 3],
+            )
+        ],
+        records=[
+            make_record("arming", b_1),
+            make_record("sealed", b_1),
+            make_record(
+                "moat-drop",
+                b_1,
+                method="reconstructed",
+                note="example containment-layer drop the substrate observed",
+            ),
+            make_record(
+                "uncommitted-observation",
+                b_1,
+                method="reconstructed",
+                note="example run-bound observation carrying no commitment",
+            ),
+        ],
+    )
+
+    # ok-051 two rows declaring the stronger attribution at once, each resolving
+    # its OWN interception, whose committed value the manifest declared for that
+    # row's attack. Every pinned vector before this one carries a single row, and
+    # permuting one row is the identity, so the corpus could not reach the arm
+    # where the rule decides which record belongs to which attack: the kill was
+    # proven against a statement built outside the corpus and no vendored copy
+    # was measured against it. bad-982 is this statement with the assignment
+    # exchanged and nothing else touched.
+    #
+    # The two attacks sit in different coverage classes deliberately. A consumer
+    # policy keyed on attack class is the cheapest example of one that reads the
+    # assignment, so the splice below is a permutation a policy would act on
+    # rather than a relabelling nothing consumes.
+    man_pin2 = {
+        "classes": {"XA": ["XA-EXAMPLE-1"], "XB": ["XB-EXAMPLE-1"]},
+        "expectedPayloads": {
+            "XA-EXAMPLE-1": [commitment_for("example interception observation a")],
+            "XB-EXAMPLE-1": [commitment_for("example interception observation b")],
+        },
+    }
+    b_pin2 = run_binding(sha256_hex(jcs(man_pin2)))
+    v["ok-051-two-pinned-rows"] = make_statement(
+        man_pin2,
+        [
+            make_row(
+                "XA-EXAMPLE-1",
+                "egress_captured",
+                "substrate",
+                "intercepted",
+                "policy.egress_sinkhole",
+                [0],
+                attribution="pinned",
+            ),
+            make_row(
+                "XB-EXAMPLE-1",
+                "egress_captured",
+                "substrate",
+                "intercepted",
+                "policy.egress_sinkhole",
+                [1],
+                attribution="pinned",
+            ),
+        ],
+        records=[
+            make_record(
+                "interception", b_pin2, note="example interception observation a"
+            ),
+            make_record(
+                "interception", b_pin2, note="example interception observation b"
+            ),
+            make_record("sealed", b_pin2),
         ],
     )
 

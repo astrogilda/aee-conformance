@@ -125,7 +125,11 @@ import sys
 import tempfile
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, NoReturn
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from _lockfile import single_instance  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 VECTORS = REPO_ROOT / "vectors"
@@ -162,7 +166,7 @@ Row = dict[str, Any]
 # ---------------------------------------------------------------------------
 
 
-def die(message: str, code: int = 2) -> None:
+def die(message: str, code: int = 2) -> NoReturn:
     print(f"FAIL: {message}", file=sys.stderr)
     raise SystemExit(code)
 
@@ -489,10 +493,14 @@ def run_mutant(tree: Path, site: dict[str, Any], ws: Workspace) -> dict[str, Any
         )
         if gen.returncode != 0:
             return record | {"outcome": "GENFAIL", "detail": gen.stderr.decode()[:400].strip()}
-        env = dict(os.environ, GOCACHE=ws.gocache, GOFLAGS="")
+        # One core per worker. `go build` parallelises across every core by
+        # default, so N workers would otherwise put N x cores compile jobs on the
+        # scheduler and --workers would not mean what it says. The campaign is
+        # worker-bound rather than build-bound, so pinning the build costs little.
+        env = dict(os.environ, GOCACHE=ws.gocache, GOFLAGS="", GOMAXPROCS="1")
         binary = str(tree / "mutrun.bin")
         build = subprocess.run(
-            ["go", "build", "-o", binary, "./cmd/mutrun"],
+            ["go", "build", "-p", "1", "-o", binary, "./cmd/mutrun"],
             cwd=tree,
             capture_output=True,
             env=env,
@@ -1033,6 +1041,14 @@ def main() -> int:
     )
     args = parser.parse_args()
     set_baseline(Path(args.baseline).resolve())
+
+    # One campaign at a time. Concurrent campaigns oversubscribe the machine
+    # rather than sharing it, and cannot use each other's results.
+    with single_instance("aee-forcing-gate"):
+        return run(args)
+
+
+def run(args: argparse.Namespace) -> int:
 
     baseline = load_baseline(allow_absent=args.sync)
     if args.report and not args.sync:

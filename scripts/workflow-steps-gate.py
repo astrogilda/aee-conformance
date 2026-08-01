@@ -30,6 +30,10 @@ import pathlib
 import subprocess
 import sys
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+
+from _lockfile import single_instance  # noqa: E402
+
 REPO = pathlib.Path(__file__).resolve().parent.parent
 WORKFLOWS = REPO / ".github" / "workflows"
 
@@ -104,6 +108,35 @@ def main() -> int:
             "An empty selection is a typo, not a pass."
         )
 
+    if args.list:
+        return plan(files)
+
+    # One mirror at a time. This runs the repository's real workflow steps, some
+    # of which are heavyweight parallel campaigns, so two mirrors do not finish
+    # in the time of one -- they oversubscribe the machine and both crawl. The
+    # lock is taken here rather than left to the individual steps so the refusal
+    # arrives before any work starts, instead of partway through a long run.
+    with single_instance("aee-workflow-steps-gate"):
+        return execute(files)
+
+
+def plan(files: list[pathlib.Path]) -> int:
+    planned = skipped = 0
+    for path in files:
+        doc = load_yaml(path)
+        print(f"\n=== {path.name} ===")
+        for job, idx, name, run in steps_of(doc, path):
+            label = f"{job}[{idx}] {name}"
+            if run is None:
+                skipped += 1
+                print(f"  SKIP  {label}  (a marketplace action, not a shell step)")
+            else:
+                planned += 1
+                print(f"  PLAN  {label}")
+    return summarise("planned", planned, 0, skipped)
+
+
+def execute(files: list[pathlib.Path]) -> int:
     ran = failed = skipped = 0
     env = {**os.environ, "CI": "1", "GITHUB_ACTIONS": ""}
 
@@ -115,8 +148,6 @@ def main() -> int:
             if run is None:
                 skipped += 1
                 print(f"  SKIP  {label}  (a marketplace action, not a shell step)")
-            elif args.list:
-                print(f"  PLAN  {label}")
             else:
                 print(f"  RUN   {label}")
                 proc = run_step(run, env)
@@ -125,8 +156,11 @@ def main() -> int:
                     failed += 1
                     report_failure(label, proc)
 
-    verb = "planned" if args.list else "ran"
-    print(f"\n{verb} {ran} shell steps, {failed} failed, {skipped} not runnable here")
+    return summarise("ran", ran, failed, skipped)
+
+
+def summarise(verb: str, count: int, failed: int, skipped: int) -> int:
+    print(f"\n{verb} {count} shell steps, {failed} failed, {skipped} not runnable here")
     if skipped:
         print(
             "The skipped steps are marketplace actions and are listed above by name.\n"

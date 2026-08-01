@@ -159,6 +159,14 @@ PREIMAGES = {
     "run-entropy": "example-run-start-entropy/v1",
     "intercepted-bytes-1": "example-intercepted-bytes/v1",
     "intercepted-bytes-2": "example-intercepted-bytes/v2",
+    # Two more observed values, for the three-channel liveness statements. A
+    # third channel needs a third predicted value, and the unmatched case needs
+    # a fourth that no channel's corpus entry declares: reusing one channel's
+    # value on another channel's record would make the two records
+    # byte-identical, which is a different fault (aee-c-29) and would mask the
+    # one under test.
+    "intercepted-bytes-3": "example-intercepted-bytes/v3",
+    "intercepted-bytes-4": "example-intercepted-bytes/v4",
     "unchecked-binding": "example-unchecked-binding-bytes/v1",
     "other-posture": "example-other-posture-config/v1",
     "stale-vocabulary": "example-stale-vocabulary/v1",
@@ -3608,6 +3616,136 @@ vec("bad-982-pinned-assignment-spliced", "ok-051",
          "so each row now resolves a record carrying the other attack's value")
 
 
+# --- (p) detector liveness, per channel ------------------------------------
+# A detector that never fires and a boundary nothing ever reached emit the same
+# clean run, so the only way to separate them is to plant something the detector
+# MUST catch and then check from the bytes that it did. The construction needs
+# no member this version does not already have: `classes` says which channel an
+# attack belongs to, `expectedPayloads` is the planted stimulus, the
+# interception's `aeePayloadCommitment` is what the substrate committed to,
+# `pinned` is the row asserting the two are comparable, and the seal's
+# `aeeObservedAttacks` is the run-end list of what was attributed.
+#
+# The claim is strictly per channel: a probe caught on one channel says nothing
+# about the channel beside it. THREE channels rather than two, because a rail
+# that evaluates the first row and the last passes a two-channel statement while
+# skipping everything between, and each vector below plants its fault on a
+# channel that is neither the first nor the last where it can.
+#
+# ok-052 is the accept anchor for all three: a rail that refuses every
+# multi-channel `pinned` statement satisfies each refusal here and is wrong.
+
+M_PIN3 = {"classes": {"XA": ["XA-EXAMPLE-1"],
+                      "XB": ["XB-EXAMPLE-1"],
+                      "XC": ["XC-EXAMPLE-1"]},
+          "expectedPayloads": {"XA-EXAMPLE-1": [D["intercepted-bytes-1"]],
+                               "XB-EXAMPLE-1": [D["intercepted-bytes-2"]],
+                               "XC-EXAMPLE-1": [D["intercepted-bytes-3"]]}}
+
+LIVE_COVERAGE = {"assessedClasses": ["XA", "XB", "XC"], "outOfScope": {},
+                 "routedElsewhere": {}}
+LIVE_ATTACKS = ["XA-EXAMPLE-1", "XB-EXAMPLE-1", "XC-EXAMPLE-1"]
+
+
+def _three_pinned(manifest: dict[str, Any],
+                  commits: tuple[str, str, str]) -> dict[str, Any]:
+    """ok-052 shape: one planted probe per channel, each demonstrated live."""
+    env = environment(manifest)
+    b = binding_for(env)
+    return statement(
+        env,
+        [caught_row(refs=(0,), attack="XA-EXAMPLE-1", attribution="pinned"),
+         caught_row(refs=(1,), attack="XB-EXAMPLE-1", attribution="pinned"),
+         caught_row(refs=(2,), attack="XC-EXAMPLE-1", attribution="pinned")],
+        [record(interception_payload(b, commit=commits[0])),
+         record(interception_payload(b, commit=commits[1])),
+         record(interception_payload(b, commit=commits[2])),
+         record(sealed_payload(b, observed_attacks=LIVE_ATTACKS))],
+        result="fail",
+        coverage=LIVE_COVERAGE)
+
+
+def P_three_pinned() -> dict[str, Any]:
+    return _three_pinned(M_PIN3, ("intercepted-bytes-1", "intercepted-bytes-2",
+                                  "intercepted-bytes-3"))
+
+
+PARENTS["ok-052 shape (a demonstrated live probe on each of three channels)"] \
+    = P_three_pinned
+
+
+def _b983() -> dict[str, Any]:
+    """The middle channel's interception commits to a value no corpus entry
+    declares, while the channels either side of it stay satisfied."""
+    return _three_pinned(M_PIN3, ("intercepted-bytes-1", "intercepted-bytes-4",
+                                  "intercepted-bytes-3"))
+
+
+vec("bad-983-liveness-middle-channel-commitment-unmatched", "ok-052",
+    "the middle channel's interception commits to a value the corpus declared "
+    "for no attack, with the first and last channels left satisfied",
+    ["re-sign-record", "recompute-batch-root"], [102],
+    ["attribution-pin-unmatched"], _b983,
+    spec="L600-609",
+    note="bad-960 is this fault on a statement with one channel, where the "
+         "first pinned row and the only pinned row are the same row. A rail "
+         "that decides the attribution rule on the first row it meets, or that "
+         "stops at the first row it can satisfy, passes that vector and reports "
+         "this statement valid while the middle channel's detector is evidenced "
+         "by a value nobody predicted")
+
+
+def _b984() -> dict[str, Any]:
+    """The last channel keeps the stronger attribution after its planted probe
+    is removed from the corpus, so nothing remains to compare against."""
+    manifest = copy.deepcopy(M_PIN3)
+    del manifest["expectedPayloads"]["XC-EXAMPLE-1"]
+    return _three_pinned(manifest, ("intercepted-bytes-1", "intercepted-bytes-2",
+                                    "intercepted-bytes-3"))
+
+
+vec("bad-984-liveness-last-channel-unpinnable", "ok-052",
+    "the corpus drops the last channel's expectedPayloads entry while its row "
+    "keeps declaring pinned",
+    ["recompute-corpus-digest", "rederive-binding", "re-sign-record",
+     "recompute-batch-root"], [101],
+    ["attribution-unpinnable"], _b984,
+    spec="L600-609; L775-781",
+    note="the per-channel form of bad-959. A channel whose probe the corpus no "
+         "longer predicts cannot be shown live by comparison, and a producer "
+         "that keeps the stronger value there is claiming a check that has no "
+         "input. The two channels before it are unchanged, so a rail deciding "
+         "the run on the channels it has already satisfied accepts this")
+
+
+def _b985() -> dict[str, Any]:
+    """The middle channel's interception is deleted and its row re-pointed at
+    the seal, leaving a caught pinned row resolving no interception at all."""
+    st = P_three_pinned()
+    recs = st["predicate"]["observationRecords"]
+    del recs[1]                       # channel B's interception
+    rows = st["predicate"]["attackResults"]
+    rows[0]["observationRefs"] = [0]  # channel A, unmoved
+    rows[1]["observationRefs"] = [2]  # channel B, now resolving the seal
+    rows[2]["observationRefs"] = [1]  # channel C, shifted down by the deletion
+    return reroot(st)
+
+
+vec("bad-985-liveness-middle-channel-probe-uncaught", "ok-052",
+    "the middle channel's interception is deleted and its row re-pointed at "
+    "the seal, which still names the channel's attack",
+    ["recompute-batch-root"], [100],
+    ["caught-row-uncovered", "attribution-pinned-recordless"], _b985,
+    compound=True, spec="L600-609",
+    note="the dead detector papered over: the channel produced nothing, the "
+         "producer reported a catch anyway, and every universally quantified "
+         "clause about the records the row resolves is true over an empty set. "
+         "ok-053 is the honest report of the same run -- the same three planted "
+         "probes, the middle channel's row clean and its attack absent from the "
+         "seal -- and it is accepted, so what this vector refuses is the claim "
+         "and never the outcome")
+
+
 # --- (i) rules the corpus was measured not to force ------------------------
 # Every vector below closes a rule a mutation campaign found the corpus did not
 # force: the rail's check could be switched off and the whole suite stayed green.
@@ -3791,6 +3929,17 @@ def parent_gate_check(name: str, st: dict[str, Any]) -> None:
     if any(r.get("basis") == "substrate" for r in p["attackResults"]):
         assert "runEntropy" in env, name
     for row in substrate_rows:
+        # Every substrate row indexes into the observation records, so the
+        # records have to be there. Stated rather than assumed: the reads below
+        # sit outside the block that established the list is present, so a
+        # statement carrying substrate rows and no records reached them as None
+        # and died with a TypeError from inside len(). That reports the
+        # interpreter's problem instead of the vector's, in a checker whose only
+        # job is to say which rule a vector broke.
+        assert recs is not None, (
+            name + ": substrate rows cite observation records, but the "
+            "statement carries none"
+        )
         refs = row["observationRefs"]
         assert refs and all(isinstance(i, int) and 0 <= i < len(recs)
                             for i in refs), name
@@ -4235,7 +4384,8 @@ def write_index() -> None:
     L.append("  (a later `armedAt` appears only in bad-702).")
     L.append(f"- Record `payloadType`: `{PAYLOAD_TYPE}`.")
     L.append("- Subject `example-agent-bundle`; attack ids `XA-EXAMPLE-*`,")
-    L.append("  `XB-EXAMPLE-*`; producer label/layer vocabulary is spec-verbatim")
+    L.append("  `XB-EXAMPLE-*` and `XC-EXAMPLE-*`, one class per detection")
+    L.append("  channel; producer label/layer vocabulary is spec-verbatim")
     L.append("  (`egress_captured`, `no_egress`, `sinkhole`,")
     L.append("  `policy.egress_sinkhole`, `none`) or obviously synthetic")
     L.append("  (`example_label_a`, `example.method-x`).")

@@ -5,6 +5,61 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 20 (a planted probe on every channel, and an anchor for every refusal)
+
+- Corpus: **231 vectors (54 accept, 175 reject, 2 indeterminate)**, up from 226.
+  No statement changes shape, no run binding moves, the vendored specification
+  does not move and the predicate type is unchanged: the revision adds five
+  vectors and changes no verdict on any earlier one.
+- **Detector liveness becomes a construction over carried bytes, and it needs
+  no new member.** A check that never fires may be guarding a well-designed
+  boundary or may be dead, and from outside the two are indistinguishable,
+  because both emit the same clean run. The only thing that separates them is a
+  planted stimulus the check must catch. Five members this version already
+  carries do that: `classes` says which channel an attack belongs to,
+  `expectedPayloads` is the value a corpus author predicted for what that
+  attack looks like on the wire, `aeePayloadCommitment` is what the substrate
+  committed to, `attribution: pinned` is the row asserting the two are
+  comparable, and `aeeObservedAttacks` on the run-end seal is what the
+  substrate attributed. A channel is demonstrated when all five line up for one
+  of its attacks. `scripts/liveness-probe.py` computes it, per channel, over
+  any statement.
+- **The claim is strictly per channel, so the fixtures are per channel.** A
+  probe caught on one channel establishes nothing about the channel beside it,
+  so a corpus that plants one probe and reports a live detector has measured a
+  sample and called it a census. `ok-052-liveness-probe-per-channel` carries
+  three channels, three planted probes and three demonstrations at once. Three
+  rather than two, because a rail that decides on the first row and the last
+  passes a two-channel statement while skipping everything between, and the
+  three refusals beside it each place their fault on a channel that is not the
+  first: `bad-983` commits the middle channel's interception to a value no
+  corpus entry declares, `bad-984` drops the last channel's `expectedPayloads`
+  entry while its row keeps declaring `pinned`, and `bad-985` deletes the
+  middle channel's interception and re-points its row at the seal.
+- **Liveness is not a validity requirement, and one accept vector exists to
+  keep it from becoming one by accident.**
+  `ok-053-liveness-probe-uncaught-on-one-channel` carries the same three
+  planted probes with the middle channel's row clean, its attribution at the
+  honest floor and its attack absent from the seal. That is a producer whose
+  detector did not fire saying so, and it MUST be accepted: refusing it would
+  refuse the honest report along with the dishonest one, and `bad-985` is the
+  dishonest report of the same run. What the format does instead is make the
+  difference legible -- three probes declared, two named on the seal -- and
+  leave the decision with the consumer, where this document's Consumer policy
+  obligations already put it.
+- **Every refusal in the corpus is now checked to ship beside a vector that
+  must be accepted.** A verifier that rejects its input unconditionally passes
+  every reject vector ever written and scores perfectly against a reject-only
+  corpus. `scripts/accept-anchor-gate.py` checks the pairing at two
+  granularities: all 175 reject vectors declare a parent that ships as an
+  accept vector, and the conditions cited only by refusals are measured and
+  ratcheted against `docs/ACCEPT-ANCHOR-BASELINE.json` rather than described in
+  prose. That second number is 33 of 75 today, down one because `ok-052` cites
+  `aee-c-104`, and it is a traceability gap rather than a coverage hole: most
+  of those conditions are satisfied by accept vectors that do not cite them,
+  and saying which it is matters because overstating it would be its own
+  defect.
+
 ## suiteRevision 19 (two kinds get a name, and the splice gets a vector)
 
 - Corpus: **226 vectors (52 accept, 172 reject, 2 indeterminate)**, up from 221.

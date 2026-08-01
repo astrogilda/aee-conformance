@@ -6,8 +6,8 @@
   "tracksUpstream": "in-toto/attestation#570",
   "specUpstreamCommit": "23bee586d651c79ba6a1dd55d4b29b7c2ef2cff2",
   "counts": {
-    "accept": 52,
-    "reject": 172,
+    "accept": 54,
+    "reject": 175,
     "indeterminate": 2
   },
   "vectors": [
@@ -688,6 +688,39 @@
       "conditions": [
         "aee-c-100",
         "aee-c-101",
+        "aee-c-102",
+        "aee-c-103"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-052-liveness-probe-per-channel",
+      "kind": "accept",
+      "file": "accept/ok-052-liveness-probe-per-channel.json",
+      "conditions": [
+        "aee-c-98",
+        "aee-c-100",
+        "aee-c-101",
+        "aee-c-102",
+        "aee-c-103",
+        "aee-c-104"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-053-liveness-probe-uncaught-on-one-channel",
+      "kind": "accept",
+      "file": "accept/ok-053-liveness-probe-uncaught-on-one-channel.json",
+      "conditions": [
+        "aee-c-14",
+        "aee-c-98",
+        "aee-c-100",
         "aee-c-102",
         "aee-c-103"
       ],
@@ -3153,6 +3186,49 @@
         "verdict": "invalid",
         "codes": [
           "attribution-pin-unmatched"
+        ]
+      }
+    },
+    {
+      "id": "bad-983-liveness-middle-channel-commitment-unmatched",
+      "kind": "reject",
+      "file": "reject/bad-983-liveness-middle-channel-commitment-unmatched.json",
+      "conditions": [
+        "aee-c-102"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "attribution-pin-unmatched"
+        ]
+      }
+    },
+    {
+      "id": "bad-984-liveness-last-channel-unpinnable",
+      "kind": "reject",
+      "file": "reject/bad-984-liveness-last-channel-unpinnable.json",
+      "conditions": [
+        "aee-c-101"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "attribution-unpinnable"
+        ]
+      }
+    },
+    {
+      "id": "bad-985-liveness-middle-channel-probe-uncaught",
+      "kind": "reject",
+      "file": "reject/bad-985-liveness-middle-channel-probe-uncaught.json",
+      "conditions": [
+        "aee-c-100"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "caught-row-uncovered",
+          "attribution-pinned-recordless"
         ]
       }
     },

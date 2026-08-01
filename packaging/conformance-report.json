@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 226,
-    "pass": 226,
+    "vectors": 231,
+    "pass": 231,
     "fail": 0,
     "suiteRefusals": 0
   },
@@ -1291,6 +1291,56 @@
     {
       "id": "ok-051-two-pinned-rows",
       "file": "vectors/accept/ok-051-two-pinned-rows.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "primaryCode": null,
+        "result": "fail"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "ok-052-liveness-probe-per-channel",
+      "file": "vectors/accept/ok-052-liveness-probe-per-channel.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "primaryCode": null,
+        "result": "fail"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "ok-053-liveness-probe-uncaught-on-one-channel",
+      "file": "vectors/accept/ok-053-liveness-probe-uncaught-on-one-channel.json",
       "kind": "accept",
       "status": "PASS",
       "gates": {
@@ -6465,6 +6515,95 @@
         "verdict": "invalid",
         "codes": [
           "attribution-pin-unmatched"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-983-liveness-middle-channel-commitment-unmatched",
+      "file": "vectors/reject/bad-983-liveness-middle-channel-commitment-unmatched.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "attribution-pin-unmatched"
+        ],
+        "primaryCode": "attribution-pin-unmatched",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "attribution-pin-unmatched"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-984-liveness-last-channel-unpinnable",
+      "file": "vectors/reject/bad-984-liveness-last-channel-unpinnable.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "attribution-unpinnable"
+        ],
+        "primaryCode": "attribution-unpinnable",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "attribution-unpinnable"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-985-liveness-middle-channel-probe-uncaught",
+      "file": "vectors/reject/bad-985-liveness-middle-channel-probe-uncaught.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "caught-row-uncovered",
+          "attribution-pinned-recordless"
+        ],
+        "primaryCode": "caught-row-uncovered",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "caught-row-uncovered",
+          "attribution-pinned-recordless"
         ]
       },
       "inManifest": true,

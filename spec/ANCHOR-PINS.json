@@ -1304,6 +1304,30 @@
       "opens": "- a row declaring `attribution: pinned` resolves at least one",
       "closes": "declares the stronger of the two values with nothing checking it."
     },
+    "vectors/reject/gen_invalid_vectors.py::bad-983-liveness-middle-channel-commitment-unmatched#0": {
+      "anchor": "L600-609",
+      "digest": "e6145aaf2d71677274b634b8f9d5a83ab011e63f709a6146ae6e0ea74c606e7f",
+      "opens": "- a row declaring `attribution: pinned` resolves at least one",
+      "closes": "declares the stronger of the two values with nothing checking it."
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-984-liveness-last-channel-unpinnable#0": {
+      "anchor": "L600-609",
+      "digest": "e6145aaf2d71677274b634b8f9d5a83ab011e63f709a6146ae6e0ea74c606e7f",
+      "opens": "- a row declaring `attribution: pinned` resolves at least one",
+      "closes": "declares the stronger of the two values with nothing checking it."
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-984-liveness-last-channel-unpinnable#1": {
+      "anchor": "L775-781",
+      "digest": "04b6e9eb7f8f626ce5731b7932f440c2d237bfb47b84bc73112d294ff598a485",
+      "opens": "`corpus.manifest.expectedPayloads` is an optional map from attack identifier",
+      "closes": "malformed. The map is a sibling of `classes` rather than an enrichment of it,"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-985-liveness-middle-channel-probe-uncaught#0": {
+      "anchor": "L600-609",
+      "digest": "e6145aaf2d71677274b634b8f9d5a83ab011e63f709a6146ae6e0ea74c606e7f",
+      "opens": "- a row declaring `attribution: pinned` resolves at least one",
+      "closes": "declares the stronger of the two values with nothing checking it."
+    },
     "vectors/reject/gen_invalid_vectors.py::bad-900-sealed-method-reconstructed#0": {
       "anchor": "L1273-1278",
       "digest": "058617100e53643674bf9573e4e400b5317daa5b2cad4e47909b2216b2b47d34",

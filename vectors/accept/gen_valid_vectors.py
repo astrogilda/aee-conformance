@@ -1581,6 +1581,136 @@ def build_vectors() -> dict[str, dict[str, Any]]:
         ],
     )
 
+    # ok-052 / ok-053 detector liveness, as a construction over carried bytes.
+    #
+    # A detector that never fires is indistinguishable from outside from a
+    # boundary nothing ever reached: both emit a clean run. The only way to
+    # separate them is to plant something the detector MUST catch and then
+    # check, from the bytes, that it did. Every member that construction needs
+    # is already normative at this version and no new one is added here:
+    # `classes` says which attack belongs to which channel,
+    # `expectedPayloads` is the planted stimulus -- the value a corpus author
+    # computed in advance for what that attack looks like on the wire --
+    # `aeePayloadCommitment` on the interception is what the substrate actually
+    # committed to, `attribution: pinned` is the row asserting the two are
+    # comparable, and `aeeObservedAttacks` on the run-end seal is the
+    # substrate's own signed list of what it attributed. A channel is
+    # demonstrated live when all five line up for at least one attack in it.
+    #
+    # The claim is strictly per channel. A probe caught on the egress channel
+    # says nothing whatever about the channel next to it, so a corpus that
+    # plants one probe and reports a live detector is measuring a sample and
+    # calling it a census. THREE channels here rather than two, because a rail
+    # that evaluates the first and the last passes a two-channel statement
+    # while skipping everything between.
+    man_live = {
+        "classes": {
+            "XA": ["XA-EXAMPLE-1"],
+            "XB": ["XB-EXAMPLE-1"],
+            "XC": ["XC-EXAMPLE-1"],
+        },
+        "expectedPayloads": {
+            "XA-EXAMPLE-1": [commitment_for("example planted probe channel a")],
+            "XB-EXAMPLE-1": [commitment_for("example planted probe channel b")],
+            "XC-EXAMPLE-1": [commitment_for("example planted probe channel c")],
+        },
+    }
+    b_live = run_binding(sha256_hex(jcs(man_live)))
+
+    def probe_row(attack: str, ref: int) -> dict[str, Any]:
+        return make_row(
+            attack,
+            "egress_captured",
+            "substrate",
+            "intercepted",
+            "policy.egress_sinkhole",
+            [ref],
+            attribution="pinned",
+        )
+
+    # ok-052 the satisfied form on every claimed channel at once: three planted
+    # probes, three caught rows carrying the stronger attribution, three
+    # interceptions each committing to the value its own channel's probe was
+    # predicted to produce, and a seal naming all three. This is the accept
+    # anchor the three refusals below it are measured against: a rail that
+    # rejects any statement declaring `pinned` on more than one channel, or
+    # that stops checking after the first satisfied row, satisfies every one of
+    # those refusals and is wrong.
+    v["ok-052-liveness-probe-per-channel"] = make_statement(
+        man_live,
+        [
+            probe_row("XA-EXAMPLE-1", 0),
+            probe_row("XB-EXAMPLE-1", 1),
+            probe_row("XC-EXAMPLE-1", 2),
+        ],
+        records=[
+            make_record(
+                "interception", b_live, note="example planted probe channel a"
+            ),
+            make_record(
+                "interception", b_live, note="example planted probe channel b"
+            ),
+            make_record(
+                "interception", b_live, note="example planted probe channel c"
+            ),
+            make_record(
+                "sealed",
+                b_live,
+                observed_attacks=[
+                    "XA-EXAMPLE-1",
+                    "XB-EXAMPLE-1",
+                    "XC-EXAMPLE-1",
+                ],
+            ),
+        ],
+    )
+
+    # ok-053 the same three planted probes and the same corpus, and the middle
+    # channel's probe produced no interception at all: its row is clean, its
+    # attribution is the honest floor, and the seal names the two channels the
+    # substrate did attribute and not the third.
+    #
+    # This statement MUST be accepted, and that is the whole point of shipping
+    # it. Liveness is not a validity requirement at this version and this
+    # vector is what stops a rail from quietly making it one -- a producer
+    # whose detector genuinely did not fire on one channel emits exactly these
+    # bytes, and refusing them refuses the honest report along with the
+    # dishonest one. What the format does instead is make the difference
+    # legible: the three probes are declared, the seal names two, and the gap
+    # between those sets is the one channel this run cannot show a live
+    # detector for. A consumer that demands per-channel liveness reads that gap
+    # and declines the run under its own policy; nothing here decides it for
+    # them. `scripts/liveness-probe.py` computes exactly that comparison.
+    v["ok-053-liveness-probe-uncaught-on-one-channel"] = make_statement(
+        man_live,
+        [
+            probe_row("XA-EXAMPLE-1", 0),
+            make_row(
+                "XB-EXAMPLE-1",
+                "no_egress",
+                "substrate",
+                "intercepted",
+                "none",
+                [2, 3],
+            ),
+            probe_row("XC-EXAMPLE-1", 1),
+        ],
+        records=[
+            make_record(
+                "interception", b_live, note="example planted probe channel a"
+            ),
+            make_record(
+                "interception", b_live, note="example planted probe channel c"
+            ),
+            make_record("arming", b_live),
+            make_record(
+                "sealed",
+                b_live,
+                observed_attacks=["XA-EXAMPLE-1", "XC-EXAMPLE-1"],
+            ),
+        ],
+    )
+
     return v
 
 

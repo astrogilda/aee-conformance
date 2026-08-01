@@ -17,7 +17,11 @@ dependencies = []
 [project.optional-dependencies]
 # Build-time only: the generators sign vectors with real Ed25519 test keys.
 generators = ["cryptography>=43"]
-dev = ["cryptography>=43", "mypy>=1.11", "ruff>=0.6"]
+# PyYAML is a checker-and-gate dependency, not a rail dependency: the gate that
+# runs every workflow step reads the workflow YAML, and a type checker that
+# cannot resolve an import reports it as a defect in the importing file. Left
+# undeclared it is indistinguishable from a real unresolved name.
+dev = ["cryptography>=43", "mypy>=1.11", "pyright>=1.1.400", "pyyaml>=6", "ruff>=0.6"]
 
 [tool.mypy]
 # scripts/code-contract-gate.py imports the reference rail to drive its own
@@ -30,6 +34,40 @@ warn_unused_configs = true
 show_error_codes = true
 python_version = "3.13"
 files = ["packaging", "vectors"]
+
+[tool.pyright]
+# Named by DIRECTORY, deliberately, and this is the whole point of the section.
+#
+# The other type-checking pass above is driven from an explicit list of files
+# written out by hand in the workflow that invokes it. A list like that is only
+# correct on the day it is written: every new script is covered if and only if
+# somebody remembers to append it, and four files had accumulated that no type
+# checker had ever read -- among them the runner that executes every gate and
+# the locking primitive it depends on. An unchecked gate is the worst place for
+# this to land, because a gate that dies on a NameError and a gate that was
+# never wired look identical from the outside: both produce no finding.
+#
+# Directories cannot forget. A file added to any of these is checked because it
+# is there, not because it was announced, and scripts/typecheck-gate.py refuses
+# to pass if a Python file exists outside them.
+include = ["packaging", "scripts", "vectors"]
+
+# The reference rail is imported by the gates that drive it, and it lives in
+# packaging/ rather than on the default path, so the checker needs the same
+# hint the other pass gets from mypy_path. Without it every one of those
+# imports is reported as unresolved -- noise that reads exactly like a defect.
+extraPaths = ["packaging"]
+
+# "standard" rather than "strict", chosen rather than defaulted into. Standard
+# carries every rule that describes a script CRASHING -- an undefined name, a
+# tuple unpacked into the wrong number of targets, an operator the operand
+# types do not support, an import that does not resolve. Strict adds
+# annotation-completeness rules on top, which is depth the mypy pass above
+# already enforces where it runs, and it costs several times the wall clock.
+# The rule that decides it: this runs on every push, and a gate slow enough to
+# be worth skipping is a gate that gets skipped.
+typeCheckingMode = "standard"
+pythonVersion = "3.13"
 
 [tool.ruff]
 line-length = 100

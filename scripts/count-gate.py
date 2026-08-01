@@ -661,6 +661,23 @@ DELEGATED: tuple[Delegated, ...] = (
         r"\*\*suiteRevision\s+\d+\s+through\s+\d+\*\*",
         "scripts/independent-runs-gate.py",
     ),
+    # The accept-anchor measurement: how many of the conditions a refusal cites
+    # are also cited by a vector that must be accepted. Both halves are derived
+    # from the manifest on every run and ratcheted against
+    # docs/ACCEPT-ANCHOR-BASELINE.json, so the gate that owns them is the one
+    # that recomputes them rather than this census.
+    Delegated(
+        "vectors/CHANGES.md",
+        "the accept-anchor traceability figure",
+        r"That\s+second\s+number\s+is\s+\d+\s+of\s+\d+\s+today,",
+        "scripts/accept-anchor-gate.py",
+    ),
+    Delegated(
+        "vectors/CHANGES.md",
+        "the accept-anchor parent-pairing figure",
+        r"all\s+\d+\s+reject\s+vectors\s+declare\s+a\s+parent",
+        "scripts/accept-anchor-gate.py",
+    ),
 )
 
 
@@ -813,6 +830,15 @@ FROZEN: tuple[Frozen, ...] = (
         "Correct the CI vector-replay label 138 -> 140",
         "A dated completed-work entry naming the edit it made.",
     ),
+    Frozen(
+        "scripts/condition-forcing-gate.py",
+        "the reconstruction comment's account of the superseded projection",
+        "24 of 78 conditions weak",
+        "The projection as it was quoted, over a corpus the working tree no longer "
+        "holds. The whole point of the code beneath this comment is that the figure "
+        "is reconstructed rather than remembered, so tracking it to the corpus would "
+        "erase the number the reconstruction exists to check itself against.",
+    ),
 )
 
 
@@ -827,6 +853,14 @@ MASKS = tuple(
     for pattern in (
         r"\b(?:ok|bad)-\d+(?:/\d+)*",  # vector ids and id lists: ok-006/007/029
         r"\baee-c-\d+",  # condition ids
+        # Disposition-row identifiers, DC-NN. A row in the objection ledger is
+        # named, not counted, and the number is as much an identifier as a vector
+        # id is. Unmasked it collides on value with whatever small count the
+        # sources happen to publish -- DC-04 against the annotated-site count --
+        # and the collision fires because a neighbouring row cites a path
+        # carrying the word "vectors", which is a coincidence of vocabulary and
+        # not a claim about anything.
+        r"\bDC-\d+\b",
         # A revision NUMBER names a revision; it is an identifier, not a count.
         # Masked here and read from the unmasked text by ATTRIBUTION below, which
         # is the one place a revision number is allowed to settle a value.
@@ -846,6 +880,20 @@ MASKS = tuple(
         r"\bgo\d[\d.]*",  # toolchain versions
         r"\b[0-9a-f]{7,}\b",  # digests and short commit ids
         r"\b[A-Za-z]\d+\b",  # requirement ids: D18, U1, P7
+        # Code points, byte sizes and registry decision ids, masked for the same
+        # reason UTF-16 above is: each is a digit that names something rather
+        # than counting anything, and each stayed invisible only while no
+        # published quantity had collided with it. They collided at
+        # suiteRevision 20, which appears in this tree as `U+0020` seven times,
+        # as a 20 MiB parse bound, and as two registry decision numbers -- none
+        # of them a claim about the corpus, and all of them reported as
+        # unaccounted the moment the revision counter reached that value.
+        r"U\+[0-9A-Fa-f]{4,6}",  # Unicode code points: U+0020
+        r"\\u[0-9A-Fa-f]{4}",  # escaped code points:
+        r"\b0\d+\b",  # zero-padded: a count is never written 0020
+        r"\b\d+\s*(?:<<|>>)\s*\d+\b",  # shift expressions: 20 << 20
+        r"\b\d+\s*[KMGT]i?B\b",  # byte sizes: 20 MiB
+        r"\bdecisions?\s+\d+",  # interpretation-registry decision ids
     )
 )
 
@@ -857,7 +905,16 @@ NOUN = re.compile(r"\b(\d{1,4})\s+(?:accept |reject )?vectors?\b", re.IGNORECASE
 ATTRIBUTION = re.compile(r"(?:suite)?[Rr]evisions?[-\s]+(?:[#>*]+\s*)?(\d+)")
 # Below this, an integer is ambiguous with ordinary prose and only counts when it
 # sits next to one of the words below.
-SMALL_VALUE = 20
+#
+# Raised from 20 to 21 at suiteRevision 20, when the revision counter walked into
+# the band this threshold describes. A bare 20 is exactly as ambiguous in prose
+# as a bare 19: on the day the corpus reached revision 20 the census reported a
+# cron minute, a `head -20`, a URL fragment and a 20 MiB parse bound as
+# unaccounted counts, none of which had changed and none of which is a claim
+# about anything. The alternative was a mask per context, which chases the
+# collision instead of naming it. Nothing real is lost: a genuine quantity of 20
+# is still caught, because the words that make it a quantity are below.
+SMALL_VALUE = 21
 SMALL_VALUE_NOUNS = re.compile(
     r"(?i)\b(?:vectors?|suiteRevisions?|revisions?|sites?|rules?|forced|unforced|"
     r"tolerated|unmeasurable|annotations?|KILLED|SILENT|DEAD|INCONCLUSIVE)\b"
@@ -871,6 +928,11 @@ EXEMPT: dict[str, str] = {
         "generated end to end from the interpretation registry and gated by "
         "scripts/coverage-matrix-gate.py --check"
     ),
+    "docs/FORCING-HONESTY.md": (
+        "generated end to end from the manifest, the forcing baseline, the condition "
+        "registry and the rail's code set, and gated by "
+        "scripts/condition-forcing-gate.py --check"
+    ),
 }
 EXEMPT_PREFIXES: dict[str, str] = {
     "spec/predicates/": (
@@ -879,18 +941,28 @@ EXEMPT_PREFIXES: dict[str, str] = {
     ),
 }
 
-# The three files whose count-shaped integers are this gate's SUBJECT rather than
-# claims about the corpus, so the census reads no integer in them.
+# The files whose count-shaped integers are CONTROL DATA rather than claims about
+# the corpus, so the census reads no integer in them.
 #
 # This is not a convenience. Everything the census would find in these files is
 # control data: the declaration tables name the very values they check, the
 # refusal message quotes the routes a writer may take, the worked examples in the
 # prose above are the sentences other files are checked against, an ordinal list
 # marker and a regex repetition bound are digits that stand for nothing, and the
-# test writes deliberately WRONG values into a staged copy to prove the refusal
+# tests write deliberately WRONG values into a staged copy to prove the refusal
 # fires. A census over its own control data reports its vocabulary as unaccounted
 # prose, which is what it did: seventy refusals, every one of them in these
 # files, on the revision that introduced them.
+#
+# The class widened once, and the widening is the honest description rather than
+# the original one. It was first written as "this gate's own subject", which
+# described the three files it then held; a mutation rig for a DIFFERENT gate hits
+# the identical wall, because a rig that proves a published figure is checked has
+# to name that figure to retype it. What licenses the exemption is not whose gate
+# the file belongs to, it is that the rig asserts the value is present before
+# replacing it -- so a figure that goes stale fails the rig by name, which is
+# strictly louder than the census refusal it is being excused from. A rig that
+# retyped a value without asserting it first would not qualify.
 #
 # What it costs is one live count in the prose above, and that is not left
 # unchecked: it is declared as a claim like any other, so a corpus that grows
@@ -904,6 +976,11 @@ SELF = {
     "scripts/countcensus.py": (
         "the census engine's own vocabulary and worked examples, which are the "
         "shapes it looks for rather than claims about anything"
+    ),
+    "scripts/condition-forcing-crosscheck-test.py": (
+        "the published figures this rig retypes to prove the crosscheck refuses a "
+        "page that drifted; rig_text asserts each one is present before replacing "
+        "it, so a stale figure fails the rig rather than passing the census"
     ),
 }
 

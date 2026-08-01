@@ -113,7 +113,12 @@ SCORE = re.compile(r"^\d+/\d+$")
 EVIDENCE = ("blind", "first-run-unchanged-build", "directed")
 # The two documents that publish the independence column. A run's headline figure
 # has to be stated in both or in neither.
-PUBLISHING_DOCS = ("README.md", "docs/IMPLEMENTATION-REPORT.md")
+#
+# Annotated rather than inferred: unannotated, this is a tuple of its own two
+# literal values, and a set built from it will not difference against the set of
+# paths read out of a run record, which is an ordinary set of strings. These are
+# document paths that happen to be known here, not a closed enumeration.
+PUBLISHING_DOCS: tuple[str, ...] = ("README.md", "docs/IMPLEMENTATION-REPORT.md")
 # A value this repository can source, or a note saying it cannot. Exactly one,
 # because a field left null with nothing beside it and a field nobody thought
 # about are the same field in a diff.

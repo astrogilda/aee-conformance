@@ -41,7 +41,8 @@ validity for every parent. Regenerate byte-identically with:
   (a later `armedAt` appears only in bad-702).
 - Record `payloadType`: `application/vnd.example.aee-observation.v1+json`.
 - Subject `example-agent-bundle`; attack ids `XA-EXAMPLE-*`,
-  `XB-EXAMPLE-*`; producer label/layer vocabulary is spec-verbatim
+  `XB-EXAMPLE-*` and `XC-EXAMPLE-*`, one class per detection
+  channel; producer label/layer vocabulary is spec-verbatim
   (`egress_captured`, `no_egress`, `sinkhole`,
   `policy.egress_sinkhole`, `none`) or obviously synthetic
   (`example_label_a`, `example.method-x`).
@@ -57,6 +58,8 @@ validity for every parent. Regenerate byte-identically with:
 |---|---|
 | `f31821ae3e1d6e0611dc4d753e8f4c0232ad03df1f4bd32aa47b9cd4107fe3bf` | `sha256("example-intercepted-bytes/v1")` |
 | `c39e2582a5ff1bc8a84718fd6115c847808668b962c1bcd07e263bf688cc6f72` | `sha256("example-intercepted-bytes/v2")` |
+| `971620afb07eefbd5bab8b1d3e9034cf20052f66f884452b456c2ee06ca3a4b4` | `sha256("example-intercepted-bytes/v3")` |
+| `da8b67894471dbb3926d885264c5e9c6c65c8e156bdd58ef163b378d229e2b9e` | `sha256("example-intercepted-bytes/v4")` |
 | `81c6e914fe332c0a08a53c43fe0e6fa5d0e5fde533bb03ab664e3d924e8bf829` | `sha256("example-orphan-root/v1")` |
 | `cca32c26b70e238a58249962a8da351bd8acc047b638276b3503c05bf3c6499e` | `sha256("example-other-posture-config/v1")` |
 | `bd34c306e2295a4974787aa2b81e7e95c37580d543cbc47f0b77a026aef7e051` | `sha256("example-run-start-entropy/v1")` |
@@ -202,7 +205,7 @@ that guesses is worse than one that is missing: it looks resolved.
 | aee-c-106 | L1317-1331 | a moat-drop record covers nothing in every state and carries no constraint that could change that; it still contributes its leaf to batchRoot, never enters aeeObservedSet or the method cap, and the refusal a row earns by resolving one names the kind rather than reporting an unrecognized kind |
 | aee-c-107 | L1317-1331 | an uncommitted-observation record covers nothing in every state on the same terms, and in particular cannot stand in for an interception: not for a caught row's coverage, not for the existence requirement a pinned row must satisfy, and not for the expectedPayloads comparison |
 
-## Vectors (172)
+## Vectors (175)
 
 `parent` names the accept-suite shape the vector derives from (the
 accept vectors land separately; the parent statements are built
@@ -379,6 +382,9 @@ so the declared fault stays the ONLY fault.
 | `bad-980-moat-drop-sole-cover` | ok-001 | the caught row's only resolved record is a moat-drop, which covers nothing in every state | rederive-binding, re-sign-record, recompute-batch-root | aee-c-106 | `moat-drop-covers-nothing` | L1317-1331; L1333-1346 |
 | `bad-981-uncommitted-observation-sole-cover` | ok-001 | the caught row's only resolved record is an uncommitted-observation, which covers nothing in every state | rederive-binding, re-sign-record, recompute-batch-root | aee-c-107 | `uncommitted-observation-covers-nothing` | L1317-1331; L1348-1361 |
 | `bad-982-pinned-assignment-spliced` | ok-051 | the two pinned rows exchange observationRefs; the record set, every signature and the batch root are untouched | - | aee-c-102 | `attribution-pin-unmatched` | L600-609 |
+| `bad-983-liveness-middle-channel-commitment-unmatched` | ok-052 | the middle channel's interception commits to a value the corpus declared for no attack, with the first and last channels left satisfied | re-sign-record, recompute-batch-root | aee-c-102 | `attribution-pin-unmatched` | L600-609 |
+| `bad-984-liveness-last-channel-unpinnable` | ok-052 | the corpus drops the last channel's expectedPayloads entry while its row keeps declaring pinned | recompute-corpus-digest, rederive-binding, re-sign-record, recompute-batch-root | aee-c-101 | `attribution-unpinnable` | L600-609; L775-781 |
+| `bad-985-liveness-middle-channel-probe-uncaught` | ok-052 | the middle channel's interception is deleted and its row re-pointed at the seal, which still names the channel's attack | recompute-batch-root | aee-c-100 | `caught-row-uncovered`, `attribution-pinned-recordless` (COMPOUND) | L600-609 |
 | `bad-900-sealed-method-reconstructed` | ok-002 | sealed record signed aeeMethod: "reconstructed" | re-sign-record, recompute-batch-root | aee-c-65 | `sealed-covers-nothing` | L1273-1278; L1287-1290 |
 | `bad-901-sealed-negative-dropcount` | ok-003 | sealed aeeDropCount: -1 inside a declared aeeDropBound: 5 | re-sign-record, recompute-batch-root | aee-c-65 | `sealed-covers-nothing` | L1291-1296 |
 | `bad-902-sealed-posture-ne-arming` | ok-002 | a second arming record carrying a posture digest the run never pinned, referenced by the clean row alongside the valid arming and sealed pair | recompute-batch-root | aee-c-65 | `sealed-covers-nothing` | L1291-1296 |
@@ -500,6 +506,9 @@ so the declared fault stays the ONLY fault.
 - **bad-980-moat-drop-sole-cover**: the kind is registered rather than unknown, so the refusal names it rather than reporting the unrecognized-kind condition. A rail that routes both through one condition passes bad-714 and fails here, and the producer it answers is told to upgrade a verifier that is already current. It also pins what the record cannot buy: a drop the containment layer performed is not an interception of the traffic, so it cannot make a caught row caught.
 - **bad-981-uncommitted-observation-sole-cover**: an observation the substrate declined or was unable to commit to cannot stand in for an interception anywhere. The record is bound to the run and signed by the substrate, which is exactly what makes the substitution tempting and is why the refusal is worth a vector.
 - **bad-982-pinned-assignment-spliced**: the permutation a consumer policy keyed on attack class would act on. Where the corpus declares no expectation the same operator is invisible and stays so, which is what cell U7 records; here the corpus predicted what each attack's interception would commit to, so each row now resolves a record carrying the other attack's value.
+- **bad-983-liveness-middle-channel-commitment-unmatched**: bad-960 is this fault on a statement with one channel, where the first pinned row and the only pinned row are the same row. A rail that decides the attribution rule on the first row it meets, or that stops at the first row it can satisfy, passes that vector and reports this statement valid while the middle channel's detector is evidenced by a value nobody predicted.
+- **bad-984-liveness-last-channel-unpinnable**: the per-channel form of bad-959. A channel whose probe the corpus no longer predicts cannot be shown live by comparison, and a producer that keeps the stronger value there is claiming a check that has no input. The two channels before it are unchanged, so a rail deciding the run on the channels it has already satisfied accepts this.
+- **bad-985-liveness-middle-channel-probe-uncaught**: the dead detector papered over: the channel produced nothing, the producer reported a catch anyway, and every universally quantified clause about the records the row resolves is true over an empty set. ok-053 is the honest report of the same run -- the same three planted probes, the middle channel's row clean and its attack absent from the seal -- and it is accepted, so what this vector refuses is the claim and never the outcome.
 - **bad-900-sealed-method-reconstructed**: the sealed twin of bad-704 and bad-712. Every other kind's method constraint had a vector and this one did not, so a rail that read the sealed record's aeeMethod and did nothing with it passed.
 - **bad-901-sealed-negative-dropcount**: a count of dropped observations below zero is not a count. The corpus tested the bound from above (bad-709) and never from below, so a rail comparing only against the bound accepted it.
 - **bad-902-sealed-posture-ne-arming**: the sealed-vs-arming half of the posture equality, which bad-710 cannot separate. A rule can go unforced because the corpus SHAPE cannot express its precondition rather than because nobody wrote the vector, and the two need different fixes.

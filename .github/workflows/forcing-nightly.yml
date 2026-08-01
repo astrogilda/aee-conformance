@@ -45,10 +45,40 @@ jobs:
   sweep:
     runs-on: ubicloud-standard-8
     steps:
+      # Full history, which the per-push jobs deliberately do not fetch. The
+      # earlier forcing figure is pinned to two git objects and re-derived from
+      # them below, and a shallow clone cannot tell "the objects disagree" from
+      # "the objects are not here" -- so that check is run where the history is,
+      # rather than run somewhere it would have to be allowed to skip.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-go@v5
         with:
           go-version: '1.24'
+      # The figure this suite quoted before the current one existed. It was seven
+      # numbers typed into a script, and a typed number is indistinguishable from
+      # a wrong one until somebody re-derives it. This re-derives it, from the
+      # baseline and the corpus manifest as history holds them, and fails if the
+      # record, the pinned bytes or the released note behind it has moved.
+      #
+      # The second line re-derives the same thing under an implementation that
+      # shares no code with the first, for the reason the first exists: a number
+      # checked only by the program that wrote it is not checked. It runs here
+      # rather than on the push path because it reads the same history.
+      #
+      # The two test suites run here in FULL, and this is the only place they
+      # can. Nineteen of their cases drive the two prior-reading modes, so the
+      # push-path job runs them with --without-history and says so. Four of the
+      # nineteen assert exit 2, which is also what a shallow clone answers for
+      # every one of them -- so a suite run where the objects are unreadable
+      # would report four passes it had not earned. Here the objects are here.
+      - name: the earlier forcing figure is what its pinned objects yield
+        run: |
+          python3 scripts/condition-forcing-gate.py --verify-prior
+          python3 scripts/condition-forcing-crosscheck.py --with-prior
+          python3 scripts/condition-forcing-gate-test.py
+          python3 scripts/condition-forcing-crosscheck-test.py
       # No --sync here. This workflow reports; it never rewrites the record it is
       # checking, because a gate that repairs its own baseline is a gate that
       # cannot go red twice. A run that fails here is closed by a person running

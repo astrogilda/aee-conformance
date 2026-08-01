@@ -101,7 +101,24 @@ jobs:
       - name: sync toolchain
         run: uv sync --extra dev --extra generators
       - name: mypy --strict
-        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-anchor-gate-test.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/consumer-lag-gate.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py scripts/countcensus.py scripts/count-gate.py scripts/count-gate-test.py scripts/regenerability-gate.py
+        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-anchor-gate-test.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/consumer-lag-gate.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/condition-forcing-gate.py scripts/condition-forcing-gate-test.py scripts/condition-forcing-crosscheck.py scripts/condition-forcing-crosscheck-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py scripts/countcensus.py scripts/count-gate.py scripts/count-gate-test.py scripts/regenerability-gate.py scripts/accept-anchor-gate.py scripts/accept-anchor-gate-test.py scripts/liveness-probe.py scripts/liveness-probe-test.py
+      # Type-checks by DIRECTORY, which is why it sits beside the pass above
+      # rather than replacing it. That one is driven from the list of files
+      # written out on the line above, and a list is only accurate on the day it
+      # is edited: four files had accumulated that it never named, among them
+      # the runner that executes every step in this file. This one derives its
+      # scope from [tool.pyright].include and refuses if any Python file in the
+      # repository falls outside it, so a new script is covered by existing and
+      # not by being remembered. It also refuses if it analysed fewer files than
+      # the repository has -- a checker aimed at nothing reports no problems in
+      # the same breath and the same exit status as a clean tree.
+      #
+      # A shell step and not a marketplace action, deliberately: scripts/
+      # workflow-steps-gate.py runs every shell step in this directory before a
+      # push, so declaring it here is what makes it run locally too. There is no
+      # second place to register it and no second place to forget.
+      - name: type-check every python file
+        run: uv run python scripts/typecheck-gate.py
       - name: ruff
         run: uv run ruff check packaging vectors scripts
       # The other half of the accepted-complexity gate. It runs here rather than
@@ -154,8 +171,81 @@ jobs:
       # describing a fallback the evaluator never had.
       - name: failure-code contract gate
         run: python3 scripts/code-contract-gate.py
+      # A verifier that rejects its input unconditionally passes every reject
+      # vector ever written, and scored against a reject-only corpus it looks
+      # perfect. The cure is a paired accept anchor, and the corpus said so in
+      # exactly one index row while nothing checked that the property held
+      # anywhere else. This gate checks it at both granularities: every reject
+      # vector's parent ships as an accept vector, and the traceability gap --
+      # the conditions only refusals cite -- is measured and ratcheted rather
+      # than left as a caveat in prose. It also reads the two sentences that
+      # publish those figures, because the count census skips them on the
+      # strength of recording this gate as their owner, and an owner that never
+      # opens the prose leaves the one published number in the corpus with
+      # nothing behind it. Its own tests are refusals, because a gate that
+      # cannot go red is the defect it exists to catch.
+      - name: every refusal ships beside a vector that must be accepted
+        run: |
+          python3 scripts/accept-anchor-gate.py
+          python3 scripts/accept-anchor-gate-test.py
+      # Detector liveness, computed per channel. A check that never fires and a
+      # boundary nothing reached emit the same clean run, so the vectors plant a
+      # stimulus per channel and the probe recomputes, from the carried bytes,
+      # which channels can show they caught it.
+      #
+      # The first line is the headline assertion and the second is what makes it
+      # worth anything. A probe hard-wired to answer "demonstrated" would clear
+      # the first line and report a live detector for a corpus of dead ones, so
+      # the test switches off each arm of the construction in turn -- the planted
+      # expectation, the commitment comparison, the caught row, the resolved
+      # interception, the stronger attribution, the record signature and the
+      # run-end seal -- and requires the affected channel to degrade to a named
+      # state. It also pins every per-channel verdict the documentation
+      # publishes, so prose and computation cannot drift apart.
+      - name: per-channel detector liveness, and each arm of it switched off
+        run: |
+          uv run python scripts/liveness-probe.py --require-demonstrated \
+            --key 496cbe15e391eccd3a0864f2709df0eeb4f5b6c1bad750c95cc80ee49bceae62 \
+            vectors/accept/ok-052-liveness-probe-per-channel.json
+          uv run python scripts/liveness-probe-test.py
       - name: requirement-coverage matrix is current
         run: python3 scripts/coverage-matrix-gate.py --check
+      # The suite publishes what it does NOT force, and that figure is the one an
+      # outside reader is most entitled to distrust. Two projections of one
+      # mutation campaign -- by rail site, and by the normative condition ids the
+      # vectors cite -- were taken at two different corpus revisions and then
+      # quoted side by side, which reads as two measurements disagreeing when it
+      # is one measurement seen twice. The condition projection is now derived
+      # from the published baseline on every run rather than recorded by hand, so
+      # a corpus that moves without the figure moving fails here. Its own tests
+      # are refusals, including the one that stops an unrecognised failure-code
+      # identifier being resolved by nearest match, which is how a published weak
+      # spot would turn into a claim of coverage.
+      #
+      # The last two lines are a SECOND implementation of the same three
+      # definitions, sharing no code with the generator. --check compares the
+      # page against what the generator would write again, which cannot see a
+      # generator that read the definitions wrongly: it would write a wrong page
+      # and then agree with it. The crosscheck recomputes from the manifest and
+      # the baseline and reads the page's prose back, so the two disagree if
+      # either is wrong. Its own tests distinguish the two exit codes, because
+      # a broken input reported as a disagreement is the same class of defect.
+      #
+      # --without-history on the two suites, because this job checks out at
+      # depth 1 and nineteen of their cases read the git objects the earlier
+      # figure is pinned to. Without the flag those cases do not merely fail
+      # here: a shallow clone answers exit 2 to every one of them, and four of
+      # the nineteen WANT exit 2, so they would have gone green in a clone that
+      # could read nothing at all. The flag runs the rest and prints how many it
+      # left; the full suites run in forcing-nightly.yml, which fetches
+      # everything. A default run in a clone that cannot reach the pinned
+      # objects refuses rather than reporting a smaller suite as a passing one.
+      - name: the published weak-spot figure follows from the forcing baseline
+        run: |
+          python3 scripts/condition-forcing-gate.py --check
+          python3 scripts/condition-forcing-gate-test.py --without-history
+          python3 scripts/condition-forcing-crosscheck.py
+          python3 scripts/condition-forcing-crosscheck-test.py --without-history
       # The one column here that is not this author's work is a record of what
       # somebody else ran, so it is worth less than nothing when it is stale.
       # The sentence naming which revisions were NOT run had rotted in three
@@ -221,14 +311,14 @@ jobs:
       # typed here would be a copy of it that nothing invalidates.
       - name: the reference rail clears its own oracle
         run: python3 packaging/run_vectors.py --self-test
-      - name: replay every vector on the Python rail (must be 226/226)
+      - name: replay every vector on the Python rail (must be 231/231)
         run: python3 packaging/run_vectors.py
 
   # What the corpus FORCES, held as a tighten-only ratchet. A vector count is an
   # upper bound on forcing and never a measurement of it: a vector declaring
   # several expected codes is satisfied by any one of them, so deleting the
   # result-vocabulary emission from the rail turns two vectors' gate-0 column
-  # FAIL and the suite still reports 226 of 226, exit 0. The only way to know
+  # FAIL and the suite still reports 231 of 231, exit 0. The only way to know
   # what this corpus obliges a third party to implement is to switch one rule
   # off at a time and replay, which is what this job does.
   #

@@ -46,7 +46,9 @@
         "bad-972-second-interception-unresolved",
         "bad-973-pinned-clean-row",
         "bad-979-artifact-only-interception-orphaned",
-        "bad-982-pinned-assignment-spliced"
+        "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable"
       ]
     },
     "commitments.go::assessedSetDeclared::IF_DISJ::1d1f550a6ec2": {
@@ -175,7 +177,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "commitments.go::attackIDArrayOK::RET_TRUE::19921ccfad14": {
@@ -260,6 +264,7 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -268,7 +273,8 @@
       "class": "KILLED",
       "snippet": "if len(expected) == 0 { return []Code{CodeAttributionUnpinnable} }",
       "killers": [
-        "bad-959-pinned-without-expectation"
+        "bad-959-pinned-without-expectation",
+        "bad-984-liveness-last-channel-unpinnable"
       ]
     },
     "commitments.go::attributionBindings::IF_OFF::1f49595e0ce2": {
@@ -339,6 +345,7 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -348,7 +355,8 @@
       "snippet": "if code := pinMatches(row, states, kinds, expected); code != \"\" { return []Code{code} }",
       "killers": [
         "bad-960-pinned-commitment-unmatched",
-        "bad-982-pinned-assignment-spliced"
+        "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched"
       ]
     },
     "commitments.go::cleanRowsContradicted::IF_OFF::3300e7c56811": {
@@ -370,7 +378,9 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "commitments.go::cleanRowsContradicted::IF_OFF::5ab7028efadc": {
@@ -430,7 +440,9 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "commitments.go::commitmentArrayOK::RET_TRUE::19921ccfad14": {
@@ -539,7 +551,9 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "commitments.go::interceptionsOrphaned::IF_CONJ::be4d2e39bf82": {
@@ -591,7 +605,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "commitments.go::interceptionsOrphaned::IF_CONJ::e7a557d2b298": {
@@ -646,7 +662,9 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "commitments.go::interceptionsOrphaned::IF_OFF::d3a1e89f7742": {
@@ -673,7 +691,9 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "commitments.go::observedSetDigest::IF_CONJ::b2bf80d88458": {
@@ -734,7 +754,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "commitments.go::observedSetDigest::IF_OFF::ac101107881e": {
@@ -766,8 +788,11 @@
       "class": "KILLED",
       "snippet": "if want[v] { matched = true break }",
       "killers": [
+        "bad-984-liveness-last-channel-unpinnable",
         "ok-047-attribution-pinned",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "commitments.go::pinMatches::IF_OFF::97faa7718dbd": {
@@ -780,7 +805,8 @@
       "snippet": "if !matched { return CodeAttributionPinUnmatched }",
       "killers": [
         "bad-960-pinned-commitment-unmatched",
-        "bad-982-pinned-assignment-spliced"
+        "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched"
       ]
     },
     "commitments.go::pinMatches::IF_OFF::f6c32ff363e1": {
@@ -812,6 +838,8 @@
         "bad-972-second-interception-unresolved",
         "bad-979-artifact-only-interception-orphaned",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -851,7 +879,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "commitments.go::recordKinds::IF_OFF::89f00348f2ae": {
@@ -904,7 +934,8 @@
         "ok-042-posture-unsafe-bypass-egress",
         "ok-043-posture-producer-member-bound",
         "ok-045-mixed-clean-rows-indirect",
-        "ok-050-registered-noncovering-kinds"
+        "ok-050-registered-noncovering-kinds",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "commitments.go::rowResolves::IF_CONJ::e7a557d2b298": {
@@ -930,8 +961,12 @@
         "bad-959-pinned-without-expectation",
         "bad-960-pinned-commitment-unmatched",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
         "ok-047-attribution-pinned",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "commitments.go::rowResolves::IF_OFF::b6be78b63e3c": {
@@ -947,8 +982,12 @@
         "bad-959-pinned-without-expectation",
         "bad-960-pinned-commitment-unmatched",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
         "ok-047-attribution-pinned",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "commitments.go::rowResolves::RET_TRUE::19921ccfad14": {
@@ -993,7 +1032,8 @@
         "ok-042-posture-unsafe-bypass-egress",
         "ok-043-posture-producer-member-bound",
         "ok-045-mixed-clean-rows-indirect",
-        "ok-050-registered-noncovering-kinds"
+        "ok-050-registered-noncovering-kinds",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "commitments.go::sealNamedAttacksCaught::IF_DISJ::1d1f550a6ec2": {
@@ -1031,7 +1071,9 @@
       "snippet": "if isCaughtLabel(voc, p.Rows[i].ContainmentObserved) { caughtIDs[p.Rows[i].AttackID] = true }",
       "killers": [
         "ok-046-seal-attacks-lower-bound",
-        "ok-049-seal-names-caught-attack"
+        "ok-049-seal-names-caught-attack",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "commitments.go::sealNamedAttacksCaught::IF_OFF::5ab7028efadc": {
@@ -1099,7 +1141,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "commitments.go::sealedRecordPresent::IF_OFF::6857830f9110": {
@@ -1205,7 +1249,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "commitments.go::sealsCommitToCarriedSet::IF_OFF::b8f9040fd3a9": {
@@ -1311,7 +1357,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "jcs.go::appendCanonical::CASE_DEL::50e0130ff584": {
@@ -1435,6 +1483,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -1487,6 +1538,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -1573,7 +1626,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "jcs.go::appendCanonical::CASE_DEL::8e5835cd2f78": {
@@ -1701,6 +1756,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -1753,6 +1811,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -1837,7 +1897,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "jcs.go::appendCanonical::IF_OFF::29eae6805a4e": {
@@ -1865,7 +1927,9 @@
         "ok-024-mixed-basis-rows",
         "ok-026-five-record-tree",
         "ok-045-mixed-clean-rows-indirect",
-        "ok-046-seal-attacks-lower-bound"
+        "ok-046-seal-attacks-lower-bound",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "jcs.go::appendCanonical::IF_OFF::510b306923b4#2": {
@@ -1930,6 +1994,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -1971,6 +2038,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded"
       ]
     },
@@ -2319,6 +2388,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -2371,6 +2443,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -2593,6 +2667,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -2645,6 +2722,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -2770,6 +2849,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -2822,6 +2904,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -2948,6 +3032,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -3000,6 +3087,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -3133,6 +3222,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -3185,6 +3277,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -3473,7 +3567,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "jcs.go::hex4::CASE_CONJ::5ceb1787ecf2": {
@@ -3655,6 +3751,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -3707,6 +3806,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -3883,6 +3984,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -3935,6 +4039,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -4059,6 +4165,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -4111,6 +4220,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -4184,6 +4295,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -4225,6 +4339,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded"
       ]
     },
@@ -4345,6 +4461,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -4386,7 +4505,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "pae.go::IsLowerHex64::IF_CONJ::fe2f6ba914f2": {
@@ -4494,6 +4615,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -4535,7 +4659,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "pae.go::IsLowerHex64::IF_OFF::e0253f47e6df": {
@@ -4658,6 +4784,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -4699,7 +4828,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "pae.go::IsLowerHex64::RET_TRUE::19921ccfad14": {
@@ -4765,6 +4896,8 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -4866,6 +4999,8 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -4948,6 +5083,8 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded"
       ]
     },
@@ -5035,6 +5172,8 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -5086,6 +5225,8 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -5204,7 +5345,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "runbinding.go::posturePreimageDigest::IF_DISJ::4f640f451538": {
@@ -5500,6 +5643,7 @@
         "ok-044-clean-artifact-intercepted-indirect",
         "ok-045-mixed-clean-rows-indirect",
         "ok-050-registered-noncovering-kinds",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-901-row-missing-basis"
       ]
     },
@@ -5556,6 +5700,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ok-001-caught-intercepted-fail",
         "ok-014-three-record-odd-split",
         "ok-015-four-record-tree",
@@ -5568,7 +5715,9 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "statement.go::Gate0::IF_CONJ::916d57a2c71a": {
@@ -5685,6 +5834,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -5737,6 +5889,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -6081,6 +6235,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -6133,6 +6290,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -6679,6 +6838,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -6720,7 +6882,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "statement.go::gate0SubstrateBindingInputs::IF_CONJ::d0d077a93799": {
@@ -6965,6 +7129,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -7017,6 +7184,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -7314,7 +7483,9 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "statement.go::isCaughtLabel::RET_TRUE::3ad81a7ceba5": {
@@ -7387,7 +7558,8 @@
         "ok-042-posture-unsafe-bypass-egress",
         "ok-043-posture-producer-member-bound",
         "ok-045-mixed-clean-rows-indirect",
-        "ok-050-registered-noncovering-kinds"
+        "ok-050-registered-noncovering-kinds",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "statement.go::isCleanLabel::RET_FALSE::179902c37185": {
@@ -7467,7 +7639,8 @@
         "ok-042-posture-unsafe-bypass-egress",
         "ok-043-posture-producer-member-bound",
         "ok-045-mixed-clean-rows-indirect",
-        "ok-050-registered-noncovering-kinds"
+        "ok-050-registered-noncovering-kinds",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "statement.go::isCleanLabel::RET_TRUE::179902c37185": {
@@ -7523,6 +7696,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ok-001-caught-intercepted-fail",
         "ok-014-three-record-odd-split",
         "ok-015-four-record-tree",
@@ -7537,7 +7713,9 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "statement.go::isResultToken::RET_FALSE::12c2fe7a8f4d": {
@@ -7654,6 +7832,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -7706,6 +7887,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -7842,6 +8025,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -7894,6 +8080,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -8054,6 +8242,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -8106,6 +8297,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -8246,6 +8439,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -8298,6 +8494,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -8377,7 +8575,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "tier.go::(recv).DeriveTiers::IF_OFF::26cedc484876": {
@@ -8431,7 +8631,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "tier.go::(recv).DeriveTiers::IF_OFF::721c82cea962": {
@@ -8787,6 +8989,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -8839,6 +9044,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -8892,7 +9099,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "types.go::(recv).UnmarshalJSON::IF_OFF::e7a59f8c651b": {
@@ -9014,6 +9223,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -9066,6 +9278,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -9223,6 +9437,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -9275,6 +9492,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -9406,6 +9625,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -9458,6 +9680,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -9482,8 +9706,11 @@
         "bad-963-expected-payloads-not-hex",
         "bad-964-expected-payloads-empty-array",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
         "ok-047-attribution-pinned",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "types.go::decodeManifest::IF_OFF::68719813eeef": {
@@ -9620,6 +9847,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -9672,6 +9902,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -9684,9 +9916,14 @@
         "bad-960-pinned-commitment-unmatched",
         "bad-973-pinned-clean-row",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "types.go::decodeManifest::RET_FALSE::35f1da5ed784": {
@@ -9803,6 +10040,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -9855,6 +10095,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -9995,7 +10237,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "types.go::isJSONObject::RET_TRUE::0e032dfcf99d": {
@@ -10168,6 +10412,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -10220,6 +10467,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -10351,6 +10600,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -10403,6 +10655,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -10549,6 +10803,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -10601,6 +10858,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -10719,6 +10978,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -10771,6 +11033,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -10886,6 +11150,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -10927,7 +11194,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "types.go::parseEnvironment::IF_OFF::b70164081046": {
@@ -11069,6 +11338,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -11121,6 +11393,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -11252,6 +11526,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -11304,6 +11581,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -11462,6 +11741,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -11504,7 +11786,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "types.go::parsePredicate::IF_OFF::354040a2f0b5": {
@@ -11641,6 +11925,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -11693,6 +11980,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -11818,6 +12107,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -11870,6 +12162,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -12002,6 +12296,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -12054,6 +12351,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -12172,6 +12471,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -12224,6 +12526,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -12373,6 +12677,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -12425,6 +12732,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -12494,7 +12803,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "types.go::parsePredicate::IF_OFF::f573bee95773": {
@@ -12660,7 +12971,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "types.go::parseRow::IF_OFF::91704092c29d": {
@@ -12777,6 +13090,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -12829,6 +13145,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -12913,6 +13231,8 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -12952,7 +13272,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "types.go::parseRow::IF_OFF::cd5643b515d3": {
@@ -13214,7 +13536,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "validity.go::anyRecordSignaturesEmpty::IF_OFF::47629c64c732": {
@@ -13282,7 +13606,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "validity.go::armingChainSyntaxValid::IF_DISJ::14ccc6cf80ec": {
@@ -13327,7 +13653,8 @@
         "ok-042-posture-unsafe-bypass-egress",
         "ok-043-posture-producer-member-bound",
         "ok-045-mixed-clean-rows-indirect",
-        "ok-050-registered-noncovering-kinds"
+        "ok-050-registered-noncovering-kinds",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "validity.go::armingChainSyntaxValid::IF_OFF::29432fc74d18": {
@@ -13408,7 +13735,8 @@
         "ok-042-posture-unsafe-bypass-egress",
         "ok-043-posture-producer-member-bound",
         "ok-045-mixed-clean-rows-indirect",
-        "ok-050-registered-noncovering-kinds"
+        "ok-050-registered-noncovering-kinds",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "validity.go::armingChainSyntaxValid::RET_TRUE::19921ccfad14": {
@@ -13490,7 +13818,8 @@
         "ok-042-posture-unsafe-bypass-egress",
         "ok-043-posture-producer-member-bound",
         "ok-045-mixed-clean-rows-indirect",
-        "ok-050-registered-noncovering-kinds"
+        "ok-050-registered-noncovering-kinds",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "validity.go::armingConstraintsMet::IF_CONJ::cae23576d43a": {
@@ -13605,7 +13934,8 @@
         "ok-042-posture-unsafe-bypass-egress",
         "ok-043-posture-producer-member-bound",
         "ok-045-mixed-clean-rows-indirect",
-        "ok-050-registered-noncovering-kinds"
+        "ok-050-registered-noncovering-kinds",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "validity.go::armingConstraintsMet::RET_TRUE::19921ccfad14": {
@@ -13876,7 +14206,9 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "validity.go::checkSubstrateRow::CODE_OFF::04bf8f51afee": {
@@ -14062,7 +14394,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "validity.go::checkSubstrateRow::IF_OFF::02af432d03e2": {
@@ -14153,7 +14487,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "validity.go::checkSubstrateRow::IF_OFF::4a3655ff0af7": {
@@ -14286,7 +14622,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "validity.go::checkSubstrateRow::IF_OFF::7ee1bca12ff5": {
@@ -14386,7 +14724,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "validity.go::checkSubstrateRow::IF_OFF::d066fff4875e": {
@@ -14535,7 +14875,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "validity.go::evaluateKind::CASE_DEL::5e13e6662219": {
@@ -14611,7 +14953,8 @@
         "ok-042-posture-unsafe-bypass-egress",
         "ok-043-posture-producer-member-bound",
         "ok-045-mixed-clean-rows-indirect",
-        "ok-050-registered-noncovering-kinds"
+        "ok-050-registered-noncovering-kinds",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "validity.go::evaluateKind::IF_CONJ::4d4c7eee2e28": {
@@ -14640,7 +14983,9 @@
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "validity.go::evaluateKind::IF_OFF::3eb82f4bd4bd": {
@@ -14818,7 +15163,9 @@
         "bad-960-pinned-commitment-unmatched",
         "bad-972-second-interception-unresolved",
         "bad-973-pinned-clean-row",
-        "bad-982-pinned-assignment-spliced"
+        "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable"
       ]
     },
     "validity.go::gate1WithContext::CODE_OFF::2fce98188438#5": {
@@ -14900,7 +15247,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "validity.go::gate1WithContext::IF_CONJ::8892bb433a9c": {
@@ -15179,7 +15528,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "validity.go::sealedConstraintsMet::IF_DISJ::0dbfd8e7fab2": {
@@ -15340,7 +15691,9 @@
         "ok-048-attribution-paired-despite-expectation",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
-        "ok-051-two-pinned-rows"
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel"
       ]
     },
     "validity.go::sealedConstraintsMet::RET_TRUE::0a253196ac86": {
@@ -15498,6 +15851,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable"
       ]
@@ -15771,6 +16127,9 @@
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
         "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable"
       ]
@@ -15879,6 +16238,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]

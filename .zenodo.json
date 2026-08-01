@@ -4,8 +4,7 @@
   "license": "Apache-2.0",
   "creators": [
     {
-      "name": "Gilda, Sankalp",
-      "affiliation": "Probity, Inc."
+      "name": "Gilda, Sankalp"
     }
   ],
   "description": "<p>A recomputable execution attestation toolkit for the in-toto adversarial execution evidence predicate.</p><p>The predicate's model is execute-and-attest rather than match-and-assert: a consumer recomputes the outcome from the bytes the statement carries, instead of trusting a verdict the producer asserted about itself. This repository is a second, independently usable implementation of that contract, so that any producer of the predicate type can self-certify and any consumer can reject a lying emitter.</p><p>This deposit covers suite revision 19: 226 vectors, of which 52 accept, 172 reject and 2 are indeterminate, exercised by rails in two languages. The corpus is versioned and immutable per revision. A published revision is never mutated in place; a normative change to the predicate, or an addition to the corpus, bumps the revision and regenerates every vector byte-identically from its generators, because the vendored specification's digest is itself a corpus input.</p><p>The intended use is citation by a conformance requirement. A requirement that names this suite, or any other suite demonstrated to exercise the same conditions, is checkable by a party who trusts neither the producer nor the implementer.</p>",

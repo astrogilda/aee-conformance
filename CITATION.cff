@@ -12,7 +12,6 @@ authors:
   - family-names: Gilda
     given-names: Sankalp
     email: sankalp.gilda@gmail.com
-    affiliation: 'Probity, Inc.'
 repository-code: https://github.com/astrogilda/aee-conformance
 abstract: >-
   A recomputable execution attestation toolkit for the in-toto adversarial

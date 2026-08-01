@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+title: >-
+  aee-conformance: conformance vectors and a reference verifier for the
+  adversarial-execution-evidence predicate
+message: >-
+  If this suite is used to demonstrate conformance, or a claim is made about
+  what it does or does not exercise, cite the released version rather than the
+  branch. A conformance claim against a moving target is not a conformance
+  claim.
+type: software
+authors:
+  - family-names: Gilda
+    given-names: Sankalp
+    email: sankalp.gilda@gmail.com
+repository-code: https://github.com/astrogilda/aee-conformance
+abstract: >-
+  A recomputable execution attestation toolkit for the in-toto adversarial
+  execution evidence predicate. The predicate's model is execute-and-attest
+  rather than match-and-assert: a consumer recomputes the outcome from the
+  bytes the statement carries instead of trusting a verdict the producer
+  asserted about itself. The repository carries a second, independently usable
+  implementation of that contract, so that any producer can self-certify and
+  any consumer can reject a lying emitter. The corpus is versioned and
+  immutable per revision: a published revision is never mutated in place, and a
+  normative change regenerates every vector byte-identically from its
+  generators.
+keywords:
+  - conformance testing
+  - attestation
+  - supply chain security
+  - in-toto
+  - provenance
+  - canonicalization
+  - agentic systems
+license: Apache-2.0
+version: 0.6.0

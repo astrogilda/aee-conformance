@@ -53,6 +53,23 @@ by a remap or removed by hand. A move onto genuinely different prose is still
 allowed, one citation at a time and by name, because no gate can read a claim
 and judge which paragraph settles it.
 
+## How this suite is maintained
+
+A conformance suite is only useful to a party who trusts neither the producer nor
+the implementer, and such a party cannot weigh a set of bytes without knowing how
+the bytes are maintained. Three files answer that without anyone having to be
+asked:
+
+- [`GOVERNANCE.md`](GOVERNANCE.md) — who decides, what the maintainer explicitly
+  does not decide, what is never changed at any revision, how a revision is cut,
+  and the one property a citing document should treat as unmet;
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — where a proposal goes, the single command
+  that runs every gate locally, and what each gate refuses;
+- [`DISPOSITIONS.md`](DISPOSITIONS.md) — every objection received from someone
+  other than the maintainer, in the objector's own frame, with the resolution and
+  the reason. Including the ones that were declined, which are the rows worth
+  reading first.
+
 ## Layout
 
 ```

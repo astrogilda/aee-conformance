@@ -349,6 +349,18 @@ CI runs the ratchet on every push over the rules the baseline records as forced 
 the complete set where a regression is possible — and sweeps all 745 sites nightly,
 which is what can see forcing improve.
 
+**What that campaign cannot see, said here before anybody else says it.** Every
+weakening is applied to the reference rail's own source, so the measurement
+describes what this corpus notices about that implementation and about nothing
+else. A third-party verifier is out of its reach by construction, and the reason
+is worth being blunt about: this corpus is a fixed, public answer key. A candidate
+handed the path to a vector can read the manifest sitting two directories above
+it, or carry a table keyed on the digest of the bytes it was given, and clear the
+whole suite without implementing a single rule of the specification. Until the
+generators can emit a challenge set on demand that no such table can contain, read
+a clean external sweep as evidence that a verifier printed the right answers
+rather than as evidence that it computed them.
+
 That baseline is keyed by rail site, which is a fact about one implementation's
 source rather than about the specification. The same campaign read against the
 normative condition ids the vectors cite — which of the document's own rules this

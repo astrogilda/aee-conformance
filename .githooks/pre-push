@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+#
+# Run every shell step of every GitHub workflow before the push leaves.
+#
+# Origin, 2026-08-01: a change was pushed after its author opened the
+# no-internal-drafts workflow, read the first two steps, ran those two by hand,
+# and saw them pass. That guard has three steps. The third rejects first-party
+# product names, it was the one the change broke, and it never ran locally
+# because nobody read that far down the file. The push went red on a public
+# repository, and the tag cut from that commit had to be withdrawn and re-cut.
+#
+# The lesson is not "be more careful reading YAML". It is that a human deciding
+# which checks to run locally will sometimes decide wrong, and the machine
+# already knows the full list. So this asks the workflows what they run.
+#
+# It is deliberately a PRE-PUSH and not a pre-commit: the workflows gate what
+# reaches the remote, local commits are cheap and frequent, and a gate that
+# fires on every commit gets bypassed until it fires on nothing.
+#
+# Bypass, loud and deliberate:
+#
+#     git push --no-verify
+#
+# Because that bypass exists and an un-bootstrapped clone has no hook at all,
+# the same workflows still run on the remote. This hook does not replace them;
+# it stops us finding out from an email.
+
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+gate="$repo_root/scripts/workflow-steps-gate.py"
+
+if [ ! -f "$gate" ]; then
+	echo "pre-push: ABORT -- $gate is missing." >&2
+	echo "pre-push: refusing to pass a push whose gate is not present." >&2
+	exit 1
+fi
+
+echo "pre-push: running every workflow shell step locally..."
+
+# uv carries PyYAML without touching the project environment. If uv is absent,
+# fall back to the interpreter and let the gate itself say what it needs -- it
+# exits non-zero with the exact command to run, which is more useful than this
+# hook guessing.
+if command -v uv >/dev/null 2>&1; then
+	uv run --quiet --with pyyaml python "$gate"
+else
+	python3 "$gate"
+fi
+
+echo "pre-push: workflow steps passed."

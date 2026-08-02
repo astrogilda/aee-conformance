@@ -250,11 +250,35 @@ under suiteRevision 17.
   of two checks, or in a data table is not a site, so it appears in no class -- not even as a
   gap. 746 sites is the size of what can be asked, never the size of the rail. File:
   `cmd/mutgen/mutate.go`.
-- [ ] **The 157 unforced rules on branches no vector takes are a list, not a plan.** The
+- [ ] **The 185 unforced rules on branches no vector takes are a list, not a plan.** The
   nightly sweep re-derives which surviving mutants sit on a branch the corpus never enters,
   which is the evidence separating a mintable gap from one no new vector could close. Nothing
   yet drives that number down, and nothing distinguishes the rules worth a vector from the
-  ones that are unreachable for a reason. File: `docs/FORCING-BASELINE.json`.
+  ones that are unreachable for a reason. The figure in this row is also not derived by any
+  gate: the count gate accepted 157 here and accepts 185, so nothing was holding it to the
+  baseline while the baseline moved under it. File: `docs/FORCING-BASELINE.json`.
+- [x] **A sweep taken across two corpora was recorded as a measurement of one** (2026-08-02) --
+  the worker trees symlink the corpus rather than copying it, so every mutant re-reads the
+  vector files, while the manifest, the per-vector self-check and the unmutated observations
+  each mutant is diffed against are read once at the start. A corpus written mid-campaign
+  therefore makes a vector answer one way for the baseline and another for whichever mutants
+  are in flight, and the difference is scored as those mutants killing it. That is how one rule
+  came to be recorded as forced by two vectors that cannot reach its branch. CLOSED: the
+  campaign now digests the manifest and every vector before the unmutated replay and again
+  after the last mutant, and refuses rather than reporting a number.
+- [ ] **A killed mutant on a branch no vector executes is a contradiction, and nothing says so.**
+  The wrong row above sat next to measured coverage evidence, in the same file, saying the line
+  it mutates is never executed -- and next to an equivalent mutation of the same line carrying
+  the opposite class. The obvious check refuses a KILLED classification whose site line has an
+  execution count of zero, and it is NOT sound as stated: `IF_OFF` rewrites a condition to
+  `false && (COND)`, which short-circuits, so a guard whose CONDITION has side effects can be
+  killed with its branch never taken. `types.go::parseEnvironment::IF_OFF::d57c9f848201` is
+  exactly that -- the condition is `!decodeManifest(env.Corpus)` and the call populates the
+  manifest for every statement -- and it is legitimately killed by most of the corpus at once.
+  Making the check sound needs
+  `cmd/mutgen` to report whether the expression it mutates contains a call, and the refusal
+  restricted to the sites where it does not. File: `scripts/forcing-gate.py`,
+  `cmd/mutgen/mutate.go`.
 
 - [ ] **A vendored copy that is refreshed, recorded, then reverted stays green.** The
   consumer-lag gate compares `vectors/CONSUMERS.json` against the corpus published here,

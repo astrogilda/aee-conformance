@@ -5,6 +5,43 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 21 (two identifiers were addressing one statement)
+
+- Corpus: **231 vectors (54 accept, 175 reject, 2 indeterminate)**, unchanged from 231.
+  No vector is added or removed and no verdict moves. One reject vector's bytes
+  change, and one gate is added that would have refused the state this revision
+  corrects.
+- **`bad-713-only-sealed-ref-noncovering` was byte-identical to
+  `bad-707-sealed-stillarmed-false`.** Same sha256, two identifiers, two
+  different conditions credited: `aee-c-68` for one and `aee-c-65` for the other.
+  So `aee-c-68`'s only reject vector was a copy of another condition's, and the
+  corpus credited a condition with a discriminator it did not have.
+- **The cause was a design decision in a different builder.** `_seal_mut` appends
+  an unreferenced, fully-covering sealed record on purpose: without it, a vector
+  about a seal that covers no clean row would also assert "this statement carries
+  no valid seal at all", and a rail could pass it having implemented neither rule.
+  `bad-713` was hand-built to place a covering seal beside a non-covering one --
+  which is what `_seal_mut` had come to do for every vector in its family. The
+  two converged, and the later of them stopped testing anything the earlier did
+  not.
+- **The repair makes the ordering load-bearing rather than incidental.** The
+  covering seal now precedes the referenced non-covering one, and the row
+  references indices 0 and 2. A rail that resolves the row's referenced set still
+  rejects. A rail that scans the record list and stops at the first seal that
+  covers now accepts, and is caught. Under the old ordering that same rail had to
+  scan past the bad seal to reach the good one, so the vector could not separate a
+  first-match scanner from a correct implementation. It can now, which is a
+  discriminator the corpus did not previously hold.
+- **`scripts/vector-distinctness-gate.py` refuses the class.** Two identifiers may
+  never address one statement. The manifest carries no per-vector digest, so
+  before this nothing in the repository pinned vector content: a vector could be
+  replaced by a copy of its neighbour and every count would still add up.
+- **The check that should have seen it could not, and that is the wider finding.**
+  `docs/FORCING-HONESTY.md` is this suite's own published weakness report, and it
+  counted two vectors for `aee-c-68` because it counts DECLARED CONDITIONS and
+  never DISTINCT STATEMENTS. A report whose purpose is to say where the corpus is
+  weak was structurally unable to see that two of its inputs were one artifact.
+
 ## suiteRevision 20 (a planted probe on every channel, and an anchor for every refusal)
 
 - Corpus: **231 vectors (54 accept, 175 reject, 2 indeterminate)**, up from 226.

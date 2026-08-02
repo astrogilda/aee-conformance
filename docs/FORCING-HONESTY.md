@@ -26,7 +26,7 @@ all.**
 | what | value |
 |---|---|
 | suite | `adversarial-execution-evidence-conformance` |
-| corpus | suiteRevision 20, 231 vectors (54 accept, 175 reject, 2 indeterminate) |
+| corpus | suiteRevision 21, 231 vectors (54 accept, 175 reject, 2 indeterminate) |
 | vendored specification | upstream commit `23bee586d651c79ba6a1dd55d4b29b7c2ef2cff2` |
 | `vectors/MANIFEST.json` | `sha256:82c6aaf3f3eff5b92c70b768850c49e7349ddd71df45e92f8d55d6bc46c76283` |
 | `docs/FORCING-BASELINE.json` | `sha256:f3ea502662903362b93792cdbb272db702e1715891370b044116f30b4143c7df` |

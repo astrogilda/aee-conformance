@@ -285,7 +285,7 @@ so the declared fault stays the ONLY fault.
 | `bad-709-sealed-drops-exceed-bound` | ok-003 | sealed aeeDropCount: 6 exceeding the declared aeeDropBound: 5 | re-sign-record, recompute-batch-root | aee-c-65 | `sealed-covers-nothing` | L1291-1296 |
 | `bad-710-sealed-posture-mismatch` | ok-002 | sealed aeePostureDigest edited (differs from the arming record's AND the pinned digest, which the arming constraint makes equivalent) | re-sign-record, recompute-batch-root | aee-c-65 | `sealed-covers-nothing` (COMPOUND) | L1291-1296 |
 | `bad-712-examination-method-intercepted` | ok-006 | examination record signed aeeMethod: "intercepted" | re-sign-record, recompute-batch-root | aee-c-66 | `examination-covers-nothing` | L1279-1281; L1287-1290 |
-| `bad-713-only-sealed-ref-noncovering` | ok-002 | clean row refs [good-arming, non-covering-sealed]; a fully-covering sealed record sits UNREFERENCED in the tree | recompute-batch-root | aee-c-68 | `sealed-covers-nothing` | L1139-1140; L557-560 |
+| `bad-713-only-sealed-ref-noncovering` | ok-002 | clean row refs [good-arming, non-covering-sealed]; a fully-covering sealed record sits UNREFERENCED and EARLIER in the tree | recompute-batch-root | aee-c-68 | `sealed-covers-nothing` | L1139-1140; L557-560 |
 | `bad-714-unknown-kind-sole-cover` | ok-002 | the arming record's aeeKind becomes "aee-future-x" (record otherwise fully valid); the clean row's only arming ref now covers nothing | re-sign-record, recompute-batch-root | aee-c-71 | `record-kind-unknown-covers-nothing` | L1561-1565 |
 | `bad-715-sealed-missing-stillarmed` | ok-002 | drop aeeStillArmed from the sealed payload | re-sign-record, recompute-batch-root | aee-c-64 | `sealed-covers-nothing` | L1273-1278 |
 | `bad-716-sealed-missing-posture` | ok-002 | drop aeePostureDigest from the sealed payload | re-sign-record, recompute-batch-root | aee-c-64 aee-c-65 | `sealed-covers-nothing` | L1273-1278; L1291-1296 |
@@ -426,7 +426,7 @@ so the declared fault stays the ONLY fault.
 - **bad-612-labels-non-bmp**: BMP-only string profile: the entry sorts last under BOTH the UTF-16 and the code-point order, so sortedness, the caught subset, and the digest all still verify and the supplementary-plane entry is the single fault.
 - **bad-703-arming-posture-mismatch**: inherently compound: the sealed record must equal BOTH the arming record's and the pinned digest, so one arming edit un-covers the sealed record too.
 - **bad-710-sealed-posture-mismatch**: both posture sub-clauses fire together; they are distinguishable only in already-invalid statements.
-- **bad-713-only-sealed-ref-noncovering**: discriminates rails that scan all records instead of the row's referenced set.
+- **bad-713-only-sealed-ref-noncovering**: discriminates rails that scan all records instead of the row's referenced set, and specifically one that stops at the first seal that covers: the covering seal precedes the referenced one.
 - **bad-714-unknown-kind-sole-cover**: pairs with ok-013: an unknown kind that no row NEEDS is ignored and only contributes its leaf.
 - **bad-727-armedat-non-utc-offset**: RFC 3339 UTC means a zero offset; +05:00 parses as a valid instant (18:59Z, before issuedAt) but is not UTC, so the arming record covers nothing, distinct from a late armedAt (bad-702).
 - **bad-728-artifact-two-subjects**: subject cardinality is unconditional (spec:210-213): exactly one subject on a statement of any basis. bad-607 keeps a substrate row; this locks the previously substrate-scoped rule as unconditional on an artifact-only statement.

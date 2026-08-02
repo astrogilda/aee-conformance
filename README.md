@@ -336,7 +336,7 @@ each. A rule the corpus never notices losing is a rule no third-party implemente
 is obliged to build, whatever the vector count says.
 
 [`docs/FORCING-BASELINE.json`](docs/FORCING-BASELINE.json) is the result, held as a
-tighten-only ratchet: **418 rules forced, 27 seen-but-tolerated, 296 unforced, 5
+tighten-only ratchet: **417 rules forced, 27 seen-but-tolerated, 297 unforced, 5
 unmeasurable.** The four outcomes stay apart on purpose — "we could not measure it"
 and "the corpus does not force it" are different claims and only one is a gap — and
 four sites carry an annotation saying that "unforced" is the wrong word for them,

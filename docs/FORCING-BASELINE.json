@@ -2,9 +2,9 @@
   "$comment": "What the conformance corpus FORCES, measured by mutation rather than counted. Each row is one single-site weakening of the Go rail in aee/, replayed over the whole corpus: KILLED means some vector goes PASS->FAIL and the corpus forces the rule; SILENT means the corpus sees the rail change and stays green; DEAD means nothing in the corpus depends on the rule; INCONCLUSIVE means the mutant did not build, crash-free, terminate, and nothing is asserted about it. `annotations` records the sites where 'unforced' would be the wrong word -- `unkillable` for a true equivalent mutant no vector can ever kill, `masked` for a real rule an earlier check reaches first, which is unmintable rather than unminted. Both are claims this gate falsifies: an annotated site that is ever KILLED fails it. scripts/forcing-gate.py holds every KILLED row as a tighten-only ratchet and rewrites this file with --scope all --sync.",
   "suite": "adversarial-execution-evidence-conformance",
   "counts": {
-    "KILLED": 418,
+    "KILLED": 417,
     "SILENT": 27,
-    "DEAD": 296,
+    "DEAD": 297,
     "INCONCLUSIVE": 5
   },
   "annotations": {
@@ -6706,12 +6706,9 @@
       ]
     },
     "statement.go::gate0ExpectedPayloads::IF_OFF::ae7550454949": {
-      "class": "KILLED",
+      "class": "DEAD",
       "snippet": "if !c.ExpectedPayloadsShapeOK { return appendCode(codes, CodeManifestExpectedPayloadsMalformed) }",
-      "killers": [
-        "bad-001-result-uppercase",
-        "bad-301-run-binding-splice"
-      ]
+      "branch": "never-taken"
     },
     "statement.go::gate0ExpectedPayloads::IF_OFF::e38c85606f27": {
       "class": "KILLED",

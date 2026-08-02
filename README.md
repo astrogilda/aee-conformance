@@ -331,12 +331,12 @@ result-vocabulary check at all clears this corpus.
 
 So forcing is measured instead. `scripts/forcing-gate.py` switches off exactly one
 rule in the reference rail, replays every vector, and asks whether the corpus
-notices — 745 single-site weakenings of `aee/`, one rebuild and one full replay
+notices — 746 single-site weakenings of `aee/`, one rebuild and one full replay
 each. A rule the corpus never notices losing is a rule no third-party implementer
 is obliged to build, whatever the vector count says.
 
 [`docs/FORCING-BASELINE.json`](docs/FORCING-BASELINE.json) is the result, held as a
-tighten-only ratchet: **417 rules forced, 26 seen-but-tolerated, 297 unforced, 5
+tighten-only ratchet: **418 rules forced, 27 seen-but-tolerated, 296 unforced, 5
 unmeasurable.** The four outcomes stay apart on purpose — "we could not measure it"
 and "the corpus does not force it" are different claims and only one is a gap — and
 four sites carry an annotation saying that "unforced" is the wrong word for them,
@@ -346,7 +346,7 @@ annotations are claims the gate falsifies: an annotated site that is ever killed
 fails the build.
 
 CI runs the ratchet on every push over the rules the baseline records as forced —
-the complete set where a regression is possible — and sweeps all 745 sites nightly,
+the complete set where a regression is possible — and sweeps all 746 sites nightly,
 which is what can see forcing improve.
 
 **What that campaign cannot see, said here before anybody else says it.** Every

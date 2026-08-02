@@ -2644,7 +2644,10 @@ def run_external(
     stderr_txt = proc.stderr.decode("utf-8", "replace").strip()
     if stderr_txt:
         print(f"external verifier stderr on {name}:\n{stderr_txt}", file=sys.stderr)
+    # The contract puts the verdict in the EXIT STATUS and the codes and the
+    # recomputed result in the JSON. This is that verdict.
     verdict = "valid" if proc.returncode == 0 else "invalid"
+    exit_verdict = verdict
     codes: list[str] = []
     result = None
     tiers = None
@@ -2654,7 +2657,44 @@ def run_external(
         try:
             parsed = json.loads(lines[-1])
             if isinstance(parsed, dict):
-                verdict = parsed.get("verdict", verdict)
+                # A rail MAY restate the verdict in its JSON. When no consumer
+                # key policy was supplied, the two channels must agree.
+                #
+                # This line used to read `parsed.get("verdict", verdict)`, which
+                # let the JSON silently overrule the exit status. Nothing then
+                # compared them, so a rail whose exit status is meaningless --
+                # returning zero on every refusal -- scored full marks as long
+                # as its JSON said the right thing, and the suite reported a
+                # conformant checker where it had only ever seen half a
+                # conformant checker. Picking a winner is what hid it.
+                #
+                # WHY THE CHECK IS SCOPED TO THE NO-POLICY CASE, which is a
+                # narrower claim than it first looks and is worth stating
+                # exactly. Two published contracts disagree here. The rail
+                # contract says the verdict is in the exit status. The shipped
+                # CLI documents, in its own source, that WITH a consumer policy
+                # the exit status is the admission result -- deliberately, so a
+                # result-only consumer cannot read a valid-but-not-admitted
+                # statement as admissible -- and binds to validity alone only
+                # when no policy is supplied. Both are internally coherent and
+                # they cannot both hold, which is the same shape as the
+                # `-json`/last-line collision this harness already carries a
+                # gate for. Requiring agreement under a pinned key would fail
+                # two accept vectors for a divergence the CLI documents on
+                # purpose; requiring it nowhere returns to the defect above.
+                # So it is enforced where the contract is unambiguous, and the
+                # contradiction is recorded for a decision rather than settled
+                # here by whichever side this file happens to sit on.
+                reported = parsed.get("verdict")
+                if reported is not None and reported != exit_verdict and keys_path is None:
+                    return {
+                        "verdict": "error",
+                        "codes": ["external-verdict-contradicts-exit-status"],
+                        "result": None,
+                        "tiers": None,
+                        "primaryCode": None,
+                    }
+                verdict = reported if reported is not None else verdict
                 codes = parsed.get("codes") or []
                 result = parsed.get("result")
                 tiers = parsed.get("tiers")

@@ -31,6 +31,8 @@ Exit 0 when every case holds; 1 on the first summary of failures.
 
 from __future__ import annotations
 
+import json
+import re
 import shutil
 import subprocess
 import sys
@@ -101,6 +103,40 @@ def edit(root: Path, rel: str, old: str, new: str) -> None:
     path.write_text(text.replace(old, new, 1), encoding="utf-8")
 
 
+def retype(root: Path, rel: str, pattern: str) -> None:
+    """Add one to the number `pattern` captures, so the claim states a wrong figure.
+
+    A case that names the RIGHT value in order to replace it restates a measured
+    number in a second place, and goes stale the moment the measurement moves.
+    Two of the cases below did, one when the campaign gained a site and one when
+    a rule stopped being recorded as forced, and a rig that no longer matches
+    stops the run instead of proving anything. Perturbing whatever the claim
+    currently carries keeps the case pinned to the shape it is testing.
+    """
+    path = root / rel
+    text = path.read_text(encoding="utf-8")
+    found = re.search(pattern, text)
+    if found is None:
+        raise SystemExit(
+            f"test setup: nothing in {rel} matches {pattern!r}, so this case would "
+            "assert nothing. Fix the case, never the gate."
+        )
+    start, end = found.span(1)
+    path.write_text(text[:start] + str(int(found.group(1)) + 1) + text[end:], encoding="utf-8")
+
+
+def forcing_figure(root: Path, key: str) -> int:
+    """One live figure out of the staged forcing baseline.
+
+    Two cases below plant prose carrying a number that IS a published count, so
+    the census has something to object to. Typing that number is what made them
+    rot: both named a figure the campaign had since moved past, and an integer
+    equal to nothing is exactly the case they were meant to distinguish.
+    """
+    loaded = json.loads((root / "docs" / "FORCING-BASELINE.json").read_text(encoding="utf-8"))
+    return len(loaded["sites"]) if key == "sites" else int(loaded["counts"][key])
+
+
 def append(root: Path, rel: str, text: str) -> None:
     path = root / rel
     path.write_text(path.read_text(encoding="utf-8") + text, encoding="utf-8")
@@ -127,16 +163,14 @@ CLAIM_CASES: list[Case] = [
     ),
     (
         "a forcing count drifts from the baseline",
-        lambda root: edit(
-            root, "README.md", "ratchet: **417 rules forced", "ratchet: **416 rules forced"
-        ),
+        lambda root: retype(root, "README.md", r"ratchet: \*\*(\d+) rules forced"),
         ("the four forcing outcomes says",),
     ),
     (
         "a claim is reworded, so the check would silently stop running",
-        lambda root: edit(
-            root, "README.md", "sweeps all 745 sites nightly", "covers 745 sites nightly"
-        ),
+        # No number here on purpose: this case is about the WORDING the claim is
+        # anchored on, and naming the figure beside it is what made the case rot.
+        lambda root: edit(root, "README.md", "sweeps all ", "covers "),
         ("the nightly sweep's size was found 0 time(s), expected 1",),
     ),
     (
@@ -209,9 +243,11 @@ CENSUS_CASES: list[Case] = [
     (
         "a small forcing count is written next to the word it counts",
         lambda root: append(
-            root, "BUILD-NOTES.md", "\nThe ratchet records 26 rules as tolerated.\n"
+            root,
+            "BUILD-NOTES.md",
+            f"\nThe ratchet records {forcing_figure(root, 'SILENT')} rules as tolerated.\n",
         ),
-        ("'26' is an integer equal to the count of seen-but-tolerated rules",),
+        ("is an integer equal to the count of seen-but-tolerated rules",),
     ),
     (
         "a count is attributed to a revision whose ledger row does not carry it",
@@ -243,9 +279,9 @@ CENSUS_CASES: list[Case] = [
         lambda root: append(
             root,
             ".github/workflows/ci.yml",
-            "\n# A later note: the nightly sweep covers 745 sites.\n",
+            f"\n# A later note: the nightly sweep covers {forcing_figure(root, 'sites')} sites.\n",
         ),
-        ("'745' is an integer equal to the count of mutation sites",),
+        ("is an integer equal to the count of mutation sites",),
     ),
     (
         "a changelog entry cites a size the corpus did not have by then",

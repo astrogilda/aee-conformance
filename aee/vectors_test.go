@@ -715,6 +715,67 @@ func containsString(ss []string, s string) bool {
 	return false
 }
 
+// pairedRecordFaultVector is the corpus statement carrying a duplicate record
+// AND a record whose payload does not decode. It is named here because the
+// assertion below is about that statement specifically and nothing else in the
+// corpus can stand in for it.
+const pairedRecordFaultVector = "bad-410-duplicate-and-undecodable-record"
+
+// TestSetEmissionOnPairedRecordFaults holds THIS rail to reporting both
+// conditions the paired-fault vector carries, over the vector's own committed
+// bytes.
+//
+// It is a claim about this rail and deliberately not a conformance requirement.
+// The suite's reject contract is a code SET a rail's answer has to intersect,
+// so that a strict rail naming one condition and a superset-emitting rail
+// naming every condition it found both pass the same MANIFEST; that contract is
+// right and this test does not touch it. What it does instead is machine-check
+// the sentence the harness has always published about the reference rails --
+// that they emit the SET of every failure they detect -- against a statement
+// where emitting the set is the whole question.
+//
+// Without it the vector is inert. Replaying it through checkVector above cannot
+// see the defect it was written for: a decode failure and a duplicate live in
+// the same expected set and the decode failure is appended first, so the primary
+// code is record-undecodable whether or not the duplicate is ever looked for,
+// and the vector passes either way. Measured, not assumed -- with the pre-fix
+// shared guard restored, the corpus replay stays green here and the whole
+// harness reports every vector passing through the mutant CLI, while this
+// assertion goes red and names the vector.
+func TestSetEmissionOnPairedRecordFaults(t *testing.T) {
+	path := filepath.Join(suiteDir(), "reject", pairedRecordFaultVector+".json")
+	body, err := os.ReadFile(path) // #nosec G304 -- a corpus path under the suite directory
+	if err != nil {
+		if os.Getenv("AEE_SKIP_VECTORS") == "1" {
+			t.Skipf("vector suite not present at %s and AEE_SKIP_VECTORS=1 set; skipping", path)
+		}
+		t.Fatalf("%s is the statement this assertion is about and it is unreadable: %v", path, err)
+	}
+	for _, pc := range []struct {
+		name   string
+		policy *aee.ConsumerPolicy
+	}{{"pinned", pinnedPolicy()}, {"none", &aee.ConsumerPolicy{}}} {
+		r := aee.Verify(body, pc.policy)
+		for _, want := range []aee.Code{aee.CodeRecordUndecodable, aee.CodeDuplicateRecord} {
+			if !containsString(codeStrings(r.Codes), string(want)) {
+				t.Fatalf("[%s] %s: this rail reported %v and did not report %s. The statement "+
+					"carries a duplicate among the records that DID decode and one record that "+
+					"did not; a scan that waits for every record to decode answers the decode "+
+					"failure and drops the duplicate finding, which is what this vector exists "+
+					"to ask", pc.name, pairedRecordFaultVector, r.Codes, want)
+			}
+		}
+	}
+}
+
+func codeStrings(codes []aee.Code) []string {
+	out := make([]string, 0, len(codes))
+	for _, c := range codes {
+		out = append(out, string(c))
+	}
+	return out
+}
+
 // Guard: the pinned-policy key used against the suite must be the DERIVED
 // test key, so the runner never depends on any committed private material.
 //

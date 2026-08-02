@@ -120,10 +120,10 @@ CLAIM_CASES: list[Case] = [
         lambda root: edit(
             root,
             "README.md",
-            "conformance%20vectors-231-e8951c",
+            "conformance%20vectors-232-e8951c",
             "conformance%20vectors-179-e8951c",
         ),
-        ("says '179' where the sources say '231'",),
+        ("says '179' where the sources say '232'",),
     ),
     (
         "a forcing count drifts from the baseline",
@@ -181,9 +181,9 @@ CENSUS_CASES: list[Case] = [
     (
         "a new paragraph states today's corpus size",
         lambda root: append(
-            root, "BUILD-NOTES.md", "\nThe corpus holds 231 files as this is written.\n"
+            root, "BUILD-NOTES.md", "\nThe corpus holds 232 files as this is written.\n"
         ),
-        ("'231' is an integer equal to the corpus total",),
+        ("'232' is an integer equal to the corpus total",),
     ),
     (
         "a new paragraph states today's accept count",
@@ -285,13 +285,14 @@ SOURCE_CASES: list[Case] = [
             # the same three counts -- 16 and 15 do -- so the row text alone stops
             # identifying which row is being edited, and edit() refuses an
             # ambiguous match rather than mutating whichever one it finds first.
-            # Re-anchored at suiteRevision 21. The anchor must name the NEWEST
-            # row, and 21 carries the same three counts as 20, so the counts no
-            # longer identify a row on their own -- exactly the ambiguity the
-            # note above describes, now real rather than hypothetical. The
-            # trailing clause is what distinguishes them.
-            "- Corpus: **231 vectors (54 accept, 175 reject, 2 indeterminate)**, "
-            "unchanged from 231.",
+            # Re-anchored at suiteRevision 22. The anchor must name the NEWEST
+            # row. 22 is the first row since 19 whose three counts are its own,
+            # but the trailing clause stays part of the anchor: 20 and 21 shared
+            # a count triple and the next revision that changes nothing will
+            # share one with 22, so anchoring on the counts alone would go
+            # ambiguous again on a revision nobody is thinking about yet.
+            "- Corpus: **232 vectors (54 accept, 176 reject, 2 indeterminate)**, "
+            "up from 231.",
             "- Corpus: **185 vectors (50 accept, 133 reject, 2 indeterminate)**, "
             "unchanged from 185.",
         ),
@@ -300,11 +301,11 @@ SOURCE_CASES: list[Case] = [
     (
         "a vector index heading drifts from the corpus",
         lambda root: edit(
-            root, "vectors/reject/INDEX.md", "## Vectors (175)", "## Vectors (138)"
+            root, "vectors/reject/INDEX.md", "## Vectors (176)", "## Vectors (138)"
         ),
         (
             "the vector-table heading says 138 and vectors/MANIFEST.json carries "
-            "175 reject vector(s)",
+            "176 reject vector(s)",
         ),
     ),
     (

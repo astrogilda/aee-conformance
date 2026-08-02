@@ -137,6 +137,32 @@ def hex_tamper(h: str) -> str:
     return ("1" if h[0] == "0" else "0") + h[1:]
 
 
+_B64_ALPHABET = (
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+)
+
+
+def _noncanonical_b64(s: str) -> str:
+    """Return a base64 string that a lenient decoder (validate=True) still
+    accepts but that is NOT RFC 4648 canonical: the last pre-padding character
+    is remapped so a trailing bit that must be zero is set. Go's
+    base64.StdEncoding.Strict() (aee/validity.go:188) and the Python rail's
+    re-encode-compare both reject it as record-undecodable, while a lenient
+    decoder would silently accept it -- the divergence this vector pins.
+
+    The remap always bites on canonical input, which is worth stating because a
+    tamper that can leave its input unchanged is a mutation that sometimes does
+    not mutate. The character before the padding encodes two or four trailing
+    bits that a canonical encoder leaves zero, so its alphabet index is even on
+    every string this is called with and ``| 1`` always moves it."""
+    core = s.rstrip("=")
+    pad = len(s) - len(core)
+    assert pad > 0, "payload must carry padding to have slack trailing bits"
+    tampered = _B64_ALPHABET[_B64_ALPHABET.index(core[-1]) | 1]
+    assert tampered != core[-1], "the tamper left the payload unchanged"
+    return core[:-1] + tampered + "=" * pad
+
+
 # ---------------------------------------------------------------- test key
 
 def key_for(role: str) -> tuple[Ed25519PrivateKey, bytes, str]:
@@ -1190,6 +1216,54 @@ vec("bad-409-artifact-records-bad-root", "ok-029",
     [30, 24], ["batch-root-mismatch"], _b409, spec="L1615-1617",
     note="the root check is statement-level: it runs even with zero "
          "substrate rows")
+
+
+def _b410() -> dict[str, Any]:
+    st = P_clean()
+    recs = st["predicate"]["observationRecords"]
+    # The duplicate, built exactly as bad-405 builds its one: a byte-identical
+    # second copy of the arming record.
+    recs.append(copy.deepcopy(recs[0]))
+    # The record that does not decode. Its kind is unrecognized on purpose, so
+    # the decode failure is the only thing it contributes: an unknown kind
+    # covers nothing, no row resolves it, and it enters aeeObservedSet from
+    # neither side -- the producer excludes it because it is not an interception
+    # or an examination, and a verifier excludes it because it cannot read it,
+    # so the two agree and the seal's commitment stays exact. Putting the
+    # failure on a covering record instead would add observed-set-mismatch, and
+    # a vector about masking would then carry the mask.
+    recs.append(record({
+        "aeeKind": "aee-future-x", "aeeMethod": "intercepted",
+        "aeeRunBinding": binding_for(st["predicate"]["observationEnvironment"]),
+        "producerNote": "example future observation"}))
+    reroot(st)
+    recs[3]["payload"] = _noncanonical_b64(recs[3]["payload"])
+    return st
+
+
+vec("bad-410-duplicate-and-undecodable-record", "ok-002",
+    "a byte-identical second copy of the arming record AND a fourth record, of "
+    "an unknown kind, whose payload is re-encoded as non-canonical base64 so it "
+    "no longer strict-decodes", [], [29],
+    ["duplicate-record", "record-undecodable"], _b410, compound=True,
+    spec="L1612-1613; L1243-1245",
+    note="inherently compound, and the pairing is the whole vector: a statement "
+         "carrying a duplicate and an undecodable record at once is what "
+         "separates a rail that scans for duplicates among the records that DID "
+         "decode from one that waits for all of them to. The second answers the "
+         "decode failure and drops the duplicate finding entirely, and until "
+         "this vector no statement in the corpus asked. The undecodable record "
+         "is a fourth one rather than one of the duplicated pair, because "
+         "faulting either half of a duplicate leaves no duplicate to find; and "
+         "the pair is byte-identical rather than a second undecodable copy, "
+         "because two records that do not decode hold the same absent leaf and "
+         "reading THAT as a duplicate would be a finding about the scan rather "
+         "than about the statement. It cites one condition and carries two "
+         "anchors, which is not an oversight: the duplicate rule is aee-c-29 and "
+         "the rule a record's payload breaks by not decoding, at L1243-1245, has "
+         "no id in the registry above. bad-817 cites aee-c-19 for it, and "
+         "aee-c-19 is the media-type rule that bad-204 forces, so citing it here "
+         "would be repeating a wrong answer rather than giving one")
 
 # --- (d/e) basis / method / actualLayer ----------------------------------
 
@@ -2441,11 +2515,23 @@ def _clean_with_spare_seal() -> dict[str, Any]:
     valid seal at all, giving a rail a third answer the declared readings do not
     predict and breaking the property that makes the family readable. The spare
     seal removes the third answer from both members symmetrically, so the role
-    exchange between them stays the only difference."""
+    exchange between them stays the only difference.
+
+    The spare carries a drop BOUND the parent's seal does not, and that member is
+    the whole reason it is a different record. Built without it the two seals
+    were byte-identical -- the parent's seal is resealed to the same observed set
+    and then signed over the same bytes -- so the statement carried a genuine
+    duplicate-record fault nobody declared. It was invisible for as long as the
+    duplicate scan sat behind the decode guard: ind-001 faults a record's base64,
+    which suppressed the scan, and ind-002 faults the payload of one of the two
+    seals, which stops them being identical. So the member that could show it was
+    the member that switched the check off. A bound with no drops against it is
+    an honest thing for a run-end seal to say, and it makes the spare a second
+    record rather than a second copy."""
     st = P_clean()
     env = st["predicate"]["observationEnvironment"]
     st["predicate"]["observationRecords"].append(
-        record(sealed_payload(binding_for(env))))
+        record(sealed_payload(binding_for(env), bound=5)))
     return reroot(st)
 
 
@@ -2592,25 +2678,6 @@ vec("bad-747-manifest-class-declares-no-attacks", "ok-007",
          "exactly satisfied and the statement reads like an assessment that "
          "found nothing rather than like an empty object; a rule phrased as "
          "\"an empty classes object is malformed\" would admit it")
-
-
-_B64_ALPHABET = (
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-)
-
-
-def _noncanonical_b64(s: str) -> str:
-    """Return a base64 string that a lenient decoder (validate=True) still
-    accepts but that is NOT RFC 4648 canonical: the last pre-padding character
-    is remapped so a trailing bit that must be zero is set. Go's
-    base64.StdEncoding.Strict() (aee/validity.go:108) and the Python rail's
-    re-encode-compare both reject it as record-undecodable, while a lenient
-    decoder would silently accept it -- the divergence this vector pins."""
-    core = s.rstrip("=")
-    pad = len(s) - len(core)
-    assert pad > 0, "payload must carry padding to have slack trailing bits"
-    tampered = _B64_ALPHABET[_B64_ALPHABET.index(core[-1]) | 1]
-    return core[:-1] + tampered + "=" * pad
 
 
 def _b817() -> dict[str, Any]:

@@ -205,7 +205,7 @@ that guesses is worse than one that is missing: it looks resolved.
 | aee-c-106 | L1317-1331 | a moat-drop record covers nothing in every state and carries no constraint that could change that; it still contributes its leaf to batchRoot, never enters aeeObservedSet or the method cap, and the refusal a row earns by resolving one names the kind rather than reporting an unrecognized kind |
 | aee-c-107 | L1317-1331 | an uncommitted-observation record covers nothing in every state on the same terms, and in particular cannot stand in for an interception: not for a caught row's coverage, not for the existence requirement a pinned row must satisfy, and not for the expectedPayloads comparison |
 
-## Vectors (175)
+## Vectors (176)
 
 `parent` names the accept-suite shape the vector derives from (the
 accept vectors land separately; the parent statements are built
@@ -255,6 +255,7 @@ so the declared fault stays the ONLY fault.
 | `bad-407-substrate-row-no-records` | ok-001 | remove observationRecords AND batchRoot under a substrate row (2-op mutation) | - | aee-c-31 aee-c-11 | `records-absent`, `ref-out-of-range` (COMPOUND) | L1619-1631; L552-553 |
 | `bad-408-batchroot-without-records` | ok-007 | orphan batchRoot added to a recordless artifact-only statement | - | aee-c-31 | `batch-root-orphaned` | L1619-1631; L1611 |
 | `bad-409-artifact-records-bad-root` | ok-029 | one hex digit off on an artifact-only-with-records statement | - | aee-c-30 aee-c-24 | `batch-root-mismatch` | L1615-1617 |
+| `bad-410-duplicate-and-undecodable-record` | ok-002 | a byte-identical second copy of the arming record AND a fourth record, of an unknown kind, whose payload is re-encoded as non-canonical base64 so it no longer strict-decodes | - | aee-c-29 | `duplicate-record`, `record-undecodable` (COMPOUND) | L1612-1613; L1243-1245 |
 | `bad-501-substrate-unknown-method` | ok-001 | substrate row method: "example.method-x" (unknown value); refs, records, root, entropy intact; carried fail kept | - | aee-c-44 aee-c-5 aee-c-42 | `fail-closed-substrate-row` | L720-724; L1012-1049 |
 | `bad-502-missing-actual-layer` | ok-001 | drop actualLayer from the row | - | aee-c-47 | `malformed-missing-actual-layer` | L887-888; L1212-1220 |
 | `bad-503-clean-row-layer-not-none` | ok-002 | clean row actualLayer: "policy.egress_sinkhole" (MUST be the literal "none") | - | aee-c-48 | `clean-row-layer-not-none` | L1221-1226 |
@@ -410,6 +411,7 @@ so the declared fault stays the ONLY fault.
 - **bad-405-duplicate-records**: single fault: duplicate identity, not root arithmetic.
 - **bad-407-substrate-row-no-records**: precedence pin: records-absent is reported when the array is absent entirely; ref-out-of-range only when records exist.
 - **bad-409-artifact-records-bad-root**: the root check is statement-level: it runs even with zero substrate rows.
+- **bad-410-duplicate-and-undecodable-record**: inherently compound, and the pairing is the whole vector: a statement carrying a duplicate and an undecodable record at once is what separates a rail that scans for duplicates among the records that DID decode from one that waits for all of them to. The second answers the decode failure and drops the duplicate finding entirely, and until this vector no statement in the corpus asked. The undecodable record is a fourth one rather than one of the duplicated pair, because faulting either half of a duplicate leaves no duplicate to find; and the pair is byte-identical rather than a second undecodable copy, because two records that do not decode hold the same absent leaf and reading THAT as a duplicate would be a finding about the scan rather than about the statement. It cites one condition and carries two anchors, which is not an oversight: the duplicate rule is aee-c-29 and the rule a record's payload breaks by not decoding, at L1243-1245, has no id in the registry above. bad-817 cites aee-c-19 for it, and aee-c-19 is the media-type rule that bad-204 forces, so citing it here would be repeating a wrong answer rather than giving one.
 - **bad-501-substrate-unknown-method**: pairs with ok-008: the SAME fail-closed axis on an artifact row is a VALID fail.
 - **bad-502-missing-actual-layer**: malformed STATEMENT, deliberately NOT a fail-closed row: a verifier answering result:fail here fails conformance.
 - **bad-818-artifact-clean-row-layer-not-none**: pairs with bad-503, the substrate twin: the clean-row none rule is not scoped to a basis (L1221-1226 says 'a row', no basis qualifier), so an artifact clean row is held to it too.

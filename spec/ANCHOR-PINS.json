@@ -320,6 +320,24 @@
       "opens": "`batchRoot` unchanged. Carried once at the predicate level. A `batchRoot`",
       "closes": "invalid. Because every `basis: substrate` row requires covering records"
     },
+    "vectors/reject/gen_invalid_vectors.py::bad-410-duplicate-and-undecodable-record#0": {
+      "anchor": "L1612-1613",
+      "digest": "5ee52f2390f6d383e6b25c8907752c17d12545a6cf3f16483367a12a71c92057",
+      "opens": "invalid: a record's canonical identity is its leaf hash, a positional",
+      "closes": "reference is shorthand for the leaf hash at that position, and a future"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-410-duplicate-and-undecodable-record#1": {
+      "anchor": "L1243-1245",
+      "digest": "e0f1c03133309284c9b105cee0d71eb793fac400fbb6acbb7f1816a982e705ff",
+      "opens": "One DSSE envelope per observation: `payload` (base64 of the exact",
+      "closes": "and `signatures`, which MUST carry at least one entry. A consumer verifies"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-410-duplicate-and-undecodable-record#2": {
+      "anchor": "L1243-1245",
+      "digest": "e0f1c03133309284c9b105cee0d71eb793fac400fbb6acbb7f1816a982e705ff",
+      "opens": "One DSSE envelope per observation: `payload` (base64 of the exact",
+      "closes": "and `signatures`, which MUST carry at least one entry. A consumer verifies"
+    },
     "vectors/reject/gen_invalid_vectors.py::bad-501-substrate-unknown-method#0": {
       "anchor": "L720-724",
       "digest": "27a76885ec66acb5a8eaf3a1e29d73079df9e14bc25f991828d1d391db2ce68b",

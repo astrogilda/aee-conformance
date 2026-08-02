@@ -26,11 +26,11 @@ all.**
 | what | value |
 |---|---|
 | suite | `adversarial-execution-evidence-conformance` |
-| corpus | suiteRevision 21, 231 vectors (54 accept, 175 reject, 2 indeterminate) |
+| corpus | suiteRevision 22, 232 vectors (54 accept, 176 reject, 2 indeterminate) |
 | vendored specification | upstream commit `23bee586d651c79ba6a1dd55d4b29b7c2ef2cff2` |
-| `vectors/MANIFEST.json` | `sha256:82c6aaf3f3eff5b92c70b768850c49e7349ddd71df45e92f8d55d6bc46c76283` |
-| `docs/FORCING-BASELINE.json` | `sha256:f3ea502662903362b93792cdbb272db702e1715891370b044116f30b4143c7df` |
-| campaign | 745 single-site weakenings: 417 KILLED, 26 SILENT, 297 DEAD, 5 INCONCLUSIVE |
+| `vectors/MANIFEST.json` | `sha256:3b7dbb2c6f12cf3bdf4042500b1c5214e8f8e2f4327092e61a1067078a9447e6` |
+| `docs/FORCING-BASELINE.json` | `sha256:3fb7fcf9ea65a980992a94c2ef70816628e3ef74821ca943ff4a31bf35f1b72a` |
+| campaign | 746 single-site weakenings: 418 KILLED, 27 SILENT, 296 DEAD, 5 INCONCLUSIVE |
 
 Every vector in the corpus is depended on by at least one recorded weakening, so no
 vector is wholly redundant and the campaign covers the corpus as it stands.
@@ -151,7 +151,7 @@ column is how many weakenings its vectors catch alongside somebody else's.
 | `aee-c-49` | L1226-1229 | the literal none is valid on a caught row too, and states that the event was observed and no enforcement layer acted | 1 | 89 |
 | `aee-c-50` | L1212-1213 | actualLayer names the enforcement layer that acted on the row's containment event | 1 | 90 |
 | `aee-c-61` | L739-741 | a predicate-level member beginning with the reserved aee prefix MUST be ignored | 1 | 86 |
-| `aee-c-62` | L229-237 | binding is anti-splice | 1 | 57 |
+| `aee-c-62` | L229-237 | binding is anti-splice | 1 | 58 |
 | `aee-c-68` | L1139-1140 | each referenced record independently satisfies its class constraints | 2 | 100 |
 | `aee-c-71` | L1561-1565 | unknown aeeKind covers nothing | 3 | 96 |
 | `aee-c-73` | L1567-1569 | the aee payload member prefix is reserved; every other payload member is producer territory and does not stop a record covering | 1 | 90 |
@@ -176,7 +176,7 @@ implementer to produce these codes.
 | code | sites, by outcome |
 |---|---|
 | `corpus-anchor-mismatch` | 1 DEAD |
-| `record-undecodable` | 1 DEAD, 1 SILENT |
+| `record-undecodable` | 2 SILENT |
 | `result-vocabulary` | 1 DEAD, 1 SILENT |
 | `row-attack-unknown` | 1 SILENT |
 | `substrate-anchor-mismatch` | 1 DEAD |

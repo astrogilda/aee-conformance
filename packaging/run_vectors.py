@@ -1726,7 +1726,7 @@ class ReferenceVerifier:
             if any(v.signature_count == 0 for v in views):
                 out.add("record-signatures-empty")
             if any(v.decode_err for v in views):
-                # Mirror Go validity.go:185-235: a record whose payload is not
+                # Mirror Go checkRecordsStatementLevel: a record whose payload is not
                 # strict base64 is record-undecodable, and the BATCH ROOT check
                 # is then skipped on both rails. That record contributes no
                 # leaf, so a root recomputed without it would be a root over a
@@ -1772,7 +1772,7 @@ class ReferenceVerifier:
                 # do not decode contribute the same absent leaf, so calling them
                 # duplicates of each other would be a finding about this loop
                 # rather than about the statement. Go skips them for the same
-                # reason (validity.go:216-226); keying them on their raw bytes
+                # reason, in checkRecordsStatementLevel; keying them on raw bytes
                 # here instead would make the two rails disagree about a
                 # statement neither could repair.
                 continue

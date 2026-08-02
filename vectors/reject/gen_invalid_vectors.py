@@ -146,7 +146,7 @@ def _noncanonical_b64(s: str) -> str:
     """Return a base64 string that a lenient decoder (validate=True) still
     accepts but that is NOT RFC 4648 canonical: the last pre-padding character
     is remapped so a trailing bit that must be zero is set. Go's
-    base64.StdEncoding.Strict() (aee/validity.go:188) and the Python rail's
+    base64.StdEncoding.Strict() (in checkRecordsStatementLevel) and the Python rail's
     re-encode-compare both reject it as record-undecodable, while a lenient
     decoder would silently accept it -- the divergence this vector pins.
 

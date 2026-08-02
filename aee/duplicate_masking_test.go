@@ -17,8 +17,12 @@ import (
 // duplicate and an undecodable record reported `record-undecodable` and dropped
 // `duplicate-record` entirely.
 //
-// No vector in the corpus pairs those two conditions, which is why nothing
-// caught it. These tests stand in until one exists.
+// No vector in the corpus paired those two conditions, which is why nothing
+// caught it. One does now: bad-410-duplicate-and-undecodable-record, replayed
+// against this rail by TestSetEmissionOnPairedRecordFaults in vectors_test.go.
+// The tests here work on the record-set check directly and that one works on
+// the vector's committed bytes, which is the difference between pinning the
+// split and pinning it over the artifact a third party downloads.
 
 const dupTestType = "application/x.aee+json"
 

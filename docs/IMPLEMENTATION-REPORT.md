@@ -69,7 +69,7 @@ digest is pinned and CI-checked (`scripts/spec-drift-gate.py`).
 |---|---|---|---|---|
 | Reference rail (`aee/`) | Go | spec author | reference corpus, suiteRevision 21 | **231 / 231** |
 | Reference rail (`packaging/run_vectors.py`) | Python | spec author | reference corpus, suiteRevision 21 | **231 / 231** |
-| `Rul1an/aee-checker` | Rust | **independent, from-spec text alone** | author-run suiteRevision 6 (153), 2026-07-28 (aee-checker#4); suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 and 20 not run by its author | **153 / 153** at suiteRevision 6, directed; **125 / 125** blind at suiteRevision 1; suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 and 20 not run by author (see note 1) |
+| `Rul1an/aee-checker` | Rust | **independent, from-spec text alone** | author-run suiteRevision 6 (153), 2026-07-28 (aee-checker#4); suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 and 21 not run by its author | **153 / 153** at suiteRevision 6, directed; **125 / 125** blind at suiteRevision 1; suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 and 21 not run by author (see note 1) |
 | `ts-verify` | TypeScript | spec author | its vendored set (226 vectors) + cross-rail parity tests | pass (see note 2) |
 | `py-verify` | Python | spec author | its vendored set (226 vectors) + parity tests | pass (see note 2) |
 | MCP server rail `_aee.py` | Python | spec author | its vendored set (226 vectors) + parity tests | pass (see note 2) |
@@ -167,7 +167,7 @@ has been read by the first-party rails only.
    unprompted evidence remain the blind 125/125 at suiteRevision 1 and the first-run
    140/140 at suiteRevision 3; no other figure here may be described that way.
 
-   **He has not run suiteRevision 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 or 20, so this report
+   **He has not run suiteRevision 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 or 21, so this report
    publishes no score for him at any of them.** Two different things put a revision
    on that list. From suiteRevision 7 onward the corpus moved past his last run: the
    single suiteRevision-7 vector (`bad-745`) and the two suiteRevision-8 vectors

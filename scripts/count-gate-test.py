@@ -285,8 +285,15 @@ SOURCE_CASES: list[Case] = [
             # the same three counts -- 16 and 15 do -- so the row text alone stops
             # identifying which row is being edited, and edit() refuses an
             # ambiguous match rather than mutating whichever one it finds first.
-            "- Corpus: **231 vectors (54 accept, 175 reject, 2 indeterminate)**, up from 226.",
-            "- Corpus: **185 vectors (50 accept, 133 reject, 2 indeterminate)**, up from 221.",
+            # Re-anchored at suiteRevision 21. The anchor must name the NEWEST
+            # row, and 21 carries the same three counts as 20, so the counts no
+            # longer identify a row on their own -- exactly the ambiguity the
+            # note above describes, now real rather than hypothetical. The
+            # trailing clause is what distinguishes them.
+            "- Corpus: **231 vectors (54 accept, 175 reject, 2 indeterminate)**, "
+            "unchanged from 231.",
+            "- Corpus: **185 vectors (50 accept, 133 reject, 2 indeterminate)**, "
+            "unchanged from 185.",
         ),
         ("declares 185 vectors (50 accept, 133 reject, 2 indeterminate)",),
     ),

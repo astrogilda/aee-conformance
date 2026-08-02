@@ -5,6 +5,62 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 22 (the duplicate an undecodable record was hiding)
+
+- Corpus: **232 vectors (54 accept, 176 reject, 2 indeterminate)**, up from 231.
+  One reject vector is added and two indeterminate vectors' bytes change. No
+  verdict on any earlier statement moves, the vendored specification does not
+  move, and the predicate type is unchanged. With the vector added, all 176
+  reject vectors declare a parent that ships as an accept vector.
+- **`bad-410-duplicate-and-undecodable-record` is the statement no revision had
+  written.** It carries a byte-identical second copy of the arming record and a
+  fourth record, of an unknown kind, whose payload is re-encoded as
+  non-canonical base64 so it no longer strict-decodes. Both rails guarded the
+  duplicate scan and the batch-root recompute behind one condition -- did every
+  record decode -- so a single record failing base64 switched off both.
+  Suppressing the ROOT is right: an undecodable record contributes no leaf, and
+  a root recomputed without it would be a root over a leaf set no producer
+  committed to. Suppressing the DUPLICATE scan is not. The records that decoded
+  still carry whatever duplicate they carried, and a statement holding both
+  conditions reported the decode failure and dropped `duplicate-record`
+  entirely.
+- **The undecodable record is a fourth one, and the unknown kind is not
+  decoration.** Faulting either half of the duplicated pair leaves no duplicate
+  to find. Faulting a covering record instead would put the statement's seal and
+  the verifier's recompute of `aeeObservedSet` on opposite sides of a record
+  nobody can read, and the vector would then carry the extra condition -- a
+  vector about masking, carrying a mask. An unknown kind is excluded from that
+  commitment by the producer and by the verifier for different reasons that
+  agree, so the decode failure is the only thing the record contributes.
+- **What this vector cannot do, said here rather than left to be discovered.**
+  A reject expectation is a code SET and the harness conforms a rail whose codes
+  INTERSECT it, so that a strict rail naming one condition and a superset-emitting
+  rail naming every condition it found both pass the same manifest. That contract
+  is right and this revision does not touch it. It also means this vector's own
+  PASS/FAIL cannot move: both conditions sit in one expected set, `record-undecodable`
+  is emitted first and is therefore the primary code either way, and the whole
+  corpus replays green through a rail with the defect restored. Measured, not
+  argued. What the vector does change is that the weakening stops being invisible:
+  before it, restoring the shared guard produced byte-identical observations on
+  every statement in the corpus. The assertion that both conditions are reported
+  belongs to each rail's own oracle rather than to the conformance contract, and
+  that is where it now lives -- `TestSetEmissionOnPairedRecordFaults` replays this
+  vector's committed bytes through the Go rail, and the Python rail's self-test
+  asks the same of a statement it builds itself.
+- **The indeterminate family was carrying a duplicate nobody declared, and the
+  reason it was invisible is the same defect.** Both members are built on a
+  clean statement plus a spare unreferenced seal, added so that faulting one seal
+  does not additionally leave the statement with no valid seal at all. The spare
+  was byte-identical to the seal it stood beside: same run binding, same observed
+  set after resealing, so the same signed bytes. `ind-001` faults a record's
+  base64, which switched the duplicate scan off, and `ind-002` faults one of the
+  two seals, which stops them being identical -- so the only member that could
+  have shown the duplicate was the member that disabled the check. The spare now
+  carries a drop bound the parent's seal does not, which is an honest thing for a
+  run-end seal to say and makes it a second record rather than a second copy.
+  Both members report the same two conditions again, which is what a family whose
+  members differ only by a role exchange is supposed to do.
+
 ## suiteRevision 21 (two identifiers were addressing one statement)
 
 - Corpus: **231 vectors (54 accept, 175 reject, 2 indeterminate)**, unchanged from 231.

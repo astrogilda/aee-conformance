@@ -7,7 +7,7 @@
   "specUpstreamCommit": "23bee586d651c79ba6a1dd55d4b29b7c2ef2cff2",
   "counts": {
     "accept": 54,
-    "reject": 175,
+    "reject": 176,
     "indeterminate": 2
   },
   "vectors": [
@@ -1352,6 +1352,21 @@
         "verdict": "invalid",
         "codes": [
           "batch-root-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-410-duplicate-and-undecodable-record",
+      "kind": "reject",
+      "file": "reject/bad-410-duplicate-and-undecodable-record.json",
+      "conditions": [
+        "aee-c-29"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "duplicate-record",
+          "record-undecodable"
         ]
       }
     },

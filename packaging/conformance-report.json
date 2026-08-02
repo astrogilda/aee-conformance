@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 231,
-    "pass": 231,
+    "vectors": 232,
+    "pass": 232,
     "fail": 0,
     "suiteRefusals": 0
   },
@@ -2687,6 +2687,37 @@
         "verdict": "invalid",
         "codes": [
           "batch-root-mismatch"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-410-duplicate-and-undecodable-record",
+      "file": "vectors/reject/bad-410-duplicate-and-undecodable-record.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "record-undecodable",
+          "duplicate-record"
+        ],
+        "primaryCode": "record-undecodable",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "duplicate-record",
+          "record-undecodable"
         ]
       },
       "inManifest": true,

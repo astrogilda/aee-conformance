@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -80,6 +81,26 @@ def rig_text(root: Path, rel: str, old: str, new: str) -> None:
     if old not in text:
         raise AssertionError(f"the fixture cannot rig {rel}: {old!r} is not in it")
     path.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+
+def rig_retype(root: Path, rel: str, pattern: str) -> None:
+    """Add one to the number `pattern` captures, so the page states a wrong figure.
+
+    A fixture that names the RIGHT value in order to replace it restates a measured
+    number in a second place, and then goes stale the moment the measurement moves:
+    both of the rigs below did, one when the corpus gained a vector and one when the
+    campaign gained a site, and a rig that no longer matches raises instead of
+    proving anything. Matching the row and perturbing whatever it currently says
+    keeps the case pinned to the shape it is testing rather than to the reading of
+    the day.
+    """
+    path = root / rel
+    text = path.read_text(encoding="utf-8")
+    found = re.search(pattern, text)
+    if found is None:
+        raise AssertionError(f"the fixture cannot rig {rel}: nothing matches {pattern!r}")
+    start, end = found.span(1)
+    path.write_text(text[:start] + str(int(found.group(1)) + 1) + text[end:], encoding="utf-8")
 
 
 # ---------------------------------------------------------------------------
@@ -142,7 +163,7 @@ def case_weak_row_shares_retyped(root: Path) -> str | None:
 
 
 def case_corpus_row_retyped(root: Path) -> str | None:
-    rig_text(root, PAGE, "231 vectors", "230 vectors")
+    rig_retype(root, PAGE, r"\|\s*corpus\s*\|\s*suiteRevision \d+, (\d+) vectors")
     done = run(root)
     if done.returncode != 1:
         return f"a retyped corpus row exited {done.returncode}, wanted 1"
@@ -150,7 +171,7 @@ def case_corpus_row_retyped(root: Path) -> str | None:
 
 
 def case_campaign_row_retyped(root: Path) -> str | None:
-    rig_text(root, PAGE, "417 KILLED", "418 KILLED")
+    rig_retype(root, PAGE, r"\|\s*campaign\s*\|\s*\d+ single-site weakenings: (\d+) KILLED")
     done = run(root)
     if done.returncode != 1:
         return f"a retyped campaign row exited {done.returncode}, wanted 1"

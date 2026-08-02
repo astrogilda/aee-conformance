@@ -17,7 +17,7 @@ through the real harness against the real binary and requires a clean sweep,
 because that is the claim the README makes and the only check that could have
 caught what was there.
 
-Three things are checked, each failing on a different regression:
+Four things are checked, each failing on a different regression:
 
 1. the shipped CLI clears every vector as an external rail;
 2. its machine-readable output is ONE line the harness's own parse function
@@ -27,6 +27,16 @@ Three things are checked, each failing on a different regression:
    expectation that no external rail can express is an expectation nothing can
    fail. Check 3 drives a TOFU'd answer through the evaluator and requires it
    to be rejected.
+4. a rail whose exit status contradicts its own reported verdict is REFUSED,
+   in the no-consumer-policy mode where the contract is unambiguous. The
+   contract puts the verdict in the exit status; the harness used to let a JSON
+   member overwrite it with nothing comparing the two, so a rail returning zero
+   on every refusal swept the corpus on its JSON alone. Check 4 drives synthetic
+   rails, including that one, because a check that only ever sees correct input
+   cannot show that it discriminates. It is scoped because the shipped CLI
+   deliberately binds its exit status to ADMISSION when a consumer policy is
+   supplied, which contradicts the rail contract and is a decision this gate
+   records rather than settles.
 
 Usage: python3 scripts/external-rail-gate.py
 Needs a Go toolchain. Exit 0 when the shipped CLI satisfies its own published
@@ -222,6 +232,45 @@ def check_no_key_column_binds(binary: str, work_dir: str, manifest: dict[str, An
     return errors
 
 
+def check_exit_status_binds(work_dir: str) -> list[str]:
+    """A rail whose exit status contradicts its own JSON verdict is refused.
+
+    The contract puts the verdict in the exit status. The harness used to read
+    that, then let a `verdict` member in the JSON overwrite it, and never
+    compared the two -- so a rail whose exit status was meaningless, returning
+    zero on every refusal, scored a clean sweep on the strength of its JSON
+    alone. The suite would have reported a conformant checker having only ever
+    exercised half of one.
+
+    This drives three synthetic rails rather than the shipped CLI, because the
+    shipped CLI is correct and a check that only ever sees correct input cannot
+    show that it discriminates. The third rail is the defect itself.
+    """
+    errors: list[str] = []
+    vector = Path(work_dir) / "exit-status-probe.json"
+    vector.write_text("{}", encoding="utf-8")
+    rails = {
+        # exit status and JSON agree on a reject: the verdict stands.
+        "agreeing": ('{"verdict":"invalid","codes":["c"],"result":"reject"}', 1, "invalid"),
+        # JSON omits the verdict, which the contract permits: exit status stands.
+        "silent": ('{"codes":["c"],"result":"reject"}', 1, "invalid"),
+        # THE DEFECT: a refusal reported in JSON, success in the exit status.
+        "contradicting": ('{"verdict":"invalid","codes":["c"],"result":"reject"}', 0, "error"),
+    }
+    for name, (line, code, expected) in rails.items():
+        script = Path(work_dir) / f"rail-{name}.sh"
+        script.write_text(f"#!/bin/sh\necho '{line}'\nexit {code}\n", encoding="utf-8")
+        script.chmod(0o755)
+        got = run_vectors.run_external([str(script)], str(vector), None, name)
+        if got["verdict"] != expected:
+            errors.append(
+                f"a {name} rail (exit {code}) produced verdict {got['verdict']!r}, "
+                f"expected {expected!r}: the harness is not comparing the exit "
+                f"status against the reported verdict"
+            )
+    return errors
+
+
 def main() -> int:
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     with tempfile.TemporaryDirectory(prefix="aee-external-rail-gate-") as work_dir:
@@ -230,6 +279,7 @@ def main() -> int:
             check_single_line(binary)
             + check_no_key_column_binds(binary, work_dir, manifest)
             + check_full_corpus(binary, work_dir)
+            + check_exit_status_binds(work_dir)
         )
     if errors:
         print(
@@ -243,7 +293,8 @@ def main() -> int:
     print(
         "OK: cmd/aee-verify clears the published corpus as an external rail, its "
         "machine-readable output is one line the harness reads back, and the "
-        "no-pinned-key tier column is both observable from outside and fatal when wrong."
+        "no-pinned-key tier column is both observable from outside and fatal when "
+        "wrong. A rail whose exit status contradicts its reported verdict is refused."
     )
     return 0
 

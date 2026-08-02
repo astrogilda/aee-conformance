@@ -21,7 +21,8 @@ generators = ["cryptography>=43"]
 # runs every workflow step reads the workflow YAML, and a type checker that
 # cannot resolve an import reports it as a defect in the importing file. Left
 # undeclared it is indistinguishable from a real unresolved name.
-dev = ["cryptography>=43", "mypy>=1.11", "pyright>=1.1.400", "pyyaml>=6", "ruff>=0.6"]
+dev = ["cryptography>=43", "mypy>=1.11", "pyright>=1.1.400", "pyyaml>=6",
+       "ruff>=0.6", "types-PyYAML>=6"]
 
 [tool.mypy]
 # scripts/code-contract-gate.py imports the reference rail to drive its own

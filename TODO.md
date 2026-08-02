@@ -248,7 +248,7 @@ under suiteRevision 17.
   operators switch off a guard, a disjunct, a conjunct, a switch arm, a bool return or an
   emission. A rule that lives in a constant (a bound, a depth cap, a media type), in the ORDER
   of two checks, or in a data table is not a site, so it appears in no class -- not even as a
-  gap. 745 sites is the size of what can be asked, never the size of the rail. File:
+  gap. 746 sites is the size of what can be asked, never the size of the rail. File:
   `cmd/mutgen/mutate.go`.
 - [ ] **The 157 unforced rules on branches no vector takes are a list, not a plan.** The
   nightly sweep re-derives which surviving mutants sit on a branch the corpus never enters,
@@ -305,6 +305,51 @@ under suiteRevision 17.
   accepts `1.5` in producer territory is conformant and passes this corpus today. Decide
   whether to ask upstream for the stricter profile or to narrow the rails. File:
   `aee/jcs.go`.
+
+- [x] **A duplicate record and an undecodable one shared a guard, and no statement
+  paired them** (suiteRevision 22). Both rails ran the duplicate scan inside the same
+  condition as the batch-root recompute -- did every record decode -- so one record
+  failing base64 switched off both, and a statement carrying a duplicate beside an
+  undecodable record reported the decode failure and dropped `duplicate-record`. The
+  corpus could not see it because no statement carried both conditions;
+  `bad-410-duplicate-and-undecodable-record` does now. The Go rail was split first, the
+  Python reference rail carried the same masking with a comment saying it was mirroring
+  the Go rail, and both are split now: the scan runs over the records that decoded and
+  skips the ones that did not, and the root check stays behind the decode guard, where
+  it belongs. Files: `aee/validity.go`, `packaging/run_vectors.py`.
+- [ ] **The vector above cannot fail the harness, and no reject vector in its shape
+  could.** A reject expectation is a code SET the harness conforms a rail's answer by
+  INTERSECTING, deliberately, so that a strict rail naming one condition and a
+  superset-emitting rail naming every condition both pass the same manifest. Both of this
+  vector's conditions sit in one expected set and in one gate stage, and
+  `record-undecodable` is emitted first, so the primary code is the same with the defect
+  present or absent -- measured: the whole corpus replays green through a rail with the
+  shared guard restored. So the assertion that both conditions are reported lives in each
+  rail's own oracle instead (`TestSetEmissionOnPairedRecordFaults`, and two checks in
+  `run_vectors.py --self-test`), which is where a claim about THESE rails belongs rather
+  than in the contract a third party is held to. What is still missing is any way for the
+  corpus to say "a rail that emits sets must emit both of these" without demoting a
+  single-code rail, and until there is, a defect of this shape is visible to the forcing
+  campaign as a changed observation and to nothing else. Files: `packaging/run_vectors.py`,
+  `aee/vectors_test.go`.
+- [ ] **`bad-817` cites `aee-c-19` for a decode failure, and `aee-c-19` is the media-type
+  rule.** The registry has no condition for the rule a payload breaks by not
+  strict-decoding from base64 -- the DSSE envelope sentence at L1243-1245 -- so the only
+  reject vector for `record-undecodable` borrowed the id belonging to `bad-204`, and its
+  spec anchor `L1231-1234` addresses prose about `basis` and `method` that has nothing to
+  do with encoding. The pin ledger froze that anchor because it can only judge an anchor
+  that MOVES, never one that was wrong when it was first recorded, which is worth stating
+  separately: it is a real limit of the mechanism. `bad-410` cites `aee-c-29` alone and
+  anchors L1243-1245 directly rather than repeating the wrong id. Closing it means minting
+  the missing condition, re-citing both vectors, re-syncing the anchor pin and the
+  accept-anchor baseline, and restating the traceability figure, which is why it is a row
+  and not a patch. Files: `vectors/reject/gen_invalid_vectors.py`, `spec/ANCHOR-PINS.json`.
+- [ ] **The three consumer copies are behind suiteRevision 22.**
+  `scripts/consumer-lag-gate.py --check` is red by design until each vendored copy is
+  refreshed in its own repository and this ledger is re-read from the copies with
+  `--sync`. Nothing here can close it: the sync reads each rail's own stamp on purpose, so
+  that a run against a stale copy records the stale digest instead of greening itself.
+  File: `vectors/CONSUMERS.json`.
 
 - [ ] **Nothing compares an interpretation entry's anchors with the anchors its own
   prose quotes, outside the registry.** The registry gate now requires an entry's

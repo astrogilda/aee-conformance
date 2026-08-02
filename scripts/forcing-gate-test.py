@@ -371,6 +371,54 @@ def scope_cases() -> Failures:
     return failures
 
 
+def corpus_pin_cases(tmp: Path) -> Failures:
+    """A campaign is a measurement of ONE corpus, and it has to prove it was.
+
+    The published baseline once recorded a rule as forced by two vectors that
+    cannot reach it, because the corpus was regenerated while the campaign was
+    running: the worker trees symlink the corpus, so every mutant re-reads it,
+    while the observations they are diffed against were taken once at the start.
+    """
+    failures: Failures = []
+    root = tmp / "corpus-pin"
+    for sub in ("accept", "reject", "indeterminate"):
+        (root / sub).mkdir(parents=True, exist_ok=True)
+    (root / "MANIFEST.json").write_text('{"vectors": []}', encoding="utf-8")
+    (root / "reject" / "bad-1.json").write_text('{"a": 1}', encoding="utf-8")
+
+    first = fg.corpus_fingerprint(root)
+    if first != fg.corpus_fingerprint(root):
+        failures.append("the corpus fingerprint is not stable over an unchanged tree")
+    fg.refuse_moved_corpus(first, first)
+
+    (root / "reject" / "bad-1.json").write_text('{"a": 2}', encoding="utf-8")
+    edited = fg.corpus_fingerprint(root)
+    failures += refuses(
+        lambda: fg.refuse_moved_corpus(first, edited),
+        "changed while the campaign was running",
+        "a vector rewritten mid-campaign",
+    )
+
+    (root / "reject" / "bad-1.json").write_text('{"a": 1}', encoding="utf-8")
+    (root / "reject" / "bad-2.json").write_text('{"a": 1}', encoding="utf-8")
+    failures += refuses(
+        lambda: fg.refuse_moved_corpus(first, fg.corpus_fingerprint(root)),
+        "changed while the campaign was running",
+        "a vector added mid-campaign",
+    )
+    # A rename that keeps every byte is still a different corpus: the manifest is
+    # keyed on file names and a replay globs them, so two trees with the same
+    # contents under different names do not answer the same question.
+    (root / "reject" / "bad-2.json").unlink()
+    (root / "reject" / "bad-1.json").rename(root / "reject" / "bad-3.json")
+    failures += refuses(
+        lambda: fg.refuse_moved_corpus(first, fg.corpus_fingerprint(root)),
+        "changed while the campaign was running",
+        "a vector renamed mid-campaign",
+    )
+    return failures
+
+
 def coverage_cases() -> Failures:
     """never-taken, taken and unknown must stay three answers, not two."""
     failures: Failures = []
@@ -490,6 +538,7 @@ def main() -> int:
             + ground_truth_cases()
             + shape_cases()
             + scope_cases()
+            + corpus_pin_cases(tmp)
             + coverage_cases()
             + row_cases()
             + live_cases(tmp)

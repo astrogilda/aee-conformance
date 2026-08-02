@@ -84,6 +84,20 @@ answer, and `ok-024` -- the corpus's only statement of GATE 2's no-TOFU rule --
 disagreed. The numbers would have been wrong in a direction nothing else could
 have shown.
 
+One campaign, one corpus
+------------------------
+The worker trees symlink the corpus rather than copying it, so every mutant
+re-reads the vector files, while the manifest, the per-vector self-check and the
+unmutated observations each mutant is diffed against are read once before the
+first mutant is built. A corpus written while the campaign is in flight is
+therefore read one way by the baseline and another by whichever mutants were
+running, and the difference is scored as those mutants killing the vector that
+moved. That is not hypothetical: a baseline was published recording one rule as
+forced by two vectors that cannot reach its branch, and it read exactly like
+every correct row beside it. So the manifest and every vector are digested
+before the unmutated replay and again after the last mutant, and a disagreement
+refuses the run rather than reporting a number.
+
 Scope, and what a subset costs
 ------------------------------
 `--scope forced` runs exactly the sites the baseline records as KILLED. That is
@@ -117,6 +131,7 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures
+import hashlib
 import json
 import os
 import shutil
@@ -188,6 +203,54 @@ def go_build(target: str, out: str, work: Path, cover: bool = False) -> None:
 
 def jsonl(text: str) -> list[dict[str, Any]]:
     return [json.loads(line) for line in text.splitlines() if line.strip()]
+
+
+# ---------------------------------------------------------------------------
+# the corpus this campaign is a measurement OF
+# ---------------------------------------------------------------------------
+
+
+def corpus_fingerprint(root: Path) -> str:
+    """A digest over every byte a replay reads: the manifest and every vector.
+
+    The campaign snapshots the manifest, the per-vector self-check and the
+    unmutated observations ONCE, and then re-reads the vector files from disk on
+    every one of several hundred mutant replays -- the worker trees symlink the
+    corpus rather than copying it. So a vector written while the campaign is in
+    flight is read one way by the baseline and another way by whichever mutants
+    were running, and the difference is scored as those mutants killing it.
+    """
+    hashed = hashlib.sha256()
+    paths = [root / "MANIFEST.json"]
+    for sub in ("accept", "reject", "indeterminate"):
+        paths += sorted((root / sub).glob("*.json"))
+    for path in paths:
+        hashed.update(path.relative_to(root).as_posix().encode("utf-8") + b"\0")
+        hashed.update(hashlib.sha256(path.read_bytes()).digest())
+    return hashed.hexdigest()
+
+
+def refuse_moved_corpus(before: str, after: str) -> None:
+    """A sweep taken across two corpora is a measurement of neither.
+
+    This is not a conservative precaution: a baseline was published in which one
+    rule was recorded as forced by two vectors that cannot reach it, because the
+    corpus was regenerated while the campaign ran. The wrong row read exactly
+    like every right one -- a class, a snippet, two plausible vector names -- and
+    the only reason it was ever questioned is that the same file carried a
+    second, equivalent mutation of the same branch with the opposite class. So
+    the disagreement is refused where it happens rather than left to be noticed.
+    """
+    if before == after:
+        return
+    die(
+        "the corpus changed while the campaign was running. The unmutated replay "
+        "and the mutants were not taken against the same vectors, so a vector "
+        "whose bytes moved mid-sweep goes PASS -> FAIL for whichever mutants were "
+        "in flight and is recorded as killing them. Nothing measured here is a "
+        "fact about any single corpus. Re-run with nothing else writing to "
+        f"{VECTORS}."
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -1069,8 +1132,13 @@ def run(args: argparse.Namespace) -> int:
         ws = Workspace(Path(raw))
         ws.build()
         ws.enumerate_sites()
+        # Taken before the unmutated replay that every mutant is diffed against,
+        # and checked again after the last one, so the whole campaign is held to
+        # one corpus rather than to whatever was on disk at each moment.
+        corpus_before = corpus_fingerprint(VECTORS)
         ws.replay()
         results, blocks = measure(ws, args, baseline)
+        refuse_moved_corpus(corpus_before, corpus_fingerprint(VECTORS))
 
         structural = structural_errors(baseline, ws.sites)
         if args.sync:

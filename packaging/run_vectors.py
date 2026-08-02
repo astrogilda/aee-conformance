@@ -1726,16 +1726,27 @@ class ReferenceVerifier:
             if any(v.signature_count == 0 for v in views):
                 out.add("record-signatures-empty")
             if any(v.decode_err for v in views):
-                # Mirror Go validity.go:105-120: a record whose payload is not
-                # strict base64 is record-undecodable, and the dup-record and
-                # batch-root checks are then skipped (a bad leaf makes the
-                # recomputed root meaningless), so both rails emit the same
-                # single code instead of the Python rail additionally reporting
-                # batch-root-mismatch.
+                # Mirror Go validity.go:185-235: a record whose payload is not
+                # strict base64 is record-undecodable, and the BATCH ROOT check
+                # is then skipped on both rails. That record contributes no
+                # leaf, so a root recomputed without it would be a root over a
+                # leaf set no producer committed to, and reporting
+                # batch-root-mismatch for it would name a fault the statement
+                # does not have.
+                #
+                # The DUPLICATE scan is not skipped, and it used to be. Both
+                # rails guarded it with the batch root, so one record failing
+                # base64 suppressed both; the code sets are compared by
+                # intersection, so a statement carrying a duplicate beside an
+                # undecodable record reported the decode failure and dropped
+                # duplicate-record entirely, on every rail at once. The records
+                # that decoded still carry whatever duplicate they carried, and
+                # bad-410-duplicate-and-undecodable-record is the statement that
+                # asks.
                 out.add("record-undecodable")
             else:
                 self._records_batch_root(out, pred, views)
-                self._records_duplicates(out, views)
+            self._records_duplicates(out, views)
         elif pred.get("batchRoot") is not None:
             out.add("batch-root-orphaned")
         st.has_records = has_records
@@ -1756,6 +1767,15 @@ class ReferenceVerifier:
     def _records_duplicates(out: Outcome, views: list[RecordView]) -> None:
         seen_leaves: set[bytes] = set()
         for v in views:
+            if v.decode_err:
+                # Skipped rather than keyed on the raw record. Two records that
+                # do not decode contribute the same absent leaf, so calling them
+                # duplicates of each other would be a finding about this loop
+                # rather than about the statement. Go skips them for the same
+                # reason (validity.go:216-226); keying them on their raw bytes
+                # here instead would make the two rails disagree about a
+                # statement neither could repair.
+                continue
             key = v.pae if v.pae is not None else jcs_dumps_safe(v.raw)
             if key in seen_leaves:
                 out.add("duplicate-record")
@@ -3948,6 +3968,46 @@ def self_test() -> int:
     )
     m = mutate(lambda s: s["predicate"]["attackResults"][1].__setitem__("observationRefs", [7]))
     check("ref out of range", "ref-out-of-range" in m.codes, str(m.codes))
+
+    # The duplicate scan and the batch-root check shared one guard on both
+    # rails, so one record failing base64 suppressed both and a statement
+    # carrying a duplicate beside an undecodable record reported the decode
+    # failure alone. The corpus asks this over committed bytes at
+    # bad-410-duplicate-and-undecodable-record; it is asked here as well because
+    # the harness compares reject expectations by intersecting code sets, and
+    # both conditions sit in one expected set, so replaying that vector passes
+    # whether or not the duplicate is ever looked for. This is where the rail's
+    # own claim to emit the SET of every failure it detects is checked.
+    def duplicate_beside_undecodable(s: dict[str, Any]) -> None:
+        recs = s["predicate"]["observationRecords"]
+        recs.append(json.loads(json.dumps(recs[0])))
+        recs.append({**recs[0], "payload": "@@@not base64@@@"})
+
+    m = mutate(duplicate_beside_undecodable)
+    check(
+        "a duplicate is still found beside a record that does not decode",
+        "record-undecodable" in m.codes and "duplicate-record" in m.codes,
+        str(m.codes),
+    )
+
+    # The trap the shared guard was avoiding, and the reason the scan skips the
+    # records that never decoded rather than keying them on their raw bytes: two
+    # records that do not decode contribute the same absent leaf, so reading
+    # them as duplicates of each other would be a finding about the scan. The Go
+    # rail skips them, and a divergence here would be one no vector could
+    # repair.
+    def two_undecodable_records(s: dict[str, Any]) -> None:
+        broken = {**s["predicate"]["observationRecords"][0], "payload": "@@@nope@@@"}
+        recs = s["predicate"]["observationRecords"]
+        recs.append(json.loads(json.dumps(broken)))
+        recs.append(json.loads(json.dumps(broken)))
+
+    m = mutate(two_undecodable_records)
+    check(
+        "two records that do not decode are not duplicates of each other",
+        "record-undecodable" in m.codes and "duplicate-record" not in m.codes,
+        str(m.codes),
+    )
 
     dup_raw = (
         b'{"_type":"https://in-toto.io/Statement/v1","_type":"x",'

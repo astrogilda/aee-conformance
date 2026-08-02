@@ -197,15 +197,35 @@ func checkRecordsStatementLevel(p *Predicate) ([]recordState, []Code) {
 		leaves[i] = LeafHash(states[i].pae)
 	}
 
-	if !decodeFailed {
-		seen := map[[32]byte]bool{}
-		for _, leaf := range leaves {
-			if seen[leaf] {
-				codes = appendCode(codes, CodeDuplicateRecord)
-				break
-			}
-			seen[leaf] = true
+	// The duplicate scan runs over the records that DECODED, and does not wait
+	// for all of them to.
+	//
+	// It used to sit inside the `!decodeFailed` guard below, beside the batch
+	// root, and one record failing base64 therefore suppressed both. Suppressing
+	// the ROOT is right: an undecodable record leaves the zero value in `leaves`,
+	// so a root computed over it would be a root over a leaf that does not exist.
+	// Suppressing the DUPLICATE scan is not. The records that decoded still carry
+	// whatever duplicate they carried, this contract is compared as a SET OF
+	// CODES, and a statement holding a duplicate plus one undecodable record
+	// reported `record-undecodable` and silently dropped `duplicate-record`.
+	//
+	// Scanning `leaves` wholesale is what the guard was avoiding and is still
+	// wrong: two undecodable records both hold the zero value and would read as a
+	// duplicate of each other, which is a finding about this loop rather than
+	// about the statement. So the scan skips the entries that never decoded.
+	seen := map[[32]byte]bool{}
+	for i := range p.Records {
+		if states[i].decodeErr {
+			continue
 		}
+		if seen[leaves[i]] {
+			codes = appendCode(codes, CodeDuplicateRecord)
+			break
+		}
+		seen[leaves[i]] = true
+	}
+
+	if !decodeFailed {
 		root := MerkleRoot(leaves)
 		if !p.BatchRootPresent {
 			codes = appendCode(codes, CodeBatchRootMissing)

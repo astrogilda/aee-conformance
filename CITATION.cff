@@ -12,6 +12,7 @@ authors:
   - family-names: Gilda
     given-names: Sankalp
     email: sankalp.gilda@gmail.com
+    orcid: 'https://orcid.org/0000-0002-3645-4501'
 repository-code: https://github.com/astrogilda/aee-conformance
 abstract: >-
   A recomputable execution attestation toolkit for the in-toto adversarial

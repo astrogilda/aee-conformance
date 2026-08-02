@@ -914,7 +914,17 @@ ATTRIBUTION = re.compile(r"(?:suite)?[Rr]evisions?[-\s]+(?:[#>*]+\s*)?(\d+)")
 # about anything. The alternative was a mask per context, which chases the
 # collision instead of naming it. Nothing real is lost: a genuine quantity of 20
 # is still caught, because the words that make it a quantity are below.
-SMALL_VALUE = 21
+#
+# Raised again from 21 to 22 at suiteRevision 21, for the same reason and by the
+# same argument: the counter moved one more step into the ambiguous band. What it
+# reported this time was `1e21` in the JCS number tests -- the integer 10^21, a
+# value that must be rejected by the safe-integer profile and is not a count of
+# anything -- twice, plus a bare 21 in a design record. The threshold walking up
+# behind the revision counter is expected and is not a weakening: the counter will
+# keep moving, and each step is one more small integer that prose can use
+# innocently. The check that survives is the one below, which asks whether a count
+# NOUN sits beside the number.
+SMALL_VALUE = 22
 SMALL_VALUE_NOUNS = re.compile(
     r"(?i)\b(?:vectors?|suiteRevisions?|revisions?|sites?|rules?|forced|unforced|"
     r"tolerated|unmeasurable|annotations?|KILLED|SILENT|DEAD|INCONCLUSIVE)\b"

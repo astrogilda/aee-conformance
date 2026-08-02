@@ -263,6 +263,15 @@ jobs:
       # by eye.
       - name: the citation metadata parses and agrees with itself
         run: uv run --extra dev python scripts/citation-metadata-gate.py
+      # Two identifiers addressed one statement for as long as both existed: a
+      # reject vector was byte-identical to another condition's, so a condition
+      # was credited with a discriminator it did not have. The manifest carries
+      # no per-vector digest, so nothing pinned vector content at all and every
+      # count still added up. The suite's own weakness report could not see it
+      # either, because it counts declared conditions rather than distinct
+      # statements.
+      - name: no two vector identifiers address one statement
+        run: python3 scripts/vector-distinctness-gate.py
       # The corpus is vendored into rails that live in other repositories, and
       # each of those checks its own copy against its own stamp. Nothing asked
       # whether the copy was current, so the refresh ran when somebody

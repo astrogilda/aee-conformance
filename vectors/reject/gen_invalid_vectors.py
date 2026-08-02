@@ -1575,25 +1575,44 @@ vec("bad-712-examination-method-intercepted", "ok-006",
 
 
 def _b713() -> dict[str, Any]:
+    """The covering seal sits BEFORE the referenced one, and that ordering is
+    the whole vector.
+
+    This built the covering seal LAST, which produced a statement byte-identical
+    to `bad-707`: `_seal_mut` already appends an unreferenced covering seal, on
+    purpose and for a documented reason, so hand-building the same three records
+    in the same order reconstructed a vector that already existed. Two
+    identifiers then addressed one statement, and `aee-c-68` was credited with a
+    discriminator that was really `aee-c-65`'s.
+
+    Putting the covering seal first makes the statement distinct AND buys the
+    discrimination the duplicate never had. A rail that resolves the row's
+    referenced set rejects this, because the seal the row names does not cover.
+    A rail that instead scans the record list and stops at the first seal that
+    covers accepts it. Under the old ordering that rail also had to scan past
+    the bad seal to reach the good one, so the vector could not tell a
+    first-match scanner from a correct implementation; now it can.
+    """
     st = P_clean()
     env = st["predicate"]["observationEnvironment"]
     b = binding_for(env)
     st["predicate"]["observationRecords"] = [
         record(arming_payload(b)),
+        record(sealed_payload(b)),                   # covering, UNREFERENCED, FIRST
         record(sealed_payload(b, still=False)),      # referenced, bad
-        record(sealed_payload(b)),                   # covering, UNREFERENCED
     ]
-    st["predicate"]["attackResults"][0]["observationRefs"] = [0, 1]
+    st["predicate"]["attackResults"][0]["observationRefs"] = [0, 2]
     return reroot(st)
 
 
 vec("bad-713-only-sealed-ref-noncovering", "ok-002",
     "clean row refs [good-arming, non-covering-sealed]; a fully-covering "
-    "sealed record sits UNREFERENCED in the tree",
+    "sealed record sits UNREFERENCED and EARLIER in the tree",
     ["recompute-batch-root"], [68], ["sealed-covers-nothing"], _b713,
     spec="L1139-1140; L557-560",
     note="discriminates rails that scan all records instead of the row's "
-         "referenced set")
+         "referenced set, and specifically one that stops at the first seal "
+         "that covers: the covering seal precedes the referenced one")
 vec("bad-714-unknown-kind-sole-cover", "ok-002",
     'the arming record\'s aeeKind becomes "aee-future-x" (record otherwise '
     "fully valid); the clean row's only arming ref now covers nothing",

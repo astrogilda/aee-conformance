@@ -125,6 +125,29 @@ def retype(root: Path, rel: str, pattern: str) -> None:
     path.write_text(text[:start] + str(int(found.group(1)) + 1) + text[end:], encoding="utf-8")
 
 
+def reword(root: Path, rel: str, pattern: str, replacement: str) -> None:
+    """Rewrite the one span `pattern` matches, without restating what it says now.
+
+    A span the gate locates by regex has to be broken by regex too. Anchoring the
+    mutation on the span's current text copies the figure inside it into this
+    file, where nothing re-measures it: the case named a corpus size the report
+    had already moved past by the time the consumer rails re-vendored, and a rig
+    that no longer matches stops the run instead of proving anything. The
+    replacement carries no figure either, so the only thing the gate can object
+    to is the span having gone missing.
+    """
+    path = root / rel
+    text = path.read_text(encoding="utf-8")
+    found = list(re.finditer(pattern, text))
+    if len(found) != 1:
+        raise SystemExit(
+            f"test setup: {len(found)} span(s) in {rel} match {pattern!r}, so this "
+            "case would assert nothing. Fix the case, never the gate."
+        )
+    start, end = found[0].span()
+    path.write_text(text[:start] + replacement + text[end:], encoding="utf-8")
+
+
 def forcing_figure(root: Path, key: str) -> int:
     """One live figure out of the staged forcing baseline.
 
@@ -187,11 +210,14 @@ CLAIM_CASES: list[Case] = [
     ),
     (
         "a delegated span is reworded, leaving it owned by nobody",
-        lambda root: edit(
+        # Matched the way the gate declares the span, and replaced by prose that
+        # states no figure at all: the case is about the span disappearing, and
+        # a number on either side of the edit is a copy of a measurement.
+        lambda root: reword(
             root,
             "docs/IMPLEMENTATION-REPORT.md",
-            "and replays the full 226.",
-            "and replays every one of the 226 vectors of suiteRevision 15.",
+            r"and replays the full \d+\.",
+            "and replays every vector in that set.",
         ),
         ("is delegated to scripts/consumer-lag-gate.py and no longer appears",),
     ),

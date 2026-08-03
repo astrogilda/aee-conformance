@@ -19,7 +19,7 @@ one of them for the wrong reason and a green fixture run would say nothing. The
 copy is a real git checkout of the tracked files, one file in it is broken in
 exactly one way, and the gate is asked.
 
-The two accepting cases are there to show the refusals are not a gate that
+The accepting cases are there to show the refusals are not a gate that
 refuses everything, and one of them is the case that matters most: a NEW count,
 written today, with its revision attributed in the prose, is accepted. If that
 failed, the only way to satisfy this gate would be to never write a number, and
@@ -112,17 +112,23 @@ def retype(root: Path, rel: str, pattern: str) -> None:
     a rule stopped being recorded as forced, and a rig that no longer matches
     stops the run instead of proving anything. Perturbing whatever the claim
     currently carries keeps the case pinned to the shape it is testing.
+
+    A second match is refused for the reason a missing one is: the case would
+    still run, and it would be asserting something about whichever site the
+    pattern happened to reach first.
     """
     path = root / rel
     text = path.read_text(encoding="utf-8")
-    found = re.search(pattern, text)
-    if found is None:
+    found = list(re.finditer(pattern, text))
+    if len(found) != 1:
         raise SystemExit(
-            f"test setup: nothing in {rel} matches {pattern!r}, so this case would "
-            "assert nothing. Fix the case, never the gate."
+            f"test setup: {len(found)} site(s) in {rel} match {pattern!r}, so this "
+            "case would assert nothing. Fix the case, never the gate."
         )
-    start, end = found.span(1)
-    path.write_text(text[:start] + str(int(found.group(1)) + 1) + text[end:], encoding="utf-8")
+    start, end = found[0].span(1)
+    path.write_text(
+        text[:start] + str(int(found[0].group(1)) + 1) + text[end:], encoding="utf-8"
+    )
 
 
 def reword(root: Path, rel: str, pattern: str, replacement: str) -> None:
@@ -160,6 +166,56 @@ def forcing_figure(root: Path, key: str) -> int:
     return len(loaded["sites"]) if key == "sites" else int(loaded["counts"][key])
 
 
+def corpus_figure(root: Path, key: str) -> int:
+    """One live figure out of the staged manifest, for the same reason.
+
+    The corpus grows, and every case that named a size in order to break it or to
+    plant it had to be re-typed on the revision that moved it. The manifest is
+    where the gate reads these figures from, so it is where the cases read them
+    from too.
+    """
+    loaded = json.loads((root / "vectors" / "MANIFEST.json").read_text(encoding="utf-8"))
+    return len(loaded["vectors"]) if key == "total" else int(loaded["counts"][key])
+
+
+def head_row(root: Path) -> None:
+    """Add one to the total on the changelog's NEWEST row, whichever row that is.
+
+    Naming the row in full is what kept breaking here: the anchor had to carry
+    the trailing clause as well as the three counts, because revisions that
+    change nothing share a count triple with the one before them, and it had to
+    be re-anchored on every revision that landed. The newest revision is read
+    from the headings instead, so the case follows the ledger rather than
+    restating one of its rows.
+    """
+    path = root / "vectors" / "CHANGES.md"
+    text = path.read_text(encoding="utf-8")
+    revisions = [int(n) for n in re.findall(r"^## suiteRevision (\d+)\b", text, re.M)]
+    if not revisions:
+        raise SystemExit(
+            "test setup: vectors/CHANGES.md declares no revision, so this case would "
+            "assert nothing. Fix the case, never the gate."
+        )
+    heading = re.search(rf"^## suiteRevision {max(revisions)}\b", text, re.M)
+    if heading is None:
+        raise SystemExit(
+            f"test setup: vectors/CHANGES.md has no heading for suiteRevision "
+            f"{max(revisions)}, so this case would assert nothing. Fix the case, "
+            "never the gate."
+        )
+    row = re.compile(r"Corpus:\s*\*{0,2}(\d+) vectors").search(text, heading.end())
+    if row is None:
+        raise SystemExit(
+            f"test setup: suiteRevision {max(revisions)} declares no corpus size in "
+            "vectors/CHANGES.md, so this case would assert nothing. Fix the case, "
+            "never the gate."
+        )
+    start, end = row.span(1)
+    path.write_text(
+        text[:start] + str(int(row.group(1)) + 1) + text[end:], encoding="utf-8"
+    )
+
+
 def append(root: Path, rel: str, text: str) -> None:
     path = root / rel
     path.write_text(path.read_text(encoding="utf-8") + text, encoding="utf-8")
@@ -169,6 +225,17 @@ def create(root: Path, rel: str, text: str) -> None:
     (root / rel).write_text(text, encoding="utf-8")
 
 
+# The sentences a case expects back name figures too, and one that quotes the
+# right figure rots exactly as fast as a mutation that quotes it. These are read
+# from the manifest the staged copy is copied from, so they are the same figures
+# the gate will have measured, and a case that says which number it expects to
+# see refused keeps saying it after the corpus moves.
+TOTAL = corpus_figure(REPO_ROOT, "total")
+ACCEPT = corpus_figure(REPO_ROOT, "accept")
+REJECT = corpus_figure(REPO_ROOT, "reject")
+INDETERMINATE = corpus_figure(REPO_ROOT, "indeterminate")
+
+
 # --------------------------------------------------------------------------
 # Half one: a published count drifts, is reworded, or is duplicated
 # --------------------------------------------------------------------------
@@ -176,13 +243,8 @@ def create(root: Path, rel: str, text: str) -> None:
 CLAIM_CASES: list[Case] = [
     (
         "a published count drifts from the corpus",
-        lambda root: edit(
-            root,
-            "README.md",
-            "conformance%20vectors-232-e8951c",
-            "conformance%20vectors-179-e8951c",
-        ),
-        ("says '179' where the sources say '232'",),
+        lambda root: retype(root, "README.md", r"conformance%20vectors-(\d+)-e8951c"),
+        (f"says '{TOTAL + 1}' where the sources say '{TOTAL}'",),
     ),
     (
         "a forcing count drifts from the baseline",
@@ -198,10 +260,14 @@ CLAIM_CASES: list[Case] = [
     ),
     (
         "a claim is duplicated into a second paragraph that will rot on its own",
+        # The duplicate carries the figure the claim carries, because a second
+        # paragraph that agrees with the first today is the thing this case is
+        # about: it is right until the corpus moves, and then nothing corrects it.
         lambda root: append(
             root,
             "docs/IMPLEMENTATION-REPORT.md",
-            "\nNor does agreement on 186 vectors say anything about tomorrow.\n",
+            f"\nNor does agreement on {corpus_figure(root, 'total')} vectors say "
+            "anything about tomorrow.\n",
         ),
         (
             "the scoping paragraph on what agreement does not say was found 2 "
@@ -241,16 +307,22 @@ CENSUS_CASES: list[Case] = [
     (
         "a new paragraph states today's corpus size",
         lambda root: append(
-            root, "BUILD-NOTES.md", "\nThe corpus holds 232 files as this is written.\n"
+            root,
+            "BUILD-NOTES.md",
+            f"\nThe corpus holds {corpus_figure(root, 'total')} files as this is "
+            "written.\n",
         ),
-        ("'232' is an integer equal to the corpus total",),
+        (f"'{TOTAL}' is an integer equal to the corpus total",),
     ),
     (
         "a new paragraph states today's accept count",
         lambda root: append(
-            root, "BUILD-NOTES.md", "\nOf those, 54 are statements a verifier accepts.\n"
+            root,
+            "BUILD-NOTES.md",
+            f"\nOf those, {corpus_figure(root, 'accept')} are statements a verifier "
+            "accepts.\n",
         ),
-        ("'54' is an integer equal to the accept count",),
+        (f"'{ACCEPT}' is an integer equal to the accept count",),
     ),
     (
         "a new paragraph counts vectors at a size the corpus has never had",
@@ -328,46 +400,33 @@ CENSUS_CASES: list[Case] = [
 SOURCE_CASES: list[Case] = [
     (
         "the manifest's declared count disagrees with the entries it carries",
-        lambda root: edit(
-            root, "vectors/MANIFEST.json", '"accept": 54', '"accept": 51'
-        ),
-        ("it declares 51 accept vector(s), carries 54",),
+        lambda root: retype(root, "vectors/MANIFEST.json", r'"accept": (\d+)'),
+        (f"it declares {ACCEPT + 1} accept vector(s), carries {ACCEPT}",),
     ),
     (
         "a vector file is added without the manifest hearing about it",
         lambda root: create(root, "vectors/accept/ok-999-invented.json", "{}\n"),
-        ("vectors/accept/ holds 55 file(s)",),
+        (f"vectors/accept/ holds {ACCEPT + 1} file(s)",),
     ),
     (
         "the changelog's newest row drifts from the manifest",
-        lambda root: edit(
-            root,
-            "vectors/CHANGES.md",
-            # Anchored on the newest entry's own wording. Two revisions can carry
-            # the same three counts -- 16 and 15 do -- so the row text alone stops
-            # identifying which row is being edited, and edit() refuses an
-            # ambiguous match rather than mutating whichever one it finds first.
-            # Re-anchored at suiteRevision 22. The anchor must name the NEWEST
-            # row. 22 is the first row since 19 whose three counts are its own,
-            # but the trailing clause stays part of the anchor: 20 and 21 shared
-            # a count triple and the next revision that changes nothing will
-            # share one with 22, so anchoring on the counts alone would go
-            # ambiguous again on a revision nobody is thinking about yet.
-            "- Corpus: **232 vectors (54 accept, 176 reject, 2 indeterminate)**, "
-            "up from 231.",
-            "- Corpus: **185 vectors (50 accept, 133 reject, 2 indeterminate)**, "
-            "unchanged from 185.",
+        # The row is found through the revision numbering rather than by its own
+        # text. Two revisions can carry the same three counts, so the row text
+        # never identified which row was being edited on its own, and every
+        # revision that landed left the anchor naming a row that was no longer
+        # the newest.
+        head_row,
+        (
+            f"declares {TOTAL + 1} vectors ({ACCEPT} accept, {REJECT} reject, "
+            f"{INDETERMINATE} indeterminate)",
         ),
-        ("declares 185 vectors (50 accept, 133 reject, 2 indeterminate)",),
     ),
     (
         "a vector index heading drifts from the corpus",
-        lambda root: edit(
-            root, "vectors/reject/INDEX.md", "## Vectors (176)", "## Vectors (138)"
-        ),
+        lambda root: retype(root, "vectors/reject/INDEX.md", r"## Vectors \((\d+)\)"),
         (
-            "the vector-table heading says 138 and vectors/MANIFEST.json carries "
-            "176 reject vector(s)",
+            f"the vector-table heading says {REJECT + 1} and vectors/MANIFEST.json "
+            f"carries {REJECT} reject vector(s)",
         ),
     ),
     (
@@ -375,12 +434,12 @@ SOURCE_CASES: list[Case] = [
         # bucket whose table nothing reconciles against the manifest is exactly
         # how five vectors once sat in a directory with no row behind them.
         "the indeterminate index heading drifts from the corpus",
-        lambda root: edit(
-            root, "vectors/indeterminate/INDEX.md", "## Vectors (2)", "## Vectors (3)"
+        lambda root: retype(
+            root, "vectors/indeterminate/INDEX.md", r"## Vectors \((\d+)\)"
         ),
         (
-            "the vector-table heading says 3 and vectors/MANIFEST.json carries "
-            "2 indeterminate vector(s)",
+            f"the vector-table heading says {INDETERMINATE + 1} and "
+            f"vectors/MANIFEST.json carries {INDETERMINATE} indeterminate vector(s)",
         ),
     ),
     (
@@ -388,7 +447,7 @@ SOURCE_CASES: list[Case] = [
         lambda root: create(
             root, "vectors/indeterminate/ind-999-invented.json", "{}\n"
         ),
-        ("vectors/indeterminate/ holds 3 file(s)",),
+        (f"vectors/indeterminate/ holds {INDETERMINATE + 1} file(s)",),
     ),
     # The case the old heading check could not make. Its two sides lived in one
     # file, so a table short of the corpus and a heading agreeing with that short

@@ -70,4 +70,6 @@ The two conformance-relevant limits, stated plainly: AEE is presently exercised 
 
 ## Provenance
 
-AVE records were read from the published corpus on 2026-07-28, 59 in total. The AEE field vocabulary comes from spec/predicates/adversarial-execution-evidence.md in this repository. The conformance suite is at revision 22 with 232 vectors, 54 accept, 176 reject and 2 indeterminate, per vectors/MANIFEST.json. The predicate is under review as in-toto/attestation pull request 570.
+AVE records were read from the published corpus on 2026-07-28, 59 in total. That read names a date and no commit, and it cannot be pinned to one now: twelve upstream commits across seven days carried a 59-record tree, so the date does not identify which of them this document describes. The figures below are therefore left exactly as they were read and are not tracked forward. `aee-to-ave.json` beside this file is the anchored version: it names the upstream commit its counts were taken from, and `scripts/crosswalk-gen.py` regenerates it against a named checkout rather than being edited.
+
+The AEE field vocabulary comes from spec/predicates/adversarial-execution-evidence.md in this repository. The conformance suite is at revision 22 with 232 vectors, 54 accept, 176 reject and 2 indeterminate, per vectors/MANIFEST.json. The predicate is under review as in-toto/attestation pull request 570.

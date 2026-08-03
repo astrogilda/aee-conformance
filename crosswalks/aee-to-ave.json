@@ -7,50 +7,64 @@
     "url": "https://github.com/astrogilda/aee-conformance",
     "upstream": "https://github.com/in-toto/attestation/pull/570",
     "conformance_suite": {
-      "revision": 8,
-      "vectors": 158,
-      "accept": 36,
-      "reject": 120
+      "revision": 22,
+      "vectors": 232,
+      "accept": 54,
+      "reject": 176,
+      "indeterminate": 2,
+      "derived_by": "python3 -c \"import json,re,pathlib; m=json.loads(pathlib.Path('vectors/MANIFEST.json').read_text()); r=max(int(n) for n in re.findall(r'^## suiteRevision (\\d+)\\b', pathlib.Path('vectors/CHANGES.md').read_text(), re.M)); print(r, len(m['vectors']), m['counts'])\""
     }
   },
   "target": {
     "standard": "AVE (Agentic Vulnerability Enumeration)",
     "url": "https://aveproject.org",
-    "record_count": 59,
-    "records_read": "2026-07-28"
+    "repository": "https://github.com/aveproject/ave",
+    "commit": "3b759c5c6e2015c652934f263e1adc7caf739fb7",
+    "record_count": 70,
+    "records_read": "2026-08-03",
+    "derived_by": "git -C <ave-checkout> rev-parse HEAD && ls <ave-checkout>/records/AVE-*.json | wc -l"
   },
-  "generated": "2026-07-28",
+  "generated": "2026-08-03",
+  "generated_by": "scripts/crosswalk-gen.py",
   "crosswalk_kind": "vocabulary-to-structure",
-  "note": "AEE is not a scanner and emits no finding IDs, so a finding-to-record table would invent a correspondence that does not exist. This maps AVE's existing evidence-provenance vocabulary onto AEE's evidence structure instead: for each way AVE already describes how a finding was reached, what the corresponding signed, offline-verifiable record looks like. Offered as a basis for collaboration, not as a competing taxonomy.",
+  "note": "AEE is not a scanner and emits no finding IDs, so a finding-to-record table would invent a correspondence that does not exist. This maps AVE's existing evidence-provenance vocabulary onto AEE's evidence structure instead: for each way AVE already describes how a finding was reached, what the corresponding signed, offline-verifiable record looks like. Every count in this file is derived by scripts/crosswalk-gen.py from the upstream commit named in target.commit and from this repository's own vectors/MANIFEST.json; the command for each side is recorded beside the figures it produces. Offered as a basis for collaboration, not as a competing taxonomy.",
   "mappings": [
     {
       "ave_field": "detection_stage",
       "ave_value": "static_detection",
-      "record_count": 44,
-      "aee_field": "method",
+      "record_count": 51,
+      "aee_field": "aeeKind",
       "aee_value": "examination",
-      "notes": "The component was read, not run. AEE's examination method is an assertion about an artifact derived without executing it, which is what a static rule produces."
+      "notes": "The component was read, not run. An examination record is the substrate's account of artifact-independent state inspected after the fact, and its aeeMethod is necessarily reconstructed. AEE will not let such a record be signed as intercepted, which is the structural version of the distinction AVE draws here."
     },
     {
       "ave_field": "detection_stage",
       "ave_value": "runtime_observed",
-      "record_count": 15,
+      "record_count": 18,
+      "aee_field": "aeeKind",
+      "aee_value": "interception, under a run-level arming and sealed pair",
+      "notes": "The component executed and something watched. An interception record covers the caught event; an arming record says a live vantage existed before the corpus was injected, and a sealed record says it stayed armed to run-end. AVE records the stage; the arming and sealed pair is what makes a clean result at that stage mean anything, because absence of a catch is only evidence if something was watching for it."
+    },
+    {
+      "ave_field": "detection_stage",
+      "ave_value": "runtime_drift_detected",
+      "record_count": 1,
       "aee_field": "method",
-      "aee_value": "interception | arming",
-      "notes": "The component executed and something watched. Interception when the observer sat in the data path; arming when it planted a tripwire. AVE does not currently distinguish these and would not need to unless it wanted the distinction."
+      "aee_value": "reconstructed",
+      "notes": "Drift is two states compared, not an event captured as it occurred, so method is reconstructed and the tolerance is part of the claim: a reconstruction can miss a transient raised and undone between the states it compares. AEE makes a producer say that in the signature rather than in a footnote."
     },
     {
       "ave_field": "detection_layer",
       "ave_value": "content",
-      "record_count": 37,
+      "record_count": 39,
       "aee_field": "observationEnvironment",
-      "aee_value": "undefined, honestly",
-      "notes": "No execution environment exists to describe, so substrate is absent rather than stubbed. AEE refuses to dress an examination up as an observation."
+      "aee_value": "absent",
+      "notes": "No execution environment exists to describe, so the environment is absent rather than stubbed. AEE refuses to dress an examination up as an observation."
     },
     {
       "ave_field": "detection_layer",
       "ave_value": "runtime",
-      "record_count": 15,
+      "record_count": 19,
       "aee_field": "observationEnvironment",
       "aee_value": "substrate + corpus + manifest + catchPolicy + networkPosture",
       "notes": "A real environment existed and every part of it is pinnable. networkPosture in particular (no_network, allowlist, sinkhole) changes what a runtime finding means and is not currently recoverable from an AVE record."
@@ -58,44 +72,83 @@
     {
       "ave_field": "detection_layer",
       "ave_value": "registry_metadata",
-      "record_count": 4,
-      "aee_field": "basis",
+      "record_count": 7,
+      "aee_field": "method",
       "aee_value": "reconstructed",
-      "notes": "The observation is about a registry response, so the fetch itself is the thing needing provenance."
+      "notes": "The observation is about a registry response, so the fetch itself is the thing needing provenance and the claim rests on state read after the fact."
     },
     {
       "ave_field": "detection_layer",
       "ave_value": "server_card",
-      "record_count": 3,
-      "aee_field": "basis",
+      "record_count": 4,
+      "aee_field": "method",
       "aee_value": "reconstructed",
       "notes": "Same, for a declared capability document."
     },
     {
+      "ave_field": "detection_layer",
+      "ave_value": "transport",
+      "record_count": 1,
+      "aee_field": "basis",
+      "aee_value": "substrate",
+      "notes": "A network boundary is the canonical cooperation-independent vantage in AEE's basis vocabulary: the observed component cannot cause the boundary to record an egress without performing one, and cannot suppress the record either. This is the AVE layer where an AEE row can carry its strongest basis, and it is the layer with the fewest AVE records today."
+    },
+    {
       "ave_field": "evidence_basis_engines",
       "ave_value": "sandbox",
-      "record_count": 2,
+      "record_count": 6,
       "aee_field": "basis",
-      "aee_value": "intercepted",
-      "notes": "The only engine value where basis intercepted is available, because only here did the component actually run. Records AVE-2026-00054 and AVE-2026-00056.",
+      "aee_value": "substrate, with method intercepted",
+      "notes": "The engine value where a substrate basis is available, because here the component actually ran and something outside it watched. Both members are required on every AEE row and both compose by weakest input, so a sandbox observation fused with the component's own stdout degrades to artifact rather than silently keeping the stronger label.",
       "ave_ids": [
         "AVE-2026-00054",
-        "AVE-2026-00056"
+        "AVE-2026-00056",
+        "AVE-2026-00066",
+        "AVE-2026-00067",
+        "AVE-2026-00068",
+        "AVE-2026-00070"
       ]
     },
     {
       "ave_field": "evidence_basis_engines",
       "ave_value": "llm",
-      "record_count": 25,
-      "aee_field": "method",
+      "record_count": 30,
+      "aee_field": "aeeKind",
       "aee_value": "examination",
       "notes": "The case where a signed record helps most: a model's judgement is exactly the kind of claim a reader has no independent way to check."
+    }
+  ],
+  "coverage": {
+    "ave_records_read": 70,
+    "ave_values_mapped": 10,
+    "ave_values_not_mapped": 4
+  },
+  "values_not_mapped": [
+    {
+      "ave_field": "evidence_basis_engines",
+      "ave_value": "magika",
+      "reason": "Same as pattern."
+    },
+    {
+      "ave_field": "evidence_basis_engines",
+      "ave_value": "pattern",
+      "reason": "A detection technique, not a vantage. AEE has nothing to say about how a static rule matched."
+    },
+    {
+      "ave_field": "evidence_basis_engines",
+      "ave_value": "semgrep",
+      "reason": "Same as pattern."
+    },
+    {
+      "ave_field": "evidence_basis_engines",
+      "ave_value": "yara",
+      "reason": "Same as pattern."
     }
   ],
   "unmapped": [
     {
       "ave_field": "confidence_baseline",
-      "reason": "AEE has no confidence field and will not gain one. It expresses trust structurally instead: evidenceTier (declared, attested, unattested) says who stands behind the observation, basis (reconstructed, intercepted) says whether the observer saw the event or inferred it, and result carries a degraded value so partial observation stays reportable as partial. A reader who sees confidence_baseline 0.83 learns what the author believed; a reader who sees evidenceTier attested with basis intercepted learns something verifiable without trusting the author. The proposal is to keep confidence_baseline as the human-facing summary it already is and let an optional AEE attachment carry the checkable part."
+      "reason": "AEE has no confidence field and will not gain one. It expresses trust structurally instead: an evidence tier (declared, attested, unattested) says who stands behind the observation, basis (substrate, artifact) says whether the claim rests on a vantage the observed component could not forge or suppress, method (intercepted, reconstructed) says whether the event was captured as it happened or reconstructed from state afterwards, and result carries a degraded value so partial observation stays reportable as partial. A reader who sees confidence_baseline 0.83 learns what the author believed; a reader who sees an attested tier with basis substrate and method intercepted learns something verifiable without trusting the author. The proposal is to keep confidence_baseline as the human-facing summary it already is and let an optional AEE attachment carry the checkable part. Tracked upstream as aveproject/ave#98."
     }
   ],
   "limits": [

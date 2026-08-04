@@ -10,6 +10,7 @@
     "reject": 192,
     "indeterminate": 2
   },
+  "corpusDigest": "579d50258ffbe0bb8f8de23641449e86e3f47d27160801111a8d73d4b7d49ad5",
   "vectors": [
     {
       "id": "ok-001-caught-intercepted-fail",

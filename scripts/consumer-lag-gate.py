@@ -90,7 +90,6 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import re
 import sys
@@ -100,16 +99,18 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 VECTORS = REPO_ROOT / "vectors"
 LEDGER = VECTORS / "CONSUMERS.json"
+
+# The digest function lives with the generator that publishes its output, and is
+# imported rather than restated. It was written out twice, here and there, and two
+# copies of the definition of "the same corpus" inside one repository is the defect
+# this gate exists to catch, arrived at from the inside.
+sys.path.insert(0, str(VECTORS))
+from gen_manifest import corpus_digest, corpus_files  # noqa: E402
+
+MANIFEST = VECTORS / "MANIFEST.json"
 CHANGES = VECTORS / "CHANGES.md"
 REPORT = REPO_ROOT / "docs" / "IMPLEMENTATION-REPORT.md"
 STAMP_NAME = "VENDOR-STAMP.json"
-# Every directory the corpus publishes, and the published content digest is a
-# digest over all of them. Leaving a bucket out of this tuple would be the whole
-# of the cheap option: a set no consumer copy is measured against is a set no
-# consumer has to carry, so it goes stale on the first revision and nothing
-# reddens -- which is the shape of every defect this gate and its siblings were
-# written to close. A new bucket costs a re-vendor exactly as a new vector does.
-_SUBDIRS = ("accept", "reject", "indeterminate")
 
 # `## suiteRevision 14 (the vendored text catches up with the corpus)`
 REVISION_HEADING = re.compile(r"^## suiteRevision (\d+)\b", re.MULTILINE)
@@ -125,34 +126,42 @@ _LEDGER_COMMENT = (
 )
 
 
-def corpus_files(root: Path) -> list[tuple[str, Path]]:
-    """Every vector file the digest below covers, in the order it covers them.
+def publication_failures(published: str) -> list[str]:
+    """The corpus digest a consumer will read must be the corpus this repository has.
 
-    The published vector count is read from this list rather than from the
-    manifest, so the number the prose is checked against is a count of exactly
-    the files the recorded digests are digests of.
+    A rail's currency check is one fetch of ``vectors/MANIFEST.json`` and one string
+    comparison, so the whole of it rests on that field being a measurement rather than
+    a leftover. Nothing else would notice if it stopped being one: the manifest is
+    regenerated from the INDEX tables, and a corpus edit that never reached a
+    regeneration leaves a field describing the vectors as they were, which every rail
+    then agrees with. That is the original defect in a new place -- a stale number and
+    a copy that matches it, agreeing with each other and with nothing else -- so the
+    number is recomputed from the files here, in the gate that already computes it for
+    the ledger, rather than trusted because a generator wrote it once.
     """
-    return sorted(
-        (f"{sub}/{p.name}", p) for sub in _SUBDIRS for p in (root / sub).glob("*.json")
-    )
-
-
-def corpus_digest(root: Path) -> str:
-    r"""A content digest over a corpus tree: sha256 of the sorted
-    ``<subdir>/<name>\0<sha256-hex>\n`` lines.
-
-    Byte-identical to the function the vendoring script writes into every
-    consumer stamp, so a digest computed here over ``vectors/`` and a digest a
-    rail recorded over its own copy are comparable without either side reading
-    the other's files.
-    """
-    h = hashlib.sha256()
-    for rel, path in corpus_files(root):
-        h.update(rel.encode("utf-8"))
-        h.update(b"\0")
-        h.update(hashlib.sha256(path.read_bytes()).hexdigest().encode("ascii"))
-        h.update(b"\n")
-    return h.hexdigest()
+    if not MANIFEST.is_file():
+        return [
+            f"{MANIFEST.relative_to(REPO_ROOT)} is missing, so this repository "
+            "publishes no corpus digest and no consumer rail can establish whether "
+            "its vendored copy is current."
+        ]
+    recorded = json.loads(MANIFEST.read_text(encoding="utf-8")).get("corpusDigest")
+    if not isinstance(recorded, str) or not recorded:
+        return [
+            f"{MANIFEST.relative_to(REPO_ROOT)} carries no corpusDigest. That field is "
+            "the only thing a consumer rail can fetch to learn it is behind; without "
+            "it every rail's currency check reports that it could not run. Regenerate "
+            "with python3 vectors/gen_manifest.py."
+        ]
+    if recorded != published:
+        return [
+            f"{MANIFEST.relative_to(REPO_ROOT)} publishes corpusDigest "
+            f"{recorded[:16]}... but these vectors hash to {published[:16]}.... The "
+            "manifest was not regenerated after the corpus changed, so a rail still on "
+            "the old corpus would fetch the old digest, agree with it, and pass. "
+            "Regenerate with python3 vectors/gen_manifest.py."
+        ]
+    return []
 
 
 def load_ledger() -> list[dict[str, str]]:
@@ -253,7 +262,7 @@ def current_revision() -> int:
 
 def claims(copies: int) -> tuple[Claim, ...]:
     """What the report must say, derived from what this gate just measured."""
-    vectors = str(len(corpus_files(VECTORS)))
+    vectors = str(len(corpus_files(str(VECTORS))))
     revision = str(current_revision())
     return (
         Claim(
@@ -324,7 +333,22 @@ def claim_failures(copies: int) -> list[str]:
 
 def check() -> int:
     entries = load_ledger()
-    published = corpus_digest(VECTORS)
+    published = corpus_digest(str(VECTORS))
+    # First, because everything after it is about copies of a corpus, and this is
+    # about whether the corpus is legible from outside at all. A rail that cannot read
+    # a digest here cannot tell current from stale in either direction, so it reports
+    # that its check did not run -- which is red, but red for the wrong reason, and the
+    # right place to fix it is here.
+    unpublished = publication_failures(published)
+    if unpublished:
+        print(
+            "FAIL: this repository does not publish the corpus it has, so no consumer "
+            "rail can check its own copy against it:",
+            file=sys.stderr,
+        )
+        for failure in unpublished:
+            print(f"  {failure}", file=sys.stderr)
+        return 1
     behind = [e for e in entries if e.get("corpusDigest") != published]
     if behind:
         print(

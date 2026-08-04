@@ -96,6 +96,55 @@ TIER_EXPECTATIONS = {
 }
 
 
+# Every directory the corpus publishes, and the published content digest is a digest
+# over all of them. Leaving a bucket out of this tuple would be the whole of the cheap
+# option: a set no consumer copy is measured against is a set no consumer has to carry,
+# so it goes stale on the first revision and nothing reddens -- which is the shape of
+# every defect this gate and its siblings were written to close. A new bucket costs a
+# re-vendor exactly as a new vector does.
+KINDS = ("accept", "reject", "indeterminate")
+
+
+def corpus_files(root: str) -> list[tuple[str, str]]:
+    """Every vector file the published digest covers, in the order it covers them."""
+    return sorted(
+        (f"{kind}/{name}", os.path.join(root, kind, name))
+        for kind in KINDS
+        for name in os.listdir(os.path.join(root, kind))
+        if name.endswith(".json")
+    )
+
+
+def corpus_digest(root: str) -> str:
+    r"""A content digest over a corpus tree: sha256 of the sorted
+    ``<kind>/<name>\0<sha256-hex>\n`` lines.
+
+    This is the number a consumer rail cannot compute for itself. A rail recomputes
+    this same digest over its own vendored copy and compares it against the stamp
+    written beside it, which establishes that nobody edited a vendored vector -- and
+    establishes nothing whatever about whether that copy is the corpus this
+    repository still publishes, because a lagging copy and its own stamp agree with
+    each other perfectly. Publishing the digest in the MANIFEST is what gives a rail
+    something to disagree with: one fetch of one file at a stable raw URL, and the
+    rail's own build can tell that it is behind.
+
+    The definition is duplicated, deliberately and unavoidably, in each consumer's
+    vendoring script -- those repositories cannot import from this one in single-repo
+    CI. The duplication is not held together by discipline: a copy of this function
+    that drifted would recompute a different digest over its own unchanged files and
+    stop matching the stamp this repository's vendoring wrote, so it reddens that
+    rail's existing self-check on the next run rather than going quiet.
+    """
+    h = hashlib.sha256()
+    for rel, path in corpus_files(root):
+        h.update(rel.encode("utf-8"))
+        h.update(b"\0")
+        with open(path, "rb") as f:
+            h.update(hashlib.sha256(f.read()).hexdigest().encode("ascii"))
+        h.update(b"\n")
+    return h.hexdigest()
+
+
 def table_rows(md_path: str) -> list[list[str]]:
     rows = []
     with open(md_path, encoding="utf-8") as f:
@@ -257,7 +306,7 @@ def main() -> int:
     # versa. Without this a malformed INDEX row is silently skipped by table_rows
     # and its vector is omitted from the manifest -- silently untested in
     # MANIFEST-mode replay.
-    for kind in ("accept", "reject", "indeterminate"):
+    for kind in KINDS:
         files = {
             f[: -len(".json")]
             for f in os.listdir(os.path.join(HERE, kind))
@@ -296,6 +345,15 @@ def main() -> int:
         "tracksUpstream": f"{pin['upstreamRepo']}#{pin['upstreamPullRequest']}",
         "specUpstreamCommit": pin["commit"],
         "counts": {"accept": ok, "reject": bad, "indeterminate": undecided},
+        # The one field in this file addressed to a reader outside this repository.
+        # Everything else here describes the corpus to a harness that already has it;
+        # this describes the corpus to a rail that has a DIFFERENT one and cannot
+        # otherwise find out. Fetching this file over https is the whole of a
+        # consumer's currency check, so the digest rides the artifact whose freshness
+        # is already load-bearing for several other reasons rather than a file of its
+        # own, which would be one more thing with a single guardian and a long quiet
+        # period between the occasions anyone looks at it.
+        "corpusDigest": corpus_digest(HERE),
         "vectors": vectors,
     }
     out = os.path.join(HERE, "MANIFEST.json")

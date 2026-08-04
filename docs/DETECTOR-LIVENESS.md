@@ -108,10 +108,11 @@ uv run --extra dev python scripts/liveness-probe.py --corpus --json \
 
 # the two vectors built for the construction, and the three refusals
 uv run --extra dev python scripts/liveness-probe.py --key <as above> \
-  vectors/accept/ok-05[23]*.json vectors/reject/bad-98[345]*.json
+  vectors/accept/ok-052*.json vectors/accept/ok-053*.json \
+  vectors/reject/bad-983*.json vectors/reject/bad-984*.json vectors/reject/bad-985*.json
 
 # the same with no key at all: stdlib only, and the report says structural
-python3 scripts/liveness-probe.py vectors/accept/ok-05[23]*.json
+python3 scripts/liveness-probe.py vectors/accept/ok-052*.json vectors/accept/ok-053*.json
 ```
 
 `--key` is the only part that needs a dependency, because checking an ed25519

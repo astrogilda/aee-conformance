@@ -124,7 +124,7 @@ def case_clean_with_prior(root: Path) -> str | None:
 
 
 def case_headline_retyped(root: Path) -> str | None:
-    rig_text(root, PAGE, "66 are forced", "67 are forced")
+    rig_retype(root, PAGE, r"(\d+) are forced")
     done = run(root)
     if done.returncode != 1:
         return f"a retyped headline exited {done.returncode}, wanted 1"
@@ -132,7 +132,7 @@ def case_headline_retyped(root: Path) -> str | None:
 
 
 def case_weak_count_retyped(root: Path) -> str | None:
-    rig_text(root, PAGE, "26 are covered only redundantly", "25 are covered only redundantly")
+    rig_retype(root, PAGE, r"(\d+) are covered only redundantly")
     done = run(root)
     if done.returncode != 1:
         return f"a retyped weak count exited {done.returncode}, wanted 1"

@@ -19,18 +19,18 @@ the data it summarises.
 
 ## The figure, and what it measures
 
-**Of the 92 normative conditions this corpus cites, 66 are forced by a vector no other
-condition's vectors duplicate, 26 are covered only redundantly, and 0 are not forced at
+**Of the 93 normative conditions this corpus cites, 66 are forced by a vector no other
+condition's vectors duplicate, 27 are covered only redundantly, and 0 are not forced at
 all.**
 
 | what | value |
 |---|---|
 | suite | `adversarial-execution-evidence-conformance` |
-| corpus | suiteRevision 22, 232 vectors (54 accept, 176 reject, 2 indeterminate) |
+| corpus | suiteRevision 23, 248 vectors (54 accept, 192 reject, 2 indeterminate) |
 | vendored specification | upstream commit `23bee586d651c79ba6a1dd55d4b29b7c2ef2cff2` |
-| `vectors/MANIFEST.json` | `sha256:3b7dbb2c6f12cf3bdf4042500b1c5214e8f8e2f4327092e61a1067078a9447e6` |
-| `docs/FORCING-BASELINE.json` | `sha256:6d4a3e8fdb5daaf2d1a0d81ec9ee8b953928c5460deeb2055426ec765a684e77` |
-| campaign | 746 single-site weakenings: 417 KILLED, 27 SILENT, 297 DEAD, 5 INCONCLUSIVE |
+| `vectors/MANIFEST.json` | `sha256:9b1b045947c3e26a6d299072018836de538dc9c0269218a0a98ab610bc17f677` |
+| `docs/FORCING-BASELINE.json` | `sha256:b57527aa207e83fc34f076f88fb5d8576063c3203f627aa9e78fec0e857d3a75` |
+| campaign | 754 single-site weakenings: 424 KILLED, 27 SILENT, 298 DEAD, 5 INCONCLUSIVE |
 
 Every vector in the corpus is depended on by at least one recorded weakening, so no
 vector is wholly redundant and the campaign covers the corpus as it stands.
@@ -140,20 +140,21 @@ column is how many weakenings its vectors catch alongside somebody else's.
 | `aee-c-27` | L1610 | leaves in array order | 1 | 53 |
 | `aee-c-28` | L1610 | a single-record tree's root is its leaf hash | 1 | 90 |
 | `aee-c-30` | L1615-1617 | batchRoot must recompute | 3 | 69 |
-| `aee-c-32` | L1605-1609 | batchRoot is over every carried record in array order, referenced by a row or not | 2 | 94 |
+| `aee-c-32` | L1605-1609 | batchRoot is over every carried record in array order, referenced by a row or not | 2 | 96 |
 | `aee-c-33` | L726-735 | the evidence tier is derived per row and never carried: artifact is declared, substrate is attested when every covering signature verifies under consumer policy and unattested otherwise, and the tier never alters result | 1 | 104 |
 | `aee-c-34` | L732-734 | no TOFU: a consumer with no policy-pinned substrate root treats every substrate row as unattested and MUST NOT infer the root from the predicate | 1 | 91 |
 | `aee-c-35` | L1746-1748 | keyid is an unauthenticated lookup hint, never the check | 1 | 91 |
 | `aee-c-36` | L1245-1247; L545-546 | a record signature is DSSE PAE over (payloadType, payload); the byte-pure validity gate never reads a signature, so a signature that does not verify is a tier fact and not a validity fault | 1 | 93 |
 | `aee-c-38` | L739-741 | a carried predicate-level evidenceTier member MUST be ignored | 1 | 86 |
 | `aee-c-41` | L952-953 | basis required, closed {substrate, artifact} | 1 | 104 |
-| `aee-c-45` | L998-1004 | weakest-input method composition | 4 | 114 |
+| `aee-c-45` | L998-1004 | weakest-input method composition | 4 | 116 |
 | `aee-c-49` | L1226-1229 | the literal none is valid on a caught row too, and states that the event was observed and no enforcement layer acted | 1 | 89 |
 | `aee-c-50` | L1212-1213 | actualLayer names the enforcement layer that acted on the row's containment event | 1 | 90 |
 | `aee-c-61` | L739-741 | a predicate-level member beginning with the reserved aee prefix MUST be ignored | 1 | 86 |
 | `aee-c-62` | L229-237 | binding is anti-splice | 1 | 57 |
-| `aee-c-68` | L1139-1140 | each referenced record independently satisfies its class constraints | 2 | 100 |
-| `aee-c-71` | L1561-1565 | unknown aeeKind covers nothing | 3 | 96 |
+| `aee-c-64` | L1273-1278 | sealed record required members | 5 | 95 |
+| `aee-c-68` | L1139-1140 | each referenced record independently satisfies its class constraints | 2 | 95 |
+| `aee-c-71` | L1561-1565 | unknown aeeKind covers nothing | 3 | 98 |
 | `aee-c-73` | L1567-1569 | the aee payload member prefix is reserved; every other payload member is producer territory and does not stop a record covering | 1 | 90 |
 | `aee-c-81` | L880 | row attackId appears in the manifest | 1 | 10 |
 
@@ -189,7 +190,7 @@ unmintable, and each is a vector somebody could write.
 
 That is measured over the 45 codes an emission-removal site names directly. 20 of the
 rail's declared codes are reached only through a shared helper that takes the code as an
-argument, and 13 emission-removal sites name no code for the same reason. Those codes
+argument, and 14 emission-removal sites name no code for the same reason. Those codes
 are not measured on this axis, and they are not counted as forced either:
 `arming-covers-nothing`, `assessed-set-exceeds-declaration`,
 `attribution-pin-unmatched`, `attribution-pinned-recordless`, `attribution-unpinnable`,

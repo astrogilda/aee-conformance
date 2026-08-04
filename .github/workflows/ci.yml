@@ -329,14 +329,14 @@ jobs:
       # typed here would be a copy of it that nothing invalidates.
       - name: the reference rail clears its own oracle
         run: python3 packaging/run_vectors.py --self-test
-      - name: replay every vector on the Python rail (must be 232/232)
+      - name: replay every vector on the Python rail (must be 248/248)
         run: python3 packaging/run_vectors.py
 
   # What the corpus FORCES, held as a tighten-only ratchet. A vector count is an
   # upper bound on forcing and never a measurement of it: a vector declaring
   # several expected codes is satisfied by any one of them, so deleting the
   # result-vocabulary emission from the rail turns two vectors' gate-0 column
-  # FAIL and the suite still reports 232 of 232, exit 0. The only way to know
+  # FAIL and the suite still reports 248 of 248, exit 0. The only way to know
   # what this corpus obliges a third party to implement is to switch one rule
   # off at a time and replay, which is what this job does.
   #
@@ -355,7 +355,7 @@ jobs:
   # run, by class and count, on every run.
   #
   # MEASURED on a 16-worker workstation, in CPU-seconds because that is the number
-  # that carries between machines: 417 of 746 sites and ~1670 CPU-seconds here, against
+  # that carries between machines: 424 of 754 sites and ~1670 CPU-seconds here, against
   # ~3370 for the full sweep. Wall time on that box was 88-110s at 8-16 workers.
   forcing:
     runs-on: ubicloud-standard-8

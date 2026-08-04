@@ -57,7 +57,13 @@ include = ["packaging", "scripts", "vectors"]
 # packaging/ rather than on the default path, so the checker needs the same
 # hint the other pass gets from mypy_path. Without it every one of those
 # imports is reported as unresolved -- noise that reads exactly like a defect.
-extraPaths = ["packaging"]
+# `vectors` joins `packaging` because scripts/consumer-lag-gate.py imports the
+# digest helpers from vectors/gen_manifest.py rather than restating them: two
+# definitions of "the same corpus" inside one repository is the drift this gate
+# exists to catch. The gate inserts that directory on sys.path at runtime, and
+# a checker that cannot see the same path reports a configuration error for an
+# import that resolves fine when it runs.
+extraPaths = ["packaging", "vectors"]
 
 # "standard" rather than "strict", chosen rather than defaulted into. Standard
 # carries every rule that describes a script CRASHING -- an undefined name, a

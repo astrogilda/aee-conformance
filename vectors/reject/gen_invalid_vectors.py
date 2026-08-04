@@ -705,6 +705,15 @@ PARENTS = {
 #   malformed-missing-actual-layer on bad-506, which predates this version: a
 #   row whose actualLayer is a JSON number both fails to decode (the catch-all)
 #   and leaves the member absent (its own code), from the one wrong type.
+#
+#   arming-covers-nothing on bad-902, whose declared mutation IS a second
+#   arming record carrying a posture the run never pinned. That record breaks
+#   its own kind's constraint, and until the carried-record rule below it was
+#   dropped on the floor: class-match needs one valid arming record and this
+#   statement has one, so the invalid one beside it was never judged. The
+#   second condition is the rule working on a statement the corpus already
+#   had, not a second mutation -- a differently-built vector cannot avoid it,
+#   because the wrong-posture arming record is the vector.
 INHERENT_EXTRA: dict[str, list[str]] = {
     **{vid: ["observed-set-mismatch"] for vid in (
         "bad-202-payload-bignum",
@@ -733,6 +742,7 @@ INHERENT_EXTRA: dict[str, list[str]] = {
         "bad-307-posture-member-added-after-arming",
     )},
     "bad-506-actuallayer-json-number": ["malformed-missing-actual-layer"],
+    "bad-902-sealed-posture-ne-arming": ["arming-covers-nothing"],
 }
 
 
@@ -3939,6 +3949,159 @@ vec("bad-906-corpus-manifest-absent", "ok-033",
          "in the corpus made them disagree out loud")
 
 
+# ------------------------------------------- carried records that cover
+#
+# Every vector above whose subject is a defective `sealed` record was
+# laundered by a one-integer edit. The `_seal_mut` family carries the broken
+# seal AND a healthy one, on purpose, so that "this seal covers no clean row"
+# stays separable from "this statement has no valid seal at all". Point the
+# row's `observationRefs` at the healthy seal instead and the broken record is
+# still carried, still signed under the same substrate key, and simply never
+# read: fourteen of them returned valid / pass (recompute-confirmed).
+#
+# The obligation has to attach to the record rather than to the reference,
+# because the reference is the producer's to choose and the signature is not.
+# The family below is that claim as vectors, and it is DERIVED from the
+# vectors it is about rather than written again: each one rebuilds the
+# original statement and swaps the row's seal reference for the other carried
+# seal. A hand-written copy would be free to drift from the original in some
+# way that also explained the refusal, which is exactly the confusion these
+# vectors exist to remove.
+#
+# The three that follow the fourteen are the same defect in the other three
+# covering kinds. They are separate builders and not swaps because no existing
+# vector carries the shape: `arming` needs a second arming record, `examination`
+# an unreferenced one, and `interception` a caught row whose basis the per-row
+# requirements return early on.
+
+
+def _built_by(vid: str) -> Callable[[], dict[str, Any]]:
+    """The build function of an already-registered vector, by id."""
+    for v in VECTORS:
+        if v["id"] == vid:
+            build: Callable[[], dict[str, Any]] = v["build"]
+            return build
+    raise KeyError(f"no vector registered as {vid}")
+
+
+def _kind_at(rec: dict[str, Any]) -> Any:
+    try:
+        obj = json.loads(unb64(rec["payload"]))
+    except (ValueError, KeyError):
+        return None
+    return obj.get("aeeKind") if isinstance(obj, dict) else None
+
+
+def _seal_ref_swap(vid: str) -> Callable[[], dict[str, Any]]:
+    """Rebuild `vid` and point row 0 at the OTHER carried seal.
+
+    Records are untouched, so `batchRoot` still recomputes and the seal still
+    commits to the same carried set; there is nothing to re-derive and calling
+    reroot would only invite a reseal to repair the very payload under test.
+    The swap is expressed as "the other sealed index" rather than as a literal,
+    so it reads the same on the one vector whose covering seal precedes the
+    defective one as on the thirteen where it follows.
+    """
+    def b() -> dict[str, Any]:
+        st = _built_by(vid)()
+        recs = st["predicate"]["observationRecords"]
+        seals = [i for i, r in enumerate(recs) if _kind_at(r) == "sealed"]
+        assert len(seals) == 2, f"{vid}: expected exactly two sealed records"
+        lo, hi = seals
+        row = st["predicate"]["attackResults"][0]
+        row["observationRefs"] = [hi if i == lo else lo if i == hi else i
+                                  for i in row["observationRefs"]]
+        return st
+    return b
+
+
+# The fourteen, as (new id, the vector it is derived from). The slug repeats
+# the original's so a reader lands on the pair without a lookup.
+_SWAPPED = (
+    ("bad-1001-sealed-missing-dropcount-unreferenced",
+     "bad-705-sealed-missing-dropcount"),
+    ("bad-1002-stillarmed-non-boolean-unreferenced",
+     "bad-706-stillarmed-non-boolean"),
+    ("bad-1003-sealed-stillarmed-false-unreferenced",
+     "bad-707-sealed-stillarmed-false"),
+    ("bad-1004-sealed-drops-no-bound-unreferenced",
+     "bad-708-sealed-drops-no-bound"),
+    ("bad-1005-sealed-drops-exceed-bound-unreferenced",
+     "bad-709-sealed-drops-exceed-bound"),
+    ("bad-1006-sealed-posture-mismatch-unreferenced",
+     "bad-710-sealed-posture-mismatch"),
+    ("bad-1007-sealed-noncovering-unreferenced",
+     "bad-713-only-sealed-ref-noncovering"),
+    ("bad-1008-sealed-missing-stillarmed-unreferenced",
+     "bad-715-sealed-missing-stillarmed"),
+    ("bad-1009-sealed-missing-posture-unreferenced",
+     "bad-716-sealed-missing-posture"),
+    ("bad-1010-sealed-method-reconstructed-unreferenced",
+     "bad-900-sealed-method-reconstructed"),
+    ("bad-1011-sealed-negative-dropcount-unreferenced",
+     "bad-901-sealed-negative-dropcount"),
+    ("bad-1012-sealed-missing-observedset-unreferenced",
+     "bad-974-sealed-missing-observedset"),
+    ("bad-1013-sealed-missing-observedattacks-unreferenced",
+     "bad-975-sealed-missing-observedattacks"),
+    ("bad-1014-sealed-observedattacks-unknown-unreferenced",
+     "bad-976-sealed-observedattacks-unknown"),
+)
+
+for _new, _from in _SWAPPED:
+    _parent = next(v["parent"] for v in VECTORS if v["id"] == _from)
+    vec(_new, _parent,
+        f"as `{_from}`, with the clean row's seal reference moved to the "
+        "healthy seal the statement already carries; the defective seal stays "
+        "carried and stays signed",
+        [], [108], ["sealed-covers-nothing"], _seal_ref_swap(_from),
+        spec="L586-594; L1265-1296",
+        note=f"the laundering of `{_from}`. A rule read only where a row "
+             "points is a rule whose subject the producer selects, and this "
+             "pair is the same defective record judged twice: refused when "
+             "the row names it, admitted when the row names its healthy twin")
+
+
+def _b1015() -> dict[str, Any]:
+    """A second arming record, carrying no armedAt, referenced by nothing."""
+    st = P_clean()
+    env = st["predicate"]["observationEnvironment"]
+    bad = {k: v for k, v in arming_payload(binding_for(env)).items()
+           if k != "armedAt"}
+    st["predicate"]["observationRecords"].append(record(bad))
+    return reroot(st)
+
+
+vec("bad-1015-arming-carried-missing-armedat", "ok-002",
+    "a second arming record carrying no armedAt, referenced by no row; the "
+    "clean row keeps its healthy arming and sealed pair",
+    ["recompute-batch-root"], [108], ["arming-covers-nothing"], _b1015,
+    spec="L586-594; L1265-1296",
+    note="the arming half of the same defect. `bad-701` breaks the arming "
+         "record the row resolves; this one carries the identical record "
+         "beside the row instead, which every rail admitted")
+
+
+def _b1016() -> dict[str, Any]:
+    """An examination record signed intercepted, referenced by nothing."""
+    st = P_clean()
+    env = st["predicate"]["observationEnvironment"]
+    st["predicate"]["observationRecords"].append(
+        record(examination_payload(binding_for(env), method="intercepted")))
+    return reroot(st)
+
+
+vec("bad-1016-examination-carried-method-intercepted", "ok-002",
+    'an examination record signed aeeMethod: "intercepted", referenced by no '
+    "row; the clean row keeps its healthy arming and sealed pair",
+    ["recompute-batch-root"], [108], ["examination-covers-nothing"], _b1016,
+    spec="L586-594; L1279-1281",
+    note="the examination half. `bad-712` breaks the examination record a "
+         "reconstructed row resolves; this one carries it where no row "
+         "resolves anything of the kind. Note it also enters the seal's "
+         "aeeObservedSet, so the record is committed to and still unread")
+
+
 # ---------------------------------------------------------------- checks
 
 # The result vocabulary, in the order the recompute takes its minimum over.
@@ -4407,6 +4570,16 @@ COND = {
                         "row's coverage, not for the existence requirement a "
                         "pinned row must satisfy, and not for the "
                         "expectedPayloads comparison"),
+    108: ("L586-594; L1265-1296", "every carried record that binds to this "
+                                  "run and whose aeeKind names a covering "
+                                  "kind satisfies every constraint of that "
+                                  "kind, whether or not any row resolves an "
+                                  "observationRefs index to it. The universal "
+                                  "partner of aee-c-96, over the same records "
+                                  "on the same terms: that one asks whether a "
+                                  "valid sealed record is present, this asks "
+                                  "whether an invalid one is carried beside "
+                                  "it"),
 }
 
 

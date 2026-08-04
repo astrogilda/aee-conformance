@@ -24,28 +24,203 @@
 # Because that bypass exists and an un-bootstrapped clone has no hook at all,
 # the same workflows still run on the remote. This hook does not replace them;
 # it stops us finding out from an email.
+#
+# ---------------------------------------------------------------------------
+# WHAT IS GATED: the revision being pushed. Not the working tree.
+# ---------------------------------------------------------------------------
+#
+# This hook used to compute `git rev-parse --show-toplevel` and run the gate
+# there, ignoring stdin entirely. It therefore never learned what was being
+# pushed, and answered a question about a tree nobody was pushing.
+#
+# That is wrong in both directions, and the second one is the dangerous one:
+#
+#   FALSE REFUSAL, observed 2026-08-04: commit 8de23d9 was clean and could not
+#   be pushed, because an unrelated agent had a half-finished edit to
+#   aee/commitments.go sitting in the working tree and cmd/mutrun therefore did
+#   not build. The gate refused a commit on the strength of code that commit
+#   does not contain. Annoying, but at least it is a signal.
+#
+#   FALSE PASS, silent: fix a file, do not commit it, and the gate reads the
+#   repaired working tree while the push carries the broken commit. The gate
+#   goes green and the remote goes red. Nothing in the old design prevented
+#   this, and unlike the first direction it produces no signal at all.
+#
+# So: for every non-deletion ref on stdin, the named revision is materialised
+# in its own checkout and the gate runs THERE. The working tree is not read.
+#
+# Three details that are easy to get wrong, all of them load-bearing:
+#
+#   * git exports its repository environment to hooks -- GIT_DIR, GIT_WORK_TREE,
+#     GIT_INDEX_FILE and the object-directory variables all name THIS checkout,
+#     and everything the hook spawns inherits them. An isolated checkout would
+#     then be isolated in name only: `git rev-parse --show-toplevel` inside it
+#     answers with the tree we are trying not to read. git's answer is taken
+#     once below while the environment is still intact, and the variables are
+#     then removed from ours so every child sees a clean one.
+#
+#   * The isolated checkout is asserted to be at the pushed revision before any
+#     gate runs. An isolated tree that silently ended up somewhere else is the
+#     same defect in a new costume.
+#
+#   * The checkout is removed on every exit path, including failure and
+#     interrupt. A leaked worktree poisons the next run, and `git worktree list`
+#     is how you would find out far too late.
+#
+# The gate SCRIPT comes from the pushed revision too, not from the working tree,
+# and that is deliberate: the remote will run the workflows as that commit
+# defines them, so mirroring the remote means reading them from that commit. A
+# commit that deletes the gate is refused here by the missing-gate branch below.
+#
+# The PYTHON ENVIRONMENT is the one exception, and it is named rather than
+# implied: UV_PROJECT_ENVIRONMENT below points uv at the existing .venv beside
+# the working tree, because the workflow steps run `uv sync` and a fresh
+# environment per push would cost a full dependency install every time. That is
+# exactly what happened before this change (the steps ran in the working tree
+# and synced the working tree's .venv), so it is preserved, not introduced.
 
 set -euo pipefail
 
-repo_root="$(git rev-parse --show-toplevel)"
-gate="$repo_root/scripts/workflow-steps-gate.py"
+# Read git's own answer about where this repository lives BEFORE removing the
+# variables it set, so discovery is exactly what git intended -- including from
+# a linked worktree, and including a repository whose core.bare is set, where
+# `rev-parse --show-toplevel` fails outright.
+git_common="$(git rev-parse --path-format=absolute --git-common-dir)"
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_OBJECT_DIRECTORY \
+	GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_COMMON_DIR GIT_PREFIX
+src_root="$(cd "$(dirname "$git_common")" && pwd -P)"
 
-if [ ! -f "$gate" ]; then
-	echo "pre-push: ABORT -- $gate is missing." >&2
-	echo "pre-push: refusing to pass a push whose gate is not present." >&2
+# The environment donor: the checkout this push was issued from, when there is
+# one, and the repository directory otherwise. Discovery is from the current
+# directory on purpose -- git runs a hook at the top of the invoking working
+# tree, so a push issued from a linked worktree donates that worktree's .venv
+# rather than the main checkout's. Used for nothing but the .venv path below.
+if donor="$(git rev-parse --show-toplevel 2>/dev/null)"; then
+	:
+else
+	donor="$src_root"
+fi
+if [ -d "$donor/.venv" ]; then
+	export UV_PROJECT_ENVIRONMENT="$donor/.venv"
+fi
+
+# git feeds one line per pushed ref on stdin:
+#
+#     <local ref> <local sha> <remote ref> <remote sha>
+#
+# Every line is read, not just the first: one push can carry several refs. A
+# deletion carries the all-zero local SHA and names no revision to gate.
+pushed_shas=""
+saw_ref=0
+while read -r local_ref local_sha _remote_ref _remote_sha; do
+	[ -z "${local_ref:-}" ] && continue
+	saw_ref=1
+	case "$local_sha" in
+	*[!0]*) ;;
+	*) continue ;;
+	esac
+	case " $pushed_shas " in
+	*" $local_sha "*) continue ;;
+	esac
+	pushed_shas="$pushed_shas $local_sha"
+done
+
+# No stdin means git did not invoke this -- a hand run, or a harness. It is NOT
+# treated as "gate the working tree with a warning printed", and the choice is
+# deliberate: a banner is not a control. The incident at the top of this file is
+# a person skimming past the part of a file that mattered, and a warning line in
+# a wall of gate output is the same bet placed a second time. Worse, the
+# working-tree run is the exact behaviour this rewrite exists to remove, so the
+# warning would be printed by the defect while it ran.
+#
+# There is also nothing to lose. git never invokes a pre-push hook with an empty
+# stdin: a push with nothing to send is reported "Everything up-to-date" and the
+# hook is not run at all. An empty stdin therefore always means "not a push",
+# and the honest answer for a gate that was asked about no revision is to say so.
+if [ "$saw_ref" -eq 0 ]; then
+	echo "pre-push: ABORT -- nothing arrived on stdin, so no revision was named." >&2
+	echo "pre-push: this hook gates the revision being pushed; with no revision there is" >&2
+	echo "pre-push: nothing to gate, and reading the working tree instead would answer a" >&2
+	echo "pre-push: question about a tree nobody is pushing. To gate a revision by hand:" >&2
+	echo "pre-push:" >&2
+	echo "pre-push:   printf 'refs/heads/main %s refs/heads/main %s\\n' \\" >&2
+	echo "pre-push:     \"\$(git rev-parse HEAD)\" \"\$(git rev-parse HEAD)\" | .githooks/pre-push" >&2
 	exit 1
 fi
 
-echo "pre-push: running every workflow shell step locally..."
-
-# uv carries PyYAML without touching the project environment. If uv is absent,
-# fall back to the interpreter and let the gate itself say what it needs -- it
-# exits non-zero with the exact command to run, which is more useful than this
-# hook guessing.
-if command -v uv >/dev/null 2>&1; then
-	uv run --quiet --with pyyaml python "$gate"
-else
-	python3 "$gate"
+# A delete-only push moves no code and names no revision, so there is nothing to
+# materialise and nothing to check. Running the gate anyway is what produced the
+# defect above: it would have to read some other tree to have anything to say.
+if [ -z "$pushed_shas" ]; then
+	echo "pre-push: all pushed refs are deletions; skipping the gate (no code to verify)."
+	exit 0
 fi
+
+iso_base=""
+iso=""
+
+cleanup() {
+	if [ -n "$iso" ]; then
+		git -C "$src_root" worktree remove --force "$iso" >/dev/null 2>&1 || :
+	fi
+	if [ -n "$iso_base" ]; then
+		rm -rf "$iso_base"
+	fi
+	if [ -n "$iso" ]; then
+		git -C "$src_root" worktree prune >/dev/null 2>&1 || :
+	fi
+	iso=""
+	iso_base=""
+}
+trap cleanup EXIT
+trap 'cleanup; trap - INT; kill -INT $$' INT
+trap 'cleanup; exit 143' TERM HUP
+
+gate_revision() {
+	sha="$1"
+
+	iso_base="$(mktemp -d "${TMPDIR:-/tmp}/aee-prepush.XXXXXXXX")"
+	iso="$iso_base/aee-conformance"
+	git -C "$src_root" worktree add --detach --quiet "$iso" "$sha"
+
+	# Prove the isolated tree is what it is believed to be. Everything after
+	# this line is a statement about $sha only because these two checks hold.
+	head_now="$(git -C "$iso" rev-parse HEAD)"
+	if [ "$head_now" != "$sha" ]; then
+		echo "pre-push: ABORT -- the isolated checkout is at $head_now, not $sha." >&2
+		echo "pre-push: refusing to report a result for a revision it did not check out." >&2
+		exit 1
+	fi
+	if ! git -C "$iso" diff --quiet HEAD --; then
+		echo "pre-push: ABORT -- the isolated checkout does not match $sha." >&2
+		echo "pre-push: refusing to gate a tree that is not the revision being pushed." >&2
+		exit 1
+	fi
+
+	gate="$iso/scripts/workflow-steps-gate.py"
+	if [ ! -f "$gate" ]; then
+		echo "pre-push: ABORT -- scripts/workflow-steps-gate.py is missing from $sha." >&2
+		echo "pre-push: refusing to pass a push whose gate is not present." >&2
+		exit 1
+	fi
+
+	echo "pre-push: running every workflow shell step against ${sha}..."
+
+	# uv carries PyYAML without touching the project environment. If uv is absent,
+	# fall back to the interpreter and let the gate itself say what it needs -- it
+	# exits non-zero with the exact command to run, which is more useful than this
+	# hook guessing.
+	if command -v uv >/dev/null 2>&1; then
+		(cd "$iso" && uv run --quiet --with pyyaml python "$gate")
+	else
+		(cd "$iso" && python3 "$gate")
+	fi
+
+	cleanup
+}
+
+for sha in $pushed_shas; do
+	gate_revision "$sha"
+done
 
 echo "pre-push: workflow steps passed."

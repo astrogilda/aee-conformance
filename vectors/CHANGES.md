@@ -5,6 +5,73 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 23 (a rule read only where a row points)
+
+- Corpus: **248 vectors (54 accept, 192 reject, 2 indeterminate)**, up from 232.
+  Sixteen reject vectors are added, one existing reject vector gains a second
+  declared condition, and no accept vector moves. The vendored specification does
+  not move and the predicate type is unchanged. With the vectors added, all 192
+  reject vectors declare a parent that ships as an accept vector.
+- **A one-integer edit voided a whole reject family.** Every vector whose subject
+  is a defective `sealed` record carries a healthy seal beside it, on purpose, so
+  that "this seal covers no clean row" stays separable from "this statement has
+  no valid seal at all". Point the clean row's `observationRefs` at the healthy
+  seal instead and the defective record is still carried, still signed under the
+  same substrate key, and simply never read. Fourteen vectors returned
+  `valid / pass (recompute-confirmed)`, exit 0. The laundered defects include a
+  seal signed `aeeStillArmed: false`, a drop count with no bound, an over-bound
+  count, a posture the run never pinned, `aeeMethod: reconstructed` on a seal,
+  and a negative drop count.
+- **The obligation attaches to the record, not to the reference.** The kind
+  constraints were read on two paths and the producer chose both: the per-row
+  gate reads the records a row resolves, and the sealed-record-present
+  requirement reads records until it finds ONE that passes. Neither says anything
+  about a failing record carried beside them. From this revision, every carried
+  record that binds to the run and whose `aeeKind` names a covering kind must
+  satisfy every constraint of that kind, whether or not any row resolves an index
+  to it. The candidate set is the one the presence requirement already admits, so
+  this is the same predicate under the other quantifier and not a second reading
+  that could drift from the first. The failure code is the kind's own: a reader
+  who resolves a defective record from a row and a reader who finds it carried
+  beside the rows have found one fault in one record.
+- **The same gap held three other kinds open, and each is now a vector.**
+  `bad-1015` carries a second `arming` record with no `armedAt`, referenced by
+  nothing; `bad-1016` carries an `examination` record signed
+  `aeeMethod: intercepted`, referenced by nothing and inside the seal's
+  `aeeObservedSet`. Both were accepted by both rails before this revision. The
+  fourth kind, `interception`, has the same hole and is closed by the same rule:
+  `interception-record-orphaned` forces a caught row to resolve the record, but
+  the per-row gate returns early on any row that is not `basis: substrate`, so a
+  caught row of another basis satisfies the reference while nothing reads the
+  payload. It ships without a vector, and that is said here rather than left to
+  be found: the only shape that reaches it is an `artifact` row carrying
+  `observationRefs`, which this suite deliberately leaves unpinned, and a reject
+  vector built on it would pin an interpretation the corpus has not taken.
+- **The fourteen are DERIVED from the vectors they are about.** Each rebuilds the
+  original statement and swaps the row's seal reference for the other carried
+  seal; nothing is hand-written and nothing is re-stated. A hand-written copy
+  would be free to differ from its original in some way that also explained the
+  refusal, which is the confusion these vectors exist to remove. The swap is
+  expressed as "the other sealed index" rather than as a literal, so it reads the
+  same on `bad-1007`, whose covering seal precedes the defective one, as on the
+  thirteen where it follows.
+- **`bad-902` gains `arming-covers-nothing` as a declared second condition.** Its
+  mutation IS a second arming record carrying a posture the run never pinned, and
+  that record breaks its own kind's constraint. Until this revision it was
+  dropped on the floor, because class-match needs one valid arming record and the
+  statement has one. The second condition is the new rule working on a statement
+  the corpus already held, so it is recorded as inherent rather than as a second
+  mutation: a differently-built vector cannot avoid it, because the wrong-posture
+  arming record is the vector.
+- **The traceability gap widens by one, and it is the new condition itself.**
+  That second number is 34 of 76 today, up one because `aee-c-108` is cited by
+  sixteen refusals and by no accepting vector. That is the honest state and not
+  an oversight: an accept vector citing it would be a statement carrying a
+  covering record that satisfies its kind while no row resolves it, which every
+  accept vector in the suite already is, so citing the id there would record a
+  property rather than measure one. It stays measured and ratcheted in
+  `docs/ACCEPT-ANCHOR-BASELINE.json`.
+
 ## suiteRevision 22 (the duplicate an undecodable record was hiding)
 
 - Corpus: **232 vectors (54 accept, 176 reject, 2 indeterminate)**, up from 231.

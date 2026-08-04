@@ -7,7 +7,7 @@
   "specUpstreamCommit": "23bee586d651c79ba6a1dd55d4b29b7c2ef2cff2",
   "counts": {
     "accept": 54,
-    "reject": 176,
+    "reject": 192,
     "indeterminate": 2
   },
   "vectors": [
@@ -3286,6 +3286,9 @@
         "verdict": "invalid",
         "codes": [
           "sealed-covers-nothing"
+        ],
+        "alsoCarries": [
+          "arming-covers-nothing"
         ]
       }
     },
@@ -3314,6 +3317,230 @@
         "verdict": "invalid",
         "codes": [
           "environment-incomplete"
+        ]
+      }
+    },
+    {
+      "id": "bad-1001-sealed-missing-dropcount-unreferenced",
+      "kind": "reject",
+      "file": "reject/bad-1001-sealed-missing-dropcount-unreferenced.json",
+      "conditions": [
+        "aee-c-108"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-1002-stillarmed-non-boolean-unreferenced",
+      "kind": "reject",
+      "file": "reject/bad-1002-stillarmed-non-boolean-unreferenced.json",
+      "conditions": [
+        "aee-c-108"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-1003-sealed-stillarmed-false-unreferenced",
+      "kind": "reject",
+      "file": "reject/bad-1003-sealed-stillarmed-false-unreferenced.json",
+      "conditions": [
+        "aee-c-108"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-1004-sealed-drops-no-bound-unreferenced",
+      "kind": "reject",
+      "file": "reject/bad-1004-sealed-drops-no-bound-unreferenced.json",
+      "conditions": [
+        "aee-c-108"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-1005-sealed-drops-exceed-bound-unreferenced",
+      "kind": "reject",
+      "file": "reject/bad-1005-sealed-drops-exceed-bound-unreferenced.json",
+      "conditions": [
+        "aee-c-108"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-1006-sealed-posture-mismatch-unreferenced",
+      "kind": "reject",
+      "file": "reject/bad-1006-sealed-posture-mismatch-unreferenced.json",
+      "conditions": [
+        "aee-c-108"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-1007-sealed-noncovering-unreferenced",
+      "kind": "reject",
+      "file": "reject/bad-1007-sealed-noncovering-unreferenced.json",
+      "conditions": [
+        "aee-c-108"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-1008-sealed-missing-stillarmed-unreferenced",
+      "kind": "reject",
+      "file": "reject/bad-1008-sealed-missing-stillarmed-unreferenced.json",
+      "conditions": [
+        "aee-c-108"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-1009-sealed-missing-posture-unreferenced",
+      "kind": "reject",
+      "file": "reject/bad-1009-sealed-missing-posture-unreferenced.json",
+      "conditions": [
+        "aee-c-108"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-1010-sealed-method-reconstructed-unreferenced",
+      "kind": "reject",
+      "file": "reject/bad-1010-sealed-method-reconstructed-unreferenced.json",
+      "conditions": [
+        "aee-c-108"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-1011-sealed-negative-dropcount-unreferenced",
+      "kind": "reject",
+      "file": "reject/bad-1011-sealed-negative-dropcount-unreferenced.json",
+      "conditions": [
+        "aee-c-108"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-1012-sealed-missing-observedset-unreferenced",
+      "kind": "reject",
+      "file": "reject/bad-1012-sealed-missing-observedset-unreferenced.json",
+      "conditions": [
+        "aee-c-108"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-1013-sealed-missing-observedattacks-unreferenced",
+      "kind": "reject",
+      "file": "reject/bad-1013-sealed-missing-observedattacks-unreferenced.json",
+      "conditions": [
+        "aee-c-108"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-1014-sealed-observedattacks-unknown-unreferenced",
+      "kind": "reject",
+      "file": "reject/bad-1014-sealed-observedattacks-unknown-unreferenced.json",
+      "conditions": [
+        "aee-c-108"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-1015-arming-carried-missing-armedat",
+      "kind": "reject",
+      "file": "reject/bad-1015-arming-carried-missing-armedat.json",
+      "conditions": [
+        "aee-c-108"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-1016-examination-carried-method-intercepted",
+      "kind": "reject",
+      "file": "reject/bad-1016-examination-carried-method-intercepted.json",
+      "conditions": [
+        "aee-c-108"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "examination-covers-nothing"
         ]
       }
     },

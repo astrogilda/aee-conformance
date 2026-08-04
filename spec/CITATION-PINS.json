@@ -44,6 +44,36 @@
       "opens": "- a statement carrying at least one `basis: substrate` row carries at least",
       "closes": "record it constrains is a rule a producer switches off by omission;"
     },
+    "aee/commitments.go::isCoveringKind#0": {
+      "cites": "spec:1317-1331",
+      "digest": "4ecf7ab01093b4768592ea5a2c4ba706426553ee44a340ece7171b8028d1688b",
+      "opens": "Neither kind carries constraints, because there is no state in which either",
+      "closes": "diagnostic obligation and never a validity rule."
+    },
+    "aee/commitments.go::isCoveringKind#1": {
+      "cites": "spec:1561-1565",
+      "digest": "c88fbba8fa1a96599633a5b69a83625d20cba1a148f82346125e743a6bc798eb",
+      "opens": "record whose `aeeKind` the consumer does not recognize covers nothing and",
+      "closes": "strengthen, a row (candidate future kinds, informatively: a hardware-quote"
+    },
+    "aee/commitments.go::carriedRecordsCover#0": {
+      "cites": "spec:586-594",
+      "digest": "4efe7e77b3a1696cd8f673471d7165f48cd8e2dc824fd7e6fcbd227f16a843e5",
+      "opens": "- a statement carrying at least one `basis: substrate` row carries at least",
+      "closes": "record it constrains is a rule a producer switches off by omission;"
+    },
+    "aee/commitments.go::carriedRecordsCover#1": {
+      "cites": "spec:1265-1296",
+      "digest": "6c4e3de616c12d4d38a3e8c6c4195e7256f2407309a6544a59a0bc21e340ee20",
+      "opens": "- `aeeKind` _string_: `interception` (per-event capture, covers caught",
+      "closes": "failure, never a silent pass."
+    },
+    "aee/commitments.go::carriedRecordsCover#2": {
+      "cites": "spec:1291-1296",
+      "digest": "69e180e36d7e8fd7d3dff275d38e6c394041539409953f93109d9729e3bed3ba",
+      "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
+      "closes": "failure, never a silent pass."
+    },
     "aee/commitments.go::attackIDArrayOK#0": {
       "cites": "spec:1392-1394",
       "digest": "b0ac00c3de10e0c0f49f1e86d65a1d8cb7d9269d22caca6ffc1e5bc79e8a489e",

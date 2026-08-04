@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 232,
-    "pass": 232,
+    "vectors": 248,
+    "pass": 248,
     "fail": 0,
     "suiteRefusals": 0
   },
@@ -1708,6 +1708,267 @@
       "reasons": []
     },
     {
+      "id": "bad-1001-sealed-missing-dropcount-unreferenced",
+      "file": "vectors/reject/bad-1001-sealed-missing-dropcount-unreferenced.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ],
+        "primaryCode": "sealed-covers-nothing",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-1002-stillarmed-non-boolean-unreferenced",
+      "file": "vectors/reject/bad-1002-stillarmed-non-boolean-unreferenced.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ],
+        "primaryCode": "sealed-covers-nothing",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-1003-sealed-stillarmed-false-unreferenced",
+      "file": "vectors/reject/bad-1003-sealed-stillarmed-false-unreferenced.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ],
+        "primaryCode": "sealed-covers-nothing",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-1004-sealed-drops-no-bound-unreferenced",
+      "file": "vectors/reject/bad-1004-sealed-drops-no-bound-unreferenced.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ],
+        "primaryCode": "sealed-covers-nothing",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-1005-sealed-drops-exceed-bound-unreferenced",
+      "file": "vectors/reject/bad-1005-sealed-drops-exceed-bound-unreferenced.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ],
+        "primaryCode": "sealed-covers-nothing",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-1006-sealed-posture-mismatch-unreferenced",
+      "file": "vectors/reject/bad-1006-sealed-posture-mismatch-unreferenced.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ],
+        "primaryCode": "sealed-covers-nothing",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-1007-sealed-noncovering-unreferenced",
+      "file": "vectors/reject/bad-1007-sealed-noncovering-unreferenced.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ],
+        "primaryCode": "sealed-covers-nothing",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-1008-sealed-missing-stillarmed-unreferenced",
+      "file": "vectors/reject/bad-1008-sealed-missing-stillarmed-unreferenced.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ],
+        "primaryCode": "sealed-covers-nothing",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-1009-sealed-missing-posture-unreferenced",
+      "file": "vectors/reject/bad-1009-sealed-missing-posture-unreferenced.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ],
+        "primaryCode": "sealed-covers-nothing",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
       "id": "bad-101-refs-empty",
       "file": "vectors/reject/bad-101-refs-empty.json",
       "kind": "reject",
@@ -1737,6 +1998,209 @@
         ],
         "alsoCarries": [
           "interception-record-orphaned"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-1010-sealed-method-reconstructed-unreferenced",
+      "file": "vectors/reject/bad-1010-sealed-method-reconstructed-unreferenced.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ],
+        "primaryCode": "sealed-covers-nothing",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-1011-sealed-negative-dropcount-unreferenced",
+      "file": "vectors/reject/bad-1011-sealed-negative-dropcount-unreferenced.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ],
+        "primaryCode": "sealed-covers-nothing",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-1012-sealed-missing-observedset-unreferenced",
+      "file": "vectors/reject/bad-1012-sealed-missing-observedset-unreferenced.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ],
+        "primaryCode": "sealed-covers-nothing",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-1013-sealed-missing-observedattacks-unreferenced",
+      "file": "vectors/reject/bad-1013-sealed-missing-observedattacks-unreferenced.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ],
+        "primaryCode": "sealed-covers-nothing",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-1014-sealed-observedattacks-unknown-unreferenced",
+      "file": "vectors/reject/bad-1014-sealed-observedattacks-unknown-unreferenced.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ],
+        "primaryCode": "sealed-covers-nothing",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-1015-arming-carried-missing-armedat",
+      "file": "vectors/reject/bad-1015-arming-carried-missing-armedat.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ],
+        "primaryCode": "arming-covers-nothing",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-1016-examination-carried-method-intercepted",
+      "file": "vectors/reject/bad-1016-examination-carried-method-intercepted.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "examination-covers-nothing"
+        ],
+        "primaryCode": "examination-covers-nothing",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "examination-covers-nothing"
         ]
       },
       "inManifest": true,
@@ -5516,7 +5980,8 @@
         "verdict": "invalid",
         "codes": [
           "sealed-covers-nothing",
-          "sealed-record-absent"
+          "sealed-record-absent",
+          "arming-covers-nothing"
         ],
         "primaryCode": "sealed-covers-nothing",
         "result": null
@@ -5525,6 +5990,9 @@
         "verdict": "invalid",
         "codes": [
           "sealed-covers-nothing"
+        ],
+        "alsoCarries": [
+          "arming-covers-nothing"
         ]
       },
       "inManifest": true,

@@ -1382,6 +1382,42 @@
       "opens": "`observationEnvironment` _object, required_",
       "closes": "distinguishable from an enforcing one), `networkPosture` (the"
     },
+    "vectors/reject/gen_invalid_vectors.py::the original's so a reader lands on the pair without a lookup.#0": {
+      "anchor": "L586-594",
+      "digest": "4efe7e77b3a1696cd8f673471d7165f48cd8e2dc824fd7e6fcbd227f16a843e5",
+      "opens": "- a statement carrying at least one `basis: substrate` row carries at least",
+      "closes": "record it constrains is a rule a producer switches off by omission;"
+    },
+    "vectors/reject/gen_invalid_vectors.py::the original's so a reader lands on the pair without a lookup.#1": {
+      "anchor": "L1265-1296",
+      "digest": "6c4e3de616c12d4d38a3e8c6c4195e7256f2407309a6544a59a0bc21e340ee20",
+      "opens": "- `aeeKind` _string_: `interception` (per-event capture, covers caught",
+      "closes": "failure, never a silent pass."
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-1015-arming-carried-missing-armedat#0": {
+      "anchor": "L586-594",
+      "digest": "4efe7e77b3a1696cd8f673471d7165f48cd8e2dc824fd7e6fcbd227f16a843e5",
+      "opens": "- a statement carrying at least one `basis: substrate` row carries at least",
+      "closes": "record it constrains is a rule a producer switches off by omission;"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-1015-arming-carried-missing-armedat#1": {
+      "anchor": "L1265-1296",
+      "digest": "6c4e3de616c12d4d38a3e8c6c4195e7256f2407309a6544a59a0bc21e340ee20",
+      "opens": "- `aeeKind` _string_: `interception` (per-event capture, covers caught",
+      "closes": "failure, never a silent pass."
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-1016-examination-carried-method-intercepted#0": {
+      "anchor": "L586-594",
+      "digest": "4efe7e77b3a1696cd8f673471d7165f48cd8e2dc824fd7e6fcbd227f16a843e5",
+      "opens": "- a statement carrying at least one `basis: substrate` row carries at least",
+      "closes": "record it constrains is a rule a producer switches off by omission;"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-1016-examination-carried-method-intercepted#1": {
+      "anchor": "L1279-1281",
+      "digest": "dc15df7cc4d63a933dc7cc76059cb44c517861e35f68ccddc61409917b7a9404",
+      "opens": "`examination` (the substrate examined artifact-independent state after",
+      "closes": "SHOULD identify the states compared); `moat-drop`; or"
+    },
     "vectors/reject/gen_invalid_vectors.py::1#0": {
       "anchor": "L435",
       "digest": "e58d4982b42d4b938ac6109ec8c7b8d7f5e50e8afa747fdea110d0000416da36",
@@ -1945,6 +1981,18 @@
       "digest": "4ecf7ab01093b4768592ea5a2c4ba706426553ee44a340ece7171b8028d1688b",
       "opens": "Neither kind carries constraints, because there is no state in which either",
       "closes": "diagnostic obligation and never a validity rule."
+    },
+    "vectors/reject/gen_invalid_vectors.py::108#0": {
+      "anchor": "L586-594",
+      "digest": "4efe7e77b3a1696cd8f673471d7165f48cd8e2dc824fd7e6fcbd227f16a843e5",
+      "opens": "- a statement carrying at least one `basis: substrate` row carries at least",
+      "closes": "record it constrains is a rule a producer switches off by omission;"
+    },
+    "vectors/reject/gen_invalid_vectors.py::108#1": {
+      "anchor": "L1265-1296",
+      "digest": "6c4e3de616c12d4d38a3e8c6c4195e7256f2407309a6544a59a0bc21e340ee20",
+      "opens": "- `aeeKind` _string_: `interception` (per-event capture, covers caught",
+      "closes": "failure, never a silent pass."
     },
     "vectors/reject/gen_invalid_vectors.py::write_index#0": {
       "anchor": "L1746-1748",

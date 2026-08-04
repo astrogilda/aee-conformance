@@ -2095,6 +2095,7 @@ class ReferenceVerifier:
             return
         self._commit_observed_set(st, out)
         self._commit_sealed_present(st, out)
+        self._commit_carried_cover(st, out)
         self._commit_seal_attacks(st, out)
         self._commit_assessed_subset(st, out)
 
@@ -2191,6 +2192,84 @@ class ReferenceVerifier:
             if self._sealed_ok(rv, st.pinned_posture, arming_postures, st.declared_attacks):
                 return
         out.add("sealed-record-absent")
+
+    # The reserved members a record must carry before any rule can read it.
+    # Named here rather than inline because the statement-level rule below and
+    # the per-row payload check share the list, and two copies of it would be
+    # free to disagree about which members are reserved.
+    _RESERVED_MEMBERS = ("aeeRunBinding", "aeeKind", "aeeMethod")
+
+    def _commit_carried_cover(self, st: _VerifyState, out: Outcome) -> None:
+        """Every carried record that binds to this run and whose aeeKind names
+        a covering kind satisfies every constraint of that kind, whether or not
+        any row resolves an index to it.
+
+        The universal partner of _commit_sealed_present above, over the same
+        records on the same terms. That one asks whether a valid sealed record
+        is PRESENT and stops at the first one it finds; this asks whether an
+        invalid record of any covering kind is carried beside it.
+
+        Both readings were producer-selected before this. A substrate signs a
+        sealed record with aeeStillArmed false, the producer carries it, points
+        the row at a second seal, and the statement reads valid / pass with the
+        record that says otherwise sitting in observationRecords and committed
+        inside batchRoot. The same gap held arming open through a second arming
+        record, examination through an unreferenced one, and interception
+        through a caught row whose basis the per-row gate returns early on.
+
+        The candidate set is the one _commit_sealed_present admits: a record
+        that decodes and parses, carries the reserved members, has a +json
+        media type, and binds to this run. Records outside it are making no
+        claim about this run or are not readable at all, and reaching that
+        state needs a substrate-signed payload EDITED, which breaks the
+        record's signature and is refused at the tier.
+        """
+        for rv in st.views:
+            if not isinstance(rv.payload, dict) or not rv.media_ok:
+                continue
+            if any(m not in rv.payload for m in self._RESERVED_MEMBERS):
+                continue
+            if rv.payload.get("aeeRunBinding") != st.derived_binding:
+                continue
+            if rv.kind not in self._COVERING_KINDS:
+                continue
+            code = self._carried_record_fault(rv, st)
+            if code is not None:
+                out.add(code)
+
+    def _carried_record_fault(self, rv: RecordView, st: _VerifyState) -> str | None:
+        """The kind's own failure code for a carried record that does not
+        satisfy its kind, or None when it does.
+
+        Never a new code. A reader who resolves a defective record from a row
+        and a reader who finds it carried beside the rows have found the same
+        fault in the same record, and a second spelling would oblige a third
+        party to implement two names for one condition.
+
+        arming_postures is empty for the same reason _commit_sealed_present
+        passes nothing: the seal-against-arming posture equality is stated over
+        the arming records a ROW resolves, and a statement-level rule has no
+        row. The pinned-posture half is checked here as it is there.
+        """
+        if rv.kind == "sealed":
+            ok = self._sealed_ok(rv, st.pinned_posture, [], st.declared_attacks)
+            return None if ok else "sealed-covers-nothing"
+        if rv.kind == "arming":
+            ok = self._arming_ok(rv, st.pinned_posture, st.issued_at, st.declared_attacks)
+            return None if ok else "arming-covers-nothing"
+        if rv.kind == "examination":
+            return None if self._examination_ok(rv) else "examination-covers-nothing"
+        # interception. ABSENT aeePayloadCommitment takes the missing-reserved
+        # code every other absent reserved member takes; PRESENT-but-malformed
+        # takes its own, exactly as the per-row path splits them.
+        payload = rv.payload or {}
+        if "aeePayloadCommitment" in payload and not _commitment_array_ok(
+            payload["aeePayloadCommitment"]
+        ):
+            return "payload-commitment-malformed"
+        if rv.method not in METHOD_ORDER or "aeePayloadCommitment" not in payload:
+            return "payload-missing-reserved"
+        return None
 
     def _commit_seal_attacks(self, st: _VerifyState, out: Outcome) -> None:
         """For every identifier the seal names in aeeObservedAttacks the

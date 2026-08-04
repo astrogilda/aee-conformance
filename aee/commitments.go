@@ -8,6 +8,11 @@ package aee
 // would silently acquire the scope that loop has, which is the scope three of
 // the five are specifically not written to.
 //
+// carriedRecordsCover below is a sixth, added after the revision the vendored
+// copy is pinned to; its own comment says which anchors it borrows until a
+// re-vendor gives it one of its own. Every count in this file's comments is
+// the pinned document's, so it says five.
+//
 // None of these reads a signature or a key, so the layer stays a pure function
 // of the carried statement, exactly as the requirements beside them are.
 
@@ -104,6 +109,7 @@ func gate1CommitmentsSubstrate(p *Predicate, states []recordState, binding strin
 	var codes []Code
 	codes = appendCodes(codes, sealsCommitToCarriedSet(p, states, kinds, binding))
 	codes = appendCodes(codes, sealedRecordPresent(p, states, kinds, binding, issuedAt))
+	codes = appendCodes(codes, carriedRecordsCover(p, states, kinds, binding, issuedAt))
 	codes = appendCodes(codes, sealNamedAttacksCaught(p, states, kinds, binding))
 	codes = appendCodes(codes, assessedSetDeclared(p, states, kinds, binding))
 	return codes
@@ -252,6 +258,99 @@ func sealedRecordPresent(p *Predicate, states []recordState, kinds []string, bin
 		}
 	}
 	return []Code{CodeSealedRecordAbsent}
+}
+
+// isCoveringKind reports whether a kind is one of the four the document
+// defines constraints for. The two kinds registered as covering nothing and
+// every kind this verifier does not recognize are deliberately outside it:
+// neither carries a constraint that could be violated, and sweeping an
+// unrecognized kind in would refuse the forward compatibility the document
+// grants a minor version to add one (spec:1317-1331, 1561-1565).
+func isCoveringKind(kind string) bool {
+	switch kind {
+	case KindInterception, KindArming, KindSealed, KindExamination:
+		return true
+	}
+	return false
+}
+
+// carriedRecordsCover is the universal partner of sealedRecordPresent above:
+// every carried record that binds to this run and whose aeeKind names a
+// covering kind satisfies every constraint of that kind, whether or not any row
+// resolves an observationRefs index to it (spec:586-594 for the requirement it
+// partners, spec:1265-1296 for the constraints themselves).
+//
+// Why it exists. The kind constraints were read on exactly two paths, and both
+// are chosen by the producer. checkSubstrateRow reads them for the records a
+// row's observationRefs resolve, and sealedRecordPresent reads them until it
+// finds ONE seal that passes. So a producer holding a sealed record the
+// substrate signed with aeeStillArmed false carries it, points the row at a
+// second seal, and the statement reads valid / pass with the record that says
+// otherwise sitting in observationRecords and committed inside batchRoot. It is
+// carried, it is signed under the same substrate key, and nothing reads it.
+// Fourteen reject vectors in this corpus flipped to valid on that one edit, and
+// the same gap held open for arming (a second arming record), for examination
+// (an unreferenced one), and for interception -- where interceptionsOrphaned
+// forces a caught row to resolve the record but the per-row gate returns early
+// on any row that is not basis: substrate, so an artifact-basis caught row
+// satisfies the reference while nothing ever reads the payload.
+//
+// This is the RULE and not a READING of it: the obligation is stated over the
+// carried record, so which rows exist and where they point cannot move it.
+//
+// Two scope decisions, both taken to make this a pure quantifier flip rather
+// than a second predicate that could drift from the first.
+//
+// The candidate set is exactly the one sealedRecordPresent admits -- a record
+// that decodes, parses, passes the byte-level payload checks and whose
+// aeeRunBinding equals the derived binding. A record excluded by those filters
+// is making no claim about THIS run, or is not readable at all, and either way
+// the exclusion costs nothing a byte-pure layer could collect: reaching it
+// requires editing a substrate-signed payload, which breaks that record's
+// signature and is refused at GATE 2. The defect above needs no edit at all,
+// which is why it is a hole here and that one is not.
+//
+// armingPostures is nil, exactly as sealedRecordPresent passes nil. The seal's
+// posture equality against an arming record is stated over the arming records a
+// ROW resolves (spec:1291-1296), and a statement-level rule has no row; the
+// pinned-posture half of that equality is checked here as it is there. Keeping
+// both quantifiers over one predicate is the point -- a second evaluation of a
+// seal that could disagree with the first would be a worse defect than the one
+// this closes.
+//
+// The failure code is the kind's own, never a new one. A reader who resolves a
+// defective record from a row and a reader who finds it carried beside the rows
+// have found the same fault in the same record, and a second spelling would
+// oblige a third party to implement two names for one condition.
+//
+// NOTE on the citations above. The vendored specification predates this
+// requirement: spec/predicates/adversarial-execution-evidence.md is pinned to
+// the PR revision that states five statement-level requirements, and this is
+// the sixth, added in the round-15 revision. The anchors therefore name the
+// sibling requirement and the constraint definitions rather than the sentence
+// that states this one, which does not exist in the pinned bytes. They move
+// onto it in the same pass that re-vendors (scripts/vendor-spec.py), which
+// remaps every citation and re-syncs both content ledgers.
+func carriedRecordsCover(p *Predicate, states []recordState, kinds []string, binding string, issuedAt time.Time) []Code {
+	if !hasSubstrateRows(p) {
+		return nil
+	}
+	pinnedPosture := p.Env.NetworkPosture.Sha256()
+	declared := declaredAttackIDs(p)
+	var codes []Code
+	for i := range p.Records {
+		if !isCoveringKind(kinds[i]) {
+			continue
+		}
+		a := analyzePayload(&p.Records[i], &states[i], binding)
+		if len(a.codes) > 0 {
+			continue
+		}
+		if ev := evaluateKind(a, pinnedPosture, nil, issuedAt, declared); !ev.valid {
+			codes = appendCode(codes, ev.failCode)
+		}
+	}
+	return codes
 }
 
 // declaredAttackIDs is the set of attack identifiers the carried

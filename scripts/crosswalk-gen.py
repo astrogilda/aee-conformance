@@ -12,8 +12,10 @@ find out was to go and count the upstream records by hand, which is what AVE's
 maintainer ended up doing on a public thread. A count with no commit beside it is
 stale by construction rather than by accident.
 
-The same file was also stale about this repository, naming the suite at revision
-8 with 158 vectors while it stood at 22 with 232, and stale about the predicate
+The same file was also stale about this repository, naming a revision and a
+vector total the suite had left behind many revisions earlier -- and the total
+it named was not one this suite ever published, so the figure resolved through
+nothing at all -- and stale about the predicate
 it maps: it used `basis: intercepted` and `method: examination`, which were the
 pre-split field shapes. Under v0.7 `basis` is `substrate | artifact` and `method`
 is `intercepted | reconstructed`, and `examination` is an `aeeKind`, not a

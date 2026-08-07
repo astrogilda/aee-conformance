@@ -46,7 +46,7 @@
             },
             {
               "file": "docs/IMPLEMENTATION-REPORT.md",
-              "times": 2
+              "times": 3
             }
           ]
         },
@@ -89,7 +89,7 @@
             },
             {
               "file": "docs/IMPLEMENTATION-REPORT.md",
-              "times": 5
+              "times": 6
             },
             {
               "file": "vectors/CHANGES.md",
@@ -239,6 +239,105 @@
       "suiteCommitNote": null,
       "equivalentSuiteCommit": "8959bd3",
       "note": "his last author-run, and the revision his CI now verifies continuously. The suite commit the record names no longer resolves in a fresh clone of this repository, because the history it sat on was rewritten here after he pinned it; 8959bd3 carries the identical tree and therefore the identical 153 vectors, and is where a reproduction should point until the record is repinned. The unchanged revision-5 build scored 151/153 against it: ok-036 and bad-742 passed on the container-branch counter already in place, and bad-743 and bad-744 did not, because that build had not implemented the RFC 7493 section 2.1 noncharacter exclusion this revision makes normative."
+    },
+    {
+      "suiteRevision": 22,
+      "figures": [
+        {
+          "figure": "179/232",
+          "role": "score",
+          "carriedIn": [
+            {
+              "file": "README.md",
+              "times": 3
+            },
+            {
+              "file": "docs/IMPLEMENTATION-REPORT.md",
+              "times": 5
+            }
+          ]
+        },
+        {
+          "figure": "8/54",
+          "role": "accepts",
+          "carriedIn": [
+            {
+              "file": "README.md",
+              "times": 1
+            },
+            {
+              "file": "docs/IMPLEMENTATION-REPORT.md",
+              "times": 2
+            }
+          ]
+        },
+        {
+          "figure": "169/176",
+          "role": "rejects",
+          "carriedIn": [
+            {
+              "file": "README.md",
+              "times": 1
+            },
+            {
+              "file": "docs/IMPLEMENTATION-REPORT.md",
+              "times": 2
+            }
+          ]
+        },
+        {
+          "figure": "232/232",
+          "role": "directed",
+          "carriedIn": [
+            {
+              "file": "README.md",
+              "times": 1
+            },
+            {
+              "file": "docs/IMPLEMENTATION-REPORT.md",
+              "times": 3
+            }
+          ]
+        },
+        {
+          "figure": "54/54",
+          "role": "directed-accepts",
+          "carriedIn": [
+            {
+              "file": "README.md",
+              "times": 1
+            },
+            {
+              "file": "docs/IMPLEMENTATION-REPORT.md",
+              "times": 2
+            }
+          ]
+        },
+        {
+          "figure": "176/176",
+          "role": "directed-rejects",
+          "carriedIn": [
+            {
+              "file": "README.md",
+              "times": 1
+            },
+            {
+              "file": "docs/IMPLEMENTATION-REPORT.md",
+              "times": 2
+            }
+          ]
+        }
+      ],
+      "evidence": "blind",
+      "unprompted": true,
+      "posting": "Rul1an/aee-checker reports/v0.7-RUN.md, pinned at 63b930e893dffe3258f3c861a5a9c1d9adeef751, with the two run records it indexes in reports/INDEX.json",
+      "date": "2026-08-03",
+      "dateNote": null,
+      "checkerSourceDigest": null,
+      "digestNote": "the headline figure is the blind first run and no digest names the build that produced it. His reports/INDEX.json carries an explicit null digest for that record beside a sourceUnrecoverable field saying the blind build was never committed on its own -- 46ca0ee carries both the v0.7 implementation and the published number, so no tree in his repository hashes to it -- rather than borrowing the directed build's digest, which would name a different implementation. He records this as a breach of rule 6 of his own PROTOCOL-v0.7.md, the rule that run's protocol fixed in advance. The directed build IS digest-bound, at sha256:56f440e628ff39e49d92968943c5bce6024503169dfa394671f848f1e98e67e2, and reproduces from his working tree; this schema carries one digest per row and the row's headline is the blind figure, so that value is recorded here in the note rather than in the field.",
+      "suiteCommit": "84ba227155f55b653deed5051027f9aecdd2159f",
+      "suiteCommitNote": null,
+      "note": "the v0.7 run, and the first run he has posted against a corpus this repository moved to a new predicate version. His own report leads with the blind figure and says the directed one is not evidence about the determinacy of the text, so the blind 179/232 is the headline here: accepts 8/54, rejects 169/176, indeterminate 2/2. The directed pass reached 232/232, accepts 54/54, rejects 176/176, indeterminate 2/2, and is directed twice over in his account -- it followed a spec diff already read and, for bad-902, an adversarial review of his own implementation. He partitions the 53 first-run mismatches by the message the blind build emitted, which he says is the only partition his published run records support: 42 report that aeeRunBinding does not equal the run binding derived from the statement, 7 returned valid with no reason, and 4 report a carried pass_indirect against a recomputed pass. He withdrew an earlier per-fix attribution of 43/5/3/2 rather than restate it, because attributing a recovery to a particular fix needs a bisection against the blind build and that build is unrecoverable. Three rules the directed pass implemented recovered no vector and his blind run never reached them -- the registered networkPosture.posture vocabulary, non-empty signatures, and attribution as a substrate-row validity requirement, forced by bad-823, bad-745 and bad-968 -- so their correctness in this run is directed and says nothing about whether the text determines them; ok-047 and ok-048 are attribution vectors and both were blind mismatches. He claims no reason-parity figure for this run at all: his build emits free prose and no condition codes, two constructions over the same run disagreed at 175/178 and 167/178, and he publishes the ambiguity as a script rather than picking one. The corpus commit he pinned resolves in this repository and carries the 232 vectors of suiteRevision 22."
     }
   ],
   "quotedWording": [

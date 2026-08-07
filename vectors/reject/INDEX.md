@@ -3,7 +3,7 @@
 This directory is the conformance suite's `vectors/reject/` layout.
 
 Ground truth: `spec/predicates/adversarial-execution-evidence.md` @
-`c0c4da6` (in-toto/attestation PR #570 branch),
+`237f83b` (in-toto/attestation PR #570 branch),
 version 0.6.0, type URI
 `https://in-toto.io/attestation/adversarial-execution-evidence/v0.7`.
 The commit is read from `spec/VENDOR-PIN.json`, which
@@ -36,7 +36,7 @@ validity for every parent. Regenerate byte-identically with:
   `substrate-observation-test` for every record signature in this set.
   - public key (hex): `496cbe15e391eccd3a0864f2709df0eeb4f5b6c1bad750c95cc80ee49bceae62`
   - keyid = SHA-256 of the raw public key: `7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c`
-  - `keyid` is an unauthenticated hint, never the check (spec L1760-1762).
+  - `keyid` is an unauthenticated hint, never the check (spec L1773-1775).
 - Fixed timestamps: `issuedAt: 2026-01-01T00:00:00Z`, `armedAt: 2025-12-31T23:59:00Z`
   (a later `armedAt` appears only in bad-702).
 - Record `payloadType`: `application/vnd.example.aee-observation.v1+json`.
@@ -132,18 +132,18 @@ that guesses is worse than one that is missing: it looks resolved.
 | aee-c-20 | L562-563 | covering payload carries the reserved aee members |
 | aee-c-22 | L563-564 | aeeRunBinding equals the derived run binding |
 | aee-c-23 | L565-566 | row method capped by weakest signed aeeMethod |
-| aee-c-24 | L1617 | batchRoot required when records exist |
-| aee-c-25 | L1619-1622 | RFC 6962 domain-separated hashing |
-| aee-c-26 | L1622-1624 | RFC 6962 recursive split, never duplicate-pad |
-| aee-c-27 | L1624 | leaves in array order |
-| aee-c-28 | L1624 | a single-record tree's root is its leaf hash |
-| aee-c-29 | L1626-1627 | duplicate byte-identical records invalid |
-| aee-c-30 | L1629-1631 | batchRoot must recompute |
-| aee-c-31 | L1633-1645 | batchRoot omitted exactly when records absent |
-| aee-c-32 | L1619-1623 | batchRoot is over every carried record in array order, referenced by a row or not |
+| aee-c-24 | L1630 | batchRoot required when records exist |
+| aee-c-25 | L1632-1635 | RFC 6962 domain-separated hashing |
+| aee-c-26 | L1635-1637 | RFC 6962 recursive split, never duplicate-pad |
+| aee-c-27 | L1637 | leaves in array order |
+| aee-c-28 | L1637 | a single-record tree's root is its leaf hash |
+| aee-c-29 | L1639-1640 | duplicate byte-identical records invalid |
+| aee-c-30 | L1642-1644 | batchRoot must recompute |
+| aee-c-31 | L1646-1658 | batchRoot omitted exactly when records absent |
+| aee-c-32 | L1632-1636 | batchRoot is over every carried record in array order, referenced by a row or not |
 | aee-c-33 | L740-749 | the evidence tier is derived per row and never carried: artifact is declared, substrate is attested when every covering signature verifies under consumer policy and unattested otherwise, and the tier never alters result |
 | aee-c-34 | L746-748 | no TOFU: a consumer with no policy-pinned substrate root treats every substrate row as unattested and MUST NOT infer the root from the predicate |
-| aee-c-35 | L1760-1762 | keyid is an unauthenticated lookup hint, never the check |
+| aee-c-35 | L1773-1775 | keyid is an unauthenticated lookup hint, never the check |
 | aee-c-36 | L1259-1261; L545-546 | a record signature is DSSE PAE over (payloadType, payload); the byte-pure validity gate never reads a signature, so a signature that does not verify is a tier fact and not a validity fault |
 | aee-c-38 | L753-755 | a carried predicate-level evidenceTier member MUST be ignored |
 | aee-c-41 | L966-967 | basis required, closed {substrate, artifact} |
@@ -180,8 +180,8 @@ that guesses is worse than one that is missing: it looks resolved.
 | aee-c-81 | L894 | row attackId appears in the manifest |
 | aee-c-82 | L937-940 | coverage exactly equals the manifest at attack granularity |
 | aee-c-83 | L879-883 | coverage member required |
-| aee-c-84 | L1647-1657 | doesNotAssert single canonical spelling |
-| aee-c-85 | L1659 | issuedAt required, under the Timestamp profile |
+| aee-c-84 | L1660-1670 | doesNotAssert single canonical spelling |
+| aee-c-85 | L1672 | issuedAt required, under the Timestamp profile |
 | aee-c-86 | L150-163 | vocabulary labels/caught entries BMP-only; a supplementary-plane entry is malformed |
 | aee-c-87 | L150-163 | covering payload member names BMP-only; a supplementary-plane name covers nothing |
 | aee-c-88 | L894-902 | row members are strictly typed; a wrong-JSON-type member is a malformed statement |
@@ -247,16 +247,16 @@ so the declared fault stays the ONLY fault.
 | `bad-303-binding-version-1` | ok-002 | records signed with a binding derived from the retired "aeeBindingVersion": "1" pre-image | derive-binding-v1, re-sign-record, recompute-batch-root | aee-c-75 aee-c-22 | `run-binding-mismatch` (also carries: `sealed-record-absent`) | L237-241; L563-564 |
 | `bad-726-arming-binding-version-carried` | ok-002 | arming payload carries an explicit aeeBindingVersion: "3" the verifier does not implement (read-first, distinct from the bad-303 digest mismatch) | re-sign-record, recompute-batch-root | aee-c-75 | `arming-covers-nothing` | L237-244 |
 | `bad-304-method-cap-multirecord` | ok-030 | row method "intercepted" covered by TWO interceptions with signed methods {intercepted, reconstructed}: exceeds the weakest | re-sign-record, recompute-batch-root | aee-c-23 aee-c-45 | `method-cap-exceeded` | L565-566 |
-| `bad-401-records-no-batchroot` | ok-002 | batchRoot member removed while observationRecords is non-empty | - | aee-c-24 | `batch-root-missing` | L1617; L1629-1631 |
-| `bad-402-root-no-domain-separation` | ok-014 | root computed without the 0x00/0x01 domain-separation prefixes | - | aee-c-25 | `batch-root-mismatch` | L1619-1622 |
-| `bad-403-root-bitcoin-padding` | ok-014 | 3-leaf root computed by duplicate-last-leaf padding instead of the RFC 6962 recursive split | - | aee-c-26 | `batch-root-mismatch` | L1622-1624 |
-| `bad-404-root-leaf-order-swapped` | ok-014 | root computed over leaves in swapped order | - | aee-c-27 | `batch-root-mismatch` | L1624 |
-| `bad-405-duplicate-records` | ok-002 | two byte-identical records in the tree; root recomputes CORRECTLY over all three leaves | recompute-batch-root | aee-c-29 | `duplicate-record` | L1626-1627 |
-| `bad-406-root-hex-tamper` | ok-002 | one hex digit of batchRoot flipped | - | aee-c-30 | `batch-root-mismatch` | L1629-1631 |
-| `bad-407-substrate-row-no-records` | ok-001 | remove observationRecords AND batchRoot under a substrate row (2-op mutation) | - | aee-c-31 aee-c-11 | `records-absent`, `ref-out-of-range` (COMPOUND) | L1633-1645; L552-553 |
-| `bad-408-batchroot-without-records` | ok-007 | orphan batchRoot added to a recordless artifact-only statement | - | aee-c-31 | `batch-root-orphaned` | L1633-1645; L1625 |
-| `bad-409-artifact-records-bad-root` | ok-029 | one hex digit off on an artifact-only-with-records statement | - | aee-c-30 aee-c-24 | `batch-root-mismatch` | L1629-1631 |
-| `bad-410-duplicate-and-undecodable-record` | ok-002 | a byte-identical second copy of the arming record AND a fourth record, of an unknown kind, whose payload is re-encoded as non-canonical base64 so it no longer strict-decodes | - | aee-c-29 | `duplicate-record`, `record-undecodable` (COMPOUND) | L1626-1627; L1257-1259 |
+| `bad-401-records-no-batchroot` | ok-002 | batchRoot member removed while observationRecords is non-empty | - | aee-c-24 | `batch-root-missing` | L1630; L1642-1644 |
+| `bad-402-root-no-domain-separation` | ok-014 | root computed without the 0x00/0x01 domain-separation prefixes | - | aee-c-25 | `batch-root-mismatch` | L1632-1635 |
+| `bad-403-root-bitcoin-padding` | ok-014 | 3-leaf root computed by duplicate-last-leaf padding instead of the RFC 6962 recursive split | - | aee-c-26 | `batch-root-mismatch` | L1635-1637 |
+| `bad-404-root-leaf-order-swapped` | ok-014 | root computed over leaves in swapped order | - | aee-c-27 | `batch-root-mismatch` | L1637 |
+| `bad-405-duplicate-records` | ok-002 | two byte-identical records in the tree; root recomputes CORRECTLY over all three leaves | recompute-batch-root | aee-c-29 | `duplicate-record` | L1639-1640 |
+| `bad-406-root-hex-tamper` | ok-002 | one hex digit of batchRoot flipped | - | aee-c-30 | `batch-root-mismatch` | L1642-1644 |
+| `bad-407-substrate-row-no-records` | ok-001 | remove observationRecords AND batchRoot under a substrate row (2-op mutation) | - | aee-c-31 aee-c-11 | `records-absent`, `ref-out-of-range` (COMPOUND) | L1646-1658; L552-553 |
+| `bad-408-batchroot-without-records` | ok-007 | orphan batchRoot added to a recordless artifact-only statement | - | aee-c-31 | `batch-root-orphaned` | L1646-1658; L1638 |
+| `bad-409-artifact-records-bad-root` | ok-029 | one hex digit off on an artifact-only-with-records statement | - | aee-c-30 aee-c-24 | `batch-root-mismatch` | L1642-1644 |
+| `bad-410-duplicate-and-undecodable-record` | ok-002 | a byte-identical second copy of the arming record AND a fourth record, of an unknown kind, whose payload is re-encoded as non-canonical base64 so it no longer strict-decodes | - | aee-c-29 | `duplicate-record`, `record-undecodable` (COMPOUND) | L1639-1640; L1257-1259 |
 | `bad-501-substrate-unknown-method` | ok-001 | substrate row method: "example.method-x" (unknown value); refs, records, root, entropy intact; carried fail kept | - | aee-c-44 aee-c-5 aee-c-42 | `fail-closed-substrate-row` | L734-738; L1026-1063 |
 | `bad-502-missing-actual-layer` | ok-001 | drop actualLayer from the row | - | aee-c-47 | `malformed-missing-actual-layer` | L901-902; L1226-1234 |
 | `bad-503-clean-row-layer-not-none` | ok-002 | clean row actualLayer: "policy.egress_sinkhole" (MUST be the literal "none") | - | aee-c-48 | `clean-row-layer-not-none` | L1235-1240 |
@@ -333,18 +333,18 @@ so the declared fault stays the ONLY fault.
 | `bad-747-manifest-class-declares-no-attacks` | ok-007 | corpus manifest keeps class XA but empties its attack-id array; the row it declared and that row's coverage entry come out with it | drop-undeclared-rows, rebuild-coverage-partition, recompute-corpus-digest | aee-c-92 | `corpus-manifest-no-attacks` | L942-964 |
 | `bad-817-payload-noncanonical-base64` | ok-001 | covering record payload re-encoded as non-canonical base64 (nonzero trailing bits); the record no longer strict-decodes | - | aee-c-19 | `record-undecodable` (also carries: `observed-set-mismatch`) | L1245-1248 |
 | `bad-808-coverage-absent` | ok-002 | drop coverage | - | aee-c-83 | `coverage-missing` | L879-883 |
-| `bad-809-snake-case-doesnotassert` | ok-002 | statement carries the rejected snake_case spelling of doesNotAssert | - | aee-c-84 | `member-spelling` | L1647-1657 |
-| `bad-810-missing-issuedat` | ok-007 | drop issuedAt | - | aee-c-85 | `issued-at-missing` | L1659 |
-| `bad-811-issuedat-not-rfc3339` | ok-007 | issuedAt: "yesterday" | - | aee-c-85 | `issued-at-malformed` | L1659 |
+| `bad-809-snake-case-doesnotassert` | ok-002 | statement carries the rejected snake_case spelling of doesNotAssert | - | aee-c-84 | `member-spelling` | L1660-1670 |
+| `bad-810-missing-issuedat` | ok-007 | drop issuedAt | - | aee-c-85 | `issued-at-missing` | L1672 |
+| `bad-811-issuedat-not-rfc3339` | ok-007 | issuedAt: "yesterday" | - | aee-c-85 | `issued-at-malformed` | L1672 |
 | `bad-812-missing-networkposture` | ok-007 | drop networkPosture | - | aee-c-78 | `environment-incomplete` | L757-768 |
 | `bad-813-missing-corpus` | ok-007 | drop corpus | - | aee-c-78 | `environment-incomplete` | L757-765 |
 | `bad-814-missing-substrate` | ok-007 | drop substrate | - | aee-c-78 | `environment-incomplete` | L757-761 |
 | `bad-815-wrong-statement-type` | ok-002 | _type is not the in-toto Statement/v1 URI | - | aee-c-77 | `statement-type-unsupported` | L313 |
 | `bad-750-armedat-lowercase-separator` | ok-002 | arming armedAt: "2025-12-31t23:59:00Z" (lowercase date-time separator) | re-sign-record, recompute-batch-root | aee-c-63 | `arming-covers-nothing` | L1283 |
 | `bad-751-armedat-lowercase-zone-designator` | ok-002 | arming armedAt: "2025-12-31T23:59:00z" (lowercase zone designator) | re-sign-record, recompute-batch-root | aee-c-63 | `arming-covers-nothing` | L1283 |
-| `bad-820-issuedat-non-utc-offset` | ok-007 | issuedAt: "2026-01-01T05:00:00+05:00" (a non-zero UTC offset) | - | aee-c-85 | `issued-at-malformed` | L1659 |
-| `bad-821-issuedat-lowercase-separator` | ok-007 | issuedAt: "2026-01-01t00:00:00Z" (lowercase date-time separator) | - | aee-c-85 | `issued-at-malformed` | L1659 |
-| `bad-822-issuedat-lowercase-zone-designator` | ok-007 | issuedAt: "2026-01-01T00:00:00z" (lowercase zone designator) | - | aee-c-85 | `issued-at-malformed` | L1659 |
+| `bad-820-issuedat-non-utc-offset` | ok-007 | issuedAt: "2026-01-01T05:00:00+05:00" (a non-zero UTC offset) | - | aee-c-85 | `issued-at-malformed` | L1672 |
+| `bad-821-issuedat-lowercase-separator` | ok-007 | issuedAt: "2026-01-01t00:00:00Z" (lowercase date-time separator) | - | aee-c-85 | `issued-at-malformed` | L1672 |
+| `bad-822-issuedat-lowercase-zone-designator` | ok-007 | issuedAt: "2026-01-01T00:00:00z" (lowercase zone designator) | - | aee-c-85 | `issued-at-malformed` | L1672 |
 | `bad-823-posture-unregistered` | ok-002 | networkPosture.posture: "example_posture_x", a value the registry does not carry | rederive-binding, re-sign-record, recompute-batch-root | aee-c-93 | `posture-vocabulary` | L821-829 |
 | `bad-824-posture-not-a-string` | ok-002 | networkPosture.posture: 3, a value of the wrong JSON type | rederive-binding, re-sign-record, recompute-batch-root | aee-c-93 | `posture-vocabulary` | L821-829 |
 | `bad-825-posture-array` | ok-002 | networkPosture.posture: ["sinkhole"], an array wrapping a registered value | rederive-binding, re-sign-record, recompute-batch-root | aee-c-93 | `posture-vocabulary` | L821-829 |

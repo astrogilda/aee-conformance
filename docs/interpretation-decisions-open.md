@@ -178,7 +178,7 @@ record set before that loop. Both rejected; they named different conditions.
 the verify-then-read discipline the spec does make normative: a consumer verifies
 each record's signature "before relying on any field inside the payload"
 (L1259-1261), and a payload's fields "mean nothing until its signature verifies"
-(L1599-1601). A record carrying no signature at all is therefore settled before the
+(L1612-1614). A record carrying no signature at all is therefore settled before the
 bytes it carries are read. That argument is a reading, not a derivation: the same
 passage explicitly permits the byte-pure gates to read payload fields without
 verifying anything, so it does not by itself force the evaluation order.
@@ -253,7 +253,7 @@ divide three ways, and each way is a reason NOT to write a vector:
   substrate rows outright (L1125-1128), MAY bound a named key with a validity
   window (L1204), MAY coherence-check a row against the pinned posture
   (L1220-1224). None of these can move the verdict, because validity "is a function
-  of carried bytes alone and holds identically for every consumer" (L1703-1706);
+  of carried bytes alone and holds identically for every consumer" (L1716-1719);
   a rail that answered the admission question in the verdict field would be wrong
   rather than free. These are real freedoms and they are invisible to a
   single-statement corpus by construction.

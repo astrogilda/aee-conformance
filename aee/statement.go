@@ -20,7 +20,7 @@ const rejectedSnakeCaseSpelling = "does_not_assert"
 var errTimestampOffset = errors.New("zone designator is not a zero UTC offset")
 
 // parseTimestamp parses a value carried under the predicate's Timestamp field
-// type: RFC 3339 with uppercase designators and a zero UTC offset (spec:1661-1670).
+// type: RFC 3339 with uppercase designators and a zero UTC offset (spec:1674-1683).
 // time.RFC3339 already refuses the lowercase `t` and `z` RFC 3339 also admits,
 // and it accepts any numeric offset, so the zone is the half that has to be
 // checked here. `Z`, `+00:00` and `-00:00` all report a zero offset, which is
@@ -63,7 +63,7 @@ func Gate0(s *Statement) []Code {
 	}
 
 	// 3. Rejected snake_case spelling: single canonicalization per content
-	//    (spec:1652-1656).
+	//    (spec:1665-1669).
 	if _, ok := p.Raw[rejectedSnakeCaseSpelling]; ok {
 		codes = appendCode(codes, CodeMemberSpelling)
 	}
@@ -154,7 +154,7 @@ func Gate0(s *Statement) []Code {
 		codes = gate0SubstrateBindingInputs(s, codes)
 	}
 
-	// 13. issuedAt (spec:1674-1676).
+	// 13. issuedAt (spec:1687-1689).
 	if !p.IssuedAtPresent {
 		codes = appendCode(codes, CodeIssuedAtMissing)
 	} else if _, err := parseTimestamp(p.IssuedAt); err != nil {

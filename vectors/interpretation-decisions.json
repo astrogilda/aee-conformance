@@ -49,9 +49,9 @@
       "title": "Duplicate records by leaf hash",
       "classification": "forced",
       "specAnchors": [
-        "L1625-1627"
+        "L1638-1640"
       ],
-      "reading": "'Two byte-identical entries in observationRecords make the attestation invalid: a record's canonical identity is its leaf hash' (L1625-1627). The leaf hash is H(0x00 || DSSE PAE(payloadType, payload)), so a shared leaf hash and byte-identical PAE bytes are equivalent: a discriminating vector (distinct payloads, same leaf) is unconstructible, so bad-405 fully locks the reading.",
+      "reading": "'Two byte-identical entries in observationRecords make the attestation invalid: a record's canonical identity is its leaf hash' (L1638-1640). The leaf hash is H(0x00 || DSSE PAE(payloadType, payload)), so a shared leaf hash and byte-identical PAE bytes are equivalent: a discriminating vector (distinct payloads, same leaf) is unconstructible, so bad-405 fully locks the reading.",
       "forcingVectors": [
         "bad-405-duplicate-records"
       ]
@@ -124,9 +124,9 @@
       "classification": "forced",
       "specAnchors": [
         "L1283-1284",
-        "L1657-1659"
+        "L1670-1672"
       ],
-      "reading": "issuedAt is typed as the framework's Timestamp field type, and the predicate pins the two choices that type leaves open (L1657-1659): the date-time separator and the zone designator are uppercase, never the lowercase t and z RFC 3339 also admits, and the zone designator is Z, +00:00 or -00:00, never a non-zero offset. An arming record's armedAt carries the same profile and is no later than issuedAt (L1283-1284). Both rails parse and compare the two as instants. bad-701 (absent armedAt), bad-702 (armedAt after issuedAt), bad-810 (absent issuedAt) and bad-811 (issuedAt not RFC 3339 at all) lock the base. The zone half is locked on each field by bad-727 and bad-820. The case half needs one vector per designator, because a rail whose zero-offset test reads the literal suffix rejects a lowercase z as a side effect of the zone rule: bad-750 and bad-821 lock the date-time separator on each field, bad-751 and bad-822 the zone designator. ok-038 and ok-039 lock -00:00 as admitted on each field, so a rail that reads 'zero offset' as 'Z or +00:00 only' fails rather than passing as silently stricter than its peers.",
+      "reading": "issuedAt is typed as the framework's Timestamp field type, and the predicate pins the two choices that type leaves open (L1670-1672): the date-time separator and the zone designator are uppercase, never the lowercase t and z RFC 3339 also admits, and the zone designator is Z, +00:00 or -00:00, never a non-zero offset. An arming record's armedAt carries the same profile and is no later than issuedAt (L1283-1284). Both rails parse and compare the two as instants. bad-701 (absent armedAt), bad-702 (armedAt after issuedAt), bad-810 (absent issuedAt) and bad-811 (issuedAt not RFC 3339 at all) lock the base. The zone half is locked on each field by bad-727 and bad-820. The case half needs one vector per designator, because a rail whose zero-offset test reads the literal suffix rejects a lowercase z as a side effect of the zone rule: bad-750 and bad-821 lock the date-time separator on each field, bad-751 and bad-822 the zone designator. ok-038 and ok-039 lock -00:00 as admitted on each field, so a rail that reads 'zero offset' as 'Z or +00:00 only' fails rather than passing as silently stricter than its peers.",
       "forcingVectors": [
         "bad-701-arming-missing-armedat",
         "bad-702-armedat-after-issuedat",
@@ -160,9 +160,9 @@
       "classification": "forced",
       "specAnchors": [
         "L740-755",
-        "L1760-1762"
+        "L1773-1775"
       ],
-      "reading": "The per-row evidence tier (attested/unattested/declared) is derived over the row's covering records; a record verifies when any of its signatures verifies (DSSE semantics) against a consumer-pinned substrate observation key, and keyid is 'an unauthenticated lookup hint and never the check itself' (L1760-1762). The tier is trust-relative (stage two), so a signature outcome is never a validity reject code; the readings are locked by ACCEPT vectors with pinned per-row tier expectations (ok-024) rather than reject vectors.",
+      "reading": "The per-row evidence tier (attested/unattested/declared) is derived over the row's covering records; a record verifies when any of its signatures verifies (DSSE semantics) against a consumer-pinned substrate observation key, and keyid is 'an unauthenticated lookup hint and never the check itself' (L1773-1775). The tier is trust-relative (stage two), so a signature outcome is never a validity reject code; the readings are locked by ACCEPT vectors with pinned per-row tier expectations (ok-024) rather than reject vectors.",
       "forcingVectors": [
         "ok-024-mixed-basis-rows",
         "ok-019-wrong-keyid-sig-verifies",

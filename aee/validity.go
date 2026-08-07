@@ -144,9 +144,9 @@ func gate1WithContext(s *Statement) (states []recordState, binding string, issue
 // checkRecordsStatementLevel runs the record-set checks that hold for the
 // whole statement whenever observationRecords is non-empty, BEFORE any row
 // logic: signature-entry presence (spec:1257-1259), batchRoot presence
-// (spec:1617), duplicate-record rejection (spec:1625-1627), root recomputation
-// (spec:1629-1631), and the orphaned-root case (a batchRoot with no records to
-// recompute over, spec:1642-1645).
+// (spec:1630), duplicate-record rejection (spec:1638-1640), root recomputation
+// (spec:1642-1644), and the orphaned-root case (a batchRoot with no records to
+// recompute over, spec:1655-1658).
 func checkRecordsStatementLevel(p *Predicate) ([]recordState, []Code) {
 	var codes []Code
 	states := make([]recordState, len(p.Records))

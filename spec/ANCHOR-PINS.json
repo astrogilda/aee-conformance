@@ -1,6 +1,6 @@
 {
   "specPath": "spec/predicates/adversarial-execution-evidence.md",
-  "specDigest": "fda0f5f7885d56feb93194cfa604f57c060c12677f77fa5579888b15dc1d1a2d",
+  "specDigest": "7abe0db04d31fbffef3445837588de15112d392d4e310763f2fe3be18d113146",
   "citations": {
     "vectors/reject/gen_invalid_vectors.py::bad-001-result-uppercase#0": {
       "anchor": "L435",
@@ -249,49 +249,49 @@
       "closes": "its covering records (`reconstructed` is weaker than `intercepted`);"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-401-records-no-batchroot#0": {
-      "anchor": "L1617",
+      "anchor": "L1630",
       "digest": "4636ec8560cc0ead116100610dde879f5fd9c34863e805af0fdb6b5267573e9e",
       "opens": "`batchRoot` _string, required when `observationRecords` is non-empty_",
       "closes": "`batchRoot` _string, required when `observationRecords` is non-empty_"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-401-records-no-batchroot#1": {
-      "anchor": "L1629-1631",
+      "anchor": "L1642-1644",
       "digest": "25363553c90486607f15b24979aec89c1f462c2544a86dd2788c4a5bbbfb4f69",
       "opens": "`batchRoot` unchanged. Carried once at the predicate level. A `batchRoot`",
       "closes": "invalid. Because every `basis: substrate` row requires covering records"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-402-root-no-domain-separation#0": {
-      "anchor": "L1619-1622",
+      "anchor": "L1632-1635",
       "digest": "fe35b4fa4eb994d08cce68b9c08979782a8762e61e8498eff9ace26c3f411007",
       "opens": "An RFC 6962 Merkle root over the observation records, SHA-256, with",
       "closes": "by the RFC 6962 recursive split (never by duplicating a trailing node to"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-403-root-bitcoin-padding#0": {
-      "anchor": "L1622-1624",
+      "anchor": "L1635-1637",
       "digest": "e756c9f428996b39ed6760c3edd78e33cb9278df13492c84e1ce45605630ecf0",
       "opens": "by the RFC 6962 recursive split (never by duplicating a trailing node to",
       "closes": "single-record tree's root its leaf hash, and an empty array with no root."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-404-root-leaf-order-swapped#0": {
-      "anchor": "L1624",
+      "anchor": "L1637",
       "digest": "c7d07beda78a7d7ec649e0c5963b941659f3668a9e444de809493192ce5fbf1f",
       "opens": "single-record tree's root its leaf hash, and an empty array with no root.",
       "closes": "single-record tree's root its leaf hash, and an empty array with no root."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-405-duplicate-records#0": {
-      "anchor": "L1626-1627",
+      "anchor": "L1639-1640",
       "digest": "5ee52f2390f6d383e6b25c8907752c17d12545a6cf3f16483367a12a71c92057",
       "opens": "invalid: a record's canonical identity is its leaf hash, a positional",
       "closes": "reference is shorthand for the leaf hash at that position, and a future"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-406-root-hex-tamper#0": {
-      "anchor": "L1629-1631",
+      "anchor": "L1642-1644",
       "digest": "25363553c90486607f15b24979aec89c1f462c2544a86dd2788c4a5bbbfb4f69",
       "opens": "`batchRoot` unchanged. Carried once at the predicate level. A `batchRoot`",
       "closes": "invalid. Because every `basis: substrate` row requires covering records"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-407-substrate-row-no-records#0": {
-      "anchor": "L1633-1645",
+      "anchor": "L1646-1658",
       "digest": "2ae1aab0887f26136bb42b7d5b5c8a060952fab5d1dd3143eb2acd9643b2f0e7",
       "opens": "carries a `batchRoot`, and every such attestation's committed set includes a",
       "closes": "`basis: artifact` rows."
@@ -303,25 +303,25 @@
       "closes": "`observationRecords`;"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-408-batchroot-without-records#0": {
-      "anchor": "L1633-1645",
+      "anchor": "L1646-1658",
       "digest": "2ae1aab0887f26136bb42b7d5b5c8a060952fab5d1dd3143eb2acd9643b2f0e7",
       "opens": "carries a `batchRoot`, and every such attestation's committed set includes a",
       "closes": "`basis: artifact` rows."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-408-batchroot-without-records#1": {
-      "anchor": "L1625",
+      "anchor": "L1638",
       "digest": "c80c3dc7b6adb30311e50f58232ad57777624cadc1fbaeb9cc1f0b9ea50a9453",
       "opens": "Two byte-identical entries in `observationRecords` make the attestation",
       "closes": "Two byte-identical entries in `observationRecords` make the attestation"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-409-artifact-records-bad-root#0": {
-      "anchor": "L1629-1631",
+      "anchor": "L1642-1644",
       "digest": "25363553c90486607f15b24979aec89c1f462c2544a86dd2788c4a5bbbfb4f69",
       "opens": "`batchRoot` unchanged. Carried once at the predicate level. A `batchRoot`",
       "closes": "invalid. Because every `basis: substrate` row requires covering records"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-410-duplicate-and-undecodable-record#0": {
-      "anchor": "L1626-1627",
+      "anchor": "L1639-1640",
       "digest": "5ee52f2390f6d383e6b25c8907752c17d12545a6cf3f16483367a12a71c92057",
       "opens": "invalid: a record's canonical identity is its leaf hash, a positional",
       "closes": "reference is shorthand for the leaf hash at that position, and a future"
@@ -969,19 +969,19 @@
       "closes": "reason string; empty objects when complete). Disclosing a gap moves the class"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-809-snake-case-doesnotassert#0": {
-      "anchor": "L1647-1657",
+      "anchor": "L1660-1670",
       "digest": "4a17bc4ba2bf0b3d0a9866754ae74a82abde332c015cf68646ba40dad1a2fec0",
       "opens": "`doesNotAssert` _array of strings, optional_",
       "closes": "concern that the wire format does not carry."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-810-missing-issuedat#0": {
-      "anchor": "L1659",
+      "anchor": "L1672",
       "digest": "9bff3a9b9f6ce06d35699a5a0f11d1daf2f61cc1e7eb8adcd4631fa2690bf314",
       "opens": "`issuedAt` _Timestamp, required_",
       "closes": "`issuedAt` _Timestamp, required_"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-811-issuedat-not-rfc3339#0": {
-      "anchor": "L1659",
+      "anchor": "L1672",
       "digest": "9bff3a9b9f6ce06d35699a5a0f11d1daf2f61cc1e7eb8adcd4631fa2690bf314",
       "opens": "`issuedAt` _Timestamp, required_",
       "closes": "`issuedAt` _Timestamp, required_"
@@ -1023,19 +1023,19 @@
       "closes": "carry `armedAt` under the timestamp profile `issuedAt` defines, no"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-820-issuedat-non-utc-offset#0": {
-      "anchor": "L1659",
+      "anchor": "L1672",
       "digest": "9bff3a9b9f6ce06d35699a5a0f11d1daf2f61cc1e7eb8adcd4631fa2690bf314",
       "opens": "`issuedAt` _Timestamp, required_",
       "closes": "`issuedAt` _Timestamp, required_"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-821-issuedat-lowercase-separator#0": {
-      "anchor": "L1659",
+      "anchor": "L1672",
       "digest": "9bff3a9b9f6ce06d35699a5a0f11d1daf2f61cc1e7eb8adcd4631fa2690bf314",
       "opens": "`issuedAt` _Timestamp, required_",
       "closes": "`issuedAt` _Timestamp, required_"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-822-issuedat-lowercase-zone-designator#0": {
-      "anchor": "L1659",
+      "anchor": "L1672",
       "digest": "9bff3a9b9f6ce06d35699a5a0f11d1daf2f61cc1e7eb8adcd4631fa2690bf314",
       "opens": "`issuedAt` _Timestamp, required_",
       "closes": "`issuedAt` _Timestamp, required_"
@@ -1539,55 +1539,55 @@
       "closes": "its covering records (`reconstructed` is weaker than `intercepted`);"
     },
     "vectors/reject/gen_invalid_vectors.py::24#0": {
-      "anchor": "L1617",
+      "anchor": "L1630",
       "digest": "4636ec8560cc0ead116100610dde879f5fd9c34863e805af0fdb6b5267573e9e",
       "opens": "`batchRoot` _string, required when `observationRecords` is non-empty_",
       "closes": "`batchRoot` _string, required when `observationRecords` is non-empty_"
     },
     "vectors/reject/gen_invalid_vectors.py::25#0": {
-      "anchor": "L1619-1622",
+      "anchor": "L1632-1635",
       "digest": "fe35b4fa4eb994d08cce68b9c08979782a8762e61e8498eff9ace26c3f411007",
       "opens": "An RFC 6962 Merkle root over the observation records, SHA-256, with",
       "closes": "by the RFC 6962 recursive split (never by duplicating a trailing node to"
     },
     "vectors/reject/gen_invalid_vectors.py::26#0": {
-      "anchor": "L1622-1624",
+      "anchor": "L1635-1637",
       "digest": "e756c9f428996b39ed6760c3edd78e33cb9278df13492c84e1ce45605630ecf0",
       "opens": "by the RFC 6962 recursive split (never by duplicating a trailing node to",
       "closes": "single-record tree's root its leaf hash, and an empty array with no root."
     },
     "vectors/reject/gen_invalid_vectors.py::27#0": {
-      "anchor": "L1624",
+      "anchor": "L1637",
       "digest": "c7d07beda78a7d7ec649e0c5963b941659f3668a9e444de809493192ce5fbf1f",
       "opens": "single-record tree's root its leaf hash, and an empty array with no root.",
       "closes": "single-record tree's root its leaf hash, and an empty array with no root."
     },
     "vectors/reject/gen_invalid_vectors.py::28#0": {
-      "anchor": "L1624",
+      "anchor": "L1637",
       "digest": "c7d07beda78a7d7ec649e0c5963b941659f3668a9e444de809493192ce5fbf1f",
       "opens": "single-record tree's root its leaf hash, and an empty array with no root.",
       "closes": "single-record tree's root its leaf hash, and an empty array with no root."
     },
     "vectors/reject/gen_invalid_vectors.py::29#0": {
-      "anchor": "L1626-1627",
+      "anchor": "L1639-1640",
       "digest": "5ee52f2390f6d383e6b25c8907752c17d12545a6cf3f16483367a12a71c92057",
       "opens": "invalid: a record's canonical identity is its leaf hash, a positional",
       "closes": "reference is shorthand for the leaf hash at that position, and a future"
     },
     "vectors/reject/gen_invalid_vectors.py::30#0": {
-      "anchor": "L1629-1631",
+      "anchor": "L1642-1644",
       "digest": "25363553c90486607f15b24979aec89c1f462c2544a86dd2788c4a5bbbfb4f69",
       "opens": "`batchRoot` unchanged. Carried once at the predicate level. A `batchRoot`",
       "closes": "invalid. Because every `basis: substrate` row requires covering records"
     },
     "vectors/reject/gen_invalid_vectors.py::31#0": {
-      "anchor": "L1633-1645",
+      "anchor": "L1646-1658",
       "digest": "2ae1aab0887f26136bb42b7d5b5c8a060952fab5d1dd3143eb2acd9643b2f0e7",
       "opens": "carries a `batchRoot`, and every such attestation's committed set includes a",
       "closes": "`basis: artifact` rows."
     },
     "vectors/reject/gen_invalid_vectors.py::32#0": {
-      "anchor": "L1619-1623",
+      "anchor": "L1632-1636",
       "digest": "b44c5f626d94e624cc60406f18bb6ca83adb3240358b7a659804b71c109c0c6a",
       "opens": "An RFC 6962 Merkle root over the observation records, SHA-256, with",
       "closes": "pad the leaf count), leaves in `observationRecords` array order, a"
@@ -1605,7 +1605,7 @@
       "closes": "the predicate. The tier is total and deterministic given the consumer's"
     },
     "vectors/reject/gen_invalid_vectors.py::35#0": {
-      "anchor": "L1760-1762",
+      "anchor": "L1773-1775",
       "digest": "b0306298aa252f910e3e3ac79c62e73193b85106eaa733b53e18e461324ed5ff",
       "opens": "as a live one. The check that matters is signature verification against a",
       "closes": "hint and never the check itself:"
@@ -1780,9 +1780,9 @@
     },
     "vectors/reject/gen_invalid_vectors.py::73#0": {
       "anchor": "L1581-1583",
-      "digest": "b8341ecd493faebf9795c8009b08366b3cf9ed98ee040a504ff19ed8ed8fd71a",
+      "digest": "29e2a3bfb245fa55b5f83c917a1b12b37978a6cccacd63800558f32f0bde5ddb",
       "opens": "carrying a transparency-service receipt over the arming record). The `aee` member prefix is r...",
-      "closes": "in the payload stays producer territory."
+      "closes": "in the payload stays producer territory. No member of that territory is"
     },
     "vectors/reject/gen_invalid_vectors.py::75#0": {
       "anchor": "L237-241",
@@ -1839,13 +1839,13 @@
       "closes": "reason string; empty objects when complete). Disclosing a gap moves the class"
     },
     "vectors/reject/gen_invalid_vectors.py::84#0": {
-      "anchor": "L1647-1657",
+      "anchor": "L1660-1670",
       "digest": "4a17bc4ba2bf0b3d0a9866754ae74a82abde332c015cf68646ba40dad1a2fec0",
       "opens": "`doesNotAssert` _array of strings, optional_",
       "closes": "concern that the wire format does not carry."
     },
     "vectors/reject/gen_invalid_vectors.py::85#0": {
-      "anchor": "L1659",
+      "anchor": "L1672",
       "digest": "9bff3a9b9f6ce06d35699a5a0f11d1daf2f61cc1e7eb8adcd4631fa2690bf314",
       "opens": "`issuedAt` _Timestamp, required_",
       "closes": "`issuedAt` _Timestamp, required_"
@@ -1995,7 +1995,7 @@
       "closes": "failure, never a silent pass."
     },
     "vectors/reject/gen_invalid_vectors.py::write_index#0": {
-      "anchor": "L1760-1762",
+      "anchor": "L1773-1775",
       "digest": "b0306298aa252f910e3e3ac79c62e73193b85106eaa733b53e18e461324ed5ff",
       "opens": "as a live one. The check that matters is signature verification against a",
       "closes": "hint and never the check itself:"
@@ -2055,7 +2055,7 @@
       "closes": "failure, and a consumer's policy MAY bound a named key with a validity"
     },
     "vectors/reject/gen_invalid_vectors.py::write_ind_index#7": {
-      "anchor": "L1703-1706",
+      "anchor": "L1716-1719",
       "digest": "02fce896243f98a8862f60bf5b08220d2cee6eae7cfb04788de0541d439954f8",
       "opens": "verify is not admitted. The comparison is deliberately not a validity",
       "closes": "consumer. An anchor-mismatched attestation is valid evidence about the"
@@ -2127,13 +2127,13 @@
       "closes": "is otherwise ignored, while still contributing its leaf to `batchRoot`;"
     },
     "vectors/interpretation-decisions.json::3#0": {
-      "anchor": "L1625-1627",
+      "anchor": "L1638-1640",
       "digest": "9f8ed3e077d0a6fc19a6ffa1b68d552c62384f87bcaf41a11cb3aafa40e91883",
       "opens": "Two byte-identical entries in `observationRecords` make the attestation",
       "closes": "reference is shorthand for the leaf hash at that position, and a future"
     },
     "vectors/interpretation-decisions.json::3#1": {
-      "anchor": "L1625-1627",
+      "anchor": "L1638-1640",
       "digest": "9f8ed3e077d0a6fc19a6ffa1b68d552c62384f87bcaf41a11cb3aafa40e91883",
       "opens": "Two byte-identical entries in `observationRecords` make the attestation",
       "closes": "reference is shorthand for the leaf hash at that position, and a future"
@@ -2241,13 +2241,13 @@
       "closes": "later than `issuedAt`, `aeePostureDigest` equal to the pinned"
     },
     "vectors/interpretation-decisions.json::8#1": {
-      "anchor": "L1657-1659",
+      "anchor": "L1670-1672",
       "digest": "4891b176bf80a8fed79ad85d3883df3466842f9dec1df89a29a017a25bcf5d17",
       "opens": "concern that the wire format does not carry.",
       "closes": "`issuedAt` _Timestamp, required_"
     },
     "vectors/interpretation-decisions.json::8#2": {
-      "anchor": "L1657-1659",
+      "anchor": "L1670-1672",
       "digest": "4891b176bf80a8fed79ad85d3883df3466842f9dec1df89a29a017a25bcf5d17",
       "opens": "concern that the wire format does not carry.",
       "closes": "`issuedAt` _Timestamp, required_"
@@ -2277,13 +2277,13 @@
       "closes": "prefix `aee`, MUST be ignored and MUST NOT alter the derivation."
     },
     "vectors/interpretation-decisions.json::10#1": {
-      "anchor": "L1760-1762",
+      "anchor": "L1773-1775",
       "digest": "b0306298aa252f910e3e3ac79c62e73193b85106eaa733b53e18e461324ed5ff",
       "opens": "as a live one. The check that matters is signature verification against a",
       "closes": "hint and never the check itself:"
     },
     "vectors/interpretation-decisions.json::10#2": {
-      "anchor": "L1760-1762",
+      "anchor": "L1773-1775",
       "digest": "b0306298aa252f910e3e3ac79c62e73193b85106eaa733b53e18e461324ed5ff",
       "opens": "as a live one. The check that matters is signature verification against a",
       "closes": "hint and never the check itself:"
@@ -2445,7 +2445,7 @@
       "closes": "under an identical tuple is a reset. A chain reset is not a fresh start. The"
     },
     "vectors/coverage-unforced.json::U5#0": {
-      "anchor": "L1686-1710",
+      "anchor": "L1699-1723",
       "digest": "994af7ca393b8999720604804bfe8978dbdc994c8d8fe01bfb55918309c32ed8",
       "opens": "### Consumer policy obligations",
       "closes": "valid-but-wrong-context attestation as admissible."
@@ -2523,7 +2523,7 @@
       "closes": "reject on that ground."
     },
     "vectors/CHANGES.md::suiteRevision 17 (a third bucket, for the questions the specification leaves open)#7": {
-      "anchor": "L1703-1706",
+      "anchor": "L1716-1719",
       "digest": "02fce896243f98a8862f60bf5b08220d2cee6eae7cfb04788de0541d439954f8",
       "opens": "verify is not admitted. The comparison is deliberately not a validity",
       "closes": "consumer. An anchor-mismatched attestation is valid evidence about the"
@@ -2589,7 +2589,7 @@
       "closes": "relying on any field inside the payload. The order is deliberate and the"
     },
     "docs/interpretation-decisions-open.md::suiteRevision 9: which condition wins when a statement carries two#2": {
-      "anchor": "L1599-1601",
+      "anchor": "L1612-1614",
       "digest": "09477573cacc695830bd00f714525a243c0cd430b0dc4cde657a0fbfcc91cd99",
       "opens": "nothing, never create it), and the verify-then-read discipline is",
       "closes": "verifies), which closes the parse-before-verify class of deployment"
@@ -2631,7 +2631,7 @@
       "closes": "reject on that ground."
     },
     "docs/interpretation-decisions-open.md::suiteRevision 17: what else was considered for the bucket, and refused#6": {
-      "anchor": "L1703-1706",
+      "anchor": "L1716-1719",
       "digest": "02fce896243f98a8862f60bf5b08220d2cee6eae7cfb04788de0541d439954f8",
       "opens": "verify is not admitted. The comparison is deliberately not a validity",
       "closes": "consumer. An anchor-mismatched attestation is valid evidence about the"

@@ -5,6 +5,63 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 25 (a rule written before the members it governs exist)
+
+- Corpus: **248 vectors (54 accept, 192 reject, 2 indeterminate)**, unchanged from
+  suiteRevision 24. No vector is added, removed, or regenerated to different bytes,
+  and `corpusDigest` in `vectors/MANIFEST.json` holds the value it held at
+  suiteRevision 23. What moves is the vendored specification, from upstream commit
+  `c0c4da67defdf0f186f162e7ecb3f9527b6a94f8` to
+  `237f83b9f1445720c165e1c5f076212dfa063f92`, which is the head of
+  in-toto/attestation#570 at the time this revision was cut. Two upstream commits
+  are spanned rather than one, and the second exists because the first was too
+  narrow; the pair is vendored together so that no published revision carries the
+  narrow reading.
+- **What moved in the specification, exactly.** The paragraph that grants producer
+  territory outside the reserved `aee` prefix now carries a constraint on what a
+  verifier may do with anything a producer defines there. No member of that
+  territory is read by a conforming verifier: it MUST NOT affect structural
+  validity, `result`, or the evidence tier, whether or not its values can be
+  ordered. An ordered axis, meaning any member whose values a reader might rank,
+  keeps a sentence of its own saying a verifier MUST NOT rank its values and MUST
+  NOT compose it by weakest input across records or rows. A changelog entry
+  records both halves. Every other byte of the vendored document is identical to
+  the copy suiteRevision 24 shipped.
+- **The rule was published one notch too narrow, and an implementer found it the
+  same day.** The first version constrained an ordered axis and nothing else. An
+  implementation applying it to its own tree reported that it also emits an
+  unordered producer member, per-channel loss counters, which no reader would
+  rank, so the sentence did not reach it. The boundary was never about
+  rankability, so the general rule now leads and the ordered case is named as the
+  one a verifier is tempted to read. The same report is why structural validity is
+  named at all: applying the narrow text, that implementer found a checker of
+  theirs gating AEE validity on a producer member's value, which their own design
+  document forbade. A rule written only about ranking is blind to that failure,
+  and it is the failure that was actually made.
+- **Why the rule sits at the grant rather than at a member.** The two axes this
+  predicate orders, `basis` and `method`, are ordered because a normative reader
+  consumes them: the recompute reads one and the gate reads the other. That is the
+  criterion the predicate has applied since v0.5, and an axis a producer spells in
+  the same payload acquires no such reader by sharing the envelope. Writing the
+  constraint at each future member would mean writing it after the first producer
+  had already shipped one; writing it at the grant means an implementer meets it
+  before the member exists. The immediate case is the `assay` family proposed
+  upstream, which is legal producer territory a conforming verifier ignores.
+- **What this revision does not exercise.** It adds no coverage and forces
+  nothing new. The rule constrains a verifier's treatment of members no vector in
+  this corpus carries, so there is no accept vector to add and no reject vector to
+  write: a suite that refused a statement for carrying a producer-defined member
+  would be enforcing the opposite of what the sentence says. Worth stating plainly
+  rather than leaving as an absence, because the rule's own failure case is a
+  checker that made a producer member load-bearing, and a corpus cannot catch that
+  by carrying vectors. It is caught by reading the sentence. The forcing baseline,
+  the coverage matrix classes and the condition registry are unchanged; the
+  anchors and `spec:NNN` citations move only because inserted prose sits above
+  them, and they are remapped mechanically by
+  `scripts/vendor-spec.py` rather than re-judged. The honest reading of this
+  revision is that the vendored copy states a rule an implementer needs and the
+  corpus has nothing to say about it.
+
 ## suiteRevision 24 (the vendored copy catches up with the rule the corpus forces)
 
 - Corpus: **248 vectors (54 accept, 192 reject, 2 indeterminate)**, unchanged from
@@ -434,7 +491,7 @@ byte-identically from the generators.
   evidencing heuristic in its place". The consumer MAY
   clauses (L495-496, L1125-1128, L1204, L1220-1224) sit outside the verdict this
   suite reads, because validity "is a function of carried bytes alone and holds
-  identically for every consumer" (L1703-1706). The producer options are forced
+  identically for every consumer" (L1716-1719). The producer options are forced
   on the verifier and already carried by accept vectors. One family with two
   members is the honest size of this bucket.
 - **The reference rails read `set-level`, and that is now recorded rather than

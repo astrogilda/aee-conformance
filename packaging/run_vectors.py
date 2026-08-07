@@ -1006,7 +1006,7 @@ def _timestamp_ok(v: Any) -> bool:
     """Whether a value is carried under the predicate's Timestamp field type.
 
     The type requires RFC 3339 in the UTC timezone; the predicate pins the two
-    choices that type leaves open (spec:1661-1670), and the two are checked separately
+    choices that type leaves open (spec:1674-1683), and the two are checked separately
     because they are separate rules. The pattern carries the case half: an
     uppercase separator and zone designator, never the lowercase `t` and `z`
     RFC 3339 also admits. The pattern accepts any numeric offset, so the zone

@@ -60,7 +60,7 @@ var ErrStringNotScalar = errors.New("JSON string is not a sequence of Unicode sc
 var ErrUnsafeInteger = errors.New("integer outside the I-JSON safe range")
 
 // ErrNonIntegerNumber reports a JSON number with a fractional part. The
-// specification pins a safe-integer profile (spec:100-102,1254-1256) and declares
+// specification pins a safe-integer profile (spec:100-102,1268-1270) and declares
 // every numeric member it defines an integer, but states no rule against a
 // fractional number in producer territory. The rails reject one anyway, so
 // that cross-language float formatting can never split them (the Python rail
@@ -75,7 +75,7 @@ var maxSafeIntBig = big.NewInt(maxSafeInteger)
 
 // checkSafeInteger enforces the number profile the rails share for a JSON
 // number token, in ANY notation: the safe-integer bound the specification pins
-// (spec:100-102,1254-1256), tightened to integers only.
+// (spec:100-102,1268-1270), tightened to integers only.
 //   - a non-integer (1.5) is rejected: every numeric member the specification
 //     defines is an integer, and rejecting non-integers keeps the two rails in
 //     lockstep (the Python rail rejects all non-integers) without needing

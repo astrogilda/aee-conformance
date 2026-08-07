@@ -1,14 +1,14 @@
 package aee
 
-// GATE 2 — the per-row evidence tier (spec:726-735). Trust-relative and
+// GATE 2 — the per-row evidence tier (spec:740-749). Trust-relative and
 // derived, never carried: {declared | unattested | attested} given the
 // consumer's key policy. The tier is total and deterministic given that
 // policy; it never alters result.
 //
 // No TOFU: a consumer with no policy-pinned substrate root MUST treat every
 // basis: substrate row as unattested and MUST NOT infer the substrate root
-// from the predicate (spec:731-734). A record's keyid is an unauthenticated
-// lookup hint and never the check itself (spec:1746-1748): verification below
+// from the predicate (spec:745-748). A record's keyid is an unauthenticated
+// lookup hint and never the check itself (spec:1760-1762): verification below
 // tries every policy-named key and never reads keyid.
 
 import (
@@ -22,7 +22,7 @@ type Tier string
 
 // The three tiers. Consumer policy MAY subdivide attested into stricter
 // refinements; a refinement refines, never reorders, and tier names
-// beginning with "aee" are reserved (spec:735-739).
+// beginning with "aee" are reserved (spec:749-753).
 const (
 	TierDeclared   Tier = "declared"
 	TierUnattested Tier = "unattested"
@@ -55,7 +55,7 @@ type ConsumerPolicy struct {
 // already passed GATE 0 and GATE 1. Row order matches attackResults order.
 //
 //   - a basis: artifact row is declared; a row fail-closed on basis sits at
-//     the bottom of both orderings (spec:1074-1075) and is reported declared —
+//     the bottom of both orderings (spec:1088-1089) and is reported declared —
 //     it can strengthen nothing;
 //   - a basis: substrate row is attested when every covering record's
 //     signature verifies against a policy-named key, unattested otherwise.

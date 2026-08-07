@@ -1,6 +1,6 @@
 package aee
 
-// The coverage validity requirements 0.7 adds (spec:569-609). They sit apart
+// The coverage validity requirements 0.7 adds (spec:569-623). They sit apart
 // from the per-row requirements in validity.go for a reason the specification
 // states in the same sentence that introduces them: they hold on the STATEMENT,
 // or on every row rather than only on a basis: substrate row. The per-row gate
@@ -175,7 +175,7 @@ func interceptionsOrphaned(p *Predicate, kinds []string) []Code {
 }
 
 // observedSetDigest recomputes the value a sealed record's aeeObservedSet
-// commits to (spec:1422-1427): the lowercase 64-hex SHA-256 of the RFC 8785
+// commits to (spec:1436-1441): the lowercase 64-hex SHA-256 of the RFC 8785
 // canonicalization of the duplicate-free array, sorted ascending by UTF-16
 // code unit, of the leaf hashes of every interception and examination record.
 //
@@ -206,7 +206,7 @@ func observedSetDigest(p *Predicate, states []recordState, kinds []string) strin
 }
 
 // sealsCommitToCarriedSet implements the fourth: aeeObservedSet on every
-// carried sealed record equals the recompute (spec:595-599).
+// carried sealed record equals the recompute (spec:609-613).
 //
 // A seal whose member is absent or is not lowercase 64-hex is NOT reported
 // here. That record covers nothing by its own kind's constraints, which is a
@@ -265,7 +265,7 @@ func sealedRecordPresent(p *Predicate, states []recordState, kinds []string, bin
 // every kind this verifier does not recognize are deliberately outside it:
 // neither carries a constraint that could be violated, and sweeping an
 // unrecognized kind in would refuse the forward compatibility the document
-// grants a minor version to add one (spec:1317-1331, 1561-1565).
+// grants a minor version to add one (spec:1331-1345, 1575-1579).
 func isCoveringKind(kind string) bool {
 	switch kind {
 	case KindInterception, KindArming, KindSealed, KindExamination:
@@ -278,7 +278,7 @@ func isCoveringKind(kind string) bool {
 // every carried record that binds to this run and whose aeeKind names a
 // covering kind satisfies every constraint of that kind, whether or not any row
 // resolves an observationRefs index to it (spec:586-594 for the requirement it
-// partners, spec:1265-1296 for the constraints themselves).
+// partners, spec:1279-1310 for the constraints themselves).
 //
 // Why it exists. The kind constraints were read on exactly two paths, and both
 // are chosen by the producer. checkSubstrateRow reads them for the records a
@@ -312,7 +312,7 @@ func isCoveringKind(kind string) bool {
 //
 // armingPostures is nil, exactly as sealedRecordPresent passes nil. The seal's
 // posture equality against an arming record is stated over the arming records a
-// ROW resolves (spec:1291-1296), and a statement-level rule has no row; the
+// ROW resolves (spec:1305-1310), and a statement-level rule has no row; the
 // pinned-posture half of that equality is checked here as it is there. Keeping
 // both quantifiers over one predicate is the point -- a second evaluation of a
 // seal that could disagree with the first would be a worse defect than the one
@@ -370,7 +370,7 @@ func declaredAttackIDs(p *Predicate) map[string]bool {
 
 // attackIDArrayOK is the shared shape rule for the two arrays of attack
 // identifiers 0.7 adds, aeeAssessedAttacks and aeeObservedAttacks
-// (spec:1392-1394, 1460-1462): duplicate-free, sorted ascending by UTF-16 code
+// (spec:1406-1408, 1474-1476): duplicate-free, sorted ascending by UTF-16 code
 // unit, every entry an identifier the carried manifest declares. The EMPTY
 // array satisfies it, which is deliberate on the seal: a substrate holding no
 // correspondence declares that on the wire rather than by omission.
@@ -387,7 +387,7 @@ func attackIDArrayOK(attacks []string, declared map[string]bool) bool {
 }
 
 // sealNamedAttacksCaught implements the aeeObservedAttacks statement rule
-// (spec:1462-1465): for every identifier the array names, the
+// (spec:1476-1479): for every identifier the array names, the
 // statement MUST carry a row with that attackId whose containmentObserved is
 // in the carried caught set.
 //
@@ -427,7 +427,7 @@ func sealNamedAttacksCaught(p *Predicate, states []recordState, kinds []string, 
 }
 
 // assessedSetDeclared implements the aeeAssessedAttacks statement rule
-// (spec:1394-1396): the union of the manifest's identifiers for
+// (spec:1408-1410): the union of the manifest's identifiers for
 // the carried coverage.assessedClasses MUST be a subset of the array the
 // arming record signed before injection.
 //
@@ -467,7 +467,7 @@ func assessedSetDeclared(p *Predicate, states []recordState, kinds []string, bin
 	return nil
 }
 
-// attributionBindings implements the fifth requirement (spec:600-609), in the
+// attributionBindings implements the fifth requirement (spec:614-623), in the
 // three parts the specification writes it in. The parts are checked in the
 // order they are stated, and the existence part is checked FIRST because it is
 // the part the other two are vacuous without: a universally quantified rule
@@ -536,7 +536,7 @@ func pinMatches(row *Row, states []recordState, kinds []string, expected []strin
 }
 
 // commitmentArrayOK is the shared shape rule for aeePayloadCommitment
-// (spec:1377-1381): duplicate-free, sorted ascending by UTF-16 code unit,
+// (spec:1391-1395): duplicate-free, sorted ascending by UTF-16 code unit,
 // non-empty, every entry lowercase 64-hex.
 func commitmentArrayOK(values []string) bool {
 	if len(values) == 0 || !isSortedNoDuplicates(values) {

@@ -26,9 +26,9 @@ all.**
 | what | value |
 |---|---|
 | suite | `adversarial-execution-evidence-conformance` |
-| corpus | suiteRevision 23, 248 vectors (54 accept, 192 reject, 2 indeterminate) |
-| vendored specification | upstream commit `23bee586d651c79ba6a1dd55d4b29b7c2ef2cff2` |
-| `vectors/MANIFEST.json` | `sha256:13218f274a1659c84f1dce78a657c9acbda9681b37d83ef5b622764a3c5e74b0` |
+| corpus | suiteRevision 24, 248 vectors (54 accept, 192 reject, 2 indeterminate) |
+| vendored specification | upstream commit `c0c4da67defdf0f186f162e7ecb3f9527b6a94f8` |
+| `vectors/MANIFEST.json` | `sha256:f66853cf3d4aba691b74ba6b9a73ef226bc1968f3e20a35241ca209677ff85a2` |
 | `docs/FORCING-BASELINE.json` | `sha256:b57527aa207e83fc34f076f88fb5d8576063c3203f627aa9e78fec0e857d3a75` |
 | campaign | 754 single-site weakenings: 424 KILLED, 27 SILENT, 298 DEAD, 5 INCONCLUSIVE |
 
@@ -133,30 +133,30 @@ column is how many weakenings its vectors catch alongside somebody else's.
 | `aee-c-3` | L440-442 | a row carrying a label from the carried caught set contributes fail | 2 | 101 |
 | `aee-c-7` | L447-450 | UNRESOLVED -- ok-002 is the sole carrier and the corpus does not separate this id from aee-c-2. Candidate reading, recorded rather than asserted: the third recompute condition, which contributes pass_indirect when some clean row is not (substrate, intercepted) and pass when none is | 1 | 86 |
 | `aee-c-14` | L557-560 | clean intercepted row refs arming AND covering sealed | 5 | 124 |
-| `aee-c-15` | L918-920 | one run-level arming/sealed/examination record covers every row earned under it | 1 | 87 |
-| `aee-c-16` | L913-918 | observationSelectors is producer vocabulary positionally parallel to observationRefs; no gate reads it | 1 | 86 |
-| `aee-c-25` | L1605-1608 | RFC 6962 domain-separated hashing | 1 | 53 |
-| `aee-c-26` | L1608-1610 | RFC 6962 recursive split, never duplicate-pad | 5 | 108 |
-| `aee-c-27` | L1610 | leaves in array order | 1 | 53 |
-| `aee-c-28` | L1610 | a single-record tree's root is its leaf hash | 1 | 90 |
-| `aee-c-30` | L1615-1617 | batchRoot must recompute | 3 | 69 |
-| `aee-c-32` | L1605-1609 | batchRoot is over every carried record in array order, referenced by a row or not | 2 | 96 |
-| `aee-c-33` | L726-735 | the evidence tier is derived per row and never carried: artifact is declared, substrate is attested when every covering signature verifies under consumer policy and unattested otherwise, and the tier never alters result | 1 | 104 |
-| `aee-c-34` | L732-734 | no TOFU: a consumer with no policy-pinned substrate root treats every substrate row as unattested and MUST NOT infer the root from the predicate | 1 | 91 |
-| `aee-c-35` | L1746-1748 | keyid is an unauthenticated lookup hint, never the check | 1 | 91 |
-| `aee-c-36` | L1245-1247; L545-546 | a record signature is DSSE PAE over (payloadType, payload); the byte-pure validity gate never reads a signature, so a signature that does not verify is a tier fact and not a validity fault | 1 | 93 |
-| `aee-c-38` | L739-741 | a carried predicate-level evidenceTier member MUST be ignored | 1 | 86 |
-| `aee-c-41` | L952-953 | basis required, closed {substrate, artifact} | 1 | 104 |
-| `aee-c-45` | L998-1004 | weakest-input method composition | 4 | 116 |
-| `aee-c-49` | L1226-1229 | the literal none is valid on a caught row too, and states that the event was observed and no enforcement layer acted | 1 | 89 |
-| `aee-c-50` | L1212-1213 | actualLayer names the enforcement layer that acted on the row's containment event | 1 | 90 |
-| `aee-c-61` | L739-741 | a predicate-level member beginning with the reserved aee prefix MUST be ignored | 1 | 86 |
+| `aee-c-15` | L932-934 | one run-level arming/sealed/examination record covers every row earned under it | 1 | 87 |
+| `aee-c-16` | L927-932 | observationSelectors is producer vocabulary positionally parallel to observationRefs; no gate reads it | 1 | 86 |
+| `aee-c-25` | L1619-1622 | RFC 6962 domain-separated hashing | 1 | 53 |
+| `aee-c-26` | L1622-1624 | RFC 6962 recursive split, never duplicate-pad | 5 | 108 |
+| `aee-c-27` | L1624 | leaves in array order | 1 | 53 |
+| `aee-c-28` | L1624 | a single-record tree's root is its leaf hash | 1 | 90 |
+| `aee-c-30` | L1629-1631 | batchRoot must recompute | 3 | 69 |
+| `aee-c-32` | L1619-1623 | batchRoot is over every carried record in array order, referenced by a row or not | 2 | 96 |
+| `aee-c-33` | L740-749 | the evidence tier is derived per row and never carried: artifact is declared, substrate is attested when every covering signature verifies under consumer policy and unattested otherwise, and the tier never alters result | 1 | 104 |
+| `aee-c-34` | L746-748 | no TOFU: a consumer with no policy-pinned substrate root treats every substrate row as unattested and MUST NOT infer the root from the predicate | 1 | 91 |
+| `aee-c-35` | L1760-1762 | keyid is an unauthenticated lookup hint, never the check | 1 | 91 |
+| `aee-c-36` | L1259-1261; L545-546 | a record signature is DSSE PAE over (payloadType, payload); the byte-pure validity gate never reads a signature, so a signature that does not verify is a tier fact and not a validity fault | 1 | 93 |
+| `aee-c-38` | L753-755 | a carried predicate-level evidenceTier member MUST be ignored | 1 | 86 |
+| `aee-c-41` | L966-967 | basis required, closed {substrate, artifact} | 1 | 104 |
+| `aee-c-45` | L1012-1018 | weakest-input method composition | 4 | 116 |
+| `aee-c-49` | L1240-1243 | the literal none is valid on a caught row too, and states that the event was observed and no enforcement layer acted | 1 | 89 |
+| `aee-c-50` | L1226-1227 | actualLayer names the enforcement layer that acted on the row's containment event | 1 | 90 |
+| `aee-c-61` | L753-755 | a predicate-level member beginning with the reserved aee prefix MUST be ignored | 1 | 86 |
 | `aee-c-62` | L229-237 | binding is anti-splice | 1 | 57 |
-| `aee-c-64` | L1273-1278 | sealed record required members | 5 | 95 |
-| `aee-c-68` | L1139-1140 | each referenced record independently satisfies its class constraints | 2 | 95 |
-| `aee-c-71` | L1561-1565 | unknown aeeKind covers nothing | 3 | 98 |
-| `aee-c-73` | L1567-1569 | the aee payload member prefix is reserved; every other payload member is producer territory and does not stop a record covering | 1 | 90 |
-| `aee-c-81` | L880 | row attackId appears in the manifest | 1 | 10 |
+| `aee-c-64` | L1287-1292 | sealed record required members | 5 | 95 |
+| `aee-c-68` | L1153-1154 | each referenced record independently satisfies its class constraints | 2 | 95 |
+| `aee-c-71` | L1575-1579 | unknown aeeKind covers nothing | 3 | 98 |
+| `aee-c-73` | L1581-1583 | the aee payload member prefix is reserved; every other payload member is producer territory and does not stop a record covering | 1 | 90 |
+| `aee-c-81` | L894 | row attackId appears in the manifest | 1 | 10 |
 
 ## The conditions the corpus does not force at all
 

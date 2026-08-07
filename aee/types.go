@@ -14,7 +14,7 @@ const StatementType = "https://in-toto.io/Statement/v1"
 // never attempts more than one construction (spec:236-240).
 const PredicateType = "https://in-toto.io/attestation/adversarial-execution-evidence/v0.7"
 
-// Closed vocabularies (spec:417-429, 952-996).
+// Closed vocabularies (spec:417-429, 966-1010).
 const (
 	ResultPass         = "pass"
 	ResultPassIndirect = "pass_indirect"
@@ -27,7 +27,7 @@ const (
 	MethodIntercepted   = "intercepted"
 	MethodReconstructed = "reconstructed"
 
-	// The attribution vocabulary is closed and two-valued (spec:1015-1024).
+	// The attribution vocabulary is closed and two-valued (spec:1029-1038).
 	// pinned says the row rests on an interception whose committed value the
 	// corpus declared in advance; paired says the correspondence was
 	// established some other way and is a producer assertion. paired is a
@@ -40,7 +40,7 @@ const (
 	KindSealed       = "sealed"
 	KindExamination  = "examination"
 
-	// The two kinds registered as non-covering (spec:1298-1370). Neither
+	// The two kinds registered as non-covering (spec:1312-1384). Neither
 	// carries constraints, because there is no state in which either covers
 	// anything and therefore none in which a constraint could change an
 	// outcome. They are named here rather than left to the unknown-kind arm so
@@ -98,7 +98,7 @@ type Predicate struct {
 	IssuedAtPresent bool
 }
 
-// Environment is observationEnvironment (spec:743-773).
+// Environment is observationEnvironment (spec:757-787).
 type Environment struct {
 	Raw map[string]json.RawMessage
 
@@ -124,7 +124,7 @@ func (d *DigestRef) Sha256() string {
 	return d.Digest["sha256"]
 }
 
-// Corpus carries the digest-committed corpus manifest (spec:747-751).
+// Corpus carries the digest-committed corpus manifest (spec:761-765).
 type Corpus struct {
 	Name        string            `json:"name"`
 	URI         string            `json:"uri"`
@@ -135,7 +135,7 @@ type Corpus struct {
 
 	// ExpectedPayloads is the optional per-attack map of the commitment values
 	// a substrate is expected to carry when it observes that attack
-	// (spec:775-788). Present distinguishes an absent map from an empty one:
+	// (spec:789-802). Present distinguishes an absent map from an empty one:
 	// a row whose attackId has no entry MUST declare paired, and "the manifest
 	// carries no map at all" and "the map carries no entry for this attack"
 	// are the same answer to that question, so the two are not separated in
@@ -155,9 +155,9 @@ func (c *Corpus) Sha256() string {
 }
 
 // NetworkPosture is the substrate-authoritative egress posture pin
-// (spec:753-755). The set of posture values is a closed registry, and a value
+// (spec:767-769). The set of posture values is a closed registry, and a value
 // outside it is a malformed statement rather than a fail-closed row
-// (spec:807-815). That reading was this repository's for two revisions while
+// (spec:821-829). That reading was this repository's for two revisions while
 // the document introduced the values illustratively and named no consequence
 // for one outside the list; the document now registers the set and states the
 // consequence, so the reading is cited rather than argued.
@@ -197,7 +197,7 @@ func (n *NetworkPosture) UnmarshalJSON(b []byte) error {
 }
 
 // EgressPostures is the registry of substrate-authoritative egress postures
-// (spec:807-815). All four values, the append-only rule across minor versions,
+// (spec:821-829). All four values, the append-only rule across minor versions,
 // and the fail-closed consequence are the document's own; they were stated
 // here as this repository's reading until the document registered them.
 var EgressPostures = map[string]bool{
@@ -230,7 +230,7 @@ func (n *NetworkPosture) Sha256() string {
 	return n.Digest["sha256"]
 }
 
-// Vocabulary is observationVocabulary (spec:756-764).
+// Vocabulary is observationVocabulary (spec:770-778).
 type Vocabulary struct {
 	Digest map[string]string `json:"digest"`
 	Labels []string          `json:"labels"`
@@ -250,7 +250,7 @@ func (v *Vocabulary) Sha256() string {
 	return v.Digest["sha256"]
 }
 
-// Coverage is the coverage bound (spec:867-876).
+// Coverage is the coverage bound (spec:881-890).
 type Coverage struct {
 	AssessedClasses []string          `json:"assessedClasses"`
 	OutOfScope      map[string]string `json:"outOfScope"`
@@ -259,7 +259,7 @@ type Coverage struct {
 
 // Row is one attackResults row. Pointer members distinguish an absent member
 // from an empty value: absent basis/method/attribution is fail-closed
-// (spec:1045-1049), absent actualLayer is a malformed statement (spec:1212-1215).
+// (spec:1059-1063), absent actualLayer is a malformed statement (spec:1226-1229).
 type Row struct {
 	Raw map[string]json.RawMessage
 
@@ -285,7 +285,7 @@ func (r *Row) IsSubstrate() bool {
 	return r.Basis != nil && *r.Basis == BasisSubstrate
 }
 
-// Record is one observation record: a DSSE-shaped envelope (spec:1241-1245).
+// Record is one observation record: a DSSE-shaped envelope (spec:1255-1259).
 type Record struct {
 	PayloadB64  string           `json:"payload"`
 	PayloadType string           `json:"payloadType"`
@@ -293,7 +293,7 @@ type Record struct {
 }
 
 // RecordSignatures is a record's signatures member. The requirement it has to
-// meet is a count -- the member MUST carry at least one entry (spec:1243-1245) --
+// meet is a count -- the member MUST carry at least one entry (spec:1257-1259) --
 // so the decoder's job here is to produce a count for every JSON value the
 // member can hold, including the ones that hold no entries at all.
 type RecordSignatures []RecordSignature
@@ -330,7 +330,7 @@ func (s *RecordSignatures) UnmarshalJSON(b []byte) error {
 }
 
 // RecordSignature matches the DSSE signature member shape. The keyid is an
-// unauthenticated lookup hint and never the check itself (spec:1746-1748).
+// unauthenticated lookup hint and never the check itself (spec:1760-1762).
 type RecordSignature struct {
 	KeyID string `json:"keyid"`
 	Sig   string `json:"sig"`

@@ -5,6 +5,42 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 24 (the vendored copy catches up with the rule the corpus forces)
+
+- Corpus: **248 vectors (54 accept, 192 reject, 2 indeterminate)**, unchanged from
+  suiteRevision 23. No vector is added, removed, or regenerated to different bytes,
+  and `corpusDigest` in `vectors/MANIFEST.json` holds the value it held at
+  suiteRevision 23. What moves is the vendored specification, from upstream commit
+  `23bee586d651c79ba6a1dd55d4b29b7c2ef2cff2` to
+  `c0c4da67defdf0f186f162e7ecb3f9527b6a94f8`, which is the head of
+  in-toto/attestation#570 at the time this revision was cut.
+- **The suite was enforcing a rule its own bundled specification did not state.**
+  suiteRevision 23 shipped `bad-1001` through `bad-1016` against the requirement
+  that every carried record binding to the run whose payload names a covering kind
+  satisfies that kind's constraints, whether or not any row resolves an
+  `observationRefs` index to it. That requirement was written upstream after the
+  commit this repository had vendored, so the corpus refused sixteen statements on
+  a sentence a reader of the bundled copy could not find. An implementer who pins
+  this bundle and implements from it alone -- which is the whole reason the copy is
+  vendored -- would have read the sixteen refusals as the suite overreaching its
+  own text. Re-vendoring is the repair; nothing about what the corpus forces
+  changes.
+- **What moved in the specification, exactly.** Two edits and no others: the
+  coverage-validity preamble now counts six further requirements rather than five,
+  and the sixth is the universal-quantifier partner of the sealed-record-presence
+  requirement beside it, with a changelog entry upstream recording the same. Every
+  other byte of the vendored document is identical to the copy suiteRevision 23
+  shipped.
+- **What this revision does not exercise.** It adds no coverage. The rule the
+  re-vendored text now states is exactly the rule suiteRevision 23's sixteen
+  vectors already forced, so the forcing baseline, the coverage matrix classes and
+  the condition registry are unchanged in substance; the anchors and `spec:NNN`
+  citations move only because prose was inserted above them, and they are remapped
+  mechanically by `scripts/vendor-spec.py` rather than re-judged. No new failure
+  code is introduced and no existing code changes its condition. A reader looking
+  for what changed in the suite's behaviour will find nothing, and that is the
+  point of the revision.
+
 ## suiteRevision 23 (a rule read only where a row points)
 
 - Corpus: **248 vectors (54 accept, 192 reject, 2 indeterminate)**, up from 232.
@@ -392,13 +428,13 @@ byte-identically from the generators.
   specification's other open corners were enumerated against the vendored text
   before the bucket was built, and only this family qualified. The producer
   assertions about what the run executed (L513-528) and the shared-reference
-  evidencing obligation on a row declaring `paired` (L888-900) are LIMITS rather
+  evidencing obligation on a row declaring `paired` (L902-914) are LIMITS rather
   than choices: every conformant verifier must accept those statements, and the
   second says outright that "a conforming verifier neither can nor may invent an
   evidencing heuristic in its place". The consumer MAY
-  clauses (L495-496, L1111-1114, L1190, L1206-1210) sit outside the verdict this
+  clauses (L495-496, L1125-1128, L1204, L1220-1224) sit outside the verdict this
   suite reads, because validity "is a function of carried bytes alone and holds
-  identically for every consumer" (L1689-1692). The producer options are forced
+  identically for every consumer" (L1703-1706). The producer options are forced
   on the verifier and already carried by accept vectors. One family with two
   members is the honest size of this bucket.
 - **The reference rails read `set-level`, and that is now recorded rather than
@@ -1145,7 +1181,7 @@ byte-identically from the generators.
 
 - Corpus: 140 vectors (35 accept, 105 reject). No normative spec change; the
   specDigest is unchanged. Two forcing vectors close the reason-map side of the
-  coverage-partition membership rule already carried by the spec (L872-874): the
+  coverage-partition membership rule already carried by the spec (L886-888): the
   three coverage sets are a disjoint partition of the manifest's classes, so
   membership runs both ways, but only `bad-819` forced the `assessedClasses`
   side. New reject vectors `bad-731-outofscope-unknown-class` and
@@ -1216,14 +1252,14 @@ byte-identically from the generators.
   per executed attack" is a well-formedness invariant; both rails detect a
   duplicate `attackId` across rows before the set-based coverage comparison
   (which silently collapsed it before) and emit `statement-malformed`. Spec
-  paragraph at L880-892 gains the uniqueness sentence; new reject vector
+  paragraph at L894-906 gains the uniqueness sentence; new reject vector
   `bad-729-duplicate-attackid-rows`. Registry decision 13.
 - Coverage sets pinned as a disjoint partition (open corner B resolved, the one
   editorial call; reversible at vetting). A class appears in exactly one of
   `assessedClasses`, `outOfScope`, `routedElsewhere`; a class in more than one is
   malformed. This was a live divergence (our rails reject overlap; the from-spec
   checker accepts it) that no vector exercised. Rails unchanged (both already
-  reject via the disjoint-partition check); the spec text at L867-872 now matches
+  reject via the disjoint-partition check); the spec text at L881-886 now matches
   them; new reject vector `bad-730-coverage-class-overlap`. Registry decision 14.
   With these three corners resolved, `interpretation-decisions.json` has no open
   corners remaining.

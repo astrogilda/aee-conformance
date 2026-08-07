@@ -1158,7 +1158,7 @@ def build_vectors() -> dict[str, dict[str, Any]]:
 
     # ok-035 an unknown-kind record signed aeeMethod "reconstructed", REFERENCED
     # by a clean intercepted row. An unrecognized aeeKind covers nothing and is
-    # OTHERWISE IGNORED (spec:1561-1563): it neither invalidates the row (the
+    # OTHERWISE IGNORED (spec:1575-1577): it neither invalidates the row (the
     # arming+sealed cover satisfies class-match) nor participates in the method
     # cap, which reads only COVERING records (spec:565-566). A rail that folded
     # the ignored record's weaker aeeMethod into the cap would wrongly flag

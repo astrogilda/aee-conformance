@@ -5,7 +5,7 @@ layout. It carries the statements on which the specification settles
 the VERDICT and does not settle the CONDITION.
 
 Ground truth: `spec/predicates/adversarial-execution-evidence.md` @
-`23bee58` (in-toto/attestation PR #570 branch),
+`c0c4da6` (in-toto/attestation PR #570 branch),
 version 0.6.0, type URI
 `https://in-toto.io/attestation/adversarial-execution-evidence/v0.7`.
 
@@ -76,8 +76,8 @@ claim their manifest entry makes differs.
 
 | vector | parent | single mutation | conditions (aee-c ids) | reading `decode-first` | reading `positional` | reading `set-level` | spec |
 |---|---|---|---|---|---|---|---|
-| `ind-001-undecodable-then-signatures-empty` | ok-002 | arming record payload re-encoded as non-canonical base64 AND the sealed record's signatures array emptied, in that wire order | aee-c-91 | `record-undecodable` | `record-undecodable` | `record-signatures-empty` | L413-415; L1243-1245; L1245-1252 |
-| `ind-002-signatures-empty-then-undecodable` | ok-002 | arming record's signatures array emptied AND the sealed record's payload re-encoded as non-canonical base64, in that wire order | aee-c-91 | `record-undecodable` | `record-signatures-empty` | `record-signatures-empty` | L413-415; L1243-1245; L1245-1252 |
+| `ind-001-undecodable-then-signatures-empty` | ok-002 | arming record payload re-encoded as non-canonical base64 AND the sealed record's signatures array emptied, in that wire order | aee-c-91 | `record-undecodable` | `record-undecodable` | `record-signatures-empty` | L413-415; L1257-1259; L1259-1266 |
+| `ind-002-signatures-empty-then-undecodable` | ok-002 | arming record's signatures array emptied AND the sealed record's payload re-encoded as non-canonical base64, in that wire order | aee-c-91 | `record-undecodable` | `record-signatures-empty` | `record-signatures-empty` | L413-415; L1257-1259; L1259-1266 |
 
 ## Notes on specific vectors
 
@@ -97,7 +97,7 @@ here:
   shapes" (L513-528), and the shared-reference evidencing rule on
   a row declaring `paired`, of which the text says outright that
   "a conforming verifier neither can nor may invent an evidencing
-  heuristic in its place" (L888-900). Every conformant verifier
+  heuristic in its place" (L902-914). Every conformant verifier
   must ACCEPT those statements: nothing in the carried bytes can
   see the omission, so there is no divergence to declare. They are
   accept vectors, and their limit is prose. The same obligation on
@@ -106,12 +106,12 @@ here:
   row that fails it is a reject vector.
 - **Consumer policy the byte-pure surface does not carry.** A
   consumer MAY reject an attestation carrying `unattested` substrate
-  rows (L1111-1114), MAY admit `pass_indirect` (L495-496), MAY
-  coherence-check a row against the pinned posture (L1206-1210), MAY
-  bound a key with a validity window (L1190). None of these moves the
+  rows (L1125-1128), MAY admit `pass_indirect` (L495-496), MAY
+  coherence-check a row against the pinned posture (L1220-1224), MAY
+  bound a key with a validity window (L1204). None of these moves the
   verdict this suite reads, because validity "is a function of
   carried bytes alone and holds identically for every consumer"
-  (L1689-1692). A rail that answered the admission question in the
+  (L1703-1706). A rail that answered the admission question in the
   verdict field would be wrong, not free.
 - **Producer options.** `observationSelectors`, `aeeDropBound`, the
   descriptor members no rule reads, the optional run-chaining

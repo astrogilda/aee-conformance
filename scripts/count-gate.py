@@ -683,6 +683,16 @@ DELEGATED: tuple[Delegated, ...] = (
 
 FROZEN: tuple[Frozen, ...] = (
     Frozen(
+        "scripts/complexity-table-gate.py",
+        "the drift incident's Go-side measurement",
+        "``evaluateKind`` from 24 to 28",
+        "A gocyclo reading taken at suiteRevision 15, not a claim about the corpus. "
+        "It became visible only when the revision counter reached the same value, "
+        "which is the collision the MASKS note above already records happening at "
+        "suiteRevision 20: a digit that names a complexity, read as a count because "
+        "a published quantity happened to equal it.",
+    ),
+    Frozen(
         "README.md",
         "the external-rail contract, the shipped CLI's score",
         "it scored 0 of 186.",

@@ -8,7 +8,7 @@ import (
 
 // PAE computes the DSSE v1 pre-authentication encoding over
 // (payloadType, payload). Record signatures — and the batchRoot leaves —
-// are defined over these bytes (spec:1245-1247, 1605-1607).
+// are defined over these bytes (spec:1259-1261, 1619-1621).
 func PAE(payloadType string, payload []byte) []byte {
 	return []byte(fmt.Sprintf("DSSEv1 %d %s %d %s", len(payloadType), payloadType, len(payload), payload))
 }

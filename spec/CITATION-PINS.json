@@ -1,17 +1,17 @@
 {
   "specPath": "spec/predicates/adversarial-execution-evidence.md",
-  "specDigest": "94de8da54af6a2fe4c897f606ca22bfd054f4238b3c85db031ddc703516331b5",
+  "specDigest": "fda0f5f7885d56feb93194cfa604f57c060c12677f77fa5579888b15dc1d1a2d",
   "citations": {
     "aee/codes.go::Code#0": {
-      "cites": "spec:1326-1331",
+      "cites": "spec:1340-1345",
       "digest": "008896e4bb403c2e7133a435dd20c4c3faf378f4b5dc4fb7248a17bf1a901c74",
       "opens": "uncovered. A verifier SHOULD report that refusal under a condition naming the",
       "closes": "diagnostic obligation and never a validity rule."
     },
     "aee/commitments.go::-#0": {
-      "cites": "spec:569-609",
-      "digest": "821a94a7a4aea68444b5b4713e13cdb3adaff5f0a22fe41ea273865f1e42feaa",
-      "opens": "Five further coverage validity requirements hold on the statement, or on",
+      "cites": "spec:569-623",
+      "digest": "0765c93d25588abcf2df4c01a2810e967c30434cc2c7ef9d73e0c2be7f255971",
+      "opens": "Six further coverage validity requirements hold on the statement, or on",
       "closes": "declares the stronger of the two values with nothing checking it."
     },
     "aee/commitments.go::cleanRowsContradicted#0": {
@@ -27,13 +27,13 @@
       "closes": "none of the sharing this document already permits;"
     },
     "aee/commitments.go::observedSetDigest#0": {
-      "cites": "spec:1422-1427",
+      "cites": "spec:1436-1441",
       "digest": "ee9dd8103e8a17c7818b84357f1ef18c0ef948a6965abcc518cfdd706afe7db7",
       "opens": "`aeeObservedSet` _string_, required on a `sealed` record: the lowercase",
       "closes": "leaf construction `batchRoot` uses. A verifier recomputes the same value over"
     },
     "aee/commitments.go::sealsCommitToCarriedSet#0": {
-      "cites": "spec:595-599",
+      "cites": "spec:609-613",
       "digest": "9d0b06600f14c5864f729c548ae84140885f8a5a6083811fd190aa328ca3d8af",
       "opens": "- `aeeObservedSet` on every carried `sealed` record equals the value",
       "closes": "recompute;"
@@ -45,13 +45,13 @@
       "closes": "record it constrains is a rule a producer switches off by omission;"
     },
     "aee/commitments.go::isCoveringKind#0": {
-      "cites": "spec:1317-1331",
+      "cites": "spec:1331-1345",
       "digest": "4ecf7ab01093b4768592ea5a2c4ba706426553ee44a340ece7171b8028d1688b",
       "opens": "Neither kind carries constraints, because there is no state in which either",
       "closes": "diagnostic obligation and never a validity rule."
     },
     "aee/commitments.go::isCoveringKind#1": {
-      "cites": "spec:1561-1565",
+      "cites": "spec:1575-1579",
       "digest": "c88fbba8fa1a96599633a5b69a83625d20cba1a148f82346125e743a6bc798eb",
       "opens": "record whose `aeeKind` the consumer does not recognize covers nothing and",
       "closes": "strengthen, a row (candidate future kinds, informatively: a hardware-quote"
@@ -63,49 +63,49 @@
       "closes": "record it constrains is a rule a producer switches off by omission;"
     },
     "aee/commitments.go::carriedRecordsCover#1": {
-      "cites": "spec:1265-1296",
+      "cites": "spec:1279-1310",
       "digest": "6c4e3de616c12d4d38a3e8c6c4195e7256f2407309a6544a59a0bc21e340ee20",
       "opens": "- `aeeKind` _string_: `interception` (per-event capture, covers caught",
       "closes": "failure, never a silent pass."
     },
     "aee/commitments.go::carriedRecordsCover#2": {
-      "cites": "spec:1291-1296",
+      "cites": "spec:1305-1310",
       "digest": "69e180e36d7e8fd7d3dff275d38e6c394041539409953f93109d9729e3bed3ba",
       "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
       "closes": "failure, never a silent pass."
     },
     "aee/commitments.go::attackIDArrayOK#0": {
-      "cites": "spec:1392-1394",
+      "cites": "spec:1406-1408",
       "digest": "b0ac00c3de10e0c0f49f1e86d65a1d8cb7d9269d22caca6ffc1e5bc79e8a489e",
       "opens": "assess. Duplicate-free, sorted ascending by UTF-16 code unit, every entry an",
       "closes": "violating any of these covers nothing. The union of the manifest's"
     },
     "aee/commitments.go::attackIDArrayOK#1": {
-      "cites": "spec:1460-1462",
+      "cites": "spec:1474-1476",
       "digest": "95c3f07667122bea50a5d6724cac229e32f8b62591121b23f55efd30dfc7174a",
       "opens": "observations. Duplicate-free, sorted ascending by UTF-16 code unit, every",
       "closes": "record violating any of these covers nothing. For every identifier in the"
     },
     "aee/commitments.go::sealNamedAttacksCaught#0": {
-      "cites": "spec:1462-1465",
+      "cites": "spec:1476-1479",
       "digest": "3bef28b965add5c4de877c80a63829509b5ca17e2dd1ef1cae7e07abc5e03d1c",
       "opens": "record violating any of these covers nothing. For every identifier in the",
       "closes": "violating that is invalid."
     },
     "aee/commitments.go::assessedSetDeclared#0": {
-      "cites": "spec:1394-1396",
+      "cites": "spec:1408-1410",
       "digest": "ffb9810f8170219b66d4f82c031a012fc16502f28977f6a1841e35ecf8044380",
       "opens": "violating any of these covers nothing. The union of the manifest's",
       "closes": "this array, and a statement violating that is invalid."
     },
     "aee/commitments.go::attributionBindings#0": {
-      "cites": "spec:600-609",
+      "cites": "spec:614-623",
       "digest": "e6145aaf2d71677274b634b8f9d5a83ab011e63f709a6146ae6e0ea74c606e7f",
       "opens": "- a row declaring `attribution: pinned` resolves at least one",
       "closes": "declares the stronger of the two values with nothing checking it."
     },
     "aee/commitments.go::commitmentArrayOK#0": {
-      "cites": "spec:1377-1381",
+      "cites": "spec:1391-1395",
       "digest": "d41330cbeacf270c661f67a8deba888437de4fc7c203fa3972f631842b2f5029",
       "opens": "`aeePayloadCommitment` _array of strings_, required on an `interception`",
       "closes": "entry lowercase 64-hex. The member names what an `interception` record has"
@@ -123,7 +123,7 @@
       "closes": "(producer and verifier, in any language) derives identical bytes."
     },
     "aee/jcs.go::ErrNonIntegerNumber#1": {
-      "cites": "spec:1254-1256",
+      "cites": "spec:1268-1270",
       "digest": "053ce7ca33eca6a9328adec13d2eddb377eb0b5f466cd5817bace3a76d1ab9b3",
       "opens": "JSON object payload that is canonical per RFC 8785 and valid I-JSON per",
       "closes": "names BMP-only per Prerequisites, every string a well-formed sequence of"
@@ -135,7 +135,7 @@
       "closes": "(producer and verifier, in any language) derives identical bytes."
     },
     "aee/jcs.go::checkSafeInteger#1": {
-      "cites": "spec:1254-1256",
+      "cites": "spec:1268-1270",
       "digest": "053ce7ca33eca6a9328adec13d2eddb377eb0b5f466cd5817bace3a76d1ab9b3",
       "opens": "JSON object payload that is canonical per RFC 8785 and valid I-JSON per",
       "closes": "names BMP-only per Prerequisites, every string a well-formed sequence of"
@@ -147,31 +147,31 @@
       "closes": "(producer and verifier, in any language) derives identical bytes."
     },
     "aee/jcs_number_test.go::TestSafeIntegerProfile#1": {
-      "cites": "spec:1254-1256",
+      "cites": "spec:1268-1270",
       "digest": "053ce7ca33eca6a9328adec13d2eddb377eb0b5f466cd5817bace3a76d1ab9b3",
       "opens": "JSON object payload that is canonical per RFC 8785 and valid I-JSON per",
       "closes": "names BMP-only per Prerequisites, every string a well-formed sequence of"
     },
     "aee/merkle.go::-#0": {
-      "cites": "spec:1605-1610",
+      "cites": "spec:1619-1624",
       "digest": "51941094255db31fa0b93581038164343c8d60ce37fd9d72892b9d0960c41572",
       "opens": "An RFC 6962 Merkle root over the observation records, SHA-256, with",
       "closes": "single-record tree's root its leaf hash, and an empty array with no root."
     },
     "aee/merkle.go::-#1": {
-      "cites": "spec:1611-1614",
+      "cites": "spec:1625-1628",
       "digest": "02f25f8c0b66aea1e29dc1d7fb68cd766430b4ebc5bb6bc3fd38ba20a02a9708",
       "opens": "Two byte-identical entries in `observationRecords` make the attestation",
       "closes": "minor version may admit detached records addressed by leaf hash with"
     },
     "aee/pae.go::PAE#0": {
-      "cites": "spec:1245-1247",
+      "cites": "spec:1259-1261",
       "digest": "28be11555b417cd6685971a47a57968bbec6abe92bd31e59456ef6c9a9283a60",
       "opens": "and `signatures`, which MUST carry at least one entry. A consumer verifies",
       "closes": "relying on any field inside the payload. The order is deliberate and the"
     },
     "aee/pae.go::PAE#1": {
-      "cites": "spec:1605-1607",
+      "cites": "spec:1619-1621",
       "digest": "4bbaa09371fd1718890a7b2b026a0dee9ac538ca60519ba46be80b06632c6ce5",
       "opens": "An RFC 6962 Merkle root over the observation records, SHA-256, with",
       "closes": "bytes)`, each internal node is `H(0x01 || left || right)`, the tree built"
@@ -225,7 +225,7 @@
       "closes": "the statement alone; no field carries it. Every substrate-signed"
     },
     "aee/statement.go::parseTimestamp#0": {
-      "cites": "spec:1647-1656",
+      "cites": "spec:1661-1670",
       "digest": "de6c279bd73c8d3d15034368ba559549e2392c1c3173a8365cf2fc02b9183789",
       "opens": "When the producer signed the evidence bundle. `Timestamp` is the framework's",
       "closes": "`-00:00`, never a non-zero offset such as `+05:00`. `-00:00` is admitted"
@@ -243,7 +243,7 @@
       "closes": "\"predicateType\": \"https://in-toto.io/attestation/adversarial-execution-evidence/v0.7\","
     },
     "aee/statement.go::Gate0#2": {
-      "cites": "spec:1638-1642",
+      "cites": "spec:1652-1656",
       "digest": "2d31b0706a8226ce9cce9b151046059f766916e1bf1137f7085f6b69097f926e",
       "opens": "require it, and nothing in it weakens the required checks. `doesNotAssert`",
       "closes": "content. Migrating old producer output to the new name is a producer"
@@ -255,37 +255,37 @@
       "closes": "One of `fail`, `degraded`, `pass_indirect`, `pass` (lowercase), ordered"
     },
     "aee/statement.go::Gate0#4": {
-      "cites": "spec:745-764",
+      "cites": "spec:759-778",
       "digest": "05d2cdc5eacc081310f7437065ad7acc9cfa089d9c162fd2e71e9844c9ccdd2f",
       "opens": "The digest-pinned context the evidence was earned under. Five required",
       "closes": "of these is malformed)."
     },
     "aee/statement.go::Gate0#5": {
-      "cites": "spec:756-764",
+      "cites": "spec:770-778",
       "digest": "f799432041ad760164a9a1ed7c907288ffe39983a6f6dadfa1c1f1298484f88f",
       "opens": "`observationVocabulary` (the",
       "closes": "of these is malformed)."
     },
     "aee/statement.go::Gate0#6": {
-      "cites": "spec:747-751",
+      "cites": "spec:761-765",
       "digest": "39981332024dd9de6d96ca125281dbebcff1ba770a45c2c5f6456b81521922e7",
       "opens": "attestation), `corpus` (name, uri, RECOMMENDED as a purl; the JCS digest of",
       "closes": "attackId MUST NOT appear under more than one class), `catchPolicy` (JCS digest of the"
     },
     "aee/statement.go::Gate0#7": {
-      "cites": "spec:749-751",
+      "cites": "spec:763-765",
       "digest": "e7ba6ed54738a424b8f58bde6f4b1d73e728642a6c1fd14c5afecb67c775b0b3",
       "opens": "`classes`, a map from assessment class to the complete array of attack",
       "closes": "attackId MUST NOT appear under more than one class), `catchPolicy` (JCS digest of the"
     },
     "aee/statement.go::Gate0#8": {
-      "cites": "spec:865-868",
+      "cites": "spec:879-882",
       "digest": "eeaede46f47da5bddbd6d3d70633c38ff34da7fae154e29d41e26b56fada0a72",
       "opens": "`coverage` _object, required_",
       "closes": "assessed), `outOfScope` and `routedElsewhere` (maps from class code to a"
     },
     "aee/statement.go::Gate0#9": {
-      "cites": "spec:878",
+      "cites": "spec:892",
       "digest": "94be78ad5b9fe99b184c3c25ccc8bf7318de56f0aea67c084884a961022052e3",
       "opens": "`attackResults` _array of objects, required_",
       "closes": "`attackResults` _array of objects, required_"
@@ -297,13 +297,13 @@
       "closes": "`catchPolicy`, `corpus`, `runEntropy`, `substrate` and `subject[0]` MUST each"
     },
     "aee/statement.go::Gate0#11": {
-      "cites": "spec:1212-1223",
+      "cites": "spec:1226-1237",
       "digest": "a10fa2ab39361a0c70f5afa22cbaf30d4fbd2c81b1c79b6c4ef49c1e3b319cab",
       "opens": "`actualLayer` names the enforcement layer that acted on the row's",
       "closes": "nothing acted), the producer MUST emit the literal string `none`. `none` is"
     },
     "aee/statement.go::Gate0#12": {
-      "cites": "spec:923-926",
+      "cites": "spec:937-940",
       "digest": "1ff604223626486ec0980b21e4ba79911d19ef4f73f362e50175648e76fd49f0",
       "opens": "Coverage integrity is checked at attack granularity: the union of attackIds",
       "closes": "producer still reports as assessed."
@@ -315,67 +315,67 @@
       "closes": "binding and need not carry `runEntropy`. A verifier derives the digest from"
     },
     "aee/statement.go::Gate0#14": {
-      "cites": "spec:768-770",
+      "cites": "spec:782-784",
       "digest": "ba42b10a5815becb4d723b970c229c7fa576974dc986b68ddd2a4c9463f40d7b",
       "opens": "verifiable after the producer's documentation moves or disappears. A sixth",
       "closes": "binding), is required exactly when any row carries `basis: substrate`. The"
     },
     "aee/statement.go::Gate0#15": {
-      "cites": "spec:1660-1662",
+      "cites": "spec:1674-1676",
       "digest": "982d3f170ea8317401ba9f319a7f196a16bf9320ebe0c7959b75f488b096bb36",
       "opens": "is the only thing this document reads from the field. A statement whose",
       "closes": "is malformed. `armedAt` carries the same profile, defined here and cited"
     },
     "aee/statement.go::canonicalVocabulary#0": {
-      "cites": "spec:762-764",
+      "cites": "spec:776-778",
       "digest": "baa7ca3634e990381ce687fcf7c3c56b4bad4cd1bf0d09228beb0c1c5a56dd9b",
       "opens": "Prerequisites), `caught` a subset of `labels`, and `digest` the JCS digest of",
       "closes": "of these is malformed)."
     },
     "aee/statement.go::gate0Corpus#0": {
-      "cites": "spec:749-751",
+      "cites": "spec:763-765",
       "digest": "e7ba6ed54738a424b8f58bde6f4b1d73e728642a6c1fd14c5afecb67c775b0b3",
       "opens": "`classes`, a map from assessment class to the complete array of attack",
       "closes": "attackId MUST NOT appear under more than one class), `catchPolicy` (JCS digest of the"
     },
     "aee/statement.go::gate0Corpus#1": {
-      "cites": "spec:938-941",
+      "cites": "spec:952-955",
       "digest": "5ade5a0735a1ff21b6123469fe528183c79f61998e227a4d8e8a478c10eee098",
       "opens": "union, and the rest of the statement follows from there: zero rows means",
       "closes": "every structure that would have required a substrate signature drops out and"
     },
     "aee/statement.go::gate0Corpus#2": {
-      "cites": "spec:768-770",
+      "cites": "spec:782-784",
       "digest": "ba42b10a5815becb4d723b970c229c7fa576974dc986b68ddd2a4c9463f40d7b",
       "opens": "verifiable after the producer's documentation moves or disappears. A sixth",
       "closes": "binding), is required exactly when any row carries `basis: substrate`. The"
     },
     "aee/statement.go::gate0ExpectedPayloads#0": {
-      "cites": "spec:775-781",
+      "cites": "spec:789-795",
       "digest": "04b6e9eb7f8f626ce5731b7932f440c2d237bfb47b84bc73112d294ff598a485",
       "opens": "`corpus.manifest.expectedPayloads` is an optional map from attack identifier",
       "closes": "malformed. The map is a sibling of `classes` rather than an enrichment of it,"
     },
     "aee/statement.go::gate0CoverageIntegrity#0": {
-      "cites": "spec:872-876",
+      "cites": "spec:886-890",
       "digest": "65d2638eb4daa3c217c5a8f2721cfcc439506dda1dd278491b9e591802574995",
       "opens": "one. The three sets are a disjoint partition of the manifest's classes: a",
       "closes": "disclosed as a gap is contradictory."
     },
     "aee/statement.go::gate0CoverageIntegrity#1": {
-      "cites": "spec:747-751",
+      "cites": "spec:761-765",
       "digest": "39981332024dd9de6d96ca125281dbebcff1ba770a45c2c5f6456b81521922e7",
       "opens": "attestation), `corpus` (name, uri, RECOMMENDED as a purl; the JCS digest of",
       "closes": "attackId MUST NOT appear under more than one class), `catchPolicy` (JCS digest of the"
     },
     "aee/statement.go::gate0CoverageIntegrity#2": {
-      "cites": "spec:901-906",
+      "cites": "spec:915-920",
       "digest": "3710b2729ddf980a3cacdcb1bb8fbd1647200726ce62b5ab67de5bd049f9aebb",
       "opens": "No two `attackResults` rows may carry the same `attackId`: one row per",
       "closes": "before that comparison, not left to it."
     },
     "aee/statement.go::gate0SubstrateBindingInputs#0": {
-      "cites": "spec:768-770",
+      "cites": "spec:782-784",
       "digest": "ba42b10a5815becb4d723b970c229c7fa576974dc986b68ddd2a4c9463f40d7b",
       "opens": "verifiable after the producer's documentation moves or disappears. A sixth",
       "closes": "binding), is required exactly when any row carries `basis: substrate`. The"
@@ -393,31 +393,31 @@
       "closes": "carry a `sha256` digest whose value is already lowercase 64-hex, and so MUST"
     },
     "aee/tier.go::-#0": {
-      "cites": "spec:726-735",
+      "cites": "spec:740-749",
       "digest": "21a982b25fbe9de5ef4b7ac5e2ee080215f4bd10352ececef8422073a366c72a",
       "opens": "**Evidence tier (derived, never carried).** Given a valid attestation, a",
       "closes": "key policy; it never alters `result`. Consumer policy MAY subdivide"
     },
     "aee/tier.go::-#1": {
-      "cites": "spec:731-734",
+      "cites": "spec:745-748",
       "digest": "c8a253ac9f0780e3d5448ae99652796db1b1f6058a15a6acd0a5fc3acadc377a",
       "opens": "policy names as a substrate observation key, and `unattested` otherwise. A",
       "closes": "the predicate. The tier is total and deterministic given the consumer's"
     },
     "aee/tier.go::-#2": {
-      "cites": "spec:1746-1748",
+      "cites": "spec:1760-1762",
       "digest": "b0306298aa252f910e3e3ac79c62e73193b85106eaa733b53e18e461324ed5ff",
       "opens": "as a live one. The check that matters is signature verification against a",
       "closes": "hint and never the check itself:"
     },
     "aee/tier.go::Tier#0": {
-      "cites": "spec:735-739",
+      "cites": "spec:749-753",
       "digest": "887aa25ab6900c29c2a3d1deda351046f8ce4ab9a2114b097e2c03ea2ec1726a",
       "opens": "key policy; it never alters `result`. Consumer policy MAY subdivide",
       "closes": "beginning with `aee` are reserved. A carried predicate member named"
     },
     "aee/tier.go::DeriveTiers#0": {
-      "cites": "spec:1074-1075",
+      "cites": "spec:1088-1089",
       "digest": "f14502cd4c1f9c30a63711e82279cf3fddd92e88bcfbad11eb5de36e7d35d8c3",
       "opens": "event, weaker than an interception only in that it was derived after the",
       "closes": "fact. A row fail-closed on `basis` or `method` sits at the bottom of both"
@@ -447,104 +447,104 @@
       "closes": "bounded by the pinned `networkPosture` digest."
     },
     "aee/types.go::PredicateType#3": {
-      "cites": "spec:952-996",
+      "cites": "spec:966-1010",
       "digest": "7e2d1a69a745d47627559ff4dfa0b90dc3a3a2d04d9427fc90498602193da168",
       "opens": "`basis` states each observation's vantage, with a closed two-value",
       "closes": "tolerance is part of the claim."
     },
     "aee/types.go::PredicateType#4": {
-      "cites": "spec:1015-1024",
+      "cites": "spec:1029-1038",
       "digest": "6db398b9eccb62131ecbeb3addf79bfbab988bacaa5c6daabb51f08789946463",
       "opens": "`attribution` is the axis that acquires such a reader at this version. It",
       "closes": "producer assertion."
     },
     "aee/types.go::PredicateType#5": {
-      "cites": "spec:1298-1370",
+      "cites": "spec:1312-1384",
       "digest": "b847d90c19b6a5a9d711d6067467c1dc4979390d02c8fb2f7ab67cf6e6506c67",
       "opens": "`moat-drop` and `uncommitted-observation` are registered by this document and",
       "closes": "now spent."
     },
     "aee/types.go::Environment#0": {
-      "cites": "spec:743-773",
+      "cites": "spec:757-787",
       "digest": "f5dd44b7e1861b3dc6f4ad77bd3753d33fcb3db4e99e4456b3988fc366d2dbac",
       "opens": "`observationEnvironment` _object, required_",
       "closes": "renamed class) fails that check."
     },
     "aee/types.go::Corpus#0": {
-      "cites": "spec:747-751",
+      "cites": "spec:761-765",
       "digest": "39981332024dd9de6d96ca125281dbebcff1ba770a45c2c5f6456b81521922e7",
       "opens": "attestation), `corpus` (name, uri, RECOMMENDED as a purl; the JCS digest of",
       "closes": "attackId MUST NOT appear under more than one class), `catchPolicy` (JCS digest of the"
     },
     "aee/types.go::Corpus#1": {
-      "cites": "spec:775-788",
+      "cites": "spec:789-802",
       "digest": "44b4f52c10fbe782e09f6070c12469774d139dc24d1ff2b6e4f4c344885bb097",
       "opens": "`corpus.manifest.expectedPayloads` is an optional map from attack identifier",
       "closes": "beside it."
     },
     "aee/types.go::NetworkPosture#0": {
-      "cites": "spec:753-755",
+      "cites": "spec:767-769",
       "digest": "d484018e9ee7bca29754e21c16dce2167d9332f5c6b4c10cd3646d21451151d6",
       "opens": "distinguishable from an enforcing one), `networkPosture` (the",
       "closes": "registered below, with its configuration digest), and"
     },
     "aee/types.go::NetworkPosture#1": {
-      "cites": "spec:807-815",
+      "cites": "spec:821-829",
       "digest": "7c28332981241f4760d3133b159156c58b200b82ebfd1f73e82d610a416a4373",
       "opens": "The `networkPosture.posture` vocabulary is closed. Four values are",
       "closes": "redefine a registered one."
     },
     "aee/types.go::EgressPostures#0": {
-      "cites": "spec:807-815",
+      "cites": "spec:821-829",
       "digest": "7c28332981241f4760d3133b159156c58b200b82ebfd1f73e82d610a416a4373",
       "opens": "The `networkPosture.posture` vocabulary is closed. Four values are",
       "closes": "redefine a registered one."
     },
     "aee/types.go::Vocabulary#0": {
-      "cites": "spec:756-764",
+      "cites": "spec:770-778",
       "digest": "f799432041ad760164a9a1ed7c907288ffe39983a6f6dadfa1c1f1298484f88f",
       "opens": "`observationVocabulary` (the",
       "closes": "of these is malformed)."
     },
     "aee/types.go::Coverage#0": {
-      "cites": "spec:867-876",
+      "cites": "spec:881-890",
       "digest": "96b0a5b26cb4055133d6fd672664e1df8fc4ad5b5c4a0482474f75f892a854b2",
       "opens": "The coverage bound: `assessedClasses` (array of class codes actually",
       "closes": "disclosed as a gap is contradictory."
     },
     "aee/types.go::Row#0": {
-      "cites": "spec:1045-1049",
+      "cites": "spec:1059-1063",
       "digest": "2732fbfef3931823a202d6d1139e9b9ffe7fe759f30d1f695d724bed7d3169a2",
       "opens": "`basis`, `method` and `attribution` are REQUIRED on every row and all three",
       "closes": "`result` to `fail` and can support nothing stronger. The 0.4 values"
     },
     "aee/types.go::Row#1": {
-      "cites": "spec:1212-1215",
+      "cites": "spec:1226-1229",
       "digest": "073a85d670331326f15e1d45dc2d41a98f98ac6127da32b41ebb5c7e67bb6e20",
       "opens": "`actualLayer` names the enforcement layer that acted on the row's",
       "closes": "attestation is invalid, rather than the row forcing `fail`. That altitude"
     },
     "aee/types.go::Record#0": {
-      "cites": "spec:1241-1245",
+      "cites": "spec:1255-1259",
       "digest": "dcc060e6102b11c3f22d80c91d32f7e8605202ac9cde5206bb13b6310422161d",
       "opens": "`observationRecords` _array of objects, optional_",
       "closes": "and `signatures`, which MUST carry at least one entry. A consumer verifies"
     },
     "aee/types.go::RecordSignatures#0": {
-      "cites": "spec:1243-1245",
+      "cites": "spec:1257-1259",
       "digest": "e0f1c03133309284c9b105cee0d71eb793fac400fbb6acbb7f1816a982e705ff",
       "opens": "One DSSE envelope per observation: `payload` (base64 of the exact",
       "closes": "and `signatures`, which MUST carry at least one entry. A consumer verifies"
     },
     "aee/types.go::RecordSignature#0": {
-      "cites": "spec:1746-1748",
+      "cites": "spec:1760-1762",
       "digest": "b0306298aa252f910e3e3ac79c62e73193b85106eaa733b53e18e461324ed5ff",
       "opens": "as a live one. The check that matters is signature verification against a",
       "closes": "hint and never the check itself:"
     },
     "aee/validity.go::-#0": {
-      "cites": "spec:542-615",
-      "digest": "bc8d2f5626e1212be985acafd6417e355ba104f0aad22954ac84a1f0abf3376c",
+      "cites": "spec:542-629",
+      "digest": "d9ac3b8e9e07f1157e4636d47f5a8f990fa1028ab1d963d065676c7a42a28813",
       "opens": "**Coverage validity (derived from carried bytes; a violation is malformed).**",
       "closes": "any malformed statement."
     },
@@ -555,49 +555,49 @@
       "closes": "holding no keys. It is also their limit: a violation here is conclusive, since"
     },
     "aee/validity.go::-#2": {
-      "cites": "spec:1263-1285",
+      "cites": "spec:1277-1299",
       "digest": "b45060433aeb8f7acf5a4931b7a68ddb649919f684593d5a1f57779903272c54",
       "opens": "- `aeeRunBinding` _string_: the run binding digest defined under",
       "closes": "substrate observed, stated inside the signature."
     },
     "aee/validity.go::-#3": {
-      "cites": "spec:1372-1375",
+      "cites": "spec:1386-1389",
       "digest": "0673edcac33b5c15a845e08a88fc0865fe504c181f5dce359df51e2695962ee7",
       "opens": "Four reserved members carry the commitments this version adds. Each is",
       "closes": "kind requires covers nothing, on the same terms as a missing `armedAt`."
     },
     "aee/validity.go::checkRecordsStatementLevel#0": {
-      "cites": "spec:1243-1245",
+      "cites": "spec:1257-1259",
       "digest": "e0f1c03133309284c9b105cee0d71eb793fac400fbb6acbb7f1816a982e705ff",
       "opens": "One DSSE envelope per observation: `payload` (base64 of the exact",
       "closes": "and `signatures`, which MUST carry at least one entry. A consumer verifies"
     },
     "aee/validity.go::checkRecordsStatementLevel#1": {
-      "cites": "spec:1603",
+      "cites": "spec:1617",
       "digest": "4636ec8560cc0ead116100610dde879f5fd9c34863e805af0fdb6b5267573e9e",
       "opens": "`batchRoot` _string, required when `observationRecords` is non-empty_",
       "closes": "`batchRoot` _string, required when `observationRecords` is non-empty_"
     },
     "aee/validity.go::checkRecordsStatementLevel#2": {
-      "cites": "spec:1611-1613",
+      "cites": "spec:1625-1627",
       "digest": "9f8ed3e077d0a6fc19a6ffa1b68d552c62384f87bcaf41a11cb3aafa40e91883",
       "opens": "Two byte-identical entries in `observationRecords` make the attestation",
       "closes": "reference is shorthand for the leaf hash at that position, and a future"
     },
     "aee/validity.go::checkRecordsStatementLevel#3": {
-      "cites": "spec:1615-1617",
+      "cites": "spec:1629-1631",
       "digest": "25363553c90486607f15b24979aec89c1f462c2544a86dd2788c4a5bbbfb4f69",
       "opens": "`batchRoot` unchanged. Carried once at the predicate level. A `batchRoot`",
       "closes": "invalid. Because every `basis: substrate` row requires covering records"
     },
     "aee/validity.go::checkRecordsStatementLevel#4": {
-      "cites": "spec:1628-1631",
+      "cites": "spec:1642-1645",
       "digest": "20d60d4811be103b73a08eacdbb855a65168dd250fa72b1cbd14166eb56e434b",
       "opens": "completeness against the run. `batchRoot` is omitted only when",
       "closes": "`basis: artifact` rows."
     },
     "aee/validity.go::checkRecordsStatementLevel#5": {
-      "cites": "spec:1245-1252",
+      "cites": "spec:1259-1266",
       "digest": "0c6fbc4f2db0b8e4b200a955739cdc5f16c329cf5a0c4b04dd0eda9e4a6676fe",
       "opens": "and `signatures`, which MUST carry at least one entry. A consumer verifies",
       "closes": "Reading ahead of verification is a stage, never a conclusion. Any record used"
@@ -609,79 +609,79 @@
       "closes": "sequencing itself is informative."
     },
     "aee/validity.go::payloadAnalysis#0": {
-      "cites": "spec:1252-1261",
+      "cites": "spec:1266-1275",
       "digest": "4576d504698ba67970cdfc045d7f78b67ed3f3b11e7ef70ac8667fd12d0e44ee",
       "opens": "Reading ahead of verification is a stage, never a conclusion. Any record used",
       "closes": "media type is not `+json`, covers nothing:"
     },
     "aee/validity.go::recordEval#0": {
-      "cites": "spec:1265-1296",
+      "cites": "spec:1279-1310",
       "digest": "6c4e3de616c12d4d38a3e8c6c4195e7256f2407309a6544a59a0bc21e340ee20",
       "opens": "- `aeeKind` _string_: `interception` (per-event capture, covers caught",
       "closes": "failure, never a silent pass."
     },
     "aee/validity.go::recordEval#1": {
-      "cites": "spec:1287-1290",
+      "cites": "spec:1301-1304",
       "digest": "a0d0a3d721a2feda23d5cbe0bf539cdbc991b7796531c7abf26391b448c7113b",
       "opens": "A record violating any constraint of its declared `aeeKind` (including a",
       "closes": "`aeeMethod: intercepted`) covers nothing."
     },
     "aee/validity.go::recordEval#2": {
-      "cites": "spec:1561-1563",
+      "cites": "spec:1575-1577",
       "digest": "65daf87ee2a0fd3ae0348c762dfc58e61ef2b5ede2bc8fb39987dc4826f1bfba",
       "opens": "record whose `aeeKind` the consumer does not recognize covers nothing and",
       "closes": "minor versions MAY add kinds and MUST NOT change the covering semantics of"
     },
     "aee/validity.go::evaluateKind#0": {
-      "cites": "spec:1392-1394",
+      "cites": "spec:1406-1408",
       "digest": "b0ac00c3de10e0c0f49f1e86d65a1d8cb7d9269d22caca6ffc1e5bc79e8a489e",
       "opens": "assess. Duplicate-free, sorted ascending by UTF-16 code unit, every entry an",
       "closes": "violating any of these covers nothing. The union of the manifest's"
     },
     "aee/validity.go::evaluateKind#1": {
-      "cites": "spec:1460-1462",
+      "cites": "spec:1474-1476",
       "digest": "95c3f07667122bea50a5d6724cac229e32f8b62591121b23f55efd30dfc7174a",
       "opens": "observations. Duplicate-free, sorted ascending by UTF-16 code unit, every",
       "closes": "record violating any of these covers nothing. For every identifier in the"
     },
     "aee/validity.go::evaluateKind#2": {
-      "cites": "spec:1377-1381",
+      "cites": "spec:1391-1395",
       "digest": "d41330cbeacf270c661f67a8deba888437de4fc7c203fa3972f631842b2f5029",
       "opens": "`aeePayloadCommitment` _array of strings_, required on an `interception`",
       "closes": "entry lowercase 64-hex. The member names what an `interception` record has"
     },
     "aee/validity.go::evaluateKind#3": {
-      "cites": "spec:1317-1331",
+      "cites": "spec:1331-1345",
       "digest": "4ecf7ab01093b4768592ea5a2c4ba706426553ee44a340ece7171b8028d1688b",
       "opens": "Neither kind carries constraints, because there is no state in which either",
       "closes": "diagnostic obligation and never a validity rule."
     },
     "aee/validity.go::armingConstraintsMet#0": {
-      "cites": "spec:1269-1270",
+      "cites": "spec:1283-1284",
       "digest": "16260ef8cf4e441e23c26d47a93bf87522a53e01365624614e00d0aa264c598f",
       "opens": "carry `armedAt` under the timestamp profile `issuedAt` defines, no",
       "closes": "later than `issuedAt`, `aeePostureDigest` equal to the pinned"
     },
     "aee/validity.go::armingConstraintsMet#1": {
-      "cites": "spec:1390-1394",
+      "cites": "spec:1404-1408",
       "digest": "ea775b075ac374aff4ff7c684f07135dd174d5c6c1d7b1ac21d0a1ce2b22b1d1",
       "opens": "`aeeAssessedAttacks` _array of strings_, required on an `arming` record: the",
       "closes": "violating any of these covers nothing. The union of the manifest's"
     },
     "aee/validity.go::sealedConstraintsMet#0": {
-      "cites": "spec:1291-1296",
+      "cites": "spec:1305-1310",
       "digest": "69e180e36d7e8fd7d3dff275d38e6c394041539409953f93109d9729e3bed3ba",
       "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
       "closes": "failure, never a silent pass."
     },
     "aee/validity.go::sealedConstraintsMet#1": {
-      "cites": "spec:1422-1429",
+      "cites": "spec:1436-1443",
       "digest": "d02cc6c0891bf9b1873f418078ec97aec43a2e3e563134589efe33aabf9dfb0e",
       "opens": "`aeeObservedSet` _string_, required on a `sealed` record: the lowercase",
       "closes": "record whose `aeeObservedSet` does not equal that recompute covers nothing,"
     },
     "aee/validity.go::sealedConstraintsMet#2": {
-      "cites": "spec:1458-1462",
+      "cites": "spec:1472-1476",
       "digest": "8de3ea21d3a7c652a2a3d52f73d7f67aee8722c13151ccc5425e839d05068724",
       "opens": "`aeeObservedAttacks` _array of strings_, required on a `sealed` record: the",
       "closes": "record violating any of these covers nothing. For every identifier in the"
@@ -693,13 +693,13 @@
       "closes": "at its class definition);"
     },
     "aee/validity.go::rowFailsClosed#0": {
-      "cites": "spec:720-724",
+      "cites": "spec:734-738",
       "digest": "27a76885ec66acb5a8eaf3a1e29d73079df9e14bc25f991828d1d391db2ce68b",
       "opens": "function of carried bytes. A `basis: substrate` row whose",
       "closes": "of both orderings as before."
     },
     "aee/validity.go::rowFailsClosed#1": {
-      "cites": "spec:1045-1049",
+      "cites": "spec:1059-1063",
       "digest": "2732fbfef3931823a202d6d1139e9b9ffe7fe759f30d1f695d724bed7d3169a2",
       "opens": "`basis`, `method` and `attribution` are REQUIRED on every row and all three",
       "closes": "`result` to `fail` and can support nothing stronger. The 0.4 values"
@@ -717,7 +717,7 @@
       "closes": "statement;"
     },
     "aee/validity.go::checkSubstrateRow#2": {
-      "cites": "spec:1287-1296",
+      "cites": "spec:1301-1310",
       "digest": "d09bd485026853db21328f710356d120796af7b146f6756fe5cc72a3ffdcc395",
       "opens": "A record violating any constraint of its declared `aeeKind` (including a",
       "closes": "failure, never a silent pass."
@@ -735,43 +735,43 @@
       "closes": "its covering records (`reconstructed` is weaker than `intercepted`);"
     },
     "aee/vectors_test.go::checkTierPartition#0": {
-      "cites": "spec:726-735",
+      "cites": "spec:740-749",
       "digest": "21a982b25fbe9de5ef4b7ac5e2ee080215f4bd10352ececef8422073a366c72a",
       "opens": "**Evidence tier (derived, never carried).** Given a valid attestation, a",
       "closes": "key policy; it never alters `result`. Consumer policy MAY subdivide"
     },
     "aee/vectors_test.go::checkTierPartition#1": {
-      "cites": "spec:1074-1075",
+      "cites": "spec:1088-1089",
       "digest": "f14502cd4c1f9c30a63711e82279cf3fddd92e88bcfbad11eb5de36e7d35d8c3",
       "opens": "event, weaker than an interception only in that it was derived after the",
       "closes": "fact. A row fail-closed on `basis` or `method` sits at the bottom of both"
     },
     "aee/verify.go::Report#0": {
-      "cites": "spec:611-615",
+      "cites": "spec:625-629",
       "digest": "cc6486e4b6c9ca84fc0d8b821eb0ae9d74c44a49bd1733f7b809bfe7a9865a20",
       "opens": "These requirements are consumption preconditions, not optional lints: a",
       "closes": "any malformed statement."
     },
     "packaging/run_vectors.py::_timestamp_ok#0": {
-      "cites": "spec:1647-1656",
+      "cites": "spec:1661-1670",
       "digest": "de6c279bd73c8d3d15034368ba559549e2392c1c3173a8365cf2fc02b9183789",
       "opens": "When the producer signed the evidence bundle. `Timestamp` is the framework's",
       "closes": "`-00:00`, never a non-zero offset such as `+05:00`. `-00:00` is admitted"
     },
     "packaging/run_vectors.py::ReferenceVerifier#0": {
-      "cites": "spec:928-950",
+      "cites": "spec:942-964",
       "digest": "8bf6062b3d8dc4601f074d487349a10d4754f4a0182673ad3b5dc5e85db434a1",
       "opens": "That comparison is only as strong as the manifest it reads against, so the",
       "closes": "by this requirement, because its manifest declares an attack identifier."
     },
     "packaging/run_vectors.py::ReferenceVerifier#1": {
-      "cites": "spec:872-876",
+      "cites": "spec:886-890",
       "digest": "65d2638eb4daa3c217c5a8f2721cfcc439506dda1dd278491b9e591802574995",
       "opens": "one. The three sets are a disjoint partition of the manifest's classes: a",
       "closes": "disclosed as a gap is contradictory."
     },
     "packaging/run_vectors.py::ReferenceVerifier#2": {
-      "cites": "spec:901-906",
+      "cites": "spec:915-920",
       "digest": "3710b2729ddf980a3cacdcb1bb8fbd1647200726ce62b5ab67de5bd049f9aebb",
       "opens": "No two `attackResults` rows may carry the same `attackId`: one row per",
       "closes": "before that comparison, not left to it."
@@ -783,13 +783,13 @@
       "closes": "`catchPolicy`, `corpus`, `runEntropy`, `substrate` and `subject[0]` MUST each"
     },
     "packaging/run_vectors.py::ReferenceVerifier#4": {
-      "cites": "spec:1243-1245",
+      "cites": "spec:1257-1259",
       "digest": "e0f1c03133309284c9b105cee0d71eb793fac400fbb6acbb7f1816a982e705ff",
       "opens": "One DSSE envelope per observation: `payload` (base64 of the exact",
       "closes": "and `signatures`, which MUST carry at least one entry. A consumer verifies"
     },
     "vectors/accept/gen_valid_vectors.py::build_vectors#0": {
-      "cites": "spec:1561-1563",
+      "cites": "spec:1575-1577",
       "digest": "65daf87ee2a0fd3ae0348c762dfc58e61ef2b5ede2bc8fb39987dc4826f1bfba",
       "opens": "record whose `aeeKind` the consumer does not recognize covers nothing and",
       "closes": "minor versions MAY add kinds and MUST NOT change the covering semantics of"

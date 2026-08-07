@@ -773,6 +773,14 @@ FROZEN: tuple[Frozen, ...] = (
         "corpus. Its source is another project's published records.",
     ),
     Frozen(
+        "crosswalks/aee-to-ave.md",
+        "the evidence-basis engine table, the llm row",
+        "| llm | 25 |",
+        "A count of AVE records citing one engine, read from another project's "
+        "published corpus on a stated date. It is not a size of this corpus and "
+        "collides with the current suiteRevision only by coincidence.",
+    ),
+    Frozen(
         "scripts/consumer-lag-gate.py",
         "the two remembered lags",
         "two rails sat at 140 vectors while this repository",

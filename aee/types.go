@@ -330,7 +330,7 @@ func (s *RecordSignatures) UnmarshalJSON(b []byte) error {
 }
 
 // RecordSignature matches the DSSE signature member shape. The keyid is an
-// unauthenticated lookup hint and never the check itself (spec:1760-1762).
+// unauthenticated lookup hint and never the check itself (spec:1773-1775).
 type RecordSignature struct {
 	KeyID string `json:"keyid"`
 	Sig   string `json:"sig"`

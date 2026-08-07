@@ -46,7 +46,7 @@
       "id": "U5",
       "requirement": "The anchor comparison (expectedCorpusDigest / expectedSubstrateDigest) and the evidence tier are trust-relative consumer-policy facts, not validity",
       "specAnchors": [
-        "L1686-1710",
+        "L1699-1723",
         "L431-555"
       ],
       "classification": "consumer-policy-unvectorable",

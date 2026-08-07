@@ -1,6 +1,6 @@
 <!--
 Implementation report for the AEE v0.7 predicate conformance suite.
-Corpus SSOT: vectors/MANIFEST.json (suiteRevision 24, 248 vectors: 54 accept, 192 reject, 2 indeterminate).
+Corpus SSOT: vectors/MANIFEST.json (suiteRevision 25, 248 vectors: 54 accept, 192 reject, 2 indeterminate).
 Honest scoping: every claim below states exactly what each implementation was verified against.
 Independence is counted by authorship, not by implementation count; see "How independence
 is counted here" before adding any row to the table.
@@ -57,7 +57,7 @@ with. Both rails were corrected and both readings are now pinned.
 
 ## Reference corpus
 
-`vectors/MANIFEST.json`, suiteRevision 24: **248 vectors (54 accept, 192 reject, 2 indeterminate)**.
+`vectors/MANIFEST.json`, suiteRevision 25: **248 vectors (54 accept, 192 reject, 2 indeterminate)**.
 Each accept vector must verify valid with its expected `result` token; each reject
 vector must be invalid with a failure code drawn from the manifest's code set. The
 corpus is regenerated deterministically from the generators and its vendored spec
@@ -67,9 +67,9 @@ digest is pinned and CI-checked (`scripts/spec-drift-gate.py`).
 
 | Implementation | Language | Author | Verified against | Result |
 |---|---|---|---|---|
-| Reference rail (`aee/`) | Go | spec author | reference corpus, suiteRevision 24 | **248 / 248** |
-| Reference rail (`packaging/run_vectors.py`) | Python | spec author | reference corpus, suiteRevision 24 | **248 / 248** |
-| `Rul1an/aee-checker` | Rust | **independent, from-spec text alone** | author-run suiteRevision 6 (153), 2026-07-28 (aee-checker#4); suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 and 24 not run by its author | **153 / 153** at suiteRevision 6, directed; **125 / 125** blind at suiteRevision 1; suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 and 24 not run by author (see note 1) |
+| Reference rail (`aee/`) | Go | spec author | reference corpus, suiteRevision 25 | **248 / 248** |
+| Reference rail (`packaging/run_vectors.py`) | Python | spec author | reference corpus, suiteRevision 25 | **248 / 248** |
+| `Rul1an/aee-checker` | Rust | **independent, from-spec text alone** | author-run suiteRevision 6 (153), 2026-07-28 (aee-checker#4); suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24 and 25 not run by its author | **153 / 153** at suiteRevision 6, directed; **125 / 125** blind at suiteRevision 1; suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24 and 25 not run by author (see note 1) |
 | `ts-verify` | TypeScript | spec author | its vendored set (248 vectors) + cross-rail parity tests | pass (see note 2) |
 | `py-verify` | Python | spec author | its vendored set (248 vectors) + parity tests | pass (see note 2) |
 | MCP server rail `_aee.py` | Python | spec author | its vendored set (248 vectors) + parity tests | pass (see note 2) |
@@ -167,7 +167,7 @@ has been read by the first-party rails only.
    unprompted evidence remain the blind 125/125 at suiteRevision 1 and the first-run
    140/140 at suiteRevision 3; no other figure here may be described that way.
 
-   **He has not run suiteRevision 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 or 24, so this report
+   **He has not run suiteRevision 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24 or 25, so this report
    publishes no score for him at any of them.** Two different things put a revision
    on that list. From suiteRevision 7 onward the corpus moved past his last run: the
    single suiteRevision-7 vector (`bad-745`) and the two suiteRevision-8 vectors
@@ -190,9 +190,9 @@ has been read by the first-party rails only.
    edition of this note carried our own derived expectation for `bad-743`
    and `bad-744`; his run has replaced it, which is the outcome a derived
    expectation should always have.
-2. **The consumer rails carry the suiteRevision-24 corpus.** The TypeScript rail,
+2. **The consumer rails carry the suiteRevision-25 corpus.** The TypeScript rail,
    the standalone Python rail and the MCP server rail each vendor all 248 vectors of
-   suiteRevision 24 byte-for-byte (`VENDOR-STAMP.json` pins the source spec digest,
+   suiteRevision 25 byte-for-byte (`VENDOR-STAMP.json` pins the source spec digest,
    upstream commit and a content digest; a consumer-side drift gate fails CI on any
    change without a re-vendor). "pass" means the rail implements the rule, is
    parity-tested on it, and replays the full 248. The three rails are two vendored

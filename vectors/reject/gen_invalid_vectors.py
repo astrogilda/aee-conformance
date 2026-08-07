@@ -1124,7 +1124,7 @@ def _b401() -> dict[str, Any]:
 
 vec("bad-401-records-no-batchroot", "ok-002",
     "batchRoot member removed while observationRecords is non-empty", [],
-    [24], ["batch-root-missing"], _b401, spec="L1617; L1629-1631")
+    [24], ["batch-root-missing"], _b401, spec="L1630; L1642-1644")
 
 
 def _b402() -> dict[str, Any]:
@@ -1136,7 +1136,7 @@ def _b402() -> dict[str, Any]:
 
 vec("bad-402-root-no-domain-separation", "ok-014",
     "root computed without the 0x00/0x01 domain-separation prefixes", [],
-    [25], ["batch-root-mismatch"], _b402, spec="L1619-1622")
+    [25], ["batch-root-mismatch"], _b402, spec="L1632-1635")
 
 
 def _b403() -> dict[str, Any]:
@@ -1149,7 +1149,7 @@ def _b403() -> dict[str, Any]:
 vec("bad-403-root-bitcoin-padding", "ok-014",
     "3-leaf root computed by duplicate-last-leaf padding instead of the "
     "RFC 6962 recursive split", [], [26], ["batch-root-mismatch"], _b403,
-    spec="L1622-1624")
+    spec="L1635-1637")
 
 
 def _b404() -> dict[str, Any]:
@@ -1161,7 +1161,7 @@ def _b404() -> dict[str, Any]:
 
 vec("bad-404-root-leaf-order-swapped", "ok-014",
     "root computed over leaves in swapped order", [], [27],
-    ["batch-root-mismatch"], _b404, spec="L1624")
+    ["batch-root-mismatch"], _b404, spec="L1637")
 
 
 def _b405() -> dict[str, Any]:
@@ -1174,7 +1174,7 @@ def _b405() -> dict[str, Any]:
 vec("bad-405-duplicate-records", "ok-002",
     "two byte-identical records in the tree; root recomputes CORRECTLY "
     "over all three leaves", ["recompute-batch-root"], [29],
-    ["duplicate-record"], _b405, spec="L1626-1627",
+    ["duplicate-record"], _b405, spec="L1639-1640",
     note="single fault: duplicate identity, not root arithmetic")
 
 
@@ -1186,7 +1186,7 @@ def _b406() -> dict[str, Any]:
 
 vec("bad-406-root-hex-tamper", "ok-002",
     "one hex digit of batchRoot flipped", [], [30], ["batch-root-mismatch"],
-    _b406, spec="L1629-1631")
+    _b406, spec="L1642-1644")
 
 
 def _b407() -> dict[str, Any]:
@@ -1199,7 +1199,7 @@ def _b407() -> dict[str, Any]:
 vec("bad-407-substrate-row-no-records", "ok-001",
     "remove observationRecords AND batchRoot under a substrate row "
     "(2-op mutation)", [], [31, 11], ["records-absent", "ref-out-of-range"],
-    _b407, compound=True, spec="L1633-1645; L552-553",
+    _b407, compound=True, spec="L1646-1658; L552-553",
     note="precedence pin: records-absent is reported when the array is "
          "absent entirely; ref-out-of-range only when records exist")
 
@@ -1212,7 +1212,7 @@ def _b408() -> dict[str, Any]:
 
 vec("bad-408-batchroot-without-records", "ok-007",
     "orphan batchRoot added to a recordless artifact-only statement", [],
-    [31], ["batch-root-orphaned"], _b408, spec="L1633-1645; L1625")
+    [31], ["batch-root-orphaned"], _b408, spec="L1646-1658; L1638")
 
 
 def _b409() -> dict[str, Any]:
@@ -1223,7 +1223,7 @@ def _b409() -> dict[str, Any]:
 
 vec("bad-409-artifact-records-bad-root", "ok-029",
     "one hex digit off on an artifact-only-with-records statement", [],
-    [30, 24], ["batch-root-mismatch"], _b409, spec="L1629-1631",
+    [30, 24], ["batch-root-mismatch"], _b409, spec="L1642-1644",
     note="the root check is statement-level: it runs even with zero "
          "substrate rows")
 
@@ -1256,7 +1256,7 @@ vec("bad-410-duplicate-and-undecodable-record", "ok-002",
     "an unknown kind, whose payload is re-encoded as non-canonical base64 so it "
     "no longer strict-decodes", [], [29],
     ["duplicate-record", "record-undecodable"], _b410, compound=True,
-    spec="L1626-1627; L1257-1259",
+    spec="L1639-1640; L1257-1259",
     note="inherently compound, and the pairing is the whole vector: a statement "
          "carrying a duplicate and an undecodable record at once is what "
          "separates a rail that scans for duplicates among the records that DID "
@@ -2726,7 +2726,7 @@ def _b809() -> dict[str, Any]:
 
 vec("bad-809-snake-case-doesnotassert", "ok-002",
     "statement carries the rejected snake_case spelling of doesNotAssert",
-    [], [84], ["member-spelling"], _b809, spec="L1647-1657",
+    [], [84], ["member-spelling"], _b809, spec="L1660-1670",
     note="single-canonicalization rule: no alias")
 
 
@@ -2737,7 +2737,7 @@ def _b810() -> dict[str, Any]:
 
 
 vec("bad-810-missing-issuedat", "ok-007", "drop issuedAt", [], [85],
-    ["issued-at-missing"], _b810, spec="L1659",
+    ["issued-at-missing"], _b810, spec="L1672",
     note="artifact-only parent: no armedAt comparison cascade")
 
 
@@ -2748,7 +2748,7 @@ def _b811() -> dict[str, Any]:
 
 
 vec("bad-811-issuedat-not-rfc3339", "ok-007", 'issuedAt: "yesterday"', [],
-    [85], ["issued-at-malformed"], _b811, spec="L1659")
+    [85], ["issued-at-malformed"], _b811, spec="L1672")
 vec("bad-812-missing-networkposture", "ok-007", "drop networkPosture", [],
     [78], ["environment-incomplete"], _drop_env("networkPosture"),
     spec="L757-768")
@@ -2818,7 +2818,7 @@ def _b820() -> dict[str, Any]:
 
 vec("bad-820-issuedat-non-utc-offset", "ok-007",
     'issuedAt: "2026-01-01T05:00:00+05:00" (a non-zero UTC offset)', [],
-    [85], ["issued-at-malformed"], _b820, spec="L1659",
+    [85], ["issued-at-malformed"], _b820, spec="L1672",
     note="the parent's instant at a non-zero offset. issuedAt is typed as the "
          "framework Timestamp, which requires the UTC timezone, so a valid "
          "instant in a non-UTC spelling is malformed. The counterpart on the "
@@ -2834,7 +2834,7 @@ def _b821() -> dict[str, Any]:
 
 vec("bad-821-issuedat-lowercase-separator", "ok-007",
     'issuedAt: "2026-01-01t00:00:00Z" (lowercase date-time separator)', [],
-    [85], ["issued-at-malformed"], _b821, spec="L1659",
+    [85], ["issued-at-malformed"], _b821, spec="L1672",
     note="the spelling the Go reference rail refused and the Python reference "
          "rail accepted with result pass, an accept-on-one reject-on-another "
          "split inside one repository that no vector reached")
@@ -2848,7 +2848,7 @@ def _b822() -> dict[str, Any]:
 
 vec("bad-822-issuedat-lowercase-zone-designator", "ok-007",
     'issuedAt: "2026-01-01T00:00:00z" (lowercase zone designator)', [],
-    [85], ["issued-at-malformed"], _b822, spec="L1659",
+    [85], ["issued-at-malformed"], _b822, spec="L1672",
     note="the separator's twin on the predicate field, isolated for the same "
          "reason as bad-751: a rail enforcing the case of one designator and "
          "not the other passes every both-lowercase mutant")
@@ -4437,15 +4437,15 @@ COND = {
     20: ("L562-563", "covering payload carries the reserved aee members"),
     22: ("L563-564", "aeeRunBinding equals the derived run binding"),
     23: ("L565-566", "row method capped by weakest signed aeeMethod"),
-    24: ("L1617", "batchRoot required when records exist"),
-    25: ("L1619-1622", "RFC 6962 domain-separated hashing"),
-    26: ("L1622-1624", "RFC 6962 recursive split, never duplicate-pad"),
-    27: ("L1624", "leaves in array order"),
-    28: ("L1624", "a single-record tree's root is its leaf hash"),
-    29: ("L1626-1627", "duplicate byte-identical records invalid"),
-    30: ("L1629-1631", "batchRoot must recompute"),
-    31: ("L1633-1645", "batchRoot omitted exactly when records absent"),
-    32: ("L1619-1623", "batchRoot is over every carried record in array "
+    24: ("L1630", "batchRoot required when records exist"),
+    25: ("L1632-1635", "RFC 6962 domain-separated hashing"),
+    26: ("L1635-1637", "RFC 6962 recursive split, never duplicate-pad"),
+    27: ("L1637", "leaves in array order"),
+    28: ("L1637", "a single-record tree's root is its leaf hash"),
+    29: ("L1639-1640", "duplicate byte-identical records invalid"),
+    30: ("L1642-1644", "batchRoot must recompute"),
+    31: ("L1646-1658", "batchRoot omitted exactly when records absent"),
+    32: ("L1632-1636", "batchRoot is over every carried record in array "
                        "order, referenced by a row or not"),
     33: ("L740-749", "the evidence tier is derived per row and never carried: "
                      "artifact is declared, substrate is attested when every "
@@ -4454,7 +4454,7 @@ COND = {
     34: ("L746-748", "no TOFU: a consumer with no policy-pinned substrate "
                      "root treats every substrate row as unattested and MUST "
                      "NOT infer the root from the predicate"),
-    35: ("L1760-1762", "keyid is an unauthenticated lookup hint, never the "
+    35: ("L1773-1775", "keyid is an unauthenticated lookup hint, never the "
                        "check"),
     36: ("L1259-1261; L545-546", "a record signature is DSSE PAE over "
                                "(payloadType, payload); the byte-pure "
@@ -4507,8 +4507,8 @@ COND = {
     82: ("L937-940", "coverage exactly equals the manifest at attack "
                      "granularity"),
     83: ("L879-883", "coverage member required"),
-    84: ("L1647-1657", "doesNotAssert single canonical spelling"),
-    85: ("L1659", "issuedAt required, under the Timestamp profile"),
+    84: ("L1660-1670", "doesNotAssert single canonical spelling"),
+    85: ("L1672", "issuedAt required, under the Timestamp profile"),
     86: ("L150-163", "vocabulary labels/caught entries BMP-only; a "
                              "supplementary-plane entry is malformed"),
     87: ("L150-163", "covering payload member names BMP-only; a "
@@ -4638,7 +4638,7 @@ def write_index() -> None:
     L.append("  `substrate-observation-test` for every record signature in this set.")
     L.append(f"  - public key (hex): `{SUB_PUB.hex()}`")
     L.append(f"  - keyid = SHA-256 of the raw public key: `{SUB_KEYID}`")
-    L.append("  - `keyid` is an unauthenticated hint, never the check (spec L1760-1762).")
+    L.append("  - `keyid` is an unauthenticated hint, never the check (spec L1773-1775).")
     L.append(f"- Fixed timestamps: `issuedAt: {ISSUED_AT}`, `armedAt: {ARMED_AT}`")
     L.append("  (a later `armedAt` appears only in bad-702).")
     L.append(f"- Record `payloadType`: `{PAYLOAD_TYPE}`.")
@@ -4975,7 +4975,7 @@ def write_ind_index() -> None:
     L.append("  bound a key with a validity window (L1204). None of these moves the")
     L.append("  verdict this suite reads, because validity \"is a function of")
     L.append("  carried bytes alone and holds identically for every consumer\"")
-    L.append("  (L1703-1706). A rail that answered the admission question in the")
+    L.append("  (L1716-1719). A rail that answered the admission question in the")
     L.append("  verdict field would be wrong, not free.")
     L.append("- **Producer options.** `observationSelectors`, `aeeDropBound`, the")
     L.append("  descriptor members no rule reads, the optional run-chaining")

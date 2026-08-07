@@ -1,6 +1,6 @@
 {
   "specPath": "spec/predicates/adversarial-execution-evidence.md",
-  "specDigest": "fda0f5f7885d56feb93194cfa604f57c060c12677f77fa5579888b15dc1d1a2d",
+  "specDigest": "7abe0db04d31fbffef3445837588de15112d392d4e310763f2fe3be18d113146",
   "citations": {
     "aee/codes.go::Code#0": {
       "cites": "spec:1340-1345",
@@ -153,13 +153,13 @@
       "closes": "names BMP-only per Prerequisites, every string a well-formed sequence of"
     },
     "aee/merkle.go::-#0": {
-      "cites": "spec:1619-1624",
+      "cites": "spec:1632-1637",
       "digest": "51941094255db31fa0b93581038164343c8d60ce37fd9d72892b9d0960c41572",
       "opens": "An RFC 6962 Merkle root over the observation records, SHA-256, with",
       "closes": "single-record tree's root its leaf hash, and an empty array with no root."
     },
     "aee/merkle.go::-#1": {
-      "cites": "spec:1625-1628",
+      "cites": "spec:1638-1641",
       "digest": "02f25f8c0b66aea1e29dc1d7fb68cd766430b4ebc5bb6bc3fd38ba20a02a9708",
       "opens": "Two byte-identical entries in `observationRecords` make the attestation",
       "closes": "minor version may admit detached records addressed by leaf hash with"
@@ -171,7 +171,7 @@
       "closes": "relying on any field inside the payload. The order is deliberate and the"
     },
     "aee/pae.go::PAE#1": {
-      "cites": "spec:1619-1621",
+      "cites": "spec:1632-1634",
       "digest": "4bbaa09371fd1718890a7b2b026a0dee9ac538ca60519ba46be80b06632c6ce5",
       "opens": "An RFC 6962 Merkle root over the observation records, SHA-256, with",
       "closes": "bytes)`, each internal node is `H(0x01 || left || right)`, the tree built"
@@ -225,7 +225,7 @@
       "closes": "the statement alone; no field carries it. Every substrate-signed"
     },
     "aee/statement.go::parseTimestamp#0": {
-      "cites": "spec:1661-1670",
+      "cites": "spec:1674-1683",
       "digest": "de6c279bd73c8d3d15034368ba559549e2392c1c3173a8365cf2fc02b9183789",
       "opens": "When the producer signed the evidence bundle. `Timestamp` is the framework's",
       "closes": "`-00:00`, never a non-zero offset such as `+05:00`. `-00:00` is admitted"
@@ -243,7 +243,7 @@
       "closes": "\"predicateType\": \"https://in-toto.io/attestation/adversarial-execution-evidence/v0.7\","
     },
     "aee/statement.go::Gate0#2": {
-      "cites": "spec:1652-1656",
+      "cites": "spec:1665-1669",
       "digest": "2d31b0706a8226ce9cce9b151046059f766916e1bf1137f7085f6b69097f926e",
       "opens": "require it, and nothing in it weakens the required checks. `doesNotAssert`",
       "closes": "content. Migrating old producer output to the new name is a producer"
@@ -321,7 +321,7 @@
       "closes": "binding), is required exactly when any row carries `basis: substrate`. The"
     },
     "aee/statement.go::Gate0#15": {
-      "cites": "spec:1674-1676",
+      "cites": "spec:1687-1689",
       "digest": "982d3f170ea8317401ba9f319a7f196a16bf9320ebe0c7959b75f488b096bb36",
       "opens": "is the only thing this document reads from the field. A statement whose",
       "closes": "is malformed. `armedAt` carries the same profile, defined here and cited"
@@ -405,7 +405,7 @@
       "closes": "the predicate. The tier is total and deterministic given the consumer's"
     },
     "aee/tier.go::-#2": {
-      "cites": "spec:1760-1762",
+      "cites": "spec:1773-1775",
       "digest": "b0306298aa252f910e3e3ac79c62e73193b85106eaa733b53e18e461324ed5ff",
       "opens": "as a live one. The check that matters is signature verification against a",
       "closes": "hint and never the check itself:"
@@ -537,7 +537,7 @@
       "closes": "and `signatures`, which MUST carry at least one entry. A consumer verifies"
     },
     "aee/types.go::RecordSignature#0": {
-      "cites": "spec:1760-1762",
+      "cites": "spec:1773-1775",
       "digest": "b0306298aa252f910e3e3ac79c62e73193b85106eaa733b53e18e461324ed5ff",
       "opens": "as a live one. The check that matters is signature verification against a",
       "closes": "hint and never the check itself:"
@@ -573,25 +573,25 @@
       "closes": "and `signatures`, which MUST carry at least one entry. A consumer verifies"
     },
     "aee/validity.go::checkRecordsStatementLevel#1": {
-      "cites": "spec:1617",
+      "cites": "spec:1630",
       "digest": "4636ec8560cc0ead116100610dde879f5fd9c34863e805af0fdb6b5267573e9e",
       "opens": "`batchRoot` _string, required when `observationRecords` is non-empty_",
       "closes": "`batchRoot` _string, required when `observationRecords` is non-empty_"
     },
     "aee/validity.go::checkRecordsStatementLevel#2": {
-      "cites": "spec:1625-1627",
+      "cites": "spec:1638-1640",
       "digest": "9f8ed3e077d0a6fc19a6ffa1b68d552c62384f87bcaf41a11cb3aafa40e91883",
       "opens": "Two byte-identical entries in `observationRecords` make the attestation",
       "closes": "reference is shorthand for the leaf hash at that position, and a future"
     },
     "aee/validity.go::checkRecordsStatementLevel#3": {
-      "cites": "spec:1629-1631",
+      "cites": "spec:1642-1644",
       "digest": "25363553c90486607f15b24979aec89c1f462c2544a86dd2788c4a5bbbfb4f69",
       "opens": "`batchRoot` unchanged. Carried once at the predicate level. A `batchRoot`",
       "closes": "invalid. Because every `basis: substrate` row requires covering records"
     },
     "aee/validity.go::checkRecordsStatementLevel#4": {
-      "cites": "spec:1642-1645",
+      "cites": "spec:1655-1658",
       "digest": "20d60d4811be103b73a08eacdbb855a65168dd250fa72b1cbd14166eb56e434b",
       "opens": "completeness against the run. `batchRoot` is omitted only when",
       "closes": "`basis: artifact` rows."
@@ -753,7 +753,7 @@
       "closes": "any malformed statement."
     },
     "packaging/run_vectors.py::_timestamp_ok#0": {
-      "cites": "spec:1661-1670",
+      "cites": "spec:1674-1683",
       "digest": "de6c279bd73c8d3d15034368ba559549e2392c1c3173a8365cf2fc02b9183789",
       "opens": "When the producer signed the evidence bundle. `Timestamp` is the framework's",
       "closes": "`-00:00`, never a non-zero offset such as `+05:00`. `-00:00` is admitted"

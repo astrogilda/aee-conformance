@@ -394,8 +394,8 @@ def _carried_failures(
 
 
 def unprompted_failures(runs: list[dict[str, Any]], report: str) -> list[str]:
-    """The two figures that carry unprompted evidence are named as such in the
-    report, and the ledger is what says which two they are."""
+    """The figures that carry unprompted evidence are named as such in the
+    report, and the ledger is what says which ones they are."""
     out: list[str] = []
     for run in runs:
         if not run.get("unprompted"):

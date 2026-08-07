@@ -69,7 +69,7 @@ digest is pinned and CI-checked (`scripts/spec-drift-gate.py`).
 |---|---|---|---|---|
 | Reference rail (`aee/`) | Go | spec author | reference corpus, suiteRevision 25 | **248 / 248** |
 | Reference rail (`packaging/run_vectors.py`) | Python | spec author | reference corpus, suiteRevision 25 | **248 / 248** |
-| `Rul1an/aee-checker` | Rust | **independent, from-spec text alone** | author-run suiteRevision 6 (153), 2026-07-28 (aee-checker#4); suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24 and 25 not run by its author | **153 / 153** at suiteRevision 6, directed; **125 / 125** blind at suiteRevision 1; suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24 and 25 not run by author (see note 1) |
+| `Rul1an/aee-checker` | Rust | **independent, from-spec text alone** | author-run suiteRevision 6 (153), 2026-07-28 (aee-checker#4) and suiteRevision 22 (232), 2026-08-03 (`reports/v0.7-RUN.md`); suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24 and 25 not run by its author | **179 / 232** blind and **232 / 232** directed at suiteRevision 22; **153 / 153** at suiteRevision 6, directed; **125 / 125** blind at suiteRevision 1; suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24 and 25 not run by author (see note 1) |
 | `ts-verify` | TypeScript | spec author | its vendored set (248 vectors) + cross-rail parity tests | pass (see note 2) |
 | `py-verify` | Python | spec author | its vendored set (248 vectors) + parity tests | pass (see note 2) |
 | MCP server rail `_aee.py` | Python | spec author | its vendored set (248 vectors) + parity tests | pass (see note 2) |
@@ -87,10 +87,15 @@ implementation and no reading of the corpus condition codes.
 
 ## Feature coverage
 
-Two eras. The **core** predicate and the **round-7** additions have both been read
-independently: the from-spec Rust checker re-ran against the round-7 corpus
+Three eras. The **core** predicate and the **round-7** additions were read
+independently first: the from-spec Rust checker re-ran against the round-7 corpus
 (suiteRevision 2) and reached 138/138 after a spec-diff-led update (132/138 on the
-unchanged build), cleared the suiteRevision-3 corpus at 140/140, and then cleared
+unchanged build). The suiteRevision-3 corpus is a separate case and its figure is
+not a spec-diff-led one: the same unchanged build cleared it at 140/140 on a first
+run, with no change made for the two vectors that revision added, which is why the
+ledger records it as first-run-unchanged-build evidence and as unprompted. Reading
+the two together as one spec-diff-led result would spend the unprompted half of
+this column on a pass that did not need it. It then cleared
 the **suiteRevision-5** byte-level tier (`bad-733` through `bad-741`) at 149/149
 once it adopted the normative depth bound and moved its counter into the container
 branch (aee-checker#3, 2026-07-28). That is one independent reading of each era so
@@ -105,20 +110,36 @@ not be added together. **suiteRevision 4** is a case of its own. He posted no ru
 at it, and note 1 records why that matters; but the two rules it made normative
 are exactly the two the revision-5 byte-level tier exercises, so they are read
 independently after all — in the directed revision-5 run above, not in the
-140/140 that preceded them. Nothing after revision 6 has been read independently
-at all. The single **suiteRevision-7** addition
-(`bad-745`, an observation record carrying zero `signatures` entries) and the two
-**suiteRevision-8** additions (`bad-746` and `bad-747`, a corpus manifest
-declaring no attack identifier in either of its two spellings) test requirements
-the specification gained after that run, so they have no independent confirmation
-either. The two **suiteRevision-9** additions (`bad-748` and `bad-749`) add no
-requirement: they pin the precedence and the wrong-type spelling of the
-signature-entry condition `bad-745` already carries, so they inherit that
-vector's status. Everything **suiteRevision 10 through 16** carries — the
-timestamp profile and its seven vectors, the version-2 run binding that re-minted
-every decodable record identity, the fourth `result` value, and the two
-amendments revision 14 vendored, and the seven forcing vectors revision 15 added —
-has been read by the first-party rails only.
+140/140 that preceded them.
+
+The third era is **v0.7**, and it is the largest reading this report carries. At
+suiteRevision 22, on 2026-08-03, a build written from the pinned v0.7 text alone
+scored 179/232 on its first run (accepts 8/54, rejects 169/176, indeterminate
+2/2), and a directed pass reached 232/232, accepts 54/54, rejects 176/176,
+indeterminate 2/2. That corpus contains every vector the suite gained across
+**suiteRevision 7 through 22**: the signature-entry requirement `bad-745`
+carries and the precedence and wrong-type spellings `bad-748` and `bad-749` pin,
+the corpus manifest attack floor of `bad-746` and `bad-747`, the timestamp
+profile, the version-2 run binding that re-minted every decodable record
+identity, the fourth `result` value, the registered posture vocabulary, and the
+vendored amendments that followed. The sentence that used to stand here, that
+nothing after revision 6 had been read independently at all, is withdrawn rather
+than softened.
+
+What the two figures separate is what the blind half reached. Three of the rules
+the directed pass implemented recovered no vector and his first run never reached
+them, namely the registered `networkPosture.posture` vocabulary, non-empty `signatures`,
+and `attribution` as a substrate-row validity requirement, each forced by a vector
+the 232 rests on (`bad-823`, `bad-745`, `bad-968`), so their correctness in this
+run is directed and says nothing about whether the text determines them. He
+corrects his own earlier claim that no vector was a blind mismatch on any of
+them: `ok-047` and `ok-048` are attribution vectors and both were blind
+mismatches. The directed pass also followed an adversarial review of his own
+implementation for `bad-902`, which caught a covering check comparing the pinned
+posture conjunct and dropping the arming-record one, which is half of a sentence his own
+draft had quoted. So the reading to take from this era is the one he takes: the
+directed 232/232 is not evidence about the determinacy of the text, and the blind
+179/232 is.
 
 | Feature | Go ref | Python ref | Rust (3rd-party) | TS rail | MCP rail |
 |---|---|---|---|---|---|
@@ -136,8 +157,9 @@ has been read by the first-party rails only.
 
 ## Notes (the honest scoping)
 
-1. **The author's run history, each record content-digest-bound in his own
-   provenance index.** A blind first run at suiteRevision 1 scored 125/125. At
+1. **The author's run history, each record bound in his own provenance index to
+   the checker source that produced it, with one exception this note names by
+   name.** A blind first run at suiteRevision 1 scored 125/125. At
    suiteRevision 2 the unchanged build scored 132/138 and a spec-diff-led update
    reached 138/138 — the six diverging vectors were exactly the round-7 changes (two
    of which were defects in the checker, the rest spec-boundary adoptions). At
@@ -163,20 +185,59 @@ has been read by the first-party rails only.
    normative. He records the run as directed and the wording is his: "the rule was
    written and the vectors named before this checker ran, so what it demonstrates is
    that the corrected rule is implementable from the text, not that an independent
-   reader found it." This report carries that unsoftened. The two figures that carry
-   unprompted evidence remain the blind 125/125 at suiteRevision 1 and the first-run
-   140/140 at suiteRevision 3; no other figure here may be described that way.
+   reader found it." This report carries that unsoftened.
 
-   **He has not run suiteRevision 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24 or 25, so this report
-   publishes no score for him at any of them.** Two different things put a revision
-   on that list. From suiteRevision 7 onward the corpus moved past his last run: the
-   single suiteRevision-7 vector (`bad-745`) and the two suiteRevision-8 vectors
-   (`bad-746`, `bad-747`) test requirements the specification gained after it, the
-   two suiteRevision-9 vectors (`bad-748`, `bad-749`) pin the precedence and the
-   wrong-type spelling of the requirement `bad-745` carries, and suiteRevisions 10
-   through 14 carry the timestamp profile, the version-2 run binding, the fourth
-   `result` value and the vendored text that followed. suiteRevision 4 is on the
-   list for the opposite reason. Its corpus is the revision-3 corpus — 140 vectors,
+   **His v0.7 run is suiteRevision 22, on 2026-08-03**, posted as
+   `reports/v0.7-RUN.md` with two records in his provenance index. A build written
+   from the pinned v0.7 text alone scored 179/232 on its first run at
+   suiteRevision 22 (accepts 8/54, rejects 169/176, indeterminate 2/2), and a
+   directed pass reached 232/232, accepts 54/54, rejects 176/176, indeterminate
+   2/2. He partitions the 53
+   first-run mismatches by the message the blind build emitted, which he says is
+   the only partition his published run records support: 42 report that
+   `aeeRunBinding` does not equal the run binding derived from the statement, 7
+   returned `valid` with no reason, and 4 report a carried `pass_indirect` against
+   a recomputed `pass`. An earlier per-fix attribution he published is withdrawn
+   rather than restated, because attributing a recovery to a particular fix needs a
+   bisection against the blind build. He claims no reason-parity figure for this
+   run at all: his checker emits free prose and no condition codes, two
+   constructions of a prose-to-code map over the same run disagreed sharply, and he
+   publishes the ambiguity as a runnable script rather than picking one.
+
+   **The blind half of that run carries no source digest, and this is the
+   exception the head of this note names.** His directed build is recorded under
+   checker source `sha256:56f440e6` against suite commit `84ba2271` and reproduces
+   from his working tree. His blind build is not: it was never committed on its
+   own, one commit carrying both the v0.7 implementation and the published number,
+   so no tree in his repository hashes to the build that produced 179/232 and the
+   figure is not independently reproducible, including by its author. His
+   `reports/INDEX.json` records that as an explicit null digest beside a
+   `sourceUnrecoverable` field rather than borrowing the directed build's digest,
+   which would name a different implementation, and he records it as a breach of
+   the rule his own run protocol had fixed in advance. The suite commit does
+   resolve in a fresh clone of this repository and carries the 232 vectors of
+   suiteRevision 22. This report publishes the blind figure with that caveat
+   attached and never without it.
+
+   The three figures that carry unprompted evidence are the blind 125/125 at
+   suiteRevision 1, the first-run 140/140 at suiteRevision 3, and the blind
+   179/232 at suiteRevision 22; no other figure here may be described that way. In
+   particular the 138/138 was spec-diff-led and the 140/140 was not, and the two
+   are not to be stated together as one result.
+
+   **He has not run suiteRevision 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24 or 25, so this report
+   publishes no score for him at any of them.** Three different things put a
+   revision on that list, and only one of them is that the requirement went
+   unexercised. The three at the end of the list came after his v0.7 run:
+   suiteRevision 23 added sixteen reject vectors and a second declared condition
+   on a seventeenth, and the two that followed it moved the vendored text without
+   moving a vector.
+   suiteRevisions 7 through 21 are a different case. Every vector they added is
+   inside the suiteRevision-22 corpus he did run, so the requirements they carry
+   are not unread by him; what no record of his names is the corpus AT any of those
+   revisions, and that is not a formality, because verdicts moved between them and
+   a pass at one revision is not a pass at another. suiteRevision 4 is on the
+   list for a third reason. Its corpus is the revision-3 corpus of 140 vectors,
    the same verdicts, the same codes — so his revision-3 run did put those bytes
    through the checker. What moved at revision 4 was the text: it made encoding
    well-formedness and the 128-deep nesting bound normative over a corpus that, in

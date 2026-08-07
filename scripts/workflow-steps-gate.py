@@ -78,10 +78,28 @@ def steps_of(doc, path: pathlib.Path):
 # it mirrors is worse than none, because it trains its reader to ignore it.
 SHELL = "/bin/bash"
 
+# GitHub Actions runs every `run:` block under `bash -e {0}` -- its own logs print
+# that line above each step. Without `-e`, a multi-command block reports only the
+# LAST command's status, so a step whose first command fails and whose remaining
+# commands pass exits 0 here and non-zero on the remote. That is not a cosmetic
+# divergence: it is this gate reporting a clean mirror of a workflow that is
+# about to go red, which is the exact failure the gate was written to prevent,
+# one level up. Origin 2026-08-07: the four-command forcing step failed its first
+# command, passed the other three, and this gate passed the push.
+#
+# `pipefail` is NOT added. Actions does not set it, and a mirror stricter than
+# the thing it mirrors fails pushes the remote would have accepted -- the job is
+# to match, not to improve. scripts/workflow-steps-gate-test.py pins both halves.
+SHELL_FLAGS = ("-e",)
+
 
 def run_step(run: str, env: dict) -> subprocess.CompletedProcess:
-    return subprocess.run(  # noqa: S602 -- running the repo's own workflow steps is the point
-        run, shell=True, executable=SHELL, cwd=REPO, env=env, capture_output=True, text=True
+    return subprocess.run(  # noqa: S603 -- running the repo's own workflow steps is the point
+        [SHELL, *SHELL_FLAGS, "-c", run],
+        cwd=REPO,
+        env=env,
+        capture_output=True,
+        text=True,
     )
 
 

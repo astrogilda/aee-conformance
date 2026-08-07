@@ -26,9 +26,9 @@ all.**
 | what | value |
 |---|---|
 | suite | `adversarial-execution-evidence-conformance` |
-| corpus | suiteRevision 24, 248 vectors (54 accept, 192 reject, 2 indeterminate) |
-| vendored specification | upstream commit `c0c4da67defdf0f186f162e7ecb3f9527b6a94f8` |
-| `vectors/MANIFEST.json` | `sha256:f66853cf3d4aba691b74ba6b9a73ef226bc1968f3e20a35241ca209677ff85a2` |
+| corpus | suiteRevision 25, 248 vectors (54 accept, 192 reject, 2 indeterminate) |
+| vendored specification | upstream commit `237f83b9f1445720c165e1c5f076212dfa063f92` |
+| `vectors/MANIFEST.json` | `sha256:2da65fc8c8162c05c4c91ab0881d384e2470efd291a44954f5d851a4051a8c06` |
 | `docs/FORCING-BASELINE.json` | `sha256:b57527aa207e83fc34f076f88fb5d8576063c3203f627aa9e78fec0e857d3a75` |
 | campaign | 754 single-site weakenings: 424 KILLED, 27 SILENT, 298 DEAD, 5 INCONCLUSIVE |
 
@@ -135,15 +135,15 @@ column is how many weakenings its vectors catch alongside somebody else's.
 | `aee-c-14` | L557-560 | clean intercepted row refs arming AND covering sealed | 5 | 124 |
 | `aee-c-15` | L932-934 | one run-level arming/sealed/examination record covers every row earned under it | 1 | 87 |
 | `aee-c-16` | L927-932 | observationSelectors is producer vocabulary positionally parallel to observationRefs; no gate reads it | 1 | 86 |
-| `aee-c-25` | L1619-1622 | RFC 6962 domain-separated hashing | 1 | 53 |
-| `aee-c-26` | L1622-1624 | RFC 6962 recursive split, never duplicate-pad | 5 | 108 |
-| `aee-c-27` | L1624 | leaves in array order | 1 | 53 |
-| `aee-c-28` | L1624 | a single-record tree's root is its leaf hash | 1 | 90 |
-| `aee-c-30` | L1629-1631 | batchRoot must recompute | 3 | 69 |
-| `aee-c-32` | L1619-1623 | batchRoot is over every carried record in array order, referenced by a row or not | 2 | 96 |
+| `aee-c-25` | L1632-1635 | RFC 6962 domain-separated hashing | 1 | 53 |
+| `aee-c-26` | L1635-1637 | RFC 6962 recursive split, never duplicate-pad | 5 | 108 |
+| `aee-c-27` | L1637 | leaves in array order | 1 | 53 |
+| `aee-c-28` | L1637 | a single-record tree's root is its leaf hash | 1 | 90 |
+| `aee-c-30` | L1642-1644 | batchRoot must recompute | 3 | 69 |
+| `aee-c-32` | L1632-1636 | batchRoot is over every carried record in array order, referenced by a row or not | 2 | 96 |
 | `aee-c-33` | L740-749 | the evidence tier is derived per row and never carried: artifact is declared, substrate is attested when every covering signature verifies under consumer policy and unattested otherwise, and the tier never alters result | 1 | 104 |
 | `aee-c-34` | L746-748 | no TOFU: a consumer with no policy-pinned substrate root treats every substrate row as unattested and MUST NOT infer the root from the predicate | 1 | 91 |
-| `aee-c-35` | L1760-1762 | keyid is an unauthenticated lookup hint, never the check | 1 | 91 |
+| `aee-c-35` | L1773-1775 | keyid is an unauthenticated lookup hint, never the check | 1 | 91 |
 | `aee-c-36` | L1259-1261; L545-546 | a record signature is DSSE PAE over (payloadType, payload); the byte-pure validity gate never reads a signature, so a signature that does not verify is a tier fact and not a validity fault | 1 | 93 |
 | `aee-c-38` | L753-755 | a carried predicate-level evidenceTier member MUST be ignored | 1 | 86 |
 | `aee-c-41` | L966-967 | basis required, closed {substrate, artifact} | 1 | 104 |

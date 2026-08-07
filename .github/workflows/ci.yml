@@ -297,6 +297,15 @@ jobs:
         run: |
           python3 scripts/count-gate.py
           python3 scripts/count-gate-test.py
+      # The pre-push mirror runs every step of every workflow locally, and it
+      # ran them under a plain bash while Actions runs them under `bash -e`.
+      # A step with one command cannot tell the two apart; a step with several
+      # reports only its last command's status, so a block whose first command
+      # failed passed locally and failed here. It did, on the forcing step. The
+      # mirror is only worth having if it agrees with this file, so the test
+      # runs here rather than only in the hook it protects.
+      - name: the local pre-push mirror agrees with this workflow's shell
+        run: python3 scripts/workflow-steps-gate-test.py
       # Both vector indexes publish a determinism recipe saying the set
       # regenerates byte-identically from the generator beside it, and until
       # this gate nothing ran it. Seven vector files and seven manifest entries

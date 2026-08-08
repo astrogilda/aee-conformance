@@ -13,14 +13,15 @@ The reviewer's independent from-spec checker went 138/138 on the earlier corner-
 features and conceded every open corner. The predicate has since moved to v0.7 and this
 repository has moved with it: the specification is vendored, both reference rails
 implement the four commitments it adds, the corpus is regenerated at the new type, and
-the forcing ratchet is re-measured. He has now read v0.7 as well, at suiteRevision 22 on
+the forcing ratchet is re-measured. The reviewer has now read v0.7 as well, at
+suiteRevision 22 on
 2026-08-03: a blind first run of 179/232 and a directed pass of 232/232, both recorded in
-`docs/INDEPENDENT-RUNS.json` with the null-digest caveat his own index carries for the
-blind build.
+`docs/INDEPENDENT-RUNS.json` with the null-digest caveat that checker's own index carries
+for the blind build.
 
 - [ ] **Await the reviewer's read on the revised proposal** — no code change pending on
   our side; the next step is the reviewer's call.
-- [ ] **Ask for a run at the current suiteRevision.** His v0.7 run is at suiteRevision
+- [ ] **Ask for a run at the current suiteRevision.** The v0.7 run is at suiteRevision
   22 and the corpus is three revisions past it; the ledger records no run for any
   revision after that one and every published claim says so. The disclosure discipline
   for the revised vectors applies — publish the vectors without the text or the text

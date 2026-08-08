@@ -1139,12 +1139,12 @@ byte-identically from the generators.
 - **Independent checker status.** `Rul1an/aee-checker` reached **153/153 on this
   revision** (2026-07-28, aee-checker#4), 36/36 accepts and 117/117 rejects, on a
   record naming checker source `sha256:1c3e2e78` and suite commit `7098f4e`. It
-  is the revision his CI now verifies continuously. The unchanged revision-5
+  is the revision that checker's CI now verifies continuously. The unchanged revision-5
   build scored 151/153 against it: `ok-036` and `bad-742` passed on the
   container-branch counter already in place, and `bad-743` and `bad-744` did not,
   because that build had not implemented the RFC 7493 section 2.1 noncharacter
-  exclusion this revision makes normative. His own reading of the run is that it
-  is directed, and it is his to give: "the rule was written and the vectors named
+  exclusion this revision makes normative. The author's own reading of the run is
+  that it is directed, and that reading is the author's to give: "the rule was written and the vectors named
   before this checker ran, so what it demonstrates is that the corrected rule is
   implementable from the text, not that an independent reader found it." A
   previous edition of this bullet carried our own derived expectation for
@@ -1154,7 +1154,7 @@ byte-identically from the generators.
   difference.
 - **Note on reproducing the record.** The suite commit the record names,
   `7098f4e`, no longer resolves in a fresh clone of this repository: its history
-  was rewritten here after he pinned it. `8959bd3` carries the identical tree and
+  was rewritten here after the record was pinned. `8959bd3` carries the identical tree and
   therefore the identical 153 vectors, and is where a reproduction should point
   until the record is repinned.
 

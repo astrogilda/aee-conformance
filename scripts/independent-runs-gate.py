@@ -158,8 +158,8 @@ SITES = (
     Site(
         REPORT,
         "note 1, the run history",
-        "He has not run suiteRevision ",
-        ", so this report publishes no score for him at any of them.",
+        "The checker has not been run against suiteRevision ",
+        ", so this report publishes no score for it at any of them.",
         1,
     ),
     Site(
@@ -238,7 +238,7 @@ def _run_field_failures(run: dict[str, Any], current: int) -> list[str]:
     if run.get("unprompted") is not (run.get("evidence") != "directed"):
         out.append(
             f"{where}: a run its author called directed may not be flagged unprompted, "
-            "and a run he did not call directed may not be flagged prompted."
+            "and a run its author did not call directed may not be flagged prompted."
         )
     out.extend(_pair_failures(run, where))
     return out
@@ -348,7 +348,7 @@ def figure_failures(runs: list[dict[str, Any]]) -> list[str]:
     Checking only the headline is not enough, and that gap is why this reads a
     per-figure list. The qualifications are where a column gets quietly inflated:
     a revision-2 pass reads very differently when the unchanged build scored
-    132/138 than when it scored 138/138, and only one of those is what he posted.
+    132/138 than when it scored 138/138, and only one of those was posted.
     A run's secondary figures are not required to appear everywhere -- the
     revision-5 148/149 is carried by the changelog alone -- so where each one is
     carried is recorded rather than assumed.
@@ -410,7 +410,7 @@ def unprompted_failures(runs: list[dict[str, Any]], report: str) -> list[str]:
 
 
 def quote_failures(quotes: list[dict[str, Any]]) -> list[str]:
-    """His wording, verbatim, wherever this repository says it carries it.
+    """The author's wording, verbatim, wherever this repository says it carries it.
 
     A shorter excerpt must be a contiguous substring of the fullest recorded
     wording, so a document cannot quietly carry a paraphrase that reads like a
@@ -427,7 +427,7 @@ def quote_failures(quotes: list[dict[str, Any]]) -> list[str]:
                 "the two is a paraphrase."
             )
         out.extend(
-            f"{rel}: does not carry his wording verbatim: {text[:72]!r}..."
+            f"{rel}: does not carry the author's wording verbatim: {text[:72]!r}..."
             for rel in quote.get("carriedIn", [])
             if text not in read(REPO_ROOT / str(rel))
         )

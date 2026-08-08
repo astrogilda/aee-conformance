@@ -18,7 +18,7 @@ being evidence of selection. The row to read first is therefore the declined one
 It is a live divergence between this suite's reference rails and the one
 implementation independent of them, on a sentence that genuinely did not decide
 the question; the objector was right that the text was silent and the resolution
-went against him anyway, with the reason stated and the reversal condition
+went the other way anyway, with the reason stated and the reversal condition
 recorded. If that row were missing, nothing else here would be worth reading.
 
 ## What a row is, and what it is checked against
@@ -194,7 +194,7 @@ here.
 
 **No corpus revision.** A statement about what an independence claim means, recorded in the document that carries the registry. It changed no vector and bumped no revision, and a row that invented a landing revision to look tidier would be a false entry.
 
-**Note.** Every figure this suite publishes for that implementation is now labelled blind or directed on its author's own reading of the run, and one of them is labelled directed because he said so and the label would otherwise have been ours to choose.
+**Note.** Every figure this suite publishes for that implementation is now labelled blind or directed on its author's own reading of the run, and one of them is labelled directed because its author said so and the label would otherwise have been ours to choose.
 
 **Recorded in** `docs/interpretation-decisions-open.md`.
 

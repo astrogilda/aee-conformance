@@ -646,7 +646,8 @@ DELEGATED: tuple[Delegated, ...] = (
     Delegated(
         "docs/IMPLEMENTATION-REPORT.md",
         "note 1's scoping sentence",
-        r"He\s+has\s+not\s+run\s+suiteRevision\s+[\d,\s]*(?:and|or)\s+\d+,",
+        r"The\s+checker\s+has\s+not\s+been\s+run\s+against\s+suiteRevision"
+        r"\s+[\d,\s]*(?:and|or)\s+\d+,",
         "scripts/independent-runs-gate.py",
     ),
     Delegated(

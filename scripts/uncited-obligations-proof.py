@@ -296,8 +296,9 @@ def ok054_single_fault(rail: Path) -> bool:
         return False
     verifier = module.ReferenceVerifier([])
 
-    sys.path.insert(0, str(ROOT / "vectors" / "reject"))
-    import gen_invalid_vectors as generator
+    generator = load_rail(ROOT / "vectors" / "reject" / "gen_invalid_vectors.py")
+    if generator is None:
+        return False
 
     shipped: dict[str, Any] = json.loads(OK054.read_text(encoding="utf-8"))
     control: dict[str, Any] = json.loads(OK054.read_text(encoding="utf-8"))

@@ -436,6 +436,48 @@ class Sentence:
     stem: str
 
 
+
+def prose_blocks(spec: list[str]) -> list[list[tuple[int, str]]]:
+    """The specification's paragraphs, outside fenced blocks, each line numbered.
+
+    A fenced block is skipped rather than parsed: a schema is not prose, carries
+    no rule a sentence-level check can read, and its punctuation would split
+    into fragments that match anything.
+    """
+    blocks: list[list[tuple[int, str]]] = []
+    block: list[tuple[int, str]] = []
+    fenced = False
+    for lineno, raw in enumerate(spec, start=1):
+        if FENCE_RE.match(raw):
+            fenced = not fenced
+        elif fenced:
+            continue
+        elif raw.strip():
+            block.append((lineno, raw.strip()))
+            continue
+        if block:
+            blocks.append(block)
+            block = []
+    if block:
+        blocks.append(block)
+    return blocks
+
+
+def list_items(lines: list[tuple[int, str]]) -> list[list[tuple[int, str]]]:
+    """One paragraph split at each list-item marker, the lead text kept first."""
+    groups: list[list[tuple[int, str]]] = []
+    current: list[tuple[int, str]] = []
+    for lineno, text in lines:
+        if ITEM_RE.match(text) and current:
+            groups.append(current)
+            current = [(lineno, text)]
+        else:
+            current.append((lineno, text))
+    if current:
+        groups.append(current)
+    return groups
+
+
 def sentences_of(spec: list[str]) -> list[Sentence]:
     """Split the specification into sentences that know which lines they sit on.
 
@@ -443,26 +485,7 @@ def sentences_of(spec: list[str]) -> list[Sentence]:
     sentence-level check can read, and its punctuation would split into
     fragments that match anything.
     """
-    blocks: list[list[tuple[int, str]]] = []
-    fenced = False
-    block: list[tuple[int, str]] = []
-    for lineno, raw in enumerate(spec, start=1):
-        if FENCE_RE.match(raw):
-            fenced = not fenced
-            if block:
-                blocks.append(block)
-                block = []
-            continue
-        if fenced:
-            continue
-        if not raw.strip():
-            if block:
-                blocks.append(block)
-                block = []
-            continue
-        block.append((lineno, raw.strip()))
-    if block:
-        blocks.append(block)
+    blocks = prose_blocks(spec)
 
     found: list[Sentence] = []
     carried = ""
@@ -473,16 +496,7 @@ def sentences_of(spec: list[str]) -> list[Sentence]:
             # A paragraph ending in a colon introduces the list that follows it,
             # across the blank line that separates them in the source.
             carried = joined if joined.rstrip().endswith(":") else ""
-        groups: list[list[tuple[int, str]]] = []
-        current: list[tuple[int, str]] = []
-        for lineno, text in lines:
-            if ITEM_RE.match(text) and current:
-                groups.append(current)
-                current = [(lineno, text)]
-            else:
-                current.append((lineno, text))
-        if current:
-            groups.append(current)
+        groups = list_items(lines)
         lead = groups[0]
         inner = (
             " ".join(text for _, text in lead)
@@ -652,7 +666,10 @@ def decision_subjects() -> tuple[list[Subject], list[str]]:
 
 
 def nearest_rule(
-    rules: list[Sentence], subject: Subject, wanted: frozenset[str], terms: dict[int, frozenset[str]]
+    rules: list[Sentence],
+    subject: Subject,
+    wanted: frozenset[str],
+    terms: dict[int, frozenset[str]],
 ) -> str:
     """Where to look instead, preferring a rule the decision itself names.
 

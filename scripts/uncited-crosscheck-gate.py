@@ -71,83 +71,103 @@ def _fail(msg: str) -> None:
     print(f"  - {msg}", file=sys.stderr)
 
 
-def main() -> int:
-    if not READINGS.is_file():
-        print(f"REFUSED: {READINGS} is absent", file=sys.stderr)
-        return 2
-    if not DOCUMENT.is_file():
-        print(f"REFUSED: {DOCUMENT} is absent", file=sys.stderr)
-        return 2
+class Refused(Exception):
+    """The question could not be asked. Distinct from a disagreement, and it
+    exits 2, because a reader that parsed nothing and two documents that agree
+    are the same clean run from outside."""
 
+
+def read_ledger() -> dict[str, str]:
+    """The enforced declarations, keyed by sentence."""
     ledger = tomllib.loads(READINGS.read_text(encoding="utf-8"))
-    ledger_lines: dict[str, str] = {}
+    out: dict[str, str] = {}
     for row in ledger.get("uncited", []):
         sentence = str(row.get("sentence", "")).strip()
         if not LINE.fullmatch(sentence):
-            print(
-                f"REFUSED: ledger row carries sentence {sentence!r}, which is not "
-                "a bare line reference this gate can compare",
-                file=sys.stderr,
+            raise Refused(
+                f"ledger row carries sentence {sentence!r}, which is not a bare "
+                "line reference this gate can compare"
             )
-            return 2
-        ledger_lines[sentence] = str(row.get("class", ""))
+        out[sentence] = str(row.get("class", ""))
+    if not out:
+        raise Refused("the ledger parsed to zero uncited rows")
+    return out
 
-    doc_rows: dict[str, str] = {}
+
+def read_document() -> dict[str, str]:
+    """The documented dispositions, keyed by sentence."""
+    out: dict[str, str] = {}
     for line in DOCUMENT.read_text(encoding="utf-8").splitlines():
         m = ROW.match(line)
         if m:
-            doc_rows[m.group(1)] = m.group(3)
-
-    # A parse that found nothing cannot distinguish agreement from a broken
-    # reader, so it refuses rather than reporting a clean run.
-    if not ledger_lines:
-        print("REFUSED: the ledger parsed to zero uncited rows", file=sys.stderr)
-        return 2
-    if not doc_rows:
-        print(
-            "REFUSED: the document parsed to zero rows -- the row format changed "
-            "and this gate is reading nothing",
-            file=sys.stderr,
+            out[m.group(1)] = m.group(3)
+    if not out:
+        raise Refused(
+            "the document parsed to zero rows -- the row format changed and this "
+            "gate is reading nothing"
         )
-        return 2
+    return out
 
-    errors = 0
-    for sentence in sorted(ledger_lines, key=lambda s: int(s[1:])):
-        if sentence not in doc_rows:
-            _fail(
+
+def disagreements(ledger: dict[str, str], document: dict[str, str]) -> list[str]:
+    """Every way the two records can contradict each other, in both directions.
+
+    Both directions matter and they fail differently. A ledger row the document
+    does not list is an enforced declaration whose reasoning is unrecorded. A
+    document row ruled closed while the ledger still declares it uncited is an
+    obligation counted as open after it was closed, which is the direction that
+    quietly inflates the coverage debt.
+    """
+    out: list[str] = []
+    for sentence in sorted(ledger, key=lambda s: int(s[1:])):
+        if sentence not in document:
+            out.append(
                 f"{sentence}: the ledger declares it uncited and the document "
                 "does not list it, so the reasoning behind an enforced "
                 "declaration is unrecorded"
             )
-            errors += 1
-        elif doc_rows[sentence] == "a":
-            _fail(
+        elif document[sentence] == "a":
+            out.append(
                 f"{sentence}: the document rules it CLOSED by a citation while "
                 "the ledger still declares it uncited -- an obligation counted "
                 "as open after it was closed"
             )
-            errors += 1
-
-    for sentence, disposition in sorted(doc_rows.items(), key=lambda kv: int(kv[0][1:])):
-        if disposition in ("b", "c", "d") and sentence not in ledger_lines:
-            _fail(
-                f"{sentence}: the document rules it still uncited "
-                f"(disposition {disposition}) and no ledger row declares it, so "
-                "nothing enforces the declaration"
+    for sentence, disposition in sorted(document.items(), key=lambda kv: int(kv[0][1:])):
+        if disposition in ("b", "c", "d") and sentence not in ledger:
+            out.append(
+                f"{sentence}: the document rules it still uncited (disposition "
+                f"{disposition}) and no ledger row declares it, so nothing "
+                "enforces the declaration"
             )
-            errors += 1
+    return out
 
-    if errors:
+
+def main() -> int:
+    for path in (READINGS, DOCUMENT):
+        if not path.is_file():
+            print(f"REFUSED: {path} is absent", file=sys.stderr)
+            return 2
+    try:
+        ledger = read_ledger()
+        document = read_document()
+    except Refused as exc:
+        print(f"REFUSED: {exc}", file=sys.stderr)
+        return 2
+
+    problems = disagreements(ledger, document)
+    if problems:
         print(
             f"FAIL: the uncited ledger and the document about it disagree on "
-            f"{errors} sentence(s).",
+            f"{len(problems)} sentence(s).",
             file=sys.stderr,
         )
+        for problem in problems:
+            _fail(problem)
         return 1
 
     print(
-        f"OK: {len(ledger_lines)} enforced uncited declaration(s) agree with "
-        f"{len(doc_rows)} documented disposition(s)."
+        f"OK: {len(ledger)} enforced uncited declaration(s) agree with "
+        f"{len(document)} documented disposition(s)."
     )
     return 0
 

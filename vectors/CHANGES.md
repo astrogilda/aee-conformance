@@ -508,13 +508,13 @@ byte-identically from the generators.
   specification's other open corners were enumerated against the vendored text
   before the bucket was built, and only this family qualified. The producer
   assertions about what the run executed (L513-528) and the shared-reference
-  evidencing obligation on a row declaring `paired` (L902-914) are LIMITS rather
+  evidencing obligation on a row declaring `paired` (L928-940) are LIMITS rather
   than choices: every conformant verifier must accept those statements, and the
   second says outright that "a conforming verifier neither can nor may invent an
   evidencing heuristic in its place". The consumer MAY
-  clauses (L495-496, L1125-1128, L1204, L1220-1224) sit outside the verdict this
+  clauses (L495-496, L1159-1162, L1247, L1263-1267) sit outside the verdict this
   suite reads, because validity "is a function of carried bytes alone and holds
-  identically for every consumer" (L1716-1719). The producer options are forced
+  identically for every consumer" (L1828-1831). The producer options are forced
   on the verifier and already carried by accept vectors. One family with two
   members is the honest size of this bucket.
 - **The reference rails read `set-level`, and that is now recorded rather than
@@ -1261,7 +1261,7 @@ byte-identically from the generators.
 
 - Corpus: 140 vectors (35 accept, 105 reject). No normative spec change; the
   specDigest is unchanged. Two forcing vectors close the reason-map side of the
-  coverage-partition membership rule already carried by the spec (L886-888): the
+  coverage-partition membership rule already carried by the spec (L912-914): the
   three coverage sets are a disjoint partition of the manifest's classes, so
   membership runs both ways, but only `bad-819` forced the `assessedClasses`
   side. New reject vectors `bad-731-outofscope-unknown-class` and
@@ -1332,14 +1332,14 @@ byte-identically from the generators.
   per executed attack" is a well-formedness invariant; both rails detect a
   duplicate `attackId` across rows before the set-based coverage comparison
   (which silently collapsed it before) and emit `statement-malformed`. Spec
-  paragraph at L894-906 gains the uniqueness sentence; new reject vector
+  paragraph at L920-932 gains the uniqueness sentence; new reject vector
   `bad-729-duplicate-attackid-rows`. Registry decision 13.
 - Coverage sets pinned as a disjoint partition (open corner B resolved, the one
   editorial call; reversible at vetting). A class appears in exactly one of
   `assessedClasses`, `outOfScope`, `routedElsewhere`; a class in more than one is
   malformed. This was a live divergence (our rails reject overlap; the from-spec
   checker accepts it) that no vector exercised. Rails unchanged (both already
-  reject via the disjoint-partition check); the spec text at L881-886 now matches
+  reject via the disjoint-partition check); the spec text at L907-912 now matches
   them; new reject vector `bad-730-coverage-class-overlap`. Registry decision 14.
   With these three corners resolved, `interpretation-decisions.json` has no open
   corners remaining.

@@ -628,6 +628,21 @@ strength ordering MUST first evaluate them, and on failure the attestation
 is invalid and its `result` MUST NOT be consumed, the same handling as
 any malformed statement.
 
+Where a statement carries at least one `basis: substrate` row and no carried
+`sealed` record satisfies every constraint of its kind, the existence
+requirement and its universal partner are unmet by the same record and name
+different repairs. A verifier SHOULD report the unmet existence requirement as
+its primary condition and any refusal naming the defective record's kind beside
+it rather than in its place, because where a satisfying record is carried beside
+the defective one dropping or repairing that record reaches validity and where
+none is it does not: a statement whose only seal reports its moat down is not
+repaired by dropping the seal, and a producer told only that a carried record is
+defective has been told to perform a repair that cannot work. This document
+defines no condition vocabulary, so what is fixed is which of the two a verifier
+reporting a single condition reports and which a verifier reporting a set
+includes, never the identifier either is drawn under, and the obligation is
+diagnostic and never a validity rule.
+
 What these requirements are is worth stating as plainly as what they
 require, because their name invites a reader to take them for a security
 gate on their own, and on their own they are not one. Every check above
@@ -715,7 +730,18 @@ falsehood or oblige a substrate to give up the property that made its
 commitment unpredictable. `paired` is therefore itself a free withdrawal: a
 producer declaring it on every row satisfies every rule here, because a
 statement claiming a weaker binding is a statement an honest producer with a
-weaker binding emits. The closure against that producer is the consumer
+weaker binding emits.
+
+There is a second use of these three members, found by implementing them rather
+than by designing them, and recorded here because it was not what they were
+written for. A consumer that demands `pinned` on every attack the carried
+manifest holds an expectation for learns, from its own refusals, which layers of
+its own substrate cannot produce predictable commitments. The refusals are the
+measurement, no adversary is involved, and the answer is about the consumer's
+own stack rather than about any statement it received. Reported by the author of
+the second independent implementation during review of this predicate.
+
+The closure against that producer is the consumer
 obligation stated under Consumer policy obligations, and it is the closure
 rather than a hook into one, in the same place and for the same stated reason
 as the corpus and substrate pins.
@@ -994,6 +1020,14 @@ diff computed by substrate machinery over the artifact's own logs is
 populated what the machinery read without performing any containment
 event.
 
+That composition is one instance of a principle this predicate follows
+throughout: where a capture is ambiguous, the repair is additional captured
+information and not better inference over what was already captured. Coverage
+here is therefore a function of what was captured and armed rather than of what
+can be reconstructed afterwards, which is why `basis` and `method` are taken
+from the weakest input a claim rests on rather than from the strength of the
+machinery that processed it.
+
 A producer MUST NOT declare `basis: substrate` on a row it cannot cover
 under the coverage validity requirements above: such a row is not merely
 mislabeled, it makes the attestation invalid.
@@ -1165,8 +1199,17 @@ resolved where signer identity is always resolved. The substrate
 observation key MUST NOT be accessible to the subject artifact, and SHOULD
 be held apart from the producer's assembly plane; a consumer's policy MAY
 additionally require that the key signing any covering observation record
-differ from the key signing the enclosing Statement. The tier's value
-against a dishonest producer is exactly that separation: where the
+differ from the key signing the enclosing Statement. Two differing keys are
+not two parties, and this document asserts no independence between them:
+nothing here requires that the substrate observation key and the key signing
+the enclosing Statement be controlled by different parties, and a statement
+whose two keys are held by one party satisfies every requirement stated here.
+A consumer's policy MAY require that they be controlled by different parties,
+deriving control from the same key policy it resolves signer identity under and
+never from a token the statement carries, since an independence token declared
+inside the statement is redundant where it is honest and a lie surface where it
+is not. The tier's value against a dishonest producer is exactly that
+separation: where the
 observation key is held apart from the assembly plane, the tier defeats a
 pipeline with no substrate in the loop and cross-configuration splices,
 because neither can be produced without a signature under the observation
@@ -1302,12 +1345,32 @@ A record violating any constraint of its declared `aeeKind` (including a
 missing `armedAt` on an `arming` record, an `armedAt` after `issuedAt`, an
 `armedAt` outside the timestamp profile, or an `examination` record signed
 `aeeMethod: intercepted`) covers nothing.
+
+`aeeMethod` is determined by `aeeKind` on every run-level kind this document
+registers. By the constraints stated above an `arming` record is `intercepted`,
+a `sealed` record is `intercepted`, and an `examination` record is
+`reconstructed`; only `interception` leaves the member free. The member
+therefore carries an independent value on per-event records alone, and it is not
+the axis on which the attribution shape behind a run-level claim could be read.
+A value added to this vocabulary for the seal's benefit would be unreachable on
+the seal, whose `aeeMethod` already has exactly one legal value. A closed name
+vocabulary separates only the distinctions someone anticipated: whether a
+correlator also captured namespace identity is not a distinction this document
+anticipated, and not one it can enumerate.
+
 A `sealed` record covers no clean row unless its `aeeStillArmed` is
 `true`, its `aeeDropCount` is zero or does not exceed an `aeeDropBound`
 declared in the same signed payload, and its `aeePostureDigest` equals
-both the arming record's and the pinned `networkPosture` digest, each a
-check on signed carried bytes, so failing it is a coverage validity
-failure, never a silent pass.
+the pinned `networkPosture` digest and the `aeePostureDigest` of every
+`arming` record the row resolves, each a check on signed carried bytes,
+so failing it is a coverage validity failure, never a silent pass. The
+quantifier is stated because a row may resolve more than one `arming`
+record and the equality holds against each of them: a definite singular
+reads as a promise that a statement carries exactly one, and this
+document permits several. This sentence is stated over a row and its
+set is the records that row resolves; which `arming` records supply the
+set on a check that reads no row is not stated here and is not settled
+by it.
 
 `moat-drop` and `uncommitted-observation` are registered by this document and
 neither covers anything. Both name records substrates were already signing
@@ -1484,8 +1547,57 @@ licenses nothing, and in particular does not oblige a clean row. That is what
 makes the member sound without requiring the substrate to resolve every
 ambiguous case: an observation it could not attribute is left out, which
 subtracts from what the seal claims and can never add a claim that is false.
-Over-inclusion is the direction that would be unsound, and a substrate that
-attributes by disjoint dispatch windows cannot produce it.
+
+Over-inclusion is the direction that would be unsound. A substrate attributing
+by disjoint dispatch windows cannot produce it, and that is the argument this
+member was written against, but nothing above requires that attribution shape:
+a substrate correlating by connection five-tuple, or by a heuristic over payload
+shape, satisfies every syntactic requirement here while the argument stops
+applying to it. Over-attribution is caught downstream at the row, by the rule
+under `attackResults` that a producer MUST NOT reference a record from a row
+whose attack the record's committed payload does not evidence, checkable on a
+row declaring `attribution: pinned` and an obligation outside every gate on one
+declaring `paired`. That pointer is stated here, rather than left to be met
+several hundred lines later, because a reader who meets this member first will
+otherwise reach the end of it believing the seal alone carries the guarantee.
+
+It does not, and the residue is worth naming. That producer obligation binds the
+producer, while the seal is signed by the substrate, so a consumer holding a
+non-empty `aeeObservedAttacks` cannot read the attribution shape off the seal
+before it has already decided whether to demand `pinned`. A token declared by
+the substrate inside the sealed payload, beside `aeeMethod`, would move that
+statement to the party that made the observation, which a producer-declared
+token cannot do: the producer sits on the far side of the signature and would be
+reporting a belief about a substrate it cannot inspect. Moving a declaration is
+not the same as checking one. The name and the material it would name are
+emitted by one signer under one signature, so a consumer recomputing the one
+from the other compares a declaration with a declaration by that declarer, and a
+substrate whose declarations agree with each other satisfies the comparison.
+
+The only shape that escapes carries enough pre-correlation observation for the
+consumer to perform the grouping itself, so that the substrate's correlation is
+not relied on rather than being described. This document instantiates that shape
+at the row and not at the seal. A row declaring `attribution: pinned` groups
+against commitment values the corpus declared in advance in
+`corpus.manifest.expectedPayloads`, which sit inside the manifest pre-image
+`corpus.digest` is taken over and which a consumer pins out of band, and the
+comparison is performed by the consumer against the `aeePayloadCommitment` of
+every `interception` record the row resolves. `aeeObservedAttacks` is a lower
+bound over attack identifiers and has no such third-party-declared key material
+to group against. No shape token is defined in this version, because one would
+not close this.
+
+_Note (informative)._ The five-tuple case named above is constructible rather
+than hypothetical. CLARION (Xutong Chen, Hassaan Irshad, Yan Chen, Ashish
+Gehani and Vinod Yegneswaran, "CLARION: Sound and Clear Provenance Tracking for
+Microservice Deployments", 30th USENIX Security Symposium, 2021) constructs it
+in Section 3.1.3: two processes listening on the same virtualized local address
+and port in separate containers, one of them accepting a connection from a
+single remote address and port, cannot be told apart without network-namespace
+awareness. That establishes constructibility in one common environment and not a
+base rate, and this predicate does not target namespaced deployments. The repair
+taken there is additional captured information, a host-container mapping, and
+not better inference over the same capture.
 
 The empty array is the honest value, and it is required rather than
 omissible. A substrate that does not dispatch the corpus holds no
@@ -1764,6 +1876,22 @@ read it. A consumer that declines either requirement is admitting a statement
 whose row-to-record assignment rests on the producer's word, and the conjoined
 admission result recommended above SHOULD say so rather than report a bare
 pass.
+
+Beside those two, a consumer MAY require that every identifier in
+`aeeObservedAttacks` whose attack the pinned corpus carries a
+`corpus.manifest.expectedPayloads` entry for is also the `attackId` of a row
+declaring `attribution: pinned`. Under that requirement the consumer re-derives
+that subset of the seal's set from the corpus's declared commitments and the
+carried record payloads, rather than reading it off the substrate's own
+declaration, and the requirement is decidable from carried bytes with no
+mechanism this document does not already define. It is a consumer option and not
+a coverage validity requirement for the reason stated where `expectedPayloads`
+is defined: a corpus author who writes down the raw form of a value the
+substrate canonicalizes before committing has mispredicted, and that mistake
+should cost a fallback to `paired` rather than the validity of an honest
+statement. The complement, the identifiers the corpus declared no expectation
+for, remains a substrate declaration, and no consumer policy makes it
+otherwise.
 
 ### Consumer policy example (non-normative)
 

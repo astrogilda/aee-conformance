@@ -165,6 +165,49 @@ def refusals(tmp: Path) -> list[tuple[str, int, str, str]]:
             registry_bytes(GOOD_ROWS[:2] + ["| aee-c-3 | L393-395 | UNRESOLVED |"]),
             "carries no condition text",
         ),
+        # The five below are one defect wearing five spellings: a line the
+        # condition table carries that the row pattern cannot parse. The rows
+        # used to be defined AS whatever that pattern matched, so such a line was
+        # not a bad row but no row at all -- it left the subject in silence, the
+        # printed count did not move, and the gate reported success over a table
+        # advertising an id nothing can resolve. That is the defect this file
+        # exists to refuse, and it was the one shape that could not make it red.
+        (
+            "foreign-family-id-in-the-table",
+            manifest_bytes(GOOD_CONDITIONS),
+            registry_bytes(GOOD_ROWS + ["| rlc-c-3 | L400 | a foreign rule |"]),
+            "is not a registry row",
+        ),
+        (
+            "typo-in-a-registered-id",
+            manifest_bytes(GOOD_CONDITIONS),
+            registry_bytes(GOOD_ROWS + ["| aee-c-4x | L400 | a mistyped id |"]),
+            "is not a registry row",
+        ),
+        (
+            "leading-zero-in-a-registered-id",
+            manifest_bytes(GOOD_CONDITIONS),
+            registry_bytes(GOOD_ROWS + ["| aee-c-04 | L400 | not an id |"]),
+            "is not a registry row",
+        ),
+        (
+            "row-with-an-empty-id-cell",
+            manifest_bytes(GOOD_CONDITIONS),
+            registry_bytes(GOOD_ROWS + ["|  | L400 | a rule with no id |"]),
+            "is not a registry row",
+        ),
+        (
+            "row-that-does-not-close-its-last-cell",
+            manifest_bytes(GOOD_CONDITIONS),
+            registry_bytes(GOOD_ROWS + ["| aee-c-4 | L400 | no trailing pipe"]),
+            "is not a registry row",
+        ),
+        (
+            "condition-table-header-twice",
+            manifest_bytes(GOOD_CONDITIONS),
+            registry_bytes(GOOD_ROWS) + "\n" + HEADER + GOOD_ROWS[0] + "\n",
+            "must carry exactly one",
+        ),
     ]
     return [
         (name, *run(man, reg, tmp, name), phrase) for name, man, reg, phrase in cases
@@ -185,12 +228,25 @@ def live_refusals(tmp: Path) -> list[tuple[str, int, str, str]]:
     invented = registry.replace(
         "| aee-c-1 |", "| aee-c-999 | L388 | an invented rule |\n| aee-c-1 |", 1
     )
+    unparseable = registry.replace(
+        "| aee-c-1 |", "| rlc-c-3 | L388 | a foreign rule |\n| aee-c-1 |", 1
+    )
+    if unparseable == registry:
+        raise SystemExit(
+            "test setup: no aee-c-1 row in the live registry to add a line "
+            "beside, so the live unparseable-row case would assert nothing"
+        )
     return [
         ("live-row-dropped", *run(manifest, dropped, tmp, "live_dropped"), "aee-c-3"),
         (
             "live-row-invented",
             *run(manifest, invented, tmp, "live_invented"),
             "aee-c-999 has a registry row",
+        ),
+        (
+            "live-row-unparseable",
+            *run(manifest, unparseable, tmp, "live_unparseable"),
+            "is not a registry row",
         ),
     ]
 
@@ -225,6 +281,36 @@ def acceptances(tmp: Path) -> list[tuple[str, int, str, str]]:
                 "live_ok",
             ),
             "all registered",
+        ),
+        # Two over-reach controls for the table sweep above. Requiring every line
+        # of the table to parse is only worth having if it does not start
+        # refusing tables that are correct: markdown alignment colons and a pipe
+        # inside a condition's own prose are both legal, and a gate that refuses
+        # them gets switched off and takes the rest of the file with it.
+        (
+            "alignment-separator-under-the-header",
+            *run(
+                manifest_bytes(GOOD_CONDITIONS),
+                registry_bytes(GOOD_ROWS).replace("|---|---|---|",
+                                                  "|:---|:---:|---:|", 1),
+                tmp,
+                "aligned",
+            ),
+            "3 registered conditions, all cited",
+        ),
+        (
+            "pipe-inside-a-condition-text",
+            *run(
+                manifest_bytes(GOOD_CONDITIONS),
+                registry_bytes(
+                    GOOD_ROWS[:2]
+                    + ["| aee-c-3 | L393-395 | a caught-set label on a row "
+                       "contributes fail | never pass |"]
+                ),
+                tmp,
+                "piped",
+            ),
+            "3 registered conditions, all cited",
         ),
     ]
 

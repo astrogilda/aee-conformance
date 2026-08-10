@@ -22,6 +22,11 @@ misleads a reader exactly as much as one with missing rows:
   - every condition id any vector in ``vectors/MANIFEST.json`` cites has a row in
     the registry;
   - every registry row names a condition at least one vector cites;
+  - every line the condition table carries IS a registry row. The rows used to be
+    whatever an id pattern matched, so a line the pattern could not parse -- a
+    foreign id, a typo, a leading zero -- was not a bad row but no row, and it
+    left the subject in silence with the printed count unchanged. A row nobody
+    can resolve is the defect, so it cannot also be the definition of not-a-row;
   - no id is registered twice, since two rows for one id can disagree;
   - every row carries a resolvable ``Lnnn`` spec anchor and a condition text, so
     a row cannot be present-but-empty, which reads as registered while resolving
@@ -62,8 +67,27 @@ CONDITION_RE = re.compile(r"^aee-c-([1-9][0-9]*)$")
 
 # A registry row: `| aee-c-3 | L393-395 | ... |`. Matched on the first cell so
 # the vector table below it, whose rows carry condition ids in a later cell,
-# cannot be read as registry rows.
-ROW_RE = re.compile(r"^\|\s*aee-c-([0-9]+)\s*\|([^|]*)\|(.*)\|\s*$")
+# cannot be read as registry rows. The id grammar is CONDITION_RE's, deliberately
+# -- the two sides of this gate compare ids, so they cannot hold two definitions
+# of what an id is. It used to accept `[0-9]+` here and `[1-9][0-9]*` there, so
+# `aee-c-07` was a registry row on one side and not an id on the other.
+ROW_RE = re.compile(r"^\|\s*aee-c-([1-9][0-9]*)\s*\|([^|]*)\|(.*)\|\s*$")
+
+# The header of the condition table, and the separator under it. The registry's
+# subject is the EXTENT OF THIS TABLE -- every table line between the header and
+# the first line that is not one -- rather than every line ROW_RE happens to
+# match, and the difference is the whole of the second check below.
+#
+# Reading the subject off the pattern means a row the pattern cannot parse is
+# not a bad row, it is not a row at all: it leaves the subject without a word,
+# the printed count is unchanged, and the gate reports success. A row whose id
+# cell is a foreign id, a typo or an id with a leading zero is precisely a row
+# registering something no reader can resolve -- the defect this file exists to
+# refuse -- and it was the one shape that could not make it go red. Bounding the
+# sweep by the table also keeps the vector table below out of it without relying
+# on the id pattern to do that job.
+TABLE_HEADER = "| id | spec anchor | condition |"
+SEPARATOR_RE = re.compile(r"^\|[\s:|-]+\|$")
 
 # What a spec anchor cell must contain at least one of. A row may carry several
 # (`L3; L286`), and scripts/spec-anchor-gate.py is what checks that each one
@@ -102,15 +126,52 @@ def cited_conditions(manifest_path: Path) -> tuple[dict[str, list[str]], list[st
     return cited, errors
 
 
+def table_lines(registry_path: Path) -> tuple[list[tuple[int, str]], list[str]]:
+    """Every line of the condition table, numbered, with the separator dropped.
+
+    The table's own extent is the subject. A file with no such table, or one
+    whose table holds no rows, yields nothing and says so, because a sweep that
+    found nothing and a read path that broke are the same reading from here.
+    """
+    lines = registry_path.read_text(encoding="utf-8").splitlines()
+    headers = [i for i, line in enumerate(lines) if line.strip() == TABLE_HEADER]
+    if len(headers) != 1:
+        return [], [
+            f"{registry_path} yielded no registry rows: it carries "
+            f"{len(headers)} condition-table headers reading {TABLE_HEADER!r} "
+            "and must carry exactly one. The table was renamed, duplicated or "
+            "reshaped, and every id the corpus cites is unresolvable"
+        ]
+    out: list[tuple[int, str]] = []
+    for offset, line in enumerate(lines[headers[0] + 1 :], start=headers[0] + 2):
+        if not line.lstrip().startswith("|"):
+            break
+        if SEPARATOR_RE.match(line.strip()):
+            continue
+        out.append((offset, line))
+    if not out:
+        return [], [
+            f"{registry_path} yielded no registry rows; the condition table is "
+            "present and empty, which reads as a registry every citation "
+            "resolves against and is a registry of nothing"
+        ]
+    return out, []
+
+
 def registry_rows(registry_path: Path) -> tuple[dict[str, tuple[str, str]], list[str]]:
     """Every registered id, mapped to its (spec anchor, condition) cells."""
     rows: dict[str, tuple[str, str]] = {}
-    errors: list[str] = []
-    for lineno, line in enumerate(
-        registry_path.read_text(encoding="utf-8").splitlines(), start=1
-    ):
+    candidates, errors = table_lines(registry_path)
+    for lineno, line in candidates:
         match = ROW_RE.match(line)
         if not match:
+            errors.append(
+                f"{registry_path.name}:{lineno}: this line is in the condition "
+                f"table and is not a registry row ({line.strip()!r}). A row the "
+                "table carries and this gate cannot parse registers an id no "
+                "reader can resolve, and skipping it would leave the count "
+                "unchanged and the gate green"
+            )
             continue
         cid = f"aee-c-{match.group(1)}"
         anchor, condition = match.group(2).strip(), match.group(3).strip()
@@ -194,8 +255,10 @@ def main(argv: list[str]) -> int:
         )
     if not rows:
         errors.append(
-            f"{args.registry} yielded no registry rows; the table was renamed, "
-            "emptied or reshaped, and every id the corpus cites is unresolvable"
+            f"{args.registry} yielded no registry rows: no line of its condition "
+            "table parsed as one. Every id the corpus cites is unresolvable, and "
+            "reconciling against an empty registry would report every citation "
+            "as consistent"
         )
     if cited and rows:
         errors += reconcile(cited, rows)

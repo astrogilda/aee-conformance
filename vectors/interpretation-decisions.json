@@ -310,5 +310,71 @@
       ]
     }
   ],
-  "openCorners": []
+  "openCorners": [],
+  "unwitnessedForced": {
+    "reason": "No reading-differential harness exists yet, so no decision in this registry can carry a machine-checkable discrimination witness. One shared reason is recorded rather than twenty invented per-decision rationales, because the cause genuinely is one thing: the instrument is missing, not that twenty separate judgements were made. Each id retires from this list individually as its witness lands, and the gate FAILS on an id left here after it gains one.",
+    "instrumentNeeded": "A differential runner that evaluates a vector under a decision's reading and under its stated rival, and records which observable moves -- the verdict, or the condition-code set. A run where neither moves is MASKED and is a finding, never a confirmation.",
+    "decisions": [
+      {
+        "id": 1
+      },
+      {
+        "id": 2
+      },
+      {
+        "id": 3
+      },
+      {
+        "id": 4
+      },
+      {
+        "id": 5
+      },
+      {
+        "id": 6
+      },
+      {
+        "id": 7
+      },
+      {
+        "id": 8
+      },
+      {
+        "id": 9
+      },
+      {
+        "id": 10
+      },
+      {
+        "id": 11
+      },
+      {
+        "id": 12
+      },
+      {
+        "id": 13
+      },
+      {
+        "id": 14
+      },
+      {
+        "id": 15
+      },
+      {
+        "id": 16
+      },
+      {
+        "id": 17
+      },
+      {
+        "id": 18
+      },
+      {
+        "id": 19
+      },
+      {
+        "id": 20
+      }
+    ]
+  }
 }

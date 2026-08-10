@@ -871,7 +871,41 @@ MASKS = tuple(
     re.compile(pattern)
     for pattern in (
         r"\b(?:ok|bad)-\d+(?:/\d+)*",  # vector ids and id lists: ok-006/007/029
-        r"\baee-c-\d+",  # condition ids
+        # Condition ids. This is a RECALL pattern and not an identity test, and
+        # the difference is worth the paragraph because the two are one character
+        # apart and fail in opposite directions.
+        #
+        # Identity -- "is this string a condition id?" -- is asked in exactly one
+        # place, scripts/condition-registry-gate.py, and it is asked anchored at
+        # BOTH ends and zero-intolerant, because `aee-c-07` is not `aee-c-7` in
+        # another spelling, it is an id nothing can cite. This line asks a
+        # different question: does a digit sitting HERE belong to an identifier
+        # rather than to a quantity? Masking one digit too many costs nothing;
+        # masking one too few manufactures a refusal against prose that claims
+        # nothing. Even with the trailing boundary below, this pattern still
+        # accepts `aee-c-07`, so it remains the WRONG pattern to copy into an
+        # identity test. Anchor the copy at both ends and refuse the leading zero.
+        #
+        # The trailing \b was absent until it was measured, and the measurement is
+        # what licenses adding it rather than an appeal to symmetry. The only
+        # tracked strings where the two forms disagree are `aee-c-4x` and
+        # `aee-c-3x`, the deliberately malformed ids the condition-registry gate
+        # and its suite write in order to prove they are refused. Re-derive the
+        # list with:
+        #     git grep -nE 'aee-c-[0-9]+[A-Za-z_]'
+        # In every such string a letter is glued to the last digit, and that is
+        # precisely what both census triggers require the absence of: NOUN wants
+        # whitespace and then the noun, and the bare-value trigger wants a word
+        # boundary. A digit run with a letter stuck to it can fire neither,
+        # masked or not -- so the looser form was protecting a shape that was
+        # never reachable, and the census reads the same integers across the same
+        # files either way. Re-derive that equivalence rather than trusting this
+        # sentence: swap the two forms and compare the last line this gate prints,
+        # which names both the integers examined and the files read. Deleting the
+        # pattern outright is the control that proves the masking is load-bearing
+        # at all -- an id whose digits equal a published corpus count is reported
+        # the moment nothing masks it.
+        r"\baee-c-\d+\b",
         # Disposition-row identifiers, DC-NN. A row in the objection ledger is
         # named, not counted, and the number is as much an identifier as a vector
         # id is. Unmasked it collides on value with whatever small count the

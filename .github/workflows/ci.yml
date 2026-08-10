@@ -101,7 +101,7 @@ jobs:
       - name: sync toolchain
         run: uv sync --extra dev --extra generators
       - name: mypy --strict
-        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/interpretation-registry-gate-test.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-anchor-gate-test.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/code-contract-gate-test.py scripts/consumer-lag-gate.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/condition-forcing-gate.py scripts/condition-forcing-gate-test.py scripts/condition-forcing-crosscheck.py scripts/condition-forcing-crosscheck-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py scripts/countcensus.py scripts/count-gate.py scripts/count-gate-test.py scripts/regenerability-gate.py scripts/accept-anchor-gate.py scripts/accept-anchor-gate-test.py scripts/liveness-probe.py scripts/liveness-probe-test.py scripts/citation-metadata-gate.py scripts/expectation-slack-gate.py scripts/expectation-slack-gate-test.py scripts/uncited-crosscheck-gate.py scripts/reading-differential.py scripts/reading-differential-test.py
+        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/interpretation-registry-gate-test.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-anchor-gate-test.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/code-contract-gate-test.py scripts/consumer-lag-gate.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/condition-forcing-gate.py scripts/condition-forcing-gate-test.py scripts/condition-forcing-crosscheck.py scripts/condition-forcing-crosscheck-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py scripts/countcensus.py scripts/count-gate.py scripts/count-gate-test.py scripts/regenerability-gate.py scripts/accept-anchor-gate.py scripts/accept-anchor-gate-test.py scripts/liveness-probe.py scripts/liveness-probe-test.py scripts/citation-metadata-gate.py scripts/expectation-slack-gate.py scripts/expectation-slack-gate-test.py scripts/uncited-crosscheck-gate.py scripts/reading-differential.py scripts/reading-differential-test.py scripts/vendor-remap-test.py
       # Type-checks by DIRECTORY, which is why it sits beside the pass above
       # rather than replacing it. That one is driven from the list of files
       # written out on the line above, and a list is only accurate on the day it
@@ -130,6 +130,21 @@ jobs:
         run: uv run python scripts/complexity-table-gate.py --rail python
       - name: spec/corpus non-drift gate
         run: python3 scripts/spec-drift-gate.py
+      # Every line anchor into the specification is rewritten when the spec is
+      # re-vendored, and that rewrite had never been exercised against an
+      # insertion -- which is exactly what the next re-vendor carries. Its
+      # failure is silent by construction: an anchor landing a few lines off its
+      # subject still resolves, still passes the anchor gate, and addresses text
+      # that does not carry its rule, which is the defect that gate exists to
+      # refuse arrived at from the other direction.
+      #
+      # The test asserts the invariant rather than that the remap ran: every
+      # anchor must still open and close on the words the pin ledger recorded
+      # for it. It proves its own instrument first, against an identity map
+      # after an insertion -- the shape a lazy remap has -- and refuses to
+      # report on the real re-vendor unless that mutation went red.
+      - name: the vendor remap keeps every anchor on its own prose
+        run: python3 scripts/vendor-remap-test.py
       # The two citation gates are one check over two spellings. Each holds a
       # ledger pinning every citation to a digest of the prose it addresses, so
       # both fail when a citation comes off its subject rather than only when
@@ -476,4 +491,4 @@ jobs:
       - name: the corpus can tell two readings of a rule apart, or it says so
         run: |
           python3 scripts/reading-differential.py --workers 8
-          python3 scripts/reading-differential-test.py
+          python3 scripts/reading-differential-test.py scripts/vendor-remap-test.py

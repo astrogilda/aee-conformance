@@ -144,20 +144,32 @@ def _check_discrimination(
             "what is unproven"
         )
 
+    errors.extend(_witness_faults(did, witness, live))
+
+
+
+def _witness_faults(
+    did: Any, witness: dict[str, Any], live: set[str]
+) -> list[str]:
+    """Everything that can be wrong with a discrimination witness.
+
+    Split out from the caller so each half stays readable: the caller decides
+    WHETHER a decision owes a witness, and this decides whether the witness it
+    carries actually witnesses anything.
+    """
+    faults: list[str] = []
     required = ("rivalReading", "witnessVector", "observable", "underReading", "underRival")
     for field in required:
         if not str(witness.get(field, "")).strip():
-            errors.append(
-                f"decision {did}: discrimination witness is missing {field!r}"
-            )
+            faults.append(f"decision {did}: discrimination witness is missing {field!r}")
     observable = witness.get("observable")
     if observable not in (None, "verdict", "codes"):
-        errors.append(
+        faults.append(
             f"decision {did}: discrimination observable must be verdict|codes, "
             f"got {observable!r}"
         )
     if witness.get("underReading") == witness.get("underRival"):
-        errors.append(
+        faults.append(
             f"decision {did}: discrimination witness records the same result "
             "under both readings, which is the definition of NOT "
             "discriminating -- this is the shape that must never pass"
@@ -165,12 +177,13 @@ def _check_discrimination(
     vid = witness.get("witnessVector")
     if vid:
         if not _vector_file_exists(vid):
-            errors.append(f"decision {did}: witness vector {vid} has no file")
+            faults.append(f"decision {did}: witness vector {vid} has no file")
         elif vid not in live:
-            errors.append(
+            faults.append(
                 f"decision {did}: witness vector {vid} is not in MANIFEST.json "
                 "(orphaned, would not be replayed)"
             )
+    return faults
 
 
 ANCHOR_RE = re.compile(r"\bL(\d+)(?:-(\d+))?\b")

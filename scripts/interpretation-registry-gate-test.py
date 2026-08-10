@@ -31,8 +31,9 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 GATE_REL = Path("scripts") / "interpretation-registry-gate.py"
@@ -106,7 +107,10 @@ def case_false_forced_claim(registry: dict[str, Any]) -> None:
         title="Constraint set of the sealed existential bullet",
         classification="forced",
         specAnchors=["L1275-1278"],
-        reading="The existential bullet reads on the clean-row conjuncts, not only the structural members.",
+        reading=(
+            "The existential bullet reads on the clean-row conjuncts, not only "
+            "the structural members."
+        ),
         forcingVectors=[victim],
     )
     template.pop("discrimination", None)

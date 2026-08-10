@@ -116,11 +116,23 @@
       "opens": "`examination` record; a clean row with `method: intercepted`",
       "closes": "at its class definition);"
     },
+    "vectors/reject/gen_invalid_vectors.py::bad-106-clean-missing-sealed#1": {
+      "anchor": "L997-999",
+      "digest": "4a955c32b99d8bade4270e51f0888b27479e1e9beea105e18f13053102c32d91",
+      "opens": "A producer MUST NOT declare `basis: substrate` on a row it cannot cover",
+      "closes": "mislabeled, it makes the attestation invalid."
+    },
     "vectors/reject/gen_invalid_vectors.py::bad-107-clean-missing-arming#0": {
       "anchor": "L557-560",
       "digest": "ec4ca83192f4a9136670bc2891d52e1928d432d0055379e331ce83e977b861b1",
       "opens": "`examination` record; a clean row with `method: intercepted`",
       "closes": "at its class definition);"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-107-clean-missing-arming#1": {
+      "anchor": "L997-999",
+      "digest": "4a955c32b99d8bade4270e51f0888b27479e1e9beea105e18f13053102c32d91",
+      "opens": "A producer MUST NOT declare `basis: substrate` on a row it cannot cover",
+      "closes": "mislabeled, it makes the attestation invalid."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-108-ref-non-integer#0": {
       "anchor": "L552-553",
@@ -139,6 +151,12 @@
       "digest": "647a40095ace8fc4136a505d4cb31ceb3b0029702a63519e8b68904ca332087c",
       "opens": "to cover a `basis: substrate` row MUST carry a",
       "closes": "top-level fields; a record whose payload is not so parseable, or whose"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-201-payload-unsorted-keys#2": {
+      "anchor": "L625-629",
+      "digest": "cc6486e4b6c9ca84fc0d8b821eb0ae9d74c44a49bd1733f7b809bfe7a9865a20",
+      "opens": "These requirements are consumption preconditions, not optional lints: a",
+      "closes": "any malformed statement."
     },
     "vectors/reject/gen_invalid_vectors.py::bad-202-payload-bignum#0": {
       "anchor": "L1269-1273",
@@ -697,6 +715,12 @@
       "digest": "37927ecc5e852c49e9b3c8865fe8bba048cef7ed0095b81ea68c95c681129c47",
       "opens": "- its `observationRefs` is non-empty and every index is in range for",
       "closes": "`observationRecords`;"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-724-artifact-ref-out-of-range#1": {
+      "anchor": "L920-925",
+      "digest": "0a6d81b7327455da85fc036da6a4c110bee2369b0e1e9f609a7b98fb0fc2fbd1",
+      "opens": "before that comparison, not left to it.",
+      "closes": "independent of any gate, so a reference that does not resolve is never"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-725-statement-duplicate-member#0": {
       "anchor": "L100-106",
@@ -1490,6 +1514,12 @@
       "opens": "- its `observationRefs` is non-empty and every index is in range for",
       "closes": "`observationRecords`;"
     },
+    "vectors/reject/gen_invalid_vectors.py::11#1": {
+      "anchor": "L920-925",
+      "digest": "0a6d81b7327455da85fc036da6a4c110bee2369b0e1e9f609a7b98fb0fc2fbd1",
+      "opens": "before that comparison, not left to it.",
+      "closes": "independent of any gate, so a reference that does not resolve is never"
+    },
     "vectors/reject/gen_invalid_vectors.py::12#0": {
       "anchor": "L554-556",
       "digest": "6f2f30f054a75034fed128056aa93c7b15cc5cd352ff201bbb878fd5a9368d10",
@@ -1868,6 +1898,12 @@
       "opens": "`issuedAt` _Timestamp, required_",
       "closes": "`issuedAt` _Timestamp, required_"
     },
+    "vectors/reject/gen_invalid_vectors.py::85#1": {
+      "anchor": "L1680-1683",
+      "digest": "1a128421c05520bf2d5b35253df261bf64cab4c358ac0b41dbe685a84dec48de",
+      "opens": "only when a statement crosses between them. The date-time separator and the",
+      "closes": "`-00:00`, never a non-zero offset such as `+05:00`. `-00:00` is admitted"
+    },
     "vectors/reject/gen_invalid_vectors.py::86#0": {
       "anchor": "L150-163",
       "digest": "52e194457afd8e42e26de2ef870358756f4e8406283c4f701331ff9993896795",
@@ -2217,10 +2253,10 @@
       "closes": "producer still reports as assessed."
     },
     "vectors/interpretation-decisions.json::6#3": {
-      "anchor": "L879-886",
-      "digest": "3a11b6f6942859ad5602796f72d9dcad498a2aaf41f7fac011e65d7621891844",
+      "anchor": "L879-890",
+      "digest": "4d2bfc2c1ef2cb53e9a1574de4343ecc3d95c45436d5d23e7ad62b6315018c39",
       "opens": "`coverage` _object, required_",
-      "closes": "one. The three sets are a disjoint partition of the manifest's classes: a"
+      "closes": "disclosed as a gap is contradictory."
     },
     "vectors/interpretation-decisions.json::6#4": {
       "anchor": "L937-940",
@@ -2241,16 +2277,16 @@
       "closes": "does not implement, distinguishably from a run-binding digest mismatch. An"
     },
     "vectors/interpretation-decisions.json::7#2": {
-      "anchor": "L229-234",
-      "digest": "39985e359585187527d4e109e06f1ebb97d9a5c5409a78c8c62c911d882eb5df",
-      "opens": "binding is anti-splice: a record signed under a different subject, corpus,",
-      "closes": "distinguished only by the substrate-emitted `runEntropy` value, so a"
+      "anchor": "L237-241",
+      "digest": "4e087fe0eab612d48258f81d0c5f962f981f55f246150effbeb8bc776f8270d2",
+      "opens": "value it has already seen. `aeeBindingVersion` names this construction;",
+      "closes": "not implement rather than attempt more than one construction. An arming"
     },
     "vectors/interpretation-decisions.json::7#3": {
-      "anchor": "L237-244",
-      "digest": "027cbd5b1b98c21f33c14fd8a7985e469cce6f6175f8085be43214d133350ac6",
-      "opens": "value it has already seen. `aeeBindingVersion` names this construction;",
-      "closes": "fail-closed (the arming record covers nothing) when the value is a version it"
+      "anchor": "L241-245",
+      "digest": "dec056dd02725c0e0f6f87dd20774cabe7a5bf10716307f78025136f3b08966c",
+      "opens": "not implement rather than attempt more than one construction. An arming",
+      "closes": "does not implement, distinguishably from a run-binding digest mismatch. An"
     },
     "vectors/interpretation-decisions.json::8#0": {
       "anchor": "L1283-1284",
@@ -2265,10 +2301,10 @@
       "closes": "from the arming record so that the two fields cannot drift apart."
     },
     "vectors/interpretation-decisions.json::8#2": {
-      "anchor": "L1670-1672",
-      "digest": "4891b176bf80a8fed79ad85d3883df3466842f9dec1df89a29a017a25bcf5d17",
-      "opens": "concern that the wire format does not carry.",
-      "closes": "`issuedAt` _Timestamp, required_"
+      "anchor": "L1672-1690",
+      "digest": "234ebe93356be946727622e9766bb322a950ced2db0e9a365828c7874d756aa9",
+      "opens": "`issuedAt` _Timestamp, required_",
+      "closes": "from the arming record so that the two fields cannot drift apart."
     },
     "vectors/interpretation-decisions.json::8#3": {
       "anchor": "L1283-1284",
@@ -2437,6 +2473,18 @@
       "digest": "71f47a5938fe31b6cd912afdc572d7db0875cb581757c2eb050596123f2415c2",
       "opens": "`pass_indirect` is a coverage-complete result at least one of whose clean",
       "closes": "support."
+    },
+    "vectors/interpretation-decisions.json::21#0": {
+      "anchor": "L586-594",
+      "digest": "4efe7e77b3a1696cd8f673471d7165f48cd8e2dc824fd7e6fcbd227f16a843e5",
+      "opens": "- a statement carrying at least one `basis: substrate` row carries at least",
+      "closes": "record it constrains is a rule a producer switches off by omission;"
+    },
+    "vectors/interpretation-decisions.json::21#1": {
+      "anchor": "L586-594",
+      "digest": "4efe7e77b3a1696cd8f673471d7165f48cd8e2dc824fd7e6fcbd227f16a843e5",
+      "opens": "- a statement carrying at least one `basis: substrate` row carries at least",
+      "closes": "record it constrains is a rule a producer switches off by omission;"
     },
     "vectors/coverage-unforced.json::U1#0": {
       "anchor": "L921-926",

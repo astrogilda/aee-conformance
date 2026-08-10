@@ -95,7 +95,7 @@
         "L879-890",
         "L937-940"
       ],
-      "reading": "Coverage is an exhaustive, disjoint partition of the manifest's classes across assessedClasses / outOfScope / routedElsewhere (L879-886), each a real manifest class (an assessed class the manifest never carried is rejected); coverage integrity is exact set equality between row attackIds and the manifest's attacks for the assessed classes (L937-940). bad-816 locks a dropped class; bad-819 locks the mirror (a fabricated class padding assessedClasses); bad-806/807 lock the attack granularity.",
+      "reading": "Coverage is an exhaustive, disjoint partition of the manifest's classes across assessedClasses / outOfScope / routedElsewhere (L879-890), each a real manifest class (an assessed class the manifest never carried is rejected); coverage integrity is exact set equality between row attackIds and the manifest's attacks for the assessed classes (L937-940). bad-816 locks a dropped class; bad-819 locks the mirror (a fabricated class padding assessedClasses); bad-806/807 lock the attack granularity.",
       "forcingVectors": [
         "bad-816-coverage-class-dropped",
         "bad-819-assessed-class-not-in-manifest",
@@ -112,7 +112,7 @@
         "L237-241",
         "L241-245"
       ],
-      "reading": "A verifier has exactly one binding construction and rejects, fail-closed, a version it does not implement rather than attempt a second (L229-234); a construction it does not implement surfaces as aeeRunBinding failing to equal the implemented derivation (bad-303, whose records are minted under the retired version-1 pre-image). An arming payload MAY carry an explicit aeeBindingVersion, read before deriving; a value the verifier does not implement makes the arming record cover nothing, distinguishably from a run-binding digest mismatch (L237-244, bad-726). The declared version in each of those two vectors moves whenever the implemented construction moves: a vector minted under, or declaring, the version the rail implements asserts nothing at all.",
+      "reading": "A verifier has exactly one binding construction and rejects, fail-closed, a version it does not implement rather than attempt a second (L237-241); a construction it does not implement surfaces as aeeRunBinding failing to equal the implemented derivation (bad-303, whose records are minted under the retired version-1 pre-image). An arming payload MAY carry an explicit aeeBindingVersion, read before deriving; a value the verifier does not implement makes the arming record cover nothing, distinguishably from a run-binding digest mismatch (L241-245, bad-726). The declared version in each of those two vectors moves whenever the implemented construction moves: a vector minted under, or declaring, the version the rail implements asserts nothing at all.",
       "forcingVectors": [
         "bad-303-binding-version-1",
         "bad-726-arming-binding-version-carried"
@@ -126,7 +126,7 @@
         "L1283-1284",
         "L1672-1690"
       ],
-      "reading": "issuedAt is typed as the framework's Timestamp field type, and the predicate pins the two choices that type leaves open (L1670-1672): the date-time separator and the zone designator are uppercase, never the lowercase t and z RFC 3339 also admits, and the zone designator is Z, +00:00 or -00:00, never a non-zero offset. An arming record's armedAt carries the same profile and is no later than issuedAt (L1283-1284). Both rails parse and compare the two as instants. bad-701 (absent armedAt), bad-702 (armedAt after issuedAt), bad-810 (absent issuedAt) and bad-811 (issuedAt not RFC 3339 at all) lock the base. The zone half is locked on each field by bad-727 and bad-820. The case half needs one vector per designator, because a rail whose zero-offset test reads the literal suffix rejects a lowercase z as a side effect of the zone rule: bad-750 and bad-821 lock the date-time separator on each field, bad-751 and bad-822 the zone designator. ok-038 and ok-039 lock -00:00 as admitted on each field, so a rail that reads 'zero offset' as 'Z or +00:00 only' fails rather than passing as silently stricter than its peers.",
+      "reading": "issuedAt is typed as the framework's Timestamp field type, and the predicate pins the two choices that type leaves open (L1672-1690): the date-time separator and the zone designator are uppercase, never the lowercase t and z RFC 3339 also admits, and the zone designator is Z, +00:00 or -00:00, never a non-zero offset. An arming record's armedAt carries the same profile and is no later than issuedAt (L1283-1284). Both rails parse and compare the two as instants. bad-701 (absent armedAt), bad-702 (armedAt after issuedAt), bad-810 (absent issuedAt) and bad-811 (issuedAt not RFC 3339 at all) lock the base. The zone half is locked on each field by bad-727 and bad-820. The case half needs one vector per designator, because a rail whose zero-offset test reads the literal suffix rejects a lowercase z as a side effect of the zone rule: bad-750 and bad-821 lock the date-time separator on each field, bad-751 and bad-822 the zone designator. ok-038 and ok-039 lock -00:00 as admitted on each field, so a rail that reads 'zero offset' as 'Z or +00:00 only' fails rather than passing as silently stricter than its peers.",
       "forcingVectors": [
         "bad-701-arming-missing-armedat",
         "bad-702-armedat-after-issuedat",
@@ -251,7 +251,14 @@
       "forcingVectors": [
         "bad-741-payload-nesting-exceeds-max-depth",
         "bad-742-payload-nesting-empty-container-leaf"
-      ]
+      ],
+      "discrimination": {
+        "rivalReading": "The cap refuses at 128 rather than beyond it, so the deepest admissible value is nested to 127.",
+        "witnessVector": "bad-742-payload-nesting-empty-container-leaf",
+        "observable": "verdict",
+        "underReading": "invalid",
+        "underRival": "valid"
+      }
     },
     {
       "id": 17,
@@ -308,12 +315,32 @@
         "bad-009-result-pass-on-indirect-clean-row",
         "bad-010-result-pass-indirect-on-direct-clean-row"
       ]
+    },
+    {
+      "id": 21,
+      "title": "The sealed existential ranges over the clean-row conjuncts, not only the structural members",
+      "classification": "forced",
+      "specAnchors": [
+        "L586-594"
+      ],
+      "reading": "A statement carrying at least one basis: substrate row carries at least one sealed record that satisfies every constraint of its kind and whose aeeRunBinding equals the derived run binding, whether or not any row resolves an index to it (L586-594). 'Every constraint of its kind' is read broadly: the candidate satisfies the members the aeeKind bullet names AND the clean-row conjuncts -- aeeStillArmed true, aeeDropCount within its declared bound, aeePostureDigest equal to the pinned posture -- so a statement whose only seal reports its moat down has no covering seal and the existential fails. The narrow reading, which takes the aeeKind members alone and leaves the conjuncts to the sweep bullet, is admissible from the same sentence, which is why the reading is recorded rather than assumed. bad-952 locks the plain absence (a substrate row with no seal at all); bad-1017 is the discriminating case, a sole moat-down seal on an all-caught statement, where the sweep cannot reach the question because no clean intercepted row exists to be uncovered.",
+      "forcingVectors": [
+        "bad-952-substrate-row-no-seal",
+        "bad-1017-sole-seal-moat-down-all-caught"
+      ],
+      "discrimination": {
+        "rivalReading": "The existential's candidate need only satisfy the aeeKind members; the clean-row conjuncts belong to the sweep bullet, not to this one.",
+        "witnessVector": "bad-1017-sole-seal-moat-down-all-caught",
+        "observable": "codes",
+        "underReading": "sealed-covers-nothing+sealed-record-absent",
+        "underRival": "sealed-covers-nothing"
+      }
     }
   ],
   "openCorners": [],
   "unwitnessedForced": {
-    "reason": "No reading-differential harness exists yet, so no decision in this registry can carry a machine-checkable discrimination witness. One shared reason is recorded rather than twenty invented per-decision rationales, because the cause genuinely is one thing: the instrument is missing, not that twenty separate judgements were made. Each id retires from this list individually as its witness lands, and the gate FAILS on an id left here after it gains one.",
-    "instrumentNeeded": "A differential runner that evaluates a vector under a decision's reading and under its stated rival, and records which observable moves -- the verdict, or the condition-code set. A run where neither moves is MASKED and is a finding, never a confirmation.",
+    "reason": "The instrument these decisions were waiting on now exists (scripts/reading-differential.py), and the declaration is being drained rather than renewed: every id still listed has no reading pair declared in spec/READINGS.toml, so no witness has been produced for it yet. One shared reason is recorded rather than an invented per-decision rationale, because the cause genuinely is one thing: the rival reading has not been written down and built, not that separate judgements were made. Each id retires from this list individually as its witness lands, and the gate FAILS on an id left here after it gains one.",
+    "instrumentNeeded": "A differential runner that evaluates a vector under a decision's reading and under its stated rival, and records which observable moves -- the verdict, or the condition-code set. A run where neither moves is MASKED and is a finding, never a confirmation. Built at scripts/reading-differential.py; what each remaining id still needs is a [[reading]] pair in spec/READINGS.toml naming its rival and the edit that expresses it.",
     "decisions": [
       {
         "id": 1
@@ -359,9 +386,6 @@
       },
       {
         "id": 15
-      },
-      {
-        "id": 16
       },
       {
         "id": 17

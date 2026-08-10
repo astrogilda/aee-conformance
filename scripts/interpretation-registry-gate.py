@@ -87,9 +87,10 @@ def _check_discrimination(
     APART, not merely by a vector that exists.
 
     THE DEFECT THIS EXISTS FOR, established by attacking this gate rather than
-    reading it. A twenty-first decision was injected carrying the reviewer's own
-    open question -- the constraint set of the sealed existential -- classified
-    ``forced`` and citing ``bad-1003`` through ``bad-1007``. Those five vectors
+    reading it. A twenty-first decision was injected carrying a question the
+    review thread had left genuinely open -- the constraint set of the sealed
+    existential -- classified ``forced`` and citing ``bad-1003`` through
+    ``bad-1007``. Those five vectors
     provably cannot discriminate that reading: instrumenting both loops returns
     zero verdict flips, because every dirty seal in the corpus is paired with a
     clean witness. This gate exited 0 on it, and regenerating the coverage

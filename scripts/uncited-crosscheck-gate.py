@@ -45,7 +45,13 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 READINGS = REPO_ROOT / "spec" / "READINGS.toml"
 DOCUMENT = REPO_ROOT / "docs" / "UNCITED-OBLIGATIONS.md"
 
-# "| 2 | L210 (reported L209) | ... | **(a) already satisfied** | ..."
+# "| L210 | ... | **(a) already satisfied** | ..."
+#
+# The table is keyed by the line reference and carries no ordinal column. A row
+# number is positional -- it renumbers whenever a row is inserted, it is what
+# every other document would have to cite the row by, and as a bare integer it
+# collides with the corpus census by construction. The line reference is the
+# key everything already uses, and it is stable.
 #
 # THE FOURTH DISPOSITION EXISTS BECAUSE THREE WERE NOT ENOUGH. The vocabulary
 # began as (a) a citation now covers it, (b) structurally untestable, (c) it
@@ -56,7 +62,7 @@ DOCUMENT = REPO_ROOT / "docs" / "UNCITED-OBLIGATIONS.md"
 # declaring it uncited, and the two documents disagreed for a reason neither was
 # wrong about. (d) names that state: forced by a vector, citation blocked, and
 # therefore STILL UNCITED until the blocker is cleared.
-ROW = re.compile(r"^\|\s*\d+\s*\|\s*(L\d+)([^|]*)\|[^|]*\|\s*\*\*\(([abcd])\)")
+ROW = re.compile(r"^\|\s*(L\d+)([^|]*)\|[^|]*\|\s*\*\*\(([abcd])\)")
 # A ledger row's sentence field is a bare line reference.
 LINE = re.compile(r"^L(\d+)$")
 

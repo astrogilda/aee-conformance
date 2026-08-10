@@ -182,6 +182,19 @@ witnessCandidates = [
   "bad-1006-sealed-posture-mismatch-unreferenced",
   "bad-1007-sealed-noncovering-unreferenced",
 ]
+# REPORT-ONLY rather than DISCRIMINATED, and the difference is the finding.
+# Restricted to the five candidates above -- the vectors a registry entry would
+# have cited -- this pair returns MASKED: every dirty seal among them is paired
+# with a clean one, so the broad reading is satisfied by the clean seal, the
+# sweep rejects the dirty one, and both readings land in the same place for
+# different reasons. bad-1017 was written from the sketch this reading emitted
+# and moves the pair to REPORT-ONLY: no verdict moves, one condition code does.
+#
+# Pinning the expectation is what makes a regression visible. Without it a
+# corpus change that returned this pair to MASKED would read as a clean run,
+# which is the shape the whole harness exists to refuse.
+expect = "REPORT-ONLY"
+registryDecision = 21
 
 [[reading.variant]]
 id = "broad"

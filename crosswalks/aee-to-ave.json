@@ -7,10 +7,10 @@
     "url": "https://github.com/astrogilda/aee-conformance",
     "upstream": "https://github.com/in-toto/attestation/pull/570",
     "conformance_suite": {
-      "revision": 22,
-      "vectors": 232,
-      "accept": 54,
-      "reject": 176,
+      "revision": 25,
+      "vectors": 250,
+      "accept": 55,
+      "reject": 193,
       "indeterminate": 2,
       "derived_by": "python3 -c \"import json,re,pathlib; m=json.loads(pathlib.Path('vectors/MANIFEST.json').read_text()); r=max(int(n) for n in re.findall(r'^## suiteRevision (\\d+)\\b', pathlib.Path('vectors/CHANGES.md').read_text(), re.M)); print(r, len(m['vectors']), m['counts'])\""
     }

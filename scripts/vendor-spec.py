@@ -213,6 +213,18 @@ ANCHOR_PATHS = (
     "vectors/coverage-unforced.json",
     "vectors/CHANGES.md",
     "docs/interpretation-decisions-open.md",
+    # The reading ledger and the document about it address the specification the
+    # same way, and both were missed here for exactly as long as the anchor
+    # spelling was. They rot differently from the files above, which is why the
+    # omission survived: ``spec/READINGS.toml`` keys each declaration on a digest
+    # of the sentence text and carries the line only to find it by, so a stale
+    # line does not silently excuse the wrong sentence -- it stops excusing
+    # anything, and every obligation the ledger had dispositioned reappears as
+    # uncited on the first re-vendor that moves it. That is a loud failure in
+    # scripts/reading-differential.py rather than a quiet one, but it is a
+    # failure the remap is supposed to prevent and did not.
+    "spec/READINGS.toml",
+    "docs/UNCITED-OBLIGATIONS.md",
 )
 ANCHOR_RE = re.compile(r"\bL(\d+(?:-\d+)?)\b")
 

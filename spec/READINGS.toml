@@ -38,7 +38,7 @@
 
 [meta]
 spec = "spec/predicates/adversarial-execution-evidence.md"
-specDigest = "7abe0db04d31fbffef3445837588de15112d392d4e310763f2fe3be18d113146"
+specDigest = "759d2383e5da36fa509dc335e6159a20b87641b25ebbadcf1676c55d75ffd8b0"
 
 
 # ---------------------------------------------------------------------------
@@ -73,82 +73,88 @@ class = "producer-obligation-ungated"
 reason = "The substrate's own attestation is a separate artifact in a different predicate type. This corpus verifies AEE statements; a vector can carry a substrate name but cannot carry, or fail to carry, the substrate's build provenance."
 
 [[uncited]]
-sentence = "L1082"
+sentence = "L1116"
 digest = "4c191a1f464a65ab"
 class = "consumer-policy-unvectorable"
 reason = "How a consumer WEIGHS an all-artifact fail. The sentence changes no structural verdict, no result token and no evidence tier, and the corpus scores exactly those three. A vector asserting the weighting would be asserting a policy the predicate deliberately leaves to the consumer."
 
 [[uncited]]
-sentence = "L1112"
+sentence = "L1146"
 digest = "8582c827ef783dc4"
 class = "consumer-policy-unvectorable"
-reason = "Same shape as L1082: how a consumer READS a result resting on a reconstructed or artifact clean row. The tier column already carries the fact the sentence asks the consumer to weigh, and the corpus forces that column; the weighing itself has no observable."
+reason = "Same shape as L1116: how a consumer READS a result resting on a reconstructed or artifact clean row. The tier column already carries the fact the sentence asks the consumer to weigh, and the corpus forces that column; the weighing itself has no observable."
 
 [[uncited]]
-sentence = "L1164"
+sentence = "L1198"
 digest = "d29c76f84d3a4928"
 class = "producer-obligation-ungated"
 reason = "Key custody is a property of the environment the statement was produced in, not of the statement. A statement signed with a key the artifact could reach is byte-indistinguishable from one signed with a key it could not, so the obligation is real and unvectorable from a single artifact."
 
 [[uncited]]
-sentence = "L1464"
+sentence = "L1527"
 digest = "72baeaee5a23bda5"
 class = "producer-obligation-ungated"
 reason = "The obligation is on every DROP SITE inside the substrate: an instrumentation-completeness property of the emitter. A statement carrying an aeeDropCount that under-counts is byte-identical to one carrying an honest count, and no verifier reading the wire can separate them."
 
 [[uncited]]
-sentence = "L1588"
-digest = "d18c099b045abe5a"
-class = "forcible-but-unforced"
-reason = "This one is NOT unvectorable and is the row that should not stay here. A verifier MUST NOT rank a producer-defined ordered axis nor compose it by weakest input, which is a checkable consequence: an accept vector carrying a producer-prefixed member with rankable values, expected to leave result and tier untouched, forces it. The paired changelog restatement at L2176 is uncited for the same reason, and one vector retires both rows."
+sentence = "L1556"
+digest = "fa7d956e85fe95cc"
+class = "restatement-elsewhere-normative"
+reason = "A pointer, stated under aeeObservedAttacks so that a reader meeting the seal first does not finish it believing the seal carries the attribution guarantee. The rule it points at is stated normatively under attackResults at L931-934 and is where the corpus addresses it; the sentence adds no requirement of its own, and citing it separately would make one obligation look like two. The half it names as checkable is checked on a row declaring pinned, and the half it names as outside every gate the document declares unreachable in the same breath."
 
 [[uncited]]
-sentence = "L1725"
+sentence = "L1700"
+digest = "d18c099b045abe5a"
+class = "forcible-but-unforced"
+reason = "This one is NOT unvectorable and is the row that should not stay here. A verifier MUST NOT rank a producer-defined ordered axis nor compose it by weakest input, which is a checkable consequence: an accept vector carrying a producer-prefixed member with rankable values, expected to leave result and tier untouched, forces it. The paired changelog restatement at L2304 is uncited for the same reason, and one vector retires both rows."
+
+[[uncited]]
+sentence = "L1837"
 digest = "97ca3166dc01ecd4"
 class = "consumer-policy-unvectorable"
 reason = "The demanded class set is pinned OUT OF BAND, so the comparison the sentence requires has one operand the corpus cannot carry. This is the class coverage-unforced.json already names for the aeeChainScope equality gate, and it needs the same policy-replay harness."
 
 [[uncited]]
-sentence = "L1745"
+sentence = "L1857"
 digest = "1a08a2228acb6e8b"
 class = "consumer-policy-unvectorable"
 reason = "An obligation on how a consumer RECORDS its own decision to demand no class. The record is a consumer artifact, not part of any statement, so no vector can carry it or omit it."
 
 [[uncited]]
-sentence = "L1763"
+sentence = "L1875"
 digest = "86d0102550f3adda"
 class = "consumer-policy-unvectorable"
-reason = "A recommendation about the wording of the consumer's conjoined admission result. Same operand problem as L1725 and L1745: the admission result is produced by the consumer, downstream of everything a statement can say."
+reason = "A recommendation about the wording of the consumer's conjoined admission result. Same operand problem as L1837 and L1857: the admission result is produced by the consumer, downstream of everything a statement can say."
 
 [[uncited]]
-sentence = "L1807"
+sentence = "L1935"
 digest = "98c6ef356d8f8bec"
 class = "restatement-elsewhere-normative"
 reason = "Inside the non-normative consumer-policy example, restating the row-level half of the partition that is stated normatively in the Fields section and forced there. Citing it separately would make one rule look like two."
 
 [[uncited]]
-sentence = "L1883"
+sentence = "L2011"
 digest = "26323abbc3929820"
 class = "restatement-elsewhere-normative"
 reason = "Changelog restatement of the result-recompute precondition, which the corpus forces through the result conditions in the Fields section."
 
 [[uncited]]
-sentence = "L1907"
+sentence = "L2035"
 digest = "174b7a00058e7fc4"
 class = "restatement-elsewhere-normative"
 reason = "Changelog restatement of the coverage payload media type, stated normatively where the payload is defined and cited there."
 
 [[uncited]]
-sentence = "L2070"
+sentence = "L2198"
 digest = "8119f704910f3928"
 class = "restatement-elsewhere-normative"
 reason = "Changelog prose about the 0.6 to 0.7 migration, describing which members become REQUIRED. Each of those members carries its own normative sentence in the Fields section; this sentence states no rule of its own."
 
 [[uncited]]
-sentence = "L2176"
+sentence = "L2304"
 digest = "eb2bedf7fcde9f95"
 class = "restatement-elsewhere-normative"
-reason = "Changelog restatement of the producer-territory inertness rule at L1588. It is uncited because L1588 is; the vector named in that row retires both, and this row must be deleted at the same time rather than left as cover for it."
+reason = "Changelog restatement of the producer-territory inertness rule at L1700. It is uncited because L1700 is; the vector named in that row retires both, and this row must be deleted at the same time rather than left as cover for it."
 
 
 # ---------------------------------------------------------------------------

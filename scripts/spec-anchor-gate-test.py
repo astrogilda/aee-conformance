@@ -352,35 +352,35 @@ GATE = "scripts/spec-anchor-gate.py"
 # definition, whose MUST sentences carry the timestamp profile the decision
 # interprets. Every aim mutation moves this one anchor, so a mutation that
 # matched something else would be measuring two things at once.
-AIMED = '"L1672-1690"'
+AIMED = '"L1784-1802"'
 # Where it used to point: the tail of the doesNotAssert paragraph and the field
 # label. Three lines, no rule of any kind, and the rule it names starting at
-# L1680.
-OFF_BY_A_SENTENCE = '"L1670-1672"'
+# L1792.
+OFF_BY_A_SENTENCE = '"L1782-1784"'
 # A real rule, stated with two MUSTs, about strict I-JSON string literals --
 # which is nothing decision 8 is about.
 WRONG_RULE = '"L110-137"'
 # The same anchor stretched past the "## Example" heading, so that it contains
 # rules by width rather than by aim.
-WIDENED_PAST_A_HEADING = '"L1672-1700"'
+WIDENED_PAST_A_HEADING = '"L1784-1811"'
 # The same anchor stretched the other way, back over the label that opens it and
 # into the doesNotAssert definition above. It still covers the issuedAt rules, so
 # every question about the rule it names is answered; what it has stopped doing
 # is citing one member.
-WIDENED_INTO_THE_MEMBER_ABOVE = '"L1666-1690"'
+WIDENED_INTO_THE_MEMBER_ABOVE = '"L1778-1802"'
 
 # Decision 6's anchor, the coverage field definition, and the same anchor widened
 # upward until it collects a rule about `manifest` ninety lines above it. That
 # widening crosses no heading -- this document defines coverage and attackResults
 # a hundred lines apart under one heading -- and it is how three of the four
 # defects this gate was built for pass a check that asks only about headings.
-COVERAGE_FIELD = '"L879-890"'
-WIDENED_INTO_THE_MEMBER_BELOW = '"L795-886"'
+COVERAGE_FIELD = '"L905-916"'
+WIDENED_INTO_THE_MEMBER_BELOW = '"L821-912"'
 # Decision 14's anchor, narrowed so that it opens exactly ON the coverage label.
 # The refusal above must not reach this: opening on a field definition is how
 # every corrected anchor in the registry is drawn, and a rule that refused it
 # would refuse the corrections it exists to protect.
-OPENS_ON_THE_LABEL = ('"L881-890"', '"L879-890"')
+OPENS_ON_THE_LABEL = ('"L907-916"', '"L905-916"')
 
 
 AIM_REFUSALS: list[Case] = [
@@ -391,7 +391,7 @@ AIM_REFUSALS: list[Case] = [
         (
             "decision 8",
             "covers no sentence that states a rule",
-            "states a rule this decision names begins at L1680",
+            "states a rule this decision names begins at L1792",
         ),
     ),
     (
@@ -434,7 +434,7 @@ AIM_REFUSALS: list[Case] = [
         ("--aim-only",),
         (
             "decision 6",
-            "runs past the field definition that opens at L879",
+            "runs past the field definition that opens at L905",
             "`coverage` _object, required_",
         ),
     ),
@@ -444,13 +444,13 @@ AIM_REFUSALS: list[Case] = [
         ("--aim-only",),
         (
             "decision 8",
-            "runs past the field definition that opens at L1672",
+            "runs past the field definition that opens at L1784",
             "`issuedAt` _Timestamp, required_",
         ),
     ),
     (
         "an anchor is written in a spelling the gate cannot read",
-        lambda root: edit(root, REGISTRY, AIMED, '"L1672\\u20131690"'),
+        lambda root: edit(root, REGISTRY, AIMED, '"L1784\\u20131802"'),
         ("--aim-only",),
         ("decision 8", "not a line anchor this gate can read", "not a passing one"),
     ),
@@ -459,7 +459,7 @@ AIM_REFUSALS: list[Case] = [
         lambda root: edit(
             root,
             REGISTRY,
-            '"specAnchors": [\n        "L1638-1640"\n      ],',
+            '"specAnchors": [\n        "L1750-1752"\n      ],',
             '"specAnchors": [],',
         ),
         ("--aim-only",),
@@ -498,7 +498,7 @@ AIM_ACCEPTS: list[Case] = [
     ),
     (
         "an anchor on a rule this document states without an RFC 2119 keyword",
-        lambda root: edit(root, REGISTRY, '"L881-890"', '"L886-890"'),
+        lambda root: edit(root, REGISTRY, '"L907-916"', '"L912-916"'),
         ("--aim-only",),
         ("drawn around a rule the decision names",),
     ),

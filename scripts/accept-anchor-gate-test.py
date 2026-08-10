@@ -83,6 +83,95 @@ def parent_not_shipped(_m: Path, index: Path, _b: Path, _c: Path) -> None:
     index.write_text(text, encoding="utf-8")
 
 
+def parent_names_a_vector_that_was_never_shipped(
+        _m: Path, index: Path, _b: Path, _c: Path) -> None:
+    """Declare a parent whose number is real and whose id is not.
+
+    The shape check 1 accepted for the life of this gate. A parent used to be
+    resolved on the number its opening characters spelled, so `ok-002-...`
+    followed by anything at all resolved to `ok-002` and passed while naming a
+    vector no reader can open. The claim the check publishes is that the refusal
+    ships beside the accept vector it names, and a string that names nothing
+    satisfied it.
+    """
+    text = index.read_text(encoding="utf-8")
+    text = re.sub(r"^(\| `bad-001[^|]*\|)([^|]*)\|",
+                  r"\1 ok-002-a-vector-that-was-never-shipped |",
+                  text, count=1, flags=re.M)
+    index.write_text(text, encoding="utf-8")
+
+
+def parent_number_with_trailing_junk(_m: Path, index: Path, _b: Path,
+                                     _c: Path) -> None:
+    """The same defect with no separator, so a prefix match cannot see it."""
+    text = index.read_text(encoding="utf-8")
+    text = re.sub(r"^(\| `bad-001[^|]*\|)([^|]*)\|", r"\1 ok-002xyz |",
+                  text, count=1, flags=re.M)
+    index.write_text(text, encoding="utf-8")
+
+
+def parent_given_as_the_full_id(manifest: Path, index: Path, _b: Path,
+                                _c: Path) -> None:
+    """An over-reach control: the full accept id is a legitimate citation.
+
+    Every row in the corpus today names its parent by number. Naming it by its
+    whole id resolves to the same shipped vector and must keep passing, or the
+    anchoring above would be a fix that starts refusing correct input -- and a
+    gate that does that is switched off within a day.
+    """
+    data = load(manifest)
+    full = next(v["id"] for v in data["vectors"]
+                if v["kind"] == "accept" and v["id"].startswith("ok-002"))
+    text = index.read_text(encoding="utf-8")
+    text = re.sub(r"^(\| `bad-001[^|]*\|)([^|]*)\|", rf"\1 {full} |",
+                  text, count=1, flags=re.M)
+    index.write_text(text, encoding="utf-8")
+
+
+def index_row_for_a_refusal_nobody_ships(_m: Path, index: Path, _b: Path,
+                                         _c: Path) -> None:
+    """Add an index row naming a reject vector the manifest does not carry.
+
+    Check 1 ran in one direction only: every manifest refusal had a row. A row
+    with no refusal behind it was invisible, and it is the same defect the
+    condition registry refuses in both directions -- a table advertising a pair
+    the corpus has not got.
+    """
+    text = index.read_text(encoding="utf-8")
+    ghost = ("| `bad-999-a-refusal-that-is-not-in-the-manifest` | ok-002 | "
+             "nothing | - | aee-c-1 | `result-vocabulary` | L435 |\n")
+    index.write_text(re.sub(r"^\| `bad-001", ghost + "| `bad-001", text,
+                            count=1, flags=re.M), encoding="utf-8")
+
+
+def accept_vectors_share_a_number(manifest: Path, _i: Path, _b: Path,
+                                  _c: Path) -> None:
+    """Two accept vectors under one number, so a parent citing it names neither."""
+    data = load(manifest)
+    victim = next(v for v in data["vectors"]
+                  if v["kind"] == "accept" and not v["id"].startswith("ok-002"))
+    victim["id"] = "ok-002-a-second-vector-under-one-number"
+    dump(manifest, data)
+
+
+def baseline_emptied(_m: Path, _i: Path, baseline: Path, _c: Path) -> None:
+    """A baseline that has lost the key the ratchet reads.
+
+    An absent baseline was already refused, on the reasoning that an empty one
+    would be a claim and an absent one records nothing. A present one that has
+    been emptied got neither treatment: the held set came back empty, every
+    condition was held to nothing, and the gate printed the OK line it prints
+    over a real baseline.
+    """
+    baseline.write_text("{}\n", encoding="utf-8")
+
+
+def baseline_anchored_list_emptied(_m: Path, _i: Path, baseline: Path,
+                                   _c: Path) -> None:
+    """The key is there and the list under it is not."""
+    dump(baseline, {"anchored": [], "unanchored": []})
+
+
 def parent_row_missing(_m: Path, index: Path, _b: Path, _c: Path) -> None:
     """Delete one reject vector's index row while it stays in the manifest."""
     kept = [ln for ln in index.read_text(encoding="utf-8").splitlines()
@@ -170,6 +259,19 @@ CASES: list[Case] = [
     ("the real corpus", untouched, True, ()),
     ("a reject vector whose parent ships nowhere", parent_not_shipped, False,
      ("not a shipped",)),
+    ("a parent whose number is real and whose id is not",
+     parent_names_a_vector_that_was_never_shipped, False, ("not a shipped",)),
+    ("a parent that is a shipped number with junk after it",
+     parent_number_with_trailing_junk, False, ("not a shipped",)),
+    ("a parent named by its whole id", parent_given_as_the_full_id, True, ()),
+    ("an index row for a refusal the manifest does not ship",
+     index_row_for_a_refusal_nobody_ships, False, ("does not ship",)),
+    ("two accept vectors under one number", accept_vectors_share_a_number,
+     False, ("share the number",)),
+    ("a baseline that has lost its anchored list", baseline_emptied, False,
+     ("carries no `anchored` list",)),
+    ("a baseline recording nothing as anchored",
+     baseline_anchored_list_emptied, False, ("records no anchored condition",)),
     ("a reject vector with no index row", parent_row_missing, False,
      ("has no row in the reject index",)),
     ("an anchored condition dropped from the accept side",

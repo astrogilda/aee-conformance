@@ -101,7 +101,7 @@ jobs:
       - name: sync toolchain
         run: uv sync --extra dev --extra generators
       - name: mypy --strict
-        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/interpretation-registry-gate-test.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-anchor-gate-test.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/code-contract-gate-test.py scripts/consumer-lag-gate.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/condition-forcing-gate.py scripts/condition-forcing-gate-test.py scripts/condition-forcing-crosscheck.py scripts/condition-forcing-crosscheck-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py scripts/countcensus.py scripts/count-gate.py scripts/count-gate-test.py scripts/regenerability-gate.py scripts/accept-anchor-gate.py scripts/accept-anchor-gate-test.py scripts/liveness-probe.py scripts/liveness-probe-test.py scripts/citation-metadata-gate.py
+        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/interpretation-registry-gate-test.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-anchor-gate-test.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/code-contract-gate-test.py scripts/consumer-lag-gate.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/condition-forcing-gate.py scripts/condition-forcing-gate-test.py scripts/condition-forcing-crosscheck.py scripts/condition-forcing-crosscheck-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py scripts/countcensus.py scripts/count-gate.py scripts/count-gate-test.py scripts/regenerability-gate.py scripts/accept-anchor-gate.py scripts/accept-anchor-gate-test.py scripts/liveness-probe.py scripts/liveness-probe-test.py scripts/citation-metadata-gate.py scripts/expectation-slack-gate.py scripts/expectation-slack-gate-test.py scripts/uncited-crosscheck-gate.py scripts/reading-differential.py scripts/reading-differential-test.py
       # Type-checks by DIRECTORY, which is why it sits beside the pass above
       # rather than replacing it. That one is driven from the list of files
       # written out on the line above, and a list is only accurate on the day it
@@ -150,6 +150,22 @@ jobs:
         run: |
           python3 scripts/spec-anchor-gate.py
           python3 scripts/spec-anchor-gate-test.py
+      # Two artifacts describe the same population of normative sentences, and
+      # they are deliberately not merged: the `[[uncited]]` rows in
+      # spec/READINGS.toml are the enforced ledger, each pinning a sentence
+      # digest, and docs/UNCITED-OBLIGATIONS.md is the document a person reads,
+      # carrying the remedy and the evidence for every sentence the sweep
+      # examined including the ones a later citation closed. Merging them was
+      # proposed and would have lost the closed dispositions, which are the
+      # record of what the sweep achieved; keeping two copies with nothing
+      # comparing them is the other failure, and this repository has hit that
+      # shape often enough to name it -- two internally correct documents
+      # drifting until they disagree about the size of the thing they describe.
+      # This gate holds them together in both directions, and it answers a
+      # parse that found nothing with its own exit code rather than with
+      # agreement, because a ledger read as empty agrees with everything.
+      - name: the uncited-obligation ledger and the document about it agree
+        run: python3 scripts/uncited-crosscheck-gate.py
       # A named forcing vector proves a rule is EXERCISED. Only a vector whose
       # observable moves when the reading changes proves it is FORCED. The gate
       # conflated the two until a twenty-first decision -- a genuinely open
@@ -189,6 +205,27 @@ jobs:
         run: |
           python3 scripts/code-contract-gate.py
           python3 scripts/code-contract-gate-test.py
+      # A reject vector is graded by intersecting the codes a rail emits with
+      # the codes it declares, so a cell naming both conditions a statement
+      # deliberately carries is satisfied by either one of them and forces
+      # neither. The corpus owns exactly one discriminator between the narrow
+      # and broad readings of the sealed existential, and it is one such cell.
+      # Widening it by a word was performed and measured: the replay stayed
+      # green, seven other gates exited 0, and the only vector that separates
+      # the two readings had quietly stopped measuring anything. The rule was
+      # already stated in two docstrings, which is where a rule the next edit
+      # is free to break lives. So this gate measures the property rather than
+      # the spelling of the cell -- it runs the reference rail over every
+      # reject vector and refuses when more than one DECLARED code is actually
+      # EMITTED -- and the vectors already in that state are frozen by
+      # identifier and by the pair that overlaps, so an inherited one that
+      # changes shape fails as loudly as a new one. Its test runs beside it
+      # because a gate evidenced only by a green run is the defect it exists
+      # to catch.
+      - name: no reject expectation is satisfied by more than one emitted code
+        run: |
+          python3 scripts/expectation-slack-gate.py
+          python3 scripts/expectation-slack-gate-test.py
       # A verifier that rejects its input unconditionally passes every reject
       # vector ever written, and scored against a reject-only corpus it looks
       # perfect. The cure is a paired accept anchor, and the corpus said so in
@@ -356,14 +393,24 @@ jobs:
       # typed here would be a copy of it that nothing invalidates.
       - name: the reference rail clears its own oracle
         run: python3 packaging/run_vectors.py --self-test
-      - name: replay every vector on the Python rail (must be 248/248)
+      # This step name DOES carry a count, unlike the one above it, and the
+      # difference is where the number comes from rather than a preference
+      # about names. The self-test's total has one source, which is the
+      # self-test's own output, so a figure typed here would be a copy nothing
+      # could check. The replay's total has a source outside this file --
+      # vectors/MANIFEST.json -- and scripts/count-gate.py declares this step
+      # name as one of the claims it resolves against that source on every run,
+      # so a corpus change fails on the push that makes it rather than on the
+      # revision that outdates the name. A checked copy of a derived number is
+      # what the census asks for; an unchecked one is what it refuses.
+      - name: replay every vector on the Python rail (must be 250/250)
         run: python3 packaging/run_vectors.py
 
   # What the corpus FORCES, held as a tighten-only ratchet. A vector count is an
   # upper bound on forcing and never a measurement of it: a vector declaring
   # several expected codes is satisfied by any one of them, so deleting the
   # result-vocabulary emission from the rail turns two vectors' gate-0 column
-  # FAIL and the suite still reports 248 of 248, exit 0. The only way to know
+  # FAIL and the suite still reports 250 of 250, exit 0. The only way to know
   # what this corpus obliges a third party to implement is to switch one rule
   # off at a time and replay, which is what this job does.
   #
@@ -400,3 +447,33 @@ jobs:
       # a weakened corpus to a non-zero exit is exercised rather than argued.
       - name: the forcing gate can fail
         run: python3 scripts/forcing-gate-test.py
+      # The step above mutates the RAIL, which is why it cannot reach this. A
+      # sentence whose text admits two readings has no site to mutate: the rail
+      # implements one of them, the code expressing the rival was never
+      # written, and the two implementations score identically over the whole
+      # corpus. An outside implementer found that exact shape four times in one
+      # review, each time by accident of instrumenting his own checker, and at
+      # one of them we wrote the lesson down and built nothing on it. So the
+      # thing to mutate is the reading: build the rail under each declared
+      # reading of one sentence, replay every vector under both, and ask
+      # whether any observable moved. Zero difference is a finding here and
+      # never a confirmation, which is the property that let a full green
+      # replay read as settling a question it could not see.
+      #
+      # It belongs in this job rather than beside the Python gates for the same
+      # two reasons the forcing gate does. It needs the Go toolchain to build
+      # each variant rail, and a missing toolchain is a failure and never a
+      # skip; and it is CPU-bound for over a minute rather than latency-bound,
+      # so it wants the cores on this runner and must not sit in the path a
+      # contributor waits on for a lint error.
+      #
+      # --fail-on-finding is deliberately NOT set. Every declared reading comes
+      # back DISCRIMINATED or REPORT-ONLY today, so the flag would change
+      # nothing and this step would be green either way. Turning it on before
+      # every reading is settled would be a gate whose passing means nothing,
+      # which is the shape the rest of this file exists to refuse. It goes on
+      # in the change that settles the last open reading, not before.
+      - name: the corpus can tell two readings of a rule apart, or it says so
+        run: |
+          python3 scripts/reading-differential.py --workers 8
+          python3 scripts/reading-differential-test.py

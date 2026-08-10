@@ -5,12 +5,13 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
-## suiteRevision 25 (a rule written before the members it governs exist)
+## suiteRevision 25 (a rule written before the members it governs exist, and then a vector that carries one)
 
-- Corpus: **248 vectors (54 accept, 192 reject, 2 indeterminate)**, unchanged from
-  suiteRevision 24. No vector is added, removed, or regenerated to different bytes,
-  and `corpusDigest` in `vectors/MANIFEST.json` holds the value it held at
-  suiteRevision 23. What moves is the vendored specification, from upstream commit
+- Corpus: **250 vectors (55 accept, 193 reject, 2 indeterminate)**, up from 248.
+  Two vectors are added and no existing vector file changes, so `corpusDigest` in
+  `vectors/MANIFEST.json` moves for the first time since suiteRevision 23. With
+  the vectors added, all 193 reject vectors declare a parent that ships as an
+  accept vector. What also moves is the vendored specification, from upstream commit
   `c0c4da67defdf0f186f162e7ecb3f9527b6a94f8` to
   `237f83b9f1445720c165e1c5f076212dfa063f92`, which is the head of
   in-toto/attestation#570 at the time this revision was cut. Two upstream commits
@@ -47,20 +48,42 @@ byte-identically from the generators.
   had already shipped one; writing it at the grant means an implementer meets it
   before the member exists. The immediate case is the `assay` family proposed
   upstream, which is legal producer territory a conforming verifier ignores.
-- **What this revision does not exercise.** It adds no coverage and forces
-  nothing new. The rule constrains a verifier's treatment of members no vector in
-  this corpus carries, so there is no accept vector to add and no reject vector to
-  write: a suite that refused a statement for carrying a producer-defined member
-  would be enforcing the opposite of what the sentence says. Worth stating plainly
-  rather than leaving as an absence, because the rule's own failure case is a
-  checker that made a producer member load-bearing, and a corpus cannot catch that
-  by carrying vectors. It is caught by reading the sentence. The forcing baseline,
-  the coverage matrix classes and the condition registry are unchanged; the
-  anchors and `spec:NNN` citations move only because inserted prose sits above
-  them, and they are remapped mechanically by
-  `scripts/vendor-spec.py` rather than re-judged. The honest reading of this
-  revision is that the vendored copy states a rule an implementer needs and the
-  corpus has nothing to say about it.
+- **This entry claimed the revision adds no coverage, and
+  `ok-054-producer-ordered-axis-inert` is the correction.** The claim was that the
+  rule constrains a verifier's treatment of members no vector carries, so there
+  was no accept vector to add and no reject vector to write. The second half
+  holds: a suite that refused a statement for carrying a producer-defined member
+  would enforce the opposite of what the sentence says. The first half does not.
+  Inertness is an ACCEPT-side property and it is checkable, so the vector carries
+  a covering interception payload with `exampleFidelity: "reconstructed"` -- a
+  producer-defined member whose value is a token this predicate itself orders --
+  beside a signed `aeeMethod` of `intercepted`. A rail that folds that member into
+  the weakest-input method composition caps the row at `reconstructed` and reports
+  `method-cap-exceeded` on a statement no requirement refuses. `ok-021` already
+  carried producer members, but content-free ones, so it forces only that such a
+  member does not stop a record covering; this is the vector a ranking rail fails.
+  What remains true is that the rule's own failure case, a checker gating AEE
+  validity on a producer member's value, is caught by reading the sentence rather
+  than by carrying a vector.
+- **`bad-1017-sole-seal-moat-down-all-caught` separates the two readings of the
+  sealed existential.** Every dirty seal in this corpus was paired with a clean
+  witness, on purpose, so no vector could tell a rail reading the existential
+  narrowly apart from one reading it broadly, and the question stood open in
+  review while both readings scored identically over the whole corpus. It is
+  single-fault: the same statement with `aeeStillArmed` true is valid. It
+  discriminates because a reject expectation is graded by intersection, so its
+  `codes` cell pins `sealed-record-absent` alone and declares
+  `sealed-covers-nothing` in the also-carries clause. Widening that cell to name
+  both would let either reading satisfy it and the only discriminator this corpus
+  owns would measure nothing, which is why `scripts/expectation-slack-gate.py` now
+  checks the property on every reject vector instead of leaving it in a docstring.
+- **What this revision still does not move.** The forcing baseline, the coverage
+  matrix classes and the condition registry are unchanged; the anchors and
+  `spec:NNN` citations move only because inserted prose sits above them, and they
+  are remapped mechanically by `scripts/vendor-spec.py` rather than re-judged.
+  Four further sentences gain citations by widening the anchors of vectors that
+  already forced them: those rules were enforced while the anchor named a
+  different line, which reads as covered and is not.
 
 ## suiteRevision 24 (the vendored copy catches up with the rule the corpus forces)
 

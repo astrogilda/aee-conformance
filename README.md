@@ -86,7 +86,7 @@ aee/                        the verification core
   types.go / codes.go       parsed statement model + the closed failure-code set
   *_test.go                 unit tests, known answers, the conformance-vector runner
 aeetest/                    deterministic synthetic statement builder (derived TEST keys)
-cmd/aee-verify/             consumer CLI: gate0 → gate1 → recompute → tier table
+cmd/aee-verify/             consumer CLI: gate0, gate1, recompute, then the tier table
 cmd/mutgen/                 forcing measurement: enumerate + apply one weakening at a time
 cmd/mutrun/                 forcing measurement: replay the whole corpus in process
 witnessattestor/            SEPARATE module: the go-witness attestor + library-mode demo

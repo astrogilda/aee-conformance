@@ -21,20 +21,32 @@ specification's, which says nothing about what a verifier should call the
 conditions it defines. A registry whose only guarantee is that someone counted
 the entries is worth nothing, so the assertions here are about membership and
 provenance instead. Every code the corpus names must exist in the enumerated
-set; every validity code in that set must be exercised by at least one vector
-and known to the Python rail as well as the Go one, so the two first-party rails
-carry one vocabulary rather than two that happen to agree today; and the
+set -- named anywhere a manifest entry can name one, which includes the values of
+an indeterminate vector's declared readings, and which the gate enumerates over a
+closed classification of the ``expected`` schema so that a field added later
+cannot leave the subject quietly; every validity code in that set must be
+exercised by at least one vector and known to the Python rail as well as the Go
+one, so the two first-party rails carry one vocabulary rather than two that
+happen to agree today; and the
 consumer-policy codes, which are consumer-relative admission facts and never
 validity conditions, must be exercised by no vector at all, because a
 single-statement corpus cannot pin a consumer's policy and a vector claiming to
 would be asserting something it cannot see.
 
-Usage: python3 scripts/code-contract-gate.py
-Exit 0 when the documented contract holds; 1 on any disagreement.
+Usage:
+    python3 scripts/code-contract-gate.py
+    python3 scripts/code-contract-gate.py --manifest P --codes P --rail P
+Exit 0 when the documented contract holds; 1 on any disagreement. The three
+inputs are overridable so scripts/code-contract-gate-test.py can break one of
+them at a time and require this file to notice; the behavioural half still
+drives the real runner, because a fixture rail would only prove that a fixture
+agrees with itself.
 """
 
 from __future__ import annotations
 
+import argparse
+import ast
 import json
 import re
 import sys
@@ -57,8 +69,39 @@ CONST_RE = re.compile(r'^Code[A-Za-z0-9]+\s+Code\s*=\s*"([a-z0-9-]+)"')
 # instead of silently reclassifying its codes as validity codes.
 POLICY_HEADING = "Consumer-policy stage codes"
 
+# Every field a manifest entry's ``expected`` object may carry, split by whether
+# it names failure codes. The split is CLOSED, and that is the point: a field in
+# neither list is a schema this gate has not been taught, and it fails below
+# rather than narrowing the vocabulary it checks without saying so.
+#
+# ``readings`` is why. The runner treats each declared reading's value as a
+# failure code -- ``run_vectors.py`` folds them into the expected code set of an
+# indeterminate vector -- and this gate read ``codes`` and ``alsoCarries`` only.
+# A code named by a reading and by nothing else therefore sat in the manifest,
+# in the published indeterminate index and in no registry at all, with this gate,
+# the regenerability gate and a 248-of-248 replay all green. The subject of a
+# membership check cannot be a hand-listed subset of the schema it checks, so it
+# is enumerated here and the leftovers are a failure.
+CODE_LIST_FIELDS = ("codes", "alsoCarries")
+CODE_MAP_FIELDS = ("readings",)
+NON_CODE_FIELDS = (
+    "verdict",
+    "result",
+    "tierWithPinnedKey",
+    "tierWithoutKey",
+    "family",
+)
 
-def parse_codes() -> tuple[set[str], set[str]]:
+
+def _rel(path: Path) -> Path:
+    """A path as a reader of this repository would name it, if it is in one."""
+    try:
+        return path.relative_to(REPO_ROOT)
+    except ValueError:
+        return path
+
+
+def parse_codes(codes_go: Path) -> tuple[set[str], set[str]]:
     """Split ``aee/codes.go`` into (validity codes, consumer-policy codes)."""
     validity: set[str] = set()
     policy: set[str] = set()
@@ -66,7 +109,7 @@ def parse_codes() -> tuple[set[str], set[str]]:
     comment: list[str] = []
     in_block = False
 
-    for raw in CODES_GO.read_text(encoding="utf-8").splitlines():
+    for raw in codes_go.read_text(encoding="utf-8").splitlines():
         line = raw.strip()
         if line.startswith("//"):
             comment.append(line)
@@ -86,7 +129,7 @@ def parse_codes() -> tuple[set[str], set[str]]:
 
     if not validity or not policy:
         print(
-            f"FAIL: {CODES_GO.relative_to(REPO_ROOT)} did not yield both code "
+            f"FAIL: {_rel(codes_go)} did not yield both code "
             f"classes (validity {len(validity)}, consumer-policy {len(policy)}); "
             f"the const blocks or the {POLICY_HEADING!r} heading have moved.",
             file=sys.stderr,
@@ -95,27 +138,71 @@ def parse_codes() -> tuple[set[str], set[str]]:
     return validity, policy
 
 
-def manifest_codes(manifest: dict[str, Any]) -> set[str]:
-    """Every code the corpus names, declared or as a deliberate companion."""
+def manifest_codes(manifest: dict[str, Any]) -> tuple[set[str], list[str]]:
+    """Every code the corpus names, and every field it names one in unread.
+
+    A code is named by a declared code list, by a deliberate companion, or by
+    the value of a declared reading. Any other ``expected`` field is reported
+    rather than skipped: an unclassified field is a field whose codes, if it
+    carries any, would be outside this gate's subject, and a subject that shrinks
+    when the schema grows is the shape of every check in this repository that
+    ran green while enforcing nothing.
+    """
     named: set[str] = set()
+    unknown: dict[str, str] = {}
     for entry in manifest["vectors"]:
         expected = entry.get("expected") or {}
-        named |= set(expected.get("codes") or [])
-        named |= set(expected.get("alsoCarries") or [])
-    return named
+        for field in CODE_LIST_FIELDS:
+            named |= {str(code) for code in expected.get(field) or []}
+        for field in CODE_MAP_FIELDS:
+            named |= {str(code) for code in (expected.get(field) or {}).values()}
+        for field in expected:
+            if field not in CODE_LIST_FIELDS + CODE_MAP_FIELDS + NON_CODE_FIELDS:
+                unknown.setdefault(field, str(entry.get("id", "<unnamed>")))
+    errors = [
+        f"`expected.{field}` (first on {vid}) is a manifest field this gate "
+        "does not classify. Add it to CODE_LIST_FIELDS, CODE_MAP_FIELDS or "
+        "NON_CODE_FIELDS in scripts/code-contract-gate.py: a field left "
+        "unclassified is one whose codes are checked against no registry"
+        for field, vid in sorted(unknown.items())
+    ]
+    return named, errors
 
 
-def check_registry(manifest: dict[str, Any]) -> list[str]:
+def rail_vocabulary(rail: Path) -> set[str]:
+    """Every string the Python rail carries as a literal.
+
+    Read off the parsed module rather than by scanning its text for a quoted
+    token. A code is known to the rail when the rail spells it as a value; a
+    substring scan cannot tell that from a docstring that happens to mention it,
+    and this file's prose mentions several.
+    """
+    tree = ast.parse(rail.read_text(encoding="utf-8"))
+    return {
+        node.value
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Constant) and isinstance(node.value, str)
+    }
+
+
+def check_registry(manifest: dict[str, Any], paths: argparse.Namespace) -> list[str]:
     """Membership and provenance of every code, both directions."""
-    validity, policy = parse_codes()
-    named = manifest_codes(manifest)
-    rail = PY_RAIL.read_text(encoding="utf-8")
-    errors: list[str] = []
+    validity, policy = parse_codes(paths.codes)
+    named, errors = manifest_codes(manifest)
+    rail = rail_vocabulary(paths.rail)
 
+    if not named:
+        print(
+            f"FAIL: {_rel(paths.manifest)} names no failure codes at all. "
+            "Every code-bearing field is empty or renamed, so the membership "
+            "check below would quantify over nothing and report success.",
+            file=sys.stderr,
+        )
+        raise SystemExit(1)
     for code in sorted(named - (validity | policy)):
         errors.append(
             f"`{code}`: named by the corpus but absent from "
-            f"{CODES_GO.relative_to(REPO_ROOT)}"
+            f"{_rel(paths.codes)}"
         )
     for code in sorted(validity - named):
         errors.append(
@@ -124,10 +211,10 @@ def check_registry(manifest: dict[str, Any]) -> list[str]:
             "statement can exercise it"
         )
     for code in sorted(validity):
-        if f'"{code}"' not in rail:
+        if code not in rail:
             errors.append(
                 f"`{code}`: defined in the Go rail but absent from "
-                f"{PY_RAIL.relative_to(REPO_ROOT)}, so the two first-party rails "
+                f"{_rel(paths.rail)}, so the two first-party rails "
                 "no longer share one vocabulary"
             )
     for code in sorted(policy & named):
@@ -232,9 +319,20 @@ def check_behaviour(manifest: dict[str, Any]) -> list[str]:
     return errors
 
 
-def main() -> int:
-    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    errors = check_behaviour(manifest) + check_registry(manifest)
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="failure-code contract gate")
+    parser.add_argument("--manifest", type=Path, default=MANIFEST)
+    parser.add_argument("--codes", type=Path, default=CODES_GO,
+                        help="the enumerated code set the corpus draws from")
+    parser.add_argument("--rail", type=Path, default=PY_RAIL,
+                        help="the Python rail whose vocabulary must match")
+    return parser.parse_args(argv[1:])
+
+
+def main(argv: list[str]) -> int:
+    paths = parse_args(argv)
+    manifest = json.loads(paths.manifest.read_text(encoding="utf-8"))
+    errors = check_registry(manifest, paths) + check_behaviour(manifest)
     if errors:
         print(
             f"FAIL: the documented failure-code contract and the code disagree "
@@ -251,7 +349,7 @@ def main() -> int:
         )
         return 1
 
-    validity, policy = parse_codes()
+    validity, policy = parse_codes(paths.codes)
     print(
         f"OK: the evaluator behaves as the failure-code contract documents, and "
         f"{len(validity)} validity code(s) are exercised by the corpus and known "
@@ -261,4 +359,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv))

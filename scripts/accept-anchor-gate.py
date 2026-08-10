@@ -29,6 +29,13 @@ This check is binding and is currently satisfied for every reject vector. It is
 here to keep it that way: a new reject vector derived from an in-memory-only
 parent fails, and the fix is to ship the parent.
 
+A declared parent is resolved by whole-id membership among the accept vectors
+the manifest ships, in both directions. It used to be resolved by the number its
+opening characters spelled, so a row declaring `ok-002-a-vector-nobody-shipped`
+named a vector that does not exist and passed; and the index could carry a row
+for a refusal the manifest does not ship, which counts an anchored pair the
+corpus has not got. Both were quiet, and both are refusals now.
+
 Check 2: every condition a refusal cites is cited by an accepting vector
 ------------------------------------------------------------------------
 Vectors cite the rules they exercise as ``aee-c-NN`` ids. When only reject
@@ -43,6 +50,12 @@ on every run and held against ``docs/ACCEPT-ANCHOR-BASELINE.json``: a condition
 the baseline records as anchored may not become unanchored, and the unanchored
 list may shrink freely. ``--sync`` rewrites the baseline and refuses to write
 one in which an anchored condition regressed.
+
+The held set is the baseline's ``anchored`` list, and a baseline that has lost
+that key or emptied it is refused rather than read as nothing to hold. A missing
+file was already refused on exactly this reasoning; a file present and empty was
+not, and it produced the same OK line as a real one while the ratchet held every
+condition to nothing.
 
 Check 3: the sentences that publish these two figures still say them
 --------------------------------------------------------------------
@@ -100,7 +113,16 @@ BASELINE_COMMENT = (
 # Matched on the first two cells only; the prose in the rest of the row may
 # contain anything, including pipes inside code spans.
 _ROW = re.compile(r"^\|\s*`(bad-[^`]+)`\s*\|\s*`?([^|`]+?)`?\s*\|")
-_PARENT_ID = re.compile(r"^(ok-\d+)")
+
+# An accept vector's own id, anchored at BOTH ends. A declared parent is then
+# resolved by membership in the set of ids that ship, whole, rather than by
+# matching its opening characters. That is the whole of the fix: the parent
+# pattern used to be `^(ok-\d+)` and was compared on the number it captured, so
+# `ok-002-a-vector-that-was-never-shipped` and `ok-002xyz` both resolved to
+# `ok-002` and passed. The check's claim is that a refusal ships beside the
+# accept vector it names; a string naming nothing satisfied it as long as its
+# first characters collided with something real.
+_ACCEPT_ID = re.compile(r"^(ok-[0-9]+)(?:-[a-z0-9-]+)?$")
 
 
 def load_manifest(path: Path) -> dict[str, Any]:
@@ -131,14 +153,45 @@ def parent_rows(path: Path) -> dict[str, str]:
     return out
 
 
+def accept_index(manifest: dict[str, Any]) -> tuple[dict[str, str], list[str]]:
+    """Every shipped accept vector, reachable by its full id and by its number.
+
+    The index is built rather than pattern-matched into so that a duplicate
+    number is a failure here instead of an ambiguity a parent citation resolves
+    arbitrarily: two accept vectors sharing `ok-014` would make `ok-014` name
+    neither of them.
+    """
+    index: dict[str, str] = {}
+    errors: list[str] = []
+    for vector in manifest["vectors"]:
+        if vector["kind"] != "accept":
+            continue
+        vid = str(vector["id"])
+        match = _ACCEPT_ID.match(vid)
+        if match is None:
+            errors.append(
+                f"accept vector {vid!r} is not named ok-<number> or "
+                "ok-<number>-<slug>, so no refusal can cite it as a parent and "
+                "it anchors nothing"
+            )
+            continue
+        short = match.group(1)
+        if short in index:
+            errors.append(
+                f"accept vectors {index[short]} and {vid} share the number "
+                f"{short}, so a refusal declaring that parent names neither"
+            )
+            continue
+        index[short] = vid
+    return index, errors
+
+
 def check_parents(manifest: dict[str, Any],
                   parents: dict[str, str]) -> list[str]:
-    accept_ids = {v["id"] for v in manifest["vectors"] if v["kind"] == "accept"}
-    accept_short = {m.group(1) for i in accept_ids
-                    if (m := _PARENT_ID.match(i))}
-    reject_ids = [v["id"] for v in manifest["vectors"] if v["kind"] == "reject"]
-    errors: list[str] = []
-    for vid in reject_ids:
+    accepts, errors = accept_index(manifest)
+    shipped = set(accepts) | set(accepts.values())
+    reject_ids = {v["id"] for v in manifest["vectors"] if v["kind"] == "reject"}
+    for vid in sorted(reject_ids):
         declared = parents.get(vid)
         if declared is None:
             errors.append(
@@ -146,13 +199,19 @@ def check_parents(manifest: dict[str, Any],
                 "so its paired accept anchor cannot be named"
             )
             continue
-        m = _PARENT_ID.match(declared)
-        if m is None or m.group(1) not in accept_short:
+        if declared not in shipped:
             errors.append(
                 f"{vid} declares parent {declared!r}, which is not a shipped "
                 "accept vector. The refusal ships without the accepted half of "
                 "its pair, so a rail that refuses the shape satisfies it"
             )
+    for vid in sorted(set(parents) - reject_ids):
+        errors.append(
+            f"the reject index carries a row for {vid}, which the manifest does "
+            f"not ship. The row names a parent for a refusal nobody runs, and "
+            "reading it as an anchored pair counts an anchor the corpus has not "
+            "got"
+        )
     return errors
 
 
@@ -194,6 +253,16 @@ def load_baseline(path: Path, allow_absent: bool) -> dict[str, Any]:
             "records nothing at all."
         )
     data: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))
+    anchored = data.get("anchored")
+    if not isinstance(anchored, list) or not all(
+            isinstance(cid, str) for cid in anchored):
+        raise SystemExit(
+            f"{path} carries no `anchored` list of condition ids. The ratchet "
+            "reads that key and nothing else, so a baseline that has lost it "
+            "holds every condition to nothing while this gate prints the same "
+            "OK line it prints over a real one -- which is the failure it was "
+            "written to prevent, one file to the left. Regenerate with --sync."
+        )
     return data
 
 
@@ -226,6 +295,34 @@ def check_published(changes: Path, reject_count: int, unanchored: int,
             f"conditions cited only by refusals; the measurement is "
             f"{unanchored} of {cited}")
     return errors
+
+
+def check_ratchet(path: Path, was_anchored: set[str], anchored: list[str],
+                  unanchored: list[str],
+                  syncing: bool) -> tuple[list[str], list[str]]:
+    """(the conditions that regressed, the errors). The held set is floored.
+
+    A ratchet holding an empty set holds nothing, and an emptied baseline reads
+    from outside exactly like a corpus in which nothing was ever anchored. The
+    floor is on the held set and not on the regression list, because a check
+    whose numerator can be empty for the same reason as its denominator cannot
+    tell one from the other.
+    """
+    errors: list[str] = []
+    if not syncing and not was_anchored and anchored:
+        errors.append(
+            f"{path} records no anchored condition while the corpus anchors "
+            f"{len(anchored)}. A ratchet whose held set is empty holds nothing, "
+            "and an emptied baseline and a clean run are the same reading from "
+            "outside. Regenerate it with --sync")
+    regressed = sort_conditions(was_anchored & set(unanchored))
+    errors += [
+        f"{cid} was anchored by an accepting vector in the baseline and is now "
+        "cited only by refusals; the anchor was removed or its citation was "
+        "dropped"
+        for cid in regressed
+    ]
+    return regressed, errors
 
 
 def main() -> int:
@@ -270,14 +367,10 @@ def main() -> int:
                               len(rejected))
 
     baseline = load_baseline(args.baseline, allow_absent=args.sync)
-    was_anchored = set(baseline.get("anchored", []))
-    regressed = sort_conditions(was_anchored & set(unanchored))
-    for cid in regressed:
-        errors.append(
-            f"{cid} was anchored by an accepting vector in the baseline and is "
-            "now cited only by refusals; the anchor was removed or its citation "
-            "was dropped"
-        )
+    regressed, ratchet_errors = check_ratchet(
+        args.baseline, set(baseline["anchored"]), anchored, unanchored,
+        syncing=args.sync)
+    errors += ratchet_errors
 
     if args.sync:
         if regressed:

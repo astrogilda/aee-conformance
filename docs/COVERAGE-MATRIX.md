@@ -6,7 +6,7 @@ vectors/coverage-unforced.json. Do not hand-edit; run the gate to regenerate. CI
 # AEE v0.6 requirement-coverage matrix
 
 Every normative requirement, classified by whether a conformance vector forces it. The point is one
-honest number: of 27 tracked requirements, **20 are forced by a vector**, 1 are
+honest number: of 28 tracked requirements, **21 are forced by a vector**, 1 are
 forcible but not yet vectored, 5 cannot be pinned by a self-contained corpus at all, and
 1 are placed outside every gate by the specification itself. The determinacy claim rests only
 on the forced rows; the other three classes are stated so a reader knows exactly where "two
@@ -16,11 +16,11 @@ implementations agree" is untested rather than confirmed.
 
 | class | count | what it means |
 |---|---|---|
-| forced-by-vector | 20 | a registry decision locked by a live forcing vector |
+| forced-by-vector | 21 | a registry decision locked by a live forcing vector |
 | forcible-but-unforced | 1 | a vector could pin it; none written yet |
 | consumer-policy-unvectorable | 5 | cross-attestation or trust-relative |
 | producer-obligation-ungated | 1 | outside every gate by specification |
-| **total tracked** | **27** |  |
+| **total tracked** | **28** |  |
 
 ## Forced by a vector
 
@@ -46,6 +46,7 @@ implementations agree" is untested rather than confirmed.
 | D18 The run binding covers the carried posture object and the carried vocabulary digest | L174-182, L563-564 | `bad-305-posture-swapped`, `bad-306-vocabulary-caught-narrowed`, `bad-307-posture-member-added-after-arming` |
 | D19 networkPosture.posture is a closed registry of four values, append-only across minor versions | L821-829 | `bad-823-posture-unregistered`, `bad-824-posture-not-a-string`, `bad-825-posture-array` |
 | D20 result is the minimum of three independent conditions over four values, and a claim resting on an indirect clean row ranks below the top | L435-454, L456-475 | `bad-009-result-pass-on-indirect-clean-row`, `bad-010-result-pass-indirect-on-direct-clean-row` |
+| D21 The sealed existential ranges over the clean-row conjuncts, not only the structural members | L586-594 | `bad-952-substrate-row-no-seal`, `bad-1017-sole-seal-moat-down-all-caught` |
 
 ## Forcible but not yet vectored
 

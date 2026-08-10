@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 248,
-    "pass": 248,
+    "vectors": 250,
+    "pass": 250,
     "fail": 0,
     "suiteRefusals": 0
   },
@@ -1364,6 +1364,31 @@
       "reasons": []
     },
     {
+      "id": "ok-054-producer-ordered-axis-inert",
+      "file": "vectors/accept/ok-054-producer-ordered-axis-inert.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "primaryCode": null,
+        "result": "fail"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
       "id": "ok-900-fail-outranks-degraded",
       "file": "vectors/accept/ok-900-fail-outranks-degraded.json",
       "kind": "accept",
@@ -2201,6 +2226,39 @@
         "verdict": "invalid",
         "codes": [
           "examination-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-1017-sole-seal-moat-down-all-caught",
+      "file": "vectors/reject/bad-1017-sole-seal-moat-down-all-caught.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-record-absent",
+          "sealed-covers-nothing"
+        ],
+        "primaryCode": "sealed-record-absent",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-record-absent"
+        ],
+        "alsoCarries": [
+          "sealed-covers-nothing"
         ]
       },
       "inManifest": true,

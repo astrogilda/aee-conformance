@@ -1711,6 +1711,40 @@ def build_vectors() -> dict[str, dict[str, Any]]:
         ],
     )
 
+    # ok-054 producer territory is inert even when it is ORDERED. ok-021
+    # already carries producer members in a covering payload, but its values
+    # are content-free strings: nothing about them invites a verifier to rank
+    # them, so it forces only the half of the rule that says such a member
+    # does not stop the record covering. The half nobody could reach is the
+    # one the document names as the tempting case -- a member whose values a
+    # reader might order, carrying a token this predicate itself orders. A
+    # verifier that folds it into the weakest-input composition caps the row
+    # at `reconstructed` and refuses a statement no requirement refuses. The
+    # signed `aeeMethod` on the same record says `intercepted`, so the two
+    # readings differ on this statement and on nothing else in the corpus.
+    v["ok-054-producer-ordered-axis-inert"] = make_statement(
+        man_1,
+        [
+            make_row(
+                "XA-EXAMPLE-1",
+                "egress_captured",
+                "substrate",
+                "intercepted",
+                "policy.egress_sinkhole",
+                [0],
+            )
+        ],
+        records=[
+            make_record(
+                "interception",
+                b_1,
+                note="example interception observation a",
+                extra={"exampleFidelity": "reconstructed"},
+            ),
+            make_record("sealed", b_1),
+        ],
+    )
+
     return v
 
 

@@ -6,11 +6,11 @@
   "tracksUpstream": "in-toto/attestation#570",
   "specUpstreamCommit": "237f83b9f1445720c165e1c5f076212dfa063f92",
   "counts": {
-    "accept": 54,
-    "reject": 192,
+    "accept": 55,
+    "reject": 193,
     "indeterminate": 2
   },
-  "corpusDigest": "579d50258ffbe0bb8f8de23641449e86e3f47d27160801111a8d73d4b7d49ad5",
+  "corpusDigest": "b5aa5fdb4a9320e037658b2877f048d5c3dd7351fd93701d3c4977d69ae7a579",
   "vectors": [
     {
       "id": "ok-001-caught-intercepted-fail",
@@ -724,6 +724,20 @@
         "aee-c-100",
         "aee-c-102",
         "aee-c-103"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-054-producer-ordered-axis-inert",
+      "kind": "accept",
+      "file": "accept/ok-054-producer-ordered-axis-inert.json",
+      "conditions": [
+        "aee-c-23",
+        "aee-c-45",
+        "aee-c-73"
       ],
       "expected": {
         "verdict": "valid",
@@ -3542,6 +3556,23 @@
         "verdict": "invalid",
         "codes": [
           "examination-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "bad-1017-sole-seal-moat-down-all-caught",
+      "kind": "reject",
+      "file": "reject/bad-1017-sole-seal-moat-down-all-caught.json",
+      "conditions": [
+        "aee-c-96"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "sealed-record-absent"
+        ],
+        "alsoCarries": [
+          "sealed-covers-nothing"
         ]
       }
     },

@@ -26,14 +26,17 @@ all.**
 | what | value |
 |---|---|
 | suite | `adversarial-execution-evidence-conformance` |
-| corpus | suiteRevision 25, 248 vectors (54 accept, 192 reject, 2 indeterminate) |
+| corpus | suiteRevision 25, 249 vectors (54 accept, 193 reject, 2 indeterminate) |
 | vendored specification | upstream commit `237f83b9f1445720c165e1c5f076212dfa063f92` |
-| `vectors/MANIFEST.json` | `sha256:2da65fc8c8162c05c4c91ab0881d384e2470efd291a44954f5d851a4051a8c06` |
+| `vectors/MANIFEST.json` | `sha256:99ef727d952c2ec351531d144459aa115f380c1e6b33e2e1d66c0f4ac609be09` |
 | `docs/FORCING-BASELINE.json` | `sha256:b57527aa207e83fc34f076f88fb5d8576063c3203f627aa9e78fec0e857d3a75` |
 | campaign | 754 single-site weakenings: 424 KILLED, 27 SILENT, 298 DEAD, 5 INCONCLUSIVE |
 
-Every vector in the corpus is depended on by at least one recorded weakening, so no
-vector is wholly redundant and the campaign covers the corpus as it stands.
+**Read the figures above as a lower bound.** 1 of the corpus's vectors appear in no
+recorded killer set: `bad-1017-sole-seal-moat-down-all-caught`. Either they force
+nothing this rail's weakenings can express, or the campaign predates them, and the two
+input digests above are how a reader tells which. Until a full sweep covers them, a
+weakening one of them would catch is recorded here as caught by nobody.
 
 The corpus cites the specification's rules by `aee-c-NN` condition id on every
 vector. Take the vectors citing one condition, and ask what the mutation campaign

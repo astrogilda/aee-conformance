@@ -57,15 +57,85 @@ were lost by a remap or removed by hand. Narrowing an anchor onto the paragraph
 that actually states a rule is a correction and stays available, by name, one
 key at a time. The point is only that it is said rather than assumed.
 
-What it does not do is decide whether a freshly written anchor cites the right
+*Was the anchor ever aimed at the rule in the first place?* The two questions
+above share a blind spot and it is total. Both are asked about the text an
+anchor was recorded against, and an anchor recorded a sentence early addresses
+that text perfectly: the pins agree with themselves forever, so the check does
+not merely miss the defect, it preserves it. Registry decision 8 carried twelve
+forcing vectors and anchored three lines that held the tail of an unrelated
+paragraph about ``doesNotAssert`` and a field label, while the timestamp profile
+it interprets began eight lines further down. The same shape was reported from
+outside for condition aee-c-108, which is what says it is a class rather than a
+typing slip.
+
+So a third question is asked, of the anchors that carry the most weight: those a
+registry decision records for a reading it calls forced. The span must cover a
+sentence that states a rule, that rule must name something the decision names,
+and the span may not be widened across a heading until those two become free.
+
+The heading half of that was too weak, and the measurement that says so is the
+one worth keeping. Restore each of the four wrong anchors, then widen it upward
+without ever reaching the rule it was supposed to cite, and three of the four
+pass: decisions 6 and 14 at L795-886 and decision 8 at L1581-1672, each of them
+satisfying the term question on a rule about a different member ninety lines
+away. Not one crosses a heading, because this document does not put its members
+in sections -- `coverage` and `attackResults` are defined a hundred lines apart
+under one heading. What sits between them is a field definition label, `name`
+_type, required_, and that is the boundary the corrections were actually drawn
+to: every anchor this change corrected opens on one. So the fourth question is
+whether a span reached its rule by running past the label that opens the next
+member, and it is asked of anchors that have already answered the other three,
+because it is a question about how they answered them. Re-running the same
+sweep with it in place, no upward widening of those three passes at any width up
+to four hundred lines, which is the whole distance to the previous heading, and
+none of the thirty-three anchors on record is refused.
+
+What it does not close is the same escape where a section defines no members.
+Decision 7's wrong anchor still passes eight lines wider, at L222-234, on two
+sentences in Prerequisites that state no obligation and say so: "restating the
+requirement would add a check that could never be the one to fail" and "the
+`observationVocabulary` digest carries no rule of its own here". Both are read
+as stating a rule, the first on the bare word never and the second on cannot,
+and both name a term decision 7 names. Narrowing what counts as stating a rule
+would reach them, and was measured: dropping the bare never refuses thirty-nine
+sentences, two of which are the only rule a correct anchor covers, so it trades
+one wrong acceptance for two wrong refusals and is not adopted here.
+
+The sharp version of the first half -- the span must contain an RFC 2119
+obligation -- was measured before it was adopted and rejected on the numbers.
+Sixteen of the thirty-three anchors on record carry no RFC 2119 sentence at all,
+because this document states roughly two thirds of its obligations as a
+consequence: what is invalid, what is malformed, what covers nothing, what a
+verifier cannot do. It also hangs whole lists off a single stem MUST and then
+writes five items as bare noun phrases. A rule refusing sixteen correct anchors
+is a rule that gets switched off, so what counts as stating a rule is the
+keywords plus a closed list of this document's own consequence constructions,
+plus inheritance from a list stem. Under that reading the refusals fell to four
+of thirty-three, and all four were the same class: decisions 6, 8 and 14 each
+stopped one sentence short of the consequence they quote, and decision 7 sat
+eight lines above its rule, on the anti-splice paragraph rather than on the
+version rejection it describes. Every one was corrected against the text rather
+than waived, which is the test of a threshold worth keeping.
+
+The half that discriminates is the second. Rule-bearing sentences are not rare
+here -- three hundred and one of eight hundred and fifteen -- so covering one is
+weak evidence on its own, and the gate prints that density every run so a reader
+can watch for it going vacuous. Requiring the covered rule to name a term the
+decision names, in the specification's controlled vocabulary of backticked
+identifiers and cited RFCs, is what makes a wrongly aimed anchor fail. The
+heading rule closes the obvious way around: an anchor stretched over a whole
+section contains some rule naming some term and would otherwise pass by width.
+
+What none of it does is decide whether a freshly written anchor cites the right
 rule. Nothing mechanical can read a claim and judge which paragraph settles it.
 The gate makes that a review question with the evidence attached rather than an
 invisible one, and it makes the systematic failure, hundreds of anchors going
 quietly wrong at once because a re-vendor moved the prose, impossible to commit.
 
 Usage:
-    python3 scripts/spec-anchor-gate.py           # check
-    python3 scripts/spec-anchor-gate.py --sync    # rewrite the pin ledger
+    python3 scripts/spec-anchor-gate.py             # check
+    python3 scripts/spec-anchor-gate.py --aim-only  # only the aim question
+    python3 scripts/spec-anchor-gate.py --sync      # rewrite the pin ledger
     python3 scripts/spec-anchor-gate.py --sync --accept-reaim <citation-key>
 """
 
@@ -258,12 +328,548 @@ def generated_failures(
     return failures
 
 
+# --------------------------------------------------------------------------
+# Is the anchor drawn around the rule the decision is about?
+# --------------------------------------------------------------------------
+
+DECISIONS_REL = "vectors/interpretation-decisions.json"
+
+HEADING_RE = re.compile(r"^#{1,6}\s")
+# The other boundary this document draws, and the one its member sections are
+# actually built out of. Under a single heading the specification defines member
+# after member, each opened by a line of the form `name` _type, required_, and
+# between two of those lines sits one field's whole definition. A markdown
+# heading is nowhere near them: `coverage` and `attackResults` are defined a
+# hundred lines apart under one heading, so a span may run from one field's rules
+# into another's without crossing anything the heading rule can see.
+#
+# That is not hypothetical. Every corrected anchor in this registry is a field
+# definition drawn from its label to the end of its rules -- decision 6 opens on
+# `coverage` at L879, decision 8 on `issuedAt` at L1672 -- and decision 8's
+# original defect straddled the `issuedAt` label rather than sitting inside it.
+# The line the corrections were drawn to is the line the check has to know about.
+FIELD_LABEL_RE = re.compile(r"^`[A-Za-z][A-Za-z0-9_.\[\]]*`\s+_[^_]+_\s*$")
+FENCE_RE = re.compile(r"^\s*(?:```|~~~)")
+ITEM_RE = re.compile(r"^(?:[-*]\s|\d+\.\s)")
+# A sentence ends at a full stop or a semicolon followed by space. The
+# semicolon is a terminator here because this specification states most of its
+# list-borne rules as semicolon-separated clauses, and reading such a list as
+# one enormous sentence would let any anchor anywhere in the list inherit the
+# rule stated in a clause fifteen lines away.
+SENTENCE_END_RE = re.compile(r"(?<!e\.g)(?<!i\.e)(?<!vs)(?<!cf)[.;](?=\s|$)")
+
+# The RFC 2119 keywords, which are the obvious half of what states a rule.
+KEYWORD_RE = re.compile(
+    r"\b(?:MUST NOT|MUST|REQUIRED|SHALL NOT|SHALL|SHOULD NOT|SHOULD)\b"
+)
+
+# The other half, and the reason the obvious rule alone is the wrong rule. This
+# document states roughly two thirds of its obligations as a consequence rather
+# than as a keyword: what makes a statement invalid, what makes it malformed,
+# what covers nothing, what a verifier cannot do. Each construction below was
+# read out of the specification rather than guessed at, and each one is a
+# consequence a conformance vector can be written against, which is the test for
+# admitting it. Widening this list past that test is how the check goes vacuous,
+# so the gate prints the resulting density on every run.
+CONSEQUENCE_RE = re.compile(
+    r"\b(?:is|are|makes?|leaves?|renders?)\s+(?:the\s+\w+\s+|it\s+|them\s+)?"
+    r"(?:in)?valid\b"
+    r"|\bcovers?\s+nothing\b"
+    r"|\b(?:is|are|makes?)\s+(?:the\s+\w+\s+)?malformed\b"
+    r"|\bmust\b"
+    r"|\bcannot\b"
+    r"|\bmay\s+not\b"
+    r"|\bnever\b"
+    r"|\bfail(?:s|-closed)\b"
+    r"|\brejects?\b|\brejected\b"
+    r"|\bexactly\s+equals?\b"
+)
+
+# The third way this document states a rule: by fixing a value exactly. The run
+# binding pre-image is written as a definition -- the digest "is the lowercase
+# 64-hex SHA-256 of the RFC 8785 canonicalization of" a named object -- and
+# carries no consequence word at all, yet a statement deriving anything else
+# fails, so a vector can be written against it, which is the same test the
+# consequence list is admitted under. Reading definitions as non-normative
+# marked the whole of the Prerequisites section as citing nothing.
+DEFINITION_RE = re.compile(
+    r"\bis\s+the\s+(?:lowercase\s+)?[\w-]+\s+SHA-256\b"
+    r"|\bis\s+defined\b|\bare\s+defined\b"
+    r"|\bis\s+derived\b|\bare\s+derived\b"
+    r"|\brecomputes?\b"
+)
+
+# The specification's controlled vocabulary: the identifiers it writes in
+# backticks, plus the RFCs it cites by number. Both are spellings a reader
+# cannot vary, which is what makes them usable as evidence that a sentence and a
+# decision are about the same thing. Ordinary prose words are not, and a check
+# built on word overlap alone scores every sentence in the document as vaguely
+# relevant to every decision.
+TERM_RE = re.compile(r"`([A-Za-z][A-Za-z0-9_.]*(?:\[\d\])?[A-Za-z0-9_.]*)`")
+RFC_RE = re.compile(r"\bRFC\s?(\d{3,5})\b")
+SHORTEST_TERM = 4
+
+AIM_REMEDY = (
+    "An anchor is the evidence that a registry decision reads a rule the "
+    "document actually states. Read the span, find the sentence that carries "
+    "the rule the decision interprets, and redraw the anchor around it; then "
+    "re-pin with python3 scripts/spec-anchor-gate.py --sync --accept-reaim "
+    "<key> and regenerate the tables built from the registry."
+)
+
+
+@dataclass(frozen=True)
+class Sentence:
+    """One sentence of the specification, with the lines it occupies.
+
+    ``stem`` is the text that introduces the list this sentence is an item of,
+    empty when it is not one. A list here routinely states its rule once, in the
+    stem, and then spends five items saying what the rule ranges over: the
+    coverage validity list opens "the following MUST hold or the attestation is
+    invalid" and every item under it is a bare noun phrase. Judging those items
+    without the stem marks five correct anchors as citing no rule at all.
+    """
+
+    lo: int
+    hi: int
+    text: str
+    stem: str
+
+
+def sentences_of(spec: list[str]) -> list[Sentence]:
+    """Split the specification into sentences that know which lines they sit on.
+
+    Fenced blocks are skipped: a schema block is not prose, carries no rule a
+    sentence-level check can read, and its punctuation would split into
+    fragments that match anything.
+    """
+    blocks: list[list[tuple[int, str]]] = []
+    fenced = False
+    block: list[tuple[int, str]] = []
+    for lineno, raw in enumerate(spec, start=1):
+        if FENCE_RE.match(raw):
+            fenced = not fenced
+            if block:
+                blocks.append(block)
+                block = []
+            continue
+        if fenced:
+            continue
+        if not raw.strip():
+            if block:
+                blocks.append(block)
+                block = []
+            continue
+        block.append((lineno, raw.strip()))
+    if block:
+        blocks.append(block)
+
+    found: list[Sentence] = []
+    carried = ""
+    for lines in blocks:
+        listed = ITEM_RE.match(lines[0][1]) is not None
+        joined = " ".join(text for _, text in lines)
+        if not listed:
+            # A paragraph ending in a colon introduces the list that follows it,
+            # across the blank line that separates them in the source.
+            carried = joined if joined.rstrip().endswith(":") else ""
+        groups: list[list[tuple[int, str]]] = []
+        current: list[tuple[int, str]] = []
+        for lineno, text in lines:
+            if ITEM_RE.match(text) and current:
+                groups.append(current)
+                current = [(lineno, text)]
+            else:
+                current.append((lineno, text))
+        if current:
+            groups.append(current)
+        lead = groups[0]
+        inner = (
+            " ".join(text for _, text in lead)
+            if len(groups) > 1 and not ITEM_RE.match(lead[0][1])
+            else ""
+        )
+        for group in groups:
+            item = ITEM_RE.match(group[0][1]) is not None
+            stem = (inner or (carried if listed else "")) if item else ""
+            found.extend(split_group(group, stem))
+    return found
+
+
+def split_group(group: list[tuple[int, str]], stem: str) -> list[Sentence]:
+    """Cut one paragraph or list item into sentences, keeping the line numbers.
+
+    The line a sentence starts on is the line whose text the sentence's first
+    character came from, which is the whole point: an anchor is a line range and
+    a rule is a sentence, and the off-by-a-sentence defect lives exactly in the
+    gap between the two.
+    """
+    text = " ".join(part for _, part in group)
+    offsets: list[tuple[int, int]] = []
+    cursor = 0
+    for lineno, part in group:
+        offsets.append((cursor, lineno))
+        cursor += len(part) + 1
+
+    def line_at(position: int) -> int:
+        lineno = offsets[0][1]
+        for offset, candidate in offsets:
+            if offset <= position:
+                lineno = candidate
+        return lineno
+
+    found: list[Sentence] = []
+    start = 0
+    ends = [m.end() for m in SENTENCE_END_RE.finditer(text)] + [len(text)]
+    for end in ends:
+        if end <= start:
+            continue
+        body = text[start:end].strip()
+        if body:
+            found.append(
+                Sentence(
+                    lo=line_at(start),
+                    hi=line_at(max(end - 1, start)),
+                    text=body,
+                    stem=stem,
+                )
+            )
+        start = end
+    return found
+
+
+def states_a_rule(sentence: Sentence) -> bool:
+    for candidate in (sentence.text, sentence.stem):
+        if candidate and (
+            KEYWORD_RE.search(candidate)
+            or CONSEQUENCE_RE.search(candidate)
+            or DEFINITION_RE.search(candidate)
+        ):
+            return True
+    return False
+
+
+def vocabulary(spec: list[str]) -> frozenset[str]:
+    words = {
+        term.lower()
+        for line in spec
+        for term in TERM_RE.findall(line)
+        if len(term) >= SHORTEST_TERM
+    }
+    return frozenset(words | {f"rfc{number}" for line in spec for number in RFC_RE.findall(line)})
+
+
+def terms_of(text: str, vocab: frozenset[str]) -> frozenset[str]:
+    lowered = text.lower()
+    found = {f"rfc{number}" for number in RFC_RE.findall(text)}
+    for term in vocab:
+        if term.startswith("rfc"):
+            continue
+        if re.search(rf"(?<![a-z0-9_.]){re.escape(term)}(?![a-z0-9_])", lowered):
+            found.add(term)
+    return frozenset(found)
+
+
+@dataclass(frozen=True)
+class Subject:
+    """One registry decision's anchor, and the words the decision uses.
+
+    The subject text is the decision's title, its reading and the names of the
+    vectors that force it. All three are written by the same hand as the anchor
+    and none of them is derived from the anchor, so agreement between them is
+    evidence rather than a tautology.
+    """
+
+    decision: int
+    token: str
+    lo: int
+    hi: int
+    words: str
+
+
+def decision_subjects() -> tuple[list[Subject], list[str]]:
+    """Every anchor recorded by a decision the registry calls forced, plus the
+    entries that could not be read as one.
+
+    Only the forced decisions. An unforced decision records where it would look
+    if someone wrote the vector, and holding a placeholder to the standard of a
+    citation would make the registry harder to be honest in, which is the one
+    thing it exists for.
+
+    The unreadable ones are returned rather than skipped, and that is the same
+    argument the gate makes about a decision whose vocabulary is empty. An
+    anchor spelled with an en dash, or written as prose, or a forced decision
+    carrying no anchor at all, drops out of every question asked below and takes
+    the count printed at the end down by one, which is a number nothing asserts.
+    Skipping it reports an untested anchor as a passing one. Every forced
+    decision in the registry today carries at least one anchor and every anchor
+    parses, so this refuses nothing that exists and closes the door on the way
+    an anchor could stop being checked without anyone seeing it.
+    """
+    source = REPO_ROOT / DECISIONS_REL
+    raw = json.loads(source.read_text(encoding="utf-8"))
+    subjects: list[Subject] = []
+    unreadable: list[str] = []
+    for entry in raw.get("decisions", []):
+        if entry.get("classification") != "forced":
+            continue
+        words = " ".join(
+            [
+                str(entry.get("title", "")),
+                str(entry.get("reading", "")),
+                " ".join(entry.get("forcingVectors", [])).replace("-", " "),
+            ]
+        )
+        anchors = entry.get("specAnchors", [])
+        if not anchors:
+            unreadable.append(
+                f"decision {entry.get('id')} is classified forced and records no "
+                "anchor, so the reading it calls forced cites nothing and no "
+                "question below is asked of it."
+            )
+        for anchor in anchors:
+            m = ANCHOR_RE.fullmatch(str(anchor))
+            if m is None:
+                unreadable.append(
+                    f"decision {entry.get('id')} records {str(anchor)!r}, which "
+                    "is not a line anchor this gate can read, so it is not "
+                    "checked. An unreadable anchor is an untested one, not a "
+                    "passing one; write it as Lnnn or Lnnn-mmm."
+                )
+                continue
+            lo = int(m.group(1))
+            hi = int(m.group(2)) if m.group(2) else lo
+            subjects.append(
+                Subject(
+                    decision=int(entry.get("id", 0)),
+                    token=str(anchor),
+                    lo=lo,
+                    hi=hi,
+                    words=words,
+                )
+            )
+    return subjects, unreadable
+
+
+def nearest_rule(
+    rules: list[Sentence], subject: Subject, wanted: frozenset[str], terms: dict[int, frozenset[str]]
+) -> str:
+    """Where to look instead, preferring a rule the decision itself names.
+
+    The nearest rule by line number is often the wrong suggestion: prose here is
+    dense with rules about neighbouring fields, and an anchor sitting one
+    sentence above its subject is usually within a line or two of some other
+    field's obligation. Sending the reader there would reproduce the defect one
+    field over.
+    """
+    named = [s for s in rules if terms.get(id(s), frozenset()) & wanted]
+    pool = named or rules
+    if not pool:
+        return ""
+    closest = min(
+        pool,
+        key=lambda s: min(abs(s.lo - subject.lo), abs(s.lo - subject.hi)),
+    )
+    if named:
+        return (
+            " The nearest sentence that states a rule this decision names "
+            f"begins at L{closest.lo}."
+        )
+    return f" The nearest sentence that states a rule begins at L{closest.lo}."
+
+
+def field_labels(spec: list[str]) -> list[int]:
+    """The lines that open a member's definition.
+
+    Returned as a list rather than tested in place because an empty one is a
+    finding: this document defines its members this way throughout, so a run that
+    finds none has lost the instrument rather than found a document without
+    fields, and ``aim_report`` refuses on that instead of reporting a pass the
+    check did not earn.
+    """
+    return [n for n, line in enumerate(spec, start=1) if FIELD_LABEL_RE.match(line)]
+
+
+def aim_failures(
+    spec: list[str], subjects: list[Subject], sentences: list[Sentence]
+) -> list[str]:
+    """Four questions, asked of every anchor a forced decision records.
+
+    *Does the span carry a rule at all?* Decision 8 anchored three lines that
+    held the tail of an unrelated paragraph and a field label, while the rule it
+    interprets began eight lines further down, and the pin check could not see
+    it: a wrong anchor addresses the text it was recorded against perfectly
+    well, and both fields were pinned, so the disagreement was preserved rather
+    than found.
+
+    *Is the rule one this decision is about?* The first question alone is weak,
+    because a rule-bearing sentence is not rare here. This one is what
+    discriminates: the rule the span carries has to name something the decision
+    names, in the specification's own controlled vocabulary.
+
+    *Was the span widened until the first two questions became free?* An anchor
+    stretched across a heading covers a whole section, is certain to contain
+    some rule naming some term, and answers both questions by width rather than
+    by aim. So a span may not cross a heading.
+
+    *Did it reach its rule by running into the next field's definition?* The
+    heading question closes width only between sections, and this document does
+    not put its members in sections. Measured on the four defects this check was
+    built for, restoring each wrong anchor and then widening it upward without
+    ever reaching the rule below made three of the four pass: decision 6 at
+    L795-886, decision 8 at L1581-1672, decision 14 at L795-886, each satisfying
+    the term question on a rule about a different member ninety lines away. No
+    heading is crossed in any of them, because none of them leaves the section.
+    Each one does cross a field definition, so the last question is asked last:
+    of an anchor that has already answered the other three, whether it answered
+    them by running past the label that opens the next member.
+    """
+    vocab = vocabulary(spec)
+    rules = [s for s in sentences if states_a_rule(s)]
+    terms = {id(s): terms_of(s.text, vocab) for s in rules}
+    labels = field_labels(spec)
+    failures: list[str] = []
+    for subject in subjects:
+        crossed = [
+            lineno
+            for lineno in range(subject.lo, min(subject.hi, len(spec)) + 1)
+            if HEADING_RE.match(spec[lineno - 1])
+        ]
+        if crossed:
+            failures.append(
+                f"decision {subject.decision} anchor {subject.token} crosses the "
+                f"heading at L{crossed[0]} ({spec[crossed[0] - 1].strip()!r}). A "
+                "span that crosses a heading cites two parts of the document as "
+                "one rule, and satisfies every other question here by width "
+                "rather than by aim."
+            )
+            continue
+        wanted = terms_of(subject.words, vocab)
+        covered = [s for s in rules if s.lo <= subject.hi and s.hi >= subject.lo]
+        if not covered:
+            inside = [
+                s for s in sentences if s.lo <= subject.hi and s.hi >= subject.lo
+            ]
+            opens = inside[0].text[:72] if inside else "(no prose)"
+            failures.append(
+                f"decision {subject.decision} anchor {subject.token} covers no "
+                f"sentence that states a rule; it opens on {opens!r}."
+                + nearest_rule(rules, subject, wanted, terms)
+            )
+            continue
+        if not wanted:
+            failures.append(
+                f"decision {subject.decision} anchor {subject.token} cannot be "
+                "tested for aim: the decision's title, reading and forcing "
+                "vectors name no term of the specification's controlled "
+                "vocabulary, so there is nothing to agree with. This is an "
+                "untested anchor, not a passing one."
+            )
+            continue
+        aimed = [s for s in covered if terms[id(s)] & wanted]
+        if not aimed:
+            here = sorted({t for s in covered for t in terms[id(s)]})
+            failures.append(
+                f"decision {subject.decision} anchor {subject.token} covers a "
+                "rule, but not one this decision is about: the rules in the "
+                f"span name {here or ['nothing']}, and the decision names "
+                f"{sorted(wanted)}, which share nothing."
+                + nearest_rule(rules, subject, wanted, terms)
+            )
+            continue
+        # Opening on a label is how every corrected anchor here is drawn: the
+        # span starts at the member's name and runs to the end of its rules. So
+        # the refusal is for a label the span RUNS PAST, never for the one it
+        # begins on, and the distinction is the whole difference between an
+        # anchor drawn around a field definition and one drawn through it.
+        ran_past = [n for n in labels if subject.lo < n <= subject.hi]
+        if ran_past:
+            failures.append(
+                f"decision {subject.decision} anchor {subject.token} runs past "
+                f"the field definition that opens at L{ran_past[0]} "
+                f"({spec[ran_past[0] - 1].strip()!r}), so the rules it cites "
+                "belong to more than one member. An anchor may open on a field "
+                "definition and cover it; reaching a rule by continuing into "
+                "the next member's is width, not aim."
+            )
+    return failures
+
+
+def aim_report(spec: list[str]) -> int:
+    """The verdict on aim, refusing every count of nothing.
+
+    Four of these refusals are the instrument reporting on itself. A splitter
+    that stops finding sentences, a vocabulary that stops finding terms, a
+    collector that stops finding anchors and a field-label pattern that stops
+    finding member definitions all look identical from outside to a corpus with
+    nothing wrong with it, and this repository has shipped that exact green line
+    before. The last of the four is the newest and the easiest to lose: the
+    label pattern is the only thing that refuses a span widened into a
+    neighbouring member, it matches a spelling upstream is free to reflow, and
+    matching nothing would make it silent rather than loud.
+    """
+    sentences = sentences_of(spec)
+    rules = [s for s in sentences if states_a_rule(s)]
+    labels = field_labels(spec)
+    if not labels:
+        print(
+            "FAIL: no field definition was found in the specification, so "
+            "nothing bounds an anchor inside a section and the width question "
+            "is not being asked. This document opens every member with a line "
+            "of the form `name` _type, required_; a run that finds none has "
+            "lost the pattern, not found a document without members.",
+            file=sys.stderr,
+        )
+        return 1
+    if not sentences or not rules:
+        print(
+            "FAIL: no sentence in the specification states a rule, so the aim "
+            "check has no subject and its result means nothing. The sentence "
+            "splitter or the rule vocabulary has stopped matching the "
+            "document.",
+            file=sys.stderr,
+        )
+        return 1
+    subjects, unreadable = decision_subjects()
+    if not subjects:
+        print(
+            f"FAIL: no anchors were collected from {DECISIONS_REL}, so the aim "
+            "check checked nothing and its result means nothing.",
+            file=sys.stderr,
+        )
+        return 1
+    failures = unreadable + aim_failures(spec, subjects, sentences)
+    decisions = len({s.decision for s in subjects})
+    if failures:
+        print(
+            f"FAIL: {len(failures)} anchor(s) are not drawn around a rule this "
+            f"registry decision is about (of {len(subjects)} checked):",
+            file=sys.stderr,
+        )
+        for failure in failures:
+            print(f"  {failure}", file=sys.stderr)
+        print(f"\n{AIM_REMEDY}", file=sys.stderr)
+        return 1
+    print(
+        f"OK: {len(subjects)} anchor(s) on {decisions} forced decision(s) are "
+        f"drawn around a rule the decision names, none of them running past a "
+        f"field definition ({len(rules)} of {len(sentences)} spec sentences "
+        f"state a rule; {len(labels)} member definitions bound them)."
+    )
+    return 0
+
+
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument(
         "--sync",
         action="store_true",
         help="rewrite the pin ledger from the anchors as they now stand",
+    )
+    ap.add_argument(
+        "--aim-only",
+        action="store_true",
+        help="ask only whether each decision anchor is drawn around its rule",
     )
     ap.add_argument(
         "--accept-reaim",
@@ -277,6 +883,8 @@ def main(argv: list[str]) -> int:
         return sync(LEDGER, list(collect(AUTHORED)), set(args.accept_reaim))
 
     spec, _digest = spec_state(SPEC_REL)
+    if args.aim_only:
+        return aim_report(spec)
     if not LEDGER.path.is_file():
         print(
             f"FAIL: {LEDGER.path.relative_to(REPO_ROOT)} is missing; create it "
@@ -292,7 +900,13 @@ def main(argv: list[str]) -> int:
     failures = pinned_failures(list(authored), pins, spec, LEDGER)
     failures += generated_failures(generated, authored, spec)
     failures += orphan_failures(pins, list(authored), LEDGER)
-    return report(failures, len(authored) + len(generated), LEDGER, REMEDY)
+    pinned = report(failures, len(authored) + len(generated), LEDGER, REMEDY)
+    # Both verdicts are printed on every run. They answer different questions --
+    # whether an anchor still addresses its recorded text, and whether it was
+    # ever aimed at the right rule -- and a run that stopped at the first
+    # failure would hide the second behind the first for as long as the first
+    # took to fix.
+    return pinned or aim_report(spec)
 
 
 if __name__ == "__main__":

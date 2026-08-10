@@ -39,12 +39,13 @@ case for the wrong reason and prove nothing about whether the gate is pointed at
 anything. The copy is a real git checkout with a real commit in it, because the
 before-image the synchronise judges a move against is read from git.
 
-Usage: python3 scripts/spec-anchor-gate-test.py
+Usage: python3 scripts/spec-anchor-gate-test.py [all|pin|aim]
 Exit 0 when every case holds; 1 on the first summary of failures.
 """
 
 from __future__ import annotations
 
+import hashlib
 import re
 import shutil
 import subprocess
@@ -152,7 +153,22 @@ def edit(root: Path, rel: str, old: str, new: str, expect: int = 1) -> None:
             f"expected {expect}, so this case would assert nothing. Fix the "
             "case, never the gate."
         )
-    path.write_text(text.replace(old, new), encoding="utf-8")
+    replaced = text.replace(old, new)
+    # And the bytes have to have moved. A count check catches a pattern that
+    # matched nothing; it does not catch a substitution of a value for itself,
+    # which reads as a mutation in the case list, leaves the file identical, and
+    # records the gate as refusing something it was never shown. Neither does a
+    # line count, which cannot see one value swapped for another of the same
+    # length. Only the digest can.
+    if hashlib.sha256(replaced.encode("utf-8")).hexdigest() == hashlib.sha256(
+        text.encode("utf-8")
+    ).hexdigest():
+        raise SystemExit(
+            f"test setup: replacing {old[:48]!r} with {new[:48]!r} in {rel} "
+            "leaves the file byte-identical, so this case mutates nothing and "
+            "asserts nothing. Fix the case, never the gate."
+        )
+    path.write_text(replaced, encoding="utf-8")
 
 
 def revendor(root: Path, at: int, added: int) -> None:
@@ -311,6 +327,196 @@ ACCEPTS: list[Case] = [
 ]
 
 
+# --------------------------------------------------------------------------
+# Aim: is the anchor drawn around the rule the decision is about?
+# --------------------------------------------------------------------------
+#
+# The pin cases above all ask whether an anchor still addresses the text it was
+# recorded against. An anchor recorded a sentence early addresses that text
+# perfectly, so none of them can see the defect these cases are about, and the
+# pins preserved a live one -- registry decision 8, twelve forcing vectors,
+# pointed at a field label with its rule eight lines below -- for as long as the
+# ledger existed.
+#
+# The mutations come in two kinds and both are needed. Three move an anchor and
+# assert the gate refuses it, which is the ordinary direction. Three break the
+# gate's own instruments -- the sentence splitter, the controlled vocabulary,
+# the collector -- and assert it says so, because each of those failures looks
+# from outside exactly like a corpus with nothing wrong with it, and this
+# repository has shipped that green line before.
+
+REGISTRY = "vectors/interpretation-decisions.json"
+GATE = "scripts/spec-anchor-gate.py"
+
+# Decision 8's anchor, as this change corrected it: the whole issuedAt field
+# definition, whose MUST sentences carry the timestamp profile the decision
+# interprets. Every aim mutation moves this one anchor, so a mutation that
+# matched something else would be measuring two things at once.
+AIMED = '"L1672-1690"'
+# Where it used to point: the tail of the doesNotAssert paragraph and the field
+# label. Three lines, no rule of any kind, and the rule it names starting at
+# L1680.
+OFF_BY_A_SENTENCE = '"L1670-1672"'
+# A real rule, stated with two MUSTs, about strict I-JSON string literals --
+# which is nothing decision 8 is about.
+WRONG_RULE = '"L110-137"'
+# The same anchor stretched past the "## Example" heading, so that it contains
+# rules by width rather than by aim.
+WIDENED_PAST_A_HEADING = '"L1672-1700"'
+# The same anchor stretched the other way, back over the label that opens it and
+# into the doesNotAssert definition above. It still covers the issuedAt rules, so
+# every question about the rule it names is answered; what it has stopped doing
+# is citing one member.
+WIDENED_INTO_THE_MEMBER_ABOVE = '"L1666-1690"'
+
+# Decision 6's anchor, the coverage field definition, and the same anchor widened
+# upward until it collects a rule about `manifest` ninety lines above it. That
+# widening crosses no heading -- this document defines coverage and attackResults
+# a hundred lines apart under one heading -- and it is how three of the four
+# defects this gate was built for pass a check that asks only about headings.
+COVERAGE_FIELD = '"L879-890"'
+WIDENED_INTO_THE_MEMBER_BELOW = '"L795-886"'
+# Decision 14's anchor, narrowed so that it opens exactly ON the coverage label.
+# The refusal above must not reach this: opening on a field definition is how
+# every corrected anchor in the registry is drawn, and a rule that refused it
+# would refuse the corrections it exists to protect.
+OPENS_ON_THE_LABEL = ('"L881-890"', '"L879-890"')
+
+
+AIM_REFUSALS: list[Case] = [
+    (
+        "an anchor sits a sentence above its rule, on the field label",
+        lambda root: edit(root, REGISTRY, AIMED, OFF_BY_A_SENTENCE),
+        ("--aim-only",),
+        (
+            "decision 8",
+            "covers no sentence that states a rule",
+            "states a rule this decision names begins at L1680",
+        ),
+    ),
+    (
+        "an anchor covers a rule, but one the decision is not about",
+        lambda root: edit(root, REGISTRY, AIMED, WRONG_RULE),
+        ("--aim-only",),
+        ("decision 8", "not one this decision is about"),
+    ),
+    (
+        "an anchor is widened across a heading until it contains some rule",
+        lambda root: edit(root, REGISTRY, AIMED, WIDENED_PAST_A_HEADING),
+        ("--aim-only",),
+        ("decision 8", "crosses the heading", "## Example"),
+    ),
+    (
+        "the sentence splitter stops finding any rule in the document",
+        lambda root: edit(
+            root,
+            GATE,
+            "for candidate in (sentence.text, sentence.stem):",
+            "for candidate in ():",
+        ),
+        ("--aim-only",),
+        ("no sentence in the specification states a rule",),
+    ),
+    (
+        "the controlled vocabulary stops matching, so nothing can be aimed",
+        lambda root: edit(
+            root,
+            GATE,
+            "return frozenset(words | {f\"rfc{number}\"",
+            "return frozenset() or frozenset({f\"rfc{number}\"",
+        ),
+        ("--aim-only",),
+        ("cannot be tested for aim", "not a passing one"),
+    ),
+    (
+        "an anchor is widened into the next member until it contains some rule",
+        lambda root: edit(root, REGISTRY, COVERAGE_FIELD, WIDENED_INTO_THE_MEMBER_BELOW),
+        ("--aim-only",),
+        (
+            "decision 6",
+            "runs past the field definition that opens at L879",
+            "`coverage` _object, required_",
+        ),
+    ),
+    (
+        "an anchor is widened back over its own label into the member above",
+        lambda root: edit(root, REGISTRY, AIMED, WIDENED_INTO_THE_MEMBER_ABOVE),
+        ("--aim-only",),
+        (
+            "decision 8",
+            "runs past the field definition that opens at L1672",
+            "`issuedAt` _Timestamp, required_",
+        ),
+    ),
+    (
+        "an anchor is written in a spelling the gate cannot read",
+        lambda root: edit(root, REGISTRY, AIMED, '"L1672\\u20131690"'),
+        ("--aim-only",),
+        ("decision 8", "not a line anchor this gate can read", "not a passing one"),
+    ),
+    (
+        "a forced decision records no anchor at all",
+        lambda root: edit(
+            root,
+            REGISTRY,
+            '"specAnchors": [\n        "L1638-1640"\n      ],',
+            '"specAnchors": [],',
+        ),
+        ("--aim-only",),
+        ("decision 3", "records no anchor", "cites nothing"),
+    ),
+    (
+        "the field-label pattern stops finding the definitions that bound a span",
+        lambda root: edit(
+            root,
+            GATE,
+            r'FIELD_LABEL_RE = re.compile(r"^`[A-Za-z][A-Za-z0-9_.\[\]]*`\s+_[^_]+_\s*$")',
+            r'FIELD_LABEL_RE = re.compile(r"^MEMBER `[A-Za-z][A-Za-z0-9_.\[\]]*`_$")',
+        ),
+        ("--aim-only",),
+        ("no field definition was found", "lost the pattern"),
+    ),
+    (
+        "the collector stops recognising a forced decision",
+        lambda root: edit(
+            root,
+            GATE,
+            'if entry.get("classification") != "forced":',
+            'if entry.get("classification") != "forced-by-vector":',
+        ),
+        ("--aim-only",),
+        ("no anchors were collected", "means nothing"),
+    ),
+]
+
+AIM_ACCEPTS: list[Case] = [
+    (
+        "the repository as it stands, asked only about aim",
+        unchanged,
+        ("--aim-only",),
+        ("drawn around a rule the decision names",),
+    ),
+    (
+        "an anchor on a rule this document states without an RFC 2119 keyword",
+        lambda root: edit(root, REGISTRY, '"L881-890"', '"L886-890"'),
+        ("--aim-only",),
+        ("drawn around a rule the decision names",),
+    ),
+    (
+        "an anchor on a bare list item whose rule is stated in the list stem",
+        lambda root: edit(root, REGISTRY, '"L542-567"', '"L561-564"'),
+        ("--aim-only",),
+        ("drawn around a rule the decision names",),
+    ),
+    (
+        "an anchor drawn from a field's own label to the end of its rules",
+        lambda root: edit(root, REGISTRY, *OPENS_ON_THE_LABEL),
+        ("--aim-only",),
+        ("drawn around a rule the decision names",),
+    ),
+]
+
+
 def check(group: str, cases: list[Case], want_refusal: bool, tmp: Path) -> list[str]:
     failures: list[str] = []
     for index, (name, mutate, arguments, phrases) in enumerate(cases):
@@ -335,24 +541,47 @@ def check(group: str, cases: list[Case], want_refusal: bool, tmp: Path) -> list[
     return failures
 
 
-def main() -> int:
+def main(argv: list[str]) -> int:
+    """Run every case, or one named group of them.
+
+    The group argument exists because the pin cases and the aim cases fail for
+    different reasons and one of those reasons is the state of the tree rather
+    than the state of the gate: a citation written but not yet synced makes the
+    whole-repository control case fail, correctly, and would otherwise hide
+    whether the aim cases hold. Selecting a group is a way to read one answer,
+    never a substitute for the default run, which is what CI runs.
+    """
+    group = argv[1] if len(argv) > 1 else "all"
+    if group not in ("all", "pin", "aim"):
+        print(f"unknown group {group!r}; expected all, pin or aim", file=sys.stderr)
+        return 2
+    pin = group in ("all", "pin")
+    aim = group in ("all", "aim")
+    REFUSALS_RUN = REFUSALS if pin else []
+    ACCEPTS_RUN = ACCEPTS if pin else []
+    AIM_REFUSALS_RUN = AIM_REFUSALS if aim else []
+    AIM_ACCEPTS_RUN = AIM_ACCEPTS if aim else []
     failures: list[str] = []
     with tempfile.TemporaryDirectory() as raw:
         tmp = Path(raw)
-        failures.extend(check("refuse", REFUSALS, True, tmp))
-        failures.extend(check("accept", ACCEPTS, False, tmp))
-    total = len(REFUSALS) + len(ACCEPTS)
+        failures.extend(check("refuse", REFUSALS_RUN, True, tmp))
+        failures.extend(check("accept", ACCEPTS_RUN, False, tmp))
+        failures.extend(check("aimrefuse", AIM_REFUSALS_RUN, True, tmp))
+        failures.extend(check("aimaccept", AIM_ACCEPTS_RUN, False, tmp))
+    refusals = len(REFUSALS_RUN) + len(AIM_REFUSALS_RUN)
+    accepts = len(ACCEPTS_RUN) + len(AIM_ACCEPTS_RUN)
+    total = refusals + accepts
     if failures:
         print(f"FAIL: {len(failures)} of {total} case(s) do not hold:", file=sys.stderr)
         for failure in failures:
             print(f"  {failure}", file=sys.stderr)
         return 1
     print(
-        f"OK: {total} case(s), of which {len(REFUSALS)} assert a refusal the gate "
-        f"makes and {len(ACCEPTS)} a move it must not block."
+        f"OK: {total} case(s), of which {refusals} assert a refusal the gate "
+        f"makes and {accepts} a move it must not block."
     )
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv))

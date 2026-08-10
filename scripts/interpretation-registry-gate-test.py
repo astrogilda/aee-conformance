@@ -133,10 +133,11 @@ def case_declaration_not_retired(registry: dict[str, Any]) -> None:
 def case_non_discriminating_witness(registry: dict[str, Any]) -> None:
     """A witness recording the SAME result under both readings.
 
-    This is the reviewer's near-miss made mechanical: he mutated the sealed
-    existential to the broad reading, got zero per-vector differences, and
-    nearly sent it as confirmation. It confirms nothing, and a witness of this
-    shape must never pass.
+    This is a near-miss from the review thread made mechanical: an instrumented
+    run mutated the sealed existential to the broad reading, returned zero
+    per-vector differences, and that result was very nearly reported as
+    confirmation. It confirms nothing, and a witness of this shape must never
+    pass.
     """
     dec = registry["decisions"][1]
     dec["discrimination"] = {

@@ -683,6 +683,122 @@ DELEGATED: tuple[Delegated, ...] = (
 
 
 FROZEN: tuple[Frozen, ...] = (
+    # ---- measurements taken while building the reading-differential harness,
+    # the uncited-obligation sweep and the expectation-slack gate. Every one of
+    # these records what a run produced on the day it ran. The corpus has since
+    # grown to the value several of them happen to contain, which is the
+    # collision this census exists to surface and the reason each is declared
+    # rather than rewritten: rewriting a figure when the corpus grows would be
+    # inventing a rerun nobody performed.
+    Frozen(
+        "vectors/CHANGES.md",
+        "the suiteRevision-15 mutation campaign's byte-identical tally",
+        "316 were killed, 250 were",
+        "A mutation tally, not a corpus size. It became visible the moment the "
+        "corpus itself reached 250, which is the same collision recorded above "
+        "for a complexity reading at suiteRevision 15.",
+    ),
+    Frozen(
+        "scripts/condition-forcing-gate-test.py",
+        "the fixture quoting that tally",
+        "316 were killed, 250 were",
+        "The test pins the sentence above verbatim, so the figure is the same "
+        "past measurement read a second time rather than a second claim.",
+        occurrences=2,
+    ),
+    Frozen(
+        "scripts/reading-differential.py",
+        "the review revisions the missing instrument was found across",
+        "revisions 2, 8, 13 and 25",
+        "Revision identifiers, not a count. The last of them equals the current "
+        "suiteRevision because the review and the corpus advanced together.",
+    ),
+    Frozen(
+        "scripts/reading-differential.py",
+        "the corpus size when a masked reading read as settled",
+        "248 of 248",
+        "The measurement that motivated the harness, taken before bad-1017 and "
+        "ok-054 existed. Restating it against the corpus as it now stands would "
+        "describe a run that never happened.",
+    ),
+    Frozen(
+        "scripts/reading-differential.py",
+        "the driver-edit measurement",
+        "195 of 250",
+        "A recorded attack result: an edit outside the rail moved this many "
+        "vectors and scored REPORT-ONLY, which is why an edit outside the rail "
+        "is now refused.",
+    ),
+    Frozen(
+        "scripts/reading-differential-test.py",
+        "the same driver-edit measurement, in the case that pins it",
+        "195 of 250",
+        "The test asserts the behaviour the figure above records, so the number "
+        "is one measurement cited twice rather than two claims.",
+    ),
+    Frozen(
+        "spec/READINGS.toml",
+        "the same driver-edit measurement, in the ledger comment",
+        "195 of 250",
+        "The ledger explains beside the readings why an edit outside the rail is "
+        "not a reading, and cites the measurement that established it.",
+    ),
+    Frozen(
+        "scripts/expectation-slack-gate.py",
+        "the replay that stayed green under the widening edit",
+        "250 of 250",
+        "The record of an attack: widening an expectation left every verdict "
+        "green while destroying the property one vector exists for. The figure "
+        "is what the replay reported at that moment.",
+    ),
+    Frozen(
+        "scripts/uncited-obligations-proof.py",
+        "the coverage measurement this work moved",
+        "55 obligations cited to 57",
+        "A before-and-after reading of obligation coverage. The first figure "
+        "equals the accept-vector count by coincidence and is not a corpus "
+        "quantity.",
+    ),
+    Frozen(
+        "scripts/uncited-obligations-proof.py",
+        "the replay taken beside that measurement",
+        "250 of 250 green",
+        "The corpus replay recorded alongside the coverage figure above.",
+    ),
+    Frozen(
+        "scripts/uncited-obligations-proof-test.py",
+        "the same coverage measurement, in the case that pins it",
+        "55 obligations cited",
+        "The test asserts the movement the figure above records.",
+    ),
+    Frozen(
+        "docs/UNCITED-OBLIGATIONS.md",
+        "the coverage measurement this work moved",
+        "rose from 55 obligations cited to 57",
+        "The prose record of the same before-and-after reading the proof script "
+        "carries.",
+    ),
+    Frozen(
+        "docs/UNCITED-OBLIGATIONS.md",
+        "the replay taken beside that measurement",
+        "both rails ran 250 of 250 green",
+        "The corpus replay recorded alongside the coverage figure above.",
+    ),
+    Frozen(
+        "docs/UNCITED-OBLIGATIONS.md",
+        "the condition-span measurement behind the reverse question",
+        "62 of\n98 condition-registry spans",
+        "A measurement of how many condition spans contain no RFC 2119 sentence. "
+        "Its denominator counts registry spans, not vectors.",
+    ),
+    Frozen(
+        "docs/UNCITED-OBLIGATIONS.md",
+        "the coverage reading at the time of writing",
+        "55 of 67 obligations and 2 of 7",
+        "The state of the measurement when this document was written. The gate "
+        "prints the current figures on every run, which is where a reader goes "
+        "for today's numbers.",
+    ),
     Frozen(
         "scripts/complexity-table-gate.py",
         "the drift incident's Go-side measurement",

@@ -175,8 +175,8 @@ jobs:
       # indeterminate vector's declared readings -- which the runner folds into
       # that vector's expected code set -- sat outside its subject, so a failure
       # code in no registry at all could be authored, regenerate byte-identically
-      # and replay 248 of 248 with every gate green. A gate evidenced only by a
-      # green run says nothing about what it is quantified over.
+      # and clear a whole-corpus replay with every gate green. A gate evidenced
+      # only by a green run says nothing about what it is quantified over.
       - name: failure-code contract gate
         run: |
           python3 scripts/code-contract-gate.py

@@ -27,11 +27,11 @@ closed classification of the ``expected`` schema so that a field added later
 cannot leave the subject quietly; every validity code in that set must be
 exercised by at least one vector and known to the Python rail as well as the Go
 one, so the two first-party rails carry one vocabulary rather than two that
-happen to agree today; and the
-consumer-policy codes, which are consumer-relative admission facts and never
-validity conditions, must be exercised by no vector at all, because a
-single-statement corpus cannot pin a consumer's policy and a vector claiming to
-would be asserting something it cannot see.
+happen to agree today; and the consumer-policy codes, which are
+consumer-relative admission facts and never validity conditions, must be
+exercised by no vector at all, because a single-statement corpus cannot pin a
+consumer's policy and a vector claiming to would be asserting something it
+cannot see.
 
 Usage:
     python3 scripts/code-contract-gate.py
@@ -79,7 +79,7 @@ POLICY_HEADING = "Consumer-policy stage codes"
 # indeterminate vector -- and this gate read ``codes`` and ``alsoCarries`` only.
 # A code named by a reading and by nothing else therefore sat in the manifest,
 # in the published indeterminate index and in no registry at all, with this gate,
-# the regenerability gate and a 248-of-248 replay all green. The subject of a
+# the regenerability gate and a whole-corpus replay all green. The subject of a
 # membership check cannot be a hand-listed subset of the schema it checks, so it
 # is enumerated here and the leftovers are a failure.
 CODE_LIST_FIELDS = ("codes", "alsoCarries")

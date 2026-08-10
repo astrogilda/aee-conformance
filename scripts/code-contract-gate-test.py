@@ -7,9 +7,9 @@ indeterminate vector's declared reading -- a code the runner folds into that
 vector's expected code set, and which a reader meets in the published
 indeterminate index -- was outside its subject entirely. A code in no registry
 at all could be written into the generator, regenerate byte-identically, replay
-248 of 248, and print `63 validity code(s) are exercised by the corpus and known
-to both rails` on the way past. The gate was not wrong about anything it looked
-at. It looked at two fields of a five-field schema.
+the whole corpus without a failure, and report every validity code as exercised
+by the corpus and known to both rails on the way past. The gate was not wrong
+about anything it looked at. It looked at two fields of a five-field schema.
 
 So the cases here break one input at a time and require the exit code and the
 sentence that names the break. The two acceptances are what stop the fix from

@@ -187,10 +187,20 @@ def accept_index(manifest: dict[str, Any]) -> tuple[dict[str, str], list[str]]:
 
 
 def check_parents(manifest: dict[str, Any],
-                  parents: dict[str, str]) -> list[str]:
+                  parents: dict[str, str]) -> tuple[int, list[str]]:
+    """(refusals whose parent ships, the errors).
+
+    The count is returned rather than inferred from the number of errors. It
+    used to be printed as the reject total minus the error total, which is the
+    same number only while every error is about one reject vector -- and two of
+    the errors below are about the accept side and the index instead. A figure
+    arrived at by subtracting an unrelated length is a figure that stops meaning
+    what it says the first time the list grows a new kind of member.
+    """
     accepts, errors = accept_index(manifest)
     shipped = set(accepts) | set(accepts.values())
     reject_ids = {v["id"] for v in manifest["vectors"] if v["kind"] == "reject"}
+    anchored = 0
     for vid in sorted(reject_ids):
         declared = parents.get(vid)
         if declared is None:
@@ -205,6 +215,8 @@ def check_parents(manifest: dict[str, Any],
                 "accept vector. The refusal ships without the accepted half of "
                 "its pair, so a rail that refuses the shape satisfies it"
             )
+            continue
+        anchored += 1
     for vid in sorted(set(parents) - reject_ids):
         errors.append(
             f"the reject index carries a row for {vid}, which the manifest does "
@@ -212,7 +224,7 @@ def check_parents(manifest: dict[str, Any],
             "reading it as an anchored pair counts an anchor the corpus has not "
             "got"
         )
-    return errors
+    return anchored, errors
 
 
 def condition_sides(manifest: dict[str, Any]) -> tuple[set[str], set[str]]:
@@ -345,10 +357,10 @@ def main() -> int:
     manifest = load_manifest(args.manifest)
     parents = parent_rows(args.reject_index)
 
-    errors = check_parents(manifest, parents)
+    anchored_parents, errors = check_parents(manifest, parents)
     reject_count = sum(1 for v in manifest["vectors"] if v["kind"] == "reject")
-    print(f"check 1: {reject_count - len(errors)} of {reject_count} reject "
-          "vectors declare a parent that ships as an accept vector")
+    print(f"check 1: {anchored_parents} of {reject_count} reject vectors "
+          "declare a parent that ships as an accept vector")
 
     rejected, accepted = condition_sides(manifest)
     anchored = sort_conditions(rejected & accepted)

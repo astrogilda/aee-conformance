@@ -1418,6 +1418,24 @@
       "opens": "`examination` (the substrate examined artifact-independent state after",
       "closes": "SHOULD identify the states compared); `moat-drop`; or"
     },
+    "vectors/reject/gen_invalid_vectors.py::bad-1017-sole-seal-moat-down-all-caught#0": {
+      "anchor": "L586-594",
+      "digest": "4efe7e77b3a1696cd8f673471d7165f48cd8e2dc824fd7e6fcbd227f16a843e5",
+      "opens": "- a statement carrying at least one `basis: substrate` row carries at least",
+      "closes": "record it constrains is a rule a producer switches off by omission;"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-1017-sole-seal-moat-down-all-caught#1": {
+      "anchor": "L595-608",
+      "digest": "67e8d776415e0bd4f58cb39de9076effcaf8e97056f3a355d51ba8108a40c06c",
+      "opens": "- every carried record that binds to this run and whose payload `aeeKind`",
+      "closes": "this one asks whether an invalid one is;"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-1017-sole-seal-moat-down-all-caught#2": {
+      "anchor": "L1305-1310",
+      "digest": "69e180e36d7e8fd7d3dff275d38e6c394041539409953f93109d9729e3bed3ba",
+      "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
+      "closes": "failure, never a silent pass."
+    },
     "vectors/reject/gen_invalid_vectors.py::1#0": {
       "anchor": "L435",
       "digest": "e58d4982b42d4b938ac6109ec8c7b8d7f5e50e8afa747fdea110d0000416da36",
@@ -2187,10 +2205,10 @@
       "closes": "substrate-authoritative egress posture, drawn from the closed vocabulary"
     },
     "vectors/interpretation-decisions.json::6#1": {
-      "anchor": "L879-886",
-      "digest": "3a11b6f6942859ad5602796f72d9dcad498a2aaf41f7fac011e65d7621891844",
+      "anchor": "L879-890",
+      "digest": "4d2bfc2c1ef2cb53e9a1574de4343ecc3d95c45436d5d23e7ad62b6315018c39",
       "opens": "`coverage` _object, required_",
-      "closes": "one. The three sets are a disjoint partition of the manifest's classes: a"
+      "closes": "disclosed as a gap is contradictory."
     },
     "vectors/interpretation-decisions.json::6#2": {
       "anchor": "L937-940",
@@ -2211,16 +2229,16 @@
       "closes": "producer still reports as assessed."
     },
     "vectors/interpretation-decisions.json::7#0": {
-      "anchor": "L229-234",
-      "digest": "39985e359585187527d4e109e06f1ebb97d9a5c5409a78c8c62c911d882eb5df",
-      "opens": "binding is anti-splice: a record signed under a different subject, corpus,",
-      "closes": "distinguished only by the substrate-emitted `runEntropy` value, so a"
+      "anchor": "L237-241",
+      "digest": "4e087fe0eab612d48258f81d0c5f962f981f55f246150effbeb8bc776f8270d2",
+      "opens": "value it has already seen. `aeeBindingVersion` names this construction;",
+      "closes": "not implement rather than attempt more than one construction. An arming"
     },
     "vectors/interpretation-decisions.json::7#1": {
-      "anchor": "L237-244",
-      "digest": "027cbd5b1b98c21f33c14fd8a7985e469cce6f6175f8085be43214d133350ac6",
-      "opens": "value it has already seen. `aeeBindingVersion` names this construction;",
-      "closes": "fail-closed (the arming record covers nothing) when the value is a version it"
+      "anchor": "L241-245",
+      "digest": "dec056dd02725c0e0f6f87dd20774cabe7a5bf10716307f78025136f3b08966c",
+      "opens": "not implement rather than attempt more than one construction. An arming",
+      "closes": "does not implement, distinguishably from a run-binding digest mismatch. An"
     },
     "vectors/interpretation-decisions.json::7#2": {
       "anchor": "L229-234",
@@ -2241,10 +2259,10 @@
       "closes": "later than `issuedAt`, `aeePostureDigest` equal to the pinned"
     },
     "vectors/interpretation-decisions.json::8#1": {
-      "anchor": "L1670-1672",
-      "digest": "4891b176bf80a8fed79ad85d3883df3466842f9dec1df89a29a017a25bcf5d17",
-      "opens": "concern that the wire format does not carry.",
-      "closes": "`issuedAt` _Timestamp, required_"
+      "anchor": "L1672-1690",
+      "digest": "234ebe93356be946727622e9766bb322a950ced2db0e9a365828c7874d756aa9",
+      "opens": "`issuedAt` _Timestamp, required_",
+      "closes": "from the arming record so that the two fields cannot drift apart."
     },
     "vectors/interpretation-decisions.json::8#2": {
       "anchor": "L1670-1672",
@@ -2325,10 +2343,10 @@
       "closes": "One row per executed attack: `attackId` (must appear in the manifest),"
     },
     "vectors/interpretation-decisions.json::14#0": {
-      "anchor": "L881-886",
-      "digest": "b73dfc845473067ce2d3c18a120719dc29d6a4773047ff923a242ccbc55bf3f6",
+      "anchor": "L881-890",
+      "digest": "96b0a5b26cb4055133d6fd672664e1df8fc4ad5b5c4a0482474f75f892a854b2",
       "opens": "The coverage bound: `assessedClasses` (array of class codes actually",
-      "closes": "one. The three sets are a disjoint partition of the manifest's classes: a"
+      "closes": "disclosed as a gap is contradictory."
     },
     "vectors/interpretation-decisions.json::15#0": {
       "anchor": "L110-137",

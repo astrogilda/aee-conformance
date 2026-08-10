@@ -10,6 +10,9 @@ forced reading. This gate asserts the registry stays honest:
   - every named forcing vector is a live vector -- its file exists under
     ``vectors/accept/`` or ``vectors/reject/`` AND it appears in
     ``vectors/MANIFEST.json`` (so it is actually replayed, not orphaned);
+  - every decision classified ``forced`` either carries a ``discrimination``
+    witness or is named in the registry's ``unwitnessedForced`` declaration --
+    EXISTENCE IS NOT DISCRIMINATION, and this gate used to conflate them;
   - a ``permitted`` decision names no forcing vector (a permitted reading must
     not be silently locked; contested corners live in ``openCorners`` and are
     documented in ``docs/interpretation-decisions-open.md``);
@@ -76,6 +79,99 @@ def _check_decision(
         )
 
 
+def _check_discrimination(
+    dec: dict[str, Any], declared_unwitnessed: set[Any], live: set[str],
+    errors: list[str],
+) -> None:
+    """A ``forced`` claim must be backed by a vector that can TELL THE READINGS
+    APART, not merely by a vector that exists.
+
+    THE DEFECT THIS EXISTS FOR, established by attacking this gate rather than
+    reading it. A twenty-first decision was injected carrying the reviewer's own
+    open question -- the constraint set of the sealed existential -- classified
+    ``forced`` and citing ``bad-1003`` through ``bad-1007``. Those five vectors
+    provably cannot discriminate that reading: instrumenting both loops returns
+    zero verdict flips, because every dirty seal in the corpus is paired with a
+    clean witness. This gate exited 0 on it, and regenerating the coverage
+    matrix once publishes it in ``docs/COVERAGE-MATRIX.md`` under
+    ``forced-by-vector``.
+
+    So the existence check was real and the discrimination check did not exist,
+    while the surface that publishes the result could not tell the difference.
+    A vector that runs is evidence the rule is EXERCISED. Only a vector whose
+    observable moves when the reading changes is evidence the rule is FORCED.
+
+    The declaration, and why it is not an exemption list. No differential
+    harness exists yet, so no decision in this registry can carry a witness
+    today. Failing all twenty would say the registry is broken when what is
+    true is narrower: the claims are unproven. ``unwitnessedForced`` therefore
+    names every such decision explicitly, its count is reported separately so
+    the summary line can never again present unproven claims as consistent, and
+    -- the clause that stops it becoming permanent -- a decision named there
+    that HAS gained a witness is an error. The declaration must retire itself
+    per decision as witnesses land, exactly as the coverage exemptions do.
+    """
+    did = dec.get("id")
+    if dec.get("classification") != "forced":
+        if dec.get("discrimination") is not None:
+            errors.append(
+                f"decision {did}: only a forced decision may carry a "
+                "discrimination witness; a permitted reading has nothing to "
+                "discriminate against"
+            )
+        return
+
+    witness = dec.get("discrimination")
+    declared = did in declared_unwitnessed
+
+    if witness is None:
+        if not declared:
+            errors.append(
+                f"decision {did}: classified forced with no discrimination "
+                "witness and no entry in unwitnessedForced. A named vector "
+                "proves the rule is exercised, never that the reading is "
+                "forced -- declare the rival reading and the observable that "
+                "moves, or name the decision in unwitnessedForced"
+            )
+        return
+
+    if declared:
+        errors.append(
+            f"decision {did}: named in unwitnessedForced but now carries a "
+            "discrimination witness -- remove it from the declaration. A "
+            "declaration that no longer flags anything is a stale claim about "
+            "what is unproven"
+        )
+
+    required = ("rivalReading", "witnessVector", "observable", "underReading", "underRival")
+    for field in required:
+        if not str(witness.get(field, "")).strip():
+            errors.append(
+                f"decision {did}: discrimination witness is missing {field!r}"
+            )
+    observable = witness.get("observable")
+    if observable not in (None, "verdict", "codes"):
+        errors.append(
+            f"decision {did}: discrimination observable must be verdict|codes, "
+            f"got {observable!r}"
+        )
+    if witness.get("underReading") == witness.get("underRival"):
+        errors.append(
+            f"decision {did}: discrimination witness records the same result "
+            "under both readings, which is the definition of NOT "
+            "discriminating -- this is the shape that must never pass"
+        )
+    vid = witness.get("witnessVector")
+    if vid:
+        if not _vector_file_exists(vid):
+            errors.append(f"decision {did}: witness vector {vid} has no file")
+        elif vid not in live:
+            errors.append(
+                f"decision {did}: witness vector {vid} is not in MANIFEST.json "
+                "(orphaned, would not be replayed)"
+            )
+
+
 ANCHOR_RE = re.compile(r"\bL(\d+)(?:-(\d+))?\b")
 
 
@@ -128,14 +224,32 @@ def main() -> int:
     if not decisions:
         print("FAIL: registry names no decisions", file=sys.stderr)
         return 1
+
+    declaration = registry.get("unwitnessedForced", {})
+    declared_ids = {entry.get("id") for entry in declaration.get("decisions", [])}
+    known_ids = {d.get("id") for d in decisions}
+    for stale in sorted(declared_ids - known_ids, key=str):
+        errors.append(
+            f"unwitnessedForced names decision {stale}, which is not in the "
+            "registry -- a declaration about a decision that does not exist "
+            "cannot retire itself"
+        )
+    if declared_ids and not str(declaration.get("reason", "")).strip():
+        errors.append(
+            "unwitnessedForced names decisions but states no reason; an "
+            "undeclared reason is an exemption wearing a declaration's clothes"
+        )
+
     for dec in decisions:
         _check_decision(dec, live, errors)
         _check_anchors_cover_prose(dec, errors)
+        _check_discrimination(dec, declared_ids, live, errors)
 
     # Open corners must be permitted and carry no forcing vector.
     for corner in registry.get("openCorners", []):
         _check_decision(corner, live, errors)
         _check_anchors_cover_prose(corner, errors)
+        _check_discrimination(corner, declared_ids, live, errors)
 
     if errors:
         print("FAIL: interpretation-decision registry drift.", file=sys.stderr)
@@ -143,11 +257,29 @@ def main() -> int:
             print(f"  - {e}", file=sys.stderr)
         return 1
 
-    forced = sum(1 for d in decisions if d.get("classification") == "forced")
-    print(
-        f"OK: {len(decisions)} decisions ({forced} forced) consistent with the "
-        f"live corpus ({len(live)} vectors)."
+    forced = [d for d in decisions if d.get("classification") == "forced"]
+    witnessed = [d for d in forced if d.get("discrimination") is not None]
+    # Sort numerically when the ids are numbers: a published list reading
+    # "1, 10, 11, ... 2, 20" is a lexicographic sort leaking into an artifact
+    # a human is expected to scan for a missing id.
+    unwitnessed = sorted(
+        (d.get("id") for d in forced if d.get("discrimination") is None),
+        key=lambda i: (0, i, "") if isinstance(i, int) else (1, 0, str(i)),
     )
+    # The summary NEVER again presents an unproven forced claim as consistent:
+    # the two populations are counted apart and the unproven ids are named on
+    # every run, so the debt is visible rather than folded into one total.
+    print(
+        f"OK: {len(decisions)} decisions consistent with the live corpus "
+        f"({len(live)} vectors). Forced: {len(forced)}, of which "
+        f"{len(witnessed)} carry a discrimination witness."
+    )
+    if unwitnessed:
+        print(
+            f"    {len(unwitnessed)} forced decision(s) are declared UNWITNESSED "
+            "-- exercised by a vector, not yet shown to be forced by one: "
+            + ", ".join(str(i) for i in unwitnessed)
+        )
     return 0
 
 

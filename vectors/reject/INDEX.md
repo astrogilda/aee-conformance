@@ -120,7 +120,7 @@ that guesses is worse than one that is missing: it looks resolved.
 | aee-c-6 | L444-446 | degraded iff disclosed coverage gap |
 | aee-c-7 | L447-450 | UNRESOLVED -- ok-002 is the sole carrier and the corpus does not separate this id from aee-c-2. Candidate reading, recorded rather than asserted: the third recompute condition, which contributes pass_indirect when some clean row is not (substrate, intercepted) and pass when none is |
 | aee-c-10 | L552 | observationRefs non-empty on substrate rows |
-| aee-c-11 | L552-553 | every ref index in range (integer) |
+| aee-c-11 | L552-553; L920-925 | every ref index in range (integer), on every row that carries the member and not only on the rows a gate resolves |
 | aee-c-12 | L554-556 | caught intercepted row refs an interception record |
 | aee-c-13 | L556-557 | reconstructed row refs an examination record |
 | aee-c-14 | L557-560 | clean intercepted row refs arming AND covering sealed |
@@ -181,7 +181,7 @@ that guesses is worse than one that is missing: it looks resolved.
 | aee-c-82 | L937-940 | coverage exactly equals the manifest at attack granularity |
 | aee-c-83 | L879-883 | coverage member required |
 | aee-c-84 | L1660-1670 | doesNotAssert single canonical spelling |
-| aee-c-85 | L1672 | issuedAt required, under the Timestamp profile |
+| aee-c-85 | L1672; L1680-1683 | issuedAt required, under the Timestamp profile: uppercase separator and zone designator, and a zero offset spelled Z, +00:00 or -00:00 |
 | aee-c-86 | L150-163 | vocabulary labels/caught entries BMP-only; a supplementary-plane entry is malformed |
 | aee-c-87 | L150-163 | covering payload member names BMP-only; a supplementary-plane name covers nothing |
 | aee-c-88 | L894-902 | row members are strictly typed; a wrong-JSON-type member is a malformed statement |
@@ -206,7 +206,7 @@ that guesses is worse than one that is missing: it looks resolved.
 | aee-c-107 | L1331-1345 | an uncommitted-observation record covers nothing in every state on the same terms, and in particular cannot stand in for an interception: not for a caught row's coverage, not for the existence requirement a pinned row must satisfy, and not for the expectedPayloads comparison |
 | aee-c-108 | L586-594; L1279-1310 | every carried record that binds to this run and whose aeeKind names a covering kind satisfies every constraint of that kind, whether or not any row resolves an observationRefs index to it. The universal partner of aee-c-96, over the same records on the same terms: that one asks whether a valid sealed record is present, this asks whether an invalid one is carried beside it |
 
-## Vectors (192)
+## Vectors (193)
 
 `parent` names the accept-suite shape the vector derives from (the
 accept vectors land separately; the parent statements are built
@@ -231,10 +231,10 @@ so the declared fault stays the ONLY fault.
 | `bad-103-ref-negative` | ok-001 | observationRefs: [0, -1] | - | aee-c-11 | `ref-malformed` (also carries: `interception-record-orphaned`) | L552-553 |
 | `bad-104-caught-refs-arming-only` | ok-001 | append a fully-valid arming record; caught intercepted row refs only it | recompute-batch-root | aee-c-12 | `caught-row-uncovered` (also carries: `interception-record-orphaned`) | L554-556 |
 | `bad-105-reconstructed-refs-interception` | ok-006 | append a fully-valid interception record; reconstructed row refs only it | recompute-batch-root | aee-c-13 | `reconstructed-row-uncovered` (also carries: `interception-record-orphaned`) | L556-557 |
-| `bad-106-clean-missing-sealed` | ok-002 | clean row refs the arming record only | - | aee-c-14 | `clean-row-uncovered` | L557-560 |
-| `bad-107-clean-missing-arming` | ok-002 | clean row refs the sealed record only | - | aee-c-14 | `clean-row-uncovered` | L557-560 |
+| `bad-106-clean-missing-sealed` | ok-002 | clean row refs the arming record only | - | aee-c-14 | `clean-row-uncovered` | L557-560; L997-999 |
+| `bad-107-clean-missing-arming` | ok-002 | clean row refs the sealed record only | - | aee-c-14 | `clean-row-uncovered` | L557-560; L997-999 |
 | `bad-108-ref-non-integer` | ok-001 | observationRefs: [0, 1.5] | - | aee-c-11 | `ref-malformed` (also carries: `interception-record-orphaned`) | L552-553 |
-| `bad-201-payload-unsorted-keys` | ok-001 | covering payload re-serialized with reverse-sorted member order | re-sign-record, recompute-batch-root | aee-c-17 | `payload-not-canonical` | L561-562; L1267-1274 |
+| `bad-201-payload-unsorted-keys` | ok-001 | covering payload re-serialized with reverse-sorted member order | re-sign-record, recompute-batch-root | aee-c-17 | `payload-not-canonical` | L561-562; L1267-1274; L625-629 |
 | `bad-202-payload-bignum` | ok-001 | covering payload gains an integer member 2^53+1 | re-sign-record, recompute-batch-root | aee-c-18 | `payload-not-ijson` (also carries: `observed-set-mismatch`) | L1269-1273; L99-102 |
 | `bad-203-payload-duplicate-member` | ok-001 | byte-crafted duplicate aeeMethod member in the covering payload | re-sign-record, recompute-batch-root | aee-c-18 | `payload-not-ijson` (also carries: `observed-set-mismatch`) | L1269-1273 |
 | `bad-204-payload-media-type` | ok-001 | covering record payloadType: "application/octet-stream" | re-sign-record, recompute-batch-root | aee-c-19 | `payload-media-type` | L1274-1275 |
@@ -302,7 +302,7 @@ so the declared fault stays the ONLY fault.
 | `bad-721-chain-scope-not-array` | ok-002 | arming payload gains aeeRunSeq: 1 with aeeChainScope as a free-form string, not the required array of registered dimension tokens | re-sign-record, recompute-batch-root | aee-c-89 | `arming-covers-nothing` | L1503-1507 |
 | `bad-722-chain-scope-unknown-dimension` | ok-002 | arming payload gains aeeRunSeq: 1 with an aeeChainScope carrying a token outside the closed dimension vocabulary | re-sign-record, recompute-batch-root | aee-c-89 | `arming-covers-nothing` | L1503-1507 |
 | `bad-723-chain-scope-not-canonical` | ok-002 | arming payload gains aeeRunSeq: 1 with an aeeChainScope array whose tokens are not in canonical (UTF-16 code-unit) order | re-sign-record, recompute-batch-root | aee-c-89 | `arming-covers-nothing` | L1503-1507 |
-| `bad-724-artifact-ref-out-of-range` | ok-029 | an artifact row carries an observationRefs index out of range for observationRecords (fail-closed on any row, not only substrate rows) | - | aee-c-11 | `ref-out-of-range` | L552-553 |
+| `bad-724-artifact-ref-out-of-range` | ok-029 | an artifact row carries an observationRefs index out of range for observationRecords (fail-closed on any row, not only substrate rows) | - | aee-c-11 | `ref-out-of-range` | L552-553; L920-925 |
 | `bad-725-statement-duplicate-member` | ok-002 | raw statement bytes carrying a duplicate top-level predicateType member (the whole statement is parsed as strict I-JSON, not only record payloads) | - | aee-c-18 | `statement-malformed` | L100-106 |
 | `bad-801-wrong-predicatetype` | ok-002 | v0.5 predicateType URI on a v0.6-shaped statement | - | aee-c-77 | `predicate-type-unsupported` | L3; L317 |
 | `bad-802-missing-catchpolicy` | ok-007 | drop catchPolicy | - | aee-c-78 | `environment-incomplete` | L757-767 |
@@ -408,6 +408,7 @@ so the declared fault stays the ONLY fault.
 | `bad-1014-sealed-observedattacks-unknown-unreferenced` | ok-002 | as `bad-976-sealed-observedattacks-unknown`, with the clean row's seal reference moved to the healthy seal the statement already carries; the defective seal stays carried and stays signed | - | aee-c-108 | `sealed-covers-nothing` | L586-594; L1279-1310 |
 | `bad-1015-arming-carried-missing-armedat` | ok-002 | a second arming record carrying no armedAt, referenced by no row; the clean row keeps its healthy arming and sealed pair | recompute-batch-root | aee-c-108 | `arming-covers-nothing` | L586-594; L1279-1310 |
 | `bad-1016-examination-carried-method-intercepted` | ok-002 | an examination record signed aeeMethod: "intercepted", referenced by no row; the clean row keeps its healthy arming and sealed pair | recompute-batch-root | aee-c-108 | `examination-covers-nothing` | L586-594; L1293-1295 |
+| `bad-1017-sole-seal-moat-down-all-caught` | ok-001 | the statement's only sealed record carries aeeStillArmed false; every row is caught, so no clean row is left uncovered and nothing fires ahead of the run-level checks | recompute-batch-root | aee-c-96 | `sealed-record-absent` (also carries: `sealed-covers-nothing`) | L586-594; L595-608; L1305-1310 |
 
 ## Notes on specific vectors
 
@@ -457,7 +458,7 @@ so the declared fault stays the ONLY fault.
 - **bad-721-chain-scope-not-array**: the old free-form string form is rejected fail-closed; array of registered tokens is the sole accepted shape (no alias).
 - **bad-722-chain-scope-unknown-dimension**: an unrecognized dimension token fails closed, as every closed vocabulary in this spec does.
 - **bad-723-chain-scope-not-canonical**: canonical order is corpus < networkPosture < subject; the same canonicality rule as observationVocabulary.labels.
-- **bad-724-artifact-ref-out-of-range**: an out-of-range reference is a structural integrity fault on any row regardless of basis; a reference that does not resolve is never silently ignored.
+- **bad-724-artifact-ref-out-of-range**: an out-of-range reference is a structural integrity fault on any row regardless of basis; a reference that does not resolve is never silently ignored. The second anchor is the sentence that quantifies the rule over every row rather than the schema line that introduces the member, and it is what this vector is written against: the substrate-row anchor alone reads as a duplicate of bad-102.
 - **bad-725-statement-duplicate-member**: rawStatement: the dict form cannot carry a duplicate member; a lenient parser keeps the last silently, so a duplicate anywhere in the statement is a malformed statement, fail-closed.
 - **bad-801-wrong-predicatetype**: a verifier MUST NOT process this as v0.6.
 - **bad-802-missing-catchpolicy**: artifact-only parent: no binding cascade; defeats the empty-vs-enforcing policy distinguishability.
@@ -549,6 +550,7 @@ so the declared fault stays the ONLY fault.
 - **bad-1014-sealed-observedattacks-unknown-unreferenced**: the laundering of `bad-976-sealed-observedattacks-unknown`. A rule read only where a row points is a rule whose subject the producer selects, and this pair is the same defective record judged twice: refused when the row names it, admitted when the row names its healthy twin.
 - **bad-1015-arming-carried-missing-armedat**: the arming half of the same defect. `bad-701` breaks the arming record the row resolves; this one carries the identical record beside the row instead, which every rail admitted.
 - **bad-1016-examination-carried-method-intercepted**: the examination half. `bad-712` breaks the examination record a reconstructed row resolves; this one carries it where no row resolves anything of the kind. Note it also enters the seal's aeeObservedSet, so the record is committed to and still unread.
+- **bad-1017-sole-seal-moat-down-all-caught**: the vector the existential had no witness for. Its expectation is a single code deliberately: a reject vector is graded by intersecting the emitted set with `codes`, so naming both conditions there would be satisfied by either reading and would measure nothing. `sealed-record-absent` alone is the measurement, and the companion fault is declared in `also carries` so the second-fault self-check reads it as intended rather than as a stray. The distinction the vector pins is a repair: where a satisfying seal is carried beside the defective one, dropping the defective record reaches validity, and here it does not -- drop this seal and the statement carries none, which is `bad-952` from the other side.
 
 ## Compound vectors and precedence pins
 

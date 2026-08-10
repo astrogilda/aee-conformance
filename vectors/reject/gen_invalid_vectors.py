@@ -371,8 +371,10 @@ def artifact_row(attack: str = "XA-EXAMPLE-1", label: str = "egress_captured",
                  method: str = "intercepted", basis: str = "artifact",
                  layer: str = "none",
                  attribution: str = "paired") -> dict[str, str]:
-    # observationRefs intentionally absent: refs on artifact rows are
-    # unconstrained by the spec (open question; suite pins spec-literal).
+    # observationRefs absent by default. Nothing normative READS refs on an
+    # artifact row -- the coverage gate walks substrate rows only -- but the
+    # structural-integrity rule is quantified over every row that carries the
+    # member, so an out-of-range index here is still a reject (bad-724).
     return {"attackId": attack, "containmentObserved": label, "basis": basis,
             "method": method, "attribution": attribution, "actualLayer": layer}
 
@@ -904,11 +906,11 @@ vec("bad-105-reconstructed-refs-interception", "ok-006",
 vec("bad-106-clean-missing-sealed", "ok-002",
     "clean row refs the arming record only", [],
     [14], ["clean-row-uncovered"], set_refs(P_clean, 0, [0]),
-    spec="L557-560")
+    spec="L557-560; L997-999")
 vec("bad-107-clean-missing-arming", "ok-002",
     "clean row refs the sealed record only", [],
     [14], ["clean-row-uncovered"], set_refs(P_clean, 0, [1]),
-    spec="L557-560")
+    spec="L557-560; L997-999")
 vec("bad-108-ref-non-integer", "ok-001", "observationRefs: [0, 1.5]", [],
     [11], ["ref-malformed"], set_refs(P_caught, 0, [0, 1.5]),
     spec="L552-553")
@@ -928,7 +930,7 @@ def _b201() -> dict[str, Any]:
 vec("bad-201-payload-unsorted-keys", "ok-001",
     "covering payload re-serialized with reverse-sorted member order",
     ["re-sign-record", "recompute-batch-root"], [17],
-    ["payload-not-canonical"], _b201, spec="L561-562; L1267-1274",
+    ["payload-not-canonical"], _b201, spec="L561-562; L1267-1274; L625-629",
     note="rawBytes: the committed base64 payload bytes are the fault; "
          "identical content, non-JCS order")
 
@@ -1868,10 +1870,14 @@ vec("bad-724-artifact-ref-out-of-range", "ok-029",
     "observationRecords (fail-closed on any row, not only substrate rows)",
     [], [11], ["ref-out-of-range"],
     set_refs(P_artifact_with_records, 0, [99]),
-    spec="L552-553",
+    spec="L552-553; L920-925",
     note="an out-of-range reference is a structural integrity fault on any "
          "row regardless of basis; a reference that does not resolve is "
-         "never silently ignored")
+         "never silently ignored. The second anchor is the sentence that "
+         "quantifies the rule over every row rather than the schema line that "
+         "introduces the member, and it is what this vector is written "
+         "against: the substrate-row anchor alone reads as a duplicate of "
+         "bad-102")
 
 def _b725() -> str:
     """A statement carrying a duplicate top-level member (RFC 7493). The dict
@@ -4102,6 +4108,46 @@ vec("bad-1016-examination-carried-method-intercepted", "ok-002",
          "aeeObservedSet, so the record is committed to and still unread")
 
 
+def _b1017() -> dict[str, Any]:
+    """The statement's ONLY sealed record reports its moat down.
+
+    Every earlier dirty seal in this directory is carried BESIDE a clean one,
+    which is why none of them can separate the two readings of the existential:
+    the sweep refuses the dirty record, the existential is satisfied by its
+    twin, and a rail that reads the existential narrowly and a rail that reads
+    it broadly land on the same code set for different reasons. Here there is
+    no twin. The record is structurally complete -- it carries aeeStillArmed,
+    aeeDropCount, aeePostureDigest, aeeObservedSet, aeeObservedAttacks and
+    aeeMethod intercepted -- so a narrow reading admits it as the witness and
+    reports only that a carried record violates its kind, while a broad reading
+    reports that the statement carries no satisfying seal at all. Every row is
+    caught, so no clean-row coverage rule can fire ahead of the run-level
+    checks and answer the question on the rail's behalf.
+    """
+    return mutate_record_payload(P_caught(), 1,
+                                 lambda o: {**o, "aeeStillArmed": False})
+
+
+vec("bad-1017-sole-seal-moat-down-all-caught", "ok-001",
+    "the statement's only sealed record carries aeeStillArmed false; every row "
+    "is caught, so no clean row is left uncovered and nothing fires ahead of "
+    "the run-level checks",
+    ["recompute-batch-root"], [96], ["sealed-record-absent"], _b1017,
+    also_carries=["sealed-covers-nothing"],
+    spec="L586-594; L595-608; L1305-1310",
+    note="the vector the existential had no witness for. Its expectation is a "
+         "single code deliberately: a reject vector is graded by intersecting "
+         "the emitted set with `codes`, so naming both conditions there would "
+         "be satisfied by either reading and would measure nothing. "
+         "`sealed-record-absent` alone is the measurement, and the companion "
+         "fault is declared in `also carries` so the second-fault self-check "
+         "reads it as intended rather than as a stray. The distinction the "
+         "vector pins is a repair: where a satisfying seal is carried beside "
+         "the defective one, dropping the defective record reaches validity, "
+         "and here it does not -- drop this seal and the statement carries "
+         "none, which is `bad-952` from the other side")
+
+
 # ---------------------------------------------------------------- checks
 
 # The result vocabulary, in the order the recompute takes its minimum over.
@@ -4423,7 +4469,9 @@ COND = {
                     "when some clean row is not (substrate, intercepted) and "
                     "pass when none is"),
     10: ("L552", "observationRefs non-empty on substrate rows"),
-    11: ("L552-553", "every ref index in range (integer)"),
+    11: ("L552-553; L920-925", "every ref index in range (integer), on every "
+                               "row that carries the member and not only on "
+                               "the rows a gate resolves"),
     12: ("L554-556", "caught intercepted row refs an interception record"),
     13: ("L556-557", "reconstructed row refs an examination record"),
     14: ("L557-560", "clean intercepted row refs arming AND covering sealed"),
@@ -4508,7 +4556,10 @@ COND = {
                      "granularity"),
     83: ("L879-883", "coverage member required"),
     84: ("L1660-1670", "doesNotAssert single canonical spelling"),
-    85: ("L1672", "issuedAt required, under the Timestamp profile"),
+    85: ("L1672; L1680-1683", "issuedAt required, under the Timestamp "
+                              "profile: uppercase separator and zone "
+                              "designator, and a zero offset spelled Z, "
+                              "+00:00 or -00:00"),
     86: ("L150-163", "vocabulary labels/caught entries BMP-only; a "
                              "supplementary-plane entry is malformed"),
     87: ("L150-163", "covering payload member names BMP-only; a "

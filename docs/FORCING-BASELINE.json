@@ -51,6 +51,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-950-clean-row-refs-interception",
         "bad-952-substrate-row-no-seal",
         "bad-953-observed-set-drops-a-record",
@@ -196,7 +197,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "commitments.go::attackIDArrayOK::RET_TRUE::19921ccfad14": {
@@ -283,6 +285,7 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -364,6 +367,7 @@
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -461,7 +465,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "commitments.go::cleanRowsContradicted::IF_OFF::5ab7028efadc": {
@@ -525,7 +530,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "commitments.go::commitmentArrayOK::RET_TRUE::19921ccfad14": {
@@ -636,7 +642,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "commitments.go::interceptionsOrphaned::IF_CONJ::be4d2e39bf82": {
@@ -690,7 +697,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "commitments.go::interceptionsOrphaned::IF_CONJ::e7a557d2b298": {
@@ -747,7 +755,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "commitments.go::interceptionsOrphaned::IF_OFF::d3a1e89f7742": {
@@ -829,7 +838,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "commitments.go::observedSetDigest::IF_CONJ::b2bf80d88458": {
@@ -892,7 +902,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "commitments.go::observedSetDigest::IF_OFF::ac101107881e": {
@@ -1033,7 +1044,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "commitments.go::recordKinds::IF_OFF::89f00348f2ae": {
@@ -1295,7 +1307,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "commitments.go::sealedRecordPresent::IF_OFF::6857830f9110": {
@@ -1312,6 +1325,7 @@
       "class": "KILLED",
       "snippet": "if kinds[i] != KindSealed { continue }",
       "killers": [
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-952-substrate-row-no-seal"
       ]
     },
@@ -1403,7 +1417,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "commitments.go::sealsCommitToCarriedSet::IF_OFF::b8f9040fd3a9": {
@@ -1513,7 +1528,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "jcs.go::appendCanonical::CASE_DEL::50e0130ff584": {
@@ -1545,6 +1561,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -1711,6 +1728,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -1794,7 +1812,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "jcs.go::appendCanonical::CASE_DEL::8e5835cd2f78": {
@@ -1831,6 +1850,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -1996,6 +2016,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -2075,7 +2096,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "jcs.go::appendCanonical::IF_OFF::29eae6805a4e": {
@@ -2233,6 +2255,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded"
       ]
     },
@@ -2446,6 +2469,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -2655,6 +2679,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -2742,6 +2767,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -2951,6 +2977,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -2984,6 +3011,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -3150,6 +3178,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -3183,6 +3212,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -3350,6 +3380,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -3390,6 +3421,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -3557,6 +3589,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -3863,7 +3896,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "jcs.go::hex4::CASE_CONJ::5ceb1787ecf2": {
@@ -3959,6 +3993,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -4119,6 +4154,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -4208,6 +4244,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -4369,6 +4406,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -4407,6 +4445,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -4567,6 +4606,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -4702,6 +4742,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded"
       ]
     },
@@ -4743,6 +4784,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -4885,7 +4927,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "pae.go::IsLowerHex64::IF_CONJ::fe2f6ba914f2": {
@@ -4914,6 +4957,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -5056,7 +5100,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "pae.go::IsLowerHex64::IF_OFF::e0253f47e6df": {
@@ -5100,6 +5145,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -5242,7 +5288,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "pae.go::IsLowerHex64::RET_TRUE::19921ccfad14": {
@@ -5310,6 +5357,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -5413,6 +5461,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -5497,6 +5546,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded"
       ]
     },
@@ -5586,6 +5636,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -5639,6 +5690,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -5775,7 +5827,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "runbinding.go::posturePreimageDigest::IF_DISJ::4f640f451538": {
@@ -6098,6 +6151,7 @@
       "killers": [
         "bad-002-result-mismatch-caught",
         "bad-101-refs-empty",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -6162,7 +6216,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "statement.go::Gate0::IF_CONJ::916d57a2c71a": {
@@ -6194,6 +6249,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -6353,6 +6409,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -6611,6 +6668,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -6771,6 +6829,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -7033,6 +7092,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -7180,6 +7240,7 @@
         "ok-046-seal-attacks-lower-bound",
         "ok-049-seal-names-caught-attack",
         "ok-050-registered-noncovering-kinds",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -7255,6 +7316,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -7397,7 +7459,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "statement.go::gate0SubstrateBindingInputs::IF_CONJ::d0d077a93799": {
@@ -7555,6 +7618,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -7716,6 +7780,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -7777,6 +7842,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
         "bad-105-reconstructed-refs-interception",
@@ -7885,6 +7951,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
         "bad-105-reconstructed-refs-interception",
@@ -8043,7 +8110,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "statement.go::isCaughtLabel::RET_TRUE::3ad81a7ceba5": {
@@ -8145,6 +8213,7 @@
       "killers": [
         "bad-002-result-mismatch-caught",
         "bad-101-refs-empty",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -8211,7 +8280,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "statement.go::isResultToken::RET_FALSE::12c2fe7a8f4d": {
@@ -8243,6 +8313,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -8402,6 +8473,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -8451,6 +8523,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -8612,6 +8685,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -8687,6 +8761,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -8846,6 +8921,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -8899,6 +8975,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -9060,6 +9137,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -9141,7 +9219,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "tier.go::(recv).DeriveTiers::IF_OFF::26cedc484876": {
@@ -9197,7 +9276,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "tier.go::(recv).DeriveTiers::IF_OFF::721c82cea962": {
@@ -9278,6 +9358,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
         "bad-105-reconstructed-refs-interception",
@@ -9484,6 +9565,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -9643,6 +9725,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -9698,7 +9781,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "types.go::(recv).UnmarshalJSON::IF_OFF::e7a59f8c651b": {
@@ -9735,6 +9819,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -9894,6 +9979,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -9966,6 +10052,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -10125,6 +10212,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -10171,6 +10259,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -10330,6 +10419,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -10395,6 +10485,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -10569,6 +10660,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -10620,6 +10712,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -10779,6 +10872,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -10937,7 +11031,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "types.go::isJSONObject::RET_TRUE::0e032dfcf99d": {
@@ -11024,6 +11119,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -11184,6 +11280,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -11227,6 +11324,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -11389,6 +11487,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -11432,6 +11531,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -11609,6 +11709,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -11642,6 +11743,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -11801,6 +11903,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -11836,6 +11939,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -11979,7 +12083,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "types.go::parseEnvironment::IF_OFF::b70164081046": {
@@ -12021,6 +12126,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -12195,6 +12301,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -12233,6 +12340,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -12400,6 +12508,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -12477,6 +12586,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -12622,7 +12732,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "types.go::parsePredicate::IF_OFF::354040a2f0b5": {
@@ -12664,6 +12775,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -12833,6 +12945,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -12866,6 +12979,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -13032,6 +13146,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -13075,6 +13190,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -13238,6 +13354,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -13271,6 +13388,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -13430,6 +13548,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -13463,6 +13582,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -13653,6 +13773,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -13724,7 +13845,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "types.go::parsePredicate::IF_OFF::f573bee95773": {
@@ -13857,7 +13979,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "types.go::parseRow::IF_OFF::91704092c29d": {
@@ -13889,6 +14012,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -14048,6 +14172,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]
@@ -14140,7 +14265,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "types.go::parseRow::IF_OFF::cd5643b515d3": {
@@ -14404,7 +14530,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "validity.go::anyRecordSignaturesEmpty::IF_OFF::47629c64c732": {
@@ -14474,7 +14601,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "validity.go::armingChainSyntaxValid::IF_DISJ::14ccc6cf80ec": {
@@ -15041,7 +15169,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "validity.go::checkSubstrateRow::CODE_OFF::04bf8f51afee": {
@@ -15194,7 +15323,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "validity.go::checkSubstrateRow::IF_OFF::02af432d03e2": {
@@ -15287,7 +15417,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "validity.go::checkSubstrateRow::IF_OFF::4a3655ff0af7": {
@@ -15388,7 +15519,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "validity.go::checkSubstrateRow::IF_OFF::7ee1bca12ff5": {
@@ -15460,7 +15592,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "validity.go::checkSubstrateRow::IF_OFF::d066fff4875e": {
@@ -15591,7 +15724,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "validity.go::evaluateKind::CASE_DEL::5e13e6662219": {
@@ -15703,7 +15837,8 @@
         "ok-049-seal-names-caught-attack",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "validity.go::evaluateKind::IF_OFF::3eb82f4bd4bd": {
@@ -15732,6 +15867,7 @@
         "bad-1012-sealed-missing-observedset-unreferenced",
         "bad-1013-sealed-missing-observedattacks-unreferenced",
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-705-sealed-missing-dropcount",
         "bad-706-stillarmed-non-boolean",
         "bad-707-sealed-stillarmed-false",
@@ -15888,6 +16024,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-952-substrate-row-no-seal",
         "bad-953-observed-set-drops-a-record",
         "bad-954-observed-set-gains-a-record",
@@ -15965,7 +16102,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "validity.go::gate1WithContext::IF_CONJ::8892bb433a9c": {
@@ -16211,7 +16349,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "validity.go::sealedConstraintsMet::IF_DISJ::0dbfd8e7fab2": {
@@ -16277,6 +16416,7 @@
       "killers": [
         "bad-1003-sealed-stillarmed-false-unreferenced",
         "bad-1007-sealed-noncovering-unreferenced",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-707-sealed-stillarmed-false",
         "bad-713-only-sealed-ref-noncovering"
       ]
@@ -16330,6 +16470,7 @@
         "bad-1007-sealed-noncovering-unreferenced",
         "bad-1008-sealed-missing-stillarmed-unreferenced",
         "bad-1010-sealed-method-reconstructed-unreferenced",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-705-sealed-missing-dropcount",
         "bad-706-stillarmed-non-boolean",
         "bad-707-sealed-stillarmed-false",
@@ -16395,7 +16536,8 @@
         "ok-050-registered-noncovering-kinds",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert"
       ]
     },
     "validity.go::sealedConstraintsMet::RET_TRUE::0a253196ac86": {
@@ -16419,6 +16561,7 @@
         "bad-1008-sealed-missing-stillarmed-unreferenced",
         "bad-1009-sealed-missing-posture-unreferenced",
         "bad-1010-sealed-method-reconstructed-unreferenced",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-705-sealed-missing-dropcount",
         "bad-706-stillarmed-non-boolean",
         "bad-707-sealed-stillarmed-false",
@@ -16484,6 +16627,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -16723,6 +16867,7 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-1015-arming-carried-missing-armedat",
         "bad-1016-examination-carried-method-intercepted",
+        "bad-1017-sole-seal-moat-down-all-caught",
         "bad-102-ref-out-of-range",
         "bad-103-ref-negative",
         "bad-104-caught-refs-arming-only",
@@ -16990,6 +17135,7 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
       ]

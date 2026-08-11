@@ -162,8 +162,21 @@ def case_wrong_digest(_: Any) -> Callable[[str], str]:
 
 
 def case_declaration_deleted(_: Any) -> Callable[[str], str]:
+    """Delete whichever uncited declaration comes first, not a named one.
+
+    This used to name `sentence = "L1464"`. Line numbers move whenever the
+    authority is re-vendored, and when that one stopped existing the pattern
+    matched nothing: the mutation returned the ledger unchanged and the case
+    proved nothing about the harness. The suite's own no-op check is what
+    caught it, and only after a second defect stopped hiding it -- the CI step
+    passed this file's path as an argument to another test, so this test had
+    not run at that venue at all.
+
+    Selecting the first block keeps the mutation anchored to the SHAPE the
+    ledger guarantees rather than to a coordinate that expires.
+    """
     return lambda text: re.sub(
-        r'\[\[uncited\]\]\nsentence = "L1464"\n(?:.*\n)*?reason = "[^"]*"\n', "", text, count=1
+        r'\[\[uncited\]\]\n(?:.*\n)*?reason = "[^"]*"\n', "", text, count=1
     )
 
 

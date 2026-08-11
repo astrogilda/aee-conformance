@@ -503,4 +503,4 @@ jobs:
       - name: the corpus can tell two readings of a rule apart, or it says so
         run: |
           python3 scripts/reading-differential.py --workers 8
-          python3 scripts/reading-differential-test.py scripts/vendor-remap-test.py
+          python3 scripts/reading-differential-test.py

@@ -1,0 +1,75 @@
+name: scorecard
+
+# An outside reading of this repository's own supply-chain posture, published
+# where somebody deciding whether to cite the corpus can read it without asking.
+#
+# The suite's whole argument is that a claim should be checkable by a party who
+# trusts neither the producer nor the implementer. That argument does not stop at
+# the corpus. A relying party who takes a conformance result from here is also
+# taking the repository that produced it -- its branch protection, its token
+# scopes, its pinned actions, its release process -- and until this workflow ran,
+# every statement about those was this repository's own word for it.
+#
+# OpenSSF Scorecard is a third party's checks against this repository, not a
+# self-assessment. It is deliberately not treated as a gate: a low check score is
+# a finding to answer, and wiring it to fail a push would turn an external
+# measurement into something the maintainer tunes for. The result goes to code
+# scanning, where it is read.
+#
+# publish_results sends the score to the public OpenSSF API, which is possible
+# only because this repository is public. It is on because a score nobody outside
+# can retrieve serves the person being measured rather than the person deciding
+# whether to rely on the measurement.
+
+on:
+  branch_protection_rule:
+  push:
+    branches: [main]
+  schedule:
+    # Weekly. Checks like Maintained and Dangerous-Workflow read repository
+    # state, so a run at a push tells only what one push changed.
+    - cron: '31 6 * * 2'
+
+permissions: read-all
+
+jobs:
+  analysis:
+    name: scorecard analysis
+    runs-on: ubuntu-latest
+    permissions:
+      # The SARIF upload writes into code scanning.
+      security-events: write
+      # The OIDC token the publish step presents to the OpenSSF API. It signs a
+      # result as having come from this repository; it grants nothing here.
+      id-token: write
+      contents: read
+    steps:
+      # persist-credentials: false is Scorecard's own instruction and is the
+      # point of the checkout step rather than a detail of it: leaving the
+      # workflow token in the git config of a tree an external action then reads
+      # is exactly the shape its Token-Permissions check exists to find.
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: run the analysis
+        uses: ossf/scorecard-action@v2.4.4
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: true
+
+      # The raw result, kept beside the run that produced it. Code scanning shows
+      # the findings; this is the file they were derived from, which is what a
+      # reader needs to disagree with one.
+      - name: keep the result beside the run
+        uses: actions/upload-artifact@v4
+        with:
+          name: scorecard-results
+          path: results.sarif
+          retention-days: 7
+
+      - name: upload to code scanning
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: results.sarif

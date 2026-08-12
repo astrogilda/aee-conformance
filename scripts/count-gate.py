@@ -974,6 +974,18 @@ FROZEN: tuple[Frozen, ...] = (
         "is reconstructed rather than remembered, so tracking it to the corpus would "
         "erase the number the reconstruction exists to check itself against.",
     ),
+    Frozen(
+        "CODE_OF_CONDUCT.md",
+        "the Contributor Covenant's own canonical URL path segment",
+        "2/1",
+        "Not a ratio. The Contributor Covenant publishes its version 2.1 text at a "
+        "URL whose path literally reads /version/2/1/code_of_conduct.html; the "
+        "digits name that document's own version number, external to this "
+        "repository and outside anything the corpus could grow to collide with. "
+        "The URL appears twice in this file (inline, then as the reference-link "
+        "definition it resolves to), both copies verbatim from the upstream text.",
+        occurrences=2,
+    ),
 )
 
 

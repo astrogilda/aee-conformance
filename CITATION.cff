@@ -3,10 +3,16 @@ title: >-
   aee-conformance: conformance vectors and a reference verifier for the
   adversarial-execution-evidence predicate
 message: >-
-  If this suite is used to demonstrate conformance, or a claim is made about
-  what it does or does not exercise, cite the released version rather than the
-  branch. A conformance claim against a moving target is not a conformance
-  claim.
+  This is software. It implements and tests the adversarial-execution-evidence
+  predicate; the normative artifact is that predicate's own text, which is
+  settled upstream in the in-toto attestation project and vendored here under
+  spec/predicates/ with the commit it was taken from recorded in
+  spec/VENDOR-PIN.json. It carries no standing as a standard or a specification
+  of its own. Cite the specification for what the predicate requires and this
+  suite for what a corpus forces. If this
+  suite is used to demonstrate conformance, or a claim is made about what it
+  does or does not exercise, cite the released version rather than the branch. A
+  conformance claim against a moving target is not a conformance claim.
 type: software
 authors:
   - family-names: Gilda
@@ -35,4 +41,5 @@ keywords:
   - agentic systems
   - evidence
 license: Apache-2.0
-version: 0.6.0
+version: 0.7.0
+date-released: "2026-08-12"

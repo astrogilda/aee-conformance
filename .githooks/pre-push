@@ -179,6 +179,16 @@ trap 'cleanup; exit 143' TERM HUP
 gate_revision() {
 	sha="$1"
 
+	# git's pre-push protocol never dereferences: the local SHA it hands this
+	# hook is the annotated tag object's own hash when the pushed ref is a tag,
+	# not the commit the tag names. `git worktree add` resolves that object to
+	# its commit correctly on its own, so the two would silently disagree at
+	# the identity check below for every annotated-tag push. Dereference once,
+	# up front, so the rest of this function reasons about the commit the push
+	# actually carries -- the same commit, whether it arrived as a branch or a
+	# tag pointing at it.
+	sha="$(git -C "$src_root" rev-parse "${sha}^{commit}")"
+
 	iso_base="$(mktemp -d "${TMPDIR:-/tmp}/aee-prepush.XXXXXXXX")"
 	iso="$iso_base/aee-conformance"
 	git -C "$src_root" worktree add --detach --quiet "$iso" "$sha"

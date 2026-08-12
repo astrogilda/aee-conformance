@@ -29,6 +29,18 @@ does happen, it lands as an amendment to this file, dated, with the objection
 route in [`DISPOSITIONS.md`](DISPOSITIONS.md) pointing at the steward's process
 instead of at the maintainer's inbox.
 
+There is no committer ladder, and the rule for adding one is written now rather
+than when it would be convenient. Nobody but the maintainer holds write
+access, so a ladder today would describe a body that does not exist. What is
+stated instead is the constraint on the first addition: commit access follows a
+sustained record of maintenance in this repository (changes landed, objections
+answered in the ledger, gates kept green through revisions the person did not
+author), and it follows nothing else. Not affiliation, not employment, not
+funding, not an implementation whose conformance the corpus decides. Adding
+someone lands as an amendment to this file, dated, naming the person and the
+record it was granted on, so a reader can check the record against the reason
+rather than being told there was one.
+
 ### What the maintainer does not decide
 
 Three things sit outside that authority, and the boundaries matter more than the
@@ -59,6 +71,18 @@ certificate and nothing to grant. An implementer who disagrees with a verdict ca
 rerun the corpus themselves; the whole suite is offline, dependency-free on the
 consuming side, and runs against any command.
 
+No implementation has standing here, and a product has none at all. The
+reference rails in this repository are evidence about the corpus and never the
+definition of it, which is what the table below says of them; the same holds for
+every other implementation, whoever wrote it and whether or not it is something
+somebody sells. A product's behaviour is not a reason to add a vector, widen an
+expectation or retire a rule, and a vendor's interest in the answer buys nothing
+the issue tracker does not already give a stranger. The repository names no
+product at all, and that is a gate rather than an intention:
+`.github/workflows/no-internal-drafts.yml` refuses a first-party product name in
+any tracked file, so a change that gave one a mention would fail on the push
+that made it.
+
 ## What is governed
 
 | Surface | What changing it means |
@@ -70,6 +94,37 @@ consuming side, and runs against any command.
 | `docs/FORCING-BASELINE.json` | what the corpus forces, held as a tighten-only ratchet |
 | `docs/DISPOSITIONS.json` | this repository's answers to objections. Append-only |
 | `GOVERNANCE.md`, `CONTRIBUTING.md` | this process. Amended by the route at the end of this file |
+
+### What a vector says about itself
+
+A vector obliges a stranger to implement something, so it has to answer which
+predicate it is an obligation under and where it came from. The two halves are
+recorded in different places and one of them is weaker, which is why both are
+described here rather than only the tidy one.
+
+The specification revision it targets is in the bytes. Every vector file
+carries the `predicateType` it was written against, and `vectors/MANIFEST.json`
+carries that type once for the corpus beside `specDigest`, the upstream commit
+the vendored text was taken from, and the thread it tracks. The digest is an
+input to generation, so a vector written against a specification revision other
+than the one the manifest names cannot regenerate, and
+`scripts/regenerability-gate.py` refuses it on the push that adds it. A vector
+declaring some other type is one testing that a verifier refuses a type it does
+not implement, and a vector that is not parseable JSON at all declares nothing;
+both are reject vectors, and each is that way in its own bytes on purpose.
+
+The origin is in the revision that added it, and in the objection when there
+was one. The changelog entry in [`vectors/CHANGES.md`](vectors/CHANGES.md) for
+a revision says what its additions force and what brought them; a vector added
+because somebody outside read the text and reached a different answer is also
+named in that person's row in `docs/DISPOSITIONS.json`, and
+`scripts/dispositions-gate.py` refuses a row whose vectors are not in the
+manifest. The limit is worth stating plainly: origin is not a field on the
+manifest entry, which carries the identifier, the kind, the file, the conditions
+and the expected outcome and nothing about provenance. So origin is reached
+through the revision or through the ledger rather than read off the vector, and a
+reader who wants it for one vector reads the entry for the revision that
+introduced it.
 
 ## The revision cadence
 
@@ -131,6 +186,17 @@ requirement beyond whatever the hosting platform imposes, and no distinction
 between an implementer's proposal and the maintainer's. A proposal is an issue or
 a pull request; a proposal about the predicate's text belongs upstream and this
 repository will say so and point at the thread.
+
+A merge is not agreement, and nothing here should be cited as though it were.
+A pull request merged in this repository is one person's decision written into
+git. It is not a vote, not an approval by implementers, not a review by anybody
+other than the maintainer, and not evidence that a second reader looked at the
+change at all. The only agreement this repository can show is a second
+implementation reaching the same verdicts against the same bytes, published with
+the score it produced; the only venue where a disagreement about the predicate is
+settled by more than one party is upstream's review of the specification text. A
+citing document that reads a merge commit here as consensus has counted one
+person twice.
 
 **Every proposal reaches one of four dispositions, from a closed set:** `adopted`,
 `adopted-in-part`, `declined`, or `open`. The last two are not synonyms —
@@ -199,7 +265,17 @@ rather than asserted:
 - **the limits are published before anyone asks for them.** What the corpus does
   not force is a measured number rather than a silence; the independence of the
   one implementation not written by the maintainer is stated with the scores it
-  did not produce; the appeal route's absence is in this file.
+  did not produce; the appeal route's absence is in this file;
+- **every published run says who produced it.** A score appears labelled
+  first-party or independent wherever it is quoted, because an unlabelled score
+  is read as independent and that is the direction a mislabelling always favours.
+  The first-party rails are reported as first-party and are not counted toward
+  independence at all. An outside run is transcribed from
+  `docs/INDEPENDENT-RUNS.json` exactly as its author posted it (never rounded,
+  never restated as a fraction of a different corpus, never called unprompted
+  when its author called it directed), and `scripts/independent-runs-gate.py`
+  refuses prose that disagrees with that ledger, including prose that is silent
+  about the revisions the outside implementation has not run.
 
 ## Amending this file
 

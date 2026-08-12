@@ -86,6 +86,15 @@ run on every push and none of them is allowed to be noisy.
 A vector is the only thing that obliges a third party to implement a rule, so
 adding one is a normative act and the process is heavier than a code change.
 
+Heavier, and still not a code change at all. A vector is data: a statement, the
+conditions it cites, and the outcome a conformant verifier must reach. Filing
+one requires no edit to the reference verifier's own implementation. The
+generator you write it in is a build-time tool that emits those bytes; it is not
+the thing under test, and `aee/` is not touched to make a vector pass. If the
+reference rail does have to change for the vector to go green, the vector has
+found a defect in the rail, and that fix is its own change with its own reason
+rather than part of this one.
+
 In this order:
 
 - **Say what rule it forces, and where the specification states it.** A vector

@@ -5,6 +5,22 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## Spec pin refresh after suiteRevision 25 (no new revision; `corpusDigest` unchanged)
+
+- The vendored specification moved again, from the `237f83b9` head recorded
+  below to `0dbe10bcc959b63dc42370a5db09812c9476f59a`, six edits further along
+  the same upstream pull request: the moat-down primary condition and a
+  quantifier rewording, on top of four changes already covered when
+  suiteRevision 25 was cut. `spec/VENDOR-PIN.json`, `vectors/MANIFEST.json`'s
+  `specUpstreamCommit`, and `docs/FORCING-HONESTY.md` all carry the new commit;
+  this file did not get an entry for it until now, which is the gap this entry
+  closes. No vector was added or changed and `corpusDigest` did not move, so
+  this is not a new `suiteRevision` -- the count stays 250 (55 accept, 193
+  reject, 2 indeterminate), exactly as suiteRevision 25 left it. Two obligations
+  already present in the vendored text became citable for the first time: the
+  moat-down requirement (forced by mutation, not merely asserted) and a pointer
+  to a rule stated normatively elsewhere.
+
 ## suiteRevision 25 (a rule written before the members it governs exist, and then a vector that carries one)
 
 - Corpus: **250 vectors (55 accept, 193 reject, 2 indeterminate)**, up from 248.

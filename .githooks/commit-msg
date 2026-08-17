@@ -38,19 +38,59 @@ A hook is advisory -- `git commit --no-verify` bypasses it and a clone that
 never ran the bootstrap has no hook at all -- so the hook cannot be the only
 enforcement point.
 
-One repository-specific rule set is supported WITHOUT forking this file. If a
-file named `commit-msg.extra-patterns` sits next to the hook, each of its
-`<regex><TAB><label>` lines is checked as an additional rule. That exists
-because one of these repositories is public and product-neutral, so its
-commit messages must not name the first-party products -- a rule that would
-be meaningless in the products' own repositories. A missing file means no
-extra rules, so this hook stays byte-identical everywhere.
+Two repository-specific rule sets are supported WITHOUT forking this file, so
+this hook stays byte-identical everywhere and a missing sidecar simply means
+no extra rules.
+
+`commit-msg.extra-patterns`, if present, contributes `<regex><TAB><label>`
+lines as additional rules. Suitable for anything whose pattern is not itself
+sensitive.
+
+`commit-msg.forbidden-tokens`, if present, contributes a salted hash per
+forbidden word. It exists because a regex has to spell what it forbids, and
+one of these repositories is public and product-neutral: a rule written there
+as a literal would publish the very names it is meant to keep out, and a rule
+written to exempt its own file leaves the one file nobody checks as the one
+file that names them. Hashing removes the dilemma -- the tree carries no
+readable form of the word, and the scan still covers every tracked file
+including the rule file itself.
+
+The check lowercases each line and slides a window of every declared word
+length across it, looking up `sha256(salt + window)`. That is exactly what a
+case-insensitive substring search does, so it matches the guard it replaces
+rather than narrowing it: a word glued inside a longer identifier is still
+caught, which a tokenizing check would miss.
+
+The sidecar therefore declares the lengths. Leaking "some forbidden word is
+seven characters long" is a far smaller disclosure than the word, and the
+alternative -- sweeping every length in a range -- costs the scan an order of
+magnitude for nothing.
+
+Case sensitivity is per entry, declared as two length lists. A product name
+must match in any casing, so it is hashed lowercased and probed against a
+lowercased window. A marker like an all-caps status word must not be, because
+lower-cased it is ordinary English: matching it case-insensitively fires on
+prose such as "a run that was not posted" or "if not sentences". A guard with
+that failure rate gets switched off, and a switched-off guard protects
+nothing, so the distinction is part of the format rather than a caller's
+option.
+
+Those examples are deliberately generic. An earlier draft of this paragraph
+spelled the real words out to illustrate the tokenizer, which published them
+in the file whose entire purpose is to stop that. The scan caught it on the
+first run, because this rule surface is one the scan covers.
+
+This is obscurity, not secrecy: the candidate space is small enough to
+brute-force against a wordlist. It defeats casual reading, search indexing
+and an accidental paste, which is what this gate is for, and it is strictly
+better than publishing the string.
 
 Bypass: `git commit --no-verify`. Loud and deliberate, by design.
 """
 
 from __future__ import annotations
 
+import hashlib
 import re
 import subprocess
 import sys
@@ -184,6 +224,10 @@ ATTRIBUTION_PATTERNS: list[tuple[re.Pattern[str], str]] = [
 
 EXTRA_PATTERNS_FILENAME = "commit-msg.extra-patterns"
 
+#: Sidecar of salted hashes, one forbidden word per line. See the module
+#: docstring for why a hash rather than a pattern.
+FORBIDDEN_WORDS_FILENAME = "commit-msg.forbidden-words"
+
 #: Optional per-repository commit from which `--check-range` takes effect. Same
 #: sidecar convention as the extra patterns above, and for the same reason: the
 #: value differs per repository, so holding it in data keeps this file
@@ -277,6 +321,119 @@ def parse_extra_patterns(text: str, origin: str) -> list[tuple[re.Pattern[str], 
     return patterns
 
 
+def load_forbidden_words() -> tuple[str, list[int], list[int], dict[str, str]]:
+    """Load the optional salted-hash rules that sit beside this hook.
+
+    Returns `(salt, nocase_lengths, cased_lengths, {digest: label})`; an absent
+    file yields an empty table, which is what keeps this hook portable to a
+    repository that has no such rules.
+    """
+    path = Path(__file__).resolve().parent / FORBIDDEN_WORDS_FILENAME
+    if not path.is_file():
+        return "", [], [], {}
+    return parse_forbidden_words(path.read_text(encoding="utf-8"), str(path))
+
+
+def parse_forbidden_words(
+    text: str, origin: str
+) -> tuple[str, list[int], list[int], dict[str, str]]:
+    """Parse `# salt:`, `# lengths-i:`, `# lengths-s:` and `<digest><TAB><label>`.
+
+    Malformed input is a hard failure for the same reason a malformed extra
+    pattern is: a guard that silently drops a rule it cannot parse reports
+    "clean" for a check that never ran. A file that declares no salt, or
+    declares one and lists nothing, is malformed rather than empty -- an
+    empty table has to mean "no sidecar", never "the sidecar failed to load".
+    """
+    salt = ""
+    widths: dict[str, list[int]] = {"i": [], "s": []}
+    table: dict[str, str] = {}
+    for number, raw in enumerate(text.splitlines(), start=1):
+        line = raw.strip()
+        if not line:
+            continue
+        if line.startswith("#"):
+            marker = "# salt:"
+            if line.startswith(marker):
+                if salt:
+                    raise ValueError(f"{origin}:{number}: salt declared twice")
+                salt = line[len(marker) :].strip()
+                if not re.fullmatch(r"[0-9a-f]{16,}", salt):
+                    raise ValueError(
+                        f"{origin}:{number}: salt must be >=16 lowercase hex chars"
+                    )
+            for kind, marker in (("i", "# lengths-i:"), ("s", "# lengths-s:")):
+                if not line.startswith(marker):
+                    continue
+                if widths[kind]:
+                    raise ValueError(
+                        f"{origin}:{number}: {marker} declared twice"
+                    )
+                field = line[len(marker) :].strip()
+                if not re.fullmatch(r"\d+(,\d+)*", field):
+                    raise ValueError(
+                        f"{origin}:{number}: {marker} must be a comma-separated "
+                        "list of positive integers"
+                    )
+                widths[kind] = sorted({int(n) for n in field.split(",")})
+                if widths[kind][0] < 1:
+                    raise ValueError(f"{origin}:{number}: lengths must be positive")
+            continue
+        if "\t" not in raw:
+            raise ValueError(
+                f"{origin}:{number}: expected '<sha256hex><TAB><label>', found {raw!r}"
+            )
+        digest, _, label = raw.partition("\t")
+        digest = digest.strip().lower()
+        if not re.fullmatch(r"[0-9a-f]{64}", digest):
+            raise ValueError(f"{origin}:{number}: not a sha256 hex digest: {digest!r}")
+        table[digest] = label.strip() or "forbidden token"
+    if table and not salt:
+        raise ValueError(f"{origin}: digests listed with no '# salt:' line")
+    if table and not (widths["i"] or widths["s"]):
+        raise ValueError(f"{origin}: digests listed with no '# lengths-*:' line")
+    if salt and not table:
+        raise ValueError(f"{origin}: salt declared with no digests")
+    return salt, widths["i"], widths["s"], table
+
+
+def forbidden_word_errors(
+    text: str,
+    salt: str,
+    nocase_lengths: list[int],
+    cased_lengths: list[int],
+    table: dict[str, str],
+) -> list[str]:
+    """Report every forbidden word occurring anywhere in `text`.
+
+    Lowercases and slides a window of each declared length, which reproduces a
+    case-insensitive substring search exactly. Matching only whole tokens would
+    silently narrow the rule this replaces, letting a name glued inside a longer
+    identifier through.
+
+    The matched word is deliberately NOT echoed. A guard that prints what it
+    caught reproduces the string into CI logs, terminal scrollback and issue
+    reports -- which is the leak this rule exists to prevent, committed by the
+    rule itself.
+    """
+    if not table:
+        return []
+    errors: list[str] = []
+    seen: set[str] = set()
+    for haystack, lengths in ((text.lower(), nocase_lengths), (text, cased_lengths)):
+        for width in lengths:
+            for start in range(0, len(haystack) - width + 1):
+                window = haystack[start : start + width]
+                digest = hashlib.sha256((salt + window).encode("utf-8")).hexdigest()
+                label = table.get(digest)
+                if label is not None and digest not in seen:
+                    seen.add(digest)
+                    errors.append(
+                        f"forbidden {label} (word withheld; see the sidecar)"
+                    )
+    return errors
+
+
 # `git commit --verbose` appends the staged diff after this marker. Git strips
 # it after the hook has run, so the hook must strip it too, or a non-ASCII
 # byte in the diff would be reported as a message violation.
@@ -298,7 +455,9 @@ def strip_noise(message: str) -> list[str]:
 
 
 def lint(
-    message: str, extra: list[tuple[re.Pattern[str], str]] | None = None
+    message: str,
+    extra: list[tuple[re.Pattern[str], str]] | None = None,
+    forbidden: tuple[str, list[int], list[int], dict[str, str]] | None = None,
 ) -> list[str]:
     """Return a list of human-readable violations; empty means the message passes."""
     lines = strip_noise(message)
@@ -334,6 +493,9 @@ def lint(
         for pattern, label in patterns:
             for match in pattern.finditer(full):
                 errors.append(f"forbidden {label}: {match.group(0).strip()!r}")
+
+    salt, nocase, cased, table = forbidden or ("", [], [], {})
+    errors.extend(forbidden_word_errors(full, salt, nocase, cased, table))
 
     return errors
 
@@ -437,50 +599,157 @@ SELFTEST_CASES: list[tuple[str, str | None]] = [
 
 
 def selftest() -> int:
+    #: Every assertion below goes through `check`, so the tally at the end
+    #: counts what actually ran. It previously reported `len(SELFTEST_CASES)`
+    #: while the rule-surface assertions ran uncounted -- a gate that
+    #: under-reports its own coverage is the same defect class as one that
+    #: skips a rule silently, and this file's other comments say so.
     failures = 0
+    checks = 0
+
+    def check(passed: bool, message: str) -> None:
+        nonlocal failures, checks
+        checks += 1
+        if not passed:
+            failures += 1
+            print(f"FAIL {message}", file=sys.stderr)
+
+    def raises(call: object, *args: object) -> bool:
+        try:
+            call(*args)  # type: ignore[operator]
+        except ValueError:
+            return True
+        return False
 
     # The extension point is a rule surface, so it gets tested like one.
     parsed = parse_extra_patterns(
         "# comment\n\n(?i)\\bwidget\\b\tproduct name\n", "<fixture>"
     )
-    if [error for error in lint("feat: ship the Widget", parsed) if "product name" in error] == []:
-        failures += 1
-        print("FAIL extra-patterns: loaded rule did not fire", file=sys.stderr)
-    if lint("feat: ship the thing", parsed):
-        failures += 1
-        print("FAIL extra-patterns: loaded rule over-matched", file=sys.stderr)
-    try:
-        parse_extra_patterns("no-tab-here\n", "<fixture>")
-    except ValueError:
-        pass
-    else:
-        failures += 1
-        print("FAIL extra-patterns: malformed line was accepted", file=sys.stderr)
+    check(
+        [e for e in lint("feat: ship the Widget", parsed) if "product name" in e] != [],
+        "extra-patterns: loaded rule did not fire",
+    )
+    check(
+        not lint("feat: ship the thing", parsed),
+        "extra-patterns: loaded rule over-matched",
+    )
+    check(
+        raises(parse_extra_patterns, "no-tab-here\n", "<fixture>"),
+        "extra-patterns: malformed line was accepted",
+    )
+
+    # The hashed rule surface, tested the same way. The fixture salt and word
+    # are local to this test, so the selftest never needs a real forbidden
+    # word to prove the mechanism works.
+    fixture_salt = "abcdef0123456789"
+    fixture_word = "widget"
+    fixture_digest = hashlib.sha256(
+        (fixture_salt + fixture_word).encode("utf-8")
+    ).hexdigest()
+    hashed = parse_forbidden_words(
+        f"# salt: {fixture_salt}\n# lengths-i: {len(fixture_word)}\n"
+        f"{fixture_digest}\tproduct name\n",
+        "<fixture>",
+    )
+    check(
+        hashed
+        == (fixture_salt, [len(fixture_word)], [], {fixture_digest: "product name"}),
+        "forbidden-words: parse produced the wrong table",
+    )
+
+    # A case-SENSITIVE entry must not fire on the same letters in another case.
+    # This is the property that keeps an all-caps marker from matching prose.
+    cased_word = "NOTPOSTED"
+    cased_digest = hashlib.sha256(
+        (fixture_salt + cased_word).encode("utf-8")
+    ).hexdigest()
+    cased = parse_forbidden_words(
+        f"# salt: {fixture_salt}\n# lengths-s: {len(cased_word)}\n"
+        f"{cased_digest}\tmarker\n",
+        "<fixture>",
+    )
+    check(
+        [e for e in lint("feat: NOTPOSTED yet", None, cased) if "marker" in e] != [],
+        "forbidden-words: case-sensitive entry did not fire on its exact form",
+    )
+    check(
+        not [e for e in lint("feat: notposted yet", None, cased) if "marker" in e],
+        "forbidden-words: case-sensitive entry fired on a different case",
+    )
+
+    # Fires on the bare word and on the word embedded in punctuation, a scope
+    # and a hyphenated compound -- the shapes the tokenizer exists for.
+    for probe in (
+        "feat: ship the Widget",
+        "feat: ship Widget, Inc. today",
+        "feat: bump @widget/verify",
+        "feat: bump widget-runtime",
+        "feat: rename mywidgetthing",
+    ):
+        hits = [e for e in lint(probe, None, hashed) if "product name" in e]
+        check(bool(hits), f"forbidden-words: no hit on {probe!r}")
+        # The report must never echo what it caught, or the failure message
+        # reproduces the string the rule exists to suppress.
+        check(
+            fixture_word not in " ".join(hits).lower(),
+            f"forbidden-words: the error echoed the forbidden word for {probe!r}",
+        )
+    check(
+        not lint("feat: ship the thing", None, hashed),
+        "forbidden-words: rule over-matched",
+    )
+    # A forbidden word glued inside a longer identifier MUST fire. This is the
+    # property that keeps the rule as wide as the case-insensitive substring
+    # search it replaces; a tokenizing check would let it through.
+    check(
+        [e for e in lint("feat: ship the widgets", None, hashed) if "product name" in e] != [],
+        "forbidden-words: missed the word inside a longer identifier",
+    )
+    # An absent sidecar means no rules, never a silent pass of a broken one.
+    check(
+        not lint("feat: ship the Widget", None, ("", [], [], {})),
+        "forbidden-words: empty table still fired",
+    )
+    for bad_text, why in (
+        (f"# salt: {fixture_salt}\n# lengths-i: 6\nnot-a-digest\tlabel\n", "non-digest accepted"),
+        (f"# lengths-i: 6\n{fixture_digest}\tlabel\n", "digests with no salt accepted"),
+        (f"# salt: {fixture_salt}\n{fixture_digest}\tlabel\n", "digests with no lengths accepted"),
+        (f"# salt: {fixture_salt}\n# lengths-i: zero\n{fixture_digest}\tlabel\n", "non-numeric lengths accepted"),
+        (f"# salt: {fixture_salt}\n", "salt with no digests accepted"),
+        (f"# salt: SHOUTY\n# lengths-i: 6\n{fixture_digest}\tlabel\n", "non-hex salt accepted"),
+        (f"# salt: {fixture_salt}\n# lengths-i: 6\n{fixture_digest} label\n", "missing tab accepted"),
+        (
+            f"# salt: {fixture_salt}\n# salt: {fixture_salt}\n# lengths-i: 6\n{fixture_digest}\tl\n",
+            "duplicate salt accepted",
+        ),
+    ):
+        check(
+            raises(parse_forbidden_words, bad_text, "<fixture>"),
+            f"forbidden-words: {why}",
+        )
+
     for message, expected in SELFTEST_CASES:
         errors = lint(message)
         label = message.splitlines()[0][:58] if message.strip() else "<empty>"
         if expected is None:
-            if errors:
-                failures += 1
-                print(f"FAIL expected-pass: {label!r} -> {errors}", file=sys.stderr)
+            check(not errors, f"expected-pass: {label!r} -> {errors}")
         else:
-            if not any(expected in error for error in errors):
-                failures += 1
-                print(
-                    f"FAIL expected {expected!r}: {label!r} -> {errors}",
-                    file=sys.stderr,
-                )
-    total = len(SELFTEST_CASES)
+            check(
+                any(expected in error for error in errors),
+                f"expected {expected!r}: {label!r} -> {errors}",
+            )
+
     if failures:
-        print(f"commit-msg selftest: {failures}/{total} cases FAILED", file=sys.stderr)
+        print(f"commit-msg selftest: {failures}/{checks} checks FAILED", file=sys.stderr)
         return 1
-    print(f"commit-msg selftest: {total}/{total} cases passed")
+    print(f"commit-msg selftest: {checks}/{checks} checks passed")
     return 0
 
 
 def check_range(rev_range: str) -> int:
     """Lint every commit message in a revision range (used by CI)."""
     extra = load_extra_patterns()
+    forbidden = load_forbidden_words()
     baseline = load_baseline()
     # `^<baseline>` drops everything the baseline already reaches, which is what
     # makes the gate effective-from rather than retroactive. It is passed to the
@@ -511,7 +780,7 @@ def check_range(rev_range: str) -> int:
             check=True,
         )
         message = shown.stdout.decode("utf-8", errors="surrogateescape")
-        errors = lint(message, extra)
+        errors = lint(message, extra, forbidden)
         if errors:
             bad += 1
             report(errors, f"commit {revision[:12]}")
@@ -541,7 +810,7 @@ def main(argv: list[str]) -> int:
     except OSError as exc:
         print(f"commit-msg: cannot read {path}: {exc}", file=sys.stderr)
         return 2
-    errors = lint(message, load_extra_patterns())
+    errors = lint(message, load_extra_patterns(), load_forbidden_words())
     if errors:
         report(errors, "the commit message")
         return 1

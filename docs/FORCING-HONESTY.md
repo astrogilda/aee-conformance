@@ -65,8 +65,8 @@ figure from a later corpus: one method, two corpora, two dates, and the appearan
 disagreement that was never there.
 
 It is reproducible now. `docs/PRIOR-FORCING.json` pins the earliest forcing baseline
-this repository carries (`63cdeb6ec9ec`, 590 sites) and the tree the original campaign
-recorded as the one it ran against (`f73b5d920403`, 179 vectors), and `--verify-prior`
+this repository carries (`c0191622375f`, 590 sites) and the tree the original campaign
+recorded as the one it ran against (`6e1a7c388bb2`, 179 vectors), and `--verify-prior`
 re-derives the projection from those two objects: **54 forced, 24 weak, 0 unforced
 across 78 conditions**, which is the quoted figure exactly. Every one of the seven
 numbers this page used to carry as a typed constant survives the reconstruction
@@ -266,7 +266,7 @@ python3 scripts/condition-forcing-gate.py --verify-prior   # needs a full clone
 python3 scripts/condition-forcing-crosscheck.py --with-prior
 
 # the rail at those two commits, which is why a moved rail explains nothing
-git diff --stat f73b5d920403 63cdeb6ec9ec -- aee/
+git diff --stat 6e1a7c388bb2 c0191622375f -- aee/
 
 # the data itself: re-run the campaign that produces docs/FORCING-BASELINE.json
 python3 scripts/forcing-gate.py --scope all --sync   # needs a Go toolchain

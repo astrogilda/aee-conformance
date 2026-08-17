@@ -8,4 +8,4 @@
 # This is not an allowlist and it does not grow. It names the point of
 # adoption. Every commit after it is checked, and the run prints the baseline it
 # used so the scope is visible rather than assumed.
-01d18339001e8608430c044a575b7711ecb9630a
+a87b34e03147cc02daf95112e382ee06bf332c70

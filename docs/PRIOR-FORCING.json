@@ -2,9 +2,9 @@
   "$comment": "The condition projection quoted before docs/FORCING-HONESTY.md existed, pinned to the git objects that reproduce it. `pins` is hand-authored and is the judgement in this file: `manifestCommit` is the commit the original campaign recorded as the tree it ran against, and `baselineCommit` is the earliest forcing baseline this repository carries, which is the later artifact the reconstruction reads the killer sets out of. `derived` is written by `scripts/condition-forcing-gate.py --sync-prior` and re-derived by `--verify-prior`, which reads both objects out of history and refuses anything but a match. The reconstruction restricts the baseline's killer sets to the vectors that existed at the pinned corpus, which is exact on the condition axis and says nothing about whether a dropped weakening was tolerated or ignored then. The original campaign's own per-site tables are not in this repository -- vectors/CHANGES.md says so under the revision that consumed them -- so this reconstruction, and not that campaign, is what a reader of this repository can check.",
   "pins": {
     "suiteRevision": 14,
-    "baselineCommit": "63cdeb6ec9ec4c1c56d3ccc87a88b84ea403a966",
+    "baselineCommit": "c0191622375fcd746d6beab0df0c552fbe672991",
     "baselineBlob": "ce722c8fe7e8aae779e5223f8b01098ee70c283b",
-    "manifestCommit": "f73b5d920403b3ee82419925aa1ecb0f2670d2be",
+    "manifestCommit": "6e1a7c388bb25953c955b80c4e30eae300f950f3",
     "manifestBlob": "517c59034bec1110920b0a5f990dcf10d9f836f8",
     "campaignNote": {
       "suiteRevision": 15,

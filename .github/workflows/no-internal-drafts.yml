@@ -1,13 +1,19 @@
 name: no-internal-drafts
 
-# Root-cause guard, added 2026-07-28 after an internal draft carrying a section headed
-# "Notes for the operator, not part of the submission" was committed to this public
-# repository, and an issue pointing an outside maintainer here was opened two hours later.
-# The notes held a competitive assessment of that maintainer by name.
+# Root-cause guard, added 2026-07-28 after an internal working note was committed to
+# this public repository, and an issue pointing an outside maintainer here was opened
+# two hours later. The note assessed that maintainer by name.
 #
 # Purging the file from history fixed one instance. This makes the class impossible:
 # the mistake was treating the public repo as a working directory because the artifact
 # under discussion lives here. Drafting notes belong in the private research tree.
+#
+# This header used to quote the offending heading verbatim, and the scan below used to
+# list every banned phrase in plain text and then exempt this file from its own check.
+# Both are gone. A guard that spells out what it forbids publishes it, and a guard
+# exempted from its own scan leaves the one file nobody checks as the one file that
+# names them. The banned strings are now salted digests in a sidecar, so this file is
+# scanned like any other and there is nothing in it to exempt.
 
 on:
   push:
@@ -20,17 +26,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Reject internal-only markers in tracked files
+      - name: Reject forbidden strings in tracked files
         run: |
-          # Phrases that only ever appear in material written for ourselves.
-          # Deliberately literal rather than clever: a reviewer must be able to read
-          # this list and know exactly what is banned.
-          PATTERNS='Notes for the operator|not part of the submission|operator-gated|NOT POSTED|NOT SENT|Held for review|Notes for the operator, not part of'
-          if git grep -nIE "$PATTERNS" -- . ':!.github/workflows/no-internal-drafts.yml'; then
-            echo "::error::A tracked file contains an internal-only marker. Drafting notes belong in the private research tree, never in this public repository."
+          # One scan covers both kinds that must never appear here: first-party
+          # product names, and the internal-only markers that identify a working
+          # note. Both were literal lists in this file until 2026-08-17; both are
+          # now salted digests in .githooks/commit-msg.forbidden-words, shared with
+          # the commit-msg hook so the message surface and the content surface
+          # cannot drift apart.
+          #
+          # The scan slides a window of each declared length over every lowercased
+          # line, which is the same reach as the case-insensitive substring search
+          # it replaces -- a name glued inside a longer identifier is still caught.
+          # It never prints what it matched: doing so would reproduce the string
+          # into this public Actions log, committing the leak in the failure report.
+          #
+          # Exit 2 means the rule list did not load. That is a failure, not a pass:
+          # a guard that could not read its rules has verified nothing, and
+          # reporting that as clean is how a check stops being a check.
+          python3 scripts/forbidden-word-scan.py
+          status=$?
+          if [ "$status" -eq 1 ]; then
+            echo "::error::A tracked file contains a forbidden string. Product names and drafting notes belong in the private research tree, never in this public repository."
+            exit 1
+          elif [ "$status" -ne 0 ]; then
+            echo "::error::The forbidden-string rule list failed to load; nothing was verified."
             exit 1
           fi
-          echo "no internal-only markers found"
 
       - name: Reject draft-named files
         run: |
@@ -41,25 +63,6 @@ jobs:
             exit 1
           fi
           echo "no DRAFT- files tracked"
-
-      - name: Reject first-party product names
-        run: |
-          # The repository is deliberately product-neutral: it is the link offered in
-          # standards correspondence and conference submissions, and the operator is in
-          # stealth. Names were purged from the forward surface on 2026-07-28.
-          #
-          # The bracket in each alternative is why this file no longer has to exempt
-          # itself. A guard that spells out what it forbids publishes the very strings
-          # it exists to keep out of a public tree, and then has to be excluded from
-          # its own scan -- so the one file nobody checks is the one that names them.
-          # `consumer-core` matches the word and is not the word, so the pattern can scan
-          # every tracked file including this one, and a reader still sees plainly
-          # what is being matched.
-          if git grep -nIiE 'consumer-core|consumer-runtime|consumer-site' -- .; then
-            echo "::error::A first-party product name is present. This repository must stay product-neutral."
-            exit 1
-          fi
-          echo "no product names found"
 
       - name: No tool-state directories on a public repo
         run: |

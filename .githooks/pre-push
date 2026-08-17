@@ -119,6 +119,30 @@ while read -r local_ref local_sha _remote_ref _remote_sha; do
 	*[!0]*) ;;
 	*) continue ;;
 	esac
+
+	# A TAG naming a commit that is already an ancestor of HEAD is not new code.
+	# It is a name for code that was gated when it landed, and re-gating it means
+	# demanding the gate exist in a revision that predates the gate -- which is
+	# exactly how a release tag becomes unpushable. That is not hypothetical: on
+	# 2026-08-17 a history rewrite made both release tags unrestorable, because
+	# v0.6.0 points at a 2026-08-01 commit and scripts/workflow-steps-gate.py did
+	# not exist yet. Deleting the tags to work around it left the repository with
+	# no releases at all.
+	#
+	# The narrowness is the point. A tag naming a commit that is NOT already an
+	# ancestor is new code arriving under a tag ref, and it is gated exactly as a
+	# branch would be. Only "this commit already passed on its way in" is skipped,
+	# and the reason is printed rather than assumed.
+	case "$local_ref" in
+	refs/tags/*)
+		tag_commit="$(git rev-parse -q --verify "${local_sha}^{commit}" 2>/dev/null)" || tag_commit=""
+		if [ -n "$tag_commit" ] && git merge-base --is-ancestor "$tag_commit" HEAD 2>/dev/null; then
+			echo "pre-push: $local_ref names $(printf '%.12s' "$tag_commit"), already an ancestor of HEAD; it was gated when it landed."
+			continue
+		fi
+		;;
+	esac
+
 	case " $pushed_shas " in
 	*" $local_sha "*) continue ;;
 	esac
@@ -152,7 +176,13 @@ fi
 # materialise and nothing to check. Running the gate anyway is what produced the
 # defect above: it would have to read some other tree to have anything to say.
 if [ -z "$pushed_shas" ]; then
-	echo "pre-push: all pushed refs are deletions; skipping the gate (no code to verify)."
+	# Two ways to get here and they are not the same fact, so they do not print
+	# the same sentence. A gate that says "deletions" about a tag push is a gate
+	# misdescribing why it passed, which is how a reader stops being able to tell
+	# a real pass from a vacuous one.
+	echo "pre-push: no revision to gate -- every pushed ref was either a deletion or a"
+	echo "pre-push: tag naming a commit already gated on its way in. Any line above names"
+	echo "pre-push: the tags and the commits they resolve to; a deletion names nothing."
 	exit 0
 fi
 

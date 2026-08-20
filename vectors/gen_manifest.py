@@ -345,6 +345,32 @@ def main() -> int:
         "tracksUpstream": f"{pin['upstreamRepo']}#{pin['upstreamPullRequest']}",
         "specUpstreamCommit": pin["commit"],
         "counts": {"accept": ok, "reject": bad, "indeterminate": undecided},
+        # What a second implementation is expected to agree with, and what it is
+        # NOT. This was promised in public, in in-toto/attestation#570, to the
+        # author of the independent checker while he was building it: the verdict
+        # and each accept's result token are the normative comparison surface, and
+        # the per-vector condition codes are informative. The reason is not
+        # modesty. The code set is this implementation's own vocabulary, so a
+        # second rail scored against it would be re-implementing these names
+        # rather than reading the specification, and the uniqueness question the
+        # two-implementation exercise exists to answer would be rigged in this
+        # suite's favour. The promise said "I declare in the manifest", and for a
+        # while the manifest did not; a commitment that lives only in a comment
+        # thread is one nobody downstream can check.
+        "comparisonSurface": {
+            "normative": ["verdict", "result"],
+            "informative": ["conditionCodes"],
+            "note": (
+                "A rail is conformant when its verdict, and for an accepted "
+                "statement its result token, match this manifest. Condition "
+                "codes are this implementation's vocabulary: report a free-form "
+                "reason per rejection and map it to these codes informatively if "
+                "that helps, but a differing code is not a failure. The "
+                "divergences worth finding are the ones where two rails reject "
+                "the same vector for different reasons, and scoring on codes "
+                "would hide exactly those."
+            ),
+        },
         # The one field in this file addressed to a reader outside this repository.
         # Everything else here describes the corpus to a harness that already has it;
         # this describes the corpus to a rail that has a DIFFERENT one and cannot

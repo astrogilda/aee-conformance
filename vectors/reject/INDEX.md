@@ -1,10 +1,10 @@
-# INVALID conformance vectors (adversarial-execution-evidence v0.6)
+# INVALID conformance vectors (adversarial-execution-evidence v0.7)
 
 This directory is the conformance suite's `vectors/reject/` layout.
 
 Ground truth: `spec/predicates/adversarial-execution-evidence.md` @
 `0dbe10b` (in-toto/attestation PR #570 branch),
-version 0.6.0, type URI
+version 0.7.0, type URI
 `https://in-toto.io/attestation/adversarial-execution-evidence/v0.7`.
 The commit is read from `spec/VENDOR-PIN.json`, which
 `scripts/vendor-spec.py` derives from git at vendor time, so this
@@ -304,7 +304,7 @@ so the declared fault stays the ONLY fault.
 | `bad-723-chain-scope-not-canonical` | ok-002 | arming payload gains aeeRunSeq: 1 with an aeeChainScope array whose tokens are not in canonical (UTF-16 code-unit) order | re-sign-record, recompute-batch-root | aee-c-89 | `arming-covers-nothing` | L1615-1619 |
 | `bad-724-artifact-ref-out-of-range` | ok-029 | an artifact row carries an observationRefs index out of range for observationRecords (fail-closed on any row, not only substrate rows) | - | aee-c-11 | `ref-out-of-range` | L552-553; L946-951 |
 | `bad-725-statement-duplicate-member` | ok-002 | raw statement bytes carrying a duplicate top-level predicateType member (the whole statement is parsed as strict I-JSON, not only record payloads) | - | aee-c-18 | `statement-malformed` | L100-106 |
-| `bad-801-wrong-predicatetype` | ok-002 | v0.5 predicateType URI on a v0.6-shaped statement | - | aee-c-77 | `predicate-type-unsupported` | L3; L317 |
+| `bad-801-wrong-predicatetype` | ok-002 | v0.5 predicateType URI on a v0.7-shaped statement | - | aee-c-77 | `predicate-type-unsupported` | L3; L317 |
 | `bad-802-missing-catchpolicy` | ok-007 | drop catchPolicy | - | aee-c-78 | `environment-incomplete` | L783-793 |
 | `bad-803-corpus-digest-mismatch` | ok-007 | corpus.digest is not the JCS digest of the embedded manifest | - | aee-c-79 | `corpus-digest-mismatch` | L787-791; L810-813 |
 | `bad-804-attackid-two-classes` | ok-033 | XA-EXAMPLE-1 appears under two manifest classes; corpus digest recomputed | recompute-corpus-digest | aee-c-80 | `manifest-duplicate-attack` | L789-791 |
@@ -460,7 +460,7 @@ so the declared fault stays the ONLY fault.
 - **bad-723-chain-scope-not-canonical**: canonical order is corpus < networkPosture < subject; the same canonicality rule as observationVocabulary.labels.
 - **bad-724-artifact-ref-out-of-range**: an out-of-range reference is a structural integrity fault on any row regardless of basis; a reference that does not resolve is never silently ignored. The second anchor is the sentence that quantifies the rule over every row rather than the schema line that introduces the member, and it is what this vector is written against: the substrate-row anchor alone reads as a duplicate of bad-102.
 - **bad-725-statement-duplicate-member**: rawStatement: the dict form cannot carry a duplicate member; a lenient parser keeps the last silently, so a duplicate anywhere in the statement is a malformed statement, fail-closed.
-- **bad-801-wrong-predicatetype**: a verifier MUST NOT process this as v0.6.
+- **bad-801-wrong-predicatetype**: a verifier MUST NOT process this as v0.7.
 - **bad-802-missing-catchpolicy**: artifact-only parent: no binding cascade; defeats the empty-vs-enforcing policy distinguishability.
 - **bad-803-corpus-digest-mismatch**: statement-side lie, vs bad-301's record-side splice.
 - **bad-804-attackid-two-classes**: artifact-only degraded parent avoids any binding cascade; coverage over the assessed class is unchanged.

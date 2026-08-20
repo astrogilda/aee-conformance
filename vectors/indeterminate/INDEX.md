@@ -1,4 +1,4 @@
-# INDETERMINATE conformance vectors (adversarial-execution-evidence v0.6)
+# INDETERMINATE conformance vectors (adversarial-execution-evidence v0.7)
 
 This directory is the conformance suite's `vectors/indeterminate/`
 layout. It carries the statements on which the specification settles
@@ -6,7 +6,7 @@ the VERDICT and does not settle the CONDITION.
 
 Ground truth: `spec/predicates/adversarial-execution-evidence.md` @
 `0dbe10b` (in-toto/attestation PR #570 branch),
-version 0.6.0, type URI
+version 0.7.0, type URI
 `https://in-toto.io/attestation/adversarial-execution-evidence/v0.7`.
 
 ## What an indeterminate vector claims

@@ -1914,9 +1914,9 @@ def _b801() -> dict[str, Any]:
 
 
 vec("bad-801-wrong-predicatetype", "ok-002",
-    "v0.5 predicateType URI on a v0.6-shaped statement", [], [77],
+    "v0.5 predicateType URI on a v0.7-shaped statement", [], [77],
     ["predicate-type-unsupported"], _b801, spec="L3; L317",
-    note="a verifier MUST NOT process this as v0.6")
+    note="a verifier MUST NOT process this as v0.7")
 
 
 def _drop_env(member: str) -> Callable[[], dict[str, Any]]:
@@ -4651,13 +4651,13 @@ def vendored_commit() -> str:
 
 def write_index() -> None:
     L: list[str] = []
-    L.append("# INVALID conformance vectors (adversarial-execution-evidence v0.6)")
+    L.append("# INVALID conformance vectors (adversarial-execution-evidence v0.7)")
     L.append("")
     L.append("This directory is the conformance suite's `vectors/reject/` layout.")
     L.append("")
     L.append("Ground truth: `spec/predicates/adversarial-execution-evidence.md` @")
     L.append(f"`{vendored_commit()}` (in-toto/attestation PR #570 branch),")
-    L.append("version 0.6.0, type URI")
+    L.append("version 0.7.0, type URI")
     L.append(f"`{PREDICATE_TYPE}`.")
     L.append("The commit is read from `spec/VENDOR-PIN.json`, which")
     L.append("`scripts/vendor-spec.py` derives from git at vendor time, so this")
@@ -4905,7 +4905,7 @@ def ind_family_check() -> None:
 def write_ind_index() -> None:
     L: list[str] = []
     L.append("# INDETERMINATE conformance vectors "
-             "(adversarial-execution-evidence v0.6)")
+             "(adversarial-execution-evidence v0.7)")
     L.append("")
     L.append("This directory is the conformance suite's `vectors/indeterminate/`")
     L.append("layout. It carries the statements on which the specification settles")
@@ -4913,7 +4913,7 @@ def write_ind_index() -> None:
     L.append("")
     L.append("Ground truth: `spec/predicates/adversarial-execution-evidence.md` @")
     L.append(f"`{vendored_commit()}` (in-toto/attestation PR #570 branch),")
-    L.append("version 0.6.0, type URI")
+    L.append("version 0.7.0, type URI")
     L.append(f"`{PREDICATE_TYPE}`.")
     L.append("")
     L.append("## What an indeterminate vector claims")

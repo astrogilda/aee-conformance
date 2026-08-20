@@ -1,7 +1,7 @@
-# AEE v0.6 conformance vectors: VALID (accept) set
+# AEE v0.7 conformance vectors: VALID (accept) set
 
 Each file in this directory is a complete, unwrapped in-toto Statement (no outer DSSE) for
-predicate type `https://in-toto.io/attestation/adversarial-execution-evidence/v0.6`
+predicate type `https://in-toto.io/attestation/adversarial-execution-evidence/v0.7`
 that a conforming verifier MUST accept: the statement is well-formed, every
 `basis: substrate` row satisfies the byte-checkable validity gate (refs resolve
 and are in range, referenced records class-match, every covering payload is

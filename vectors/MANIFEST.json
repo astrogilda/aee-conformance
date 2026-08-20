@@ -10,16 +10,6 @@
     "reject": 193,
     "indeterminate": 2
   },
-  "comparisonSurface": {
-    "normative": [
-      "verdict",
-      "result"
-    ],
-    "informative": [
-      "conditionCodes"
-    ],
-    "note": "A rail is conformant when its verdict, and for an accepted statement its result token, match this manifest. Condition codes are this implementation's vocabulary: report a free-form reason per rejection and map it to these codes informatively if that helps, but a differing code is not a failure. The divergences worth finding are the ones where two rails reject the same vector for different reasons, and scoring on codes would hide exactly those."
-  },
   "corpusDigest": "b5aa5fdb4a9320e037658b2877f048d5c3dd7351fd93701d3c4977d69ae7a579",
   "vectors": [
     {

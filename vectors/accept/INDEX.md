@@ -14,6 +14,14 @@ spec commit. Verdict for every vector here: **valid**; the per-row evidence tier
 (attested / unattested / declared) is trust-relative and never alters validity
 or `result`.
 
+That type URI does not resolve. The in-toto attestation catalog redirects the
+URIs of vetted predicates whose specification is merged, and this predicate is
+in review as `in-toto/attestation#570`, so a request for the URI returns 404.
+The URI identifies the predicate type, and dereferencing it is not part of
+verifying any vector here. Read the specification in the copy this repository
+carries, at
+[`spec/predicates/adversarial-execution-evidence.md`](../../spec/predicates/adversarial-execution-evidence.md).
+
 ## Determinism recipe
 
 Regenerate the set byte-identically with `python3 gen_valid_vectors.py`

@@ -10,6 +10,14 @@ The commit is read from `spec/VENDOR-PIN.json`, which
 `scripts/vendor-spec.py` derives from git at vendor time, so this
 line cannot name a revision the vendored bytes did not come from.
 
+That type URI does not resolve. The in-toto attestation catalog
+redirects the URIs of vetted predicates whose specification is
+merged, and this predicate is in review as the pull request named
+above, so a request for the URI returns 404. The URI identifies the
+predicate type, and dereferencing it is not part of verifying any
+vector here; read the specification in the vendored copy this
+repository carries at the path named above.
+
 `Lnnn` anchors below are line refs into the vendored copy, in the
 coordinate frame of the commit named above and no other. They are
 remapped onto the new line numbers whenever the spec is re-vendored,

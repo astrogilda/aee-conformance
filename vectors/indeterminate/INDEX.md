@@ -9,6 +9,14 @@ Ground truth: `spec/predicates/adversarial-execution-evidence.md` @
 version 0.7.0, type URI
 `https://in-toto.io/attestation/adversarial-execution-evidence/v0.7`.
 
+That type URI does not resolve. The in-toto attestation catalog
+redirects the URIs of vetted predicates whose specification is
+merged, and this predicate is in review as the pull request named
+above, so a request for the URI returns 404. The URI identifies the
+predicate type, and dereferencing it is not part of verifying any
+vector here; read the specification in the vendored copy this
+repository carries at the path named above.
+
 ## What an indeterminate vector claims
 
 The other two directories each make a claim every conformant verifier

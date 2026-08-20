@@ -13,6 +13,15 @@ is actually present here (they cite line numbers in this copy).
   [`scripts/vendor-spec.py`](../scripts/vendor-spec.py) from git at vendor time
   and is not maintained by hand.
 - **Version:** v0.7.0 (`https://in-toto.io/attestation/adversarial-execution-evidence/v0.7`).
+- **The type URI does not resolve.** The in-toto attestation catalog redirects
+  the URIs of vetted predicates whose specification is merged, and this
+  predicate is in review as `in-toto/attestation#570`, so a request for the URI
+  returns 404. That is the ordinary condition of a predicate at that stage: the
+  URI identifies the predicate type, and dereferencing it is not what makes a
+  statement conformant. Read the specification in the copy beside this file, at
+  [`predicates/adversarial-execution-evidence.md`](predicates/adversarial-execution-evidence.md).
+  The same holds for the `$id` in
+  [`witnessattestor/schema/aee-v0.7.schema.json`](../witnessattestor/schema/aee-v0.7.schema.json).
 - **Authority:** the canonical namespace is the in-toto attestation catalog.
   This repository is the reference implementation and conformance authority for
   that predicate, not a competing source of truth. On any normative change

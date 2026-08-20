@@ -345,6 +345,41 @@ def main() -> int:
         "tracksUpstream": f"{pin['upstreamRepo']}#{pin['upstreamPullRequest']}",
         "specUpstreamCommit": pin["commit"],
         "counts": {"accept": ok, "reject": bad, "indeterminate": undecided},
+        # WHAT A SECOND IMPLEMENTATION IS SCORED ON, stated because it was
+        # promised in public and the promise outran the file. In
+        # in-toto/attestation#570 the author of the independent checker was told,
+        # while he was building it, that this manifest declares the verdict and
+        # each accepted statement's result token to be the normative comparison
+        # surface, and the per-vector condition codes informative. It declared
+        # nothing of the kind, and a commitment that lives only in a comment
+        # thread is one nobody downstream can check.
+        #
+        # The wording matters, because a flat "codes are informative" is refuted
+        # by this file's own data: `expected.codes` is carried on every reject
+        # entry. Those are what the reference verifier emits, published so a
+        # second rail can MEASURE agreement rather than be failed on it. That is
+        # exactly what the independent checker does, reporting full conformance
+        # alongside reason parity as a separate figure.
+        #
+        # Scoring a second rail on this vocabulary would make it re-implement
+        # these spellings instead of reading the specification, and would hide
+        # the divergences the exercise exists to find: the statements two rails
+        # both reject for different reasons.
+        "comparisonSurface": {
+            "normative": ["verdict", "result"],
+            "measured": ["codes"],
+            "note": (
+                "A rail conforms when its verdict, and for an accepted statement "
+                "its result token, match this manifest. The codes on a reject "
+                "entry are the reference verifier's own vocabulary, not the "
+                "specification's: a rail names a reason from whatever set it "
+                "declares, and a differing code is a reason-parity datum rather "
+                "than a failure. Report that parity as its own figure. The "
+                "divergences worth finding are the statements two rails both "
+                "reject for different reasons, and scoring on codes would hide "
+                "exactly those."
+            ),
+        },
         # The one field in this file addressed to a reader outside this repository.
         # Everything else here describes the corpus to a harness that already has it;
         # this describes the corpus to a rail that has a DIFFERENT one and cannot

@@ -271,8 +271,11 @@ directed 232/232 is not evidence about the determinacy of the text, and the blin
    and the vendored-set cell for each rail in the table above, is checked by
    `scripts/consumer-lag-gate.py` against `vectors/CONSUMERS.json`, whose one row
    per rail is filled from that rail's own vendor stamp; the gate fails when a row
-   is not the corpus published here and fails again when these sentences are not
-   the corpus it just measured. It is checked because it was wrong: written at
+   is not the corpus this repository's default branch publishes, and fails again
+   when these sentences are not the corpus it just measured. The default branch and
+   not the branch being checked, because that is the only corpus a rail in another
+   repository can fetch: a change here creates its obligation on the rails when it
+   lands, not while it is a branch nobody could vendor. It is checked because it was wrong: written at
    suiteRevision 6 and still claiming 153 vectors at suiteRevision 14, while the
    corpus moved through eight revisions and both copies were re-vendored to
    follow it, and nothing anywhere disagreed. The count of rails named in the

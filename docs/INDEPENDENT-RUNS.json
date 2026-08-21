@@ -411,10 +411,12 @@
       "note": "the run against the current corpus, and the only one in this ledger posted as a thread comment rather than as a run report in the checker's own provenance index. The suite commit resolves here and its manifest carries 250 vectors partitioned exactly as posted, 55 accept, 193 reject and 2 indeterminate, under corpusDigest b5aa5fdb and vendored spec digest 759d2383, both identical to the values at the head of this repository. The run is directed on its author's own opening words, 'Repinned and implemented first, then measured your open question' -- the checker was brought to this revision before it was measured, so the figure says the revision-25 text is implementable from it, not that an unaided reader arrived at it. The indeterminate 2/2 is stated in the prose but is not bound as a figure here, because '2/2' occurs in both publishing documents for unrelated reasons and a count over it would assert nothing about this run. The commit no ref reached is now held by the annotated tag cited/5019931, so a reproducer can fetch it from a clone."
     }
   ],
+  "quotedWordingComment": "The author's wording, transcribed once and checked verbatim wherever this repository says it carries it. Where a document carries a shorter cut of a longer sentence, both rows name the same utterance, and the gate requires every excerpt of an utterance to be a contiguous substring of the fullest form recorded of it -- that is what stops one document carrying a paraphrase that reads like a quotation of the same sentence. utterance names the sentence, not the run: one run's author can say more than one thing, so grouping on about would require two unrelated quotations from one run to contain each other. A row that is the only excerpt of its utterance is checked by the verbatim rule alone, because with one excerpt on record there is no second reading to disagree with.",
   "quotedWording": [
     {
       "text": "This one is directed, and more so than revision 2 was: the rule was written and the vectors named before this checker ran, so what it demonstrates is that the corrected rule is implementable from the text, not that an independent reader found it.",
       "about": 6,
+      "utterance": "the round-8 characterisation of the revision-6 run as directed",
       "carriedIn": [
         "README.md"
       ]
@@ -422,9 +424,19 @@
     {
       "text": "the rule was written and the vectors named before this checker ran, so what it demonstrates is that the corrected rule is implementable from the text, not that an independent reader found it.",
       "about": 6,
+      "utterance": "the round-8 characterisation of the revision-6 run as directed",
       "carriedIn": [
         "docs/IMPLEMENTATION-REPORT.md",
         "vectors/CHANGES.md"
+      ]
+    },
+    {
+      "text": "Repinned and implemented first, then measured your open question.",
+      "about": 25,
+      "utterance": "the opening words of the 2026-08-12 thread comment posting the revision-25 run",
+      "carriedIn": [
+        "README.md",
+        "docs/IMPLEMENTATION-REPORT.md"
       ]
     }
   ]

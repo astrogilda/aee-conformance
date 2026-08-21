@@ -203,9 +203,23 @@ def manifest_has_no_vectors(manifest: Path, _i: Path, _b: Path,
 
 
 def index_table_renamed(_m: Path, index: Path, _b: Path, _c: Path) -> None:
-    """A parse that sees no rows reports every anchor present. Refuse it."""
+    """A parse that sees no rows reports every anchor present. Refuse it.
+
+    Every row has to break, and the break is keyed on the row's SHAPE rather
+    than on an id prefix. This rewrote the literal ``| `bad-``, which was every
+    row for as long as every refusal was named ``bad-NNN``. It stopped being
+    every row when ``vate-`` refusals shipped: three rows survived, the parse
+    returned them instead of nothing, the guard under test never fired, and the
+    gate answered with the missing anchors of the rows that had been broken --
+    a refusal, so the case still looked like a refusal, but not this one's. A
+    case that asserts a specific fault has to reach that fault, and keying on
+    the shape means the next id prefix cannot quietly walk out from under it.
+    """
     text = index.read_text(encoding="utf-8")
-    index.write_text(text.replace("| `bad-", "| BAD "), encoding="utf-8")
+    index.write_text(
+        re.sub(r"^\|\s*`([^`]+)`", r"| BROKEN \1", text, flags=re.MULTILINE),
+        encoding="utf-8",
+    )
 
 
 def baseline_absent(_m: Path, _i: Path, baseline: Path, _c: Path) -> None:

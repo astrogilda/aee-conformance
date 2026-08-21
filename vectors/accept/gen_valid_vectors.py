@@ -115,10 +115,19 @@ PREIMAGES: dict[str, Any] = {
     "network-posture": {"exampleNetworkPosture": {"posture": "sinkhole"}},
     "run-entropy": "example-run-start-checkpoint/v1",
     "unchecked-binding": "example-unchecked-binding/v1",
+    # A second admission receipt and a second runtime image. Both exist only so
+    # that a vector can ask what the run binding does when one of its inputs
+    # names a different identity, and both are derived from a published
+    # one-line preimage exactly as every other digest here is, so a reader
+    # re-derives them rather than trusting a constant somebody typed.
+    "second-admission-receipt": "example-second-admission-receipt/v1",
+    "second-runtime-image": "example-second-runtime-image/v1",
 }
 
 SUBJECT_DIGEST = sha256_hex(PREIMAGES["subject"].encode())
 SUBSTRATE_DIGEST = sha256_hex(PREIMAGES["substrate"].encode())
+SECOND_RECEIPT_DIGEST = sha256_hex(PREIMAGES["second-admission-receipt"].encode())
+SECOND_RUNTIME_DIGEST = sha256_hex(PREIMAGES["second-runtime-image"].encode())
 CATCH_POLICY_DIGEST = sha256_hex(jcs(PREIMAGES["catch-policy"]))
 POSTURE_DIGEST = sha256_hex(jcs(PREIMAGES["network-posture"]))
 RUN_ENTROPY_DIGEST = sha256_hex(PREIMAGES["run-entropy"].encode())
@@ -168,6 +177,8 @@ def run_binding(
     labels: list[str] | None = None,
     caught: list[str] | None = None,
     posture: dict[str, Any] | None = None,
+    subject: str | None = None,
+    substrate: str | None = None,
 ) -> str:
     """The version-2 run binding: eight ASCII members in JCS order.
 
@@ -176,6 +187,13 @@ def run_binding(
     caught set narrowed after the run derives a binding no record carries.
     ``networkPosture`` is the JCS digest of the carried posture OBJECT, so the
     posture string travels inside the signature that used to sit beside it.
+
+    ``subject`` and ``substrate`` default to this suite's constants and are
+    parameters rather than constants for one reason: a vector that means to ask
+    what the binding does when one of those two inputs is a different identity
+    has to derive the binding over that identity, and the alternative is a
+    second copy of this pre-image somewhere else. Two copies of a pre-image
+    diverge, and the divergence is invisible until a rail disagrees.
     """
     labels = DEFAULT_LABELS if labels is None else labels
     caught = DEFAULT_CAUGHT if caught is None else caught
@@ -186,8 +204,8 @@ def run_binding(
         "networkPosture": sha256_hex(jcs(DEFAULT_POSTURE if posture is None else posture)),
         "observationVocabulary": vocab_digest(labels, caught),
         "runEntropy": RUN_ENTROPY_DIGEST,
-        "subject": SUBJECT_DIGEST,
-        "substrate": SUBSTRATE_DIGEST,
+        "subject": SUBJECT_DIGEST if subject is None else subject,
+        "substrate": SUBSTRATE_DIGEST if substrate is None else substrate,
     }
     return sha256_hex(jcs(pre))
 
@@ -435,12 +453,16 @@ def make_statement(  # noqa: C901 -- one guarded branch per independent option f
     predicate_extra: dict[str, Any] | None = None,
     binding_for_root: str | None = None,
     posture: dict[str, Any] | None = None,
+    subject: dict[str, Any] | None = None,
+    substrate: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     labels = DEFAULT_LABELS if labels is None else labels
     caught = DEFAULT_CAUGHT if caught is None else caught
     corpus = corpus_obj(manifest)
     env = {
-        "substrate": {
+        "substrate": substrate
+        if substrate is not None
+        else {
             "name": "example-substrate-image",
             "digest": {"sha256": SUBSTRATE_DIGEST},
         },
@@ -511,7 +533,11 @@ def make_statement(  # noqa: C901 -- one guarded branch per independent option f
 
     return {
         "_type": STATEMENT_TYPE,
-        "subject": [{"name": SUBJECT_NAME, "digest": {"sha256": SUBJECT_DIGEST}}],
+        "subject": [
+            subject
+            if subject is not None
+            else {"name": SUBJECT_NAME, "digest": {"sha256": SUBJECT_DIGEST}}
+        ],
         "predicateType": PREDICATE_TYPE,
         "predicate": predicate,
     }
@@ -1745,6 +1771,170 @@ def build_vectors() -> dict[str, dict[str, Any]]:
         ],
     )
 
+    # -----------------------------------------------------------------------
+    # vate-* : what this predicate deliberately does NOT read across an
+    # external admission boundary.
+    #
+    # Provenance, stated once and carried in accept/INDEX.md and
+    # reject/INDEX.md beside every one of these vectors. They were prompted by
+    # three conformance cases from the Verifiable Agent Trust Envelope (VATE)
+    # discussion draft, read at VATE commit
+    # ce00121d7bd658c7a1fcd861b386ea9ea7ce66be, corpus
+    # VATE-AL2-Verifier-Admission-v0.3, corpus digest
+    # sha-256:0eb1969ea3763e0fec123de5ea0dacb225eb48a28d76866bbec56dc61d16cf8f:
+    #
+    #   post-execution-admission-digest-mismatch                  -> vate-1*
+    #   post-execution-effective-constraints-aggregate-exceeded   -> vate-2*
+    #   post-execution-runtime-mismatch                           -> vate-3*
+    #
+    # These are AEE-native boundary vectors prompted by those cases. They are
+    # NOT VATE conformance results, they carry no VATE verdict, and no vector
+    # here is evidence about any VATE implementation. Every expectation below
+    # is this predicate's own, decided by this suite's own rails.
+    #
+    # The accepts are the load-bearing half. Each carries exactly the fault its
+    # case is about and is VALID anyway, because the recompute reads the rows,
+    # the carried vocabulary and the coverage maps and nothing else. An accept
+    # that pins what a predicate declines to read is a negative pin, and it is
+    # a more precise statement of a boundary than any sentence.
+
+    # vate-1b the record carries an admission digest that disagrees with the
+    # subject the statement declares. Neither member is read: the digest is
+    # producer vocabulary inside a covering payload, and the subject is read
+    # only as a binding input. Valid, pass.
+    v["vate-1b-carried-admission-digest-unread"] = make_statement(
+        man_1,
+        [
+            make_row(
+                "XA-EXAMPLE-1", "no_egress", "substrate", "intercepted", "none", [0, 1]
+            )
+        ],
+        records=[
+            make_record(
+                "arming",
+                b_1,
+                extra={
+                    "vateAdmissionDigest": SECOND_RECEIPT_DIGEST,
+                    "vateAdmissionRef": "urn:example:vate:admission-receipt/1",
+                },
+            ),
+            make_record("sealed", b_1),
+        ],
+    )
+
+    # vate-1d the price of the case-1 anti-splice, paid in full. The admission
+    # receipt is the SOLE subject, so the binding genuinely covers the
+    # admission identity and a record signed under another receipt cannot be
+    # presented here (that is vate-1a). The predicate requires exactly one
+    # subject entry, and the binding reads only the first, so buying that
+    # anti-splice DISPLACES the executed artifact rather than adding to it:
+    # this statement is valid, recomputes pass, and names no executed artifact
+    # anywhere. A consumer learns which admission the run happened under and
+    # cannot learn what was run.
+    b_receipt = run_binding(sha256_hex(jcs(man_1)), subject=SECOND_RECEIPT_DIGEST)
+    v["vate-1d-admission-receipt-as-sole-subject"] = make_statement(
+        man_1,
+        [
+            make_row(
+                "XA-EXAMPLE-1", "no_egress", "substrate", "intercepted", "none", [0, 1]
+            )
+        ],
+        records=[
+            make_record("arming", b_receipt),
+            make_record("sealed", b_receipt),
+        ],
+        subject={
+            "name": "example-admission-receipt",
+            "digest": {"sha256": SECOND_RECEIPT_DIGEST},
+        },
+    )
+
+    # vate-2a two clean rows whose carried side-effect amounts are each below
+    # the carried maximum and whose total exceeds it. No row carries a
+    # quantity, the composition law is a minimum over three booleans, and there
+    # is nothing to aggregate: valid, pass. The amounts travel on ONE arming
+    # record rather than two, because two records with identical payloads are
+    # duplicates and would be refused before the statement could say anything
+    # about aggregation.
+    v["vate-2a-aggregate-overrun-unread"] = make_statement(
+        man_2,
+        [
+            make_row(
+                "XA-EXAMPLE-1", "no_egress", "substrate", "intercepted", "none", [0, 1]
+            ),
+            make_row(
+                "XA-EXAMPLE-2", "no_egress", "substrate", "intercepted", "none", [0, 1]
+            ),
+        ],
+        records=[
+            make_record(
+                "arming",
+                b_2,
+                extra={
+                    "vateEffectiveMaxAmount": {"currency": "USD", "value": "100.00"},
+                    "vateSideEffectAmounts": [
+                        {"currency": "USD", "value": "60.00"},
+                        {"currency": "USD", "value": "60.00"},
+                    ],
+                },
+            ),
+            make_record("sealed", b_2),
+        ],
+    )
+
+    # vate-3b an admitted runtime and an observed runtime that differ, declared
+    # side by side on the arming record. A statement carries exactly one
+    # observationEnvironment, so there is no second runtime for any rule to
+    # compare against, and both members are producer vocabulary. Valid, pass.
+    v["vate-3b-admitted-vs-observed-runtime-unread"] = make_statement(
+        man_1,
+        [
+            make_row(
+                "XA-EXAMPLE-1", "no_egress", "substrate", "intercepted", "none", [0, 1]
+            )
+        ],
+        records=[
+            make_record(
+                "arming",
+                b_1,
+                extra={
+                    "vateAdmittedRuntime": "urn:example:runtime/admitted-image@v1",
+                    "vateObservedRuntime": "urn:example:runtime/observed-image@v2",
+                },
+            ),
+            make_record("sealed", b_1),
+        ],
+    )
+
+    # vate-3c the vector that bounds vate-1a and vate-3a, and the reason it is
+    # here is that it refutes the strongest reading of both. The whole run is
+    # re-derived under the substituted runtime identity: the binding is
+    # recomputed over the second substrate and every record is signed under it.
+    # Nothing is spliced, so nothing is detected, and the statement is valid
+    # and recomputes pass. The binding is anti-splice and explicitly not
+    # anti-forge, so vate-1a and vate-3a establish that records were not MOVED,
+    # never that the identity they name is the true one. That separation
+    # belongs to the substrate key and the evidence tier.
+    b_other_runtime = run_binding(
+        sha256_hex(jcs(man_1)), substrate=SECOND_RUNTIME_DIGEST
+    )
+    v["vate-3c-substrate-substituted-and-resigned"] = make_statement(
+        man_1,
+        [
+            make_row(
+                "XA-EXAMPLE-1", "no_egress", "substrate", "intercepted", "none", [0, 1]
+            )
+        ],
+        records=[
+            make_record("arming", b_other_runtime),
+            make_record("sealed", b_other_runtime),
+        ],
+        substrate={
+            "name": "example-substrate-image",
+            "digest": {"sha256": SECOND_RUNTIME_DIGEST},
+        },
+    )
+
     return v
 
 
@@ -2104,7 +2294,7 @@ def committed_count() -> int:
     so that a file nothing writes is visible as an absence rather than as bytes
     left over from the copy.
     """
-    return len(list(OUT_DIR.glob("ok-*.json")))
+    return len(list(OUT_DIR.glob("ok-*.json"))) + len(list(OUT_DIR.glob("vate-*.json")))
 
 
 def main() -> int:

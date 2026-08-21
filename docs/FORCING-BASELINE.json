@@ -198,7 +198,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "commitments.go::attackIDArrayOK::RET_TRUE::19921ccfad14": {
@@ -287,7 +292,12 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "commitments.go::attributionBindings::IF_OFF::0b93b4b9837d": {
@@ -369,7 +379,12 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "commitments.go::attributionBindings::IF_OFF::b0fa48903492": {
@@ -698,7 +713,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "commitments.go::interceptionsOrphaned::IF_CONJ::e7a557d2b298": {
@@ -903,7 +923,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "commitments.go::observedSetDigest::IF_OFF::ac101107881e": {
@@ -1045,7 +1070,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "commitments.go::recordKinds::IF_OFF::89f00348f2ae": {
@@ -1099,7 +1129,12 @@
         "ok-043-posture-producer-member-bound",
         "ok-045-mixed-clean-rows-indirect",
         "ok-050-registered-noncovering-kinds",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "commitments.go::rowResolves::IF_CONJ::e7a557d2b298": {
@@ -1197,7 +1232,12 @@
         "ok-043-posture-producer-member-bound",
         "ok-045-mixed-clean-rows-indirect",
         "ok-050-registered-noncovering-kinds",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "commitments.go::sealNamedAttacksCaught::IF_DISJ::1d1f550a6ec2": {
@@ -1308,7 +1348,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "commitments.go::sealedRecordPresent::IF_OFF::6857830f9110": {
@@ -1418,7 +1463,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "commitments.go::sealsCommitToCarriedSet::IF_OFF::b8f9040fd3a9": {
@@ -1529,7 +1579,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "jcs.go::appendCanonical::CASE_DEL::50e0130ff584": {
@@ -1730,7 +1785,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "jcs.go::appendCanonical::CASE_DEL::7be2de92303f": {
@@ -1813,7 +1875,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "jcs.go::appendCanonical::CASE_DEL::8e5835cd2f78": {
@@ -2018,7 +2085,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "jcs.go::appendCanonical::IF_OFF::25c8dd2a8a3d": {
@@ -2097,7 +2171,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "jcs.go::appendCanonical::IF_OFF::29eae6805a4e": {
@@ -2128,7 +2207,8 @@
         "ok-045-mixed-clean-rows-indirect",
         "ok-046-seal-attacks-lower-bound",
         "ok-052-liveness-probe-per-channel",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "vate-2a-aggregate-overrun-unread"
       ]
     },
     "jcs.go::appendCanonical::IF_OFF::510b306923b4#2": {
@@ -2256,7 +2336,12 @@
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
-        "ok-900-fail-outranks-degraded"
+        "ok-900-fail-outranks-degraded",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "jcs.go::appendCanonical::IF_OFF::8983daf75923": {
@@ -2681,7 +2766,15 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1c-two-subjects-artifact-and-admission",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "jcs.go::checkStringLiteral::CASE_OFF::c7dd5001c174": {
@@ -2979,7 +3072,15 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1c-two-subjects-artifact-and-admission",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "jcs.go::decodeValue::CASE_DEL::0926bb681f57": {
@@ -3180,7 +3281,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "jcs.go::decodeValue::CASE_DEL::4df6fc1fa03e": {
@@ -3382,7 +3490,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "jcs.go::decodeValue::CASE_DEL::5ecd4151cae3": {
@@ -3591,7 +3706,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "jcs.go::decodeValue::IF_OFF::1a4f511ae284": {
@@ -3897,7 +4019,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "jcs.go::hex4::CASE_CONJ::5ceb1787ecf2": {
@@ -4156,7 +4283,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "jcs.go::isBMPOnly::RET_TRUE::19921ccfad14": {
@@ -4408,7 +4542,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "jcs.go::utf16Less::IF_OFF::ec29b9fa86a3": {
@@ -4608,7 +4749,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "jcs.go::utf16Less::RET_FALSE::a6e5b2d719f4": {
@@ -4743,7 +4891,12 @@
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
-        "ok-900-fail-outranks-degraded"
+        "ok-900-fail-outranks-degraded",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "jcs.go::utf16Less::RET_TRUE::a6e5b2d719f4": {
@@ -4928,7 +5081,14 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "pae.go::IsLowerHex64::IF_CONJ::fe2f6ba914f2": {
@@ -5101,7 +5261,14 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "pae.go::IsLowerHex64::IF_OFF::e0253f47e6df": {
@@ -5289,7 +5456,14 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "pae.go::IsLowerHex64::RET_TRUE::19921ccfad14": {
@@ -5428,7 +5602,12 @@
         "ok-043-posture-producer-member-bound",
         "ok-044-clean-artifact-intercepted-indirect",
         "ok-045-mixed-clean-rows-indirect",
-        "ok-050-registered-noncovering-kinds"
+        "ok-050-registered-noncovering-kinds",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "recompute.go::Recompute::IF_OFF::f2ffa96c26d6": {
@@ -5828,7 +6007,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "runbinding.go::posturePreimageDigest::IF_DISJ::4f640f451538": {
@@ -5902,7 +6086,8 @@
       "snippet": "appendCode(codes, CodeSubjectCardinality)",
       "killers": [
         "bad-607-two-subjects-substrate",
-        "bad-728-artifact-two-subjects"
+        "bad-728-artifact-two-subjects",
+        "vate-1c-two-subjects-artifact-and-admission"
       ]
     },
     "statement.go::Gate0::CODE_OFF::603bad3b9011": {
@@ -6142,7 +6327,14 @@
         "ok-045-mixed-clean-rows-indirect",
         "ok-050-registered-noncovering-kinds",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "statement.go::Gate0::IF_CONJ::46a2398232c6": {
@@ -6411,7 +6603,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "statement.go::Gate0::IF_CONJ::d2954bf1448c": {
@@ -6636,7 +6835,8 @@
       "snippet": "if len(s.Subject) != 1 { codes = appendCode(codes, CodeSubjectCardinality) }",
       "killers": [
         "bad-607-two-subjects-substrate",
-        "bad-728-artifact-two-subjects"
+        "bad-728-artifact-two-subjects",
+        "vate-1c-two-subjects-artifact-and-admission"
       ]
     },
     "statement.go::appendStringArray::IF_OFF::510b306923b4": {
@@ -6831,7 +7031,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "statement.go::containsVocabularyCodes::CASE_DEL::10b1222d9850": {
@@ -7242,7 +7449,14 @@
         "ok-050-registered-noncovering-kinds",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "statement.go::gate0ExpectedPayloads::IF_OFF::ae7550454949": {
@@ -7460,7 +7674,14 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "statement.go::gate0SubstrateBindingInputs::IF_CONJ::d0d077a93799": {
@@ -7782,7 +8003,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "statement.go::gate0Vocabulary::IF_OFF::58c3ae9ef68c": {
@@ -7927,7 +8155,9 @@
         "ok-019-wrong-keyid-sig-verifies",
         "ok-023-no-tofu-embedded-key",
         "ok-024-mixed-basis-rows",
-        "ok-045-mixed-clean-rows-indirect"
+        "ok-045-mixed-clean-rows-indirect",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-3a-substrate-substituted-splice"
       ]
     },
     "statement.go::hasSubstrateRows::RET_FALSE::7e4fe8351c22": {
@@ -8036,7 +8266,9 @@
         "ok-019-wrong-keyid-sig-verifies",
         "ok-023-no-tofu-embedded-key",
         "ok-024-mixed-basis-rows",
-        "ok-045-mixed-clean-rows-indirect"
+        "ok-045-mixed-clean-rows-indirect",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-3a-substrate-substituted-splice"
       ]
     },
     "statement.go::hasSubstrateRows::RET_TRUE::19921ccfad14": {
@@ -8154,7 +8386,12 @@
         "ok-043-posture-producer-member-bound",
         "ok-045-mixed-clean-rows-indirect",
         "ok-050-registered-noncovering-kinds",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "statement.go::isCleanLabel::RET_FALSE::179902c37185": {
@@ -8204,7 +8441,14 @@
         "ok-043-posture-producer-member-bound",
         "ok-045-mixed-clean-rows-indirect",
         "ok-050-registered-noncovering-kinds",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "statement.go::isCleanLabel::RET_TRUE::179902c37185": {
@@ -8475,7 +8719,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "statement.go::isResultToken::RET_TRUE::12c2fe7a8f4d": {
@@ -8687,7 +8938,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "statement.go::isSortedNoDuplicates::RET_TRUE::19921ccfad14": {
@@ -8923,7 +9181,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "statement.go::sameStringSet::RET_TRUE::19921ccfad14": {
@@ -9139,7 +9404,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "statement.go::vocabularyStringsBMPOnly::RET_TRUE::19921ccfad14": {
@@ -9220,7 +9492,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "tier.go::(recv).DeriveTiers::IF_OFF::26cedc484876": {
@@ -9277,7 +9554,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "tier.go::(recv).DeriveTiers::IF_OFF::721c82cea962": {
@@ -9444,7 +9726,9 @@
         "ok-020-non-pae-signature",
         "ok-023-no-tofu-embedded-key",
         "ok-024-mixed-basis-rows",
-        "ok-045-mixed-clean-rows-indirect"
+        "ok-045-mixed-clean-rows-indirect",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-3a-substrate-substituted-splice"
       ]
     },
     "types.go::(recv).IsSubstrate::RET_TRUE::8b95bf3b2317": {
@@ -9727,7 +10011,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::(recv).UnmarshalJSON::IF_OFF::a76e94a6d100": {
@@ -9782,7 +10073,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::(recv).UnmarshalJSON::IF_OFF::e7a59f8c651b": {
@@ -9981,7 +10277,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::(recv).UnmarshalJSON::IF_OFF::fc812eb98596": {
@@ -10214,7 +10517,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::ParseStatement::IF_OFF::471224397617": {
@@ -10421,7 +10731,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::ParseStatement::IF_OFF::da04b00201ac": {
@@ -10662,7 +10979,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::decodeManifest::IF_OFF::e52d8fe5f596": {
@@ -10874,7 +11198,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::decodeManifest::RET_TRUE::35f1da5ed784": {
@@ -11032,7 +11363,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::isJSONObject::RET_TRUE::0e032dfcf99d": {
@@ -11282,7 +11618,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::parseEnvironment::IF_OFF::1bee6e2c2649": {
@@ -11489,7 +11832,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::parseEnvironment::IF_OFF::3299f6ee18c5": {
@@ -11711,7 +12061,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::parseEnvironment::IF_OFF::891412a7798d": {
@@ -11905,7 +12262,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::parseEnvironment::IF_OFF::b1fadcbf87fa": {
@@ -12084,7 +12448,14 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::parseEnvironment::IF_OFF::b70164081046": {
@@ -12303,7 +12674,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::parseEnvironment::IF_OFF::f5408fe2295c": {
@@ -12510,7 +12888,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::parsePredicate::CODE_OFF::0aef97156261": {
@@ -12733,7 +13118,14 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::parsePredicate::IF_OFF::354040a2f0b5": {
@@ -12947,7 +13339,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::parsePredicate::IF_OFF::66315795fc45": {
@@ -13148,7 +13547,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::parsePredicate::IF_OFF::67ec8d1edcb9": {
@@ -13356,7 +13762,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::parsePredicate::IF_OFF::a7175a90c64b": {
@@ -13550,7 +13963,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::parsePredicate::IF_OFF::ba4561a2d43f": {
@@ -13775,7 +14195,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::parsePredicate::IF_OFF::c14197ec7269": {
@@ -13846,7 +14273,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::parsePredicate::IF_OFF::f573bee95773": {
@@ -13980,7 +14412,14 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::parseRow::IF_OFF::91704092c29d": {
@@ -14174,7 +14613,14 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::parseRow::IF_OFF::c09bb6e313a7": {
@@ -14266,7 +14712,14 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "types.go::parseRow::IF_OFF::cd5643b515d3": {
@@ -14320,7 +14773,9 @@
         "bad-303-binding-version-1",
         "bad-305-posture-swapped",
         "bad-306-vocabulary-caught-narrowed",
-        "bad-307-posture-member-added-after-arming"
+        "bad-307-posture-member-added-after-arming",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-3a-substrate-substituted-splice"
       ]
     },
     "validity.go::analyzePayload::CODE_OFF::d6fb5da84955": {
@@ -14417,7 +14872,9 @@
         "bad-303-binding-version-1",
         "bad-305-posture-swapped",
         "bad-306-vocabulary-caught-narrowed",
-        "bad-307-posture-member-added-after-arming"
+        "bad-307-posture-member-added-after-arming",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-3a-substrate-substituted-splice"
       ]
     },
     "validity.go::analyzePayload::IF_OFF::b98bd6b09b1c": {
@@ -14531,7 +14988,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "validity.go::anyRecordSignaturesEmpty::IF_OFF::47629c64c732": {
@@ -14602,7 +15064,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "validity.go::armingChainSyntaxValid::IF_DISJ::14ccc6cf80ec": {
@@ -14648,7 +15115,12 @@
         "ok-043-posture-producer-member-bound",
         "ok-045-mixed-clean-rows-indirect",
         "ok-050-registered-noncovering-kinds",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "validity.go::armingChainSyntaxValid::IF_OFF::29432fc74d18": {
@@ -14730,7 +15202,12 @@
         "ok-043-posture-producer-member-bound",
         "ok-045-mixed-clean-rows-indirect",
         "ok-050-registered-noncovering-kinds",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "validity.go::armingChainSyntaxValid::RET_TRUE::19921ccfad14": {
@@ -14813,7 +15290,12 @@
         "ok-043-posture-producer-member-bound",
         "ok-045-mixed-clean-rows-indirect",
         "ok-050-registered-noncovering-kinds",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "validity.go::armingConstraintsMet::IF_CONJ::cae23576d43a": {
@@ -14929,7 +15411,12 @@
         "ok-043-posture-producer-member-bound",
         "ok-045-mixed-clean-rows-indirect",
         "ok-050-registered-noncovering-kinds",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "validity.go::armingConstraintsMet::RET_TRUE::19921ccfad14": {
@@ -15229,7 +15716,9 @@
         "bad-740-payload-cesu8",
         "bad-741-payload-nesting-exceeds-max-depth",
         "bad-742-payload-nesting-empty-container-leaf",
-        "bad-744-payload-noncharacter"
+        "bad-744-payload-noncharacter",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-3a-substrate-substituted-splice"
       ]
     },
     "validity.go::checkSubstrateRow::CODE_OFF::37537cd5b80c": {
@@ -15324,7 +15813,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "validity.go::checkSubstrateRow::IF_OFF::02af432d03e2": {
@@ -15418,7 +15912,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "validity.go::checkSubstrateRow::IF_OFF::4a3655ff0af7": {
@@ -15520,7 +16019,14 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "validity.go::checkSubstrateRow::IF_OFF::7ee1bca12ff5": {
@@ -15593,7 +16099,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "validity.go::checkSubstrateRow::IF_OFF::d066fff4875e": {
@@ -15725,7 +16236,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "validity.go::evaluateKind::CASE_DEL::5e13e6662219": {
@@ -15804,7 +16320,12 @@
         "ok-043-posture-producer-member-bound",
         "ok-045-mixed-clean-rows-indirect",
         "ok-050-registered-noncovering-kinds",
-        "ok-053-liveness-probe-uncaught-on-one-channel"
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "validity.go::evaluateKind::IF_CONJ::4d4c7eee2e28": {
@@ -15987,7 +16508,9 @@
         "bad-968-substrate-row-missing-attribution",
         "bad-969-substrate-row-attribution-oov",
         "bad-980-moat-drop-sole-cover",
-        "bad-981-uncommitted-observation-sole-cover"
+        "bad-981-uncommitted-observation-sole-cover",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-3a-substrate-substituted-splice"
       ]
     },
     "validity.go::gate1WithContext::CODE_OFF::2fce98188438#4": {
@@ -16103,7 +16626,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "validity.go::gate1WithContext::IF_CONJ::8892bb433a9c": {
@@ -16350,7 +16878,14 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3a-substrate-substituted-splice",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "validity.go::sealedConstraintsMet::IF_DISJ::0dbfd8e7fab2": {
@@ -16537,7 +17072,12 @@
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
-        "ok-054-producer-ordered-axis-inert"
+        "ok-054-producer-ordered-axis-inert",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "validity.go::sealedConstraintsMet::RET_TRUE::0a253196ac86": {
@@ -16732,7 +17272,9 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
-        "ind-002-signatures-empty-then-undecodable"
+        "ind-002-signatures-empty-then-undecodable",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-3a-substrate-substituted-splice"
       ]
     },
     "verify.go::Evaluate::IF_OFF::6ce3fc814668": {
@@ -16789,7 +17331,8 @@
         "bad-961-expected-payloads-unknown-attack",
         "bad-962-expected-payloads-unsorted",
         "bad-963-expected-payloads-not-hex",
-        "bad-964-expected-payloads-empty-array"
+        "bad-964-expected-payloads-empty-array",
+        "vate-1c-two-subjects-artifact-and-admission"
       ]
     },
     "verify.go::Evaluate::IF_OFF::77de53b34279": {
@@ -17026,7 +17569,10 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "ind-001-undecodable-then-signatures-empty",
-        "ind-002-signatures-empty-then-undecodable"
+        "ind-002-signatures-empty-then-undecodable",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-1c-two-subjects-artifact-and-admission",
+        "vate-3a-substrate-substituted-splice"
       ]
     },
     "verify.go::VerifyForEmit::IF_OFF::00b54a15181c": {
@@ -17137,7 +17683,12 @@
         "ok-053-liveness-probe-uncaught-on-one-channel",
         "ok-054-producer-ordered-axis-inert",
         "ok-900-fail-outranks-degraded",
-        "ok-901-row-missing-basis"
+        "ok-901-row-missing-basis",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
       ]
     },
     "verify.go::tierPolicySatisfied::IF_CONJ::5f631a2669e9": {

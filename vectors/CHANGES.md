@@ -5,6 +5,84 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 26 (what this predicate does not read across an external admission)
+
+- Corpus: **258 vectors (60 accept, 196 reject, 2 indeterminate)**, up from 250.
+  Eight vectors are added and no existing vector file changes, so `corpusDigest`
+  in `vectors/MANIFEST.json` moves and nothing published before this revision is
+  disturbed. The vendored specification does not move: `specDigest` and
+  `specUpstreamCommit` are exactly what suiteRevision 25 carried, because this
+  revision adds no rule and changes no reading. With the vectors added, all 196
+  reject vectors declare a parent that ships as an accept vector.
+- **Where they came from, and what they are not.** Three conformance cases from
+  the Verifiable Agent Trust Envelope (VATE) discussion draft asked what this
+  predicate natively establishes across an external admission. The pins those
+  cases were read at are preserved with the vectors and repeated here so that a
+  reader can go back to them: VATE commit
+  `ce00121d7bd658c7a1fcd861b386ea9ea7ce66be`, corpus
+  `VATE-AL2-Verifier-Admission-v0.3`, corpus digest
+  `sha-256:0eb1969ea3763e0fec123de5ea0dacb225eb48a28d76866bbec56dc61d16cf8f`. The
+  three case identifiers are `post-execution-admission-digest-mismatch`,
+  `post-execution-effective-constraints-aggregate-exceeded` and
+  `post-execution-runtime-mismatch`. The vectors are AEE-native boundary vectors
+  prompted by those cases: not VATE conformance results, not a projection into
+  another format, and not evidence about any implementation other than a rail run
+  against this corpus. The corpus digest above is recorded as a pin and not
+  reproduced as a validation of anyone's canonicalization profile.
+- **Five accepts, and they are the load-bearing half.**
+  `vate-1b-carried-admission-digest-unread` carries an admission digest in a
+  covering payload that disagrees with the subject the statement declares, and is
+  valid and `pass`, because neither member is read.
+  `vate-2a-aggregate-overrun-unread` carries two side-effect amounts each below a
+  carried maximum and summing above it, and recomputes `pass`, because no row
+  carries a quantity and the composition law is a minimum over three booleans.
+  `vate-3b-admitted-vs-observed-runtime-unread` declares an admitted and an
+  observed runtime that differ, and is valid, because a statement carries exactly
+  one `observationEnvironment` and there is no second runtime to compare against.
+  `vate-1d-admission-receipt-as-sole-subject` pays the full price of the case-1
+  anti-splice: the receipt is the sole subject, so the binding covers the
+  admission identity and the statement names no executed artifact at all. Each is
+  a negative pin, and a negative pin states a boundary more precisely than a
+  sentence can.
+- **`vate-3c-substrate-substituted-and-resigned` is here because it refutes the
+  strongest reading of the two splice refusals.** The whole run is re-derived
+  under the substituted runtime identity, the binding recomputed and every record
+  re-signed under it. Nothing is spliced, so nothing is detected, and the
+  statement is valid and recomputes `pass`. The binding is anti-splice and
+  explicitly not anti-forge, so `vate-1a` and `vate-3a` establish that records
+  were not MOVED and never that the identity they name is the true one. That
+  separation belongs to the substrate key and the evidence tier, and it bounds
+  every sentence about what these vectors establish.
+- **Three rejects, two of them narrow and one of them a price rather than a
+  rule.** `vate-1a-admission-receipt-substituted-splice` and
+  `vate-3a-substrate-substituted-splice` substitute a binding input the corpus
+  had not previously substituted -- the subject and the substrate -- and both
+  refuse `run-binding-mismatch`.
+  `vate-1c-two-subjects-artifact-and-admission` extends no rule that `bad-607`
+  and `bad-728` do not already carry; what it adds is that binding an admission
+  receipt is not additive, because the pre-image reads only the first subject and
+  a second entry is malformed. It is recorded that way rather than as a new
+  discriminator.
+- **The traceability gap narrows by one.** That second number is 33 of 76 today,
+  down one because `aee-c-22`, the requirement that a record's `aeeRunBinding`
+  equal the binding derived from the statement, is now cited by two accepting
+  vectors as well as by refusals: `vate-1d` and `vate-3c` both derive their
+  binding over an input the corpus had never varied, and both are valid. Until
+  this revision a reader following that id from the registry reached only
+  refusals. It stays measured and ratcheted in
+  `docs/ACCEPT-ANCHOR-BASELINE.json`.
+- **Two generator parameters and four gate patterns changed, and no vector
+  moved.** `run_binding` in the accept generator takes the subject and the
+  substrate as parameters defaulting to this suite's constants, because a vector
+  that asks what the binding does when one of those inputs names a different
+  identity has to derive the binding over that identity, and the alternative is a
+  second copy of the pre-image that diverges silently. `make_statement` takes the
+  subject and substrate objects on the same terms. The four patterns that
+  enumerated vector ids by prefix now admit `vate-`; each was a pattern that
+  would otherwise have skipped the new vectors and reported the corpus clean,
+  which is the shape of failure those gates exist to prevent. Every previously
+  committed vector regenerates byte-identically.
+
 ## Spec pin refresh after suiteRevision 25 (no new revision; `corpusDigest` unchanged)
 
 - The vendored specification moved again, from the `237f83b9` head recorded

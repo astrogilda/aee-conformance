@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 250,
-    "pass": 250,
+    "vectors": 258,
+    "pass": 258,
     "fail": 0,
     "suiteRefusals": 0
   },
@@ -1434,6 +1434,131 @@
       "expected": {
         "verdict": "valid",
         "result": "fail"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "vate-1b-carried-admission-digest-unread",
+      "file": "vectors/accept/vate-1b-carried-admission-digest-unread.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "primaryCode": null,
+        "result": "pass"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "vate-1d-admission-receipt-as-sole-subject",
+      "file": "vectors/accept/vate-1d-admission-receipt-as-sole-subject.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "primaryCode": null,
+        "result": "pass"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "vate-2a-aggregate-overrun-unread",
+      "file": "vectors/accept/vate-2a-aggregate-overrun-unread.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "primaryCode": null,
+        "result": "pass"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "vate-3b-admitted-vs-observed-runtime-unread",
+      "file": "vectors/accept/vate-3b-admitted-vs-observed-runtime-unread.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "primaryCode": null,
+        "result": "pass"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "vate-3c-substrate-substituted-and-resigned",
+      "file": "vectors/accept/vate-3c-substrate-substituted-and-resigned.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "primaryCode": null,
+        "result": "pass"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
       },
       "inManifest": true,
       "reasons": []
@@ -7161,6 +7286,101 @@
         "codes": [
           "caught-row-uncovered",
           "attribution-pinned-recordless"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "vate-1a-admission-receipt-substituted-splice",
+      "file": "vectors/reject/vate-1a-admission-receipt-substituted-splice.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "run-binding-mismatch",
+          "sealed-record-absent"
+        ],
+        "primaryCode": "run-binding-mismatch",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "run-binding-mismatch"
+        ],
+        "alsoCarries": [
+          "sealed-record-absent"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "vate-1c-two-subjects-artifact-and-admission",
+      "file": "vectors/reject/vate-1c-two-subjects-artifact-and-admission.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "subject-cardinality"
+        ],
+        "primaryCode": "subject-cardinality",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "subject-cardinality"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "vate-3a-substrate-substituted-splice",
+      "file": "vectors/reject/vate-3a-substrate-substituted-splice.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "run-binding-mismatch",
+          "sealed-record-absent"
+        ],
+        "primaryCode": "run-binding-mismatch",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "run-binding-mismatch"
+        ],
+        "alsoCarries": [
+          "sealed-record-absent"
         ]
       },
       "inManifest": true,

@@ -6,8 +6,8 @@
   "tracksUpstream": "in-toto/attestation#570",
   "specUpstreamCommit": "0dbe10bcc959b63dc42370a5db09812c9476f59a",
   "counts": {
-    "accept": 55,
-    "reject": 193,
+    "accept": 60,
+    "reject": 196,
     "indeterminate": 2
   },
   "comparisonSurface": {
@@ -20,7 +20,7 @@
     ],
     "note": "A rail conforms when its verdict, and for an accepted statement its result token, match this manifest. The codes on a reject entry are the reference verifier's own vocabulary, not the specification's: a rail names a reason from whatever set it declares, and a differing code is a reason-parity datum rather than a failure. Report that parity as its own figure. The divergences worth finding are the statements two rails both reject for different reasons, and scoring on codes would hide exactly those."
   },
-  "corpusDigest": "b5aa5fdb4a9320e037658b2877f048d5c3dd7351fd93701d3c4977d69ae7a579",
+  "corpusDigest": "0d06efadad549311abe96466f8733420f1c757ec4c7586a82dcc4f8cbbc49fbe",
   "vectors": [
     {
       "id": "ok-001-caught-intercepted-fail",
@@ -776,6 +776,68 @@
       "expected": {
         "verdict": "valid",
         "result": "fail"
+      }
+    },
+    {
+      "id": "vate-1b-carried-admission-digest-unread",
+      "kind": "accept",
+      "file": "accept/vate-1b-carried-admission-digest-unread.json",
+      "conditions": [
+        "aee-c-73"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "vate-1d-admission-receipt-as-sole-subject",
+      "kind": "accept",
+      "file": "accept/vate-1d-admission-receipt-as-sole-subject.json",
+      "conditions": [
+        "aee-c-22",
+        "aee-c-60"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "vate-2a-aggregate-overrun-unread",
+      "kind": "accept",
+      "file": "accept/vate-2a-aggregate-overrun-unread.json",
+      "conditions": [
+        "aee-c-73"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "vate-3b-admitted-vs-observed-runtime-unread",
+      "kind": "accept",
+      "file": "accept/vate-3b-admitted-vs-observed-runtime-unread.json",
+      "conditions": [
+        "aee-c-73"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
+      }
+    },
+    {
+      "id": "vate-3c-substrate-substituted-and-resigned",
+      "kind": "accept",
+      "file": "accept/vate-3c-substrate-substituted-and-resigned.json",
+      "conditions": [
+        "aee-c-22",
+        "aee-c-60"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "pass"
       }
     },
     {
@@ -3583,6 +3645,56 @@
         ],
         "alsoCarries": [
           "sealed-covers-nothing"
+        ]
+      }
+    },
+    {
+      "id": "vate-1a-admission-receipt-substituted-splice",
+      "kind": "reject",
+      "file": "reject/vate-1a-admission-receipt-substituted-splice.json",
+      "conditions": [
+        "aee-c-22",
+        "aee-c-60"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "run-binding-mismatch"
+        ],
+        "alsoCarries": [
+          "sealed-record-absent"
+        ]
+      }
+    },
+    {
+      "id": "vate-1c-two-subjects-artifact-and-admission",
+      "kind": "reject",
+      "file": "reject/vate-1c-two-subjects-artifact-and-admission.json",
+      "conditions": [
+        "aee-c-58"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "subject-cardinality"
+        ]
+      }
+    },
+    {
+      "id": "vate-3a-substrate-substituted-splice",
+      "kind": "reject",
+      "file": "reject/vate-3a-substrate-substituted-splice.json",
+      "conditions": [
+        "aee-c-22",
+        "aee-c-60"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "run-binding-mismatch"
+        ],
+        "alsoCarries": [
+          "sealed-record-absent"
         ]
       }
     },

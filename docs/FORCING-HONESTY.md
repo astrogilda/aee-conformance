@@ -26,10 +26,10 @@ all.**
 | what | value |
 |---|---|
 | suite | `adversarial-execution-evidence-conformance` |
-| corpus | suiteRevision 25, 250 vectors (55 accept, 193 reject, 2 indeterminate) |
+| corpus | suiteRevision 26, 258 vectors (60 accept, 196 reject, 2 indeterminate) |
 | vendored specification | upstream commit `0dbe10bcc959b63dc42370a5db09812c9476f59a` |
-| `vectors/MANIFEST.json` | `sha256:aaee0241d5f92a65ecfa603113f5c313b3f0593aa97ce8a54732287f0dc26c67` |
-| `docs/FORCING-BASELINE.json` | `sha256:9b409842cb6dfdf3b5abf67ba7a92e9ce11106867526c4e2a9584e71e30fb2cc` |
+| `vectors/MANIFEST.json` | `sha256:9c450c872246320eeaa69aea9bbc01c50f908a8ebabff484a4b460ff97db7b37` |
+| `docs/FORCING-BASELINE.json` | `sha256:9009ae910a7084b31f6a8edb763cfad19ded45a8dd98685e6be93630c22ba399` |
 | campaign | 754 single-site weakenings: 424 KILLED, 27 SILENT, 298 DEAD, 5 INCONCLUSIVE |
 
 Every vector in the corpus is depended on by at least one recorded weakening, so no
@@ -155,7 +155,7 @@ column is how many weakenings its vectors catch alongside somebody else's.
 | `aee-c-64` | L1330-1335 | sealed record required members | 5 | 95 |
 | `aee-c-68` | L1187-1188 | each referenced record independently satisfies its class constraints | 2 | 95 |
 | `aee-c-71` | L1687-1691 | unknown aeeKind covers nothing | 3 | 98 |
-| `aee-c-73` | L1693-1695 | the aee payload member prefix is reserved; every other payload member is producer territory and does not stop a record covering | 2 | 90 |
+| `aee-c-73` | L1693-1695 | the aee payload member prefix is reserved; every other payload member is producer territory and does not stop a record covering | 5 | 102 |
 | `aee-c-81` | L920 | row attackId appears in the manifest | 1 | 10 |
 
 ## The conditions the corpus does not force at all

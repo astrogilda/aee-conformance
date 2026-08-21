@@ -64,6 +64,7 @@ validity for every parent. Regenerate byte-identically with:
 
 | digest | preimage |
 |---|---|
+| `2f706bcfafced95bbd479c32c1654183582e28ebdb7b66eedcf1556c7d19181f` | `sha256("example-second-admission-receipt/v1")` |
 | `f31821ae3e1d6e0611dc4d753e8f4c0232ad03df1f4bd32aa47b9cd4107fe3bf` | `sha256("example-intercepted-bytes/v1")` |
 | `c39e2582a5ff1bc8a84718fd6115c847808668b962c1bcd07e263bf688cc6f72` | `sha256("example-intercepted-bytes/v2")` |
 | `971620afb07eefbd5bab8b1d3e9034cf20052f66f884452b456c2ee06ca3a4b4` | `sha256("example-intercepted-bytes/v3")` |
@@ -71,6 +72,7 @@ validity for every parent. Regenerate byte-identically with:
 | `81c6e914fe332c0a08a53c43fe0e6fa5d0e5fde533bb03ab664e3d924e8bf829` | `sha256("example-orphan-root/v1")` |
 | `cca32c26b70e238a58249962a8da351bd8acc047b638276b3503c05bf3c6499e` | `sha256("example-other-posture-config/v1")` |
 | `bd34c306e2295a4974787aa2b81e7e95c37580d543cbc47f0b77a026aef7e051` | `sha256("example-run-start-entropy/v1")` |
+| `e33b2f68c5c57bca8dcfa2cc0bd560059f3fba7dccafeedb2919de53fd767995` | `sha256("example-second-runtime-image/v1")` |
 | `1821aa6ff38428b2bf7ea727903b6d82768ea55dc24d4435890adcfe5fd0cea5` | `sha256("example-stale-corpus/v1")` |
 | `1cdb63348f9249f7dfafdc0f052d6610dbf824efa4f0b3839f4a4418807ae587` | `sha256("example-stale-vocabulary/v1")` |
 | `d14fbbcd076c6bfe5e6aa52b169c0baf7f7044ea46fe279afd7629e92baac8fc` | `sha256("example-agent-bundle-content/v1")` |
@@ -214,7 +216,7 @@ that guesses is worse than one that is missing: it looks resolved.
 | aee-c-107 | L1394-1408 | an uncommitted-observation record covers nothing in every state on the same terms, and in particular cannot stand in for an interception: not for a caught row's coverage, not for the existence requirement a pinned row must satisfy, and not for the expectedPayloads comparison |
 | aee-c-108 | L586-594; L1322-1366 | every carried record that binds to this run and whose aeeKind names a covering kind satisfies every constraint of that kind, whether or not any row resolves an observationRefs index to it. The universal partner of aee-c-96, over the same records on the same terms: that one asks whether a valid sealed record is present, this asks whether an invalid one is carried beside it |
 
-## Vectors (193)
+## Vectors (196)
 
 `parent` names the accept-suite shape the vector derives from (the
 accept vectors land separately; the parent statements are built
@@ -417,6 +419,9 @@ so the declared fault stays the ONLY fault.
 | `bad-1015-arming-carried-missing-armedat` | ok-002 | a second arming record carrying no armedAt, referenced by no row; the clean row keeps its healthy arming and sealed pair | recompute-batch-root | aee-c-108 | `arming-covers-nothing` | L586-594; L1322-1366 |
 | `bad-1016-examination-carried-method-intercepted` | ok-002 | an examination record signed aeeMethod: "intercepted", referenced by no row; the clean row keeps its healthy arming and sealed pair | recompute-batch-root | aee-c-108 | `examination-covers-nothing` | L586-594; L1336-1338 |
 | `bad-1017-sole-seal-moat-down-all-caught` | ok-001 | the statement's only sealed record carries aeeStillArmed false; every row is caught, so no clean row is left uncovered and nothing fires ahead of the run-level checks | recompute-batch-root | aee-c-96 | `sealed-record-absent` (also carries: `sealed-covers-nothing`) | L586-594; L595-608; L634-643; L1361-1366 |
+| `vate-1a-admission-receipt-substituted-splice` | ok-002 | subject[0].digest.sha256 replaced with an external admission receipt digest; every record left exactly as the producer signed it | - | aee-c-22 aee-c-60 | `run-binding-mismatch` (also carries: `sealed-record-absent`) | L174-182; L563-564 |
+| `vate-1c-two-subjects-artifact-and-admission` | ok-002 | a second subject entry naming an external admission receipt appended beside the executed artifact | - | aee-c-58 | `subject-cardinality` | L210-213 |
+| `vate-3a-substrate-substituted-splice` | ok-002 | observationEnvironment.substrate.digest.sha256 replaced with a second runtime image digest; every record left exactly as the producer signed it | - | aee-c-22 aee-c-60 | `run-binding-mismatch` (also carries: `sealed-record-absent`) | L174-182; L563-564 |
 
 ## Notes on specific vectors
 
@@ -559,6 +564,9 @@ so the declared fault stays the ONLY fault.
 - **bad-1015-arming-carried-missing-armedat**: the arming half of the same defect. `bad-701` breaks the arming record the row resolves; this one carries the identical record beside the row instead, which every rail admitted.
 - **bad-1016-examination-carried-method-intercepted**: the examination half. `bad-712` breaks the examination record a reconstructed row resolves; this one carries it where no row resolves anything of the kind. Note it also enters the seal's aeeObservedSet, so the record is committed to and still unread.
 - **bad-1017-sole-seal-moat-down-all-caught**: the vector the existential had no witness for. Its expectation is a single code deliberately: a reject vector is graded by intersecting the emitted set with `codes`, so naming both conditions there would be satisfied by either reading and would measure nothing. `sealed-record-absent` alone is the measurement, and the companion fault is declared in `also carries` so the second-fault self-check reads it as intended rather than as a stray. The distinction the vector pins is a repair: where a satisfying seal is carried beside the defective one, dropping the defective record reaches validity, and here it does not -- drop this seal and the statement carries none, which is `bad-952` from the other side.
+- **vate-1a-admission-receipt-substituted-splice**: prompted by VATE case `post-execution-admission-digest-mismatch` at VATE commit `ce00121d7bd658c7a1fcd861b386ea9ea7ce66be`, corpus `VATE-AL2-Verifier-Admission-v0.3`, corpus digest `sha-256:0eb1969ea3763e0fec123de5ea0dacb225eb48a28d76866bbec56dc61d16cf8f`. An AEE-native boundary vector prompted by that case, not a VATE conformance result. What it establishes is narrow and worth stating narrowly: a record produced under one admission identity cannot be presented under another. It does not establish that the receipt is genuine, and its accepted bound is `vate-3c`, where the whole run is re-derived and re-signed under the substituted identity and nothing is detected.
+- **vate-1c-two-subjects-artifact-and-admission**: prompted by VATE case `post-execution-admission-digest-mismatch` at VATE commit `ce00121d7bd658c7a1fcd861b386ea9ea7ce66be`, corpus `VATE-AL2-Verifier-Admission-v0.3`, corpus digest `sha-256:0eb1969ea3763e0fec123de5ea0dacb225eb48a28d76866bbec56dc61d16cf8f`. An AEE-native boundary vector prompted by that case, not a VATE conformance result. The general cardinality rule is already carried by `bad-607` and `bad-728` and this vector does not extend it; what it adds is the PRICE, made executable: binding an admission receipt is not additive, because the pre-image reads only the first subject and a second entry is malformed. Its accepted partner is `vate-1d`, the receipt as sole subject, which is valid and names no executed artifact at all.
+- **vate-3a-substrate-substituted-splice**: prompted by VATE case `post-execution-runtime-mismatch` at VATE commit `ce00121d7bd658c7a1fcd861b386ea9ea7ce66be`, corpus `VATE-AL2-Verifier-Admission-v0.3`, corpus digest `sha-256:0eb1969ea3763e0fec123de5ea0dacb225eb48a28d76866bbec56dc61d16cf8f`. An AEE-native boundary vector prompted by that case, not a VATE conformance result. Within one statement the observing runtime identity is bound and a record signed under a different one cannot be spliced in. Admitted-versus-observed is a different question and is not native: it needs two runtimes named in one statement, and `vate-3b` is the accepted vector that pins exactly that.
 
 ## Compound vectors and precedence pins
 

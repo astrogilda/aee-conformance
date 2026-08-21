@@ -1466,6 +1466,36 @@
       "opens": "A `sealed` record covers no clean row unless its `aeeStillArmed` is",
       "closes": "so failing it is a coverage validity failure, never a silent pass. The"
     },
+    "vectors/reject/gen_invalid_vectors.py::vate-1a-admission-receipt-substituted-splice#0": {
+      "anchor": "L174-182",
+      "digest": "cc59761773ec1a66f50e8308ba991057be1474575ab86aff14801229f95e640c",
+      "opens": "**Run binding.** For any statement carrying at least one `basis: substrate`",
+      "closes": "\"<subject[0].digest.sha256>\", \"substrate\": \"<substrate.digest.sha256>\"}`."
+    },
+    "vectors/reject/gen_invalid_vectors.py::vate-1a-admission-receipt-substituted-splice#1": {
+      "anchor": "L563-564",
+      "digest": "b832bc1f1bf1df186089531b26fd9435c44c4498d5f40a5474af1d1a53f9903f",
+      "opens": "`aeeRunBinding` equals the run binding digest derived from this",
+      "closes": "statement;"
+    },
+    "vectors/reject/gen_invalid_vectors.py::vate-1c-two-subjects-artifact-and-admission#0": {
+      "anchor": "L210-213",
+      "digest": "71cd3e497f874900a9057ae498c244f1f5c54d2eeea9eda3510e2a5e12f6d6b5",
+      "opens": "For this predicate `subject` MUST contain exactly one entry on a statement",
+      "closes": "`catchPolicy`, `corpus`, `runEntropy`, `substrate` and `subject[0]` MUST each"
+    },
+    "vectors/reject/gen_invalid_vectors.py::vate-3a-substrate-substituted-splice#0": {
+      "anchor": "L174-182",
+      "digest": "cc59761773ec1a66f50e8308ba991057be1474575ab86aff14801229f95e640c",
+      "opens": "**Run binding.** For any statement carrying at least one `basis: substrate`",
+      "closes": "\"<subject[0].digest.sha256>\", \"substrate\": \"<substrate.digest.sha256>\"}`."
+    },
+    "vectors/reject/gen_invalid_vectors.py::vate-3a-substrate-substituted-splice#1": {
+      "anchor": "L563-564",
+      "digest": "b832bc1f1bf1df186089531b26fd9435c44c4498d5f40a5474af1d1a53f9903f",
+      "opens": "`aeeRunBinding` equals the run binding digest derived from this",
+      "closes": "statement;"
+    },
     "vectors/reject/gen_invalid_vectors.py::1#0": {
       "anchor": "L435",
       "digest": "e58d4982b42d4b938ac6109ec8c7b8d7f5e50e8afa747fdea110d0000416da36",

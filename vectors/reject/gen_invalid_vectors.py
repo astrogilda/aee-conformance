@@ -181,6 +181,11 @@ SUB_PRIV, SUB_PUB, SUB_KEYID = key_for("substrate-observation-test")
 PREIMAGES = {
     "subject": "example-agent-bundle-content/v1",
     "subject-b": "example-agent-bundle-b-content/v1",
+    # A second admission receipt and a second runtime image, for the three
+    # vate-* vectors below. Derived from a published one-line preimage like
+    # every other digest here, so a reader re-derives them.
+    "admission-receipt": "example-second-admission-receipt/v1",
+    "second-runtime-image": "example-second-runtime-image/v1",
     "substrate": "example-substrate-image-content/v1",
     "run-entropy": "example-run-start-entropy/v1",
     "intercepted-bytes-1": "example-intercepted-bytes/v1",
@@ -742,6 +747,8 @@ INHERENT_EXTRA: dict[str, list[str]] = {
         "bad-305-posture-swapped",
         "bad-306-vocabulary-caught-narrowed",
         "bad-307-posture-member-added-after-arming",
+        "vate-1a-admission-receipt-substituted-splice",
+        "vate-3a-substrate-substituted-splice",
     )},
     "bad-506-actuallayer-json-number": ["malformed-missing-actual-layer"],
     "bad-902-sealed-posture-ne-arming": ["arming-covers-nothing"],
@@ -4148,6 +4155,107 @@ vec("bad-1017-sole-seal-moat-down-all-caught", "ok-001",
          "none, which is `bad-952` from the other side")
 
 
+# --- vate-* : the boundary across an external admission ---------------------
+#
+# Prompted by three conformance cases from the Verifiable Agent Trust Envelope
+# (VATE) discussion draft, read at VATE commit
+# ce00121d7bd658c7a1fcd861b386ea9ea7ce66be, corpus
+# VATE-AL2-Verifier-Admission-v0.3, corpus digest
+# sha-256:0eb1969ea3763e0fec123de5ea0dacb225eb48a28d76866bbec56dc61d16cf8f.
+# These are AEE-native boundary vectors prompted by those cases. They are NOT
+# VATE conformance results and carry no VATE verdict: every expectation is this
+# predicate's own. Their accepted counterparts, which pin what this predicate
+# deliberately does NOT read, are vate-1b, vate-1d, vate-2a, vate-3b and
+# vate-3c in the accept set.
+
+
+def _bvate1a() -> dict[str, Any]:
+    # Case post-execution-admission-digest-mismatch, the half that IS native.
+    # The admission receipt takes the one statement-level slot the binding
+    # pre-image reads from outside the observation environment. The records
+    # were signed under the executed artifact's identity and the statement now
+    # declares a receipt, so every record's binding stops deriving. This is a
+    # splice refusal and not a comparison against the receipt: nothing here
+    # dereferences the receipt or checks that it is genuine.
+    st = P_clean()
+    st["subject"][0]["digest"]["sha256"] = D["admission-receipt"]
+    return st
+
+
+vec("vate-1a-admission-receipt-substituted-splice", "ok-002",
+    "subject[0].digest.sha256 replaced with an external admission receipt "
+    "digest; every record left exactly as the producer signed it",
+    [], [22, 60], ["run-binding-mismatch"], _bvate1a, spec="L174-182; L563-564",
+    note="prompted by VATE case `post-execution-admission-digest-mismatch` at "
+         "VATE commit `ce00121d7bd658c7a1fcd861b386ea9ea7ce66be`, corpus "
+         "`VATE-AL2-Verifier-Admission-v0.3`, corpus digest "
+         "`sha-256:0eb1969ea3763e0fec123de5ea0dacb225eb48a28d76866bbec56dc61d16cf8f`. "
+         "An AEE-native boundary vector prompted by that case, not a VATE "
+         "conformance result. What it establishes is narrow and worth stating "
+         "narrowly: a record produced under one admission identity cannot be "
+         "presented under another. It does not establish that the receipt is "
+         "genuine, and its accepted bound is `vate-3c`, where the whole run is "
+         "re-derived and re-signed under the substituted identity and nothing "
+         "is detected")
+
+
+def _bvate1c() -> dict[str, Any]:
+    # The natural producer attempt at case 1: name the executed artifact AND
+    # bind the admission receipt. subject[0] is untouched, so every binding
+    # still derives and the cardinality rule is the only fault -- which is the
+    # answer, because it means the two identities cannot both be carried.
+    st = P_clean()
+    st["subject"].append({"name": "example-admission-receipt",
+                          "digest": {"sha256": D["admission-receipt"]}})
+    return st
+
+
+vec("vate-1c-two-subjects-artifact-and-admission", "ok-002",
+    "a second subject entry naming an external admission receipt appended "
+    "beside the executed artifact", [],
+    [58], ["subject-cardinality"], _bvate1c, spec="L210-213",
+    note="prompted by VATE case `post-execution-admission-digest-mismatch` at "
+         "VATE commit `ce00121d7bd658c7a1fcd861b386ea9ea7ce66be`, corpus "
+         "`VATE-AL2-Verifier-Admission-v0.3`, corpus digest "
+         "`sha-256:0eb1969ea3763e0fec123de5ea0dacb225eb48a28d76866bbec56dc61d16cf8f`. "
+         "An AEE-native boundary vector prompted by that case, not a VATE "
+         "conformance result. The general cardinality rule is already carried "
+         "by `bad-607` and `bad-728` and this vector does not extend it; what "
+         "it adds is the PRICE, made executable: binding an admission receipt "
+         "is not additive, because the pre-image reads only the first subject "
+         "and a second entry is malformed. Its accepted partner is `vate-1d`, "
+         "the receipt as sole subject, which is valid and names no executed "
+         "artifact at all")
+
+
+def _bvate3a() -> dict[str, Any]:
+    # Case post-execution-runtime-mismatch, the half that IS native. The
+    # observing runtime identity is substituted after the records were signed.
+    # substrate is a binding input, so the splice is refused; an admitted
+    # runtime compared against an observed one is not, and cannot be, because a
+    # statement carries exactly one observationEnvironment.
+    st = P_clean()
+    st["predicate"]["observationEnvironment"]["substrate"]["digest"]["sha256"] = \
+        D["second-runtime-image"]
+    return st
+
+
+vec("vate-3a-substrate-substituted-splice", "ok-002",
+    "observationEnvironment.substrate.digest.sha256 replaced with a second "
+    "runtime image digest; every record left exactly as the producer signed it",
+    [], [22, 60], ["run-binding-mismatch"], _bvate3a, spec="L174-182; L563-564",
+    note="prompted by VATE case `post-execution-runtime-mismatch` at VATE "
+         "commit `ce00121d7bd658c7a1fcd861b386ea9ea7ce66be`, corpus "
+         "`VATE-AL2-Verifier-Admission-v0.3`, corpus digest "
+         "`sha-256:0eb1969ea3763e0fec123de5ea0dacb225eb48a28d76866bbec56dc61d16cf8f`. "
+         "An AEE-native boundary vector prompted by that case, not a VATE "
+         "conformance result. Within one statement the observing runtime "
+         "identity is bound and a record signed under a different one cannot "
+         "be spliced in. Admitted-versus-observed is a different question and "
+         "is not native: it needs two runtimes named in one statement, and "
+         "`vate-3b` is the accepted vector that pins exactly that")
+
+
 # ---------------------------------------------------------------- checks
 
 # The result vocabulary, in the order the recompute takes its minimum over.
@@ -5111,7 +5219,8 @@ def main() -> None:
     # file, and on a file deleted without its builder, and it cannot itself go
     # stale. Deleting a vector deliberately means deleting both, which is the
     # act the tripwire should permit and the only one it does.
-    on_disk = len([f for f in os.listdir(OUT) if f.startswith("bad-")
+    on_disk = len([f for f in os.listdir(OUT)
+                   if (f.startswith("bad-") or f.startswith("vate-"))
                    and f.endswith(".json")])
     assert len(VECTORS) == on_disk, (
         f"built {len(VECTORS)} reject vectors but {on_disk} bad-*.json files "

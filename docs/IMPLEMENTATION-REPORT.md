@@ -69,7 +69,7 @@ digest is pinned and CI-checked (`scripts/spec-drift-gate.py`).
 |---|---|---|---|---|
 | Reference rail (`aee/`) | Go | spec author | reference corpus, suiteRevision 26 | **258 / 258** |
 | Reference rail (`packaging/run_vectors.py`) | Python | spec author | reference corpus, suiteRevision 26 | **258 / 258** |
-| `Rul1an/aee-checker` | Rust | **independent, from-spec text alone** | author-run suiteRevision 6 (153), 2026-07-28 (aee-checker#4) and suiteRevision 22 (232), 2026-08-03 (`reports/v0.7-RUN.md`); suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25 and 26 not run by its author | **179 / 232** blind and **232 / 232** directed at suiteRevision 22; **153 / 153** at suiteRevision 6, directed; **125 / 125** blind at suiteRevision 1; suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25 and 26 not run by author (see note 1) |
+| `Rul1an/aee-checker` | Rust | **independent, from-spec text alone** | author-run suiteRevision 6 (153), 2026-07-28 (aee-checker#4), suiteRevision 22 (232), 2026-08-03 (`reports/v0.7-RUN.md`) and suiteRevision 25 (250), 2026-08-12 (in-toto/attestation#570); suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24 and 26 not run by its author | **250 / 250** at suiteRevision 25, directed; **179 / 232** blind and **232 / 232** directed at suiteRevision 22; **153 / 153** at suiteRevision 6, directed; **125 / 125** blind at suiteRevision 1; suiteRevisions 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24 and 26 not run by author (see note 1) |
 | `ts-verify` | TypeScript | spec author | its vendored set (250 vectors) + cross-rail parity tests | pass (see note 2) |
 | `py-verify` | Python | spec author | its vendored set (250 vectors) + parity tests | pass (see note 2) |
 | MCP server rail `_aee.py` | Python | spec author | its vendored set (250 vectors) + parity tests | pass (see note 2) |
@@ -158,7 +158,7 @@ directed 232/232 is not evidence about the determinacy of the text, and the blin
 ## Notes (the honest scoping)
 
 1. **The author's run history, each record bound in that author's own provenance
-   index to the checker source that produced it, with one exception this note names
+   index to the checker source that produced it, with two exceptions this note names
    by name.** A blind first run at suiteRevision 1 scored 125/125. At
    suiteRevision 2 the unchanged build scored 132/138 and a spec-diff-led update
    reached 138/138 — the six diverging vectors were exactly the round-7 changes (two
@@ -204,8 +204,8 @@ directed 232/232 is not evidence about the determinacy of the text, and the blin
    constructions of a prose-to-code map over the same run disagreed sharply, and the
    ambiguity is published as a runnable script rather than resolved by picking one.
 
-   **The blind half of that run carries no source digest, and this is the
-   exception the head of this note names.** The directed build is recorded under
+   **The blind half of that run carries no source digest, and it is the first of
+   the two exceptions the head of this note names.** The directed build is recorded under
    checker source `sha256:56f440e6` against suite commit `84ba2271` and reproduces
    from the author's working tree. The blind build does not: it was never committed
    on its own, one commit carrying both the v0.7 implementation and the published
@@ -219,19 +219,34 @@ directed 232/232 is not evidence about the determinacy of the text, and the blin
    suiteRevision 22. This report publishes the blind figure with that caveat
    attached and never without it.
 
+   **The suiteRevision-25 run is 250/250, on 2026-08-12**, posted as a comment on
+   in-toto/attestation#570 rather than as a run report in that provenance index.
+   At suiteRevision 25 that is accepts 55/55, rejects 193/193 and indeterminate 2/2,
+   with reason parity 69/193, against suite commit `5019931`, whose manifest carries
+   250 vectors in exactly that partition and the vendored spec digest `759d2383` the
+   comment names. The run was verified on a clean runner at a public CI run that
+   checks the spec digest before it counts anything. It is directed, and the author's
+   own opening words are the reason this report records it that way: "Repinned and
+   implemented first, then measured your open question." That record names the suite
+   commit, the spec digest
+   and the runner, and no checker source digest, so it is the second of the two
+   exceptions the head of this note names, and this report states that rather than
+   leaving a reader to assume a digest exists.
+
    The three figures that carry unprompted evidence are the blind 125/125 at
    suiteRevision 1, the first-run 140/140 at suiteRevision 3, and the blind
    179/232 at suiteRevision 22; no other figure here may be described that way. In
    particular the 138/138 was spec-diff-led and the 140/140 was not, and the two
    are not to be stated together as one result.
 
-   **The checker has not been run against suiteRevision 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25 or 26, so this report
+   **The checker has not been run against suiteRevision 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24 or 26, so this report
    publishes no score for it at any of them.** Three different things put a
    revision on that list, and only one of them is that the requirement went
-   unexercised. The three at the end of the list came after that v0.7 run:
-   suiteRevision 23 added sixteen reject vectors and a second declared condition
-   on a seventeenth, and the two that followed it moved the vendored text without
-   moving a vector.
+   unexercised. Two of the three at the end of the list fall between that v0.7 run
+   and the suiteRevision-25 one: suiteRevision 23 added sixteen reject vectors and
+   a second declared condition on a seventeenth, and suiteRevision 24 moved the
+   vendored text without moving a vector. The third came after it: suiteRevision 26
+   added eight boundary vectors and moved no vendored text.
    suiteRevisions 7 through 21 are a different case. Every vector they added is
    inside the suiteRevision-22 corpus that run covered, so the requirements they carry
    are not unread; what no record of that checker names is the corpus AT any of those
@@ -271,8 +286,11 @@ directed 232/232 is not evidence about the determinacy of the text, and the blin
    and the vendored-set cell for each rail in the table above, is checked by
    `scripts/consumer-lag-gate.py` against `vectors/CONSUMERS.json`, whose one row
    per rail is filled from that rail's own vendor stamp; the gate fails when a row
-   is not the corpus published here and fails again when these sentences are not
-   the corpus it just measured. It is checked because it was wrong: written at
+   is not the corpus this repository's default branch publishes, and fails again
+   when these sentences are not the corpus it just measured. The default branch and
+   not the branch being checked, because that is the only corpus a rail in another
+   repository can fetch: a change here creates its obligation on the rails when it
+   lands, not while it is a branch nobody could vendor. It is checked because it was wrong: written at
    suiteRevision 6 and still claiming 153 vectors at suiteRevision 14, while the
    corpus moved through eight revisions and both copies were re-vendored to
    follow it, and nothing anywhere disagreed. The count of rails named in the

@@ -16,11 +16,48 @@ red build. There was no red build to ignore.
 
 No build can see two repositories at once, so the check has to live where the
 change that causes the lag happens, which is here. This gate compares the corpus
-digest computed from ``vectors/`` against the digest each rail is recorded as
-carrying in ``vectors/CONSUMERS.json``, and fails naming any copy that is
-behind. Regenerating the corpus therefore reddens this repository until every
-rail has been refreshed, rather than leaving a lag that only shows up when
-someone thinks to count files in another tree.
+each rail is recorded as carrying in ``vectors/CONSUMERS.json`` against the
+corpus the DEFAULT BRANCH publishes, and fails naming any copy that is behind.
+A corpus change therefore reddens this repository from the moment it lands on
+the default branch until every rail has been refreshed, rather than leaving a
+lag that only shows up when someone thinks to count files in another tree.
+
+The reference is the default branch and not the checked-out tree, and that
+distinction is the whole of this gate's timing.
+
+A rail vendors what this repository has published. It cannot vendor a branch
+nobody has merged, because there is nothing to fetch: the branch tip is not
+reachable from the remote's default branch and a vendoring script pointed at it
+would record a digest describing a commit that may never exist anywhere else.
+So a branch that adds vectors creates no obligation on any rail while it is a
+branch, and measuring against the checked-out tree invented one -- it demanded
+that the rails already carry a corpus they had no way to obtain.
+
+That is not a strict gate, it is a deadlock, and it was reached: the push of a
+branch bumping the corpus was refused because the rails were behind that
+branch, the rails could only be refreshed from a published corpus, and the
+corpus could not be published because the push was refused. A gate that cannot
+be satisfied before the action it gates is unsatisfiable by construction, and
+the only thing an unsatisfiable gate teaches is the bypass flag.
+
+Measured against the default branch the obligation is preserved and arrives
+when it becomes real. While the change is a branch, the default branch still
+publishes the old corpus, the rails carry it, and the gate is green. The
+instant the change lands, the default branch publishes the new corpus, every
+rail is genuinely behind, and the gate is red on the default branch and stays
+red until the rails are refreshed and the ledger records it. Nothing here can
+clear that: the ledger digests are read from the copies, so regenerating the
+corpus, re-deriving a digest or re-running any generator moves the reference
+further from the ledger rather than closer to it.
+
+What the default branch publishes is read from that branch's own tree, with the
+same digest function applied to the same files, and not from the ``corpusDigest``
+field it happens to carry. A field is a leftover until something recomputes it,
+and trusting one here would let a default branch whose manifest was never
+regenerated hand this gate a stale reference that every stale copy then agrees
+with. The field is checked against those files instead, so a default branch that
+does not publish the corpus it has fails here, naming the default branch rather
+than the branch being pushed.
 
 The ledger identifies each copy by an opaque id and records nothing else about
 it. Which checkout an id refers to is supplied on the command line at sync time
@@ -32,7 +69,10 @@ carries.
 The two modes are deliberately asymmetric.
 
 ``--check`` is what CI runs. It reads this repository and nothing else, so it
-needs no sibling checkout, no credential and no network.
+needs no sibling checkout, no credential and no network. It does need the
+default branch's ref to be present locally, which is why the workflow that runs
+it checks out with full history; when that ref cannot be resolved the check
+reports that it did not run, and never that the copies are current.
 
 ``--sync`` rewrites the ledger, and it does so by reading each rail's own stamp
 rather than by writing down the digest it just computed here. That distinction
@@ -72,7 +112,16 @@ the hole this half was built for: the table named three rails, the ledger carrie
 two, and the missing one was the one no copy of this corpus was ever compared
 against.
 
-What it does not catch: a copy that is refreshed, synced here, and then
+What it does not catch: a merge that lands and is never followed by a refresh
+goes red here and stays red, which is the intended outcome, but it goes red on
+the default branch rather than on the change that caused it. The branch that
+bumped the corpus passed, correctly, because at the time it was checked no rail
+was behind anything. Whoever merges owns the refresh, and the only signal that
+they do is a red default branch. Nothing in this repository can make that
+signal arrive earlier without demanding a rail vendor an unpublished commit,
+which is the deadlock above.
+
+Nor does it catch a copy that is refreshed, synced here, and then
 reverted. The ledger would still name the digest that copy carried at sync time,
 and this gate would stay green until the next sync. The rail's own stamp check
 does not catch it either, since a revert plus a re-stamp is internally
@@ -90,9 +139,13 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import re
+import subprocess
 import sys
+import tarfile
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -108,12 +161,19 @@ sys.path.insert(0, str(VECTORS))
 from gen_manifest import corpus_digest, corpus_files  # noqa: E402
 
 MANIFEST = VECTORS / "MANIFEST.json"
-CHANGES = VECTORS / "CHANGES.md"
 REPORT = REPO_ROOT / "docs" / "IMPLEMENTATION-REPORT.md"
 STAMP_NAME = "VENDOR-STAMP.json"
 
 # `## suiteRevision 14 (the vendored text catches up with the corpus)`
 REVISION_HEADING = re.compile(r"^## suiteRevision (\d+)\b", re.MULTILINE)
+
+# The branch whose corpus a consumer rail can actually vendor. A rail fetches
+# this repository at its default branch; a tip nobody has merged is reachable
+# from no remote ref, so it is not something any rail could carry and not
+# something this gate may require one to carry. Overridable only so the tests
+# can stage a repository of their own, never so a red run can be argued green:
+# the workflow step passes no ref and gets this one.
+DEFAULT_PUBLISHED_REF = "origin/main"
 
 _LEDGER_COMMENT = (
     "How many copies of this corpus are vendored into consumer rails, and the "
@@ -162,6 +222,130 @@ def publication_failures(published: str) -> list[str]:
             "Regenerate with python3 vectors/gen_manifest.py."
         ]
     return []
+
+
+@dataclass(frozen=True)
+class Published:
+    """The corpus the default branch publishes, which is the corpus a rail can get.
+
+    Every field is measured from that branch's own files rather than read from a
+    number it records about itself, and they are measured from ONE extraction of
+    ONE commit so they cannot describe two different states of the corpus.
+    """
+
+    ref: str
+    commit: str
+    digest: str
+    vectors: int
+    revision: int
+
+
+def _git(args: list[str], doing: str) -> bytes:
+    """Run one git command, or refuse to say anything about the world.
+
+    A failure here is never reported as an absence. "the default branch has no
+    such corpus" and "this command could not run" are indistinguishable from the
+    exit status alone, and only one of them is a finding, so neither is claimed:
+    the caller stops with the exact command and git's own words.
+    """
+    proc = subprocess.run(
+        ["git", "-C", str(REPO_ROOT), *args], capture_output=True, check=False
+    )
+    if proc.returncode != 0:
+        detail = proc.stderr.decode("utf-8", "replace").strip()
+        raise SystemExit(
+            f"FAIL: this check DID NOT RUN, so it reports nothing about the "
+            f"vendored copies. {doing} needs `git {' '.join(args)}`, which exited "
+            f"{proc.returncode}: {detail}"
+        )
+    return proc.stdout
+
+
+def _revision_in(changes: str, where: str) -> int:
+    """The revision a changelog is at, read from the headings that own revision
+    numbering rather than from a number restated in this script, which could only
+    ever agree with itself."""
+    seen = sorted(int(n) for n in REVISION_HEADING.findall(changes))
+    if not seen:
+        raise SystemExit(
+            f"FAIL: {where} carries no '## suiteRevision N' heading, so nothing "
+            "says which revision the copies are being checked against."
+        )
+    return seen[-1]
+
+
+def published_corpus(ref: str) -> Published:
+    """Measure the corpus the default branch publishes, from that branch's files.
+
+    The whole tree under ``vectors/`` is extracted from one commit and the digest
+    function this repository already owns is applied to it, so "the same corpus"
+    has one definition here rather than one for the checked-out tree and a looser
+    one for the branch it is compared against.
+
+    The manifest field that branch publishes is then checked against those files.
+    That field is what a rail fetches, so a branch whose manifest was never
+    regenerated publishes a digest describing vectors it no longer has, and every
+    copy still on those vectors agrees with it. Reading the field as the reference
+    would make this gate green on exactly that state; measuring the files and
+    holding the field to them makes it red, and names the branch at fault.
+    """
+    resolved = subprocess.run(
+        ["git", "-C", str(REPO_ROOT), "rev-parse", "--verify", "--quiet",
+         f"{ref}^{{commit}}"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    commit = resolved.stdout.strip()
+    if resolved.returncode != 0 or not commit:
+        raise SystemExit(
+            f"FAIL: this check DID NOT RUN. The published ref {ref!r} does not "
+            "resolve to a commit in this repository, so nothing here knows which "
+            "corpus the consumer rails could have vendored, and a copy that is "
+            "current and a copy that is behind look identical. Fetch the default "
+            "branch (`git fetch origin main`, or check out with full history in "
+            "CI) and run this again."
+        )
+    archive = _git(
+        ["archive", "--format=tar", commit, "vectors"],
+        f"measuring the corpus published at {ref}",
+    )
+    with tempfile.TemporaryDirectory() as tmp:
+        with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
+            tar.extractall(path=tmp, filter="data")
+        root = Path(tmp) / "vectors"
+        if not root.is_dir():
+            raise SystemExit(
+                f"FAIL: {ref} carries no vectors/ directory, so it publishes no "
+                "corpus for any consumer rail to vendor."
+            )
+        digest = corpus_digest(str(root))
+        vectors = len(corpus_files(str(root)))
+        changes = root / "CHANGES.md"
+        manifest = root / "MANIFEST.json"
+        for needed in (changes, manifest):
+            if not needed.is_file():
+                raise SystemExit(
+                    f"FAIL: {ref} carries no vectors/{needed.name}, so what it "
+                    "publishes cannot be established."
+                )
+        revision = _revision_in(
+            changes.read_text(encoding="utf-8"), f"{ref}:vectors/CHANGES.md"
+        )
+        recorded = json.loads(manifest.read_text(encoding="utf-8")).get("corpusDigest")
+    if recorded != digest:
+        raise SystemExit(
+            f"FAIL: {ref} does not publish the corpus it has. Its "
+            f"vectors/MANIFEST.json carries corpusDigest {str(recorded)[:16]}... "
+            f"while its own vectors hash to {digest[:16]}.... That field is the "
+            "one thing a consumer rail fetches, so every rail still on the older "
+            "corpus would agree with it and this gate would report copies as "
+            "current that are not. Fix it on that branch: regenerate with "
+            "python3 vectors/gen_manifest.py."
+        )
+    return Published(
+        ref=ref, commit=commit, digest=digest, vectors=vectors, revision=revision
+    )
 
 
 def load_ledger() -> list[dict[str, str]]:
@@ -246,24 +430,18 @@ class Claim:
     occurrences: int
 
 
-def current_revision() -> int:
-    """The revision the corpus is at, read from the changelog that owns revision
-    numbering rather than from a number restated in this script, which could only
-    ever agree with itself."""
-    seen = sorted(int(n) for n in REVISION_HEADING.findall(CHANGES.read_text("utf-8")))
-    if not seen:
-        raise SystemExit(
-            f"FAIL: {CHANGES.relative_to(REPO_ROOT)} carries no '## suiteRevision N' "
-            "heading, so nothing says which revision the copies are being checked "
-            "against."
-        )
-    return seen[-1]
+def claims(copies: int, pub: Published) -> tuple[Claim, ...]:
+    """What the report must say, derived from what this gate just measured.
 
-
-def claims(copies: int) -> tuple[Claim, ...]:
-    """What the report must say, derived from what this gate just measured."""
-    vectors = str(len(corpus_files(str(VECTORS))))
-    revision = str(current_revision())
+    Every claim below is a sentence about what the RAILS carry, so every one of
+    them is measured against the corpus the rails could have vendored -- the
+    default branch's -- and not against the checked-out tree. A branch that adds
+    vectors does not make these sentences wrong, because the rails still vendor
+    what the default branch publishes; the merge does, and that is the revision
+    at which they have to be rewritten, alongside the refresh they describe.
+    """
+    vectors = str(pub.vectors)
+    revision = str(pub.revision)
     return (
         Claim(
             "note 2's opening, the revision the rails carry",
@@ -312,11 +490,11 @@ def _normalize(text: str) -> str:
 _CLAIM_SPAN_CHARS = 60
 
 
-def claim_failures(copies: int) -> list[str]:
+def claim_failures(copies: int, pub: Published) -> list[str]:
     published = _normalize(REPORT.read_text(encoding="utf-8"))
     rel = REPORT.relative_to(REPO_ROOT)
     out: list[str] = []
-    for claim in claims(copies):
+    for claim in claims(copies, pub):
         pattern = re.compile(
             re.escape(claim.opens) + f"(.{{0,{_CLAIM_SPAN_CHARS}}}?)"
             + re.escape(claim.closes)
@@ -341,7 +519,7 @@ def claim_failures(copies: int) -> list[str]:
     return out
 
 
-def check() -> int:
+def check(published_ref: str) -> int:
     entries = load_ledger()
     published = corpus_digest(str(VECTORS))
     # First, because everything after it is about copies of a corpus, and this is
@@ -359,11 +537,17 @@ def check() -> int:
         for failure in unpublished:
             print(f"  {failure}", file=sys.stderr)
         return 1
-    behind = [e for e in entries if e.get("corpusDigest") != published]
+    # What the rails could have vendored. Established after the check above and
+    # before anything is said about a copy, because every sentence from here on
+    # is a comparison against it and a comparison against a reference that could
+    # not be read is not a result.
+    pub = published_corpus(published_ref)
+    behind = [e for e in entries if e.get("corpusDigest") != pub.digest]
     if behind:
         print(
-            f"FAIL: {len(behind)} vendored cop(ies) do not carry the corpus this "
-            f"repository publishes ({published[:16]}...):",
+            f"FAIL: {len(behind)} vendored cop(ies) do not carry the corpus the "
+            f"default branch publishes ({pub.digest[:16]}..., {pub.ref} at "
+            f"{pub.commit[:12]}):",
             file=sys.stderr,
         )
         for e in behind:
@@ -375,11 +559,12 @@ def check() -> int:
             "\nRefresh each copy with the vendoring script that owns it, then re-run "
             "this gate with --sync so the ledger records what those copies now carry. "
             "Editing the ledger instead records an intention: the digests in it are "
-            "read from the copies, never typed.",
+            "read from the copies, never typed, and no regeneration here can move "
+            "them.",
             file=sys.stderr,
         )
         return 1
-    stale = claim_failures(len(entries))
+    stale = claim_failures(len(entries), pub)
     if stale:
         print(
             "FAIL: every recorded copy carries the published corpus, but the report "
@@ -398,8 +583,9 @@ def check() -> int:
         )
         return 1
     print(
-        f"OK: {len(entries)} vendored cop(ies) carry the published corpus "
-        f"({published[:16]}...), and the report publishes that corpus."
+        f"OK: {len(entries)} vendored cop(ies) carry the corpus the default branch "
+        f"publishes ({pub.digest[:16]}..., {pub.ref} at {pub.commit[:12]}), and the "
+        "report says so."
     )
     return 0
 
@@ -429,10 +615,19 @@ def main(argv: list[str]) -> int:
         metavar="ID=DIR",
         help="the vendored corpus directory for one recorded copy, required by --sync",
     )
+    ap.add_argument(
+        "--published-ref",
+        default=DEFAULT_PUBLISHED_REF,
+        metavar="REF",
+        help=(
+            "the ref whose corpus the consumer rails could have vendored "
+            f"(default {DEFAULT_PUBLISHED_REF})"
+        ),
+    )
     args = ap.parse_args(argv[1:])
     if args.sync and sync(parse_dirs(args.copy)) != 0:
         return 1
-    return check()
+    return check(args.published_ref)
 
 
 if __name__ == "__main__":

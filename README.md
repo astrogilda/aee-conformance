@@ -524,6 +524,18 @@ That suite commit does resolve in a fresh clone here and carries the 232 vectors
 of suiteRevision 22. This suite carries the blind figure with the null-digest
 caveat attached and never without it.
 
+The most recent reading is against the current corpus. On 2026-08-12, in the same
+thread, the author posted 250/250 at suiteRevision 25 — accepts 55/55, rejects
+193/193, indeterminate 2/2, reason parity 69/193 — against suite commit
+`5019931`, whose manifest carries 250 vectors in exactly that partition and the
+vendored spec digest `759d2383` the run names. It was verified on a clean runner
+at a public CI run that checks the spec digest before it counts anything. It is
+directed, and the author's opening words are why this suite records it that way:
+"Repinned and implemented first, then measured your open question." The record
+names the suite commit, the spec digest and the runner, and it names no checker
+source digest, so it is the second figure in this column carried without one and
+this suite says so rather than letting a reader assume otherwise.
+
 Only three of those figures are evidence that an outside reader reached a rule
 unaided. The 125/125 was the first full corpus run with no vector-driven fixes.
 The 140/140 was a first run by an unchanged build whose rule for the two new
@@ -542,13 +554,14 @@ directed 153/153 says the corrected rule is implementable by someone who has onl
 the text. It is not the same evidence as 125/125 and this suite does not present
 it as such.
 
-It has not been run against suiteRevision 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25 or 26, so
+It has not been run against suiteRevision 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24 or 26, so
 this suite publishes no score for it at any of them. They are on that list for
 three different reasons, and only one of them is that the requirement went
-unexercised. The three at the end of the list came after that v0.7 run:
-suiteRevision 23 added sixteen reject vectors and a second declared condition on
-a seventeenth, and the two that followed it moved the vendored text without
-moving a vector. suiteRevisions
+unexercised. Two of the three at the end of the list fall between that v0.7 run
+and the suiteRevision-25 one: suiteRevision 23 added sixteen reject vectors and a
+second declared condition on a seventeenth, and suiteRevision 24 moved the
+vendored text without moving a vector. The third came after it: suiteRevision 26
+added eight boundary vectors and moved no vendored text. suiteRevisions
 7 through 21 are the opposite case and the distinction is worth being exact
 about. Every vector those revisions added is inside the suiteRevision-22 corpus
 that run covered, so the requirements they carry, the signature-entry requirement

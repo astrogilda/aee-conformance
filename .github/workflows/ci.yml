@@ -96,12 +96,19 @@ jobs:
   python:
     runs-on: ubicloud-standard-2
     steps:
+      # Full history, because the consumer-lag gate measures the vendored copies
+      # against the corpus the DEFAULT BRANCH publishes -- the only corpus a rail
+      # in another repository could have fetched. A shallow checkout carries the
+      # pushed commit and no origin/main, and that gate then reports that it did
+      # not run rather than guessing, so the whole job would stop here.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: astral-sh/setup-uv@v5
       - name: sync toolchain
         run: uv sync --extra dev --extra generators
       - name: mypy --strict
-        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/interpretation-registry-gate-test.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-anchor-gate-test.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/code-contract-gate-test.py scripts/consumer-lag-gate.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/condition-forcing-gate.py scripts/condition-forcing-gate-test.py scripts/condition-forcing-crosscheck.py scripts/condition-forcing-crosscheck-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py scripts/countcensus.py scripts/count-gate.py scripts/count-gate-test.py scripts/regenerability-gate.py scripts/accept-anchor-gate.py scripts/accept-anchor-gate-test.py scripts/liveness-probe.py scripts/liveness-probe-test.py scripts/citation-metadata-gate.py scripts/citation-metadata-gate-test.py scripts/expectation-slack-gate.py scripts/expectation-slack-gate-test.py scripts/uncited-crosscheck-gate.py scripts/reading-differential.py scripts/reading-differential-test.py scripts/vendor-remap-test.py
+        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/interpretation-registry-gate-test.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-anchor-gate-test.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/code-contract-gate-test.py scripts/consumer-lag-gate.py scripts/consumer-lag-gate-test.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/condition-forcing-gate.py scripts/condition-forcing-gate-test.py scripts/condition-forcing-crosscheck.py scripts/condition-forcing-crosscheck-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py scripts/countcensus.py scripts/count-gate.py scripts/count-gate-test.py scripts/regenerability-gate.py scripts/accept-anchor-gate.py scripts/accept-anchor-gate-test.py scripts/liveness-probe.py scripts/liveness-probe-test.py scripts/citation-metadata-gate.py scripts/citation-metadata-gate-test.py scripts/expectation-slack-gate.py scripts/expectation-slack-gate-test.py scripts/uncited-crosscheck-gate.py scripts/reading-differential.py scripts/reading-differential-test.py scripts/vendor-remap-test.py
       # Type-checks by DIRECTORY, which is why it sits beside the pass above
       # rather than replacing it. That one is driven from the list of files
       # written out on the line above, and a list is only accurate on the day it
@@ -364,8 +371,17 @@ jobs:
       # per-rail cells describing what the rails vendor were written at
       # suiteRevision 6 and still said so at 14, and a rail the report named
       # had no row behind it at all.
-      - name: consumers carry the corpus this repository publishes, and the report says so
+      - name: consumers carry the corpus the default branch publishes, and the report says so
         run: python3 scripts/consumer-lag-gate.py --check
+      # And the gate is watched to go red, and to go red at the right moment.
+      # Measured against the checked-out tree instead of the default branch it
+      # refused correctly and too early: a branch adding vectors could not be
+      # pushed until rails had vendored a commit no rail could fetch, and the
+      # corpus could not be published because the push was refused. Both halves
+      # of every pair below are asserted, because a gate that never refuses and
+      # a gate that refuses what cannot yet be satisfied are the same failure.
+      - name: the lag gate refuses a real lag and only a real lag
+        run: python3 scripts/consumer-lag-gate-test.py
       # A count is a derived fact with exactly one source, and every copy of it
       # in prose is a cache nothing invalidates. The copies went stale at
       # different rates until two documents here disagreed about the size of the

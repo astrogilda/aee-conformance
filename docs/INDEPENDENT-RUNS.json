@@ -338,6 +338,77 @@
       "suiteCommit": "d54f5a41d78fd1636fd6721feac8eccbc8d84038",
       "suiteCommitNote": null,
       "note": "the v0.7 run, and the first run posted against a corpus this repository moved to a new predicate version. That report leads with the blind figure and says the directed one is not evidence about the determinacy of the text, so the blind 179/232 is the headline here: accepts 8/54, rejects 169/176, indeterminate 2/2. The directed pass reached 232/232, accepts 54/54, rejects 176/176, indeterminate 2/2, and is directed twice over in the author's account -- it followed a spec diff already read and, for bad-902, an adversarial review of that implementation. The report partitions the 53 first-run mismatches by the message the blind build emitted, and says that is the only partition its published run records support: 42 report that aeeRunBinding does not equal the run binding derived from the statement, 7 returned valid with no reason, and 4 report a carried pass_indirect against a recomputed pass. An earlier per-fix attribution of 43/5/3/2 was withdrawn rather than restated, because attributing a recovery to a particular fix needs a bisection against the blind build and that build is unrecoverable. Three rules the directed pass implemented recovered no vector and the blind run never reached them -- the registered networkPosture.posture vocabulary, non-empty signatures, and attribution as a substrate-row validity requirement, forced by bad-823, bad-745 and bad-968 -- so their correctness in this run is directed and says nothing about whether the text determines them; ok-047 and ok-048 are attribution vectors and both were blind mismatches. The report claims no reason-parity figure for this run at all: that build emits free prose and no condition codes, two constructions over the same run disagreed at 175/178 and 167/178, and the ambiguity is published as a script rather than resolved by picking one. The corpus commit it pinned resolves in this repository and carries the 232 vectors of suiteRevision 22."
+    },
+    {
+      "suiteRevision": 25,
+      "figures": [
+        {
+          "figure": "250/250",
+          "role": "score",
+          "carriedIn": [
+            {
+              "file": "README.md",
+              "times": 1
+            },
+            {
+              "file": "docs/IMPLEMENTATION-REPORT.md",
+              "times": 1
+            }
+          ]
+        },
+        {
+          "figure": "55/55",
+          "role": "accepts",
+          "carriedIn": [
+            {
+              "file": "README.md",
+              "times": 1
+            },
+            {
+              "file": "docs/IMPLEMENTATION-REPORT.md",
+              "times": 1
+            }
+          ]
+        },
+        {
+          "figure": "193/193",
+          "role": "rejects",
+          "carriedIn": [
+            {
+              "file": "README.md",
+              "times": 1
+            },
+            {
+              "file": "docs/IMPLEMENTATION-REPORT.md",
+              "times": 1
+            }
+          ]
+        },
+        {
+          "figure": "69/193",
+          "role": "reason-parity",
+          "carriedIn": [
+            {
+              "file": "README.md",
+              "times": 1
+            },
+            {
+              "file": "docs/IMPLEMENTATION-REPORT.md",
+              "times": 1
+            }
+          ]
+        }
+      ],
+      "evidence": "directed",
+      "unprompted": false,
+      "posting": "in-toto/attestation#570, comment 5265066942 of 2026-08-12, naming the run at Rul1an/aee-checker actions run 31583021880",
+      "date": "2026-08-12",
+      "dateNote": null,
+      "checkerSourceDigest": null,
+      "digestNote": "the comment names no checker source digest, and this repository does not have one to transcribe. What it does name is the suite commit, the vendored spec digest 759d2383 that commit carries, and a public CI run said to check the spec digest before it counts anything. That is a weaker binding than the revision-6 record: it fixes what was run against, not what did the running, so this row records null rather than treating the workflow run identifier as if it named a build.",
+      "suiteCommit": "5019931751041c815463faa569fbb159e01612a0",
+      "suiteCommitNote": null,
+      "note": "the run against the current corpus, and the only one in this ledger posted as a thread comment rather than as a run report in the checker's own provenance index. The suite commit resolves here and its manifest carries 250 vectors partitioned exactly as posted, 55 accept, 193 reject and 2 indeterminate, under corpusDigest b5aa5fdb and vendored spec digest 759d2383, both identical to the values at the head of this repository. The run is directed on its author's own opening words, 'Repinned and implemented first, then measured your open question' -- the checker was brought to this revision before it was measured, so the figure says the revision-25 text is implementable from it, not that an unaided reader arrived at it. The indeterminate 2/2 is stated in the prose but is not bound as a figure here, because '2/2' occurs in both publishing documents for unrelated reasons and a count over it would assert nothing about this run. The commit no ref reached is now held by the annotated tag cited/5019931, so a reproducer can fetch it from a clone."
     }
   ],
   "quotedWording": [

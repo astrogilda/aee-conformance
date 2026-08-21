@@ -412,25 +412,93 @@ def unprompted_failures(runs: list[dict[str, Any]], report: str) -> list[str]:
 def quote_failures(quotes: list[dict[str, Any]]) -> list[str]:
     """The author's wording, verbatim, wherever this repository says it carries it.
 
-    A shorter excerpt must be a contiguous substring of the fullest recorded
-    wording, so a document cannot quietly carry a paraphrase that reads like a
-    quotation of the same sentence.
+    Two checks, and they protect different things.
+
+    The verbatim check is the one that protects every quotation: the recorded text
+    must appear, character for character after whitespace collapsing, in every
+    document the row says carries it. Alter a published quotation by one word and
+    it fails here. That check needs nothing but the row itself, so it holds for a
+    quotation nothing else in the file relates to.
+
+    The containment check protects a quotation against the OTHER excerpts of the
+    same utterance. Where this repository carries a long form in one document and a
+    shorter cut of it in another -- which it does, because the README states the
+    author's full sentence and the report and changelog carry the clause -- the
+    shorter one must be a contiguous substring of the fullest form, so a document
+    cannot quietly carry a paraphrase that reads like a quotation of the same
+    sentence. Both would still pass the verbatim check, because both would be
+    faithfully reproduced from the ledger; it is only their disagreement with each
+    other that shows one has drifted.
+
+    That property is about ONE utterance, and it was originally written over the
+    whole file: a single global longest, with every quotation required to be a
+    substring of it. That only ever holds while the file records excerpts of one
+    sentence. The moment a second run's author is quoted, the two quotations are
+    unrelated wordings and neither contains the other, so registering a correct
+    quotation failed -- and the sentence quoted from the revision-25 run was
+    published in two documents while being unregisterable here, which is the
+    protection mechanism preventing protection. The fix is to compute the fullest
+    form per utterance rather than per file, which keeps the drift check exactly
+    where it means something and removes the coupling between utterances that never
+    meant anything.
+
+    ``utterance`` is what names the group, not ``about``. ``about`` is the
+    suiteRevision the quotation is about, and one run's author can say more than one
+    thing; grouping on it would reinstate the same defect one level down, where two
+    genuine quotations from one run would be required to contain each other. Rows
+    sharing an utterance must agree on ``about``, because a disagreement there means
+    one of them is mislabelled.
+
+    A single-member group is checked by the verbatim rule and by nothing else: it is
+    trivially its own fullest form. That is not a gap this check can close, because
+    with one excerpt on record there is no second reading to disagree with. It is
+    recorded here so that a lone quotation is not mistaken for one holding two
+    independent checks.
     """
     out: list[str] = []
-    longest = max((normalize(str(q["text"])) for q in quotes), key=len, default="")
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for quote in quotes:
+        utterance = str(quote.get("utterance", "")).strip()
+        if not utterance:
+            out.append(
+                f"docs/INDEPENDENT-RUNS.json: the recorded wording "
+                f"{normalize(str(quote['text']))[:60]!r}... names no utterance. The "
+                "fullest-form check is computed per utterance, so a row without one "
+                "would be compared against unrelated wordings or against nothing."
+            )
+            continue
+        groups.setdefault(utterance, []).append(quote)
+    for utterance, group in groups.items():
+        out.extend(_utterance_failures(utterance, group))
     for quote in quotes:
         text = normalize(str(quote["text"]))
-        if text not in longest:
-            out.append(
-                f"docs/INDEPENDENT-RUNS.json: the recorded wording {text[:60]!r}... is "
-                "not an excerpt of the fullest wording recorded beside it, so one of "
-                "the two is a paraphrase."
-            )
         out.extend(
             f"{rel}: does not carry the author's wording verbatim: {text[:72]!r}..."
             for rel in quote.get("carriedIn", [])
             if text not in read(REPO_ROOT / str(rel))
         )
+    return out
+
+
+def _utterance_failures(utterance: str, group: list[dict[str, Any]]) -> list[str]:
+    """Every excerpt of one utterance is a cut of the fullest one recorded of it."""
+    out: list[str] = []
+    abouts = sorted({str(q.get("about")) for q in group})
+    if len(abouts) > 1:
+        out.append(
+            f"docs/INDEPENDENT-RUNS.json: the excerpts of {utterance!r} are recorded "
+            f"as being about suiteRevision(s) {', '.join(abouts)}. One utterance is "
+            "about one run, so one of these rows is mislabelled."
+        )
+    longest = max((normalize(str(q["text"])) for q in group), key=len)
+    for quote in group:
+        text = normalize(str(quote["text"]))
+        if text not in longest:
+            out.append(
+                f"docs/INDEPENDENT-RUNS.json: the recorded wording {text[:60]!r}... is "
+                f"not an excerpt of the fullest wording recorded of {utterance!r}, so "
+                "one of the two is a paraphrase."
+            )
     return out
 
 

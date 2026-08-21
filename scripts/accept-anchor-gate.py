@@ -112,7 +112,7 @@ BASELINE_COMMENT = (
 # A reject-index vector row: `| `bad-101-refs-empty` | ok-001 | ... `.
 # Matched on the first two cells only; the prose in the rest of the row may
 # contain anything, including pipes inside code spans.
-_ROW = re.compile(r"^\|\s*`(bad-[^`]+)`\s*\|\s*`?([^|`]+?)`?\s*\|")
+_ROW = re.compile(r"^\|\s*`((?:bad|vate)-[^`]+)`\s*\|\s*`?([^|`]+?)`?\s*\|")
 
 # An accept vector's own id, anchored at BOTH ends. A declared parent is then
 # resolved by membership in the set of ids that ship, whole, rather than by
@@ -122,7 +122,7 @@ _ROW = re.compile(r"^\|\s*`(bad-[^`]+)`\s*\|\s*`?([^|`]+?)`?\s*\|")
 # `ok-002` and passed. The check's claim is that a refusal ships beside the
 # accept vector it names; a string naming nothing satisfied it as long as its
 # first characters collided with something real.
-_ACCEPT_ID = re.compile(r"^(ok-[0-9]+)(?:-[a-z0-9-]+)?$")
+_ACCEPT_ID = re.compile(r"^(ok-[0-9]+|vate-[0-9]+[a-z])(?:-[a-z0-9-]+)?$")
 
 
 def load_manifest(path: Path) -> dict[str, Any]:

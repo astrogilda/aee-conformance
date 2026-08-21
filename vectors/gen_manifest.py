@@ -153,7 +153,12 @@ def table_rows(md_path: str) -> list[list[str]]:
             if not line.startswith("|"):
                 continue
             cells = [c.strip() for c in line.strip("|").split("|")]
-            if cells and re.match(r"^`?(ok|bad|ind)-\d", cells[0]):
+            # The four id families the corpus publishes. `vate-` is the one
+            # that is not numbered from a single sequence: its ids carry the
+            # case number and letter of the external conformance case that
+            # prompted them, so the pattern admits a digit or a letter after
+            # the prefix rather than a digit alone.
+            if cells and re.match(r"^`?((ok|bad|ind)-\d|vate-\d)", cells[0]):
                 rows.append(cells)
     return rows
 

@@ -367,7 +367,10 @@ INDEX_HEADING = re.compile(r"^## Vectors \((\d+)\)$", re.MULTILINE)
 # reject index backticks its ids and the accept index does not. This mirrors
 # gen_manifest.table_rows deliberately -- a second, looser parser here would let
 # a row the manifest generator skips be counted as present by this gate.
-INDEX_ROW_ID = re.compile(r"^\| *`?((?:ok|bad|ind)-[0-9][0-9a-z-]*)`? *\|", re.MULTILINE)
+INDEX_ROW_ID = re.compile(
+    r"^\| *`?((?:ok|bad|ind)-[0-9][0-9a-z-]*|vate-[0-9][0-9a-z-]*)`? *\|",
+    re.MULTILINE,
+)
 # Which family of the corpus each index table is the table of.
 INDEX_FAMILY = {
     "vectors/accept/INDEX.md": "accept",

@@ -303,13 +303,23 @@ def _normalize(text: str) -> str:
     return " ".join(text.split())
 
 
+# How much text may sit between a claim's opening and closing markers. It is a
+# regex repetition bound measured in CHARACTERS and it counts nothing: it is not
+# a vector count, a revision, or a number of rails. It is named rather than
+# written inline because a bare integer in a repository whose census reads every
+# count-shaped integer collides with whatever live count happens to equal it,
+# and the collision it actually hit was the accept-vector count.
+_CLAIM_SPAN_CHARS = 60
+
+
 def claim_failures(copies: int) -> list[str]:
     published = _normalize(REPORT.read_text(encoding="utf-8"))
     rel = REPORT.relative_to(REPO_ROOT)
     out: list[str] = []
     for claim in claims(copies):
         pattern = re.compile(
-            re.escape(claim.opens) + "(.{0,60}?)" + re.escape(claim.closes)
+            re.escape(claim.opens) + f"(.{{0,{_CLAIM_SPAN_CHARS}}}?)"
+            + re.escape(claim.closes)
         )
         hits = pattern.findall(published)
         if len(hits) != claim.occurrences:

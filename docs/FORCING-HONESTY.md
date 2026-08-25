@@ -28,7 +28,7 @@ all.**
 | suite | `adversarial-execution-evidence-conformance` |
 | corpus | suiteRevision 26, 258 vectors (60 accept, 196 reject, 2 indeterminate) |
 | vendored specification | upstream commit `0dbe10bcc959b63dc42370a5db09812c9476f59a` |
-| `vectors/MANIFEST.json` | `sha256:9c450c872246320eeaa69aea9bbc01c50f908a8ebabff484a4b460ff97db7b37` |
+| `vectors/MANIFEST.json` | `sha256:3a1a9f83cc291988de628bbaeb344caed5bf0bc94c6685d12c1a678e8112524b` |
 | `docs/FORCING-BASELINE.json` | `sha256:9009ae910a7084b31f6a8edb763cfad19ded45a8dd98685e6be93630c22ba399` |
 | campaign | 754 single-site weakenings: 424 KILLED, 27 SILENT, 298 DEAD, 5 INCONCLUSIVE |
 

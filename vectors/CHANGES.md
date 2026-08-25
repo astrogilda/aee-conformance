@@ -29,6 +29,26 @@ byte-identically from the generators.
   another format, and not evidence about any implementation other than a rail run
   against this corpus. The corpus digest above is recorded as a pin and not
   reproduced as a validation of anyone's canonicalization profile.
+
+### Source of the vate-* cases, resolvable
+
+Stated once for the whole family rather than repeated on each vector. A commit
+hash and a local case identifier stop resolving the moment this repository is no
+longer the reader's entry point, so the repository and the three case files are
+named by URL at the fixed commit they were read at.
+
+- Source repository:
+  <https://github.com/Poke-nushi/Verifiable-Agent-Trust-Envelope>
+- Fixed review commit:
+  <https://github.com/Poke-nushi/Verifiable-Agent-Trust-Envelope/tree/ce00121d7bd658c7a1fcd861b386ea9ea7ce66be>
+- The pinned cases, at that commit, under `conformance/al2-vate-v0.3/cases/`:
+  - <https://github.com/Poke-nushi/Verifiable-Agent-Trust-Envelope/blob/ce00121d7bd658c7a1fcd861b386ea9ea7ce66be/conformance/al2-vate-v0.3/cases/post-execution-admission-digest-mismatch.json>
+  - <https://github.com/Poke-nushi/Verifiable-Agent-Trust-Envelope/blob/ce00121d7bd658c7a1fcd861b386ea9ea7ce66be/conformance/al2-vate-v0.3/cases/post-execution-effective-constraints-aggregate-exceeded.json>
+  - <https://github.com/Poke-nushi/Verifiable-Agent-Trust-Envelope/blob/ce00121d7bd658c7a1fcd861b386ea9ea7ce66be/conformance/al2-vate-v0.3/cases/post-execution-runtime-mismatch.json>
+
+The links locate the source; they do not transfer any claim. Every expectation
+in the vate-* vectors remains this predicate's own, decided by this suite's own
+rails, and nothing here is a conformance result about that repository.
 - **The case-1 trio is one shape, so that it instantiates the source case's
   relation.** Two synthetic admission receipts, A and B, are derived from
   published one-line preimages, and all three vectors of that case are built

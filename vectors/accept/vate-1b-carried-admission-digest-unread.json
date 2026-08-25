@@ -15,7 +15,7 @@
         ]
       }
     ],
-    "batchRoot": "41adc088e59f337de1f31c85e59d3db2f077a5c7bb8761dc5ccb714f3dce3243",
+    "batchRoot": "4c4b9f76fa05e486049210d932191baa752a0631e6d6a1ca81c5ed13068e5d45",
     "coverage": {
       "assessedClasses": [
         "XA"
@@ -76,22 +76,22 @@
     },
     "observationRecords": [
       {
-        "payload": "eyJhZWVBc3Nlc3NlZEF0dGFja3MiOlsiWEEtRVhBTVBMRS0xIl0sImFlZUtpbmQiOiJhcm1pbmciLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZVBvc3R1cmVEaWdlc3QiOiJhNmViZmM4NDViZmU5MTBhMDk5MzIwZmQ3ZWMzM2UyMTI4MmE4YjU2ZDgyMTExNTI3YTgwNDQ0Y2ExOGU0MzUyIiwiYWVlUnVuQmluZGluZyI6IjI1MjkyNmNhYmUwZjc0YjZlMTgxMjhlYTRlZjBlOTQxMjA2MWI5MTdiMGU0ZDM1ODY0ZmM4ZGM4MjhlMmY0ZTkiLCJhcm1lZEF0IjoiMjAyNS0xMi0zMVQyMzo1OTowMFoiLCJ2YXRlQWRtaXNzaW9uRGlnZXN0IjoiMmY3MDZiY2ZhZmNlZDk1YmJkNDc5YzMyYzE2NTQxODM1ODJlMjhlYmRiN2I2NmVlZGNmMTU1NmM3ZDE5MTgxZiIsInZhdGVBZG1pc3Npb25SZWYiOiJ1cm46ZXhhbXBsZTp2YXRlOmFkbWlzc2lvbi1yZWNlaXB0LzEifQ==",
+        "payload": "eyJhZWVBc3Nlc3NlZEF0dGFja3MiOlsiWEEtRVhBTVBMRS0xIl0sImFlZUtpbmQiOiJhcm1pbmciLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZVBvc3R1cmVEaWdlc3QiOiJhNmViZmM4NDViZmU5MTBhMDk5MzIwZmQ3ZWMzM2UyMTI4MmE4YjU2ZDgyMTExNTI3YTgwNDQ0Y2ExOGU0MzUyIiwiYWVlUnVuQmluZGluZyI6IjM0ZjhiYTljOTEzYzY2MTJhOTRiNTQ0MmI5NGNlNWVjNmJiMTYzMGQ4NWM1OTc1YmM5ZTRhZmQ3YWU4OGY3NTUiLCJhcm1lZEF0IjoiMjAyNS0xMi0zMVQyMzo1OTowMFoiLCJ2YXRlQWRtaXNzaW9uRGlnZXN0IjoiZmQ3MzliNWI4NDYwM2NjYmQ5NjMxNTk4NTRlOTExM2JhYzY3OTUwMTRmNzAyM2E1NmRjMjg5Nzg4M2JlODljNiIsInZhdGVBZG1pc3Npb25SZWYiOiJ1cm46ZXhhbXBsZTp2YXRlOmFkbWlzc2lvbi1yZWNlaXB0L2IifQ==",
         "payloadType": "application/vnd.example.aee-observation.v1+json",
         "signatures": [
           {
             "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
-            "sig": "Nw4QKS2WtJG5gLI7sjzBaWlckydBH7HpkfP1X54bKyTnFR6PjmRtyiZ0DN/dWVqpzie036BMPUH6sGsycauMAw=="
+            "sig": "EuHvqgZ9uXAX5T+jFmsU9i3xiKUGVIlmDYEFvZSIxZmaDjC7f99h89AOpnHWiN4MR/+gDiJOsjMnqwfSnS0LAQ=="
           }
         ]
       },
       {
-        "payload": "eyJhZWVEcm9wQ291bnQiOjAsImFlZUtpbmQiOiJzZWFsZWQiLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZU9ic2VydmVkQXR0YWNrcyI6W10sImFlZU9ic2VydmVkU2V0IjoiNGY1M2NkYTE4YzJiYWEwYzAzNTRiYjVmOWEzZWNiZTVlZDEyYWI0ZDhlMTFiYTg3M2MyZjExMTYxMjAyYjk0NSIsImFlZVBvc3R1cmVEaWdlc3QiOiJhNmViZmM4NDViZmU5MTBhMDk5MzIwZmQ3ZWMzM2UyMTI4MmE4YjU2ZDgyMTExNTI3YTgwNDQ0Y2ExOGU0MzUyIiwiYWVlUnVuQmluZGluZyI6IjI1MjkyNmNhYmUwZjc0YjZlMTgxMjhlYTRlZjBlOTQxMjA2MWI5MTdiMGU0ZDM1ODY0ZmM4ZGM4MjhlMmY0ZTkiLCJhZWVTdGlsbEFybWVkIjp0cnVlfQ==",
+        "payload": "eyJhZWVEcm9wQ291bnQiOjAsImFlZUtpbmQiOiJzZWFsZWQiLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZU9ic2VydmVkQXR0YWNrcyI6W10sImFlZU9ic2VydmVkU2V0IjoiNGY1M2NkYTE4YzJiYWEwYzAzNTRiYjVmOWEzZWNiZTVlZDEyYWI0ZDhlMTFiYTg3M2MyZjExMTYxMjAyYjk0NSIsImFlZVBvc3R1cmVEaWdlc3QiOiJhNmViZmM4NDViZmU5MTBhMDk5MzIwZmQ3ZWMzM2UyMTI4MmE4YjU2ZDgyMTExNTI3YTgwNDQ0Y2ExOGU0MzUyIiwiYWVlUnVuQmluZGluZyI6IjM0ZjhiYTljOTEzYzY2MTJhOTRiNTQ0MmI5NGNlNWVjNmJiMTYzMGQ4NWM1OTc1YmM5ZTRhZmQ3YWU4OGY3NTUiLCJhZWVTdGlsbEFybWVkIjp0cnVlfQ==",
         "payloadType": "application/vnd.example.aee-observation.v1+json",
         "signatures": [
           {
             "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
-            "sig": "/KRm+KeTYEUVcOEKfqEy1ndFkkK68ZNmf/lAhVWHUop9hLCg4Ll+IYIVE9aJQVUnGix9PlUbfaRYmsFB1QlNDg=="
+            "sig": "5qSTGPKy4BtmcR8LUQ5V0JNnYDkh/DF8dQ7xU+AD1Qvw4RZmd/9L/xH+017AtWgUAfuyFf4YJbb1s1d27ffRBQ=="
           }
         ]
       }
@@ -102,9 +102,9 @@
   "subject": [
     {
       "digest": {
-        "sha256": "d14fbbcd076c6bfe5e6aa52b169c0baf7f7044ea46fe279afd7629e92baac8fc"
+        "sha256": "35cc6fb260268f69a231fa0b9ead51b067c8455bff600c64978200f72ef2e9ff"
       },
-      "name": "example-agent-bundle"
+      "name": "example-admission-receipt-a"
     }
   ]
 }

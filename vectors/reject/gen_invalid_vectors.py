@@ -181,10 +181,15 @@ SUB_PRIV, SUB_PUB, SUB_KEYID = key_for("substrate-observation-test")
 PREIMAGES = {
     "subject": "example-agent-bundle-content/v1",
     "subject-b": "example-agent-bundle-b-content/v1",
-    # A second admission receipt and a second runtime image, for the three
-    # vate-* vectors below. Derived from a published one-line preimage like
-    # every other digest here, so a reader re-derives them.
-    "admission-receipt": "example-second-admission-receipt/v1",
+    # Two distinct admission receipts, A and B, and a second runtime image, for
+    # the three vate-* vectors below. Two receipts rather than one because the
+    # pinned VATE case compares an admission receipt with an admission receipt:
+    # holding a receipt against an executed artifact compares different object
+    # categories and establishes nothing. Derived from a published one-line
+    # preimage like every other digest here, so a reader re-derives them, and
+    # spelled identically in the accept generator so the two never diverge.
+    "admission-receipt-a": "example-admission-receipt-a/v1",
+    "admission-receipt-b": "example-admission-receipt-b/v1",
     "second-runtime-image": "example-second-runtime-image/v1",
     "substrate": "example-substrate-image-content/v1",
     "run-entropy": "example-run-start-entropy/v1",
@@ -540,6 +545,25 @@ def P_clean() -> dict[str, Any]:  # ok-002 shape: clean pass, arming + sealed(dr
                      result="pass")
 
 
+def P_receipt_clean() -> dict[str, Any]:  # vate-1d shape: admission receipt A as sole subject
+    """The A-bound shape the case-1 pair is derived from.
+
+    Admission receipt A occupies the one subject slot, the run binding is
+    derived over A, and both records are signed under that binding. It ships as
+    the accept vector `vate-1d`, so the refusal derived from it (`vate-1a`,
+    which substitutes receipt B into the subject and leaves the A-bound records
+    untouched) is an admission-receipt-against-admission-receipt relation
+    rather than an artifact-against-receipt one.
+    """
+    env = environment(M1)
+    b = binding_for(env, subject_sha=D["admission-receipt-a"])
+    return statement(env, [clean_row()],
+                     [record(arming_payload(b)), record(sealed_payload(b))],
+                     result="pass",
+                     subject=[{"name": "example-admission-receipt-a",
+                               "digest": {"sha256": D["admission-receipt-a"]}}])
+
+
 def P_clean_bounded() -> dict[str, Any]:  # ok-003 shape: sealed(drop 3, bound 5)
     env = environment(M1)
     b = binding_for(env)
@@ -662,6 +686,7 @@ PARENTS = {
     "ok-001 shape (caught intercepted, 1 interception)": P_caught,
     "ok-002 shape (clean pass, arming+sealed drop 0)": P_clean,
     "ok-003 shape (clean pass, sealed drop 3 bound 5)": P_clean_bounded,
+    "vate-1d shape (admission receipt A as sole subject)": P_receipt_clean,
     "ok-004 shape (clean substrate row, outOfScope class, degraded)": P_degraded,
     "ok-006 shape (caught reconstructed, examination)": P_reconstructed,
     "ok-007 shape (artifact-only recordless)": P_artifact,
@@ -4171,32 +4196,38 @@ vec("bad-1017-sole-seal-moat-down-all-caught", "ok-001",
 
 def _bvate1a() -> dict[str, Any]:
     # Case post-execution-admission-digest-mismatch, the half that IS native.
-    # The admission receipt takes the one statement-level slot the binding
-    # pre-image reads from outside the observation environment. The records
-    # were signed under the executed artifact's identity and the statement now
-    # declares a receipt, so every record's binding stops deriving. This is a
-    # splice refusal and not a comparison against the receipt: nothing here
-    # dereferences the receipt or checks that it is genuine.
-    st = P_clean()
-    st["subject"][0]["digest"]["sha256"] = D["admission-receipt"]
+    # The parent is the A-bound shape that ships as vate-1d: admission receipt
+    # A in the sole subject slot, records bound and signed for A. The one
+    # mutation replaces A's digest with receipt B's, so the statement now
+    # asserts one admission identity over records produced under another and
+    # every record's binding stops deriving. Receipt against receipt, which is
+    # the relation the pinned case tests. It is still a splice refusal and not
+    # a comparison: nothing here dereferences either receipt or checks that
+    # either is genuine.
+    st = P_receipt_clean()
+    st["subject"][0]["digest"]["sha256"] = D["admission-receipt-b"]
     return st
 
 
-vec("vate-1a-admission-receipt-substituted-splice", "ok-002",
-    "subject[0].digest.sha256 replaced with an external admission receipt "
-    "digest; every record left exactly as the producer signed it",
+vec("vate-1a-admission-receipt-substituted-splice", "vate-1d",
+    "subject[0].digest.sha256 moved from admission receipt A to admission "
+    "receipt B; every record left exactly as the producer signed it for A",
     [], [22, 60], ["run-binding-mismatch"], _bvate1a, spec="L174-182; L563-564",
     note="prompted by VATE case `post-execution-admission-digest-mismatch` at "
          "VATE commit `ce00121d7bd658c7a1fcd861b386ea9ea7ce66be`, corpus "
          "`VATE-AL2-Verifier-Admission-v0.3`, corpus digest "
          "`sha-256:0eb1969ea3763e0fec123de5ea0dacb225eb48a28d76866bbec56dc61d16cf8f`. "
          "An AEE-native boundary vector prompted by that case, not a VATE "
-         "conformance result. What it establishes is narrow and worth stating "
-         "narrowly: a record produced under one admission identity cannot be "
-         "presented under another. It does not establish that the receipt is "
-         "genuine, and its accepted bound is `vate-3c`, where the whole run is "
-         "re-derived and re-signed under the substituted identity and nothing "
-         "is detected")
+         "conformance result. Its parent is the A-bound shape that ships as "
+         "`vate-1d`, so the two objects in the relation are both admission "
+         "receipts, as they are in the pinned case. What it establishes is "
+         "narrow and worth stating narrowly: AEE binds its sole subject "
+         "against record splicing, so records produced under receipt A cannot "
+         "be presented under receipt B. It does NOT perform the pinned case's "
+         "referenced-admission-receipt digest comparison, it does not "
+         "establish that either receipt is genuine, and its accepted bound is "
+         "`vate-3c`, where the whole run is re-derived and re-signed under the "
+         "substituted identity and nothing is detected")
 
 
 def _bvate1c() -> dict[str, Any]:
@@ -4205,8 +4236,8 @@ def _bvate1c() -> dict[str, Any]:
     # still derives and the cardinality rule is the only fault -- which is the
     # answer, because it means the two identities cannot both be carried.
     st = P_clean()
-    st["subject"].append({"name": "example-admission-receipt",
-                          "digest": {"sha256": D["admission-receipt"]}})
+    st["subject"].append({"name": "example-admission-receipt-a",
+                          "digest": {"sha256": D["admission-receipt-a"]}})
     return st
 
 

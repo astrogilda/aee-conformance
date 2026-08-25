@@ -29,10 +29,27 @@ byte-identically from the generators.
   another format, and not evidence about any implementation other than a rail run
   against this corpus. The corpus digest above is recorded as a pin and not
   reproduced as a validation of anyone's canonicalization profile.
+- **The case-1 trio is one shape, so that it instantiates the source case's
+  relation.** Two synthetic admission receipts, A and B, are derived from
+  published one-line preimages, and all three vectors of that case are built
+  from the A-bound statement: receipt A in the sole subject slot, the run
+  binding derived over A, both records signed under it. `vate-1d` ships that statement unchanged.
+  `vate-1a` is that statement with the subject digest moved from A to B and the
+  records left exactly as the producer signed them. `vate-1b` is that statement
+  with the arming payload carrying receipt B's `vateAdmissionDigest` and the
+  reference naming B. Both objects in the relation are therefore admission
+  receipts, as they are in the pinned case, which hashes a referenced admission
+  receipt and compares the value with the digest a post-execution receipt
+  asserts -- not an executed-artifact digest against a receipt digest, which are
+  different object categories and differ by construction. The conclusion the
+  trio makes executable is one sentence: AEE binds its sole subject against
+  record splicing, and does not perform VATE's referenced-admission-receipt
+  digest comparison.
 - **Five accepts, and they are the load-bearing half.**
-  `vate-1b-carried-admission-digest-unread` carries an admission digest in a
-  covering payload that disagrees with the subject the statement declares, and is
-  valid and `pass`, because neither member is read.
+  `vate-1b-carried-admission-digest-unread` carries admission receipt B's digest
+  and reference in a covering payload while admission receipt A is the subject
+  every record is bound to, and is valid and `pass`, because AEE never performs
+  that comparison.
   `vate-2a-aggregate-overrun-unread` carries two side-effect amounts each below a
   carried maximum and summing above it, and recomputes `pass`, because no row
   carries a quantity and the composition law is a minimum over three booleans.
@@ -40,7 +57,7 @@ byte-identically from the generators.
   observed runtime that differ, and is valid, because a statement carries exactly
   one `observationEnvironment` and there is no second runtime to compare against.
   `vate-1d-admission-receipt-as-sole-subject` pays the full price of the case-1
-  anti-splice: the receipt is the sole subject, so the binding covers the
+  anti-splice: admission receipt A is the sole subject, so the binding covers the
   admission identity and the statement names no executed artifact at all. Each is
   a negative pin, and a negative pin states a boundary more precisely than a
   sentence can.
@@ -54,10 +71,10 @@ byte-identically from the generators.
   separation belongs to the substrate key and the evidence tier, and it bounds
   every sentence about what these vectors establish.
 - **Three rejects, two of them narrow and one of them a price rather than a
-  rule.** `vate-1a-admission-receipt-substituted-splice` and
-  `vate-3a-substrate-substituted-splice` substitute a binding input the corpus
-  had not previously substituted -- the subject and the substrate -- and both
-  refuse `run-binding-mismatch`.
+  rule.** `vate-1a-admission-receipt-substituted-splice` moves the subject from
+  admission receipt A to admission receipt B and `vate-3a-substrate-substituted-splice`
+  substitutes the observation-substrate identity; each moves a binding input the
+  corpus had not previously substituted, and both refuse `run-binding-mismatch`.
   `vate-1c-two-subjects-artifact-and-admission` extends no rule that `bad-607`
   and `bad-728` do not already carry; what it adds is that binding an admission
   receipt is not additive, because the pre-image reads only the first subject and

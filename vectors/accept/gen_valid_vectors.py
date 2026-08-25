@@ -115,18 +115,24 @@ PREIMAGES: dict[str, Any] = {
     "network-posture": {"exampleNetworkPosture": {"posture": "sinkhole"}},
     "run-entropy": "example-run-start-checkpoint/v1",
     "unchecked-binding": "example-unchecked-binding/v1",
-    # A second admission receipt and a second runtime image. Both exist only so
-    # that a vector can ask what the run binding does when one of its inputs
-    # names a different identity, and both are derived from a published
-    # one-line preimage exactly as every other digest here is, so a reader
-    # re-derives them rather than trusting a constant somebody typed.
-    "second-admission-receipt": "example-second-admission-receipt/v1",
+    # Two distinct admission receipts, A and B, and a second runtime image. The
+    # two receipts exist so that a vector can hold one admission identity
+    # against ANOTHER admission identity rather than against an executed
+    # artifact: those are different object categories and a digest that differs
+    # because the categories differ demonstrates nothing. All three are derived
+    # from a published one-line preimage exactly as every other digest here is,
+    # so a reader re-derives them rather than trusting a constant somebody
+    # typed.
+    "admission-receipt-a": "example-admission-receipt-a/v1",
+    "admission-receipt-b": "example-admission-receipt-b/v1",
     "second-runtime-image": "example-second-runtime-image/v1",
 }
 
 SUBJECT_DIGEST = sha256_hex(PREIMAGES["subject"].encode())
 SUBSTRATE_DIGEST = sha256_hex(PREIMAGES["substrate"].encode())
-SECOND_RECEIPT_DIGEST = sha256_hex(PREIMAGES["second-admission-receipt"].encode())
+RECEIPT_A_NAME = "example-admission-receipt-a"
+RECEIPT_A_DIGEST = sha256_hex(PREIMAGES["admission-receipt-a"].encode())
+RECEIPT_B_DIGEST = sha256_hex(PREIMAGES["admission-receipt-b"].encode())
 SECOND_RUNTIME_DIGEST = sha256_hex(PREIMAGES["second-runtime-image"].encode())
 CATCH_POLICY_DIGEST = sha256_hex(jcs(PREIMAGES["catch-policy"]))
 POSTURE_DIGEST = sha256_hex(jcs(PREIMAGES["network-posture"]))
@@ -1798,10 +1804,32 @@ def build_vectors() -> dict[str, dict[str, Any]]:
     # that pins what a predicate declines to read is a negative pin, and it is
     # a more precise statement of a boundary than any sentence.
 
-    # vate-1b the record carries an admission digest that disagrees with the
-    # subject the statement declares. Neither member is read: the digest is
+    # The A-bound shape the whole of case 1 is built on: admission receipt A in
+    # the sole subject slot, with the run binding derived over A and every
+    # record signed under that binding. vate-1d ships it unchanged, vate-1b
+    # carries receipt B's digest beside it in producer territory, and the
+    # reject-side vate-1a substitutes B for A in the subject and leaves the
+    # A-bound records exactly as the producer signed them. Deriving all three
+    # from one shape is what makes the pair a receipt-against-receipt relation
+    # rather than an artifact-against-receipt one: the pinned VATE case hashes
+    # a referenced admission receipt and compares it with the admission digest
+    # a post-execution receipt asserts, and both objects in that comparison are
+    # admission receipts.
+    b_receipt_a = run_binding(sha256_hex(jcs(man_1)), subject=RECEIPT_A_DIGEST)
+
+    def receipt_a_subject() -> dict[str, Any]:
+        # A fresh object per call. make_statement puts the descriptor straight
+        # into the statement it builds, so a shared literal would alias two
+        # statements through one nested digest dict.
+        return {"name": RECEIPT_A_NAME, "digest": {"sha256": RECEIPT_A_DIGEST}}
+
+    # vate-1b receipt A is the sole subject and every record is correctly bound
+    # and signed for A, while the arming payload carries receipt B's admission
+    # digest and the reference that names B. The two admission identities
+    # disagree and the statement is valid and recomputes pass, because AEE
+    # never performs that comparison: the carried digest and reference are
     # producer vocabulary inside a covering payload, and the subject is read
-    # only as a binding input. Valid, pass.
+    # only as a binding input.
     v["vate-1b-carried-admission-digest-unread"] = make_statement(
         man_1,
         [
@@ -1812,26 +1840,26 @@ def build_vectors() -> dict[str, dict[str, Any]]:
         records=[
             make_record(
                 "arming",
-                b_1,
+                b_receipt_a,
                 extra={
-                    "vateAdmissionDigest": SECOND_RECEIPT_DIGEST,
-                    "vateAdmissionRef": "urn:example:vate:admission-receipt/1",
+                    "vateAdmissionDigest": RECEIPT_B_DIGEST,
+                    "vateAdmissionRef": "urn:example:vate:admission-receipt/b",
                 },
             ),
-            make_record("sealed", b_1),
+            make_record("sealed", b_receipt_a),
         ],
+        subject=receipt_a_subject(),
     )
 
-    # vate-1d the price of the case-1 anti-splice, paid in full. The admission
-    # receipt is the SOLE subject, so the binding genuinely covers the
-    # admission identity and a record signed under another receipt cannot be
-    # presented here (that is vate-1a). The predicate requires exactly one
-    # subject entry, and the binding reads only the first, so buying that
-    # anti-splice DISPLACES the executed artifact rather than adding to it:
-    # this statement is valid, recomputes pass, and names no executed artifact
-    # anywhere. A consumer learns which admission the run happened under and
-    # cannot learn what was run.
-    b_receipt = run_binding(sha256_hex(jcs(man_1)), subject=SECOND_RECEIPT_DIGEST)
+    # vate-1d the price of the case-1 anti-splice, paid in full. Admission
+    # receipt A is the SOLE subject, so the binding genuinely covers the
+    # admission identity and a record signed under receipt A cannot be
+    # presented under receipt B (that is vate-1a). The predicate requires
+    # exactly one subject entry, and the binding reads only the first, so
+    # buying that anti-splice DISPLACES the executed artifact rather than
+    # adding to it: this statement is valid, recomputes pass, and names no
+    # executed artifact anywhere. A consumer learns which admission the run
+    # happened under and cannot learn what was run.
     v["vate-1d-admission-receipt-as-sole-subject"] = make_statement(
         man_1,
         [
@@ -1840,13 +1868,10 @@ def build_vectors() -> dict[str, dict[str, Any]]:
             )
         ],
         records=[
-            make_record("arming", b_receipt),
-            make_record("sealed", b_receipt),
+            make_record("arming", b_receipt_a),
+            make_record("sealed", b_receipt_a),
         ],
-        subject={
-            "name": "example-admission-receipt",
-            "digest": {"sha256": SECOND_RECEIPT_DIGEST},
-        },
+        subject=receipt_a_subject(),
     )
 
     # vate-2a two clean rows whose carried side-effect amounts are each below

@@ -108,9 +108,9 @@
     },
     {
       "digest": {
-        "sha256": "2f706bcfafced95bbd479c32c1654183582e28ebdb7b66eedcf1556c7d19181f"
+        "sha256": "35cc6fb260268f69a231fa0b9ead51b067c8455bff600c64978200f72ef2e9ff"
       },
-      "name": "example-admission-receipt"
+      "name": "example-admission-receipt-a"
     }
   ]
 }

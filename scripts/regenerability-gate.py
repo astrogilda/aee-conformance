@@ -78,7 +78,14 @@ GENERATORS = (
 # that was never meant to be.
 OWNED = (
     ("vectors/accept", "ok-*.json"),
+    ("vectors/accept", "vate-*.json"),
     ("vectors/reject", "bad-*.json"),
+    # The vate-* prefix is listed beside each id prefix it joins rather than
+    # folded into it, because a pattern that enumerates ids by prefix skips a
+    # family it was not told about and then reports the corpus clean -- which is
+    # the shape of failure this gate exists to catch. Eight vector files sat
+    # outside this tuple while the gate printed a total that agreed with itself.
+    ("vectors/reject", "vate-*.json"),
     ("vectors/reject", "INDEX.md"),
     # The indeterminate family is built by the reject generator, from the same
     # parents, the same derived keys and the same second-fault self-check; only

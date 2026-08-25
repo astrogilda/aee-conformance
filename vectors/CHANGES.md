@@ -110,17 +110,21 @@ rails, and nothing here is a conformance result about that repository.
   this revision a reader following that id from the registry reached only
   refusals. It stays measured and ratcheted in
   `docs/ACCEPT-ANCHOR-BASELINE.json`.
-- **Two generator parameters and four gate patterns changed, and no vector
+- **Two generator parameters and five gate patterns changed, and no vector
   moved.** `run_binding` in the accept generator takes the subject and the
   substrate as parameters defaulting to this suite's constants, because a vector
   that asks what the binding does when one of those inputs names a different
   identity has to derive the binding over that identity, and the alternative is a
   second copy of the pre-image that diverges silently. `make_statement` takes the
-  subject and substrate objects on the same terms. The four patterns that
+  subject and substrate objects on the same terms. The five patterns that
   enumerated vector ids by prefix now admit `vate-`; each was a pattern that
   would otherwise have skipped the new vectors and reported the corpus clean,
-  which is the shape of failure those gates exist to prevent. Every previously
-  committed vector regenerates byte-identically.
+  which is the shape of failure those gates exist to prevent. The fifth was
+  found late, by the review this revision was corrected under: the
+  regenerability gate's owned-file globs matched `ok-*.json` and `bad-*.json`
+  only, so the eight new vector files were neither wiped nor compared, and the
+  gate reported a total that agreed with itself while eight generated files sat
+  outside it. Every previously committed vector regenerates byte-identically.
 
 ## Spec pin refresh after suiteRevision 25 (no new revision; `corpusDigest` unchanged)
 

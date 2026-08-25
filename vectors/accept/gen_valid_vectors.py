@@ -115,17 +115,21 @@ PREIMAGES: dict[str, Any] = {
     "network-posture": {"exampleNetworkPosture": {"posture": "sinkhole"}},
     "run-entropy": "example-run-start-checkpoint/v1",
     "unchecked-binding": "example-unchecked-binding/v1",
-    # Two distinct admission receipts, A and B, and a second runtime image. The
-    # two receipts exist so that a vector can hold one admission identity
-    # against ANOTHER admission identity rather than against an executed
-    # artifact: those are different object categories and a digest that differs
-    # because the categories differ demonstrates nothing. All three are derived
-    # from a published one-line preimage exactly as every other digest here is,
-    # so a reader re-derives them rather than trusting a constant somebody
-    # typed.
+    # Two distinct admission receipts, A and B, and a second observation
+    # substrate. The two receipts exist so that a vector can hold one admission
+    # identity against ANOTHER admission identity rather than against an
+    # executed artifact: those are different object categories and a digest
+    # that differs because the categories differ demonstrates nothing. The
+    # second substrate is the substituted observation-substrate identity the
+    # vate-3* vectors move; it is a runtime image in the world, but what this
+    # predicate reads it as is the substrate anchor, and naming it after the
+    # field keeps the vectors from reading as a runtime comparison they do not
+    # perform. All three are derived from a published one-line preimage exactly
+    # as every other digest here is, so a reader re-derives them rather than
+    # trusting a constant somebody typed.
     "admission-receipt-a": "example-admission-receipt-a/v1",
     "admission-receipt-b": "example-admission-receipt-b/v1",
-    "second-runtime-image": "example-second-runtime-image/v1",
+    "second-substrate-image": "example-second-substrate-image/v1",
 }
 
 SUBJECT_DIGEST = sha256_hex(PREIMAGES["subject"].encode())
@@ -133,7 +137,7 @@ SUBSTRATE_DIGEST = sha256_hex(PREIMAGES["substrate"].encode())
 RECEIPT_A_NAME = "example-admission-receipt-a"
 RECEIPT_A_DIGEST = sha256_hex(PREIMAGES["admission-receipt-a"].encode())
 RECEIPT_B_DIGEST = sha256_hex(PREIMAGES["admission-receipt-b"].encode())
-SECOND_RUNTIME_DIGEST = sha256_hex(PREIMAGES["second-runtime-image"].encode())
+SECOND_SUBSTRATE_DIGEST = sha256_hex(PREIMAGES["second-substrate-image"].encode())
 CATCH_POLICY_DIGEST = sha256_hex(jcs(PREIMAGES["catch-policy"]))
 POSTURE_DIGEST = sha256_hex(jcs(PREIMAGES["network-posture"]))
 RUN_ENTROPY_DIGEST = sha256_hex(PREIMAGES["run-entropy"].encode())
@@ -1933,15 +1937,16 @@ def build_vectors() -> dict[str, dict[str, Any]]:
 
     # vate-3c the vector that bounds vate-1a and vate-3a, and the reason it is
     # here is that it refutes the strongest reading of both. The whole run is
-    # re-derived under the substituted runtime identity: the binding is
-    # recomputed over the second substrate and every record is signed under it.
-    # Nothing is spliced, so nothing is detected, and the statement is valid
-    # and recomputes pass. The binding is anti-splice and explicitly not
+    # re-bound to the substituted substrate digest and re-signed: the binding
+    # is recomputed over the second observation substrate and every record is
+    # signed under the published substrate-observation test key. Nothing is
+    # spliced, so nothing is detected, and the statement is valid and
+    # recomputes pass. The binding is anti-splice and explicitly not
     # anti-forge, so vate-1a and vate-3a establish that records were not MOVED,
     # never that the identity they name is the true one. That separation
     # belongs to the substrate key and the evidence tier.
-    b_other_runtime = run_binding(
-        sha256_hex(jcs(man_1)), substrate=SECOND_RUNTIME_DIGEST
+    b_other_substrate = run_binding(
+        sha256_hex(jcs(man_1)), substrate=SECOND_SUBSTRATE_DIGEST
     )
     v["vate-3c-substrate-substituted-and-resigned"] = make_statement(
         man_1,
@@ -1951,12 +1956,12 @@ def build_vectors() -> dict[str, dict[str, Any]]:
             )
         ],
         records=[
-            make_record("arming", b_other_runtime),
-            make_record("sealed", b_other_runtime),
+            make_record("arming", b_other_substrate),
+            make_record("sealed", b_other_substrate),
         ],
         substrate={
             "name": "example-substrate-image",
-            "digest": {"sha256": SECOND_RUNTIME_DIGEST},
+            "digest": {"sha256": SECOND_SUBSTRATE_DIGEST},
         },
     )
 

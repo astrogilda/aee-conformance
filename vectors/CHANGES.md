@@ -62,10 +62,12 @@ byte-identically from the generators.
   a negative pin, and a negative pin states a boundary more precisely than a
   sentence can.
 - **`vate-3c-substrate-substituted-and-resigned` is here because it refutes the
-  strongest reading of the two splice refusals.** The whole run is re-derived
-  under the substituted runtime identity, the binding recomputed and every record
-  re-signed under it. Nothing is spliced, so nothing is detected, and the
-  statement is valid and recomputes `pass`. The binding is anti-splice and
+  strongest reading of the two splice refusals.** The whole run is re-bound to
+  the substituted substrate digest and re-signed: the binding is recomputed over
+  the second observation-substrate identity and every record re-signed under the
+  published substrate-observation test key. Nothing is spliced, so nothing is
+  detected, and the statement is valid and recomputes `pass`. The binding is
+  anti-splice and
   explicitly not anti-forge, so `vate-1a` and `vate-3a` establish that records
   were not MOVED and never that the identity they name is the true one. That
   separation belongs to the substrate key and the evidence tier, and it bounds

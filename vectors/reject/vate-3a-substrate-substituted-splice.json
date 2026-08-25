@@ -69,7 +69,7 @@
       },
       "substrate": {
         "digest": {
-          "sha256": "e33b2f68c5c57bca8dcfa2cc0bd560059f3fba7dccafeedb2919de53fd767995"
+          "sha256": "93d3f174c7674310358525ffcba56656fc02a0bec3cedfd019557c925f7c1534"
         },
         "name": "example-substrate-image"
       }

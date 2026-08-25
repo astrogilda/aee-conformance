@@ -181,16 +181,20 @@ SUB_PRIV, SUB_PUB, SUB_KEYID = key_for("substrate-observation-test")
 PREIMAGES = {
     "subject": "example-agent-bundle-content/v1",
     "subject-b": "example-agent-bundle-b-content/v1",
-    # Two distinct admission receipts, A and B, and a second runtime image, for
-    # the three vate-* vectors below. Two receipts rather than one because the
-    # pinned VATE case compares an admission receipt with an admission receipt:
-    # holding a receipt against an executed artifact compares different object
-    # categories and establishes nothing. Derived from a published one-line
+    # Two distinct admission receipts, A and B, and a second observation
+    # substrate, for the three vate-* vectors below. Two receipts rather than
+    # one because the pinned VATE case compares an admission receipt with an
+    # admission receipt: holding a receipt against an executed artifact
+    # compares different object categories and establishes nothing. The second
+    # substrate is named after the field it is substituted into rather than
+    # after what it is in the world, because what this predicate reads at
+    # observationEnvironment.substrate.digest.sha256 is the substrate anchor
+    # and not a runtime under comparison. Derived from a published one-line
     # preimage like every other digest here, so a reader re-derives them, and
     # spelled identically in the accept generator so the two never diverge.
     "admission-receipt-a": "example-admission-receipt-a/v1",
     "admission-receipt-b": "example-admission-receipt-b/v1",
-    "second-runtime-image": "example-second-runtime-image/v1",
+    "second-substrate-image": "example-second-substrate-image/v1",
     "substrate": "example-substrate-image-content/v1",
     "run-entropy": "example-run-start-entropy/v1",
     "intercepted-bytes-1": "example-intercepted-bytes/v1",
@@ -4226,8 +4230,8 @@ vec("vate-1a-admission-receipt-substituted-splice", "vate-1d",
          "be presented under receipt B. It does NOT perform the pinned case's "
          "referenced-admission-receipt digest comparison, it does not "
          "establish that either receipt is genuine, and its accepted bound is "
-         "`vate-3c`, where the whole run is re-derived and re-signed under the "
-         "substituted identity and nothing is detected")
+         "`vate-3c`, where the whole run is re-bound to a substituted digest "
+         "and re-signed and nothing is detected")
 
 
 def _bvate1c() -> dict[str, Any]:
@@ -4260,31 +4264,37 @@ vec("vate-1c-two-subjects-artifact-and-admission", "ok-002",
 
 
 def _bvate3a() -> dict[str, Any]:
-    # Case post-execution-runtime-mismatch, the half that IS native. The
-    # observing runtime identity is substituted after the records were signed.
-    # substrate is a binding input, so the splice is refused; an admitted
-    # runtime compared against an observed one is not, and cannot be, because a
-    # statement carries exactly one observationEnvironment.
+    # Case post-execution-runtime-mismatch, and the surface it reaches is an
+    # ADJACENT one rather than the case's own comparison. The
+    # observation-substrate identity is substituted after the records were
+    # signed. That field is a binding input, so the splice is refused; an
+    # admitted runtime compared against an observed one is not, and cannot be,
+    # because a statement carries exactly one observationEnvironment.
     st = P_clean()
     st["predicate"]["observationEnvironment"]["substrate"]["digest"]["sha256"] = \
-        D["second-runtime-image"]
+        D["second-substrate-image"]
     return st
 
 
 vec("vate-3a-substrate-substituted-splice", "ok-002",
     "observationEnvironment.substrate.digest.sha256 replaced with a second "
-    "runtime image digest; every record left exactly as the producer signed it",
+    "observation-substrate digest; every record left exactly as the producer "
+    "signed it",
     [], [22, 60], ["run-binding-mismatch"], _bvate3a, spec="L174-182; L563-564",
     note="prompted by VATE case `post-execution-runtime-mismatch` at VATE "
          "commit `ce00121d7bd658c7a1fcd861b386ea9ea7ce66be`, corpus "
          "`VATE-AL2-Verifier-Admission-v0.3`, corpus digest "
          "`sha-256:0eb1969ea3763e0fec123de5ea0dacb225eb48a28d76866bbec56dc61d16cf8f`. "
          "An AEE-native boundary vector prompted by that case, not a VATE "
-         "conformance result. Within one statement the observing runtime "
-         "identity is bound and a record signed under a different one cannot "
-         "be spliced in. Admitted-versus-observed is a different question and "
-         "is not native: it needs two runtimes named in one statement, and "
-         "`vate-3b` is the accepted vector that pins exactly that")
+         "conformance result. The field it moves, "
+         "`observationEnvironment.substrate.digest.sha256`, is the "
+         "observation-substrate identity: an ADJACENT AEE binding surface, "
+         "not an equivalent of that case's admitted-runtime versus "
+         "observed-runtime comparison. Within one statement that identity is "
+         "bound and a record signed under a different one cannot be spliced "
+         "in. Admitted-versus-observed is a different question and is not "
+         "native: it needs two runtimes named in one statement, and `vate-3b` "
+         "is the accepted vector that pins exactly that")
 
 
 # ---------------------------------------------------------------- checks

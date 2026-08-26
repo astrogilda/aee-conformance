@@ -277,11 +277,20 @@ def spec_digest() -> str:
         return h(fh.read())
 
 
-def nested(levels: int):
+def nested(levels: int) -> dict:
     """An object whose own outermost brace is depth 1 and whose innermost
-    open container is depth `levels`, matching #588's counting rule."""
-    node: object = "leaf"
-    for _ in range(levels):
+    open container is depth `levels`, matching #588's counting rule.
+
+    `levels` is at least 1: depth 0 is the absence of a container, not a
+    container, and the bare "leaf" it used to return is a string the record
+    schema has nowhere to put. Building the innermost object first makes the
+    return a dict for every admissible input rather than only for the two the
+    call sites happen to pass.
+    """
+    if levels < 1:
+        raise ValueError(f"levels must be at least 1, got {levels}")
+    node: dict = {"n": "leaf"}
+    for _ in range(levels - 1):
         node = {"n": node}
     return node
 

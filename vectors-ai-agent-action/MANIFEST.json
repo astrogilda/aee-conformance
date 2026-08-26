@@ -3,6 +3,8 @@
   "predicateType": "https://in-toto.io/attestation/ai-agent-action/v0.1",
   "tracksUpstream": "in-toto/attestation#588",
   "specUpstreamCommit": "639ec56cdbb2d7b3c9fc672adeef7fe46d995f7b",
+  "specVendored": "spec-vendored/ai-agent-action-639ec56.md",
+  "specDigest": "1eaecff711591ea6e56e5798abc110a077c49194900513bab736d137496b84ba",
   "proposedText": "docs/ai-agent-action-canonicalization.md",
   "counts": {
     "accept": 12,

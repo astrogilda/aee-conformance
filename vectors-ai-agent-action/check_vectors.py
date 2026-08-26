@@ -127,6 +127,26 @@ def main() -> None:
     if corpus != manifest["corpusDigest"]:
         FAILURES.append("corpusDigest does not match the files on disk")
 
+    # The vendored specification copy, against its pinned digest. The suite's
+    # whole claim is that it certifies against #588 as that text read at the
+    # recorded commit, and this file is the only evidence on disk of what it
+    # said. A commit id in the manifest is a name anyone can write; the digest
+    # is the thing an edit in place cannot survive.
+    spec_rel = manifest["specVendored"]
+    spec_path = os.path.join(HERE, spec_rel)
+    if not os.path.exists(spec_path):
+        FAILURES.append(f"the vendored specification {spec_rel} is missing, so "
+                        "nothing records what this corpus certifies against")
+    else:
+        with open(spec_path, "rb") as fh:
+            got = sha(fh.read())
+        if got != manifest["specDigest"]:
+            FAILURES.append(
+                f"the vendored specification {spec_rel} does not match its "
+                f"pinned digest (pinned {manifest['specDigest'][:12]}, on disk "
+                f"{got[:12]}). Re-vendor from upstream rather than editing the "
+                "copy, or the corpus certifies against text nobody published.")
+
     counts = {k: sum(1 for e in manifest["vectors"] if e["kind"] == k)
               for k in ("accept", "reject")}
     if counts != manifest["counts"]:

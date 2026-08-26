@@ -261,6 +261,22 @@ def build_accept() -> None:
         "both sides rather than assumed")
 
 
+SPEC_VENDORED_REL = f"spec-vendored/ai-agent-action-{UPSTREAM_COMMIT[:7]}.md"
+
+
+def spec_digest() -> str:
+    """The digest of the vendored specification copy.
+
+    The suite certifies against #588 as it read at UPSTREAM_COMMIT, and the
+    vendored file is the only evidence on disk of what that text said. Pinning
+    its bytes here is what lets check_vectors.py refuse a copy edited in place:
+    without the pin the manifest names a commit, which anyone can write, rather
+    than the bytes, which they cannot.
+    """
+    with open(os.path.join(HERE, SPEC_VENDORED_REL), "rb") as fh:
+        return h(fh.read())
+
+
 def nested(levels: int):
     """An object whose own outermost brace is depth 1 and whose innermost
     open container is depth `levels`, matching #588's counting rule."""
@@ -448,6 +464,8 @@ def main() -> None:
         "predicateType": PREDICATE_TYPE,
         "tracksUpstream": UPSTREAM_PR,
         "specUpstreamCommit": UPSTREAM_COMMIT,
+        "specVendored": SPEC_VENDORED_REL,
+        "specDigest": spec_digest(),
         "proposedText": "docs/ai-agent-action-canonicalization.md",
         "counts": counts,
         "corpusDigest": corpus,

@@ -1053,6 +1053,15 @@ MASKS = tuple(
         r"spec:\d+(?:-\d+)?",  # spec line citations in the sources
         r"\b\d{4}-\d{2}-\d{2}\b",  # dates
         r"RFC\s*\d+",  # RFC numbers
+        # Standards NAMES. A digit inside the name of a standard names the
+        # document and counts nothing: IEEE 754 is not 754 of anything, and
+        # neither is ISO 7064. Written as a body-name alternation rather than
+        # one literal per collision because the RFC line above already proves
+        # the shape recurs, and each new standard the prose cites would
+        # otherwise arrive as a fresh false refusal against text claiming
+        # nothing. The canonicalization argument this corpus publishes cites
+        # floating-point and checksum standards by name throughout.
+        r"\b(?:IEEE|ISO|IEC|ANSI|ECMA|FIPS|NIST\s+SP)[\s-]*\d+",
         # Encoding names. The digit in UTF-16 is part of the name of a character
         # encoding and never a quantity of anything, and this corpus argues about
         # UTF-16 code-unit ordering in a dozen places. It went unmasked only
@@ -1132,6 +1141,12 @@ EXEMPT_PREFIXES: dict[str, str] = {
     "spec/predicates/": (
         "vendored upstream bytes; scripts/spec-drift-gate.py owns them and an edit "
         "here is a re-vendor, not a count"
+    ),
+    "vectors-ai-agent-action/spec-vendored/": (
+        "vendored upstream bytes; the manifest's specDigest owns them, "
+        "vectors-ai-agent-action/check_vectors.py refuses a copy whose bytes moved, "
+        "and every integer inside belongs to the upstream document rather than to "
+        "this corpus"
     ),
 }
 

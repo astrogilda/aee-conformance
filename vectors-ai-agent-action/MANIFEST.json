@@ -1,0 +1,414 @@
+{
+  "suite": "ai-agent-action-conformance",
+  "predicateType": "https://in-toto.io/attestation/ai-agent-action/v0.1",
+  "tracksUpstream": "in-toto/attestation#588",
+  "specUpstreamCommit": "639ec56cdbb2d7b3c9fc672adeef7fe46d995f7b",
+  "proposedText": "docs/ai-agent-action-canonicalization.md",
+  "counts": {
+    "accept": 12,
+    "reject": 15
+  },
+  "corpusDigest": "6860302930744d2d2659448837faf884891ba2c21ed87e234995ad11cbaaa440",
+  "note": "A reject member is rejectable under the proposed canonicalization text, not under #588 as it stands. Each accept member is the conformant twin of the reject member sharing its condition, so a verifier that rejects everything scores zero rather than full marks.",
+  "vectors": [
+    {
+      "id": "bad-101-chain-hash-ecmascript-member-order",
+      "kind": "reject",
+      "file": "reject/bad-101-chain-hash-ecmascript-member-order.json",
+      "conditions": [
+        "aia-c-1"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "chain-hash-mismatch"
+        ]
+      },
+      "cites": "A1: JSON.stringify orders 2 before 10 and leaves zz before aa; JCS orders 10, 2, aa, zz. Three languages, three chain hashes.",
+      "records": "records/bad-101-chain-hash-ecmascript-member-order.jsonl"
+    },
+    {
+      "id": "bad-102-chain-hash-ascii-escaped-string",
+      "kind": "reject",
+      "file": "reject/bad-102-chain-hash-ascii-escaped-string.json",
+      "conditions": [
+        "aia-c-3"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "chain-hash-mismatch"
+        ]
+      },
+      "cites": "A2: a producer whose serializer defaults to ASCII escaping emits different bytes for the same string",
+      "records": "records/bad-102-chain-hash-ascii-escaped-string.jsonl"
+    },
+    {
+      "id": "bad-103-chain-hash-html-escaped-string",
+      "kind": "reject",
+      "file": "reject/bad-103-chain-hash-html-escaped-string.json",
+      "conditions": [
+        "aia-c-3"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "chain-hash-mismatch"
+        ]
+      },
+      "cites": "A2b: Go's encoding/json escapes <, > and & by default, so a Go gateway and a Node gateway disagree on identical input",
+      "records": "records/bad-103-chain-hash-html-escaped-string.jsonl"
+    },
+    {
+      "id": "bad-104-log-line-not-canonical-bytes",
+      "kind": "reject",
+      "file": "reject/bad-104-log-line-not-canonical-bytes.json",
+      "conditions": [
+        "aia-c-4"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "noncanonical-bytes"
+        ]
+      },
+      "cites": "A3: the record parses identically and hashes differently; any log shipper that reserializes produces this",
+      "records": "records/bad-104-log-line-not-canonical-bytes.jsonl"
+    },
+    {
+      "id": "bad-105-duplicate-member-toolname",
+      "kind": "reject",
+      "file": "reject/bad-105-duplicate-member-toolname.json",
+      "conditions": [
+        "aia-c-5"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "duplicate-member"
+        ]
+      },
+      "cites": "A4: a first-wins reader displays read_file while the hash commits to delete_repository",
+      "records": "records/bad-105-duplicate-member-toolname.jsonl"
+    },
+    {
+      "id": "bad-106-chain-fork-shared-previoushash",
+      "kind": "reject",
+      "file": "reject/bad-106-chain-fork-shared-previoushash.json",
+      "conditions": [
+        "aia-c-6"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "chain-fork"
+        ]
+      },
+      "cites": "A5: two records carry one previousHash. Every hash verifies, the genesis hash and therefore the subject digest are unchanged, and the presenter chooses which branch the auditor sees.",
+      "records": "records/bad-106-chain-fork-shared-previoushash.jsonl"
+    },
+    {
+      "id": "bad-107-checkpoint-omitted-from-chain",
+      "kind": "reject",
+      "file": "reject/bad-107-checkpoint-omitted-from-chain.json",
+      "conditions": [
+        "aia-c-8"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "checkpoint-not-linked"
+        ]
+      },
+      "cites": "A6: the successor chains past the checkpoint to the record before it, so the checkpoint is deletable and the anti-truncation mechanism carries no weight",
+      "records": "records/bad-107-checkpoint-omitted-from-chain.jsonl"
+    },
+    {
+      "id": "bad-108-float-in-signed-record-field",
+      "kind": "reject",
+      "file": "reject/bad-108-float-in-signed-record-field.json",
+      "conditions": [
+        "aia-c-9"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "non-integer-in-signed-field"
+        ]
+      },
+      "cites": "A7: the safe-integer profile binds signed record fields; the content-digest form is where a float belongs",
+      "records": "records/bad-108-float-in-signed-record-field.jsonl"
+    },
+    {
+      "id": "bad-109-error-response-digest-over-null",
+      "kind": "reject",
+      "file": "reject/bad-109-error-response-digest-over-null.json",
+      "conditions": [
+        "aia-c-10"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "content-digest-mismatch"
+        ]
+      },
+      "cites": "A8: one of four readings a verifier could take of an absent result member, and the only one this suite forbids by naming the other",
+      "records": "records/bad-109-error-response-digest-over-null.jsonl"
+    },
+    {
+      "id": "bad-110-previoushash-uppercase-hex",
+      "kind": "reject",
+      "file": "reject/bad-110-previoushash-uppercase-hex.json",
+      "conditions": [
+        "aia-c-11"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "previoushash-not-canonical"
+        ]
+      },
+      "cites": "A9: a case-normalizing verifier links it and a byte-comparing one does not, so the same logical link has two spellings"
+    },
+    {
+      "id": "bad-111-previoushash-wrong-length",
+      "kind": "reject",
+      "file": "reject/bad-111-previoushash-wrong-length.json",
+      "conditions": [
+        "aia-c-11"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "previoushash-not-canonical"
+        ]
+      },
+      "cites": "A9b: 40 hex digits. Nothing in the current text excludes a digest from another algorithm"
+    },
+    {
+      "id": "bad-112-second-genesis-after-break",
+      "kind": "reject",
+      "file": "reject/bad-112-second-genesis-after-break.json",
+      "conditions": [
+        "aia-c-7"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "duplicate-genesis"
+        ]
+      },
+      "cites": "F3: the successor of a break restarts at genesis instead of chaining from the break, discarding the scar. #588 makes detection SHOULD; this member makes it MUST",
+      "records": "records/bad-112-second-genesis-after-break.jsonl"
+    },
+    {
+      "id": "bad-113-unpaired-surrogate-in-toolname",
+      "kind": "reject",
+      "file": "reject/bad-113-unpaired-surrogate-in-toolname.json",
+      "conditions": [
+        "aia-c-13"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "ill-formed-string"
+        ]
+      },
+      "cites": "F2: already forbidden by #588's own text. The vector is what stops the rule from being advice",
+      "records": "records/bad-113-unpaired-surrogate-in-toolname.jsonl"
+    },
+    {
+      "id": "bad-114-extensions-depth-129",
+      "kind": "reject",
+      "file": "reject/bad-114-extensions-depth-129.json",
+      "conditions": [
+        "aia-c-12"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "depth-exceeded"
+        ]
+      },
+      "cites": "bounds: one level past the stated cap, so the counting rule is exercised rather than assumed"
+    },
+    {
+      "id": "bad-115-unsafe-integer-durationms",
+      "kind": "reject",
+      "file": "reject/bad-115-unsafe-integer-durationms.json",
+      "conditions": [
+        "aia-c-14"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "unsafe-integer"
+        ]
+      },
+      "cites": "bounds: 2^53 + 1, the first value the I-JSON profile excludes"
+    },
+    {
+      "id": "ok-001-canonical-chain-hash-integer-like-keys",
+      "kind": "accept",
+      "file": "accept/ok-001-canonical-chain-hash-integer-like-keys.json",
+      "conditions": [
+        "aia-c-1",
+        "aia-c-2"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "chainHash": "4e70d92204aee18162dc4db4d6bdc2462b73ec0c45d794ec5912bfec124cea3e"
+      },
+      "cites": "canonicalization: member ordering is JCS, never the host language's property order",
+      "records": "records/ok-001-canonical-chain-hash-integer-like-keys.jsonl"
+    },
+    {
+      "id": "ok-002-canonical-chain-hash-non-ascii",
+      "kind": "accept",
+      "file": "accept/ok-002-canonical-chain-hash-non-ascii.json",
+      "conditions": [
+        "aia-c-3"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "chainHash": "85f45ae27d2215c81483e0626d1e2adad7c543835a4881cac8426cc87f429147"
+      },
+      "cites": "canonicalization: JCS emits the character, never a \\u escape",
+      "records": "records/ok-002-canonical-chain-hash-non-ascii.jsonl"
+    },
+    {
+      "id": "ok-003-log-line-equals-canonical-bytes",
+      "kind": "accept",
+      "file": "accept/ok-003-log-line-equals-canonical-bytes.json",
+      "conditions": [
+        "aia-c-4"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "chainHash": "4e70d92204aee18162dc4db4d6bdc2462b73ec0c45d794ec5912bfec124cea3e"
+      },
+      "cites": "canonicalization: the log line IS the canonical bytes, so the two readings of the preimage coincide",
+      "records": "records/ok-003-log-line-equals-canonical-bytes.jsonl"
+    },
+    {
+      "id": "ok-004-unique-members",
+      "kind": "accept",
+      "file": "accept/ok-004-unique-members.json",
+      "conditions": [
+        "aia-c-5"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "chainHash": "8442e5333a1e618d68a1aba6ac8cbdae918d759c0d76abcd3dca92ecb48e8ede"
+      },
+      "cites": "canonicalization: I-JSON, no duplicate member at any depth",
+      "records": "records/ok-004-unique-members.jsonl"
+    },
+    {
+      "id": "ok-005-linear-chain-single-head",
+      "kind": "accept",
+      "file": "accept/ok-005-linear-chain-single-head.json",
+      "conditions": [
+        "aia-c-6",
+        "aia-c-7"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "chainHash": "f349dd6a3000e83717650769673bf9717018295db70a8ad272d53741f2e5f9ae",
+        "records": 3
+      },
+      "cites": "chain shape: exactly one record carries any given previousHash",
+      "records": "records/ok-005-linear-chain-single-head.jsonl"
+    },
+    {
+      "id": "ok-006-checkpoint-carries-chain-link",
+      "kind": "accept",
+      "file": "accept/ok-006-checkpoint-carries-chain-link.json",
+      "conditions": [
+        "aia-c-8"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "chainHash": "0abf7a119b815b4a6a3ac47e1cbc2f2dc92eedf5e4e94b227cf3853891df8bc1"
+      },
+      "cites": "chain shape: every record type links through predicate.chain",
+      "records": "records/ok-006-checkpoint-carries-chain-link.jsonl"
+    },
+    {
+      "id": "ok-007-float-in-content-payload-only",
+      "kind": "accept",
+      "file": "accept/ok-007-float-in-content-payload-only.json",
+      "conditions": [
+        "aia-c-9"
+      ],
+      "expected": {
+        "verdict": "valid"
+      },
+      "cites": "canonicalization: the safe-integer profile binds signed record fields; content payloads are JCS and admit floats"
+    },
+    {
+      "id": "ok-008-error-response-digest-over-error-member",
+      "kind": "accept",
+      "file": "accept/ok-008-error-response-digest-over-error-member.json",
+      "conditions": [
+        "aia-c-10"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "responseDigest": "431ee0d9da1351dadbe66395800815f6021ce4b288c612e44b7f3d091b1a832f"
+      },
+      "cites": "content digest: a failed call digests the error member, named explicitly rather than left to the reader",
+      "records": "records/ok-008-error-response-digest-over-error-member.jsonl"
+    },
+    {
+      "id": "ok-009-previoushash-lowercase-64-hex",
+      "kind": "accept",
+      "file": "accept/ok-009-previoushash-lowercase-64-hex.json",
+      "conditions": [
+        "aia-c-11"
+      ],
+      "expected": {
+        "verdict": "valid"
+      },
+      "cites": "chain shape: previousHash is lowercase 64-hex or the literal genesis"
+    },
+    {
+      "id": "ok-010-extensions-depth-128",
+      "kind": "accept",
+      "file": "accept/ok-010-extensions-depth-128.json",
+      "conditions": [
+        "aia-c-12"
+      ],
+      "expected": {
+        "verdict": "valid"
+      },
+      "cites": "bounds: 128 is admissible; the counting rule is #570's"
+    },
+    {
+      "id": "ok-011-paired-surrogate-in-toolname",
+      "kind": "accept",
+      "file": "accept/ok-011-paired-surrogate-in-toolname.json",
+      "conditions": [
+        "aia-c-13"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "chainHash": "8de2e0ae9a35490ca05419514c11efa5b93d5fae63f5920572c67041107b6744"
+      },
+      "cites": "strings: the rule excludes an unpaired half, never a valid supplementary-plane character, so a verifier that rejects both is over-rejecting",
+      "records": "records/ok-011-paired-surrogate-in-toolname.jsonl"
+    },
+    {
+      "id": "ok-012-largest-safe-integer-durationms",
+      "kind": "accept",
+      "file": "accept/ok-012-largest-safe-integer-durationms.json",
+      "conditions": [
+        "aia-c-14"
+      ],
+      "expected": {
+        "verdict": "valid"
+      },
+      "cites": "bounds: 2^53 - 1 is admissible, so the boundary is exercised from both sides rather than assumed"
+    }
+  ]
+}

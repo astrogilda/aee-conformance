@@ -549,8 +549,12 @@ def P_clean() -> dict[str, Any]:  # ok-002 shape: clean pass, arming + sealed(dr
                      result="pass")
 
 
+RECEIPT_PARENT_FILE = os.path.join(
+    OUT, os.pardir, "accept", "vate-1d-admission-receipt-as-sole-subject.json")
+
+
 def P_receipt_clean() -> dict[str, Any]:  # vate-1d shape: admission receipt A as sole subject
-    """The A-bound shape the case-1 pair is derived from.
+    """The A-bound shape the case-1 pair is derived from, read from vate-1d itself.
 
     Admission receipt A occupies the one subject slot, the run binding is
     derived over A, and both records are signed under that binding. It ships as
@@ -558,14 +562,30 @@ def P_receipt_clean() -> dict[str, Any]:  # vate-1d shape: admission receipt A a
     which substitutes receipt B into the subject and leaves the A-bound records
     untouched) is an admission-receipt-against-admission-receipt relation
     rather than an artifact-against-receipt one.
+
+    It LOADS `vate-1d` rather than rebuilding its shape, and the difference is
+    the whole point. This file and the accept generator each carry their own
+    synthetic fixtures -- catch-policy, network-posture and run-entropy
+    preimages, and a corpus name and purl -- and the two sets never agreed.
+    Rebuilding the shape here therefore produced a parent that was the same
+    SHAPE as `vate-1d` and not the same STATEMENT: the shipped pair differed in
+    eleven leaves rather than one, so the case-1 control varied its environment
+    alongside the field it was supposed to isolate and could not attribute the
+    refusal to that field. A control pair that differs in more than the field
+    under test does not control for it, which is the only property the pair
+    exists to carry.
+
+    Reading the accept vector makes the one-mutation relation true by
+    construction instead of by two generators happening to agree. The
+    regenerability gate runs the accept generator before this one, so the file
+    read here is the one that run just wrote. An unreadable file is a hard
+    failure and never a rebuilt approximation: silently falling back to a
+    locally constructed shape is exactly the defect this function was rewritten
+    to remove.
     """
-    env = environment(M1)
-    b = binding_for(env, subject_sha=D["admission-receipt-a"])
-    return statement(env, [clean_row()],
-                     [record(arming_payload(b)), record(sealed_payload(b))],
-                     result="pass",
-                     subject=[{"name": "example-admission-receipt-a",
-                               "digest": {"sha256": D["admission-receipt-a"]}}])
+    with open(RECEIPT_PARENT_FILE, encoding="utf-8") as f:
+        parent: dict[str, Any] = json.load(f)
+    return parent
 
 
 def P_clean_bounded() -> dict[str, Any]:  # ok-003 shape: sealed(drop 3, bound 5)
@@ -4200,14 +4220,20 @@ vec("bad-1017-sole-seal-moat-down-all-caught", "ok-001",
 
 def _bvate1a() -> dict[str, Any]:
     # Case post-execution-admission-digest-mismatch, the half that IS native.
-    # The parent is the A-bound shape that ships as vate-1d: admission receipt
-    # A in the sole subject slot, records bound and signed for A. The one
-    # mutation replaces A's digest with receipt B's, so the statement now
-    # asserts one admission identity over records produced under another and
-    # every record's binding stops deriving. Receipt against receipt, which is
-    # the relation the pinned case tests. It is still a splice refusal and not
-    # a comparison: nothing here dereferences either receipt or checks that
-    # either is genuine.
+    # The parent is vate-1d itself, read from the accept set rather than
+    # rebuilt: admission receipt A in the sole subject slot, records bound and
+    # signed for A. The one mutation replaces A's digest with receipt B's, so
+    # the statement now asserts one admission identity over records produced
+    # under another and every record's binding stops deriving. Receipt against
+    # receipt, which is the relation the pinned case tests. It is still a
+    # splice refusal and not a comparison: nothing here dereferences either
+    # receipt or checks that either is genuine.
+    #
+    # Because the parent is loaded and not reconstructed, the shipped pair
+    # differs in that one leaf and in nothing else -- 38 leaves compared, one
+    # differing. That is what makes it a control rather than a pair of related
+    # statements: the refusal is attributable to the substituted digest,
+    # because the substituted digest is the only thing that moved.
     st = P_receipt_clean()
     st["subject"][0]["digest"]["sha256"] = D["admission-receipt-b"]
     return st
@@ -4222,9 +4248,14 @@ vec("vate-1a-admission-receipt-substituted-splice", "vate-1d",
          "`VATE-AL2-Verifier-Admission-v0.3`, corpus digest "
          "`sha-256:0eb1969ea3763e0fec123de5ea0dacb225eb48a28d76866bbec56dc61d16cf8f`. "
          "An AEE-native boundary vector prompted by that case, not a VATE "
-         "conformance result. Its parent is the A-bound shape that ships as "
-         "`vate-1d`, so the two objects in the relation are both admission "
-         "receipts, as they are in the pinned case. What it establishes is "
+         "conformance result. Its parent is `vate-1d`, which the generator "
+         "reads from the accept set rather than rebuilding, so the two "
+         "statements differ in `subject[0].digest.sha256` and in nothing else "
+         "and the two objects in the relation are both admission receipts, as "
+         "they are in the pinned case. That literal one-field relation is what "
+         "makes the pair a control: a rail's refusal here is attributable to "
+         "the substituted admission digest, because nothing else moved. What "
+         "it establishes is "
          "narrow and worth stating narrowly: AEE binds its sole subject "
          "against record splicing, so records produced under receipt A cannot "
          "be presented under receipt B. It does NOT perform the pinned case's "

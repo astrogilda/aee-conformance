@@ -70,6 +70,13 @@ GENERATORS = (
     "vectors/accept/gen_valid_vectors.py",
     "vectors/reject/gen_invalid_vectors.py",
     "vectors/gen_manifest.py",
+    # The AI Agent Action suite. It builds its own manifest in the same run, so
+    # it has no ordering relationship with the three above and is listed last.
+    # It arrived as a corpus that published a regeneration recipe -- its
+    # generator's own docstring says "Regenerate byte-identically" -- while no
+    # gate ran it, which is the precise claim-nobody-executes this file was
+    # written about. It passed only because somebody ran it by hand.
+    "vectors-ai-agent-action/gen_vectors.py",
 )
 
 # Every file a generator above is responsible for, as a directory and a glob.
@@ -96,7 +103,23 @@ OWNED = (
     ("vectors/indeterminate", "ind-*.json"),
     ("vectors/indeterminate", "INDEX.md"),
     ("vectors", "MANIFEST.json"),
+    # The AI Agent Action suite. The record sidecars are listed because the
+    # chain-hash members are preimages rather than Statements: a sidecar that
+    # stopped being regenerated would leave the vector claiming a divergence
+    # over bytes no generator writes.
+    ("vectors-ai-agent-action/accept", "ok-*.json"),
+    ("vectors-ai-agent-action/reject", "bad-*.json"),
+    ("vectors-ai-agent-action/records", "*.jsonl"),
+    ("vectors-ai-agent-action", "MANIFEST.json"),
 )
+
+# Deliberately NOT owned above, for the two reasons the header already gives.
+# ``vectors-ai-agent-action/{accept,reject}/INDEX.md`` are authored by hand, as
+# ``vectors/accept/INDEX.md`` is. ``vectors-ai-agent-action/attacks/artifacts/``
+# is the output of a run rather than a source: run_attacks.py shells out to a
+# node process to demonstrate that ECMAScript orders object members differently,
+# so listing it here would make this gate refuse on any machine without node --
+# a gate that fails for a reason unrelated to the property it checks.
 
 REMEDY = (
     "A committed file that its generator does not reproduce cannot be "

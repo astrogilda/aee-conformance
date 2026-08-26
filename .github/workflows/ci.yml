@@ -414,6 +414,21 @@ jobs:
       # produces fails on the push that adds it.
       - name: every generated file regenerates byte-identically
         run: python3 scripts/regenerability-gate.py
+      # The AI Agent Action suite's own mutation check, which asks a different
+      # question from the gate above it. Regenerability asks whether the
+      # committed bytes are the bytes the generator emits; this asks whether
+      # those bytes behave as the manifest claims -- that a member claiming a
+      # chain-hash divergence actually diverges, that every reject condition has
+      # an accepting twin, and that the vendored specification still matches the
+      # digest pinned beside it. A corpus of rejections alone gives full marks
+      # to a verifier that rejects everything, so the twin rule is the property
+      # that makes the suite worth running at all.
+      #
+      # It shipped with the corpus and nothing ran it, which is how the
+      # generator above it also arrived: both passed only because somebody ran
+      # them by hand on the day they landed.
+      - name: the agent-action corpus behaves as its manifest claims
+        run: python3 vectors-ai-agent-action/check_vectors.py
       # The rail's own oracle, which is a different question from the corpus.
       # A vector states what the rail must decide about bytes on disk; the
       # self-test states what the rail must decide about a statement it builds

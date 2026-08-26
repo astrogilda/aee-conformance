@@ -66,22 +66,25 @@ validity for every parent. Regenerate byte-identically with:
 |---|---|
 | `35cc6fb260268f69a231fa0b9ead51b067c8455bff600c64978200f72ef2e9ff` | `sha256("example-admission-receipt-a/v1")` |
 | `fd739b5b84603ccbd963159854e9113bac6795014f7023a56dc2897883be89c6` | `sha256("example-admission-receipt-b/v1")` |
-| `f31821ae3e1d6e0611dc4d753e8f4c0232ad03df1f4bd32aa47b9cd4107fe3bf` | `sha256("example-intercepted-bytes/v1")` |
-| `c39e2582a5ff1bc8a84718fd6115c847808668b962c1bcd07e263bf688cc6f72` | `sha256("example-intercepted-bytes/v2")` |
-| `971620afb07eefbd5bab8b1d3e9034cf20052f66f884452b456c2ee06ca3a4b4` | `sha256("example-intercepted-bytes/v3")` |
-| `da8b67894471dbb3926d885264c5e9c6c65c8e156bdd58ef163b378d229e2b9e` | `sha256("example-intercepted-bytes/v4")` |
 | `81c6e914fe332c0a08a53c43fe0e6fa5d0e5fde533bb03ab664e3d924e8bf829` | `sha256("example-orphan-root/v1")` |
 | `cca32c26b70e238a58249962a8da351bd8acc047b638276b3503c05bf3c6499e` | `sha256("example-other-posture-config/v1")` |
-| `bd34c306e2295a4974787aa2b81e7e95c37580d543cbc47f0b77a026aef7e051` | `sha256("example-run-start-entropy/v1")` |
+| `01b25de15d8bc69fb3cb12b323e61c2f05078a6296e7b3ff9f6197d587014738` | `sha256("example-run-start-checkpoint/v1")` |
 | `93d3f174c7674310358525ffcba56656fc02a0bec3cedfd019557c925f7c1534` | `sha256("example-second-substrate-image/v1")` |
 | `1821aa6ff38428b2bf7ea727903b6d82768ea55dc24d4435890adcfe5fd0cea5` | `sha256("example-stale-corpus/v1")` |
 | `1cdb63348f9249f7dfafdc0f052d6610dbf824efa4f0b3839f4a4418807ae587` | `sha256("example-stale-vocabulary/v1")` |
 | `d14fbbcd076c6bfe5e6aa52b169c0baf7f7044ea46fe279afd7629e92baac8fc` | `sha256("example-agent-bundle-content/v1")` |
 | `cba949a58d23fdd49bf37f2f1195c926fec35d22f545c949c0c56df943c67794` | `sha256("example-agent-bundle-b-content/v1")` |
 | `018bbaf3710e526b0653abafbd3bd3c3356150d747db166021f1e107446c85bb` | `sha256("example-substrate-image-content/v1")` |
-| `4059bcf11682791da4726dca755cac73fa3ea61f492a3b37753504d6c5f71692` | `sha256("example-unchecked-binding-bytes/v1")` |
-| `28f8fb978cae8aabc974e6557a3665523281bfd85fcee13429179120ad7667cc` | `sha256(JCS({"example": "catch-policy", "mode": "enforcing"}))` |
-| `ba44e77b7861b9b7c5a7288b3d703a62289fb02b3a3e0f5612a4e74dbee0929e` | `sha256(JCS({"example": "posture-config", "posture": "sinkhole"}))` |
+| `dc54fd0bf21192f62b024ea90782d98ddd1ca511b21d3f0cc38733c4a24b38dd` | `sha256("example-unchecked-binding/v1")` |
+| `87359bb792677d9cf7e4118f2729821073530194403fda7a9530fa851f4a8b0f` | `sha256("in-toto-aee-test-commitment/example interception observation a/v1")` |
+| `c4c7e5b539761d0c611daa1fb0f1f3a3a759ce353b6629076f6550a7d26c83a8` | `sha256("in-toto-aee-test-commitment/example interception observation b/v1")` |
+| `a0d8baea7e8eef28c977dd5bad41139a3da498639ba012300853ffb978984529` | `sha256("in-toto-aee-test-commitment/example interception observation c/v1")` |
+| `7098b7a783350f38d06a2045405521c0b39d6926b257f71a7d05fd1fd6d0e765` | `sha256("in-toto-aee-test-commitment/example interception observation d/v1")` |
+| `abeebee717612337f51c6e16dd30ff53f1f4866a7ab8e4c0facd0589373591e5` | `sha256("in-toto-aee-test-commitment/example planted probe channel a/v1")` |
+| `8769d763e6537b565cf3d88608a94e228bd8c5163fddb48448db4298efb0a17d` | `sha256("in-toto-aee-test-commitment/example planted probe channel b/v1")` |
+| `4360248d6a437ca0f1d30a0b39e515f81d1ebb8c9fbc2f0bb045bbf960c3119c` | `sha256("in-toto-aee-test-commitment/example planted probe channel c/v1")` |
+| `846c2ccf97b5a5f4da335fe733e7f4f786ffd224ce582fb5a9685d52184abdc3` | `sha256(JCS({"exampleCatchPolicy": {"mode": "enforce"}}))` |
+| `a6ebfc845bfe910a099320fd7ec33e21282a8b56d82111527a80444ca18e4352` | `sha256(JCS({"exampleNetworkPosture": {"posture": "sinkhole"}}))` |
 
 Corpus and vocabulary digests are JCS digests of the manifest and
 `{"caught": [...], "labels": [...]}` objects embedded in each vector.
@@ -92,10 +95,10 @@ that MUST NOT match (JCS, then SHA-256):
 ```json
 {
   "aeeBindingVersion": "1",
-  "catchPolicy": "28f8fb978cae8aabc974e6557a3665523281bfd85fcee13429179120ad7667cc",
+  "catchPolicy": "846c2ccf97b5a5f4da335fe733e7f4f786ffd224ce582fb5a9685d52184abdc3",
   "corpus": "cc1bdef2ffca96d86a636e5a9fb27a4a111836773e0dd1368d8de94f413979be",
-  "networkPosture": "ba44e77b7861b9b7c5a7288b3d703a62289fb02b3a3e0f5612a4e74dbee0929e",
-  "runEntropy": "bd34c306e2295a4974787aa2b81e7e95c37580d543cbc47f0b77a026aef7e051",
+  "networkPosture": "a6ebfc845bfe910a099320fd7ec33e21282a8b56d82111527a80444ca18e4352",
+  "runEntropy": "01b25de15d8bc69fb3cb12b323e61c2f05078a6296e7b3ff9f6197d587014738",
   "subject": "d14fbbcd076c6bfe5e6aa52b169c0baf7f7044ea46fe279afd7629e92baac8fc",
   "substrate": "018bbaf3710e526b0653abafbd3bd3c3356150d747db166021f1e107446c85bb"
 }
@@ -241,7 +244,7 @@ so the declared fault stays the ONLY fault.
 | `bad-102-ref-out-of-range` | ok-001 | observationRefs: [0, 7] with one record (valid cover kept) | - | aee-c-11 | `ref-out-of-range` | L552-553 |
 | `bad-103-ref-negative` | ok-001 | observationRefs: [0, -1] | - | aee-c-11 | `ref-malformed` (also carries: `interception-record-orphaned`) | L552-553 |
 | `bad-104-caught-refs-arming-only` | ok-001 | append a fully-valid arming record; caught intercepted row refs only it | recompute-batch-root | aee-c-12 | `caught-row-uncovered` (also carries: `interception-record-orphaned`) | L554-556 |
-| `bad-105-reconstructed-refs-interception` | ok-006 | append a fully-valid interception record; reconstructed row refs only it | recompute-batch-root | aee-c-13 | `reconstructed-row-uncovered` (also carries: `interception-record-orphaned`) | L556-557 |
+| `bad-105-reconstructed-refs-interception` | ok-031 | append a fully-valid interception record; reconstructed row refs only it | recompute-batch-root | aee-c-13 | `reconstructed-row-uncovered` (also carries: `interception-record-orphaned`) | L556-557 |
 | `bad-106-clean-missing-sealed` | ok-002 | clean row refs the arming record only | - | aee-c-14 | `clean-row-uncovered` | L557-560; L1031-1033 |
 | `bad-107-clean-missing-arming` | ok-002 | clean row refs the sealed record only | - | aee-c-14 | `clean-row-uncovered` | L557-560; L1031-1033 |
 | `bad-108-ref-non-integer` | ok-001 | observationRefs: [0, 1.5] | - | aee-c-11 | `ref-malformed` (also carries: `interception-record-orphaned`) | L552-553 |
@@ -257,7 +260,7 @@ so the declared fault stays the ONLY fault.
 | `bad-302-method-inflation` | ok-001 | row method "intercepted"; sole covering record signed "reconstructed" | re-sign-record, recompute-batch-root | aee-c-23 | `method-cap-exceeded` | L565-566 |
 | `bad-303-binding-version-1` | ok-002 | records signed with a binding derived from the retired "aeeBindingVersion": "1" pre-image | derive-binding-v1, re-sign-record, recompute-batch-root | aee-c-75 aee-c-22 | `run-binding-mismatch` (also carries: `sealed-record-absent`) | L237-241; L563-564 |
 | `bad-726-arming-binding-version-carried` | ok-002 | arming payload carries an explicit aeeBindingVersion: "3" the verifier does not implement (read-first, distinct from the bad-303 digest mismatch) | re-sign-record, recompute-batch-root | aee-c-75 | `arming-covers-nothing` | L237-244 |
-| `bad-304-method-cap-multirecord` | ok-030 | row method "intercepted" covered by TWO interceptions with signed methods {intercepted, reconstructed}: exceeds the weakest | re-sign-record, recompute-batch-root | aee-c-23 aee-c-45 | `method-cap-exceeded` | L565-566 |
+| `bad-304-method-cap-multirecord` | ok-030 | row method raised to "intercepted" while the records it resolves carry signed methods {reconstructed, intercepted}: exceeds the weakest | - | aee-c-23 aee-c-45 | `method-cap-exceeded` | L565-566 |
 | `bad-401-records-no-batchroot` | ok-002 | batchRoot member removed while observationRecords is non-empty | - | aee-c-24 | `batch-root-missing` | L1742; L1754-1756 |
 | `bad-402-root-no-domain-separation` | ok-014 | root computed without the 0x00/0x01 domain-separation prefixes | - | aee-c-25 | `batch-root-mismatch` | L1744-1747 |
 | `bad-403-root-bitcoin-padding` | ok-014 | 3-leaf root computed by duplicate-last-leaf padding instead of the RFC 6962 recursive split | - | aee-c-26 | `batch-root-mismatch` | L1747-1749 |
@@ -297,7 +300,7 @@ so the declared fault stays the ONLY fault.
 | `bad-708-sealed-drops-no-bound` | ok-002 | sealed aeeDropCount: 3 with no aeeDropBound declared | re-sign-record, recompute-batch-root | aee-c-65 | `sealed-covers-nothing` | L1361-1366 |
 | `bad-709-sealed-drops-exceed-bound` | ok-003 | sealed aeeDropCount: 6 exceeding the declared aeeDropBound: 5 | re-sign-record, recompute-batch-root | aee-c-65 | `sealed-covers-nothing` | L1361-1366 |
 | `bad-710-sealed-posture-mismatch` | ok-002 | sealed aeePostureDigest edited (differs from the arming record's AND the pinned digest, which the arming constraint makes equivalent) | re-sign-record, recompute-batch-root | aee-c-65 | `sealed-covers-nothing` (COMPOUND) | L1361-1366 |
-| `bad-712-examination-method-intercepted` | ok-006 | examination record signed aeeMethod: "intercepted" | re-sign-record, recompute-batch-root | aee-c-66 | `examination-covers-nothing` | L1336-1338; L1344-1347 |
+| `bad-712-examination-method-intercepted` | ok-031 | examination record signed aeeMethod: "intercepted" | re-sign-record, recompute-batch-root | aee-c-66 | `examination-covers-nothing` | L1336-1338; L1344-1347 |
 | `bad-713-only-sealed-ref-noncovering` | ok-002 | clean row refs [good-arming, non-covering-sealed]; a fully-covering sealed record sits UNREFERENCED and EARLIER in the tree | recompute-batch-root | aee-c-68 | `sealed-covers-nothing` | L1187-1188; L557-560 |
 | `bad-714-unknown-kind-sole-cover` | ok-002 | the arming record's aeeKind becomes "aee-future-x" (record otherwise fully valid); the clean row's only arming ref now covers nothing | re-sign-record, recompute-batch-root | aee-c-71 | `record-kind-unknown-covers-nothing` | L1687-1691 |
 | `bad-715-sealed-missing-stillarmed` | ok-002 | drop aeeStillArmed from the sealed payload | re-sign-record, recompute-batch-root | aee-c-64 | `sealed-covers-nothing` | L1330-1335 |
@@ -320,7 +323,7 @@ so the declared fault stays the ONLY fault.
 | `bad-803-corpus-digest-mismatch` | ok-007 | corpus.digest is not the JCS digest of the embedded manifest | - | aee-c-79 | `corpus-digest-mismatch` | L787-791; L810-813 |
 | `bad-804-attackid-two-classes` | ok-033 | XA-EXAMPLE-1 appears under two manifest classes; corpus digest recomputed | recompute-corpus-digest | aee-c-80 | `manifest-duplicate-attack` | L789-791 |
 | `bad-805-row-unknown-attackid` | ok-001 | row attackId: "XA-EXAMPLE-9" absent from the manifest | - | aee-c-81 aee-c-82 | `row-attack-unknown`, `coverage-incomplete` (COMPOUND) | L920; L963-966 |
-| `bad-806-coverage-attack-omitted` | ok-011 | one of the two rows of a 2-attack assessed class deleted (quiet omission) | - | aee-c-82 | `coverage-incomplete` | L963-966 |
+| `bad-806-coverage-attack-omitted` | ok-046 | one of the two rows of a 2-attack assessed class deleted (quiet omission) | - | aee-c-82 | `coverage-incomplete` | L963-966 |
 | `bad-807-coverage-attack-superset` | ok-004 | added artifact-basis clean row for the outOfScope class's attack; result stays degraded | - | aee-c-82 | `coverage-incomplete` | L963-966 |
 | `bad-816-coverage-class-dropped` | ok-004 | manifest class XB dropped from all three coverage sets (not assessed, not outOfScope, not routedElsewhere), result forced to pass: the class-granularity coverage-partition fail-open | - | aee-c-82 | `coverage-incomplete` | L907-912; L963-966 |
 | `bad-819-assessed-class-not-in-manifest` | ok-001 | assessedClasses padded with class XZ the manifest never carried | - | aee-c-82 | `coverage-incomplete` | L912-916; L963-966 |
@@ -342,7 +345,7 @@ so the declared fault stays the ONLY fault.
 | `bad-749-record-signatures-not-an-array` | ok-001 | covering record's signatures member replaced with the JSON string "sig" | - | aee-c-91 | `record-signatures-empty` | L1300-1302 |
 | `bad-746-manifest-empty-classes` | ok-007 | corpus manifest emptied to {"classes": {}}; the row it declared and that row's coverage entry come out with it | drop-undeclared-rows, rebuild-coverage-partition, recompute-corpus-digest | aee-c-92 | `corpus-manifest-no-attacks` | L968-990 |
 | `bad-747-manifest-class-declares-no-attacks` | ok-007 | corpus manifest keeps class XA but empties its attack-id array; the row it declared and that row's coverage entry come out with it | drop-undeclared-rows, rebuild-coverage-partition, recompute-corpus-digest | aee-c-92 | `corpus-manifest-no-attacks` | L968-990 |
-| `bad-817-payload-noncanonical-base64` | ok-001 | covering record payload re-encoded as non-canonical base64 (nonzero trailing bits); the record no longer strict-decodes | - | aee-c-19 | `record-undecodable` (also carries: `observed-set-mismatch`) | L1288-1291 |
+| `bad-817-payload-noncanonical-base64` | ok-031 | covering record payload re-encoded as non-canonical base64 (nonzero trailing bits); the record no longer strict-decodes | - | aee-c-19 | `record-undecodable` (also carries: `observed-set-mismatch`) | L1288-1291 |
 | `bad-808-coverage-absent` | ok-002 | drop coverage | - | aee-c-83 | `coverage-missing` | L905-909 |
 | `bad-809-snake-case-doesnotassert` | ok-002 | statement carries the rejected snake_case spelling of doesNotAssert | - | aee-c-84 | `member-spelling` | L1772-1782 |
 | `bad-810-missing-issuedat` | ok-007 | drop issuedAt | - | aee-c-85 | `issued-at-missing` | L1784 |
@@ -365,10 +368,10 @@ so the declared fault stays the ONLY fault.
 | `bad-950-clean-row-refs-interception` | ok-014 | a fully covered clean row also resolves the caught row's interception record | - | aee-c-94 | `clean-row-contradicted` | L574-579 |
 | `bad-951-interception-no-caught-row` | ok-001 | the caught row is re-pointed at the sealed record, leaving the interception record resolved by nobody | - | aee-c-95 | `caught-row-uncovered`, `interception-record-orphaned` (COMPOUND) | L580-585 |
 | `bad-952-substrate-row-no-seal` | ok-001 | the sealed record is deleted from a statement carrying a substrate row | recompute-batch-root | aee-c-96 | `sealed-record-absent` | L586-594 |
-| `bad-953-observed-set-drops-a-record` | ok-011 | one interception is deleted with its row and the root recomputed over what remains, while the seal still commits to the deleted record | rederive-binding, re-sign-record, recompute-batch-root | aee-c-97 | `observed-set-mismatch` | L609-613; L1499-1508 |
+| `bad-953-observed-set-drops-a-record` | ok-046 | one interception is deleted with its row and the root recomputed over what remains, while the seal still commits to the deleted record | rederive-binding, re-sign-record, recompute-batch-root | aee-c-97 | `observed-set-mismatch` | L609-613; L1499-1508 |
 | `bad-954-observed-set-gains-a-record` | ok-001 | an interception record the seal does not commit to is appended and resolved by the caught row | recompute-batch-root | aee-c-97 | `observed-set-mismatch` | L609-613; L1499-1508 |
 | `bad-955-seal-names-clean-attack` | ok-002 | the seal names an attack whose only row reports a clean containment | re-sign-record, recompute-batch-root | aee-c-98 | `observed-attack-uncaught` | L1535-1542 |
-| `bad-956-seal-names-rowless-attack` | ok-011 | the seal names two attacks and the statement carries a row for only one | re-sign-record, recompute-batch-root | aee-c-98 | `coverage-incomplete`, `observed-attack-uncaught` (COMPOUND) | L1535-1542 |
+| `bad-956-seal-names-rowless-attack` | ok-046 | the seal names two attacks and the statement carries a row for only one | re-sign-record, recompute-batch-root | aee-c-98 | `coverage-incomplete`, `observed-attack-uncaught` (COMPOUND) | L1535-1542 |
 | `bad-957-assessed-exceeds-declaration` | ok-004 | the arming record declares only the class the run did NOT assess, so the assessed set is not a subset of the run-start declaration | re-sign-record, recompute-batch-root | aee-c-99 | `assessed-set-exceeds-declaration` | L1467-1473 |
 | `bad-958-pinned-row-resolves-no-interception` | ok-047 | the interception is deleted and the pinned row re-pointed at the seal | recompute-batch-root | aee-c-100 | `caught-row-uncovered`, `attribution-pinned-recordless` (COMPOUND) | L614-623 |
 | `bad-959-pinned-without-expectation` | ok-047 | the corpus manifest carries no expectedPayloads entry for the attack the pinned row names | rederive-binding, re-sign-record, recompute-batch-root | aee-c-101 | `attribution-unpinnable` | L614-623; L815-821 |

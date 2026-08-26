@@ -173,10 +173,20 @@ def vocab_digest(labels: list[str], caught: list[str]) -> str:
     return sha256_hex(jcs({"caught": caught, "labels": labels}))
 
 
+# The corpus identity every statement in this suite carries. Named constants
+# rather than literals inside corpus_obj because the reject generator imports
+# them: a reject vector is its accept parent plus one mutation, and a corpus
+# name spelled twice is a second difference between the two that no mutation
+# accounts for. That is how the pair drifted apart before -- see the module
+# docstring of vectors/reject/gen_invalid_vectors.py.
+CORPUS_NAME = "example-adversarial-corpus"
+CORPUS_URI = "pkg:example/adversarial-corpus@1.0.0"
+
+
 def corpus_obj(manifest: dict[str, Any]) -> dict[str, Any]:
     return {
-        "name": "example-adversarial-corpus",
-        "uri": "pkg:example/adversarial-corpus@1.0.0",
+        "name": CORPUS_NAME,
+        "uri": CORPUS_URI,
         "digest": {"sha256": sha256_hex(jcs(manifest))},
         "manifest": manifest,
     }

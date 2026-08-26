@@ -34,6 +34,7 @@ Requires: python3 + the "cryptography" package (Ed25519).
 import base64
 import copy
 import hashlib
+import importlib.util
 import json
 import os
 from collections.abc import Callable
@@ -46,6 +47,43 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
 )
 
 OUT = os.path.dirname(os.path.abspath(__file__))
+ACCEPT_DIR = os.path.join(OUT, os.pardir, "accept")
+
+
+def _load_accept_generator() -> Any:
+    """Import the accept generator for its synthetic environment fixtures.
+
+    There is ONE source of synthetic environment values in this suite and it is
+    the accept generator, because the accept generator writes the statements
+    this file's vectors are derived FROM. Every reject vector is a shipped
+    accept vector plus one mutation, so any constant spelled once here and once
+    there is a second difference between a child and its parent that no
+    mutation accounts for.
+
+    They were spelled twice, and they disagreed. The catch-policy and
+    network-posture pre-image objects, the run-entropy and unchecked-binding
+    pre-images, and the corpus name and purl each had two values, so a reject
+    vector built to mirror an accept vector got the same SHAPE and never the
+    same STATEMENT: the published pair `vate-1a`/`vate-1d` differed in eleven
+    leaves where it claimed one, and every other child-parent pair in the
+    corpus differed in six to forty-one. Importing rather than restating is the
+    fix that cannot drift back, because there is no second copy left to drift.
+
+    Importing the module does not run it: its writer is behind a main guard.
+    An import failure is a hard failure and never a fall back to local
+    constants -- falling back would restore the divergence silently, which is
+    the defect this import exists to remove.
+    """
+    path = os.path.join(ACCEPT_DIR, "gen_valid_vectors.py")
+    spec = importlib.util.spec_from_file_location("aee_accept_vectors", path)
+    if spec is None or spec.loader is None:
+        raise SystemExit(f"cannot import the accept generator at {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+ACCEPT = _load_accept_generator()
 
 STATEMENT_TYPE = "https://in-toto.io/Statement/v1"
 PREDICATE_TYPE = "https://in-toto.io/attestation/adversarial-execution-evidence/v0.7"
@@ -178,9 +216,20 @@ SUB_PRIV, SUB_PUB, SUB_KEYID = key_for("substrate-observation-test")
 
 # ---------------------------------------------------------------- preimages
 
+# The pre-images this file needs that also travel in an accept vector are read
+# from the accept generator rather than restated. Everything below the shared
+# block is mutation material -- values that exist only to be substituted INTO a
+# parent -- and has no accept-side counterpart to agree with.
+_SHARED = ACCEPT.PREIMAGES
 PREIMAGES = {
-    "subject": "example-agent-bundle-content/v1",
-    "subject-b": "example-agent-bundle-b-content/v1",
+    # Shared with the accept generator, by import. `subject`, `substrate`, the
+    # two admission receipts and the second substrate image were already spelled
+    # identically in both files; `run-entropy` and `unchecked-binding` were not,
+    # and the disagreement travelled into every reject vector's run binding.
+    "subject": _SHARED["subject"],
+    "substrate": _SHARED["substrate"],
+    "run-entropy": _SHARED["run-entropy"],
+    "unchecked-binding": _SHARED["unchecked-binding"],
     # Two distinct admission receipts, A and B, and a second observation
     # substrate, for the three vate-* vectors below. Two receipts rather than
     # one because the pinned VATE case compares an admission receipt with an
@@ -189,25 +238,14 @@ PREIMAGES = {
     # substrate is named after the field it is substituted into rather than
     # after what it is in the world, because what this predicate reads at
     # observationEnvironment.substrate.digest.sha256 is the substrate anchor
-    # and not a runtime under comparison. Derived from a published one-line
-    # preimage like every other digest here, so a reader re-derives them, and
-    # spelled identically in the accept generator so the two never diverge.
-    "admission-receipt-a": "example-admission-receipt-a/v1",
-    "admission-receipt-b": "example-admission-receipt-b/v1",
-    "second-substrate-image": "example-second-substrate-image/v1",
-    "substrate": "example-substrate-image-content/v1",
-    "run-entropy": "example-run-start-entropy/v1",
-    "intercepted-bytes-1": "example-intercepted-bytes/v1",
-    "intercepted-bytes-2": "example-intercepted-bytes/v2",
-    # Two more observed values, for the three-channel liveness statements. A
-    # third channel needs a third predicted value, and the unmatched case needs
-    # a fourth that no channel's corpus entry declares: reusing one channel's
-    # value on another channel's record would make the two records
-    # byte-identical, which is a different fault (aee-c-29) and would mask the
-    # one under test.
-    "intercepted-bytes-3": "example-intercepted-bytes/v3",
-    "intercepted-bytes-4": "example-intercepted-bytes/v4",
-    "unchecked-binding": "example-unchecked-binding-bytes/v1",
+    # and not a runtime under comparison.
+    "admission-receipt-a": _SHARED["admission-receipt-a"],
+    "admission-receipt-b": _SHARED["admission-receipt-b"],
+    "second-substrate-image": _SHARED["second-substrate-image"],
+    # Mutation material, reject-only. A second subject bundle a splice moves in,
+    # observed values a record commits to, and the stale/orphan digests whose
+    # whole purpose is to be wrong.
+    "subject-b": "example-agent-bundle-b-content/v1",
     "other-posture": "example-other-posture-config/v1",
     "stale-vocabulary": "example-stale-vocabulary/v1",
     "stale-corpus": "example-stale-corpus/v1",
@@ -215,10 +253,63 @@ PREIMAGES = {
 }
 D = {k: sha256hex(v.encode()) for k, v in PREIMAGES.items()}
 
-CATCHPOLICY_OBJ = {"example": "catch-policy", "mode": "enforcing"}
-POSTURE_OBJ = {"example": "posture-config", "posture": "sinkhole"}
+# What an interception record commits to, and the note it carries beside it.
+# Both come from the accept generator, which is the only place either recipe
+# lives: the value is ACCEPT.commitment_for(<note>) and the note is the same
+# string, so an interception record in a reject vector and the one in its
+# accept parent are the same bytes rather than two producers' idea of the same
+# observation. They were two: this file derived the commitment from a
+# `example-intercepted-bytes/vN` pre-image and wrote the note
+# "example interception", and every reject vector's interception record
+# therefore differed from its parent's in two members no mutation touched.
+#
+# Four observations rather than one because a statement carrying several
+# interceptions needs several distinct values: two records committing to the
+# same value are byte-identical, which is its own fault (aee-c-29) and would
+# mask the one under test. The fourth is the value no channel's corpus entry
+# declares, for the unmatched liveness case.
+OBSERVATION_NOTES = {
+    "intercepted-bytes-1": "example interception observation a",
+    "intercepted-bytes-2": "example interception observation b",
+    "intercepted-bytes-3": "example interception observation c",
+    "intercepted-bytes-4": "example interception observation d",
+    # The planted probes of the three-channel liveness family. They carry
+    # their own notes because the accept anchor for that family, ok-052, does:
+    # a probe a corpus author planted is a different kind of observation from
+    # an interception a run happened to make, and the vectors read as the
+    # source case reads only if both sides spell it the same way.
+    "probe-channel-a": "example planted probe channel a",
+    "probe-channel-b": "example planted probe channel b",
+    "probe-channel-c": "example planted probe channel c",
+}
+D.update({key: ACCEPT.commitment_for(note)
+          for key, note in OBSERVATION_NOTES.items()})
+
+# The note an examination record carries. Same reasoning: the accept set writes
+# a producer note and no statesCompared member, and a parent and a child that
+# describe the same examination differently are not one mutation apart.
+EXAMINATION_NOTE = "example state comparison a-to-b"
+EXAMINATION_NOTE_SECOND = "example state comparison c-to-d"
+
+# The coverage reasons, likewise read off the accept set rather than reworded.
+OUT_OF_SCOPE_REASON = "example: class not assessed in this run"
+ROUTED_ELSEWHERE_REASON = "example: class assessed under a separate statement"
+
+# The catch-policy and network-posture pre-image OBJECTS, imported for the same
+# reason as the pre-images above: each had a second spelling here, and the two
+# digests they produced put every accept vector and every reject vector in
+# different observation environments while both sets described themselves as
+# one mutation apart.
+CATCHPOLICY_OBJ = _SHARED["catch-policy"]
+POSTURE_OBJ = _SHARED["network-posture"]
 CATCHPOLICY_D = jcs_digest(CATCHPOLICY_OBJ)
 POSTURE_D = jcs_digest(POSTURE_OBJ)
+
+# The corpus identity, likewise. A name and a purl are not derived from
+# anything, so two spellings never disagree loudly; they simply made every
+# child differ from its parent in two more leaves than the mutation.
+CORPUS_NAME = ACCEPT.CORPUS_NAME
+CORPUS_URI = ACCEPT.CORPUS_URI
 
 M1 = {"classes": {"XA": ["XA-EXAMPLE-1"]}}
 M2 = {"classes": {"XA": ["XA-EXAMPLE-1", "XA-EXAMPLE-2"]}}
@@ -242,8 +333,8 @@ def environment(manifest: dict[str, Any], entropy: bool = True,
     env = {
         "substrate": {"name": "example-substrate-image",
                       "digest": {"sha256": D["substrate"]}},
-        "corpus": {"name": "example-corpus",
-                   "uri": "pkg:example/example-corpus@1.0.0",
+        "corpus": {"name": CORPUS_NAME,
+                   "uri": CORPUS_URI,
                    "digest": {"sha256": jcs_digest(manifest)},
                    "manifest": manifest},
         "catchPolicy": {"digest": {"sha256": CATCHPOLICY_D}},
@@ -309,7 +400,8 @@ def record(payload_obj: Any, ptype: str = PAYLOAD_TYPE) -> dict[str, Any]:
 
 
 def interception_payload(binding: str, method: str = "intercepted",
-                         commit: str = "intercepted-bytes-1") -> dict[str, Any]:
+                         commit: str = "intercepted-bytes-1",
+                         note: str | None = None) -> dict[str, Any]:
     # aeePayloadCommitment is the reserved spelling for what an interception
     # record has always carried here under a producer name. The array is
     # single-valued because one derived preimage is one observed value; a
@@ -318,7 +410,8 @@ def interception_payload(binding: str, method: str = "intercepted",
     return {"aeeKind": "interception", "aeeMethod": method,
             "aeePayloadCommitment": [D[commit]],
             "aeeRunBinding": binding,
-            "producerNote": "example interception"}
+            "producerNote": OBSERVATION_NOTES[commit] if note is None
+                            else note}
 
 
 # The sentinels a run-level record carries until statement() knows the record
@@ -356,10 +449,11 @@ def sealed_payload(binding: str, still: bool = True, drop: int = 0,
     return p
 
 
-def examination_payload(binding: str, method: str = "reconstructed") -> dict[str, Any]:
+def examination_payload(binding: str, method: str = "reconstructed",
+                        note: str = EXAMINATION_NOTE) -> dict[str, Any]:
     return {"aeeKind": "examination", "aeeMethod": method,
             "aeeRunBinding": binding,
-            "statesCompared": ["example-state-a", "example-state-b"]}
+            "producerNote": note}
 
 
 def caught_row(refs: tuple[int, ...] = (0,), attack: str = "XA-EXAMPLE-1",
@@ -381,16 +475,21 @@ def clean_row(refs: tuple[int, ...] = (0, 1), attack: str = "XA-EXAMPLE-1",
             "actualLayer": "none", "observationRefs": list(refs)}
 
 
-def artifact_row(attack: str = "XA-EXAMPLE-1", label: str = "egress_captured",
-                 method: str = "intercepted", basis: str = "artifact",
+def artifact_row(attack: str = "XA-EXAMPLE-1", label: str = "no_egress",
+                 method: str = "reconstructed", basis: str = "artifact",
                  layer: str = "none",
-                 attribution: str = "paired") -> dict[str, str]:
-    # observationRefs absent by default. Nothing normative READS refs on an
-    # artifact row -- the coverage gate walks substrate rows only -- but the
-    # structural-integrity rule is quantified over every row that carries the
-    # member, so an out-of-range index here is still a reject (bad-724).
+                 attribution: str = "paired",
+                 refs: list[int] | None = None) -> dict[str, Any]:
+    # The empty refs array is written rather than omitted, because that is how
+    # the accept set writes an artifact row and a child that omits a member its
+    # parent carries differs from it by that member. Nothing normative READS
+    # refs on an artifact row -- the coverage gate walks substrate rows only --
+    # but the structural-integrity rule is quantified over every row that
+    # carries the member, so an out-of-range index here is still a reject
+    # (bad-724).
     return {"attackId": attack, "containmentObserved": label, "basis": basis,
-            "method": method, "attribution": attribution, "actualLayer": layer}
+            "method": method, "attribution": attribution, "actualLayer": layer,
+            "observationRefs": [] if refs is None else list(refs)}
 
 
 def statement(env: dict[str, Any], rows: list[dict[str, Any]],
@@ -529,181 +628,138 @@ def rebind_records(st: dict[str, Any]) -> dict[str, Any]:
 
 
 # ---------------------------------------------------------------- parents
-# In-memory equivalents of the BUILD accept shapes (the accept suite lands
-# separately); each parent is asserted fully valid by the self-check below.
+# Every parent is a SHIPPED accept vector, read from `vectors/accept/`. None is
+# constructed here, and that is the property: a reject vector is its declared
+# parent plus exactly one mutation, which can only be true of a parent that is
+# the same bytes as the vector it names. The self-check below still asserts
+# each one fully gate-valid, so a parent that stops being acceptable fails here
+# rather than in a consumer.
 
-def P_caught() -> dict[str, Any]:  # ok-001 shape: caught substrate/intercepted, 1 interception
-    env = environment(M1)
-    b = binding_for(env)
-    return statement(env, [caught_row()],
-                     [record(interception_payload(b)),
-                      record(sealed_payload(b))],
-                     result="fail")
+def accept_parent(vector_id: str) -> dict[str, Any]:
+    """The shipped accept vector `vector_id`, read from disk.
 
+    EVERY parent below comes through here, and that is the whole of the fix
+    this generator carries. A reject vector is its declared parent plus exactly
+    one mutation; a parent REBUILT here rather than read is a second
+    construction of a statement that already exists, and two constructions of
+    one statement agree only for as long as nobody edits either. They did not
+    agree: every reject vector in the corpus differed from the accept vector it
+    named in six to forty-one leaves, `vate-1a` differed from `vate-1d` in
+    eleven where three published sentences said one, and the accept-anchor gate
+    resolved the declared parent by whole-id membership, which establishes that
+    the parent EXISTS and never that the child is that parent plus one
+    mutation.
 
-def P_clean() -> dict[str, Any]:  # ok-002 shape: clean pass, arming + sealed(drop 0)
-    env = environment(M1)
-    b = binding_for(env)
-    return statement(env, [clean_row()],
-                     [record(arming_payload(b)), record(sealed_payload(b))],
-                     result="pass")
-
-
-RECEIPT_PARENT_FILE = os.path.join(
-    OUT, os.pardir, "accept", "vate-1d-admission-receipt-as-sole-subject.json")
-
-
-def P_receipt_clean() -> dict[str, Any]:  # vate-1d shape: admission receipt A as sole subject
-    """The A-bound shape the case-1 pair is derived from, read from vate-1d itself.
-
-    Admission receipt A occupies the one subject slot, the run binding is
-    derived over A, and both records are signed under that binding. It ships as
-    the accept vector `vate-1d`, so the refusal derived from it (`vate-1a`,
-    which substitutes receipt B into the subject and leaves the A-bound records
-    untouched) is an admission-receipt-against-admission-receipt relation
-    rather than an artifact-against-receipt one.
-
-    It LOADS `vate-1d` rather than rebuilding its shape, and the difference is
-    the whole point. This file and the accept generator each carry their own
-    synthetic fixtures -- catch-policy, network-posture and run-entropy
-    preimages, and a corpus name and purl -- and the two sets never agreed.
-    Rebuilding the shape here therefore produced a parent that was the same
-    SHAPE as `vate-1d` and not the same STATEMENT: the shipped pair differed in
-    eleven leaves rather than one, so the case-1 control varied its environment
-    alongside the field it was supposed to isolate and could not attribute the
-    refusal to that field. A control pair that differs in more than the field
-    under test does not control for it, which is the only property the pair
-    exists to carry.
-
-    Reading the accept vector makes the one-mutation relation true by
-    construction instead of by two generators happening to agree. The
-    regenerability gate runs the accept generator before this one, so the file
-    read here is the one that run just wrote. An unreadable file is a hard
-    failure and never a rebuilt approximation: silently falling back to a
-    locally constructed shape is exactly the defect this function was rewritten
-    to remove.
+    Reading makes the relation true by construction, and there is no second
+    copy left to drift. `scripts/regenerability-gate.py` runs the accept
+    generator before this one, so the file read here is the one that run just
+    wrote. An unreadable or unparseable file is a hard failure: falling back to
+    a locally built approximation would restore the divergence silently, which
+    is exactly the defect this function exists to remove.
     """
-    with open(RECEIPT_PARENT_FILE, encoding="utf-8") as f:
-        parent: dict[str, Any] = json.load(f)
+    path = os.path.join(ACCEPT_DIR, vector_id + ".json")
+    try:
+        with open(path, encoding="utf-8") as handle:
+            parent: dict[str, Any] = json.load(handle)
+    except (OSError, ValueError) as exc:
+        raise SystemExit(
+            f"cannot read the accept vector {vector_id} at {path}: {exc}. "
+            "Every reject vector is derived from a shipped accept vector, so "
+            "an unreadable parent is a hard failure and never a rebuild"
+        ) from exc
     return parent
 
 
-def P_clean_bounded() -> dict[str, Any]:  # ok-003 shape: sealed(drop 3, bound 5)
-    env = environment(M1)
-    b = binding_for(env)
-    return statement(env, [clean_row()],
-                     [record(arming_payload(b)),
-                      record(sealed_payload(b, drop=3, bound=5))],
-                     result="pass")
+def P_receipt_clean() -> dict[str, Any]:
+    """vate-1d-admission-receipt-as-sole-subject: admission receipt A alone.
+
+    Admission receipt A occupies the one subject slot, the run binding is
+    derived over A, and both records are signed under that binding, so the
+    refusal derived from it -- `vate-1a`, which substitutes receipt B into the
+    subject and leaves the A-bound records untouched -- is an
+    admission-receipt-against-admission-receipt relation rather than an
+    artifact-against-receipt one.
+
+    This was the first parent to be read rather than rebuilt, and the pair it
+    anchors is why every other parent is read now.
+    """
+    return accept_parent("vate-1d-admission-receipt-as-sole-subject")
 
 
-def P_degraded() -> dict[str, Any]:  # ok-004 shape: clean substrate row + outOfScope class
-    env = environment(MAB)
-    b = binding_for(env)
-    return statement(env, [clean_row()],
-                     [record(arming_payload(b)), record(sealed_payload(b))],
-                     result="degraded",
-                     coverage={"assessedClasses": ["XA"],
-                               "outOfScope": {"XB": "example scope reason"},
-                               "routedElsewhere": {}})
+def P_caught() -> dict[str, Any]:
+    """ok-001-caught-intercepted-fail: caught intercepted, one interception and a seal."""
+    return accept_parent("ok-001-caught-intercepted-fail")
 
 
-def P_reconstructed() -> dict[str, Any]:  # ok-006 shape: caught substrate/reconstructed + exam
-    env = environment(M1)
-    b = binding_for(env)
-    return statement(env,
-                     [caught_row(method="reconstructed", layer="none")],
-                     [record(examination_payload(b)),
-                      record(sealed_payload(b))], result="fail")
+def P_clean() -> dict[str, Any]:
+    """ok-002-clean-pass-armed-sealed: clean pass, arming and sealed, no drops."""
+    return accept_parent("ok-002-clean-pass-armed-sealed")
 
 
-def P_artifact() -> dict[str, Any]:  # ok-007 shape: artifact-only, recordless, no entropy
-    env = environment(M1, entropy=False)
-    return statement(env, [artifact_row()], result="fail")
+def P_clean_bounded() -> dict[str, Any]:
+    """ok-003-clean-pass-bounded-drops: clean pass, three drops under a bound of five."""
+    return accept_parent("ok-003-clean-pass-bounded-drops")
 
 
-def P_artifact_unknown_method() -> dict[str, Any]:  # ok-008 shape: fail-closed method, valid
-    env = environment(M1, entropy=False)
-    return statement(env, [artifact_row(label="no_egress",
-                                        method="example.method-x")],
-                     result="fail")
+def P_degraded() -> dict[str, Any]:
+    """ok-004-degraded-out-of-scope: clean substrate row with a class out of scope."""
+    return accept_parent("ok-004-degraded-out-of-scope")
 
 
-def P_artifact_oov_label() -> dict[str, Any]:  # ok-009 shape: fail-closed label, valid
-    env = environment(M1, entropy=False)
-    return statement(env, [artifact_row(label="example_label_x")],
-                     result="fail")
+def P_reconstructed() -> dict[str, Any]:
+    """ok-031-caught-reconstructed: caught reconstructed, resolving an examination."""
+    return accept_parent("ok-031-caught-reconstructed")
 
 
-def P_artifact_clean() -> dict[str, Any]:  # ok-007 shape: artifact-only CLEAN row, recordless
-    # pass_indirect, not pass: the single clean row is indirect in both vantage
-    # and time, which is the third condition of the recompute.
-    env = environment(M1, entropy=False)
-    return statement(env, [artifact_row(label="no_egress", method="reconstructed")],
-                     result="pass_indirect")
+def P_artifact() -> dict[str, Any]:
+    """ok-007-artifact-only-recordless: artifact-only clean row, recordless, no entropy."""
+    return accept_parent("ok-007-artifact-only-recordless")
 
 
-def P_two_attacks() -> dict[str, Any]:  # ok-011 shape: two caught rows, two interceptions
-    env = environment(M2)
-    b = binding_for(env)
-    return statement(env,
-                     [caught_row(refs=(0,)),
-                      caught_row(refs=(1,), attack="XA-EXAMPLE-2")],
-                     [record(interception_payload(b)),
-                      record(interception_payload(
-                          b, commit="intercepted-bytes-2")),
-                      record(sealed_payload(b))],
-                     result="fail")
+def P_artifact_unknown_method() -> dict[str, Any]:
+    """ok-008-artifact-fail-closed-method: artifact row whose method is fail-closed."""
+    return accept_parent("ok-008-artifact-fail-closed-method")
 
 
-def P_clean_two() -> dict[str, Any]:  # ok-011 shape: two clean rows, one arming+sealed pair
-    env = environment(M2)
-    b = binding_for(env)
-    return statement(env,
-                     [clean_row(), clean_row(attack="XA-EXAMPLE-2")],
-                     [record(arming_payload(b)), record(sealed_payload(b))],
-                     result="pass")
+def P_artifact_oov_label() -> dict[str, Any]:
+    """ok-009-artifact-oov-label-fail: artifact row whose label is out of vocabulary."""
+    return accept_parent("ok-009-artifact-oov-label-fail")
 
 
-def P_three_records() -> dict[str, Any]:  # ok-014 shape: 3-record odd-split tree
-    env = environment(M2)
-    b = binding_for(env)
-    return statement(env, [caught_row(refs=(0,)),
-                           clean_row(refs=(1, 2), attack="XA-EXAMPLE-2")],
-                     [record(interception_payload(b)),
-                      record(arming_payload(b)), record(sealed_payload(b))],
-                     result="fail")
+def P_multirecord() -> dict[str, Any]:  # ok-030 shape: caught row over three records
+    """The min-composition shape: an examination and two interceptions.
+
+    Read from the shipped `ok-030` rather than rebuilt. The builder that stood
+    here produced a two-interception statement the accept corpus does not ship
+    while declaring `ok-030` as its parent, and the one vector derived from it
+    was three mutations from the vector it named.
+    """
+    return accept_parent("ok-030-method-min-multirecord")
 
 
-def P_artifact_with_records() -> dict[str, Any]:  # ok-029 shape: artifact rows, 2 loose records
-    env = environment(M1, entropy=False)
-    ub = D["unchecked-binding"]  # no substrate rows => no derived binding
-    return statement(env, [artifact_row()],
-                     [record(examination_payload(ub)),
-                      record({**examination_payload(ub),
-                              "statesCompared": ["example-state-c",
-                                                 "example-state-d"]})],
-                     result="fail")
+def P_two_attacks() -> dict[str, Any]:
+    """ok-046-seal-attacks-lower-bound: two caught rows, one interception each."""
+    return accept_parent("ok-046-seal-attacks-lower-bound")
 
 
-def P_multirecord() -> dict[str, Any]:  # ok-030 shape: caught row covered by TWO interceptions
-    env = environment(M1)
-    b = binding_for(env)
-    return statement(env, [caught_row(refs=(0, 1))],
-                     [record(interception_payload(b)),
-                      record(interception_payload(
-                          b, commit="intercepted-bytes-2")),
-                      record(sealed_payload(b))],
-                     result="fail")
+def P_clean_two() -> dict[str, Any]:
+    """ok-011-shared-run-records: two clean rows over one arming and sealed pair."""
+    return accept_parent("ok-011-shared-run-records")
 
 
-def P_artifact_degraded() -> dict[str, Any]:  # ok-033 shape: artifact-only degraded
-    env = environment(MAB, entropy=False)
-    return statement(env, [artifact_row(label="no_egress")],
-                     result="degraded",
-                     coverage={"assessedClasses": ["XA"],
-                               "outOfScope": {"XB": "example scope reason"},
-                               "routedElsewhere": {}})
+def P_three_records() -> dict[str, Any]:
+    """ok-014-three-record-odd-split: a three-record odd-split tree."""
+    return accept_parent("ok-014-three-record-odd-split")
+
+
+def P_artifact_with_records() -> dict[str, Any]:
+    """ok-029-artifact-with-records: artifact row beside two unreferenced examinations."""
+    return accept_parent("ok-029-artifact-with-records")
+
+
+def P_artifact_degraded() -> dict[str, Any]:
+    """ok-033-artifact-degraded: artifact-only clean row with a class out of scope."""
+    return accept_parent("ok-033-artifact-degraded")
 
 
 PARENTS = {
@@ -712,16 +768,15 @@ PARENTS = {
     "ok-003 shape (clean pass, sealed drop 3 bound 5)": P_clean_bounded,
     "vate-1d shape (admission receipt A as sole subject)": P_receipt_clean,
     "ok-004 shape (clean substrate row, outOfScope class, degraded)": P_degraded,
-    "ok-006 shape (caught reconstructed, examination)": P_reconstructed,
+    "ok-031 shape (caught reconstructed, examination)": P_reconstructed,
     "ok-007 shape (artifact-only recordless)": P_artifact,
     "ok-008 shape (artifact row, fail-closed method, valid fail)": P_artifact_unknown_method,
     "ok-009 shape (artifact row, fail-closed label, valid fail)": P_artifact_oov_label,
-    "ok-007 shape (artifact-only clean row, recordless, pass_indirect)": P_artifact_clean,
-    "ok-011 shape (two caught rows, two interceptions)": P_two_attacks,
+    "ok-030 shape (caught row over an examination and two interceptions)": P_multirecord,
+    "ok-046 shape (two caught rows, two interceptions)": P_two_attacks,
     "ok-011 shape (two clean rows, one arming+sealed pair)": P_clean_two,
     "ok-014 shape (three-record odd-split tree)": P_three_records,
     "ok-029 shape (artifact rows + unreferenced records + root)": P_artifact_with_records,
-    "ok-030 shape (caught row covered by two interceptions)": P_multirecord,
     "ok-033 shape (artifact-only degraded)": P_artifact_degraded,
 }
 
@@ -903,7 +958,7 @@ vec("bad-009-result-pass-on-indirect-clean-row", "ok-007",
     'carried result: "pass" over a clean row that is artifact-basis and '
     "reconstructed (recompute: pass_indirect)", [],
     [2], ["result-recompute-mismatch"],
-    set_result(P_artifact_clean, "pass"), spec="L390-393",
+    set_result(P_artifact, "pass"), spec="L390-393",
     note="this is the statement a party holding only the enclosing envelope "
          "key produces by moving every row to artifact basis and dropping the "
          "records: valid before the fourth result value existed, and a "
@@ -955,7 +1010,7 @@ def _b105() -> dict[str, Any]:
     return reroot(st)
 
 
-vec("bad-105-reconstructed-refs-interception", "ok-006",
+vec("bad-105-reconstructed-refs-interception", "ok-031",
     "append a fully-valid interception record; reconstructed row refs only it",
     ["recompute-batch-root"], [13], ["reconstructed-row-uncovered"], _b105,
     spec="L556-557")
@@ -1159,15 +1214,27 @@ vec("bad-726-arming-binding-version-carried", "ok-002",
 
 
 def _b304() -> dict[str, Any]:
+    """Raise the row's declared method above the weakest one it resolves.
+
+    The parent is `ok-030` itself, whose row resolves an examination signed
+    `reconstructed` beside two interceptions signed `intercepted` and honestly
+    declares the minimum. Raising that one member to `intercepted` is the
+    entire vector.
+
+    It used to be built from a locally constructed two-interception shape whose
+    record set the accept corpus does not ship, and a record's signed method
+    was edited instead of the row's. The fault was the same and the statement
+    was not: the vector named `ok-030` as its parent and was three mutations
+    from it, so nothing a rail did with the pair was attributable to the cap."""
     st = P_multirecord()
-    return mutate_record_payload(
-        st, 1, lambda o: {**o, "aeeMethod": "reconstructed"})
+    st["predicate"]["attackResults"][0]["method"] = "intercepted"
+    return st
 
 
 vec("bad-304-method-cap-multirecord", "ok-030",
-    'row method "intercepted" covered by TWO interceptions with signed '
-    "methods {intercepted, reconstructed}: exceeds the weakest",
-    ["re-sign-record", "recompute-batch-root"], [23, 45],
+    'row method raised to "intercepted" while the records it resolves carry '
+    "signed methods {reconstructed, intercepted}: exceeds the weakest",
+    [], [23, 45],
     ["method-cap-exceeded"], _b304, spec="L565-566",
     note="min-composition: a max()/any() rail wrongly accepts this")
 
@@ -1373,7 +1440,7 @@ vec("bad-818-artifact-clean-row-layer-not-none", "ok-007",
     'artifact clean row actualLayer: "policy.egress_sinkhole" (a clean row '
     'MUST carry the literal "none" regardless of basis)', [], [48],
     ["clean-row-layer-not-none"],
-    _row_mut(P_artifact_clean, 0,
+    _row_mut(P_artifact, 0,
              lambda r: {**r, "actualLayer": "policy.egress_sinkhole"}),
     spec="L1278-1283",
     note="pairs with bad-503, the substrate twin: the clean-row none rule is "
@@ -1707,7 +1774,7 @@ vec("bad-710-sealed-posture-mismatch", "ok-002",
     compound=True, spec="L1361-1366",
     note="both posture sub-clauses fire together; they are distinguishable "
          "only in already-invalid statements")
-vec("bad-712-examination-method-intercepted", "ok-006",
+vec("bad-712-examination-method-intercepted", "ok-031",
     'examination record signed aeeMethod: "intercepted"',
     ["re-sign-record", "recompute-batch-root"], [66],
     ["examination-covers-nothing"],
@@ -1842,7 +1909,7 @@ def _b730() -> dict[str, Any]:
     # XA now appears in BOTH assessedClasses and outOfScope: the three coverage
     # sets are no longer a disjoint partition.
     st["predicate"]["coverage"]["outOfScope"] = {
-        "XA": "example scope reason", "XB": "example scope reason"}
+        "XA": OUT_OF_SCOPE_REASON, "XB": OUT_OF_SCOPE_REASON}
     return st
 
 
@@ -2032,7 +2099,7 @@ def _b806() -> dict[str, Any]:
     return st
 
 
-vec("bad-806-coverage-attack-omitted", "ok-011",
+vec("bad-806-coverage-attack-omitted", "ok-046",
     "one of the two rows of a 2-attack assessed class deleted (quiet "
     "omission)", [], [82], ["coverage-incomplete"], _b806,
     spec="L963-966",
@@ -2697,7 +2764,7 @@ ind("ind-002-signatures-empty-then-undecodable", IND_SIGNATURE_COUNT, "ok-002",
 
 def _no_attack_manifest(classes: dict[str, Any],
                         assessed: list[str]) -> dict[str, Any]:
-    st = P_artifact_clean()
+    st = P_artifact()
     env = st["predicate"]["observationEnvironment"]
     manifest = {"classes": classes}
     env["corpus"]["manifest"] = manifest
@@ -2753,13 +2820,23 @@ vec("bad-747-manifest-class-declares-no-attacks", "ok-007",
 
 
 def _b817() -> dict[str, Any]:
-    st = P_caught()
+    """Re-encode the covering record's payload non-canonically.
+
+    The parent is the reconstructed shape rather than the intercepted one, and
+    the reason is arithmetic rather than taste: a non-canonical base64 encoding
+    of the SAME bytes exists only where the encoding has slack trailing bits to
+    set, which is only where the payload length is not a multiple of three. The
+    interception payload's length is; the examination payload's is not. The
+    covering record is still the one under test and the declared reading is
+    unchanged -- a record a conforming decoder refuses to read, whose leaf the
+    seal legitimately counted."""
+    st = P_reconstructed()
     recs = st["predicate"]["observationRecords"]
     recs[0]["payload"] = _noncanonical_b64(recs[0]["payload"])
     return st
 
 
-vec("bad-817-payload-noncanonical-base64", "ok-001",
+vec("bad-817-payload-noncanonical-base64", "ok-031",
     "covering record payload re-encoded as non-canonical base64 (nonzero "
     "trailing bits); the record no longer strict-decodes",
     [], [19], ["record-undecodable"], _b817,
@@ -3069,13 +3146,9 @@ M_PIN = {"classes": {"XA": ["XA-EXAMPLE-1"]},
          "expectedPayloads": {"XA-EXAMPLE-1": [D["intercepted-bytes-1"]]}}
 
 
-def P_pinned() -> dict[str, Any]:  # ok-047 shape: a satisfied `pinned` row
-    env = environment(M_PIN)
-    b = binding_for(env)
-    return statement(env, [caught_row(attribution="pinned")],
-                     [record(interception_payload(b)),
-                      record(sealed_payload(b))],
-                     result="fail")
+def P_pinned() -> dict[str, Any]:
+    """ok-047-attribution-pinned: a satisfied pinned row."""
+    return accept_parent("ok-047-attribution-pinned")
 
 
 PARENTS["ok-047 shape (pinned row, corpus expectation, matching record)"] = P_pinned
@@ -3191,7 +3264,7 @@ def _rebind_no_reseal(st: dict[str, Any]) -> dict[str, Any]:
     return reroot(st, reseal_first=False)
 
 
-vec("bad-953-observed-set-drops-a-record", "ok-011",
+vec("bad-953-observed-set-drops-a-record", "ok-046",
     "one interception is deleted with its row and the root recomputed over "
     "what remains, while the seal still commits to the deleted record",
     ["rederive-binding", "re-sign-record", "recompute-batch-root"],
@@ -3260,7 +3333,7 @@ def _b956() -> dict[str, Any]:
     return reroot(st)
 
 
-vec("bad-956-seal-names-rowless-attack", "ok-011",
+vec("bad-956-seal-names-rowless-attack", "ok-046",
     "the seal names two attacks and the statement carries a row for only one",
     ["re-sign-record", "recompute-batch-root"], [98],
     ["coverage-incomplete", "observed-attack-uncaught"], _b956,
@@ -3344,13 +3417,10 @@ vec("bad-959-pinned-without-expectation", "ok-047",
 def _b960() -> dict[str, Any]:
     """A `pinned` row resolving an interception whose commitment is not the
     one the manifest declared."""
-    env = environment(M_PIN)
-    b = binding_for(env)
-    return statement(env, [caught_row(attribution="pinned")],
-                     [record(interception_payload(
-                         b, commit="intercepted-bytes-2")),
-                      record(sealed_payload(b))],
-                     result="fail")
+    st = P_pinned()
+    return mutate_record_payload(
+        st, 0,
+        lambda o: {**o, "aeePayloadCommitment": [D["intercepted-bytes-2"]]})
 
 
 vec("bad-960-pinned-commitment-unmatched", "ok-047",
@@ -3725,19 +3795,9 @@ M_PIN2 = {"classes": {"XA": ["XA-EXAMPLE-1"], "XB": ["XB-EXAMPLE-1"]},
                                "XB-EXAMPLE-1": [D["intercepted-bytes-2"]]}}
 
 
-def P_two_pinned() -> dict[str, Any]:  # ok-051 shape: two satisfied pinned rows
-    env = environment(M_PIN2)
-    b = binding_for(env)
-    return statement(
-        env,
-        [caught_row(refs=(0,), attack="XA-EXAMPLE-1", attribution="pinned"),
-         caught_row(refs=(1,), attack="XB-EXAMPLE-1", attribution="pinned")],
-        [record(interception_payload(b, commit="intercepted-bytes-1")),
-         record(interception_payload(b, commit="intercepted-bytes-2")),
-         record(sealed_payload(b))],
-        result="fail",
-        coverage={"assessedClasses": ["XA", "XB"], "outOfScope": {},
-                  "routedElsewhere": {}})
+def P_two_pinned() -> dict[str, Any]:
+    """ok-051-two-pinned-rows: two satisfied pinned rows."""
+    return accept_parent("ok-051-two-pinned-rows")
 
 
 PARENTS["ok-051 shape (two pinned rows, one interception each)"] = P_two_pinned
@@ -3796,9 +3856,11 @@ vec("bad-982-pinned-assignment-spliced", "ok-051",
 M_PIN3 = {"classes": {"XA": ["XA-EXAMPLE-1"],
                       "XB": ["XB-EXAMPLE-1"],
                       "XC": ["XC-EXAMPLE-1"]},
-          "expectedPayloads": {"XA-EXAMPLE-1": [D["intercepted-bytes-1"]],
-                               "XB-EXAMPLE-1": [D["intercepted-bytes-2"]],
-                               "XC-EXAMPLE-1": [D["intercepted-bytes-3"]]}}
+          "expectedPayloads": {"XA-EXAMPLE-1": [D["probe-channel-a"]],
+                               "XB-EXAMPLE-1": [D["probe-channel-b"]],
+                               "XC-EXAMPLE-1": [D["probe-channel-c"]]}}
+
+LIVE_PROBES = ("probe-channel-a", "probe-channel-b", "probe-channel-c")
 
 LIVE_COVERAGE = {"assessedClasses": ["XA", "XB", "XC"], "outOfScope": {},
                  "routedElsewhere": {}}
@@ -3824,8 +3886,8 @@ def _three_pinned(manifest: dict[str, Any],
 
 
 def P_three_pinned() -> dict[str, Any]:
-    return _three_pinned(M_PIN3, ("intercepted-bytes-1", "intercepted-bytes-2",
-                                  "intercepted-bytes-3"))
+    """ok-052-liveness-probe-per-channel: a demonstrated live probe on each of three channels."""
+    return accept_parent("ok-052-liveness-probe-per-channel")
 
 
 PARENTS["ok-052 shape (a demonstrated live probe on each of three channels)"] \
@@ -3835,8 +3897,10 @@ PARENTS["ok-052 shape (a demonstrated live probe on each of three channels)"] \
 def _b983() -> dict[str, Any]:
     """The middle channel's interception commits to a value no corpus entry
     declares, while the channels either side of it stay satisfied."""
-    return _three_pinned(M_PIN3, ("intercepted-bytes-1", "intercepted-bytes-4",
-                                  "intercepted-bytes-3"))
+    st = P_three_pinned()
+    return mutate_record_payload(
+        st, 1,
+        lambda o: {**o, "aeePayloadCommitment": [D["intercepted-bytes-4"]]})
 
 
 vec("bad-983-liveness-middle-channel-commitment-unmatched", "ok-052",
@@ -3858,8 +3922,7 @@ def _b984() -> dict[str, Any]:
     is removed from the corpus, so nothing remains to compare against."""
     manifest = copy.deepcopy(M_PIN3)
     del manifest["expectedPayloads"]["XC-EXAMPLE-1"]
-    return _three_pinned(manifest, ("intercepted-bytes-1", "intercepted-bytes-2",
-                                    "intercepted-bytes-3"))
+    return _three_pinned(manifest, LIVE_PROBES)
 
 
 vec("bad-984-liveness-last-channel-unpinnable", "ok-052",
@@ -4899,6 +4962,17 @@ def write_index() -> None:
     L.append("|---|---|")
     for k in sorted(PREIMAGES):
         L.append(f"| `{D[k]}` | `sha256(\"{PREIMAGES[k]}\")` |")
+    # The values an interception record commits to. They are derived from the
+    # producer note the record carries rather than from a pre-image of their
+    # own, because the accept generator derives them that way and both sets
+    # must be the same bytes; publishing the recipe keeps them re-derivable by
+    # a reader, which is the whole point of this table. Leaving them out --
+    # which unifying the two fixture sets did until this line was added --
+    # published a corpus carrying digests nothing in the recipe accounts for.
+    for k in sorted(OBSERVATION_NOTES):
+        note = OBSERVATION_NOTES[k]
+        L.append(f"| `{D[k]}` | "
+                 f"`sha256(\"in-toto-aee-test-commitment/{note}/v1\")` |")
     cp_jcs = json.dumps(CATCHPOLICY_OBJ, sort_keys=True)
     L.append(f"| `{CATCHPOLICY_D}` | `sha256(JCS({cp_jcs}))` |")
     L.append(f"| `{POSTURE_D}` | `sha256(JCS({json.dumps(POSTURE_OBJ, sort_keys=True)}))` |")

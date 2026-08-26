@@ -15,7 +15,7 @@
         ]
       }
     ],
-    "batchRoot": "9bae48333bb885e76834bf4c2fb63f43570aec39d846edc84a20afcf3693b088",
+    "batchRoot": "53de2d73fe31346dd9812810b363c99e3894063e7396dc47fe7707a280a508aa",
     "coverage": {
       "assessedClasses": [
         "XA"
@@ -27,7 +27,7 @@
     "observationEnvironment": {
       "catchPolicy": {
         "digest": {
-          "sha256": "28f8fb978cae8aabc974e6557a3665523281bfd85fcee13429179120ad7667cc"
+          "sha256": "846c2ccf97b5a5f4da335fe733e7f4f786ffd224ce582fb5a9685d52184abdc3"
         }
       },
       "corpus": {
@@ -41,12 +41,12 @@
             ]
           }
         },
-        "name": "example-corpus",
-        "uri": "pkg:example/example-corpus@1.0.0"
+        "name": "example-adversarial-corpus",
+        "uri": "pkg:example/adversarial-corpus@1.0.0"
       },
       "networkPosture": {
         "digest": {
-          "sha256": "ba44e77b7861b9b7c5a7288b3d703a62289fb02b3a3e0f5612a4e74dbee0929e"
+          "sha256": "a6ebfc845bfe910a099320fd7ec33e21282a8b56d82111527a80444ca18e4352"
         },
         "posture": "sinkhole"
       },
@@ -64,7 +64,7 @@
       },
       "runEntropy": {
         "digest": {
-          "sha256": "bd34c306e2295a4974787aa2b81e7e95c37580d543cbc47f0b77a026aef7e051"
+          "sha256": "01b25de15d8bc69fb3cb12b323e61c2f05078a6296e7b3ff9f6197d587014738"
         }
       },
       "substrate": {
@@ -76,22 +76,22 @@
     },
     "observationRecords": [
       {
-        "payload": "eyJhZWVBc3Nlc3NlZEF0dGFja3MiOlsiWEEtRVhBTVBMRS0xIl0sImFlZUtpbmQiOiJhcm1pbmciLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZVBvc3R1cmVEaWdlc3QiOiJiYTQ0ZTc3Yjc4NjFiOWI3YzVhNzI4OGIzZDcwM2E2MjI4OWZiMDJiM2EzZTBmNTYxMmE0ZTc0ZGJlZTA5MjllIiwiYWVlUnVuQmluZGluZyI6ImM3OWFkNzIwZjk5MjU3N2NiZWRiMDAyYTFmYzJhYTNhOTZkYWU3YTJiMTNjNjhlNTJhN2NiMjk5NjFkOWUzMzkiLCJhcm1lZEF0IjoiMjAyNS0xMi0zMVQyMzo1OTowMFoifQ==",
+        "payload": "eyJhZWVBc3Nlc3NlZEF0dGFja3MiOlsiWEEtRVhBTVBMRS0xIl0sImFlZUtpbmQiOiJhcm1pbmciLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZVBvc3R1cmVEaWdlc3QiOiJhNmViZmM4NDViZmU5MTBhMDk5MzIwZmQ3ZWMzM2UyMTI4MmE4YjU2ZDgyMTExNTI3YTgwNDQ0Y2ExOGU0MzUyIiwiYWVlUnVuQmluZGluZyI6IjJmNjgzOTNiY2VmYzhjYzQ2NGFkNjlhNzE1M2IyODRjOGMzNjYzMjA1YTRhM2Y5ZjBmN2U1NDY2YWE2MmMxYTEiLCJhcm1lZEF0IjoiMjAyNS0xMi0zMVQyMzo1OTowMFoifQ==",
         "payloadType": "application/vnd.example.aee-observation.v1+json",
         "signatures": [
           {
             "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
-            "sig": "X0Gs9L9o3dV5P4YS5DfiYWZYIlsRSXR7QqVhsBBLvURVM7/5oyrPIeOJ8TwybWXfPGkL43b54QV8qLXWrMDZDw=="
+            "sig": "Vxca7h+0Y7RLimqe6BuKFohYDbiLToItLQ+3X9ChCbmQquls7iGvaWPFZ6uNlXq5O8jLdSNLwxcs6pWhVY8SDQ=="
           }
         ]
       },
       {
-        "payload": "eyJhZWVEcm9wQ291bnQiOjAsImFlZUtpbmQiOiJzZWFsZWQiLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZU9ic2VydmVkQXR0YWNrcyI6W10sImFlZU9ic2VydmVkU2V0IjoiNGY1M2NkYTE4YzJiYWEwYzAzNTRiYjVmOWEzZWNiZTVlZDEyYWI0ZDhlMTFiYTg3M2MyZjExMTYxMjAyYjk0NSIsImFlZVBvc3R1cmVEaWdlc3QiOiJiYTQ0ZTc3Yjc4NjFiOWI3YzVhNzI4OGIzZDcwM2E2MjI4OWZiMDJiM2EzZTBmNTYxMmE0ZTc0ZGJlZTA5MjllIiwiYWVlUnVuQmluZGluZyI6ImM3OWFkNzIwZjk5MjU3N2NiZWRiMDAyYTFmYzJhYTNhOTZkYWU3YTJiMTNjNjhlNTJhN2NiMjk5NjFkOWUzMzkiLCJhZWVTdGlsbEFybWVkIjp0cnVlfQ==",
+        "payload": "eyJhZWVEcm9wQ291bnQiOjAsImFlZUtpbmQiOiJzZWFsZWQiLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZU9ic2VydmVkQXR0YWNrcyI6W10sImFlZU9ic2VydmVkU2V0IjoiNGY1M2NkYTE4YzJiYWEwYzAzNTRiYjVmOWEzZWNiZTVlZDEyYWI0ZDhlMTFiYTg3M2MyZjExMTYxMjAyYjk0NSIsImFlZVBvc3R1cmVEaWdlc3QiOiJhNmViZmM4NDViZmU5MTBhMDk5MzIwZmQ3ZWMzM2UyMTI4MmE4YjU2ZDgyMTExNTI3YTgwNDQ0Y2ExOGU0MzUyIiwiYWVlUnVuQmluZGluZyI6IjJmNjgzOTNiY2VmYzhjYzQ2NGFkNjlhNzE1M2IyODRjOGMzNjYzMjA1YTRhM2Y5ZjBmN2U1NDY2YWE2MmMxYTEiLCJhZWVTdGlsbEFybWVkIjp0cnVlfQ==",
         "payloadType": "application/vnd.example.aee-observation.v1+json",
         "signatures": [
           {
             "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
-            "sig": "xLjuHWN5SgtEX1kNE0l2Zs134i72620OdyM/+hc8HoEm3flclbZIMqmTJpOtj1bozo6WUMBeLBciQHtRo93OBA=="
+            "sig": "c6g5KO+ZAxQr2nXU0jz81HKBxin2WS0IQZxdlByMmcS1oOmQkp7GmjIzgjFynUooH4mKZCRQQs9YPdQh2IIyAw=="
           }
         ]
       }

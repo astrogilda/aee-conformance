@@ -15,13 +15,13 @@
         ]
       }
     ],
-    "batchRoot": "dcac11b0642657795b8e2834af0204d57029bb2b2e1a8c9aee91252e32e1e2f6",
+    "batchRoot": "7b97600291478ce5cbf6343b75462cd7c2c1604133531f878bcafe672dc2edc1",
     "coverage": {
       "assessedClasses": [
         "XA"
       ],
       "outOfScope": {
-        "XB": "example scope reason",
+        "XB": "example: class not assessed in this run",
         "XZ": "unknown class the manifest never carried"
       },
       "routedElsewhere": {}
@@ -30,7 +30,7 @@
     "observationEnvironment": {
       "catchPolicy": {
         "digest": {
-          "sha256": "28f8fb978cae8aabc974e6557a3665523281bfd85fcee13429179120ad7667cc"
+          "sha256": "846c2ccf97b5a5f4da335fe733e7f4f786ffd224ce582fb5a9685d52184abdc3"
         }
       },
       "corpus": {
@@ -47,12 +47,12 @@
             ]
           }
         },
-        "name": "example-corpus",
-        "uri": "pkg:example/example-corpus@1.0.0"
+        "name": "example-adversarial-corpus",
+        "uri": "pkg:example/adversarial-corpus@1.0.0"
       },
       "networkPosture": {
         "digest": {
-          "sha256": "ba44e77b7861b9b7c5a7288b3d703a62289fb02b3a3e0f5612a4e74dbee0929e"
+          "sha256": "a6ebfc845bfe910a099320fd7ec33e21282a8b56d82111527a80444ca18e4352"
         },
         "posture": "sinkhole"
       },
@@ -70,7 +70,7 @@
       },
       "runEntropy": {
         "digest": {
-          "sha256": "bd34c306e2295a4974787aa2b81e7e95c37580d543cbc47f0b77a026aef7e051"
+          "sha256": "01b25de15d8bc69fb3cb12b323e61c2f05078a6296e7b3ff9f6197d587014738"
         }
       },
       "substrate": {
@@ -82,22 +82,22 @@
     },
     "observationRecords": [
       {
-        "payload": "eyJhZWVBc3Nlc3NlZEF0dGFja3MiOlsiWEEtRVhBTVBMRS0xIiwiWEItRVhBTVBMRS0xIl0sImFlZUtpbmQiOiJhcm1pbmciLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZVBvc3R1cmVEaWdlc3QiOiJiYTQ0ZTc3Yjc4NjFiOWI3YzVhNzI4OGIzZDcwM2E2MjI4OWZiMDJiM2EzZTBmNTYxMmE0ZTc0ZGJlZTA5MjllIiwiYWVlUnVuQmluZGluZyI6IjdmYTRiMzQxODdmMzg1ZmZhMzMxOTFmNzE4YmY2MmFkMDQ1NDAwYjkwNzU3ZDE4NmE1NzRhYTg3ZDE4MTQ2MmUiLCJhcm1lZEF0IjoiMjAyNS0xMi0zMVQyMzo1OTowMFoifQ==",
+        "payload": "eyJhZWVBc3Nlc3NlZEF0dGFja3MiOlsiWEEtRVhBTVBMRS0xIiwiWEItRVhBTVBMRS0xIl0sImFlZUtpbmQiOiJhcm1pbmciLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZVBvc3R1cmVEaWdlc3QiOiJhNmViZmM4NDViZmU5MTBhMDk5MzIwZmQ3ZWMzM2UyMTI4MmE4YjU2ZDgyMTExNTI3YTgwNDQ0Y2ExOGU0MzUyIiwiYWVlUnVuQmluZGluZyI6IjE3Y2Q5YzBmNDBkNDNjMGEyNzQ3ZmQ4NzdiNjg0OWM4NjU3M2VjMjRiOTlhNmVkNWMyNjRmODVlN2E5MTIzYTMiLCJhcm1lZEF0IjoiMjAyNS0xMi0zMVQyMzo1OTowMFoifQ==",
         "payloadType": "application/vnd.example.aee-observation.v1+json",
         "signatures": [
           {
             "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
-            "sig": "MpcRLk9sPJSNItoru54XJlune4qytMyXJc2gxhgJmynUfocUVOihHuPQGa2WDvOLHE6K9v2kFxHouQch843kAQ=="
+            "sig": "+P22W8dFz8b0RR1OuQ6srLi4JnBqT4FhP//qMf9SYfjMS0eIpUzGYh9RQ8ZprMwjM/F0wxMvXxTYjBukCAOxAA=="
           }
         ]
       },
       {
-        "payload": "eyJhZWVEcm9wQ291bnQiOjAsImFlZUtpbmQiOiJzZWFsZWQiLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZU9ic2VydmVkQXR0YWNrcyI6W10sImFlZU9ic2VydmVkU2V0IjoiNGY1M2NkYTE4YzJiYWEwYzAzNTRiYjVmOWEzZWNiZTVlZDEyYWI0ZDhlMTFiYTg3M2MyZjExMTYxMjAyYjk0NSIsImFlZVBvc3R1cmVEaWdlc3QiOiJiYTQ0ZTc3Yjc4NjFiOWI3YzVhNzI4OGIzZDcwM2E2MjI4OWZiMDJiM2EzZTBmNTYxMmE0ZTc0ZGJlZTA5MjllIiwiYWVlUnVuQmluZGluZyI6IjdmYTRiMzQxODdmMzg1ZmZhMzMxOTFmNzE4YmY2MmFkMDQ1NDAwYjkwNzU3ZDE4NmE1NzRhYTg3ZDE4MTQ2MmUiLCJhZWVTdGlsbEFybWVkIjp0cnVlfQ==",
+        "payload": "eyJhZWVEcm9wQ291bnQiOjAsImFlZUtpbmQiOiJzZWFsZWQiLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZU9ic2VydmVkQXR0YWNrcyI6W10sImFlZU9ic2VydmVkU2V0IjoiNGY1M2NkYTE4YzJiYWEwYzAzNTRiYjVmOWEzZWNiZTVlZDEyYWI0ZDhlMTFiYTg3M2MyZjExMTYxMjAyYjk0NSIsImFlZVBvc3R1cmVEaWdlc3QiOiJhNmViZmM4NDViZmU5MTBhMDk5MzIwZmQ3ZWMzM2UyMTI4MmE4YjU2ZDgyMTExNTI3YTgwNDQ0Y2ExOGU0MzUyIiwiYWVlUnVuQmluZGluZyI6IjE3Y2Q5YzBmNDBkNDNjMGEyNzQ3ZmQ4NzdiNjg0OWM4NjU3M2VjMjRiOTlhNmVkNWMyNjRmODVlN2E5MTIzYTMiLCJhZWVTdGlsbEFybWVkIjp0cnVlfQ==",
         "payloadType": "application/vnd.example.aee-observation.v1+json",
         "signatures": [
           {
             "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
-            "sig": "R+8EMcgipbr6bCoTFHPw4st399XX31QOhRn4oGF41WIUVO5/PvEYvQZ6XGB8h6z4GA3Ek7tJ3OvvAoogx/1+Cw=="
+            "sig": "Am+uotTa0aC5l10JQKYeAsiqe+aOpTbyV408Jwcji90F5dAMNBJUKyoDEdCRwBSAOXxgXRJPJfHStZqd+DfOCQ=="
           }
         ]
       }

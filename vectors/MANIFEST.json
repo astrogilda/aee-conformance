@@ -20,7 +20,7 @@
     ],
     "note": "A rail conforms when its verdict, and for an accepted statement its result token, match this manifest. The codes on a reject entry are the reference verifier's own vocabulary, not the specification's: a rail names a reason from whatever set it declares, and a differing code is a reason-parity datum rather than a failure. Report that parity as its own figure. The divergences worth finding are the statements two rails both reject for different reasons, and scoring on codes would hide exactly those."
   },
-  "corpusDigest": "12d27820ede985ac2cd43b5b4e6a6569ebd74a032f2748017022cb2735d282e9",
+  "corpusDigest": "6317633a762f0d3fd4968c7fe4220f7e89eb669dc9e240f06e88e27d162e4eb9",
   "vectors": [
     {
       "id": "ok-001-caught-intercepted-fail",

@@ -15,7 +15,7 @@
         ]
       }
     ],
-    "batchRoot": "3e88fa179a7ccd64b215b09b49b9fa2606a96ed3d1e318f89c3f4f7b1da4d39f",
+    "batchRoot": "c8f0f4cf9f0a6f221786f2b67bb90a65a6e7a689f5931a32e87dac81f5f2dae4",
     "coverage": {
       "assessedClasses": [
         "XA"
@@ -27,7 +27,7 @@
     "observationEnvironment": {
       "catchPolicy": {
         "digest": {
-          "sha256": "28f8fb978cae8aabc974e6557a3665523281bfd85fcee13429179120ad7667cc"
+          "sha256": "846c2ccf97b5a5f4da335fe733e7f4f786ffd224ce582fb5a9685d52184abdc3"
         }
       },
       "corpus": {
@@ -41,12 +41,12 @@
             ]
           }
         },
-        "name": "example-corpus",
-        "uri": "pkg:example/example-corpus@1.0.0"
+        "name": "example-adversarial-corpus",
+        "uri": "pkg:example/adversarial-corpus@1.0.0"
       },
       "networkPosture": {
         "digest": {
-          "sha256": "ba44e77b7861b9b7c5a7288b3d703a62289fb02b3a3e0f5612a4e74dbee0929e"
+          "sha256": "a6ebfc845bfe910a099320fd7ec33e21282a8b56d82111527a80444ca18e4352"
         },
         "posture": "sinkhole"
       },
@@ -64,7 +64,7 @@
       },
       "runEntropy": {
         "digest": {
-          "sha256": "BD34C306E2295A4974787AA2B81E7E95C37580D543CBC47F0B77A026AEF7E051"
+          "sha256": "01B25DE15D8BC69FB3CB12B323E61C2F05078A6296E7B3FF9F6197D587014738"
         }
       },
       "substrate": {
@@ -76,22 +76,22 @@
     },
     "observationRecords": [
       {
-        "payload": "eyJhZWVBc3Nlc3NlZEF0dGFja3MiOlsiWEEtRVhBTVBMRS0xIl0sImFlZUtpbmQiOiJhcm1pbmciLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZVBvc3R1cmVEaWdlc3QiOiJiYTQ0ZTc3Yjc4NjFiOWI3YzVhNzI4OGIzZDcwM2E2MjI4OWZiMDJiM2EzZTBmNTYxMmE0ZTc0ZGJlZTA5MjllIiwiYWVlUnVuQmluZGluZyI6IjNlNmM5YTgxOTA3ZWUzZmIyNTUxMmE0NGMxZmE4YzY4ZDRjMTg3MGY0YzlkZjZiOTA3YjFiZTIzNmJlMGUzZGQiLCJhcm1lZEF0IjoiMjAyNS0xMi0zMVQyMzo1OTowMFoifQ==",
+        "payload": "eyJhZWVBc3Nlc3NlZEF0dGFja3MiOlsiWEEtRVhBTVBMRS0xIl0sImFlZUtpbmQiOiJhcm1pbmciLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZVBvc3R1cmVEaWdlc3QiOiJhNmViZmM4NDViZmU5MTBhMDk5MzIwZmQ3ZWMzM2UyMTI4MmE4YjU2ZDgyMTExNTI3YTgwNDQ0Y2ExOGU0MzUyIiwiYWVlUnVuQmluZGluZyI6ImFhYWQ0Y2ZhN2I4ZmU1ZjljNDQzYmZmNThmMjY0Yjc3OGJmYTBiMmY4YTQ2ZDQyMGQ2ZTlhYzJhMDlhYjVlOGUiLCJhcm1lZEF0IjoiMjAyNS0xMi0zMVQyMzo1OTowMFoifQ==",
         "payloadType": "application/vnd.example.aee-observation.v1+json",
         "signatures": [
           {
             "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
-            "sig": "VujTE/go4j5xQIw1046Y+JrXQsW1JJJ6mlyGocQ93XHoOyjyGQYE6FoUDhipdar4A17iTHPZr8jj96qztI1dCQ=="
+            "sig": "oC2zHGo/blRZZop9YfIYFlqgfoBCMwS4BTg3twWzmt5qttuJIb5iMJ2aocrap9zZUag318OM9swFgvecoZ7pCA=="
           }
         ]
       },
       {
-        "payload": "eyJhZWVEcm9wQ291bnQiOjAsImFlZUtpbmQiOiJzZWFsZWQiLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZU9ic2VydmVkQXR0YWNrcyI6W10sImFlZU9ic2VydmVkU2V0IjoiNGY1M2NkYTE4YzJiYWEwYzAzNTRiYjVmOWEzZWNiZTVlZDEyYWI0ZDhlMTFiYTg3M2MyZjExMTYxMjAyYjk0NSIsImFlZVBvc3R1cmVEaWdlc3QiOiJiYTQ0ZTc3Yjc4NjFiOWI3YzVhNzI4OGIzZDcwM2E2MjI4OWZiMDJiM2EzZTBmNTYxMmE0ZTc0ZGJlZTA5MjllIiwiYWVlUnVuQmluZGluZyI6IjNlNmM5YTgxOTA3ZWUzZmIyNTUxMmE0NGMxZmE4YzY4ZDRjMTg3MGY0YzlkZjZiOTA3YjFiZTIzNmJlMGUzZGQiLCJhZWVTdGlsbEFybWVkIjp0cnVlfQ==",
+        "payload": "eyJhZWVEcm9wQ291bnQiOjAsImFlZUtpbmQiOiJzZWFsZWQiLCJhZWVNZXRob2QiOiJpbnRlcmNlcHRlZCIsImFlZU9ic2VydmVkQXR0YWNrcyI6W10sImFlZU9ic2VydmVkU2V0IjoiNGY1M2NkYTE4YzJiYWEwYzAzNTRiYjVmOWEzZWNiZTVlZDEyYWI0ZDhlMTFiYTg3M2MyZjExMTYxMjAyYjk0NSIsImFlZVBvc3R1cmVEaWdlc3QiOiJhNmViZmM4NDViZmU5MTBhMDk5MzIwZmQ3ZWMzM2UyMTI4MmE4YjU2ZDgyMTExNTI3YTgwNDQ0Y2ExOGU0MzUyIiwiYWVlUnVuQmluZGluZyI6ImFhYWQ0Y2ZhN2I4ZmU1ZjljNDQzYmZmNThmMjY0Yjc3OGJmYTBiMmY4YTQ2ZDQyMGQ2ZTlhYzJhMDlhYjVlOGUiLCJhZWVTdGlsbEFybWVkIjp0cnVlfQ==",
         "payloadType": "application/vnd.example.aee-observation.v1+json",
         "signatures": [
           {
             "keyid": "7e2b0652d86716f47e35573ae0082d670706b7a548dcb685df7bf103923dcb9c",
-            "sig": "sKzi5BJK6Vz3KxGqJoxfFQHZYPtNYMwmL6TUGitXSf3V/umpApBRtzqkbHYIlMapSedfJIz2FJ5DGI1IMqMNDw=="
+            "sig": "P3YHGjqr1f5XXpfwUbLVBqU+/Rb9NhaWo06YEOxZWf/NpxmX2HJdaR3yMFoflgOEaBS9JUUBoNFVwtuarb0AAQ=="
           }
         ]
       }

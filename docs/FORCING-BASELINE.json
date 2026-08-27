@@ -2,9 +2,9 @@
   "$comment": "What the conformance corpus FORCES, measured by mutation rather than counted. Each row is one single-site weakening of the Go rail in aee/, replayed over the whole corpus: KILLED means some vector goes PASS->FAIL and the corpus forces the rule; SILENT means the corpus sees the rail change and stays green; DEAD means nothing in the corpus depends on the rule; INCONCLUSIVE means the mutant did not build, crash-free, terminate, and nothing is asserted about it. `annotations` records the sites where 'unforced' would be the wrong word -- `unkillable` for a true equivalent mutant no vector can ever kill, `masked` for a real rule an earlier check reaches first, which is unmintable rather than unminted. Both are claims this gate falsifies: an annotated site that is ever KILLED fails it. scripts/forcing-gate.py holds every KILLED row as a tighten-only ratchet and rewrites this file with --scope all --sync.",
   "suite": "adversarial-execution-evidence-conformance",
   "counts": {
-    "KILLED": 424,
+    "KILLED": 425,
     "SILENT": 27,
-    "DEAD": 298,
+    "DEAD": 297,
     "INCONCLUSIVE": 5
   },
   "annotations": {
@@ -632,8 +632,7 @@
       "class": "KILLED",
       "snippet": "idx < len(resolved)",
       "killers": [
-        "bad-102-ref-out-of-range",
-        "bad-724-artifact-ref-out-of-range"
+        "bad-102-ref-out-of-range"
       ]
     },
     "commitments.go::interceptionsOrphaned::IF_CONJ::b9834a09619c": {
@@ -1089,9 +1088,11 @@
       "branch": "never-taken"
     },
     "commitments.go::rowResolves::IF_CONJ::9abf0e55f3ad": {
-      "class": "DEAD",
+      "class": "KILLED",
       "snippet": "idx < len(kinds)",
-      "branch": "taken"
+      "killers": [
+        "bad-724-artifact-ref-out-of-range"
+      ]
     },
     "commitments.go::rowResolves::IF_CONJ::dd8c1363be2e": {
       "class": "KILLED",
@@ -2189,11 +2190,9 @@
       "snippet": "if i > 0 { buf.WriteByte(',') }",
       "killers": [
         "bad-005-result-mismatch-coverage-gap",
-        "bad-1016-examination-carried-method-intercepted",
         "bad-402-root-no-domain-separation",
         "bad-403-root-bitcoin-padding",
         "bad-404-root-leaf-order-swapped",
-        "bad-712-examination-method-intercepted",
         "bad-723-chain-scope-not-canonical",
         "bad-950-clean-row-refs-interception",
         "bad-978-arming-assessedattacks-unsorted",
@@ -6247,6 +6246,8 @@
         "bad-404-root-leaf-order-swapped",
         "bad-405-duplicate-records",
         "bad-406-root-hex-tamper",
+        "bad-408-batchroot-without-records",
+        "bad-409-artifact-records-bad-root",
         "bad-410-duplicate-and-undecodable-record",
         "bad-701-arming-missing-armedat",
         "bad-702-armedat-after-issuedat",
@@ -6269,6 +6270,7 @@
         "bad-721-chain-scope-not-array",
         "bad-722-chain-scope-unknown-dimension",
         "bad-723-chain-scope-not-canonical",
+        "bad-724-artifact-ref-out-of-range",
         "bad-726-arming-binding-version-carried",
         "bad-727-armedat-non-utc-offset",
         "bad-750-armedat-lowercase-separator",
@@ -6287,6 +6289,7 @@
         "bad-976-sealed-observedattacks-unknown",
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
+        "bad-979-artifact-only-interception-orphaned",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-002-clean-pass-armed-sealed",
@@ -6357,7 +6360,6 @@
         "bad-207-payload-missing-method",
         "bad-208-payload-member-non-bmp",
         "bad-302-method-inflation",
-        "bad-304-method-cap-multirecord",
         "bad-402-root-no-domain-separation",
         "bad-403-root-bitcoin-padding",
         "bad-404-root-leaf-order-swapped",
@@ -6373,7 +6375,6 @@
         "bad-744-payload-noncharacter",
         "bad-745-record-signatures-empty",
         "bad-749-record-signatures-not-an-array",
-        "bad-817-payload-noncanonical-base64",
         "bad-950-clean-row-refs-interception",
         "bad-951-interception-no-caught-row",
         "bad-952-substrate-row-no-seal",
@@ -8471,7 +8472,6 @@
         "bad-207-payload-missing-method",
         "bad-208-payload-member-non-bmp",
         "bad-302-method-inflation",
-        "bad-304-method-cap-multirecord",
         "bad-402-root-no-domain-separation",
         "bad-403-root-bitcoin-padding",
         "bad-404-root-leaf-order-swapped",
@@ -8487,7 +8487,6 @@
         "bad-744-payload-noncharacter",
         "bad-745-record-signatures-empty",
         "bad-749-record-signatures-not-an-array",
-        "bad-817-payload-noncanonical-base64",
         "bad-950-clean-row-refs-interception",
         "bad-951-interception-no-caught-row",
         "bad-952-substrate-row-no-seal",

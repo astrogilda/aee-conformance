@@ -783,7 +783,7 @@ func codeStrings(codes []aee.Code) []string {
 // point of the test. Deriving the expected key through aeetest.TestKey would
 // make this a comparison of a function with itself, which passes under every
 // possible recipe; the earlier version compared the key's LENGTH against
-// ed25519.PublicKeySize, which is 32 for every seed there has ever been. The
+// ed25519.PublicKeySize, which is 32 bytes for every seed there has ever been. The
 // literal here is the published recipe, so an edit to aeetest/build.go
 // diverges from it rather than being followed by it.
 //

@@ -138,7 +138,7 @@ class Verifier:
         if len(raw) != 32:
             raise SystemExit(
                 f"liveness-probe: --key is {len(raw)} bytes; an ed25519 public "
-                "key is 32"
+                "key is 32 bytes"
             )
         self.key = Ed25519PublicKey.from_public_bytes(raw)
 

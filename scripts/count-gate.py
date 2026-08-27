@@ -722,6 +722,16 @@ FROZEN: tuple[Frozen, ...] = (
         "for a complexity reading at suiteRevision 15.",
     ),
     Frozen(
+        "vectors/CHANGES.md",
+        "the suiteRevision-12 re-mint tally of vectors with no record identity",
+        "32 carry no decodable record identity",
+        "What one re-mint left byte-identical at suiteRevision 12, not a "
+        "property of the corpus as it now stands. It collided with the "
+        "seen-but-tolerated count when the quantifier operator joined the "
+        "campaign and moved that tally to 32. Rewriting it to the current "
+        "figure would describe a re-mint nobody performed.",
+    ),
+    Frozen(
         "scripts/condition-forcing-gate-test.py",
         "the fixture quoting that tally",
         "316 were killed, 250 were",
@@ -1106,6 +1116,17 @@ MASKS = tuple(
         r"\b0\d+\b",  # zero-padded: a count is never written 0020
         r"\b\d+\s*(?:<<|>>)\s*\d+\b",  # shift expressions: 20 << 20
         r"\b\d+\s*[KMGT]i?B\b",  # byte sizes: 20 MiB
+        # A length in bytes, spelled out. The sibling of the mask above and
+        # added for the same reason it was: `32-byte ed25519 public key` names
+        # the size of a key and counts nothing about this corpus, and it stayed
+        # invisible only while no published quantity equalled 32. The
+        # seen-but-tolerated tally reached 32 when the quantifier operator
+        # joined the campaign, and six ed25519 key lengths across four files
+        # were reported as unaccounted counts on the same run. The unit is
+        # required to be adjacent, so this exempts an integer that says what it
+        # measures and never one written as a bare quantity: no count this
+        # repository publishes is spelled `447 bytes`.
+        r"\b\d+[\s-]?bytes?\b",
         r"\bdecisions?\s+\d+",  # interpretation-registry decision ids
     )
 )

@@ -34,12 +34,20 @@ intended: `check_vectors.py` fails when a reject condition has no accepting
 twin, because a corpus of rejections alone gives full marks to a verifier
 that rejects everything, which is the one verifier that certifies nothing.
 
-Two members exist only to hold a boundary from the admissible side:
-`ok-011` carries a valid surrogate pair, which the string rule permits and
-an over-eager verifier rejects alongside the unpaired half, and `ok-012`
-carries 2^53 - 1, the largest value the safe-integer profile admits.
+Three members exist only to hold a boundary from the admissible side:
+`ok-011` carries a valid surrogate pair in a VALUE, which the string rule
+permits and an over-eager verifier rejects alongside the unpaired half;
+`ok-012` carries 2^53 - 1, the largest value the safe-integer profile
+admits; and `ok-013` carries extension member NAMES inside the BMP, where
+UTF-16 code-unit order and code-point order agree.
 
-## Vectors (12)
+`ok-011` and `ok-013` are the two halves of one distinction and are easy to
+read as contradicting each other. They do not. A supplementary-plane
+character is well formed everywhere and is admissible in value position,
+which `ok-011` holds; it is inadmissible in member-name position, which
+`bad-116` catches, because that is the only position JCS sorts.
+
+## Vectors (13)
 
 | vector | conditions | expected | what it cites |
 |---|---|---|---|
@@ -55,3 +63,4 @@ carries 2^53 - 1, the largest value the safe-integer profile admits.
 | `ok-010-extensions-depth-128` | aia-c-12 | valid | bounds: 128 is admissible; the counting rule is #570's |
 | `ok-011-paired-surrogate-in-toolname` | aia-c-13 | valid | strings: the rule excludes an unpaired half, never a valid supplementary-plane character, so a verifier that rejects both is over-rejecting |
 | `ok-012-largest-safe-integer-durationms` | aia-c-14 | valid | bounds: 2^53 - 1 is admissible, so the boundary is exercised from both sides rather than assumed |
+| `ok-013-bmp-extension-member-names` | aia-c-15 | valid | strings: extension member names inside the BMP sort the same way under UTF-16 code units and under code points, so the record has one canonical form and one chain hash |

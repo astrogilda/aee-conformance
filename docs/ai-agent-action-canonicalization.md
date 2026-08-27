@@ -22,6 +22,13 @@ What changed in adapting #570's text to #588:
   well-formed-string rule carry over almost verbatim, because #588 already cites
   #570 for the depth counting rule and the safe-integer bound and the wording
   should not fork.
+- #570's BMP-only rule for sorted strings carries over, and its consequence is
+  restated. #570 scopes it to the surfaces a Statement signs and the divergence
+  costs that Statement its coverage; here the sorted surface is the record whose
+  digest is the chain link, so a supplementary-plane member name splits the chain
+  hash, and with it every successor's `previousHash` and the subject digest. The
+  rule is the same rule; it reaches further because the hash it perturbs is
+  carried forward.
 - #588's two-form split is kept. The change is that the signing form's field list
   becomes part of the specification rather than part of an implementation, and the
   chain hash stops being a third, unnamed form.
@@ -132,8 +139,55 @@ MUST apply this to the raw bytes before any decoded string is read, because a
 lenient decoder does not fail on ill-formed input, it substitutes U+FFFD, and every
 check after that point reads a string the producer never wrote.
 
-A valid surrogate pair is one supplementary-plane character and is well formed. A
-verifier that rejects it is over-rejecting.
+A valid surrogate pair is one supplementary-plane character and is well formed.
+Nothing in the paragraph above rejects it, and a verifier that treats it as
+ill-formed alongside the unpaired half is over-rejecting.
+
+Well formed is not the same as admissible, and the two must not be run together.
+Well-formedness is a property of a string on its own: the bytes decode, the
+escapes pair, no scalar value is excluded. Admissibility is a property of a
+string in a position, and the next rule closes one position against a class of
+character the paragraph above admits.
+
+### Member names are BMP-only
+
+On every surface JCS sorts -- object member names at any depth in the record
+canonical form, and the keys inside every `["M", ...]` of the signing canonical
+form -- strings MUST be BMP-only: no code point above U+FFFF, and therefore no
+surrogate pair. A verifier MUST reject, fail-closed, a record carrying a member
+name outside the BMP, and MUST treat the violation exactly as it treats
+non-canonical bytes.
+
+RFC 8785 sorts object members by UTF-16 code unit. A verifier that instead
+compares Unicode code points orders a supplementary-plane name differently from
+one in U+E000 through U+FFFF, because that character's leading surrogate lies
+below U+E000 while its code point lies above U+FFFF. Both readings are reachable
+from a correct reading of everything else in this document, and the language
+split is the same one the `JSON.stringify` paragraph already describes: a
+JavaScript gateway and a Java gateway compare UTF-16 code units and get this
+right without deciding to, and a Python gateway and a Go gateway compare code
+points and get it wrong without deciding to.
+
+`extensions` is where this bites, because its member names are whatever the
+gateway's caller chose and no rule constrains them. A record whose `extensions`
+carries the names U+FF3A and U+1F680 canonicalizes with U+1F680 first under
+UTF-16 code units and with U+1F680 last under code points. That is two byte
+strings, each of which some conforming implementation calls canonical, so two
+chain hashes for one observation. The successor record then carries one of two
+values of `previousHash`, and since the genesis hash is the subject digest, the
+chain has two identities and a policy targeting it resolves to whichever the
+presenter's serializer happened to produce.
+
+That is the same failure the JCS rule fixes for integer-like names, arriving
+through a door JCS leaves open, and it is worse in one respect: with integer-like
+names exactly one order is correct and the other two implementations are wrong,
+whereas here the sort key itself is ambiguous unless the character set is bounded.
+
+Restricting the sorted strings to the BMP makes UTF-16 code-unit order and
+code-point order coincide, so the divergence is unconstructible rather than
+merely forbidden. Values are untouched. A supplementary-plane character in a
+`toolName`, in a content payload, or in any other value position stays
+admissible, because nothing sorts it.
 
 A verifier MUST reject, fail-closed, a record whose JSON nesting depth exceeds 128.
 Depth is the number of arrays and objects open at a point, counting the outermost

@@ -53,13 +53,21 @@ Four families:
   `previousHash` that is not canonical hex, a second genesis after a break,
   an unpaired surrogate, and the two sides of the depth and safe-integer
   bounds.
+- `bad-116` is a sort-order divergence that JCS itself leaves open. Its
+  record is well formed and every field is untouched; one `extensions`
+  member name is a supplementary-plane character, so UTF-16 code-unit order
+  and code-point order disagree about the canonical bytes and the record has
+  two chain hashes. `bad-101` proves extension member names are chain-hash
+  load-bearing by permuting them; this member shows the permutation cannot
+  always be resolved, which is why the fix is to bound the character set
+  rather than to restate the sort.
 
 `bad-113` is already forbidden by #588's own text. It is here anyway,
 because a rule with no vector is advice: the self-check in this suite
 crashed on that member the first time it ran, which is what the member is
 for.
 
-## Vectors (15)
+## Vectors (16)
 
 | vector | conditions | expected | what it cites |
 |---|---|---|---|
@@ -78,3 +86,4 @@ for.
 | `bad-113-unpaired-surrogate-in-toolname` | aia-c-13 | invalid / ill-formed-string | F2: already forbidden by #588's own text. The vector is what stops the rule from being advice |
 | `bad-114-extensions-depth-129` | aia-c-12 | invalid / depth-exceeded | bounds: one level past the stated cap, so the counting rule is exercised rather than assumed |
 | `bad-115-unsafe-integer-durationms` | aia-c-14 | invalid / unsafe-integer | bounds: 2^53 + 1, the first value the I-JSON profile excludes |
+| `bad-116-astral-extension-member-name` | aia-c-15 | invalid / non-bmp-member-name | strings: U+1F680 is encoded UTF-16 as D83D DE80, so it sorts before U+FF3A by code unit and after it by code point. The record is well formed and every field is untouched; it has two canonical byte strings and therefore two chain hashes, so the successor's previousHash and the chain's subject digest both fork. |

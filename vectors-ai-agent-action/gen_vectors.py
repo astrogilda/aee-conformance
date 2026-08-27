@@ -47,6 +47,35 @@ def jcs(obj) -> bytes:
                       ensure_ascii=False).encode("utf-8")
 
 
+def jcs_utf16(obj) -> bytes:
+    """RFC 8785 with member names sorted by UTF-16 code unit.
+
+    That is what RFC 8785 actually says, and what ``jcs`` above only
+    approximates: ``sort_keys`` sorts Python strings, and Python compares
+    strings by code point. Inside the BMP the two orders coincide, which is why
+    every other member of this suite can use ``jcs`` and be right. They part
+    exactly where a member name is a supplementary-plane character, whose
+    leading surrogate sorts below U+E000 while its code point sorts above
+    U+FFFF.
+
+    That parting is the fault ``bad-116`` carries, so the corpus needs a
+    serializer that can write the bytes the specification requires for a record
+    ``jcs`` cannot canonicalize correctly. Both functions are kept, and the pair
+    of digests they produce is what the vector declares.
+    """
+    def enc(node) -> str:
+        if isinstance(node, dict):
+            members = sorted(node.items(),
+                             key=lambda kv: kv[0].encode("utf-16-be"))
+            return "{" + ",".join(
+                json.dumps(name, ensure_ascii=False) + ":" + enc(value)
+                for name, value in members) + "}"
+        if isinstance(node, list):
+            return "[" + ",".join(enc(value) for value in node) + "]"
+        return json.dumps(node, ensure_ascii=False, separators=(",", ":"))
+    return enc(obj).encode("utf-8")
+
+
 def h(b: bytes) -> str:
     return hashlib.sha256(b).hexdigest()
 
@@ -137,6 +166,15 @@ def add(vid: str, kind: str, predicate: dict, subject: str,
 EXT = {"10": "ten", "2": "two", "aa": "first", "zz": "last"}
 PARENT_REC = underlying("genesis", extensions=EXT)
 PARENT_HASH = chain_hash(PARENT_REC)
+
+# The member names the ok-013 / bad-116 pair turns on. U+FF21 and U+FF3A are
+# BMP; U+1F680 is supplementary and is encoded UTF-16 as D83D DE80, so its
+# FIRST CODE UNIT sorts below both of them while its CODE POINT sorts above
+# both. Swapping U+FF21 for U+1F680 is therefore one edit that changes nothing
+# about the record except whether its canonical bytes are determined.
+BMP_NAME_LOW = "Ａ"
+BMP_NAME_HIGH = "Ｚ"
+ASTRAL_NAME = "\U0001F680"
 
 REQ = {"owner": "example", "repo": "widgets", "title": "Bump dependency"}
 RESP_OK = {"content": [{"type": "text", "text": "opened #41"}]}
@@ -259,6 +297,24 @@ def build_accept() -> None:
         ["aia-c-14"], {"verdict": "valid"}, None,
         "bounds: 2^53 - 1 is admissible, so the boundary is exercised from "
         "both sides rather than assumed")
+
+    # The twin of bad-116, and the positive control for it. Both member names
+    # are BMP, so UTF-16 code-unit order and code-point order agree and the
+    # record has ONE canonical byte string. The two declared digests are equal
+    # here and unequal in bad-116, which is the whole measurement.
+    bmp_ext = {BMP_NAME_LOW: "first", BMP_NAME_HIGH: "last"}
+    bmp_rec = underlying("genesis", extensions=bmp_ext)
+    assert jcs(bmp_rec) == jcs_utf16(bmp_rec), "a BMP-only record must canonicalize identically under both orders"
+    add("ok-013-bmp-extension-member-names", "accept",
+        tool_call("genesis", extensions=bmp_ext), chain_hash(bmp_rec),
+        ["aia-c-15"],
+        {"verdict": "valid", "chainHash": chain_hash(bmp_rec),
+         "chainHashUtf16": h(jcs_utf16(bmp_rec)),
+         "chainHashCodePoint": h(jcs(bmp_rec))},
+        [jcs(bmp_rec)],
+        "strings: extension member names inside the BMP sort the same way "
+        "under UTF-16 code units and under code points, so the record has one "
+        "canonical form and one chain hash")
 
 
 SPEC_VENDORED_REL = f"spec-vendored/ai-agent-action-{UPSTREAM_COMMIT[:7]}.md"
@@ -458,6 +514,26 @@ def build_reject() -> None:
         ["aia-c-14"], {"verdict": "invalid", "codes": ["unsafe-integer"]},
         None,
         "bounds: 2^53 + 1, the first value the I-JSON profile excludes")
+
+    # ok-013 with one member name lifted out of the BMP. The sidecar carries
+    # the bytes RFC 8785 requires, sorted by UTF-16 code unit, which this
+    # file's own `jcs` cannot produce -- that inability IS the divergence, and
+    # it is why the two declared digests differ.
+    astral_ext = {ASTRAL_NAME: "first", BMP_NAME_HIGH: "last"}
+    astral_rec = underlying("genesis", extensions=astral_ext)
+    assert jcs(astral_rec) != jcs_utf16(astral_rec), "the astral member name must split the two orders"
+    add("bad-116-astral-extension-member-name", "reject",
+        tool_call("genesis", extensions=astral_ext), h(jcs_utf16(astral_rec)),
+        ["aia-c-15"],
+        {"verdict": "invalid", "codes": ["non-bmp-member-name"],
+         "chainHashUtf16": h(jcs_utf16(astral_rec)),
+         "chainHashCodePoint": h(jcs(astral_rec))},
+        [jcs_utf16(astral_rec)],
+        "strings: U+1F680 is encoded UTF-16 as D83D DE80, so it sorts before "
+        "U+FF3A by code unit and after it by code point. The record is "
+        "well formed and every field is untouched; it has two canonical byte "
+        "strings and therefore two chain hashes, so the successor's "
+        "previousHash and the chain's subject digest both fork.")
 
 
 def main() -> None:

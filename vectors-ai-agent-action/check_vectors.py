@@ -25,6 +25,27 @@ def jcs(obj) -> bytes:
                       ensure_ascii=False).encode("utf-8")
 
 
+def jcs_utf16(obj) -> bytes:
+    """RFC 8785 with member names sorted by UTF-16 code unit, as the RFC says.
+
+    ``jcs`` above sorts Python strings, which compares code points. The two
+    agree on every BMP-only record and part on a supplementary-plane member
+    name. Recomputing both is how the ok-013 / bad-116 pair is measured rather
+    than asserted.
+    """
+    def enc(node) -> str:
+        if isinstance(node, dict):
+            members = sorted(node.items(),
+                             key=lambda kv: kv[0].encode("utf-16-be"))
+            return "{" + ",".join(
+                json.dumps(name, ensure_ascii=False) + ":" + enc(value)
+                for name, value in members) + "}"
+        if isinstance(node, list):
+            return "[" + ",".join(enc(value) for value in node) + "]"
+        return json.dumps(node, ensure_ascii=False, separators=(",", ":"))
+    return enc(obj).encode("utf-8")
+
+
 def sha(b: bytes) -> str:
     return hashlib.sha256(b).hexdigest()
 
@@ -62,6 +83,73 @@ def check_chain_members(vid: str, kind: str, lines: list[bytes]) -> None:
                   "so it demonstrates nothing")
 
 
+def check_member_name_orders(vid: str, kind: str, stmt: dict, entry: dict,
+                             lines: list[bytes]) -> None:
+    """The ok-013 / bad-116 pair, recomputed rather than taken on trust.
+
+    An accept member must carry only BMP member names, and the two sort orders
+    must agree on them. A reject member must carry a supplementary-plane member
+    name, and the two orders must actually disagree -- a pair whose orders
+    happened to coincide would prove nothing while reading exactly the same.
+    Both declared digests are recomputed from the sidecar record, so a
+    generator that wrote the wrong bytes fails here instead of shipping.
+    """
+    ext = stmt["predicate"].get("extensions")
+    if not isinstance(ext, dict) or not ext:
+        fail(vid, "carries no extensions object, so there are no member "
+                  "names to sort")
+        return
+    names = list(ext)
+    astral = [n for n in names if any(ord(c) > 0xFFFF for c in n)]
+    diverges = (sorted(names) != sorted(names, key=lambda s: s.encode("utf-16-be")))
+
+    if kind == "accept" and astral:
+        fail(vid, f"an accept member carries a supplementary-plane member "
+                  f"name {astral!r}")
+    if kind == "reject" and not astral:
+        fail(vid, "claims a supplementary-plane member name and carries none")
+    if kind == "accept" and diverges:
+        fail(vid, "the two sort orders disagree on an accept member, so it is "
+                  "not the admissible side of the boundary")
+    if kind == "reject" and not diverges:
+        fail(vid, "code-point order and UTF-16 code-unit order agree on these "
+                  "member names, so the member demonstrates no divergence")
+
+    if not lines:
+        fail(vid, "declares ordering digests with no record sidecar to "
+                  "recompute them from")
+        return
+    record = json.loads(lines[-1])
+    for key, form in (("chainHashCodePoint", jcs),
+                      ("chainHashUtf16", jcs_utf16)):
+        declared = entry["expected"].get(key)
+        if declared is None:
+            fail(vid, f"declares no {key}")
+            continue
+        if declared != sha(form(record)):
+            fail(vid, f"{key} does not recompute from the sidecar record")
+
+    # The sidecar must carry the bytes RFC 8785 requires, which is the
+    # UTF-16-code-unit ordering. Recomputing the digests above cannot see this,
+    # because parsing discards member order: without this comparison a sidecar
+    # written in the wrong order would pass every other check in the file.
+    if lines[-1] != jcs_utf16(record):
+        fail(vid, "the sidecar line is not the RFC 8785 canonical bytes, "
+                  "which are sorted by UTF-16 code unit")
+    if diverges and lines[-1] == jcs(record):
+        fail(vid, "the sidecar line is in code-point order, so the corpus "
+                  "ships the divergent reading as though it were canonical")
+
+    same = (entry["expected"].get("chainHashUtf16")
+            == entry["expected"].get("chainHashCodePoint"))
+    if diverges and same:
+        fail(vid, "declares one chain hash for a record whose two orderings "
+                  "produce different bytes")
+    if not diverges and not same:
+        fail(vid, "declares two chain hashes for a record whose two orderings "
+                  "produce identical bytes")
+
+
 def main() -> None:
     with open(os.path.join(HERE, "MANIFEST.json"), encoding="utf-8") as fh:
         manifest = json.load(fh)
@@ -84,6 +172,7 @@ def main() -> None:
         if kind not in ("accept", "reject"):
             fail(vid, f"unknown kind {kind}")
 
+        lines: list[bytes] = []
         if "records" in entry:
             rp = os.path.join(HERE, entry["records"])
             if not os.path.exists(rp):
@@ -110,6 +199,9 @@ def main() -> None:
             d = stmt["predicate"]["action"]["durationMs"]
             if abs(d) < 2 ** 53:
                 fail(vid, "claims an unsafe integer and carries a safe one")
+        if vid in ("ok-013-bmp-extension-member-names",
+                   "bad-116-astral-extension-member-name"):
+            check_member_name_orders(vid, kind, stmt, entry, lines)
 
     # Every reject condition needs an accepting twin, or a rail that rejects
     # everything scores full marks.

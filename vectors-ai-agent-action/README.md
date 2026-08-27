@@ -14,8 +14,8 @@ from its own worked example.
 
 | path | what it is |
 |---|---|
-| `accept/` | 12 members a conformant verifier accepts, with `INDEX.md` |
-| `reject/` | 15 members a conformant verifier rejects for one declared reason, with `INDEX.md` |
+| `accept/` | 13 members a conformant verifier accepts, with `INDEX.md` |
+| `reject/` | 16 members a conformant verifier rejects for one declared reason, with `INDEX.md` |
 | `records/` | JSONL sidecars, the log lines a chain hash is computed over |
 | `attacks/` | the harness that produced the corpus, and its artifacts |
 | `spec-vendored/` | the specification text at the commit the corpus certifies against |

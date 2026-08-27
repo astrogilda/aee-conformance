@@ -7,10 +7,10 @@
   "specDigest": "1eaecff711591ea6e56e5798abc110a077c49194900513bab736d137496b84ba",
   "proposedText": "docs/ai-agent-action-canonicalization.md",
   "counts": {
-    "accept": 12,
-    "reject": 15
+    "accept": 13,
+    "reject": 16
   },
-  "corpusDigest": "6860302930744d2d2659448837faf884891ba2c21ed87e234995ad11cbaaa440",
+  "corpusDigest": "adca013711069546a9ee59d885cf01552b6c44a7d31db4f18fbc5b4d535cf311",
   "note": "A reject member is rejectable under the proposed canonicalization text, not under #588 as it stands. Each accept member is the conformant twin of the reject member sharing its condition, so a verifier that rejects everything scores zero rather than full marks.",
   "vectors": [
     {
@@ -250,6 +250,24 @@
       "cites": "bounds: 2^53 + 1, the first value the I-JSON profile excludes"
     },
     {
+      "id": "bad-116-astral-extension-member-name",
+      "kind": "reject",
+      "file": "reject/bad-116-astral-extension-member-name.json",
+      "conditions": [
+        "aia-c-15"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "non-bmp-member-name"
+        ],
+        "chainHashUtf16": "e26dfc02e6a3f491a4d597cf5a06c2591f447ebbec28539b7ae723cf20b32b9a",
+        "chainHashCodePoint": "d6037ab7134f90983da5db5894790d3228c0386b62f3eabfc8e2488cb66af4eb"
+      },
+      "cites": "strings: U+1F680 is encoded UTF-16 as D83D DE80, so it sorts before U+FF3A by code unit and after it by code point. The record is well formed and every field is untouched; it has two canonical byte strings and therefore two chain hashes, so the successor's previousHash and the chain's subject digest both fork.",
+      "records": "records/bad-116-astral-extension-member-name.jsonl"
+    },
+    {
       "id": "ok-001-canonical-chain-hash-integer-like-keys",
       "kind": "accept",
       "file": "accept/ok-001-canonical-chain-hash-integer-like-keys.json",
@@ -411,6 +429,22 @@
         "verdict": "valid"
       },
       "cites": "bounds: 2^53 - 1 is admissible, so the boundary is exercised from both sides rather than assumed"
+    },
+    {
+      "id": "ok-013-bmp-extension-member-names",
+      "kind": "accept",
+      "file": "accept/ok-013-bmp-extension-member-names.json",
+      "conditions": [
+        "aia-c-15"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "chainHash": "4342fd30cea6e77413e19e51fbf7f6d0b79d30cb639a8fa2d4d09a5569ac6698",
+        "chainHashUtf16": "4342fd30cea6e77413e19e51fbf7f6d0b79d30cb639a8fa2d4d09a5569ac6698",
+        "chainHashCodePoint": "4342fd30cea6e77413e19e51fbf7f6d0b79d30cb639a8fa2d4d09a5569ac6698"
+      },
+      "cites": "strings: extension member names inside the BMP sort the same way under UTF-16 code units and under code points, so the record has one canonical form and one chain hash",
+      "records": "records/ok-013-bmp-extension-member-names.jsonl"
     }
   ]
 }

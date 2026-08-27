@@ -1061,8 +1061,19 @@ _LIMITS = """\
     rail. A rule this corpus does not force on that rail might still be forced on
     another whose control flow differs, and the reverse.
 -   **A weakening operator is not an attacker.** The campaign removes guards,
-    disjuncts, conjuncts, emissions and boolean returns one at a time. A verifier
+    disjuncts, conjuncts, emissions and boolean returns one at a time, and
+    restricts one collection loop at a time to a single member. A verifier
     wrong in a way no single-site weakening expresses is not measured here.
+-   **The quantifier operator asks about the SECOND member, and cuts both
+    ways.** `LOOP_FIRST` closes a loop body with a `break`, so a rule the
+    specification states over every member of a carried collection is applied
+    to one member only. Where the loop is a universal that is a weakening, and
+    a vector that still passes was never forcing the "every" -- it carried one
+    witness, or its defective member was the one the weakened rail still looks
+    at. Where the loop is instead a SEARCH for one satisfying member, the same
+    edit narrows the search and makes the rail stricter rather than laxer. Both
+    are scored the same way, by replaying the corpus, so a row here says the
+    corpus notices the loop being cut short; read the direction off the site.
 -   **The condition classes cannot be compared across revisions.** See the
     definition above: attribution depends on the rest of the corpus, so the
     classification is only meaningful against the inputs named in the provenance

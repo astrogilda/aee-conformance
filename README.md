@@ -355,12 +355,20 @@ result-vocabulary check at all clears this corpus.
 
 So forcing is measured instead. `scripts/forcing-gate.py` switches off exactly one
 rule in the reference rail, replays every vector, and asks whether the corpus
-notices — 754 single-site weakenings of `aee/`, one rebuild and one full replay
+notices — 807 single-site weakenings of `aee/`, one rebuild and one full replay
 each. A rule the corpus never notices losing is a rule no third-party implementer
 is obliged to build, whatever the vector count says.
 
+One of those weakenings does not switch a rule off at all. Where the specification
+says a rule holds for EVERY member of a carried collection, the rail writes a loop,
+and the quantifier operator closes that loop after one member: the rule survives
+intact and is applied to a single witness. A corpus that still passes was never
+forcing the "every" — it carried one member, or its defective one happened to be
+the member the weakened rail still looks at. That is a gap no amount of switching
+guards off can see, and the sites it finds are published below with the rest.
+
 [`docs/FORCING-BASELINE.json`](docs/FORCING-BASELINE.json) is the result, held as a
-tighten-only ratchet: **425 rules forced, 27 seen-but-tolerated, 297 unforced, 5
+tighten-only ratchet: **447 rules forced, 32 seen-but-tolerated, 323 unforced, 5
 unmeasurable.** The four outcomes stay apart on purpose — "we could not measure it"
 and "the corpus does not force it" are different claims and only one is a gap — and
 four sites carry an annotation saying that "unforced" is the wrong word for them,
@@ -370,7 +378,7 @@ annotations are claims the gate falsifies: an annotated site that is ever killed
 fails the build.
 
 CI runs the ratchet on every push over the rules the baseline records as forced —
-the complete set where a regression is possible — and sweeps all 754 sites nightly,
+the complete set where a regression is possible — and sweeps all 807 sites nightly,
 which is what can see forcing improve.
 
 **What that campaign cannot see, said here before anybody else says it.** Every

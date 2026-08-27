@@ -276,12 +276,29 @@ under suiteRevision 17.
   are held to one vocabulary by `scripts/code-contract-gate.py` but not to one rule set. The
   same measurement over `packaging/run_vectors.py` needs a Python mutation operator set and a
   second baseline. File: `scripts/forcing-gate.py`.
-- [ ] **A weakening the operator set cannot express is scored as nothing at all.** The eleven
+- [ ] **A weakening the operator set cannot express is scored as nothing at all.** The twelve
   operators switch off a guard, a disjunct, a conjunct, a switch arm, a bool return or an
-  emission. A rule that lives in a constant (a bound, a depth cap, a media type), in the ORDER
+  emission, or close a collection loop after one member. A rule that lives in a constant (a
+  bound, a depth cap, a media type), in the ORDER
   of two checks, or in a data table is not a site, so it appears in no class -- not even as a
-  gap. 754 sites is the size of what can be asked, never the size of the rail. File:
-  `cmd/mutgen/mutate.go`.
+  gap. 807 sites is the size of what can be asked, never the size of the rail. File:
+  `cmd/mutgen/mutate.go`. PARTIAL: the quantifier case, which was the largest named hole in
+  this row, is now expressible -- `LOOP_FIRST` turns "for every member, P" into "for one
+  member, P" and found 31 universals this corpus does not force as universals. The constant,
+  the ordering and the data-table cases are untouched, and this row stays open for them.
+- [ ] **Twenty-four universals sit on a loop every vector enters and no vector exercises
+  twice.** The quantifier operator records 26 DEAD sites, and 24 of them carry
+  `branch: taken`, which is the sharp reading -- vectors do reach the loop, and none of them
+  carries a second member whose treatment matters, so the rule's "every" is untested while
+  the rule itself is covered. Each is a vector somebody could write, and unlike the
+  never-taken pair they need no new reachability. The named ones a specification universal
+  maps onto directly: `validity.go::anyObservationRefOutOfRange` (`aee-c-11`, every ref index
+  on every row), `tier.go::recordVerifies` (`aee-c-33`, every covering signature verifies),
+  `verify.go::tierPolicySatisfied` (`aee-c-34`, every substrate row unattested without a
+  pinned root), `commitments.go::sealsCommitToCarriedSet` (`aee-c-97`, every carried sealed
+  record), `commitments.go::sealNamedAttacksCaught` (`aee-c-98`, every attack the seal
+  names) and `statement.go::gate0ExpectedPayloads` (`aee-c-103`, every key and every array).
+  File: `docs/FORCING-BASELINE.json`, `vectors/reject/gen_invalid_vectors.py`.
 - [ ] **The 185 unforced rules on branches no vector takes are a list, not a plan.** The
   nightly sweep re-derives which surviving mutants sit on a branch the corpus never enters,
   which is the evidence separating a mintable gap from one no new vector could close. Nothing

@@ -487,7 +487,7 @@ jobs:
   # run, by class and count, on every run.
   #
   # MEASURED on a 16-worker workstation, in CPU-seconds because that is the number
-  # that carries between machines: 424 of 754 sites and ~1670 CPU-seconds here, against
+  # that carries between machines: 425 of 754 sites and ~1670 CPU-seconds here, against
   # ~3370 for the full sweep. Wall time on that box was 88-110s at 8-16 workers.
   forcing:
     runs-on: ubicloud-standard-8

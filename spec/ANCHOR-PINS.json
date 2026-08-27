@@ -1346,6 +1346,12 @@
       "opens": "- a row declaring `attribution: pinned` resolves at least one",
       "closes": "declares the stronger of the two values with nothing checking it."
     },
+    "vectors/reject/gen_invalid_vectors.py::bad-986-pinned-second-interception-unmatched#0": {
+      "anchor": "L614-623",
+      "digest": "e6145aaf2d71677274b634b8f9d5a83ab011e63f709a6146ae6e0ea74c606e7f",
+      "opens": "- a row declaring `attribution: pinned` resolves at least one",
+      "closes": "declares the stronger of the two values with nothing checking it."
+    },
     "vectors/reject/gen_invalid_vectors.py::bad-983-liveness-middle-channel-commitment-unmatched#0": {
       "anchor": "L614-623",
       "digest": "e6145aaf2d71677274b634b8f9d5a83ab011e63f709a6146ae6e0ea74c606e7f",
@@ -2577,6 +2583,12 @@
       "closes": "raises that row's `method` with every substrate signature still verifying."
     },
     "vectors/coverage-unforced.json::U7#2": {
+      "anchor": "L614-623",
+      "digest": "e6145aaf2d71677274b634b8f9d5a83ab011e63f709a6146ae6e0ea74c606e7f",
+      "opens": "- a row declaring `attribution: pinned` resolves at least one",
+      "closes": "declares the stronger of the two values with nothing checking it."
+    },
+    "vectors/CHANGES.md::suiteRevision 27 (a reject vector IS its parent plus one mutation, and the gate says so)#0": {
       "anchor": "L614-623",
       "digest": "e6145aaf2d71677274b634b8f9d5a83ab011e63f709a6146ae6e0ea74c606e7f",
       "opens": "- a row declaring `attribution: pinned` resolves at least one",

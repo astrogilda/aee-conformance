@@ -264,10 +264,20 @@ def published_sentence_reworded(_m: Path, _i: Path, _b: Path,
     check when the prose moves is how a delegation turns into an exemption.
     """
     text = changes.read_text(encoding="utf-8")
-    changes.write_text(
-        text.replace("reject vectors declare a parent",
-                     "refusals name an origin"),
-        encoding="utf-8")
+    # Whitespace-tolerant, because the gate's reader is. The literal this used
+    # to replace assumed the phrase never wrapped, and the moment a changelog
+    # entry wrapped it between "vectors" and "declare" the substitution missed
+    # that sentence, the gate found it and passed, and a case asserting a
+    # refusal reported the pass as a miss. A mutation that can silently apply to
+    # nothing is the defect this whole file exists to catch, so it also refuses
+    # below when the text comes back unchanged.
+    reworded = re.sub(r"reject\s+vectors\s+declare\s+a\s+parent",
+                      "refusals name an origin", text)
+    if reworded == text:
+        raise AssertionError(
+            "the sentence this case rewords is not in the changelog copy, so "
+            "the mutation applied nothing and the case would prove nothing")
+    changes.write_text(reworded, encoding="utf-8")
 
 
 def two_mutations_from_the_declared_parent(_m: Path, index: Path, _b: Path,

@@ -28,6 +28,7 @@ Exit 0 when every case holds; 1 on a summary of the failures.
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import shutil
 import subprocess
@@ -126,6 +127,29 @@ def unclassified_expected_field(manifest: Path, _c: Path, _r: Path) -> None:
     dump(manifest, data)
 
 
+def code_bearing_fields() -> tuple[str, ...]:
+    """The code-bearing manifest fields, read off the gate rather than listed.
+
+    Listed, this went stale the moment a field was added: the case below emptied
+    `codes`, `alsoCarries` and `readings`, `alsoEmits` arrived, and the corpus
+    the case handed the gate still named plenty of codes -- so the gate refused
+    for a different reason, the case's phrase never appeared, and a mutation
+    proof reported a miss where the gate was working correctly. Deriving the
+    list means a field added to the gate is emptied here without anybody
+    remembering to.
+    """
+    spec = importlib.util.spec_from_file_location("code_contract_gate", GATE)
+    if spec is None or spec.loader is None:
+        raise AssertionError(f"cannot load {GATE} to read its field classification")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    fields: tuple[str, ...] = tuple(module.CODE_LIST_FIELDS) + tuple(module.CODE_MAP_FIELDS)
+    if not fields:
+        raise AssertionError(
+            f"{GATE} classifies no code-bearing field, so this case empties nothing")
+    return fields
+
+
 def no_codes_anywhere(manifest: Path, _c: Path, _r: Path) -> None:
     """Every code-bearing field emptied.
 
@@ -133,11 +157,11 @@ def no_codes_anywhere(manifest: Path, _c: Path, _r: Path) -> None:
     corpus and a renamed field read identically from here.
     """
     data = load(manifest)
+    fields = code_bearing_fields()
     for vector in data["vectors"]:
         expected = vector.get("expected") or {}
-        for field in ("codes", "alsoCarries"):
+        for field in fields:
             expected.pop(field, None)
-        expected.pop("readings", None)
     dump(manifest, data)
 
 

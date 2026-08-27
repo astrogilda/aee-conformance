@@ -255,8 +255,8 @@ jobs:
       # entirely unchecked: `bad-817` declared two codes and emitted four, and
       # when suiteRevision 27 moved its parent from a caught row to a
       # reconstructed one, one of the two undeclared codes changed with it and
-      # nothing refused. Measured across the corpus, 19 of 258 vectors were in
-      # that state with 24 unpinned emissions between them.
+      # nothing refused. Measured over the corpus as it then stood, nineteen
+      # vectors were in that state with 24 unpinned emissions between them.
       #
       # It is a gate here rather than a rule inside the replay for one reason:
       # the replay runs over external rails, and a closure rule there would turn
@@ -485,14 +485,14 @@ jobs:
       # so a corpus change fails on the push that makes it rather than on the
       # revision that outdates the name. A checked copy of a derived number is
       # what the census asks for; an unchecked one is what it refuses.
-      - name: replay every vector on the Python rail (must be 258/258)
+      - name: replay every vector on the Python rail (must be 260/260)
         run: python3 packaging/run_vectors.py
 
   # What the corpus FORCES, held as a tighten-only ratchet. A vector count is an
   # upper bound on forcing and never a measurement of it: a vector declaring
   # several expected codes is satisfied by any one of them, so deleting the
   # result-vocabulary emission from the rail turns two vectors' gate-0 column
-  # FAIL and the suite still reports 258 of 258, exit 0. The only way to know
+  # FAIL and the suite still reports 260 of 260, exit 0. The only way to know
   # what this corpus obliges a third party to implement is to switch one rule
   # off at a time and replay, which is what this job does.
   #

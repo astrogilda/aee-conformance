@@ -1627,6 +1627,77 @@ def build_vectors() -> dict[str, dict[str, Any]]:
         ],
     )
 
+    # ok-055 one pinned row resolving TWO interceptions, both predicted.
+    #
+    # The third part of the pinned rule is quantified over EVERY interception a
+    # row resolves, and until this vector the corpus never handed it more than
+    # one. Every pinned row this corpus shipped -- 23 of them -- resolved exactly
+    # one interception record, and a universal quantifier evaluated only at
+    # cardinality one is indistinguishable from an existential: a rail that
+    # compares the first resolved interception and stops passes the entire
+    # corpus. This is the accept side of that boundary -- a row with two probes
+    # planted against one attack, the corpus predicting both, and the substrate
+    # committing to both -- and `bad-986` is this statement with the second
+    # commitment replaced by the OTHER attack's declared value and nothing else
+    # touched.
+    #
+    # Two values under one attack rather than two attacks, because the point is
+    # the quantifier inside a single row. XB is carried alongside so that the
+    # refusal derived from this vector has a value the corpus genuinely declared
+    # for a DIFFERENT attack to reach for: a commitment the corpus declared
+    # nowhere is already `bad-960`, and it is the weaker case. A statement whose
+    # evidence corresponds to a real, declared, other attack is the one a rail
+    # reading the quantifier existentially calls conformant.
+    exp_multi = sorted(
+        [
+            commitment_for("example interception observation a"),
+            commitment_for("example interception observation a2"),
+        ]
+    )
+    man_pin_multi = {
+        "classes": {"XA": ["XA-EXAMPLE-1"], "XB": ["XB-EXAMPLE-1"]},
+        "expectedPayloads": {
+            "XA-EXAMPLE-1": exp_multi,
+            "XB-EXAMPLE-1": [commitment_for("example interception observation b")],
+        },
+    }
+    b_pin_multi = run_binding(sha256_hex(jcs(man_pin_multi)))
+    v["ok-055-pinned-row-two-interceptions"] = make_statement(
+        man_pin_multi,
+        [
+            make_row(
+                "XA-EXAMPLE-1",
+                "egress_captured",
+                "substrate",
+                "intercepted",
+                "policy.egress_sinkhole",
+                [0, 1],
+                attribution="pinned",
+            ),
+            make_row(
+                "XB-EXAMPLE-1",
+                "egress_captured",
+                "substrate",
+                "intercepted",
+                "policy.egress_sinkhole",
+                [2],
+                attribution="pinned",
+            ),
+        ],
+        records=[
+            make_record(
+                "interception", b_pin_multi, note="example interception observation a"
+            ),
+            make_record(
+                "interception", b_pin_multi, note="example interception observation a2"
+            ),
+            make_record(
+                "interception", b_pin_multi, note="example interception observation b"
+            ),
+            make_record("sealed", b_pin_multi),
+        ],
+    )
+
     # ok-052 / ok-053 detector liveness, as a construction over carried bytes.
     #
     # A detector that never fires is indistinguishable from outside from a

@@ -43,7 +43,10 @@ DRIFTED = "bad-817-payload-noncanonical-base64"
 # The line the rail mutation patches, and what it becomes. Kept as constants so
 # a rail edit that moves this text fails the case loudly rather than leaving a
 # mutation that quietly applied nothing.
-RAIL_ANCHOR = "    def verify(self, stmt: Any, raw: bytes | None = None) -> Outcome:\n        out = Outcome()\n"
+RAIL_ANCHOR = (
+    "    def verify(self, stmt: Any, raw: bytes | None = None) -> Outcome:\n"
+    "        out = Outcome()\n"
+)
 RAIL_PATCHED = RAIL_ANCHOR + '        out.add("synthetic-rail-drift")\n'
 
 

@@ -82,7 +82,13 @@ POLICY_HEADING = "Consumer-policy stage codes"
 # the regenerability gate and a whole-corpus replay all green. The subject of a
 # membership check cannot be a hand-listed subset of the schema it checks, so it
 # is enumerated here and the leftovers are a failure.
-CODE_LIST_FIELDS = ("codes", "alsoCarries")
+# `alsoEmits` is a code list like the two beside it and is classified with them
+# on purpose. It is not an expectation -- it records what the reference rail
+# emits beyond every declared code, and no other rail is measured against it --
+# but a spelling in it is still a spelling this repository publishes, so it is
+# owed the same registry check. A code that appears nowhere but here would be a
+# name with no constant behind it, which is the drift this gate exists to stop.
+CODE_LIST_FIELDS = ("codes", "alsoCarries", "alsoEmits")
 CODE_MAP_FIELDS = ("readings",)
 NON_CODE_FIELDS = (
     "verdict",

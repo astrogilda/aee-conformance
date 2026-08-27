@@ -6,8 +6,8 @@
   "tracksUpstream": "in-toto/attestation#570",
   "specUpstreamCommit": "0dbe10bcc959b63dc42370a5db09812c9476f59a",
   "counts": {
-    "accept": 60,
-    "reject": 196,
+    "accept": 61,
+    "reject": 197,
     "indeterminate": 2
   },
   "comparisonSurface": {
@@ -20,7 +20,7 @@
     ],
     "note": "A rail conforms when its verdict, and for an accepted statement its result token, match this manifest. The codes on a reject entry are the reference verifier's own vocabulary, not the specification's: a rail names a reason from whatever set it declares, and a differing code is a reason-parity datum rather than a failure. Report that parity as its own figure. The divergences worth finding are the statements two rails both reject for different reasons, and scoring on codes would hide exactly those."
   },
-  "corpusDigest": "6317633a762f0d3fd4968c7fe4220f7e89eb669dc9e240f06e88e27d162e4eb9",
+  "corpusDigest": "a33946c4a872d9b9e72c480b06afd850b8ecaf12b575cbca2d6b2ef5deec2084",
   "vectors": [
     {
       "id": "ok-001-caught-intercepted-fail",
@@ -748,6 +748,21 @@
         "aee-c-23",
         "aee-c-45",
         "aee-c-73"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      }
+    },
+    {
+      "id": "ok-055-pinned-row-two-interceptions",
+      "kind": "accept",
+      "file": "accept/ok-055-pinned-row-two-interceptions.json",
+      "conditions": [
+        "aee-c-100",
+        "aee-c-101",
+        "aee-c-102",
+        "aee-c-103"
       ],
       "expected": {
         "verdict": "valid",
@@ -3332,6 +3347,20 @@
       "id": "bad-982-pinned-assignment-spliced",
       "kind": "reject",
       "file": "reject/bad-982-pinned-assignment-spliced.json",
+      "conditions": [
+        "aee-c-102"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "attribution-pin-unmatched"
+        ]
+      }
+    },
+    {
+      "id": "bad-986-pinned-second-interception-unmatched",
+      "kind": "reject",
+      "file": "reject/bad-986-pinned-second-interception-unmatched.json",
       "conditions": [
         "aee-c-102"
       ],

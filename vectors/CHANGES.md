@@ -10,7 +10,7 @@ byte-identically from the generators.
 - **The rail's own output is now pinned, which it was not.** A reject vector is
   graded by INTERSECTING the codes a rail emits with the codes the entry declares,
   so a code emitted outside that set was compared against nothing at all. Measured
-  across all 258 vectors, 19 were in that state -- 17 reject and both indeterminate
+  over the corpus as it then stood, nineteen were in that state -- 17 reject and both indeterminate
   members -- carrying 24 unpinned emissions between them, of which
   `caught-row-uncovered` accounted for ten. `bad-817` was the worst of them,
   declaring two codes and emitting four, and it is where this was found: when the
@@ -48,18 +48,41 @@ byte-identically from the generators.
   the manifest, because every manifest-only case would also pass a gate that
   compared the manifest against nothing but itself.
 
-- Corpus: **258 vectors (60 accept, 196 reject, 2 indeterminate)**, unchanged in
-  count from suiteRevision 26. Every reject vector file changes, so `corpusDigest`
-  in `vectors/MANIFEST.json` moves. No accept vector file changes, no expectation
-  changes, and no vector is added, removed or weakened: every refusal keeps its
-  conditions and its expected code. The vendored specification does not move:
-  `specDigest` and `specUpstreamCommit` are exactly what suiteRevision 26 carried,
-  because this revision corrects the corpus and changes no rule and no reading.
+- Corpus: **260 vectors (61 accept, 197 reject, 2 indeterminate)**, two more than
+  suiteRevision 26. Every reject vector file changes, so `corpusDigest` in
+  `vectors/MANIFEST.json` moves. No expectation is widened and no vector is
+  removed or weakened: every refusal keeps its conditions and its expected code.
+  The two additions are the `ok-055` / `bad-986` pair below. The vendored
+  specification does not move: `specDigest` and `specUpstreamCommit` are exactly
+  what suiteRevision 26 carried, because this revision corrects the corpus and
+  changes no rule and no reading. With the pair added, all 197 reject vectors
+  declare a parent that ships as an accept vector.
+- **A rule quantified over a set, and a corpus that only ever handed it one
+  element.** The third part of the pinned-attribution rule reads "every
+  `interception` record it resolves carries in its `aeePayloadCommitment` at
+  least one value from that entry" (L614-623), and it is a consumption
+  precondition, so a statement violating it is invalid. Every pinned row this
+  corpus shipped -- 23 of them across the whole suite -- resolved exactly ONE
+  interception. At cardinality one a universal and an existential agree, so a
+  rail that compares the first resolved interception and stops cleared all 258
+  vectors. `ok-055-pinned-row-two-interceptions` hands the rule two, both
+  predicted by the corpus for that row's attack, and
+  `bad-986-pinned-second-interception-unmatched` is that statement with the
+  second commitment replaced by the value the corpus declared for the OTHER
+  attack and nothing else touched -- valid authorisation, one observed effect
+  that corresponds to it, and a second that corresponds to a different declared
+  attack. Measured both ways on both first-party rails: weaken the loop to stop
+  after the first resolved interception, in `packaging/run_vectors.py` and again
+  in `aee/commitments.go`, and `bad-986` is the ONLY vector of the 260 that goes
+  red. Nothing else in the corpus reaches that arm. `bad-960` is the weaker
+  neighbour, where the commitment matches no declared attack at all; the
+  cross-row form is `bad-982`; and the ungated `paired` form stays cell U7 in
+  `vectors/coverage-unforced.json`, where the specification puts it.
 - **The fault, which was ours.** Both indexes, and the accept-anchor gate's own
   docstring, describe a reject vector as "a fully valid parent statement plus
   exactly one mutation". That was a statement about shape. Nothing compared the
   bytes, and under the gap the relation rotted. Compared as raw JSON leaves,
-  exactly ONE of the 196 reject vectors was within one leaf of the accept vector
+  exactly ONE of the 196 reject vectors then shipped was within one leaf of the accept vector
   it declared and the rest ranged from six to forty-one. Compared the way the
   new check compares -- over the semantic pre-image, with the derived fields
   absorbed -- four measured one and the rest ranged from five to seventeen, and
@@ -112,7 +135,7 @@ byte-identically from the generators.
   is not counted, and a field set to a value the derivation does not produce IS
   the mutation and is counted where it was set. The arithmetic and its reasoning
   live in `scripts/mutationdiff.py`.
-- **152 of the 196 reject vectors are now exactly one mutation from their declared
+- **153 of the 197 reject vectors are now exactly one mutation from their declared
   parent, up from one.** The remaining 44 cannot express their declared fault in a
   single edit, and each is declared in `docs/MULTI-MUTATION-VECTORS.json` with its
   count and the reason -- the seal-constraint family carries a second healthy seal

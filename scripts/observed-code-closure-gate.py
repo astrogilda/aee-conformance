@@ -16,8 +16,9 @@ emitted code outside the declared set is compared against nothing whatsoever.
 
 That is a hole in a suite whose purpose is forcing two implementers to agree. A
 rail could emit different secondary codes on every release and pass every gate.
-Measured over the whole corpus on the day this gate was written, 19 of the 258
-vectors were in that state -- 17 reject and both indeterminate members -- with 24
+Measured over the whole corpus on the day this gate was written, and before the
+same revision added `ok-055` and `bad-986`, nineteen of the vectors then shipped
+were in that state -- 17 reject and both indeterminate members -- with 24
 undeclared emissions between them, `caught-row-uncovered` accounting for ten.
 `bad-817` was neither typical nor alone.
 
@@ -210,10 +211,15 @@ def main() -> int:
             found.visit(verifier, entry)
 
     if found.emitting == 0:
+        # The count comes off the manifest rather than out of this sentence: a
+        # figure typed here would be a copy that goes stale on the next corpus
+        # change, and the whole point of the branch is that the reader can see
+        # the two numbers disagree.
+        rejects = sum(1 for e in entries if isinstance(e, dict) and e.get("kind") == "reject")
         print(
             "FAIL: not one of the vectors replayed emitted a single code. The "
-            "corpus carries 196 reject vectors, so this is a broken read path "
-            "and not a clean corpus; a closure check that reached no code "
+            f"manifest lists {rejects} reject vectors, so this is a broken read "
+            "path and not a clean corpus; a closure check that reached no code "
             "cannot report closure.",
             file=sys.stderr,
         )

@@ -859,6 +859,65 @@ INHERENT_EXTRA: dict[str, list[str]] = {
 }
 
 
+# What the REFERENCE RAIL emits on a vector beyond every code any expectation
+# names. Not an expectation, not an obligation on any other rail, and never a
+# widening: a code here can no more satisfy a vector than a code nowhere can.
+#
+# It exists because the reject contract grades by INTERSECTING the emitted set
+# with the declared one, which leaves an emitted code outside that set compared
+# against nothing at all. Nineteen of the corpus's vectors were in exactly that
+# state, and `bad-817` is how it was found: it declares two codes, emits four,
+# and when the corpus-wide rewrite of suiteRevision 27 moved its declared parent
+# from a caught row to a reconstructed one, one of the two undeclared codes moved
+# with it -- from `caught-row-uncovered` to `reconstructed-row-uncovered` -- and
+# no gate refused. The change was correct. Nothing could tell.
+#
+# DELIBERATELY NOT folded into INHERENT_EXTRA above, which would have been the
+# smaller edit. That table feeds the `also carries` clause, which is the
+# second-fault self-check's exemption key, so a code declared there switches a
+# recompute OFF -- and `payload-not-canonical`, which `bad-817` must declare,
+# sits in the binding fault family. The smaller edit would have bought the pin by
+# disabling `_sfa_binding` on the one vector that motivated it. A declaration
+# that a rail emits something must never be spelled as an exemption from a check.
+#
+# scripts/observed-code-closure-gate.py is what makes this table load-bearing:
+# it replays the reference rail and refuses an emitted code no field declares,
+# and equally a code declared here that the rail no longer emits. A stale entry
+# is a refusal, so this table cannot rot quietly.
+OBSERVED_EXTRA: dict[str, list[str]] = {
+    **{vid: ["caught-row-uncovered"] for vid in (
+        "bad-202-payload-bignum",
+        "bad-203-payload-duplicate-member",
+        "bad-204-payload-media-type",
+        "bad-739-payload-lone-surrogate-escape",
+        "bad-740-payload-cesu8",
+        "bad-741-payload-nesting-exceeds-max-depth",
+        "bad-742-payload-nesting-empty-container-leaf",
+        "bad-744-payload-noncharacter",
+    )},
+    **{vid: ["caught-row-uncovered", "observed-set-mismatch"] for vid in (
+        "bad-201-payload-unsorted-keys",
+        "bad-208-payload-member-non-bmp",
+    )},
+    **{vid: ["sealed-record-absent"] for vid in (
+        "bad-606-missing-runentropy",
+        "bad-611-subject-no-sha256",
+        "bad-703-arming-posture-mismatch",
+        "bad-902-sealed-posture-ne-arming",
+    )},
+    **{vid: ["clean-row-uncovered", "payload-not-canonical"] for vid in (
+        "ind-001-undecodable-then-signatures-empty",
+        "ind-002-signatures-empty-then-undecodable",
+    )},
+    "bad-206-payload-missing-kind": ["record-kind-unknown-covers-nothing"],
+    "bad-806-coverage-attack-omitted": ["interception-record-orphaned"],
+    "bad-817-payload-noncanonical-base64": [
+        "payload-not-canonical",
+        "reconstructed-row-uncovered",
+    ],
+}
+
+
 VECTORS: list[dict[str, Any]] = []
 
 
@@ -876,11 +935,14 @@ def vec(vid: str, parent: str, mutation: str, rederive: list[str],
     DELIBERATELY that a conforming rail is not expected to report as its primary,
     which is how a precedence pin keeps a single-code expectation while still
     telling the second-fault self-check that the extra fault was intended.
+    ``OBSERVED_EXTRA`` adds the codes this rail emits beyond both, which pins its
+    output without making any of it an expectation.
     """
     VECTORS.append({"id": vid, "parent": parent, "mutation": mutation,
                     "rederive": rederive, "conds": conds, "codes": codes,
                     "compound": compound,
                     "also": list(also_carries or []) + INHERENT_EXTRA.get(vid, []),
+                    "emits": OBSERVED_EXTRA.get(vid, []),
                     "spec": spec, "note": note, "build": build})
 
 
@@ -2639,6 +2701,7 @@ def ind(vid: str, family: str, parent: str, mutation: str, conds: list[int],
     IND_VECTORS.append({"id": vid, "family": family, "parent": parent,
                         "mutation": mutation, "conds": conds,
                         "readings": readings, "spec": spec, "note": note,
+                        "emits": OBSERVED_EXTRA.get(vid, []),
                         "build": build})
 
 
@@ -3832,6 +3895,51 @@ vec("bad-982-pinned-assignment-spliced", "ok-051",
          "invisible and stays so, which is what cell U7 records; here the "
          "corpus predicted what each attack's interception would commit to, "
          "so each row now resolves a record carrying the other attack's value")
+
+
+def P_pin_multi() -> dict[str, Any]:
+    """ok-055-pinned-row-two-interceptions: one pinned row, two satisfied probes."""
+    return accept_parent("ok-055-pinned-row-two-interceptions")
+
+
+PARENTS["ok-055 shape (one pinned row resolving two interceptions)"] = P_pin_multi
+
+
+def _b986() -> dict[str, Any]:
+    """One authorised row, one corresponding effect, and a second that is
+    another attack's.
+
+    The pinned rule's third part is quantified over EVERY interception the row
+    resolves, and every pinned row in the corpus before `ok-055` resolved
+    exactly one, so the quantifier was only ever evaluated at cardinality one.
+    At that size a universal and an existential agree, and a rail comparing the
+    first resolved interception and stopping cleared every vector then shipped.
+
+    Here the row keeps its authorisation and keeps a genuinely corresponding
+    probe: the first interception commits to a value the corpus declared for
+    this attack, so a rail that asks whether the row has evidence, or whether
+    some of its evidence matches, finds both. The second interception commits
+    to the value the corpus declared for XB-EXAMPLE-1 -- a real, declared,
+    DIFFERENT attack rather than a value declared nowhere, which is `bad-960`
+    and the weaker case. Nothing else moves: the row's refs, its attribution,
+    the manifest, the corpus digest and the derived binding are the parent's.
+    """
+    st = P_pin_multi()
+    return mutate_record_payload(
+        st, 1,
+        lambda o: {**o, "aeePayloadCommitment": [D["intercepted-bytes-2"]]})
+
+
+vec("bad-986-pinned-second-interception-unmatched", "ok-055",
+    "the second interception the pinned row resolves commits to the value the "
+    "corpus declared for the OTHER attack; the first still matches",
+    ["re-sign-record", "recompute-batch-root"], [102],
+    ["attribution-pin-unmatched"], _b986,
+    spec="L614-623",
+    note="the quantifier boundary of the pinned rule. Authorisation for this "
+         "attack is valid and one observed effect corresponds to it, while a "
+         "second effect on the same row corresponds to a different declared "
+         "attack, so a rail reading `every` as `some` calls this conformant")
 
 
 # --- (p) detector liveness, per channel ------------------------------------
@@ -5063,6 +5171,9 @@ def write_index() -> None:
         if v["also"]:
             also = ", ".join(f"`{c}`" for c in v["also"])
             codes += f" (also carries: {also})"
+        if v["emits"]:
+            emits = ", ".join(f"`{c}`" for c in v["emits"])
+            codes += f" (also emits: {emits})"
         red = ", ".join(v["rederive"]) if v["rederive"] else "-"
         L.append(f"| `{v['id']}` | {v['parent']} | {v['mutation']} | {red} "
                  f"| {conds} | {codes} | {v['spec']} |")
@@ -5287,6 +5398,16 @@ def write_ind_index() -> None:
         L.append("|---|---|---|" + "---|" * (len(declared) + 2))
         for m in members:
             conds = " ".join(f"aee-c-{c}" for c in m["conds"])
+            # The `also emits` clause rides the CONDITIONS cell here and the
+            # codes cell in the reject table, and the asymmetry is the table's.
+            # A reject row has one codes cell; this table has one per declared
+            # reading, and what the rail emits is a property of the vector rather
+            # than of any single reading, so no reading column could honestly
+            # hold it. gen_manifest's conditions_of reads `aee-c-\d+` only, so a
+            # backticked code name here is invisible to it.
+            if m["emits"]:
+                emits = ", ".join(f"`{c}`" for c in m["emits"])
+                conds += f" (also emits: {emits})"
             cells = " | ".join(f"`{m['readings'][r]}`" for r in declared)
             L.append(f"| `{m['id']}` | {m['parent']} | {m['mutation']} | {conds} "
                      f"| {cells} | {m['spec']} |")

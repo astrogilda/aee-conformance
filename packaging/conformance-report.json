@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 258,
-    "pass": 258,
+    "vectors": 260,
+    "pass": 260,
     "fail": 0,
     "suiteRefusals": 0
   },
@@ -1366,6 +1366,31 @@
     {
       "id": "ok-054-producer-ordered-axis-inert",
       "file": "vectors/accept/ok-054-producer-ordered-axis-inert.json",
+      "kind": "accept",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "PASS",
+        "recompute": "PASS",
+        "tier": "PASS",
+        "self-check": "-"
+      },
+      "observed": {
+        "verdict": "valid",
+        "codes": [],
+        "primaryCode": null,
+        "result": "fail"
+      },
+      "expected": {
+        "verdict": "valid",
+        "result": "fail"
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "ok-055-pinned-row-two-interceptions",
+      "file": "vectors/accept/ok-055-pinned-row-two-interceptions.json",
       "kind": "accept",
       "status": "PASS",
       "gates": {
@@ -7340,6 +7365,35 @@
         "codes": [
           "caught-row-uncovered",
           "attribution-pinned-recordless"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-986-pinned-second-interception-unmatched",
+      "file": "vectors/reject/bad-986-pinned-second-interception-unmatched.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "attribution-pin-unmatched"
+        ],
+        "primaryCode": "attribution-pin-unmatched",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "attribution-pin-unmatched"
         ]
       },
       "inManifest": true,

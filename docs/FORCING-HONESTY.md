@@ -26,15 +26,19 @@ all.**
 | what | value |
 |---|---|
 | suite | `adversarial-execution-evidence-conformance` |
-| corpus | suiteRevision 27, 258 vectors (60 accept, 196 reject, 2 indeterminate) |
+| corpus | suiteRevision 27, 260 vectors (61 accept, 197 reject, 2 indeterminate) |
 | vendored specification | commit `0dbe10bcc959b63dc42370a5db09812c9476f59a`, fetchable from `astrogilda/attestation` at branch `predicate/adversarial-execution-evidence` |
 | reviewed at | `in-toto/attestation#570` |
-| `vectors/MANIFEST.json` | `sha256:9799857fdb5e5daf1032804030560e71157a32c2202a5b61283001abafff56fb` |
+| `vectors/MANIFEST.json` | `sha256:28af687a1d01169d9dbc77fb5d746f65f343869e1cef687490dfedf3ab31e025` |
 | `docs/FORCING-BASELINE.json` | `sha256:83b8c3b17cd1ba228319942cbb50dabf3db8da2e119317522d87fc79f11e66ab` |
 | campaign | 754 single-site weakenings: 425 KILLED, 27 SILENT, 297 DEAD, 5 INCONCLUSIVE |
 
-Every vector in the corpus is depended on by at least one recorded weakening, so no
-vector is wholly redundant and the campaign covers the corpus as it stands.
+**Read the figures above as a lower bound.** 2 of the corpus's vectors appear in no
+recorded killer set: `ok-055-pinned-row-two-interceptions`,
+`bad-986-pinned-second-interception-unmatched`. Either they force nothing this rail's
+weakenings can express, or the campaign predates them, and the two input digests above
+are how a reader tells which. Until a full sweep covers them, a weakening one of them
+would catch is recorded here as caught by nobody.
 
 The corpus cites the specification's rules by `aee-c-NN` condition id on every
 vector. Take the vectors citing one condition, and ask what the mutation campaign

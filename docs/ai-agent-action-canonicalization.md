@@ -90,6 +90,42 @@ an empty object, or the whole response envelope in place of the named member.
 Floats are permitted here and only here. MCP tool payloads are arbitrary JSON and
 routinely carry them.
 
+**Adopting this section requires regenerating the worked example's digests.** The
+text above names the `params` member and the `result` member, and #588 already
+says the same thing: "`payload` is the JSON-RPC `params` object (for requests) or
+`result` object (for responses)". Its worked example does not do that. Under
+"Content digest preimages" the request block is captioned "JCS of the `params`
+object" and then displays the whole JSON-RPC message, `{"method":...,"params":
+{...}}`, and the published digest is the digest of the displayed block. The
+response block does the same with `{"result":{...}}`. So the caption names the
+member, the preimage beside it is the envelope, and the digest matches the
+preimage rather than the caption.
+
+Recomputing against the specification text at `639ec56` (vendored beside this
+suite at `vectors-ai-agent-action/spec-vendored/ai-agent-action-639ec56.md`,
+sha256 `1eaecff711591ea6e56e5798abc110a077c49194900513bab736d137496b84ba`) gives:
+
+| preimage | sha256 |
+|---|---|
+| the whole request message, as the example displays and publishes it | `167bd5c6ecde61c67bb42cb8607bd17c39aca91729b302247c67833fe7427815` |
+| the `params` member alone, as both captions and this text specify | `b47ce84f9c856142547199358dd70203c504fbe3c82f362f46248bb05cf133cc` |
+| the whole response message, as the example displays and publishes it | `46943f801d4623b020293ed8f31d3603972dd20d9687949a31f13a5f12acdd24` |
+| the `result` member alone, as both captions and this text specify | `12fcbdcf920251bd7596b9e255eca20a314a179d5c33a70505d764706469825a` |
+
+So the example's `contentDigest.request` becomes `b47ce84f` and its
+`contentDigest.response` becomes `12fcbdcf` if this section is adopted as
+written. The example's subject digest is unaffected and reproduces exactly as
+published, `cd26e6c4930f34da6dbbb53988f4920b13eedc7e3354ac51a82efeac9574e664`.
+That control is what makes this a finding rather than an extraction error: an
+error in reading the document would have missed the subject digest too.
+
+Which way it resolves is a decision for the predicate and not for this text.
+Regenerating the two digests keeps the member-scoped rule; rewriting the two
+captions and the rule to say the whole message keeps the digests. Both are
+cheap. What is not available is leaving them as they are, because a second
+implementer builds against whichever half they read first, and the two produce
+different bytes for the same tool call.
+
 ### The signing canonical form
 
 The signing canonical form is the tuple-array this predicate already defines: an

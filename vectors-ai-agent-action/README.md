@@ -3,6 +3,15 @@
 Conformance vectors for the AI Agent Action predicate proposed in
 in-toto/attestation#588, tracked at `639ec56`.
 
+That commit no longer resolves anywhere. It lived on
+`add-ai-agent-action-predicate` in the fork `elang2/attestation`, which the pull
+request is opened from and which has since been rewritten past it, so a plain
+clone of that fork, of `in-toto/attestation`, or of this project's own fork all
+exit 128 on it. The corpus does not depend on it: `spec-vendored/` carries the
+text, `MANIFEST.json` pins its sha256, and `check_vectors.py` recomputes that
+digest on every run. A commit id names bytes nobody can fetch; the digest names
+bytes in this directory.
+
 The predicate records AI agent tool invocations as observed by a protocol
 intermediary, and the records form a hash chain whose genesis hash serves as the
 subject digest, so a policy can target a whole audit chain. It shipped without
@@ -18,7 +27,7 @@ from its own worked example.
 | `reject/` | 16 members a conformant verifier rejects for one declared reason, with `INDEX.md` |
 | `records/` | JSONL sidecars, the log lines a chain hash is computed over |
 | `attacks/` | the harness that produced the corpus, and its artifacts |
-| `spec-vendored/` | the specification text at the commit the corpus certifies against |
+| `spec-vendored/` | the specification text the corpus certifies against, and the only surviving copy of it |
 | `MANIFEST.json` | machine-readable expectations, counts and corpus digest |
 | `gen_vectors.py` | regenerates the corpus byte-identically |
 | `check_vectors.py` | self-check; exit non-zero when a member does not do what it claims |

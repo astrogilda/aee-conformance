@@ -8,6 +8,19 @@ Ground truth: in-toto/attestation#588, `spec/predicates/ai-agent-action.md`
 at `639ec56`, type URI
 `https://in-toto.io/attestation/ai-agent-action/v0.1`.
 
+That commit is not an address. The pull request is opened from
+`add-ai-agent-action-predicate` on the fork `elang2/attestation`, so the
+commit was never in the review venue, and that branch has since been
+rewritten past it: as of 2026-08-26 a plain clone of the review venue, of
+this project's own fork, and of the head fork all exit 128 on it, while
+each resolves its own HEAD. The commit is orphaned everywhere.
+
+Nothing is lost, because the commit was never the pin. `../spec-vendored/`
+carries the text itself, `MANIFEST.json` pins its sha256 as `specDigest`,
+and `check_vectors.py` recomputes that digest on every run and refuses a
+copy whose bytes moved. The bytes are the ground truth; the commit records
+only where they came from.
+
 That type URI does not resolve. The in-toto attestation catalog redirects
 the URIs of vetted predicates whose specification is merged, and this
 predicate is in review as the pull request named above, so a request for

@@ -224,7 +224,40 @@ def main() -> None:
     # recorded commit, and this file is the only evidence on disk of what it
     # said. A commit id in the manifest is a name anyone can write; the digest
     # is the thing an edit in place cannot survive.
+    # The provenance half. The digest below is the pin a verifier acts on; these
+    # fields are what lets a reader find the text upstream, and they were not
+    # checked at all. specUpstreamCommit alone read as an address, and it is not
+    # one: the pull request is opened from a fork branch that has since been
+    # rewritten, so a plain clone of the review venue, of our fork, and of the
+    # head fork all exit 128 on that commit. Naming the fork and branch does not
+    # make the commit fetchable again; it makes the pin say what it is, so the
+    # next reader spends the time on the vendored bytes rather than on a clone
+    # that cannot succeed.
+    for field in ("specUpstreamRepo", "specUpstreamRef", "specAuthority",
+                  "specProvenanceNote"):
+        if not manifest.get(field):
+            FAILURES.append(
+                f"the manifest carries no {field}, so it does not say where "
+                "the vendored text came from or which pin is load-bearing")
+    if manifest.get("specAuthority") != "specDigest":
+        FAILURES.append(
+            "specAuthority names something other than specDigest. The commit "
+            "is orphaned upstream, so a pin on it is a pin on nothing; the "
+            "digest is the only one this suite can enforce.")
+
     spec_rel = manifest["specVendored"]
+    # The vendored filename carries the commit's short sha, so re-pinning the
+    # commit without re-vendoring, or re-vendoring without re-pinning, leaves a
+    # filename that contradicts the manifest beside it. Both halves currently
+    # agree; nothing made them.
+    stem = os.path.splitext(os.path.basename(spec_rel))[0]
+    short = str(manifest.get("specUpstreamCommit", ""))[:7]
+    if short and not stem.endswith(short):
+        FAILURES.append(
+            f"the vendored copy is named {stem!r} while the manifest pins "
+            f"commit {short}, so the file name and the pin disagree about "
+            "which revision is on disk")
+
     spec_path = os.path.join(HERE, spec_rel)
     if not os.path.exists(spec_path):
         FAILURES.append(f"the vendored specification {spec_rel} is missing, so "

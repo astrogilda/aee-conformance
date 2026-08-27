@@ -29,6 +29,24 @@ PREDICATE_TYPE = "https://in-toto.io/attestation/ai-agent-action/v0.1"
 UPSTREAM_PR = "in-toto/attestation#588"
 UPSTREAM_COMMIT = "639ec56cdbb2d7b3c9fc672adeef7fe46d995f7b"
 
+# WHERE THE COMMIT LIVED, AND WHY THAT IS PAST TENSE.
+#
+# in-toto/attestation#588 is opened from a branch on a third party's fork, so
+# the commit was never in the review venue: a plain clone of
+# in-toto/attestation resolves its own HEAD and exits 128 on this commit. It is
+# not in astrogilda/attestation either. As of 2026-08-26 it is not reachable in
+# a plain clone of the head fork below either -- that branch has been rewritten
+# and now heads at 66de88f6, so this commit is orphaned in every repository and
+# survives only as an unreferenced object GitHub has not yet collected.
+#
+# THE DIGEST IS THEREFORE THE PIN, AND THE COMMIT IS ONLY PROVENANCE. A commit
+# id names bytes nobody can fetch; `specDigest` names bytes that are in this
+# directory, and `check_vectors.py` refuses a copy whose bytes moved. That
+# refusal is what keeps the corpus honest about what it certifies against, and
+# it is why losing the commit costs the suite nothing.
+SPEC_UPSTREAM_REPO = "elang2/attestation"
+SPEC_UPSTREAM_REF = "add-ai-agent-action-predicate"
+
 for sub in ("accept", "reject", "records"):
     os.makedirs(os.path.join(HERE, sub), exist_ok=True)
 
@@ -549,6 +567,18 @@ def main() -> None:
         "predicateType": PREDICATE_TYPE,
         "tracksUpstream": UPSTREAM_PR,
         "specUpstreamCommit": UPSTREAM_COMMIT,
+        "specUpstreamRepo": SPEC_UPSTREAM_REPO,
+        "specUpstreamRef": SPEC_UPSTREAM_REF,
+        "specAuthority": "specDigest",
+        "specProvenanceNote":
+            "tracksUpstream names where the predicate is REVIEWED. "
+            "specUpstreamRepo and specUpstreamRef name the fork branch the "
+            "pull request is opened from, which is where specUpstreamCommit "
+            "lived; that branch has since been rewritten, so the commit is "
+            "orphaned and a plain clone of any of the three repositories "
+            "exits 128 on it. The pin a verifier acts on is specDigest over "
+            "specVendored, which is in this directory and which "
+            "check_vectors.py recomputes on every run.",
         "specVendored": SPEC_VENDORED_REL,
         "specDigest": spec_digest(),
         "proposedText": "docs/ai-agent-action-canonicalization.md",

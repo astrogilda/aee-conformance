@@ -246,8 +246,8 @@ killed fails the build.
 -   **The quantifier operator asks about the SECOND member, and cuts both
     ways.** `LOOP_FIRST` closes a loop body with a `break`, so a rule the
     specification states over every member of a carried collection is applied
-    to one member only. Where the loop is a universal that is a weakening, and
-    a vector that still passes was never forcing the "every" -- it carried one
+    to one member only. Where the loop is a universal, that is a weakening, and
+    a vector that still passes was never forcing the "every": it carried one
     witness, or its defective member was the one the weakened rail still looks
     at. Where the loop is instead a SEARCH for one satisfying member, the same
     edit narrows the search and makes the rail stricter rather than laxer. Both

@@ -256,13 +256,7 @@ func leavesBody(st ast.Stmt, inClause bool) bool {
 	case *ast.ReturnStmt:
 		return true
 	case *ast.BranchStmt:
-		switch x.Tok {
-		case token.GOTO, token.CONTINUE:
-			return true
-		case token.BREAK:
-			return !inClause || x.Label != nil
-		}
-		return false
+		return branchLeaves(x, inClause)
 	case *ast.LabeledStmt:
 		return leavesBody(x.Stmt, inClause)
 	case *ast.BlockStmt:
@@ -287,6 +281,22 @@ func leavesBody(st ast.Stmt, inClause bool) bool {
 		// `for {}` with no condition. A break inside it would make this wrong
 		// in the excluding direction, which is the direction that costs nothing.
 		return x.Cond == nil
+	}
+	return false
+}
+
+// branchLeaves reports whether a branch statement leaves the loop body.
+//
+// `fallthrough` does not: it continues into the next clause. An unlabelled
+// `break` inside a switch or select clause leaves THAT clause and falls through
+// to whatever follows it, which is why the answer depends on where the
+// statement sits and not only on what it says.
+func branchLeaves(x *ast.BranchStmt, inClause bool) bool {
+	switch x.Tok {
+	case token.GOTO, token.CONTINUE:
+		return true
+	case token.BREAK:
+		return !inClause || x.Label != nil
 	}
 	return false
 }

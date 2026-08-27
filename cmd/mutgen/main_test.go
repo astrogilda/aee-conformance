@@ -219,6 +219,215 @@ func TestLoopFirstOnlyEnumeratesQuantifiers(t *testing.T) {
 	}
 }
 
+// loopFirstSites parses one function and counts the quantifier sites in it.
+//
+// The snippets below are never compiled, only parsed, which is the same footing
+// the mutator itself works on: it is purely syntactic and typechecks nothing. So
+// they may name identifiers no fixture declares.
+func loopFirstSites(t *testing.T, decl string) int {
+	t.Helper()
+	src := "package rail\n\ntype Code string\n\nfunc appendCode(cs []Code, c Code) []Code { return cs }\n\n" +
+		"const CodeA Code = \"a\"\n\n" + decl
+	fset := token.NewFileSet()
+	f, err := parser.ParseFile(fset, "rail.go", src, parser.ParseComments)
+	if err != nil {
+		t.Fatalf("the fixture does not parse: %v\n%s", err, src)
+	}
+	n := 0
+	for _, s := range collect(fset, f, "rail.go") {
+		if s.Op == "LOOP_FIRST" {
+			n++
+		}
+	}
+	return n
+}
+
+// Whether a break appended to a loop body could run is decided by Go's own
+// terminating-statement rule, and every arm of that rule is a way for this
+// operator to mint an equivalent mutant if it answers wrongly. An equivalent
+// mutant scores DEAD, and a DEAD quantifier row is published as a universal the
+// corpus does not force -- a claim about the corpus that the operator would have
+// manufactured. So each arm gets a case, and each case says which way it goes.
+func TestLoopFirstTerminationRule(t *testing.T) {
+	cases := []struct {
+		name string
+		want int
+		decl string
+	}{
+		{"a labelled statement that leaves", 0, `
+func F(xs []Code, codes []Code) []Code {
+	for _, x := range xs {
+		if x == CodeA { codes = appendCode(codes, CodeA) }
+	Done:
+		return codes
+	}
+	return codes
+}`},
+		{"a block that leaves", 0, `
+func F(xs []Code, codes []Code) []Code {
+	for _, x := range xs {
+		if x == CodeA { codes = appendCode(codes, CodeA) }
+		{ return codes }
+	}
+	return codes
+}`},
+		{"a panic", 0, `
+func F(xs []Code, codes []Code) []Code {
+	for _, x := range xs {
+		if x == CodeA { codes = appendCode(codes, CodeA) }
+		panic("unreachable")
+	}
+	return codes
+}`},
+		{"a trailing call that is not panic", 1, `
+func F(xs []Code, codes []Code) []Code {
+	for _, x := range xs {
+		if x == CodeA { codes = appendCode(codes, CodeA) }
+		println(x)
+	}
+	return codes
+}`},
+		{"a trailing expression that is not a call", 1, `
+func F(xs []Code, codes []Code) []Code {
+	for _, x := range xs {
+		if x == CodeA { codes = appendCode(codes, CodeA) }
+		x
+	}
+	return codes
+}`},
+		{"a type switch whose every arm leaves", 0, `
+func F(xs []Code, codes []Code) []Code {
+	for _, x := range xs {
+		if x == CodeA { codes = appendCode(codes, CodeA) }
+		switch any(x).(type) {
+		case string:
+			continue
+		default:
+			return codes
+		}
+	}
+	return codes
+}`},
+		{"a select whose every arm leaves", 0, `
+func F(xs []Code, codes []Code) []Code {
+	for _, x := range xs {
+		if x == CodeA { codes = appendCode(codes, CodeA) }
+		select {
+		case <-ch:
+			continue
+		default:
+			return codes
+		}
+	}
+	return codes
+}`},
+		{"an unconditional inner loop", 0, `
+func F(xs []Code, codes []Code) []Code {
+	for _, x := range xs {
+		if x == CodeA { codes = appendCode(codes, CodeA) }
+		for {
+		}
+	}
+	return codes
+}`},
+		// The two break cases are the pair worth having. An unlabelled break in a
+		// switch arm leaves the SWITCH and falls through to the end of the body,
+		// so the appended break still runs and the site is real. A labelled one
+		// leaves the loop, so it does not.
+		{"an unlabelled break inside a switch arm", 1, `
+func F(xs []Code, codes []Code) []Code {
+	for _, x := range xs {
+		switch x {
+		case CodeA:
+			codes = appendCode(codes, CodeA)
+			break
+		default:
+			return codes
+		}
+	}
+	return codes
+}`},
+		{"a labelled break inside a switch arm", 0, `
+func F(xs []Code, codes []Code) []Code {
+Outer:
+	for _, x := range xs {
+		switch x {
+		case CodeA:
+			codes = appendCode(codes, CodeA)
+			break Outer
+		default:
+			return codes
+		}
+	}
+	return codes
+}`},
+		{"a fallthrough", 1, `
+func F(xs []Code, codes []Code) []Code {
+	for _, x := range xs {
+		switch x {
+		case CodeA:
+			codes = appendCode(codes, CodeA)
+			fallthrough
+		default:
+			return codes
+		}
+	}
+	return codes
+}`},
+		{"a switch arm with an empty body", 1, `
+func F(xs []Code, codes []Code) []Code {
+	for _, x := range xs {
+		codes = appendCode(codes, CodeA)
+		switch x {
+		case CodeA:
+		default:
+			return codes
+		}
+	}
+	return codes
+}`},
+		{"a switch with no default", 1, `
+func F(xs []Code, codes []Code) []Code {
+	for _, x := range xs {
+		codes = appendCode(codes, CodeA)
+		switch x {
+		case CodeA:
+			return codes
+		}
+	}
+	return codes
+}`},
+		{"a violation reported by a bare return", 1, `
+func F(xs []Code) Code {
+	for _, x := range xs {
+		if x == CodeA {
+			return CodeA
+		}
+	}
+	return CodeA
+}`},
+		{"a return that belongs to a func literal", 0, `
+func F(xs []Code) {
+	for _, x := range xs {
+		f := func() Code { return x }
+		_ = f
+	}
+}`},
+		{"an empty loop body", 0, `
+func F(xs []Code) {
+	for _, x := range xs {
+	}
+}`},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := loopFirstSites(t, tc.decl); got != tc.want {
+				t.Errorf("LOOP_FIRST enumerated %d site(s), want %d", got, tc.want)
+			}
+		})
+	}
+}
+
 // The weakening itself: the body gains a break and nothing else moves. Checked
 // on the printed source rather than on the AST, because the printed source is
 // what the campaign compiles.

@@ -153,7 +153,14 @@ def case_weak_row_dropped(root: Path) -> str | None:
 
 
 def case_weak_row_shares_retyped(root: Path) -> str | None:
-    rig_text(root, PAGE, "| 2 | 101 |", "| 2 | 102 |")
+    # Anchored on the same row `case_weak_row_dropped` uses, and perturbing
+    # whatever that row currently says rather than naming the value. It used to
+    # name it -- `| 2 | 101 |` -- which is the third rig in this file to go stale
+    # the moment the measurement it restated moved, and the reason `rig_retype`
+    # exists. The quantifier operator moved it: the new killed sites enlarged
+    # the killer sets this column counts, and a rig that no longer matches
+    # raises instead of proving anything.
+    rig_retype(root, PAGE, r"\| `aee-c-3` \|.*\| \d+ \| (\d+) \|")
     done = run(root)
     if done.returncode != 1:
         return f"a retyped shares column exited {done.returncode}, wanted 1"

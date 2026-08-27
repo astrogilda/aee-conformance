@@ -14,6 +14,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import struct
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -150,6 +151,50 @@ def check_member_name_orders(vid: str, kind: str, stmt: dict, entry: dict,
                   "produce identical bytes")
 
 
+def check_appendix_b(vid: str, stmt: dict, entry: dict) -> None:
+    """Check an Appendix B row without reusing the generator's serializer.
+
+    Recomputing the canonical bytes with the same function that wrote them
+    would only prove the generator agrees with itself, so neither step below
+    calls it. Instead the declared text is parsed back to a double and the
+    digest is taken over the declared text directly, which together force the
+    vector's digest to be over exactly the bytes the RFC prints for exactly
+    the bit pattern the vector names.
+
+    The family test lives here rather than in the caller's branch chain so
+    that adding this check costs `main` no extra path.
+    """
+    if "appendix-b" not in vid:
+        return
+    want = entry["expected"]["canonicalNumber"]
+    hexpat = entry["expected"]["ieee754"]
+
+    # 1. The declared text denotes the declared IEEE value. Both zeros print
+    #    as "0", which is the lossy step Appendix B row 2 exists to pin, so
+    #    either zero pattern satisfies the zero text and nothing else does.
+    parsed = float(want)
+    if parsed == 0:
+        if hexpat not in ("0000000000000000", "8000000000000000"):
+            FAILURES.append(f"{vid}: canonicalNumber {want!r} is zero and "
+                            f"ieee754 {hexpat} is not a zero pattern")
+    elif struct.pack(">d", parsed).hex() != hexpat:
+        FAILURES.append(
+            f"{vid}: canonicalNumber {want!r} parses to "
+            f"{struct.pack('>d', parsed).hex()}, not the declared {hexpat}")
+
+    # 2. The digest the statement carries is over those exact bytes.
+    canonical = ('{"value":' + want + "}").encode("utf-8")
+    declared = entry["expected"]["requestDigest"]
+    if sha(canonical) != declared:
+        FAILURES.append(f"{vid}: requestDigest is not the digest of "
+                        f"{canonical!r}")
+    carried = stmt["predicate"]["contentDigest"]["request"]["sha256"]
+    if carried != declared:
+        FAILURES.append(f"{vid}: the statement carries request digest "
+                        f"{carried[:12]} and the manifest declares "
+                        f"{declared[:12]}")
+
+
 def main() -> None:
     with open(os.path.join(HERE, "MANIFEST.json"), encoding="utf-8") as fh:
         manifest = json.load(fh)
@@ -202,6 +247,7 @@ def main() -> None:
         if vid in ("ok-013-bmp-extension-member-names",
                    "bad-116-astral-extension-member-name"):
             check_member_name_orders(vid, kind, stmt, entry, lines)
+        check_appendix_b(vid, stmt, entry)
 
     # Every reject condition needs an accepting twin, or a rail that rejects
     # everything scores full marks.

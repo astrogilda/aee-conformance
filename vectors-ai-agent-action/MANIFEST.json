@@ -11,10 +11,10 @@
   "specDigest": "1eaecff711591ea6e56e5798abc110a077c49194900513bab736d137496b84ba",
   "proposedText": "docs/ai-agent-action-canonicalization.md",
   "counts": {
-    "accept": 13,
+    "accept": 37,
     "reject": 16
   },
-  "corpusDigest": "adca013711069546a9ee59d885cf01552b6c44a7d31db4f18fbc5b4d535cf311",
+  "corpusDigest": "f2be44dbb8d207a444eecc19874b7ba3e1276f15175c7f161e8062909ddc1d2a",
   "note": "A reject member is rejectable under the proposed canonicalization text, not under #588 as it stands. Each accept member is the conformant twin of the reject member sharing its condition, so a verifier that rejects everything scores zero rather than full marks.",
   "vectors": [
     {
@@ -449,6 +449,366 @@
       },
       "cites": "strings: extension member names inside the BMP sort the same way under UTF-16 code units and under code points, so the record has one canonical form and one chain hash",
       "records": "records/ok-013-bmp-extension-member-names.jsonl"
+    },
+    {
+      "id": "ok-014-appendix-b-zero",
+      "kind": "accept",
+      "file": "accept/ok-014-appendix-b-zero.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "0000000000000000",
+        "canonicalNumber": "0",
+        "requestDigest": "23d7b286bd429460b92a2a1c21b6afc34110446c5034c17363fda363aa0a7c5d"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 1. The IEEE 754 double 0000000000000000 is the JSON number 0, and no other text. Zero."
+    },
+    {
+      "id": "ok-015-appendix-b-minus-zero",
+      "kind": "accept",
+      "file": "accept/ok-015-appendix-b-minus-zero.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "8000000000000000",
+        "canonicalNumber": "0",
+        "requestDigest": "23d7b286bd429460b92a2a1c21b6afc34110446c5034c17363fda363aa0a7c5d"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 2. The IEEE 754 double 8000000000000000 is the JSON number 0, and no other text. Minus zero."
+    },
+    {
+      "id": "ok-016-appendix-b-min-pos-number",
+      "kind": "accept",
+      "file": "accept/ok-016-appendix-b-min-pos-number.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "0000000000000001",
+        "canonicalNumber": "5e-324",
+        "requestDigest": "8f275eb622ce665f3cf21739b40600308dcea7c36627451f1c210a4152343c85"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 3. The IEEE 754 double 0000000000000001 is the JSON number 5e-324, and no other text. Min pos number."
+    },
+    {
+      "id": "ok-017-appendix-b-min-neg-number",
+      "kind": "accept",
+      "file": "accept/ok-017-appendix-b-min-neg-number.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "8000000000000001",
+        "canonicalNumber": "-5e-324",
+        "requestDigest": "ab7b8bf379e41464b0e5750cbcbd9747ea2d326b5a1140c916352769663ecc85"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 4. The IEEE 754 double 8000000000000001 is the JSON number -5e-324, and no other text. Min neg number."
+    },
+    {
+      "id": "ok-018-appendix-b-max-pos-number",
+      "kind": "accept",
+      "file": "accept/ok-018-appendix-b-max-pos-number.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "7fefffffffffffff",
+        "canonicalNumber": "1.7976931348623157e+308",
+        "requestDigest": "17579ea1287f0c7ed8799e2047914a528123a4c6fb86f604b1d37aa75b09303a"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 5. The IEEE 754 double 7fefffffffffffff is the JSON number 1.7976931348623157e+308, and no other text. Max pos number."
+    },
+    {
+      "id": "ok-019-appendix-b-max-neg-number",
+      "kind": "accept",
+      "file": "accept/ok-019-appendix-b-max-neg-number.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "ffefffffffffffff",
+        "canonicalNumber": "-1.7976931348623157e+308",
+        "requestDigest": "4044b8207dfb123bf2b3d08cdb3772e056eff9707b60fd377495c6c8128c7f28"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 6. The IEEE 754 double ffefffffffffffff is the JSON number -1.7976931348623157e+308, and no other text. Max neg number."
+    },
+    {
+      "id": "ok-020-appendix-b-max-pos-int",
+      "kind": "accept",
+      "file": "accept/ok-020-appendix-b-max-pos-int.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "4340000000000000",
+        "canonicalNumber": "9007199254740992",
+        "requestDigest": "3b0d9a238f369ef1d4cb7182e6ca467e10b5501cbab84e9c80d1d91053253504"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 7. The IEEE 754 double 4340000000000000 is the JSON number 9007199254740992, and no other text. Max pos int."
+    },
+    {
+      "id": "ok-021-appendix-b-max-neg-int",
+      "kind": "accept",
+      "file": "accept/ok-021-appendix-b-max-neg-int.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "c340000000000000",
+        "canonicalNumber": "-9007199254740992",
+        "requestDigest": "f90641db2d34a12b1031df0a732b1386073d883ef4340b20541a1c110c0ce386"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 8. The IEEE 754 double c340000000000000 is the JSON number -9007199254740992, and no other text. Max neg int."
+    },
+    {
+      "id": "ok-022-appendix-b-two-to-the-68",
+      "kind": "accept",
+      "file": "accept/ok-022-appendix-b-two-to-the-68.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "4430000000000000",
+        "canonicalNumber": "295147905179352830000",
+        "requestDigest": "57c82398dfd8be4a4ac903d1d2d01beee4c1d7179c9a5afc574bdf972646783b"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 9. The IEEE 754 double 4430000000000000 is the JSON number 295147905179352830000, and no other text. ~2**68."
+    },
+    {
+      "id": "ok-023-appendix-b-below-1e23",
+      "kind": "accept",
+      "file": "accept/ok-023-appendix-b-below-1e23.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "44b52d02c7e14af5",
+        "canonicalNumber": "9.999999999999997e+22",
+        "requestDigest": "da4897f0a6118742f26a7882cb6a8ddabef00bbb37597630d4c329bacc74e573"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 10. The IEEE 754 double 44b52d02c7e14af5 is the JSON number 9.999999999999997e+22, and no other text."
+    },
+    {
+      "id": "ok-024-appendix-b-at-1e23",
+      "kind": "accept",
+      "file": "accept/ok-024-appendix-b-at-1e23.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "44b52d02c7e14af6",
+        "canonicalNumber": "1e+23",
+        "requestDigest": "5add8f0ad0ac9f9e9fbd027279b5a7db972ab4d6219508a116d56f6db62677b3"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 11. The IEEE 754 double 44b52d02c7e14af6 is the JSON number 1e+23, and no other text."
+    },
+    {
+      "id": "ok-025-appendix-b-above-1e23",
+      "kind": "accept",
+      "file": "accept/ok-025-appendix-b-above-1e23.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "44b52d02c7e14af7",
+        "canonicalNumber": "1.0000000000000001e+23",
+        "requestDigest": "26c6ab71e1be17098d15e39e8df6e19023008270262a02f17608c3c86f0eaa8a"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 12. The IEEE 754 double 44b52d02c7e14af7 is the JSON number 1.0000000000000001e+23, and no other text."
+    },
+    {
+      "id": "ok-026-appendix-b-below-1e21",
+      "kind": "accept",
+      "file": "accept/ok-026-appendix-b-below-1e21.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "444b1ae4d6e2ef4e",
+        "canonicalNumber": "999999999999999700000",
+        "requestDigest": "87b1b35f24fc744edaa61cdc8f99025ee9c540f4579cb1695bc0be3e73abe7be"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 13. The IEEE 754 double 444b1ae4d6e2ef4e is the JSON number 999999999999999700000, and no other text."
+    },
+    {
+      "id": "ok-027-appendix-b-just-below-1e21",
+      "kind": "accept",
+      "file": "accept/ok-027-appendix-b-just-below-1e21.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "444b1ae4d6e2ef4f",
+        "canonicalNumber": "999999999999999900000",
+        "requestDigest": "23dd4ee5341464abe01689237ed41c9ab80ddd78bc418c7d3e4583c3b396d3fa"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 14. The IEEE 754 double 444b1ae4d6e2ef4f is the JSON number 999999999999999900000, and no other text."
+    },
+    {
+      "id": "ok-028-appendix-b-at-1e21",
+      "kind": "accept",
+      "file": "accept/ok-028-appendix-b-at-1e21.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "444b1ae4d6e2ef50",
+        "canonicalNumber": "1e+21",
+        "requestDigest": "776bf0d292f3767fdfca3fdc9683d0ba51886b8e6e79cd228a41bafcfa9a1a6f"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 15. The IEEE 754 double 444b1ae4d6e2ef50 is the JSON number 1e+21, and no other text."
+    },
+    {
+      "id": "ok-029-appendix-b-below-1e-6",
+      "kind": "accept",
+      "file": "accept/ok-029-appendix-b-below-1e-6.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "3eb0c6f7a0b5ed8c",
+        "canonicalNumber": "9.999999999999997e-7",
+        "requestDigest": "f1ad5ca9e0c403a896658b2c5125b3dbfb0336899ab21ca1eb6ce1c875825a3a"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 16. The IEEE 754 double 3eb0c6f7a0b5ed8c is the JSON number 9.999999999999997e-7, and no other text."
+    },
+    {
+      "id": "ok-030-appendix-b-at-1e-6",
+      "kind": "accept",
+      "file": "accept/ok-030-appendix-b-at-1e-6.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "3eb0c6f7a0b5ed8d",
+        "canonicalNumber": "0.000001",
+        "requestDigest": "bc1c982dd4e677d72ff5821cc67554e045e838a31ddc55fa0fdb1a32d5a1dce9"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 17. The IEEE 754 double 3eb0c6f7a0b5ed8d is the JSON number 0.000001, and no other text."
+    },
+    {
+      "id": "ok-031-appendix-b-ulp-minus-two",
+      "kind": "accept",
+      "file": "accept/ok-031-appendix-b-ulp-minus-two.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "41b3de4355555553",
+        "canonicalNumber": "333333333.3333332",
+        "requestDigest": "084cb94da04b9a78898f22f0728cf700df95db124a598170e72647e005efd711"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 18. The IEEE 754 double 41b3de4355555553 is the JSON number 333333333.3333332, and no other text."
+    },
+    {
+      "id": "ok-032-appendix-b-ulp-minus-one",
+      "kind": "accept",
+      "file": "accept/ok-032-appendix-b-ulp-minus-one.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "41b3de4355555554",
+        "canonicalNumber": "333333333.33333325",
+        "requestDigest": "d59eb6cb5a7ac135ef01403ecbc65a28a05fbb406d7f6af21952065613337a0f"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 19. The IEEE 754 double 41b3de4355555554 is the JSON number 333333333.33333325, and no other text."
+    },
+    {
+      "id": "ok-033-appendix-b-ulp-centre",
+      "kind": "accept",
+      "file": "accept/ok-033-appendix-b-ulp-centre.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "41b3de4355555555",
+        "canonicalNumber": "333333333.3333333",
+        "requestDigest": "ae8992f4ba3b38d67e3b504f5c0356d51bc8c5b8394a2aeea6241623003c0635"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 20. The IEEE 754 double 41b3de4355555555 is the JSON number 333333333.3333333, and no other text."
+    },
+    {
+      "id": "ok-034-appendix-b-ulp-plus-one",
+      "kind": "accept",
+      "file": "accept/ok-034-appendix-b-ulp-plus-one.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "41b3de4355555556",
+        "canonicalNumber": "333333333.3333334",
+        "requestDigest": "17bbcee02a424651437941b51c2946a9a056230709f6738643d65a0cc5aeadbe"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 21. The IEEE 754 double 41b3de4355555556 is the JSON number 333333333.3333334, and no other text."
+    },
+    {
+      "id": "ok-035-appendix-b-ulp-plus-two",
+      "kind": "accept",
+      "file": "accept/ok-035-appendix-b-ulp-plus-two.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "41b3de4355555557",
+        "canonicalNumber": "333333333.33333343",
+        "requestDigest": "3576cfe0a9f45d92dd9d4433262eb9caf14ef42f414db0db461cde7561712f65"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 22. The IEEE 754 double 41b3de4355555557 is the JSON number 333333333.33333343, and no other text."
+    },
+    {
+      "id": "ok-036-appendix-b-negative-small-fraction",
+      "kind": "accept",
+      "file": "accept/ok-036-appendix-b-negative-small-fraction.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "becbf647612f3696",
+        "canonicalNumber": "-0.0000033333333333333333",
+        "requestDigest": "f01e9ea24f5f68778c6f381bbd9d740666a34e6b9d3b9689d666d38feb79e5cc"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 23. The IEEE 754 double becbf647612f3696 is the JSON number -0.0000033333333333333333, and no other text."
+    },
+    {
+      "id": "ok-037-appendix-b-round-to-even",
+      "kind": "accept",
+      "file": "accept/ok-037-appendix-b-round-to-even.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "43143ff3c1cb0959",
+        "canonicalNumber": "1424953923781206.2",
+        "requestDigest": "00cbcfaa5fb8be8f61d91ca13788a3ef47d243f857514826109c7b0dae7096c7"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 24. The IEEE 754 double 43143ff3c1cb0959 is the JSON number 1424953923781206.2, and no other text. Round to even."
     }
   ]
 }

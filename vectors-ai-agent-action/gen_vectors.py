@@ -23,6 +23,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import struct
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PREDICATE_TYPE = "https://in-toto.io/attestation/ai-agent-action/v0.1"
@@ -90,6 +91,79 @@ def jcs_utf16(obj) -> bytes:
                 for name, value in members) + "}"
         if isinstance(node, list):
             return "[" + ",".join(enc(value) for value in node) + "]"
+        return json.dumps(node, ensure_ascii=False, separators=(",", ":"))
+    return enc(obj).encode("utf-8")
+
+
+def es6_number(value: float) -> str:
+    """ECMA-262 7.1.12.1 Number::toString, which is what RFC 8785 requires.
+
+    ``json.dumps`` writes Python's ``repr``, and the two part company on
+    values Appendix B names: 2**68 reprs as ``2.9514790517935283e+20`` where
+    ECMAScript writes ``295147905179352830000``, 1e-6 reprs as ``1e-06``
+    where ECMAScript writes ``0.000001``, and negative zero reprs as
+    ``-0.0`` where ECMAScript writes ``0``. So ``jcs`` cannot serialize the
+    Appendix B rows and a third serializer is needed, for the same reason
+    ``jcs_utf16`` exists.
+
+    The digits are not recomputed here. Python's ``repr`` already selects the
+    shortest round-tripping decimal, which is the digit string ECMAScript
+    selects too, so the only work is re-laying those digits out under the
+    ECMAScript exponent rules.
+    """
+    if value != value or value in (float("inf"), float("-inf")):
+        raise ValueError("NaN and Infinity are not JSON numbers")
+    if value == 0:
+        return "0"                    # both zeros, which is Appendix B row 2
+    if value < 0:
+        return "-" + es6_number(-value)
+
+    # Recover the digit string s and the exponent n for which the value is
+    # 0.s * 10**n, which is how ECMA-262 7.1.12.1 states its cases.
+    mantissa, _, exponent = repr(value).partition("e")
+    n = int(exponent) if exponent else 0
+    whole, _, frac = mantissa.partition(".")
+    if whole == "0":
+        stripped = frac.lstrip("0")
+        n -= len(frac) - len(stripped)
+        digits = stripped
+    else:
+        digits = whole + frac
+        n += len(whole)
+    digits = digits.rstrip("0") or "0"
+    k = len(digits)
+
+    if k <= n <= 21:
+        return digits + "0" * (n - k)
+    if 0 < n <= 21:
+        return digits[:n] + "." + digits[n:]
+    if -6 < n <= 0:
+        return "0." + "0" * -n + digits
+    sign = "+" if n - 1 >= 0 else "-"
+    tail = f"e{sign}{abs(n - 1)}"
+    return (digits if k == 1 else digits[0] + "." + digits[1:]) + tail
+
+
+def jcs_es6(obj) -> bytes:
+    """RFC 8785 with numbers written per ECMA-262, not per Python.
+
+    ``jcs`` above is correct for every value the rest of this suite uses,
+    because those are safe integers and floats that happen to round-trip to
+    the same text. It is wrong for the Appendix B rows, so those vectors
+    declare the bytes this function produces.
+    """
+    def enc(node) -> str:
+        if isinstance(node, dict):
+            return "{" + ",".join(
+                json.dumps(name, ensure_ascii=False) + ":" + enc(value)
+                for name, value in sorted(node.items(),
+                                          key=lambda kv: kv[0].encode("utf-16-be"))) + "}"
+        if isinstance(node, list):
+            return "[" + ",".join(enc(value) for value in node) + "]"
+        if isinstance(node, float):
+            return es6_number(node)
+        if isinstance(node, bool) or node is None or isinstance(node, int):
+            return json.dumps(node, ensure_ascii=False)
         return json.dumps(node, ensure_ascii=False, separators=(",", ":"))
     return enc(obj).encode("utf-8")
 
@@ -197,6 +271,91 @@ ASTRAL_NAME = "\U0001F680"
 REQ = {"owner": "example", "repo": "widgets", "title": "Bump dependency"}
 RESP_OK = {"content": [{"type": "text", "text": "opened #41"}]}
 ERR = {"code": -32000, "message": "permission denied"}
+
+
+# ---------------------------------------------------------------------------
+# RFC 8785 Appendix B, Table 1: every row that has a JSON representation.
+#
+# Transcribed from the RFC's own text, never from a library's output. The two
+# rows the table leaves blank, 7fffffffffffffff and 7ff0000000000000, are NaN
+# and Infinity; section 3.2.2.3 requires a compliant implementation to refuse
+# both, so they are not serialization samples and are not vectors here.
+#
+# The IEEE column is the input. Driving these from the bit pattern rather than
+# from a decimal literal removes the one place a transcription error could hide,
+# because a literal has to be parsed back to a double before it means anything
+# and the parse is the step under test.
+#
+# (IEEE 754 hex, JSON representation, slug, the RFC's own comment)
+# ---------------------------------------------------------------------------
+APPENDIX_B: list[tuple[str, str, str, str]] = [
+    ("0000000000000000", "0", "zero", "Zero"),
+    ("8000000000000000", "0", "minus-zero", "Minus zero"),
+    ("0000000000000001", "5e-324", "min-pos-number", "Min pos number"),
+    ("8000000000000001", "-5e-324", "min-neg-number", "Min neg number"),
+    ("7fefffffffffffff", "1.7976931348623157e+308", "max-pos-number",
+     "Max pos number"),
+    ("ffefffffffffffff", "-1.7976931348623157e+308", "max-neg-number",
+     "Max neg number"),
+    ("4340000000000000", "9007199254740992", "max-pos-int", "Max pos int"),
+    ("c340000000000000", "-9007199254740992", "max-neg-int", "Max neg int"),
+    ("4430000000000000", "295147905179352830000", "two-to-the-68", "~2**68"),
+    ("44b52d02c7e14af5", "9.999999999999997e+22", "below-1e23", ""),
+    ("44b52d02c7e14af6", "1e+23", "at-1e23", ""),
+    ("44b52d02c7e14af7", "1.0000000000000001e+23", "above-1e23", ""),
+    ("444b1ae4d6e2ef4e", "999999999999999700000", "below-1e21", ""),
+    ("444b1ae4d6e2ef4f", "999999999999999900000", "just-below-1e21", ""),
+    ("444b1ae4d6e2ef50", "1e+21", "at-1e21", ""),
+    ("3eb0c6f7a0b5ed8c", "9.999999999999997e-7", "below-1e-6", ""),
+    ("3eb0c6f7a0b5ed8d", "0.000001", "at-1e-6", ""),
+    ("41b3de4355555553", "333333333.3333332", "ulp-minus-two", ""),
+    ("41b3de4355555554", "333333333.33333325", "ulp-minus-one", ""),
+    ("41b3de4355555555", "333333333.3333333", "ulp-centre", ""),
+    ("41b3de4355555556", "333333333.3333334", "ulp-plus-one", ""),
+    ("41b3de4355555557", "333333333.33333343", "ulp-plus-two", ""),
+    ("becbf647612f3696", "-0.0000033333333333333333", "negative-small-fraction",
+     ""),
+    ("43143ff3c1cb0959", "1424953923781206.2", "round-to-even", "Round to even"),
+]
+
+
+def build_appendix_b() -> None:
+    """One accept vector per Appendix B row with a JSON representation.
+
+    The number lives in a content payload rather than in a signed record
+    field, because ok-007 and bad-108 place it there: the safe-integer profile
+    binds the fields the chain hash covers, and payloads are JCS and admit
+    floats. So the statement carries the digest of the canonical payload, and
+    the manifest carries the IEEE input and the canonical number the digest is
+    over, which is where a reader checks the row.
+
+    Rows 1 and 2 are the two IEEE patterns that share one JSON representation,
+    so their payload digests are equal by construction. Each statement names
+    its own bit pattern in the tool name, which keeps the two vectors distinct
+    and makes the shared digest a declared fact rather than a collision.
+    """
+    for index, (hexpat, want, slug, comment) in enumerate(APPENDIX_B, start=1):
+        value = struct.unpack(">d", bytes.fromhex(hexpat))[0]
+        canonical = jcs_es6({"value": value})
+        expected_bytes = ('{"value":' + want + "}").encode("utf-8")
+        assert canonical == expected_bytes, (
+            f"Appendix B row {index} ({hexpat}) canonicalizes to "
+            f"{canonical!r}, and the RFC says {expected_bytes!r}")
+        content = {"request": {"sha256": h(canonical)},
+                   "response": {"sha256": h(jcs(RESP_OK))}}
+        note = f" {comment}." if comment else ""
+        add(f"ok-{13 + index:03d}-appendix-b-{slug}", "accept",
+            tool_call("genesis", tool=f"canonicalize_{hexpat}",
+                      content=content),
+            PARENT_HASH, ["aia-c-16"],
+            {"verdict": "valid",
+             "ieee754": hexpat,
+             "canonicalNumber": want,
+             "requestDigest": h(canonical)},
+            None,
+            f"number serialization: RFC 8785 Appendix B row {index}. The IEEE "
+            f"754 double {hexpat} is the JSON number {want}, and no other "
+            f"text.{note}")
 
 
 # ---------------------------------------------------------------------------
@@ -556,6 +715,7 @@ def build_reject() -> None:
 
 def main() -> None:
     build_accept()
+    build_appendix_b()
     build_reject()
     counts = {"accept": sum(1 for m in MANIFEST if m["kind"] == "accept"),
               "reject": sum(1 for m in MANIFEST if m["kind"] == "reject")}

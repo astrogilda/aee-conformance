@@ -60,6 +60,13 @@ STAGED = (
     PRIOR,
     "vectors/CHANGES.md",
     "vectors/coverage-unforced.json",
+    # The provenance table reads the vendor pin for the repository and ref the
+    # vendored commit is fetchable from. Unstaged, every case that renders the
+    # document died on a missing file and reported whatever exit code that
+    # produced, which is a rig fault wearing the costume of the case's own
+    # verdict: the absent-prior case failed saying the prior record had not
+    # stopped the run, when the run had in fact stopped one file earlier.
+    "spec/VENDOR-PIN.json",
 )
 
 

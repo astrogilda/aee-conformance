@@ -121,6 +121,35 @@ under suiteRevision 17.
   each, recomputing from the record's own stored bytes (no re-serialization false alarms).
 - [ ] **Citable dataset DOI** — mint a Zenodo (or equivalent) DOI for a tagged release of
   the conformance-vector corpus so it can be cited in papers and reports.
+- [ ] **Cut the vendored-revision tag so the pin stops being merely currently-true**
+  (OPERATOR, remote write — deliberately not done here). `spec/VENDOR-PIN.json` now names
+  `astrogilda/attestation` at branch `predicate/adversarial-execution-evidence`, which
+  contains the pinned commit today. A branch head moves, and this one already has: the
+  branch tip was `0dbe10b` when the corpus was built and is `a4cb887` now, with a third
+  commit sitting unpushed locally. A tag pointing at the commit does not move. Two
+  commands, run against a checkout of the fork:
+
+  ```
+  git -C ~/Documents/git-clones/attestation tag -a vendored/aee-0dbe10bc \
+      0dbe10bcc959b63dc42370a5db09812c9476f59a \
+      -m "Specification revision the aee-conformance corpus certifies against"
+  git -C ~/Documents/git-clones/attestation push fork vendored/aee-0dbe10bc
+  ```
+
+  Then re-derive the pin, which flips `refKind` from `branch` to `tag`, and regenerate the
+  two documents that quote it:
+
+  ```
+  python3 scripts/vendor-spec.py --from ~/Documents/git-clones/attestation \
+      --ref vendored/aee-0dbe10bc --remote fork
+  python3 vectors/reject/gen_invalid_vectors.py
+  python3 scripts/condition-forcing-gate.py
+  ```
+
+  That whole sequence was dry-run against a throwaway clone of the fork before being
+  written down, which is how the annotated-tag peel bug in `vendor-spec.py` was found: the
+  pin recorded the tag OBJECT's sha as `commit` and the digest check passed anyway. Fixed
+  before this was committed, so the commands above are the corrected ones.
 
 ## Supply-chain posture
 

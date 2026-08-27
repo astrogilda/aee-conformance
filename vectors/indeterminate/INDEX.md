@@ -5,7 +5,8 @@ layout. It carries the statements on which the specification settles
 the VERDICT and does not settle the CONDITION.
 
 Ground truth: `spec/predicates/adversarial-execution-evidence.md` @
-`0dbe10b` (in-toto/attestation PR #570 branch),
+`0dbe10b`, reviewed as in-toto/attestation PR #570 and fetchable from
+astrogilda/attestation at branch `predicate/adversarial-execution-evidence`,
 version 0.7.0, type URI
 `https://in-toto.io/attestation/adversarial-execution-evidence/v0.7`.
 

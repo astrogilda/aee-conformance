@@ -27,7 +27,8 @@ all.**
 |---|---|
 | suite | `adversarial-execution-evidence-conformance` |
 | corpus | suiteRevision 27, 258 vectors (60 accept, 196 reject, 2 indeterminate) |
-| vendored specification | upstream commit `0dbe10bcc959b63dc42370a5db09812c9476f59a` |
+| vendored specification | commit `0dbe10bcc959b63dc42370a5db09812c9476f59a`, fetchable from `astrogilda/attestation` at branch `predicate/adversarial-execution-evidence` |
+| reviewed at | `in-toto/attestation#570` |
 | `vectors/MANIFEST.json` | `sha256:9799857fdb5e5daf1032804030560e71157a32c2202a5b61283001abafff56fb` |
 | `docs/FORCING-BASELINE.json` | `sha256:83b8c3b17cd1ba228319942cbb50dabf3db8da2e119317522d87fc79f11e66ab` |
 | campaign | 754 single-site weakenings: 425 KILLED, 27 SILENT, 297 DEAD, 5 INCONCLUSIVE |

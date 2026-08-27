@@ -111,6 +111,7 @@ from typing import Any, NoReturn
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MANIFEST = "vectors/MANIFEST.json"
 BASELINE = "docs/FORCING-BASELINE.json"
+VENDOR_PIN = "spec/VENDOR-PIN.json"
 REGISTRY = "vectors/reject/INDEX.md"
 CHANGES = "vectors/CHANGES.md"
 CODES_GO = "aee/codes.go"
@@ -624,9 +625,37 @@ def suite_revision() -> int:
 
 
 def provenance_block(manifest: dict[str, Any], baseline: dict[str, Any]) -> list[str]:
+    """The table a reproducer works from.
+
+    It used to say "upstream commit <sha>" and name no repository, next to a
+    `tracksUpstream` of `in-toto/attestation#570`, which reads as an
+    instruction to fetch the commit from there. It is not there: the pull
+    request is opened from a fork branch, and a plain clone of the review venue
+    resolves neither the commit nor the bytes. So the row now names the
+    repository and ref the commit is actually fetchable from, read from
+    ``spec/VENDOR-PIN.json``, which is where that fact is derived, and the
+    review venue gets a row of its own instead of being inferred from adjacency.
+    """
     counts = manifest["counts"]
     tally = baseline["counts"]
     total = len(manifest["vectors"])
+    pin_path = p(VENDOR_PIN)
+    if not pin_path.is_file():
+        die(
+            f"{VENDOR_PIN} is absent, so this table cannot say where the "
+            "vendored commit is fetchable from. Refusing rather than raising: "
+            "a traceback here exits 1, which is this gate's code for a stale "
+            "document, and a caller cannot tell an unreadable tree from a "
+            "wrong one."
+        )
+    pin = json.loads(pin_path.read_text("utf-8"))
+    missing = [k for k in ("commitRepo", "ref", "refKind") if not pin.get(k)]
+    if missing:
+        die(
+            f"{VENDOR_PIN} carries no {', '.join(missing)}, so this table "
+            "cannot say where the vendored commit is fetchable from. Re-run "
+            "scripts/vendor-spec.py, which derives all three."
+        )
     return [
         "| what | value |",
         "|---|---|",
@@ -634,7 +663,10 @@ def provenance_block(manifest: dict[str, Any], baseline: dict[str, Any]) -> list
         f"| corpus | suiteRevision {suite_revision()}, {total} vectors "
         f"({counts['accept']} accept, {counts['reject']} reject, "
         f"{counts['indeterminate']} indeterminate) |",
-        f"| vendored specification | upstream commit `{manifest['specUpstreamCommit']}` |",
+        f"| vendored specification | commit `{manifest['specUpstreamCommit']}`, "
+        f"fetchable from `{pin['commitRepo']}` at {pin['refKind']} "
+        f"`{pin['ref']}` |",
+        f"| reviewed at | `{manifest['tracksUpstream']}` |",
         f"| `vectors/MANIFEST.json` | `sha256:{digest(p(MANIFEST))}` |",
         f"| `docs/FORCING-BASELINE.json` | `sha256:{digest(p(BASELINE))}` |",
         f"| campaign | {sum(tally.values())} single-site weakenings: "

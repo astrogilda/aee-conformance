@@ -23,8 +23,23 @@ copies the bytes, and writes ``spec/VENDOR-PIN.json``; the drift gate then
 checks the vendored bytes against that record on every run, and the README
 states no constant of its own.
 
+The pin also has to say WHERE, and for a while it did not. It named
+``in-toto/attestation``, which is where the pull request is reviewed and not
+where the commit can be fetched: the PR is opened from a fork branch, and a
+plain clone of the review venue resolves neither the commit nor its bytes. One
+field was answering two questions and only the first answer was true. So the
+record now carries ``commitRepo``, ``ref`` and ``refKind`` alongside the review
+venue, all three derived from the checkout's own remotes, and this script
+refuses to write a pin whose commit is not reachable from the ref it names.
+
+``refKind`` is the honest part. A branch head moves, so a pin naming one is
+currently-true rather than permanent; a tag does not. See the vendored-revision
+tag row in ``TODO.md`` for the flip.
+
 Usage:
     python3 scripts/vendor-spec.py --from ~/path/to/attestation [--ref HEAD]
+    python3 scripts/vendor-spec.py --from ... --ref <tag> --remote <remote>
+    python3 scripts/vendor-spec.py --from ... --ref <branch> --at <commit>
 
 Re-vendoring is a normative change. Regenerate the corpus and bump
 ``suiteRevision`` in vectors/CHANGES.md afterwards; the drift gate fails until
@@ -49,6 +64,17 @@ PIN_PATH = REPO_ROOT / "spec" / "VENDOR-PIN.json"
 # The upstream pull request this predicate is proposed in. The commit is
 # resolved from the checkout; only the PR identity is a constant, and it is a
 # constant because a new PR number is a new vendoring relationship, not a drift.
+#
+# THIS NAMES THE REVIEW VENUE AND NOT THE OBJECT STORE, and the difference is
+# the whole reason ``commitRepo`` exists below. ``vectors/gen_manifest.py``
+# builds the citation ``in-toto/attestation#570`` out of these two constants,
+# which is correct: that is where the pull request is read and reviewed. It is
+# not where the pinned commit can be fetched. The commit lives on the branch
+# the pull request is opened FROM, in a fork, and a plain clone of the review
+# venue does not carry it -- ``git clone https://github.com/in-toto/attestation
+# && git cat-file -t <pin>`` exits 128. One field was answering both questions
+# and only the first answer was true, so a reproducer following the pin landed
+# on a repository the commit is not in.
 UPSTREAM_REPO = "in-toto/attestation"
 UPSTREAM_PR = 570
 
@@ -84,6 +110,93 @@ def git(checkout: Path, *args: str) -> str:
     return proc.stdout.strip()
 
 
+def owner_repo(url: str) -> str:
+    """`owner/name` from a GitHub remote URL, in either spelling."""
+    trimmed = url.strip().removesuffix(".git")
+    if trimmed.startswith("git@"):
+        trimmed = trimmed.partition(":")[2]
+    else:
+        trimmed = re.sub(r"^[a-z+]+://", "", trimmed).partition("/")[2]
+    parts = [p for p in trimmed.split("/") if p]
+    if len(parts) < 2:
+        raise SystemExit(f"FAIL: cannot read owner/name out of remote URL {url!r}")
+    return "/".join(parts[-2:])
+
+
+def locate(checkout: Path, ref: str, commit: str, remote_hint: str | None
+           ) -> tuple[str, str, str]:
+    """Where the pinned commit can actually be fetched from.
+
+    Returns `(commitRepo, ref, refKind)`. Every part is read out of the
+    checkout; nothing here is typed, for the same reason the commit is not.
+
+    A branch is resolved through its tracking ref, so the answer is the remote
+    git itself would fetch from. A tag has no tracking ref and needs
+    ``--remote``. Anything else REFUSES: a pin naming the wrong repository is
+    exactly the failure this function was added to stop, and guessing a remote
+    would reintroduce it with the guess hidden one level down.
+    """
+    proc = subprocess.run(
+        ["git", "-C", str(checkout), "rev-parse", "--verify", "--quiet",
+         f"refs/tags/{ref}"],
+        capture_output=True, text=True, check=False,
+    )
+    if proc.returncode == 0:
+        if not remote_hint:
+            raise SystemExit(
+                f"FAIL: {ref} is a tag, which carries no tracking ref, so the "
+                "repository publishing it cannot be derived. Re-run with "
+                "--remote naming the remote it was fetched from."
+            )
+        verify_ref = f"refs/tags/{ref}"
+        repo = owner_repo(git(checkout, "remote", "get-url", remote_hint))
+        kind, name = "tag", ref
+    else:
+        # A remote-tracking ref names its own remote, and it is what the help
+        # text tells the operator to pass, so it is resolved directly. Asking
+        # for ITS upstream fails, which is how the first run of this function
+        # rejected exactly the ref the documentation recommends.
+        remote_ref = subprocess.run(
+            ["git", "-C", str(checkout), "rev-parse", "--verify", "--quiet",
+             f"refs/remotes/{ref}"],
+            capture_output=True, text=True, check=False,
+        )
+        if remote_ref.returncode == 0:
+            remote, _, name = ref.partition("/")
+        else:
+            tracking = subprocess.run(
+                ["git", "-C", str(checkout), "rev-parse", "--abbrev-ref",
+                 f"{ref}@{{upstream}}"],
+                capture_output=True, text=True, check=False,
+            )
+            if tracking.returncode != 0 or "/" not in tracking.stdout.strip():
+                raise SystemExit(
+                    f"FAIL: cannot derive which repository publishes {ref!r}. "
+                    "It is not a tag, not a remote-tracking ref, and has no "
+                    "tracking ref of its own, so the pin would have to name a "
+                    "repository nobody checked. Give --ref a branch that "
+                    "tracks a remote, a remote-tracking ref, or a tag plus "
+                    "--remote."
+                )
+            remote, _, name = tracking.stdout.strip().partition("/")
+        verify_ref = f"refs/remotes/{remote}/{name}"
+        repo = owner_repo(git(checkout, "remote", "get-url", remote))
+        kind = "branch"
+
+    contains = subprocess.run(
+        ["git", "-C", str(checkout), "merge-base", "--is-ancestor", commit,
+         verify_ref],
+        capture_output=True, text=True, check=False,
+    )
+    if contains.returncode != 0:
+        raise SystemExit(
+            f"FAIL: {commit[:12]} is not reachable from {verify_ref} in "
+            f"{checkout}, so a reproducer fetching {name} from {repo} would "
+            "not get the bytes this pin describes."
+        )
+    return repo, name, kind
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument(
@@ -99,14 +212,34 @@ def main() -> int:
         help="ref to vendor from (default HEAD; pass the remote ref to avoid "
         "vendoring from a stale local clone)",
     )
+    ap.add_argument(
+        "--remote",
+        default=None,
+        help="remote publishing --ref, required only when --ref is a tag, "
+        "which has no tracking ref to derive it from",
+    )
+    ap.add_argument(
+        "--at",
+        default=None,
+        help="commit to vendor, when it is not the tip of --ref. The pin then "
+        "names --ref as the ref a reproducer fetches and --at as the commit "
+        "inside it; --ref must still contain it. Defaults to the tip of --ref",
+    )
     args = ap.parse_args()
 
     checkout: Path = args.checkout.expanduser().resolve()
     if not (checkout / ".git").exists():
         raise SystemExit(f"FAIL: {checkout} is not a git checkout")
 
-    commit = git(checkout, "rev-parse", args.ref)
-    branch = git(checkout, "rev-parse", "--abbrev-ref", args.ref)
+    # Peeled to a commit. `rev-parse` on an ANNOTATED tag returns the tag
+    # OBJECT's sha, and `git show <tagobj>:<path>` dereferences it happily, so
+    # the digest check downstream still passed while the pin recorded an id
+    # that is not a commit and that `git log` will not show as one. Caught by
+    # dry-running the tag the operator is about to cut.
+    commit = git(checkout, "rev-parse", f"{args.at or args.ref}^{{commit}}")
+    commit_repo, ref_name, ref_kind = locate(
+        checkout, args.ref, commit, args.remote
+    )
 
     # Read the bytes from the ref itself rather than the working tree, so an
     # uncommitted local edit can never be vendored under a commit that does not
@@ -133,7 +266,9 @@ def main() -> int:
             {
                 "upstreamRepo": UPSTREAM_REPO,
                 "upstreamPullRequest": UPSTREAM_PR,
-                "ref": branch,
+                "commitRepo": commit_repo,
+                "ref": ref_name,
+                "refKind": ref_kind,
                 "commit": commit,
                 "specPath": SPEC_REL,
                 "specDigest": digest,

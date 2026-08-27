@@ -1,7 +1,9 @@
 {
   "upstreamRepo": "in-toto/attestation",
   "upstreamPullRequest": 570,
-  "ref": "",
+  "commitRepo": "astrogilda/attestation",
+  "ref": "predicate/adversarial-execution-evidence",
+  "refKind": "branch",
   "commit": "0dbe10bcc959b63dc42370a5db09812c9476f59a",
   "specPath": "spec/predicates/adversarial-execution-evidence.md",
   "specDigest": "759d2383e5da36fa509dc335e6159a20b87641b25ebbadcf1676c55d75ffd8b0"

@@ -4877,8 +4877,8 @@ COND = {
 }
 
 
-def vendored_commit() -> str:
-    """The upstream commit the vendored spec came from, read from the pin.
+def vendor_pin() -> dict[str, object]:
+    """The vendoring record, read from the pin rather than typed.
 
     Typed at vendor time, this constant went stale the first time the upstream
     branch moved and the INDEX then named a revision the vectors were not built
@@ -4889,7 +4889,35 @@ def vendored_commit() -> str:
         os.path.join(OUT, "..", "..", "spec", "VENDOR-PIN.json")
     )
     with open(pin_path, encoding="utf-8") as f:
-        return str(json.load(f)["commit"])[:7]
+        return dict(json.load(f))
+
+
+def vendored_commit() -> str:
+    return str(vendor_pin()["commit"])[:7]
+
+
+def vendored_provenance() -> list[str]:
+    """Where a reader fetches the vendored revision from, as wrapped lines.
+
+    This line used to read "<sha> (in-toto/attestation PR #570 branch)", which
+    names the review venue and reads as the place to fetch. The pull request is
+    opened from a fork branch, and the commit is not in a clone of the venue at
+    all, so a reader following the line landed nowhere. Both facts are now
+    stated separately and both are read from the pin.
+    """
+    pin = vendor_pin()
+    for key in ("commitRepo", "ref", "refKind"):
+        if not pin.get(key):
+            raise SystemExit(
+                f"spec/VENDOR-PIN.json carries no {key}, so the INDEX cannot "
+                "say where the vendored revision is fetchable from. Re-run "
+                "scripts/vendor-spec.py, which derives it."
+            )
+    return [
+        f"`{str(pin['commit'])[:7]}`, reviewed as {pin['upstreamRepo']} PR "
+        f"#{pin['upstreamPullRequest']} and fetchable from",
+        f"{pin['commitRepo']} at {pin['refKind']} `{pin['ref']}`,",
+    ]
 
 
 def write_index() -> None:
@@ -4899,7 +4927,7 @@ def write_index() -> None:
     L.append("This directory is the conformance suite's `vectors/reject/` layout.")
     L.append("")
     L.append("Ground truth: `spec/predicates/adversarial-execution-evidence.md` @")
-    L.append(f"`{vendored_commit()}` (in-toto/attestation PR #570 branch),")
+    L.extend(vendored_provenance())
     L.append("version 0.7.0, type URI")
     L.append(f"`{PREDICATE_TYPE}`.")
     L.append("The commit is read from `spec/VENDOR-PIN.json`, which")
@@ -5174,7 +5202,7 @@ def write_ind_index() -> None:
     L.append("the VERDICT and does not settle the CONDITION.")
     L.append("")
     L.append("Ground truth: `spec/predicates/adversarial-execution-evidence.md` @")
-    L.append(f"`{vendored_commit()}` (in-toto/attestation PR #570 branch),")
+    L.extend(vendored_provenance())
     L.append("version 0.7.0, type URI")
     L.append(f"`{PREDICATE_TYPE}`.")
     L.append("")

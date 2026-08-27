@@ -5839,7 +5839,7 @@
         "codes": [
           "record-undecodable",
           "payload-not-canonical",
-          "caught-row-uncovered",
+          "reconstructed-row-uncovered",
           "observed-set-mismatch"
         ],
         "primaryCode": "record-undecodable",

@@ -28,9 +28,9 @@ all.**
 | suite | `adversarial-execution-evidence-conformance` |
 | corpus | suiteRevision 27, 258 vectors (60 accept, 196 reject, 2 indeterminate) |
 | vendored specification | upstream commit `0dbe10bcc959b63dc42370a5db09812c9476f59a` |
-| `vectors/MANIFEST.json` | `sha256:d685aaefdfe496a372c05e39e096cf86a3176731ca273d6f9335f53e6157e21e` |
-| `docs/FORCING-BASELINE.json` | `sha256:9009ae910a7084b31f6a8edb763cfad19ded45a8dd98685e6be93630c22ba399` |
-| campaign | 754 single-site weakenings: 424 KILLED, 27 SILENT, 298 DEAD, 5 INCONCLUSIVE |
+| `vectors/MANIFEST.json` | `sha256:9799857fdb5e5daf1032804030560e71157a32c2202a5b61283001abafff56fb` |
+| `docs/FORCING-BASELINE.json` | `sha256:83b8c3b17cd1ba228319942cbb50dabf3db8da2e119317522d87fc79f11e66ab` |
+| campaign | 754 single-site weakenings: 425 KILLED, 27 SILENT, 297 DEAD, 5 INCONCLUSIVE |
 
 Every vector in the corpus is depended on by at least one recorded weakening, so no
 vector is wholly redundant and the campaign covers the corpus as it stands.

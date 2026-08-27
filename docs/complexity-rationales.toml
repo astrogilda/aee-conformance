@@ -67,3 +67,45 @@ four parents did exactly that the moment the sealed record became unconditional.
 One branch per requirement, plus the guards that skip the substrate-only half on
 an artifact-only parent.
 """
+
+["scripts/mutationdiff.py::recomputed_result"]
+complexity = 12
+rationale = """
+The carried result is defined by the specification as a minimum over three
+conditions quantified across every attackResults row, and each condition is a
+separate guarded clause on a separate member. The branch count is the rule's,
+and the function exists precisely so the one-mutation diff can tell a result
+that follows from the rows from a result somebody set. Decomposing it would
+split one specification sentence across several functions and invite the copy
+that diverges.
+"""
+
+["scripts/mutationdiff.py::_derived_marks"]
+complexity = 20
+rationale = """
+One guarded branch per derived field the projection knows about -- corpus
+digest, vocabulary digest, batch root, per-record signature, run binding,
+observed set, posture digest -- each with its own readability guard because the
+statements it runs over are deliberately malformed. The branches are
+independent and trivial; the count is the number of derived fields, not the
+depth of any structure.
+"""
+
+["scripts/mutationdiff.py::semantic_preimage"]
+complexity = 17
+rationale = """
+The mirror of _derived_marks: one guarded branch per derived field, replacing
+what the marker map allows. It is a separate function from the marker pass on
+purpose, because every derivation must be computed from the statement AS GIVEN
+before anything is replaced -- a collapse that fed another would derive a
+different binding and read every record as hand-set.
+"""
+
+["scripts/mutationdiff.py::_walk"]
+complexity = 13
+rationale = """
+Type dispatch over a JSON tree: object against object, array against array,
+scalar against scalar, plus the three structural cases that make one edit count
+once -- a member renamed, an array permuted, a subtree present on one side.
+Each branch is a few lines and none nests inside another.
+"""

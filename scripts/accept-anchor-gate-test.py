@@ -39,17 +39,18 @@ MANIFEST = REPO_ROOT / "vectors" / "MANIFEST.json"
 REJECT_INDEX = REPO_ROOT / "vectors" / "reject" / "INDEX.md"
 BASELINE = REPO_ROOT / "docs" / "ACCEPT-ANCHOR-BASELINE.json"
 CHANGES = REPO_ROOT / "vectors" / "CHANGES.md"
+EXCEPTIONS = REPO_ROOT / "docs" / "MULTI-MUTATION-VECTORS.json"
 
-Mutation = Callable[[Path, Path, Path, Path], None]
+Mutation = Callable[[Path, Path, Path, Path, Path], None]
 Case = tuple[str, Mutation, bool, tuple[str, ...]]
 
 
 def run_gate(manifest: Path, index: Path, baseline: Path,
-             changes: Path) -> tuple[int, str]:
+             changes: Path, exceptions: Path) -> tuple[int, str]:
     proc = subprocess.run(
         [sys.executable, str(GATE), "--manifest", str(manifest),
          "--reject-index", str(index), "--baseline", str(baseline),
-         "--changes", str(changes)],
+         "--changes", str(changes), "--exceptions", str(exceptions)],
         capture_output=True, text=True)
     return proc.returncode, proc.stdout + proc.stderr
 
@@ -66,11 +67,11 @@ def dump(path: Path, obj: dict[str, Any]) -> None:
 
 # --------------------------------------------------------------------- cases
 
-def untouched(_m: Path, _i: Path, _b: Path, _c: Path) -> None:
+def untouched(_m: Path, _i: Path, _b: Path, _c: Path, _x: Path) -> None:
     """The real corpus, unmodified. The one case that must pass."""
 
 
-def parent_not_shipped(_m: Path, index: Path, _b: Path, _c: Path) -> None:
+def parent_not_shipped(_m: Path, index: Path, _b: Path, _c: Path, _x: Path) -> None:
     """Repoint one reject vector at a parent no accept vector carries.
 
     This is the shape the check exists for: the refusal ships and the accepted
@@ -84,7 +85,7 @@ def parent_not_shipped(_m: Path, index: Path, _b: Path, _c: Path) -> None:
 
 
 def parent_names_a_vector_that_was_never_shipped(
-        _m: Path, index: Path, _b: Path, _c: Path) -> None:
+        _m: Path, index: Path, _b: Path, _c: Path, _x: Path) -> None:
     """Declare a parent whose number is real and whose id is not.
 
     The shape check 1 accepted for the life of this gate. A parent used to be
@@ -102,7 +103,7 @@ def parent_names_a_vector_that_was_never_shipped(
 
 
 def parent_number_with_trailing_junk(_m: Path, index: Path, _b: Path,
-                                     _c: Path) -> None:
+                                     _c: Path, _x: Path) -> None:
     """The same defect with no separator, so a prefix match cannot see it."""
     text = index.read_text(encoding="utf-8")
     text = re.sub(r"^(\| `bad-001[^|]*\|)([^|]*)\|", r"\1 ok-002xyz |",
@@ -111,7 +112,7 @@ def parent_number_with_trailing_junk(_m: Path, index: Path, _b: Path,
 
 
 def parent_given_as_the_full_id(manifest: Path, index: Path, _b: Path,
-                                _c: Path) -> None:
+                                _c: Path, _x: Path) -> None:
     """An over-reach control: the full accept id is a legitimate citation.
 
     Every row in the corpus today names its parent by number. Naming it by its
@@ -129,7 +130,7 @@ def parent_given_as_the_full_id(manifest: Path, index: Path, _b: Path,
 
 
 def index_row_for_a_refusal_nobody_ships(_m: Path, index: Path, _b: Path,
-                                         _c: Path) -> None:
+                                         _c: Path, _x: Path) -> None:
     """Add an index row naming a reject vector the manifest does not carry.
 
     Check 1 ran in one direction only: every manifest refusal had a row. A row
@@ -145,7 +146,7 @@ def index_row_for_a_refusal_nobody_ships(_m: Path, index: Path, _b: Path,
 
 
 def accept_vectors_share_a_number(manifest: Path, _i: Path, _b: Path,
-                                  _c: Path) -> None:
+                                  _c: Path, _x: Path) -> None:
     """Two accept vectors under one number, so a parent citing it names neither."""
     data = load(manifest)
     victim = next(v for v in data["vectors"]
@@ -154,7 +155,7 @@ def accept_vectors_share_a_number(manifest: Path, _i: Path, _b: Path,
     dump(manifest, data)
 
 
-def baseline_emptied(_m: Path, _i: Path, baseline: Path, _c: Path) -> None:
+def baseline_emptied(_m: Path, _i: Path, baseline: Path, _c: Path, _x: Path) -> None:
     """A baseline that has lost the key the ratchet reads.
 
     An absent baseline was already refused, on the reasoning that an empty one
@@ -167,12 +168,12 @@ def baseline_emptied(_m: Path, _i: Path, baseline: Path, _c: Path) -> None:
 
 
 def baseline_anchored_list_emptied(_m: Path, _i: Path, baseline: Path,
-                                   _c: Path) -> None:
+                                   _c: Path, _x: Path) -> None:
     """The key is there and the list under it is not."""
     dump(baseline, {"anchored": [], "unanchored": []})
 
 
-def parent_row_missing(_m: Path, index: Path, _b: Path, _c: Path) -> None:
+def parent_row_missing(_m: Path, index: Path, _b: Path, _c: Path, _x: Path) -> None:
     """Delete one reject vector's index row while it stays in the manifest."""
     kept = [ln for ln in index.read_text(encoding="utf-8").splitlines()
             if not ln.startswith("| `bad-001")]
@@ -180,7 +181,7 @@ def parent_row_missing(_m: Path, index: Path, _b: Path, _c: Path) -> None:
 
 
 def anchor_citation_dropped(manifest: Path, _i: Path, _b: Path,
-                            _c: Path) -> None:
+                            _c: Path, _x: Path) -> None:
     """Strip an anchored condition from every accepting vector that cites it.
 
     The regression the ratchet is for: the reject vector still cites the rule,
@@ -197,12 +198,12 @@ def anchor_citation_dropped(manifest: Path, _i: Path, _b: Path,
 
 
 def manifest_has_no_vectors(manifest: Path, _i: Path, _b: Path,
-                            _c: Path) -> None:
+                            _c: Path, _x: Path) -> None:
     """An input that yields nothing must fail rather than pass vacuously."""
     dump(manifest, {"vectors": []})
 
 
-def index_table_renamed(_m: Path, index: Path, _b: Path, _c: Path) -> None:
+def index_table_renamed(_m: Path, index: Path, _b: Path, _c: Path, _x: Path) -> None:
     """A parse that sees no rows reports every anchor present. Refuse it.
 
     Every row has to break, and the break is keyed on the row's SHAPE rather
@@ -222,13 +223,13 @@ def index_table_renamed(_m: Path, index: Path, _b: Path, _c: Path) -> None:
     )
 
 
-def baseline_absent(_m: Path, _i: Path, baseline: Path, _c: Path) -> None:
+def baseline_absent(_m: Path, _i: Path, baseline: Path, _c: Path, _x: Path) -> None:
     """A missing baseline is not an empty one."""
     baseline.unlink()
 
 
 def published_figure_stale(_m: Path, _i: Path, _b: Path,
-                           changes: Path) -> None:
+                           changes: Path, _x: Path) -> None:
     """Leave the prose quoting a traceability figure the corpus outgrew.
 
     The census does not read this span because it records this gate as its
@@ -256,7 +257,7 @@ def published_figure_stale(_m: Path, _i: Path, _b: Path,
 
 
 def published_sentence_reworded(_m: Path, _i: Path, _b: Path,
-                                changes: Path) -> None:
+                                changes: Path, _x: Path) -> None:
     """Reword the sentence away entirely.
 
     A claim nobody can find must fail like a stale one. Silently dropping the
@@ -267,6 +268,86 @@ def published_sentence_reworded(_m: Path, _i: Path, _b: Path,
         text.replace("reject vectors declare a parent",
                      "refusals name an origin"),
         encoding="utf-8")
+
+
+def two_mutations_from_the_declared_parent(_m: Path, index: Path, _b: Path,
+                                           _c: Path, _x: Path) -> None:
+    """Re-point one refusal at a shipped accept vector it is NOT derived from.
+
+    The defect check 4 exists for, in its purest form: the declared parent
+    ships, so check 1 is satisfied, and the child is nowhere near it. That is
+    the state the whole corpus was in -- every refusal naming a vector it
+    differed from in six to forty-one leaves -- while this gate printed OK.
+    """
+    text = index.read_text(encoding="utf-8")
+    text = re.sub(r"^(\| `bad-001[^|]*\|)([^|]*)\|", r"\1 ok-029 |",
+                  text, count=1, flags=re.M)
+    index.write_text(text, encoding="utf-8")
+
+
+def exception_that_has_stopped_being_one(_m: Path, _i: Path, _b: Path,
+                                         _c: Path, exceptions: Path) -> None:
+    """Excuse a vector that is one mutation from its parent.
+
+    A stale row is not harmless. It is a reason somebody wrote about a vector
+    that no longer needs it, sitting in a file the next reader will trust, and
+    it excuses whatever that vector becomes next.
+    """
+    data = load(exceptions)
+    data["vectors"]["bad-001-result-uppercase"] = {
+        "mutations": 2, "reason": "a row that has outlived its vector"}
+    dump(exceptions, data)
+
+
+def exception_with_no_reason(_m: Path, _i: Path, _b: Path, _c: Path,
+                             exceptions: Path) -> None:
+    """Blank one row's reason.
+
+    The allowlist-with-an-empty-reason-column defect, one level up from the
+    check itself: a file recording WHICH vectors were excused and not WHY says
+    only that somebody once decided something.
+    """
+    data = load(exceptions)
+    vid = next(iter(sorted(data["vectors"])))
+    data["vectors"][vid]["reason"] = "   "
+    dump(exceptions, data)
+
+
+def exception_for_a_vector_nobody_ships(_m: Path, _i: Path, _b: Path,
+                                        _c: Path, exceptions: Path) -> None:
+    """Excuse a vector id the corpus does not carry."""
+    data = load(exceptions)
+    data["vectors"]["bad-9999-a-vector-nobody-ships"] = {
+        "mutations": 2, "reason": "a row for a refusal nobody runs"}
+    dump(exceptions, data)
+
+
+def exception_whose_count_has_drifted(_m: Path, _i: Path, _b: Path, _c: Path,
+                                      exceptions: Path) -> None:
+    """Record a count the vector no longer measures.
+
+    An exception is a measurement with a reason attached, and a measurement
+    nobody re-takes is the shape of every stale claim this repository has spent
+    its history removing. A vector that grew a third mutation under a row
+    declaring two would otherwise be excused by the row that described it when
+    it had two.
+    """
+    data = load(exceptions)
+    vid = next(iter(sorted(data["vectors"])))
+    data["vectors"][vid]["mutations"] = 9
+    dump(exceptions, data)
+
+
+def no_exception_declaration_at_all(_m: Path, _i: Path, _b: Path, _c: Path,
+                                    exceptions: Path) -> None:
+    """Delete the declaration file.
+
+    A missing file is not an empty one. An empty one would be the claim that
+    every reject vector manages its fault in one mutation, and the check must
+    refuse to read an absence as that claim.
+    """
+    exceptions.unlink()
+
 
 
 CASES: list[Case] = [
@@ -300,11 +381,25 @@ CASES: list[Case] = [
      published_figure_stale, False, ("the measurement is",)),
     ("prose that no longer contains the sentence at all",
      published_sentence_reworded, False, ("gone or reworded",)),
+    ("a refusal two mutations from the parent it declares",
+     two_mutations_from_the_declared_parent, False,
+     ("leaves of the semantic pre-image, not one",)),
+    ("an exception for a vector that needs only one mutation",
+     exception_that_has_stopped_being_one, False,
+     ("has stopped being one",)),
+    ("an exception with no reason recorded",
+     exception_with_no_reason, False, ("with no reason",)),
+    ("an exception for a vector the corpus does not ship",
+     exception_for_a_vector_nobody_ships, False, ("excuses nothing",)),
+    ("an exception whose recorded count the vector outgrew",
+     exception_whose_count_has_drifted, False, ("and measures",)),
+    ("no multi-mutation declaration at all",
+     no_exception_declaration_at_all, False, ("does not exist",)),
 ]
 
 
 def main() -> int:
-    for path in (GATE, MANIFEST, REJECT_INDEX, BASELINE, CHANGES):
+    for path in (GATE, MANIFEST, REJECT_INDEX, BASELINE, CHANGES, EXCEPTIONS):
         if not path.is_file():
             print(f"missing input: {path}", file=sys.stderr)
             return 1
@@ -317,12 +412,15 @@ def main() -> int:
             index = root / "INDEX.md"
             baseline = root / "BASELINE.json"
             changes = root / "CHANGES.md"
+            exceptions = root / "MULTI-MUTATION-VECTORS.json"
             shutil.copy2(MANIFEST, manifest)
             shutil.copy2(REJECT_INDEX, index)
             shutil.copy2(BASELINE, baseline)
             shutil.copy2(CHANGES, changes)
-            mutate(manifest, index, baseline, changes)
-            code, output = run_gate(manifest, index, baseline, changes)
+            shutil.copy2(EXCEPTIONS, exceptions)
+            mutate(manifest, index, baseline, changes, exceptions)
+            code, output = run_gate(manifest, index, baseline, changes,
+                                    exceptions)
             passed = code == 0
             if passed != want_pass:
                 failures.append(

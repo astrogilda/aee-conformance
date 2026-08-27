@@ -1,0 +1,181 @@
+{
+  "$comment": "Reject vectors that CANNOT express their declared fault in one mutation of their declared parent, with the reason for each. Written by hand and checked by scripts/accept-anchor-gate.py, which refuses three ways: an undeclared vector whose distance is not one, a declared vector whose distance has drifted from the count recorded here, and a declared vector that now measures one -- because a row that has stopped being an exception is a claim nobody re-read. The reason column is not decoration: a row with an empty reason is refused, since an allowlist that records which vectors were excused and not why is the same defect one level up from the one this check exists to close.",
+  "vectors": {
+    "bad-1001-sealed-missing-dropcount-unreferenced": {
+      "mutations": 2,
+      "reason": "as the vector it is derived from, plus the row's seal reference moved to the healthy twin. The family exists to judge one defective record twice -- refused when a row names it, admitted when the row names its healthy sibling -- so the reference move IS the vector and it sits on top of the fault it launders"
+    },
+    "bad-1002-stillarmed-non-boolean-unreferenced": {
+      "mutations": 2,
+      "reason": "as the vector it is derived from, plus the row's seal reference moved to the healthy twin. The family exists to judge one defective record twice -- refused when a row names it, admitted when the row names its healthy sibling -- so the reference move IS the vector and it sits on top of the fault it launders"
+    },
+    "bad-1003-sealed-stillarmed-false-unreferenced": {
+      "mutations": 2,
+      "reason": "as the vector it is derived from, plus the row's seal reference moved to the healthy twin. The family exists to judge one defective record twice -- refused when a row names it, admitted when the row names its healthy sibling -- so the reference move IS the vector and it sits on top of the fault it launders"
+    },
+    "bad-1004-sealed-drops-no-bound-unreferenced": {
+      "mutations": 2,
+      "reason": "as the vector it is derived from, plus the row's seal reference moved to the healthy twin. The family exists to judge one defective record twice -- refused when a row names it, admitted when the row names its healthy sibling -- so the reference move IS the vector and it sits on top of the fault it launders"
+    },
+    "bad-1005-sealed-drops-exceed-bound-unreferenced": {
+      "mutations": 3,
+      "reason": "as the vector it is derived from, plus the row's seal reference moved to the healthy twin. The family exists to judge one defective record twice -- refused when a row names it, admitted when the row names its healthy sibling -- so the reference move IS the vector and it sits on top of the fault it launders. Three rather than two because the fault it launders is itself in the seal-constraint family and carries the healthy second seal"
+    },
+    "bad-1006-sealed-posture-mismatch-unreferenced": {
+      "mutations": 3,
+      "reason": "as the vector it is derived from, plus the row's seal reference moved to the healthy twin. The family exists to judge one defective record twice -- refused when a row names it, admitted when the row names its healthy sibling -- so the reference move IS the vector and it sits on top of the fault it launders. Three rather than two because the fault it launders is itself in the seal-constraint family and carries the healthy second seal"
+    },
+    "bad-1008-sealed-missing-stillarmed-unreferenced": {
+      "mutations": 2,
+      "reason": "as the vector it is derived from, plus the row's seal reference moved to the healthy twin. The family exists to judge one defective record twice -- refused when a row names it, admitted when the row names its healthy sibling -- so the reference move IS the vector and it sits on top of the fault it launders"
+    },
+    "bad-1009-sealed-missing-posture-unreferenced": {
+      "mutations": 2,
+      "reason": "as the vector it is derived from, plus the row's seal reference moved to the healthy twin. The family exists to judge one defective record twice -- refused when a row names it, admitted when the row names its healthy sibling -- so the reference move IS the vector and it sits on top of the fault it launders"
+    },
+    "bad-1010-sealed-method-reconstructed-unreferenced": {
+      "mutations": 2,
+      "reason": "as the vector it is derived from, plus the row's seal reference moved to the healthy twin. The family exists to judge one defective record twice -- refused when a row names it, admitted when the row names its healthy sibling -- so the reference move IS the vector and it sits on top of the fault it launders"
+    },
+    "bad-1011-sealed-negative-dropcount-unreferenced": {
+      "mutations": 3,
+      "reason": "as the vector it is derived from, plus the row's seal reference moved to the healthy twin. The family exists to judge one defective record twice -- refused when a row names it, admitted when the row names its healthy sibling -- so the reference move IS the vector and it sits on top of the fault it launders. Three rather than two because the fault it launders is itself in the seal-constraint family and carries the healthy second seal"
+    },
+    "bad-1012-sealed-missing-observedset-unreferenced": {
+      "mutations": 2,
+      "reason": "as the vector it is derived from, plus the row's seal reference moved to the healthy twin. The family exists to judge one defective record twice -- refused when a row names it, admitted when the row names its healthy sibling -- so the reference move IS the vector and it sits on top of the fault it launders"
+    },
+    "bad-1013-sealed-missing-observedattacks-unreferenced": {
+      "mutations": 2,
+      "reason": "as the vector it is derived from, plus the row's seal reference moved to the healthy twin. The family exists to judge one defective record twice -- refused when a row names it, admitted when the row names its healthy sibling -- so the reference move IS the vector and it sits on top of the fault it launders"
+    },
+    "bad-1014-sealed-observedattacks-unknown-unreferenced": {
+      "mutations": 2,
+      "reason": "as the vector it is derived from, plus the row's seal reference moved to the healthy twin. The family exists to judge one defective record twice -- refused when a row names it, admitted when the row names its healthy sibling -- so the reference move IS the vector and it sits on top of the fault it launders"
+    },
+    "bad-104-caught-refs-arming-only": {
+      "mutations": 2,
+      "reason": "a record is appended and the row that used to resolve the interception is re-pointed at it. Appending alone leaves the row covered and asserts nothing; re-pointing alone has nothing to point at"
+    },
+    "bad-105-reconstructed-refs-interception": {
+      "mutations": 2,
+      "reason": "as bad-104, on the reconstructed row: a valid interception is appended and the row is re-pointed at it, and neither half is a vector on its own"
+    },
+    "bad-407-substrate-row-no-records": {
+      "mutations": 2,
+      "reason": "removing observationRecords removes the batch root's subject with it. A statement that carries a root over no records is a different fault, already covered by bad-408"
+    },
+    "bad-410-duplicate-and-undecodable-record": {
+      "mutations": 3,
+      "reason": "the declared fault is a pair: one duplicate record and one undecodable record, appended together, to pin which of the two a rail reports first. The batch root goes with them, because a root over a record nobody can decode cannot be recomputed and so is compared as written rather than absorbed"
+    },
+    "bad-610-empty-labels-substrate": {
+      "mutations": 3,
+      "reason": "emptying the vocabulary's labels array must empty its caught array too. A caught set naming a label the vocabulary no longer lists is a different and earlier fault"
+    },
+    "bad-611-subject-no-sha256": {
+      "mutations": 2,
+      "reason": "the subject digest is not removed but replaced: the member moves from sha256 to sha512 and carries a sha512 value, because a subject with an empty digest object is a different fault"
+    },
+    "bad-709-sealed-drops-exceed-bound": {
+      "mutations": 2,
+      "reason": "the seal-constraint family carries a SECOND, healthy sealed record beside the defective one. Without it the defective seal is also the only covering record, the clean row reports clean-row-uncovered first, and the constraint under test is never reached. The extra record is a deliberate part of the construction and no differently-built vector avoids it"
+    },
+    "bad-710-sealed-posture-mismatch": {
+      "mutations": 2,
+      "reason": "the seal-constraint family carries a SECOND, healthy sealed record beside the defective one. Without it the defective seal is also the only covering record, the clean row reports clean-row-uncovered first, and the constraint under test is never reached. The extra record is a deliberate part of the construction and no differently-built vector avoids it"
+    },
+    "bad-713-only-sealed-ref-noncovering": {
+      "mutations": 2,
+      "reason": "the seal-constraint family carries a SECOND, healthy sealed record beside the defective one. Without it the defective seal is also the only covering record, the clean row reports clean-row-uncovered first, and the constraint under test is never reached. The extra record is a deliberate part of the construction and no differently-built vector avoids it"
+    },
+    "bad-718-chain-runseq-zero": {
+      "mutations": 2,
+      "reason": "a run-chain declaration is not one member. aeeChainScope and aeeRunSeq only exist together: a record carrying a sequence with no scope, or a scope with no sequence, is a different and earlier fault than the one under test"
+    },
+    "bad-720-chain-prev-not-hex": {
+      "mutations": 3,
+      "reason": "a run-chain declaration is not one member. aeeChainScope and aeeRunSeq only exist together: a record carrying a sequence with no scope, or a scope with no sequence, is a different and earlier fault than the one under test, and this one carries aeePrevRunBinding as well because a sequence past the genesis has to name what precedes it"
+    },
+    "bad-721-chain-scope-not-array": {
+      "mutations": 2,
+      "reason": "a run-chain declaration is not one member. aeeChainScope and aeeRunSeq only exist together: a record carrying a sequence with no scope, or a scope with no sequence, is a different and earlier fault than the one under test"
+    },
+    "bad-722-chain-scope-unknown-dimension": {
+      "mutations": 2,
+      "reason": "a run-chain declaration is not one member. aeeChainScope and aeeRunSeq only exist together: a record carrying a sequence with no scope, or a scope with no sequence, is a different and earlier fault than the one under test"
+    },
+    "bad-723-chain-scope-not-canonical": {
+      "mutations": 2,
+      "reason": "a run-chain declaration is not one member. aeeChainScope and aeeRunSeq only exist together: a record carrying a sequence with no scope, or a scope with no sequence, is a different and earlier fault than the one under test"
+    },
+    "bad-733-statement-lone-high-surrogate-escape": {
+      "mutations": 3,
+      "reason": "the file is hand-written bytes rather than the generator's serialization, AND it carries a vocabulary label the parent does not. The label cannot be canonicalized, so its own digest cannot be recomputed either and is compared as written. All three follow from putting one unrepresentable label in the vocabulary"
+    },
+    "bad-734-statement-lone-low-surrogate-escape": {
+      "mutations": 3,
+      "reason": "the file is hand-written bytes rather than the generator's serialization, AND it carries a vocabulary label the parent does not. The label cannot be canonicalized, so its own digest cannot be recomputed either and is compared as written. All three follow from putting one unrepresentable label in the vocabulary"
+    },
+    "bad-735-statement-reversed-surrogate-pair": {
+      "mutations": 3,
+      "reason": "the file is hand-written bytes rather than the generator's serialization, AND it carries a vocabulary label the parent does not. The label cannot be canonicalized, so its own digest cannot be recomputed either and is compared as written. All three follow from putting one unrepresentable label in the vocabulary"
+    },
+    "bad-743-statement-noncharacter-vocabulary-label": {
+      "mutations": 2,
+      "reason": "the file is hand-written bytes rather than the generator's serialization, AND it carries a vocabulary label the parent does not. Both follow from putting one noncharacter label in the vocabulary"
+    },
+    "bad-746-manifest-empty-classes": {
+      "mutations": 3,
+      "reason": "a manifest that declares no class can be named by no row, so the row and the assessed class go with it. Leaving either behind names an attack the corpus does not declare, which is bad-806's fault and not this one"
+    },
+    "bad-747-manifest-class-declares-no-attacks": {
+      "mutations": 2,
+      "reason": "a class that declares no attack can be named by no row, so the row goes with the attack id. Leaving the row behind is bad-806's fault and not this one"
+    },
+    "bad-901-sealed-negative-dropcount": {
+      "mutations": 2,
+      "reason": "the seal-constraint family carries a SECOND, healthy sealed record beside the defective one. Without it the defective seal is also the only covering record, the clean row reports clean-row-uncovered first, and the constraint under test is never reached. The extra record is a deliberate part of the construction and no differently-built vector avoids it"
+    },
+    "bad-902-sealed-posture-ne-arming": {
+      "mutations": 2,
+      "reason": "the declared mutation IS a second run-level record: an arming record pinning a posture the run never pinned, plus the row reference that makes it covering"
+    },
+    "bad-953-observed-set-drops-a-record": {
+      "mutations": 11,
+      "reason": "a deletion attack rebuilt end to end: an interception is dropped, the row that resolved it goes, the corpus manifest narrows to the attacks that remain, and the seal is left committing to the record that is gone. Every part is required for the statement to be self-consistent everywhere except at the commitment under test"
+    },
+    "bad-954-observed-set-gains-a-record": {
+      "mutations": 2,
+      "reason": "a record is appended and the row is extended to resolve it, so the seal's commitment is short by exactly the record that was added rather than by a record nobody accounts for"
+    },
+    "bad-956-seal-names-rowless-attack": {
+      "mutations": 10,
+      "reason": "the seal is re-signed naming two attacks, one row is removed, the interception it resolved is removed with it, and the corpus manifest is widened to declare the attack the seal now names. A seal naming an attack no row covers requires all four to be true at once"
+    },
+    "bad-973-pinned-clean-row": {
+      "mutations": 2,
+      "reason": "the row's attribution is raised to pinned AND the corpus gains the expectation that a pinned row is judged against. A pinned row with no corpus expectation is bad-959's fault"
+    },
+    "bad-979-artifact-only-interception-orphaned": {
+      "mutations": 4,
+      "reason": "an examination record is replaced by an interception: the kind, the method, the note and the commitment a record of that kind carries all move together, because an interception with no commitment is a different fault"
+    },
+    "bad-980-moat-drop-sole-cover": {
+      "mutations": 3,
+      "reason": "the covering record is replaced by one of a registered non-covering kind. The kind, the note and the commitment move together because a record of the new kind carries different members"
+    },
+    "bad-981-uncommitted-observation-sole-cover": {
+      "mutations": 3,
+      "reason": "as bad-980, with a record kind that carries no payload commitment at all"
+    },
+    "bad-982-pinned-assignment-spliced": {
+      "mutations": 2,
+      "reason": "the two pinned rows exchange their references. A permutation across two rows is one act and two edits, and permuting one row is the identity"
+    },
+    "bad-985-liveness-middle-channel-probe-uncaught": {
+      "mutations": 3,
+      "reason": "the middle channel's interception is deleted, and the two rows whose indices the deletion moves are re-pointed. Leaving either row alone would make it resolve a record belonging to another channel"
+    }
+  }
+}

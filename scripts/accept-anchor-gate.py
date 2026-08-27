@@ -68,6 +68,35 @@ each figure is matched against its own sentence here, and a sentence that has
 been reworded away fails as loudly as one carrying a stale value -- a claim
 nobody can find is not a claim that passed.
 
+The one-mutation check: a reject vector IS its parent plus one mutation
+-----------------------------------------------------------------------
+Check 1 establishes that the declared parent EXISTS. It never established the
+relation the sentence above claims, and under that gap the relation rotted:
+`vate-1a` differed from `vate-1d` in eleven leaves where three published
+sentences said one, and no reject vector in the corpus except that one was
+within a single leaf of the accept vector it named. The cause was one shape
+built twice -- each generator carried its own synthetic environment fixtures --
+and the cure is that the reject generator now reads the shipped accept vector.
+This check is what keeps it read.
+
+The comparison is over the SEMANTIC PRE-IMAGE, and `scripts/mutationdiff.py`
+is where the arithmetic and its reasoning live. In one line: a derived field --
+a signature, a batch root, a run binding, a digest OF material the statement
+also carries -- collapses to a token where BOTH the child and the parent agree
+with their own derivation, and is compared as written where either does not.
+So a field that moved because the mutation moved is not counted, and a field
+somebody set to a value the derivation does not produce IS the mutation and is
+counted at the member where it was set.
+
+A vector that cannot express its declared fault in one mutation is declared in
+``docs/MULTI-MUTATION-VECTORS.json`` with its count and a reason. The check
+refuses three ways rather than one: an undeclared vector whose distance is not
+one, a declared vector whose distance has drifted from the recorded count, and
+a declared vector that now measures one -- because a row that has stopped being
+an exception is a claim nobody re-read. A row carrying no reason is refused
+too: an allowlist recording which vectors were excused and not why is the same
+defect one level up from the one this check closes.
+
 Usage:
     scripts/accept-anchor-gate.py
     scripts/accept-anchor-gate.py --sync
@@ -92,6 +121,11 @@ DEFAULT_MANIFEST = REPO_ROOT / "vectors" / "MANIFEST.json"
 DEFAULT_REJECT_INDEX = REPO_ROOT / "vectors" / "reject" / "INDEX.md"
 DEFAULT_BASELINE = REPO_ROOT / "docs" / "ACCEPT-ANCHOR-BASELINE.json"
 DEFAULT_CHANGES = REPO_ROOT / "vectors" / "CHANGES.md"
+DEFAULT_EXCEPTIONS = REPO_ROOT / "docs" / "MULTI-MUTATION-VECTORS.json"
+VECTOR_ROOT = REPO_ROOT / "vectors"
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import mutationdiff  # noqa: E402
 
 # The published sentences this gate owns, and the values they must carry. The
 # patterns are anchored on the prose either side of each number so a reworded
@@ -100,6 +134,14 @@ PARENT_CLAIM = re.compile(
     r"all\s+(\d+)\s+reject\s+vectors\s+declare\s+a\s+parent")
 TRACEABILITY_CLAIM = re.compile(
     r"That\s+second\s+number\s+is\s+(\d+)\s+of\s+(\d+)\s+today,")
+
+ONE_MUTATION_CLAIM = re.compile(
+    r"\*\*(\d+)\s+of\s+the\s+(\d+)\s+reject\s+vectors\s+are\s+now\s+"
+    r"exactly\s+one\s+mutation\s+from\s+their\s+declared\s*\n?\s*"
+    r"parent")
+DECLARED_EXCEPTION_CLAIM = re.compile(
+    r"The\s+remaining\s+(\d+)\s+cannot\s+express\s+their\s+declared\s+"
+    r"fault")
 
 BASELINE_COMMENT = (
     "Which conditions the reject set cites and no accepting vector does. A "
@@ -227,6 +269,118 @@ def check_parents(manifest: dict[str, Any],
     return anchored, errors
 
 
+def read_vector(path: Path) -> tuple[Any, bytes]:
+    """(the parsed statement, the committed bytes).
+
+    A file that does not parse is returned as a sentence rather than as an
+    object, so it compares as one difference against a parent that does. Some
+    vectors are deliberately unparseable; reporting that as a structural
+    mismatch across every top-level member would count one fault six times.
+    """
+    raw = path.read_bytes()
+    try:
+        return json.loads(raw.decode("utf-8")), raw
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        return f"<the file does not parse: {type(exc).__name__}>", raw
+
+
+def load_exceptions(path: Path) -> dict[str, dict[str, Any]]:
+    """The declared multi-mutation vectors, refusing a row with no reason."""
+    if not path.is_file():
+        raise SystemExit(
+            f"no multi-mutation declaration at {path}. The file is where a "
+            "vector that cannot express its fault in one mutation says so and "
+            "why; a missing one is not an empty one, because an empty one is "
+            "the claim that every vector manages it."
+        )
+    data = json.loads(path.read_text(encoding="utf-8"))
+    rows = data.get("vectors")
+    if not isinstance(rows, dict):
+        raise SystemExit(
+            f"{path} carries no `vectors` map. A declaration file this check "
+            "reads and cannot understand would excuse nothing while printing "
+            "the same OK line it prints over a real one.")
+    for vid, row in rows.items():
+        reason = row.get("reason") if isinstance(row, dict) else None
+        if not isinstance(reason, str) or not reason.strip():
+            raise SystemExit(
+                f"{path}: {vid} is declared a multi-mutation vector with no "
+                "reason. An allowlist that records which vectors were excused "
+                "and not why is the defect this check exists to close, one "
+                "level up.")
+        if not isinstance(row.get("mutations"), int) or row["mutations"] < 2:
+            raise SystemExit(
+                f"{path}: {vid} declares {row.get('mutations')!r} mutations. "
+                "A declared exception is a vector that needs MORE than one; "
+                "anything else belongs in the corpus, not in this file.")
+    return rows
+
+
+def check_one_mutation(manifest: dict[str, Any], parents: dict[str, str],
+                       exceptions: dict[str, dict[str, Any]],
+                       root: Path) -> tuple[dict[int, int], list[str]]:
+    """(the distance distribution, the errors).
+
+    Every reject vector is diffed against the accept vector it declares, and
+    the set the refusal describes IS the set that was walked: the count is the
+    length of the path list and the paths printed are its members. A message
+    naming a comparison it did not make is the shape of defect the whole check
+    is here to remove.
+    """
+    keys = mutationdiff.suite_public_keys()
+    accepts, errors = accept_index(manifest)
+    files = {str(v["id"]): str(v["file"]) for v in manifest["vectors"]}
+    distribution: dict[int, int] = {}
+    seen: set[str] = set()
+
+    for vid in sorted(v["id"] for v in manifest["vectors"]
+                      if v["kind"] == "reject"):
+        declared = parents.get(vid)
+        if declared is None:
+            continue  # already reported by check 1
+        parent_id = accepts.get(declared, declared)
+        if parent_id not in files:
+            continue  # already reported by check 1
+        child, child_bytes = read_vector(root / files[vid])
+        parent, parent_bytes = read_vector(root / files[parent_id])
+        paths = mutationdiff.mutation_paths(parent, child, keys,
+                                            parent_bytes, child_bytes)
+        count = len(paths)
+        distribution[count] = distribution.get(count, 0) + 1
+        declaration = exceptions.get(vid)
+        if declaration is not None:
+            seen.add(vid)
+            expected = declaration["mutations"]
+            if count == 1:
+                errors.append(
+                    f"{vid} is declared a multi-mutation vector needing "
+                    f"{expected}, and it differs from {parent_id} in exactly "
+                    "one leaf. Remove the row: an exception that has stopped "
+                    "being one is a reason nobody re-read")
+            elif count != expected:
+                errors.append(
+                    f"{vid} is declared as {expected} mutations from "
+                    f"{parent_id} and measures {count}: "
+                    + ", ".join(paths))
+            continue
+        if count != 1:
+            errors.append(
+                f"{vid} differs from its declared parent {parent_id} in "
+                f"{count} leaves of the semantic pre-image, not one: "
+                + ", ".join(paths)
+                + ". A reject vector is a fully valid parent statement plus "
+                "exactly one mutation. Either build it from that parent with "
+                "one edit, or declare it in docs/MULTI-MUTATION-VECTORS.json "
+                "with the reason it cannot be built that way")
+
+    for vid in sorted(set(exceptions) - seen):
+        errors.append(
+            f"the multi-mutation declaration names {vid}, which this "
+            "corpus does not ship as a reject vector with a resolvable "
+            "parent. A row excusing a vector nobody runs excuses nothing")
+    return distribution, errors
+
+
 def condition_sides(manifest: dict[str, Any]) -> tuple[set[str], set[str]]:
     """(cited by a reject vector, cited by an accepting vector)."""
     rejected: set[str] = set()
@@ -276,6 +430,40 @@ def load_baseline(path: Path, allow_absent: bool) -> dict[str, Any]:
             "written to prevent, one file to the left. Regenerate with --sync."
         )
     return data
+
+
+def check_published_relation(changes: Path, exact: int, compared: int,
+                             declared: int) -> list[str]:
+    """The prose quoting the one-mutation figures still quotes the measured ones.
+
+    Same reasoning as check 3, one revision later: the count census records this
+    gate as the owner of these numbers, and an owner that computes a figure and
+    never reads the sentence quoting it is not an owner.
+    """
+    text = changes.read_text(encoding="utf-8")
+    errors: list[str] = []
+    found = ONE_MUTATION_CLAIM.search(text)
+    if found is None:
+        errors.append(
+            f"{changes}: the sentence publishing how many reject vectors are "
+            "one mutation from their declared parent is gone or reworded, and "
+            "the count census skips the span because it records this gate as "
+            "its owner. Restore the sentence or move the delegation")
+    elif (int(found.group(1)), int(found.group(2))) != (exact, compared):
+        errors.append(
+            f"{changes}: publishes {found.group(1)} of {found.group(2)} reject "
+            f"vectors one mutation from their parent; the measurement is "
+            f"{exact} of {compared}")
+    found = DECLARED_EXCEPTION_CLAIM.search(text)
+    if found is None:
+        errors.append(
+            f"{changes}: the sentence publishing how many vectors are declared "
+            "to need more than one mutation is gone or reworded")
+    elif int(found.group(1)) != declared:
+        errors.append(
+            f"{changes}: publishes {found.group(1)} declared multi-mutation "
+            f"vectors; the declaration file carries {declared}")
+    return errors
 
 
 def check_published(changes: Path, reject_count: int, unanchored: int,
@@ -345,11 +533,16 @@ def main() -> int:
     ap.add_argument("--baseline", type=Path, default=DEFAULT_BASELINE)
     ap.add_argument("--changes", type=Path, default=DEFAULT_CHANGES,
                     help="the document publishing these figures in prose")
+    ap.add_argument("--exceptions", type=Path, default=DEFAULT_EXCEPTIONS,
+                    help="the vectors declared to need more than one mutation")
+    ap.add_argument("--vector-root", type=Path, default=VECTOR_ROOT,
+                    help="the directory the manifest's file paths are under")
     ap.add_argument("--sync", action="store_true",
                     help="rewrite the baseline from the measurement")
     args = ap.parse_args()
 
-    for path in (args.manifest, args.reject_index, args.changes):
+    for path in (args.manifest, args.reject_index, args.changes,
+                 args.exceptions):
         if not path.is_file():
             print(f"FAIL: {path} does not exist", file=sys.stderr)
             return 1
@@ -361,6 +554,23 @@ def main() -> int:
     reject_count = sum(1 for v in manifest["vectors"] if v["kind"] == "reject")
     print(f"check 1: {anchored_parents} of {reject_count} reject vectors "
           "declare a parent that ships as an accept vector")
+
+    exceptions = load_exceptions(args.exceptions)
+    distribution, mutation_errors = check_one_mutation(
+        manifest, parents, exceptions, args.vector_root)
+    errors += mutation_errors
+    exact = distribution.get(1, 0)
+    compared = sum(distribution.values())
+    print(f"one-mutation check: {exact} of {compared} reject vectors differ "
+          f"from their "
+          f"declared parent in exactly one leaf of the semantic pre-image; "
+          f"{len(exceptions)} are declared to need more, with a reason each")
+    if compared:
+        spread = ", ".join(f"{n}:{distribution[n]}"
+                           for n in sorted(distribution))
+        print(f"         distance distribution: {spread}")
+    errors += check_published_relation(args.changes, exact, compared,
+                                       len(exceptions))
 
     rejected, accepted = condition_sides(manifest)
     anchored = sort_conditions(rejected & accepted)
@@ -410,8 +620,9 @@ def main() -> int:
             print(f"  {e}", file=sys.stderr)
         return 1
     print("OK: every reject vector ships beside the accept vector it was "
-          "derived from, no anchored condition regressed, and the prose "
-          "publishing both figures carries the measured ones.")
+          "derived from and is that vector plus exactly one mutation or a "
+          "declared exception with a reason, no anchored condition regressed, "
+          "and the prose publishing both figures carries the measured ones.")
     return 0
 
 

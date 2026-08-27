@@ -30,6 +30,7 @@ type site struct {
 	ret     *ast.ReturnStmt
 	clause  *ast.CaseClause
 	swBody  *ast.BlockStmt
+	rng     *ast.RangeStmt
 }
 
 // maxSnippet bounds the recorded source excerpt. It is part of the site key, so
@@ -232,6 +233,170 @@ func isLit(e ast.Expr, want string) bool {
 	return ok && id.Name == want
 }
 
+// leavesBody reports whether control reaching this statement can never fall
+// through to whatever follows it, so a `break` appended at the end of a loop
+// body could not run.
+//
+// This is Go's own definition of a terminating statement, with one addition and
+// one parameter. `continue` is added: Go does not count it, because it does not
+// end a FUNCTION, but the question here is whether control reaches the end of
+// one LOOP BODY, and a continue means it does not. `inClause` says the
+// statement sits directly inside a switch or select clause, where an unlabelled
+// `break` leaves that clause and falls through rather than leaving the body.
+//
+// Every uncertain case answers FALSE, which excludes the site. That direction
+// is the safe one and the asymmetry is the whole reason this is written out
+// rather than approximated by looking at the last statement alone. Excluding a
+// site costs one measurement nobody was promised. Including one whose appended
+// break is unreachable mints an equivalent mutant, which the campaign scores
+// DEAD, and a DEAD LOOP_FIRST row is published as "the corpus does not force
+// this universal" -- a claim about the corpus, manufactured by the operator.
+func leavesBody(st ast.Stmt, inClause bool) bool {
+	switch x := st.(type) {
+	case *ast.ReturnStmt:
+		return true
+	case *ast.BranchStmt:
+		switch x.Tok {
+		case token.GOTO, token.CONTINUE:
+			return true
+		case token.BREAK:
+			return !inClause || x.Label != nil
+		}
+		return false
+	case *ast.LabeledStmt:
+		return leavesBody(x.Stmt, inClause)
+	case *ast.BlockStmt:
+		return blockLeaves(x.List, inClause)
+	case *ast.IfStmt:
+		return x.Else != nil && blockLeaves(x.Body.List, inClause) &&
+			leavesBody(x.Else, inClause)
+	case *ast.ExprStmt:
+		call, ok := x.X.(*ast.CallExpr)
+		if !ok {
+			return false
+		}
+		id, ok := call.Fun.(*ast.Ident)
+		return ok && id.Name == "panic"
+	case *ast.SwitchStmt:
+		return clausesLeave(x.Body)
+	case *ast.TypeSwitchStmt:
+		return clausesLeave(x.Body)
+	case *ast.SelectStmt:
+		return clausesLeave(x.Body)
+	case *ast.ForStmt:
+		// `for {}` with no condition. A break inside it would make this wrong
+		// in the excluding direction, which is the direction that costs nothing.
+		return x.Cond == nil
+	}
+	return false
+}
+
+func blockLeaves(list []ast.Stmt, inClause bool) bool {
+	if len(list) == 0 {
+		return false
+	}
+	return leavesBody(list[len(list)-1], inClause)
+}
+
+// clausesLeave reports whether every arm of a switch or select leaves, and a
+// default arm exists so there is an arm for every value. Without the default,
+// an unmatched value falls straight through.
+func clausesLeave(body *ast.BlockStmt) bool {
+	if body == nil {
+		return false
+	}
+	hasDefault := false
+	for _, st := range body.List {
+		var arm []ast.Stmt
+		switch cc := st.(type) {
+		case *ast.CaseClause:
+			hasDefault = hasDefault || cc.List == nil
+			arm = cc.Body
+		case *ast.CommClause:
+			hasDefault = hasDefault || cc.Comm == nil
+			arm = cc.Body
+		default:
+			return false
+		}
+		if !blockLeaves(arm, true) {
+			return false
+		}
+	}
+	return hasDefault
+}
+
+// rangeVars names the identifiers this range statement binds, ignoring blanks.
+func rangeVars(x *ast.RangeStmt) map[string]bool {
+	bound := map[string]bool{}
+	for _, e := range []ast.Expr{x.Key, x.Value} {
+		if id, ok := e.(*ast.Ident); ok && id.Name != "_" {
+			bound[id.Name] = true
+		}
+	}
+	return bound
+}
+
+// reportsViolation reports whether a loop body can say that one MEMBER of the
+// collection failed the rule -- a return, or an appendCode naming a code the
+// loop chose rather than one it was handed.
+//
+// This is what separates a QUANTIFIER from an ACCUMULATOR, and both halves of
+// it were needed. `for i := range p.Records { leaves[i] = LeafHash(...) }`
+// builds a value out of every element and asserts nothing about any of them;
+// restricting it to one element measures how the rail computes rather than what
+// the corpus obliges a verifier to check.
+//
+// The second half is subtler and the first pass got it wrong. The rail splices
+// one code list into another with `for _, c := range src { dst = appendCode(dst,
+// c) }`, and an emission is an emission to a syntactic matcher, so ten such
+// loops enumerated as universals. They are not: the loop makes no judgement,
+// it copies, and the code it emits is its own range variable. So an appendCode
+// whose code argument is a variable this range statement binds does not count.
+// A violation report names the code it is reporting.
+//
+// A func literal's body is not searched: it runs where it is called, which need
+// not be inside this loop at all. Nested loops ARE searched, because a
+// universal whose violation is reported from an inner loop is still a universal
+// of the outer one -- which is exactly why the range-variable test is scoped to
+// THIS loop's variables and not to every variable in scope.
+func reportsViolation(x *ast.RangeStmt) bool {
+	bound := rangeVars(x)
+	found := false
+	ast.Inspect(x.Body, func(n ast.Node) bool {
+		if found || n == nil {
+			return false
+		}
+		switch node := n.(type) {
+		case *ast.FuncLit:
+			return false
+		case *ast.ReturnStmt:
+			found = true
+		case *ast.CallExpr:
+			id, ok := node.Fun.(*ast.Ident)
+			if !ok || id.Name != "appendCode" || len(node.Args) != 2 {
+				return true
+			}
+			arg, isIdent := node.Args[1].(*ast.Ident)
+			found = !isIdent || !bound[arg.Name]
+		}
+		return !found
+	})
+	return found
+}
+
+// quantifies reports whether a range loop is a universal this operator can
+// weaken: it ranges over a collection, it can report a violating member, and a
+// `break` appended to its body would actually change what it does.
+func quantifies(x *ast.RangeStmt) bool {
+	if x.Body == nil || len(x.Body.List) == 0 {
+		return false
+	}
+	if leavesBody(x.Body.List[len(x.Body.List)-1], false) {
+		return false
+	}
+	return reportsViolation(x)
+}
+
 // collector accumulates the sites of one file.
 type collector struct {
 	fset  *token.FileSet
@@ -302,6 +467,10 @@ func collect(fset *token.FileSet, f *ast.File, rel string) []*site {
 					c.add("RET_FALSE", x, &site{kind: "ret", ret: x, replace: "false"})
 				}
 			}
+		case *ast.RangeStmt:
+			if quantifies(x) {
+				c.add("LOOP_FIRST", x, &site{kind: "loopfirst", rng: x})
+			}
 		case *ast.CallExpr:
 			if id, ok := x.Fun.(*ast.Ident); ok && id.Name == "appendCode" && len(x.Args) == 2 {
 				c.add("CODE_OFF", x, &site{kind: "call", call: x})
@@ -347,6 +516,21 @@ func apply(f *ast.File, s *site) error {
 		replaceExpr(f, s.call, suppressCode(s.call), &done)
 	case "assign":
 		s.assign.Rhs[0] = shortCircuit(s.assign.Rhs[0], s.replace)
+		done = true
+	case "loopfirst":
+		// The quantifier weakening: "for every member, P" becomes "for the
+		// first member that reaches the end of the body, P". A `continue`
+		// already in the body is the loop's own filter, so the witness the
+		// weakened rail keeps is the first member of the SET THE RULE RANGES
+		// OVER, not merely element zero -- which is the reading the operator
+		// wants and the reason the break is appended rather than the range
+		// expression being sliced.
+		//
+		// The position is the body's closing brace so go/printer places the
+		// statement on its own line; a synthesized node with no position at all
+		// is printed adjacent to the one before it.
+		s.rng.Body.List = append(s.rng.Body.List,
+			&ast.BranchStmt{TokPos: s.rng.Body.Rbrace, Tok: token.BREAK})
 		done = true
 	case "casedel":
 		var kept []ast.Stmt

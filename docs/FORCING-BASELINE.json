@@ -2,9 +2,9 @@
   "$comment": "What the conformance corpus FORCES, measured by mutation rather than counted. Each row is one single-site weakening of the Go rail in aee/, replayed over the whole corpus: KILLED means some vector goes PASS->FAIL and the corpus forces the rule; SILENT means the corpus sees the rail change and stays green; DEAD means nothing in the corpus depends on the rule; INCONCLUSIVE means the mutant did not build, crash-free, terminate, and nothing is asserted about it. `annotations` records the sites where 'unforced' would be the wrong word -- `unkillable` for a true equivalent mutant no vector can ever kill, `masked` for a real rule an earlier check reaches first, which is unmintable rather than unminted. Both are claims this gate falsifies: an annotated site that is ever KILLED fails it. scripts/forcing-gate.py holds every KILLED row as a tighten-only ratchet and rewrites this file with --scope all --sync.",
   "suite": "adversarial-execution-evidence-conformance",
   "counts": {
-    "KILLED": 425,
-    "SILENT": 27,
-    "DEAD": 297,
+    "KILLED": 447,
+    "SILENT": 32,
+    "DEAD": 323,
     "INCONCLUSIVE": 5
   },
   "annotations": {
@@ -29,6 +29,11 @@
     "codes.go::appendCode::IF_OFF::ecbdf6e80562": {
       "class": "SILENT",
       "snippet": "if existing == c { return codes }",
+      "branch": "taken"
+    },
+    "codes.go::appendCode::LOOP_FIRST::93f01484344b": {
+      "class": "SILENT",
+      "snippet": "for _, existing := range codes { if existing == c { return codes } }",
       "branch": "taken"
     },
     "commitments.go::appendCodes::CODE_OFF::70204f59d800": {
@@ -131,6 +136,16 @@
         "bad-957-assessed-exceeds-declaration"
       ]
     },
+    "commitments.go::assessedSetDeclared::LOOP_FIRST::1979ce2147f6": {
+      "class": "DEAD",
+      "snippet": "for i := range p.Records { if kinds[i] != KindArming { continue } obj := payloadObject(&states[i]) if rb, ok := objString(obj, memberRunBinding); !ok ...",
+      "branch": "taken"
+    },
+    "commitments.go::assessedSetDeclared::LOOP_FIRST::892b23a9fef0": {
+      "class": "DEAD",
+      "snippet": "for id := range assessed { if !declaredSet[id] { return []Code{CodeAssessedSetExceedsDeclaration} } }",
+      "branch": "taken"
+    },
     "commitments.go::attackIDArrayOK::IF_OFF::7a536b1a4190": {
       "class": "KILLED",
       "snippet": "if !isSortedNoDuplicates(attacks) { return false }",
@@ -145,6 +160,11 @@
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
         "bad-976-sealed-observedattacks-unknown"
       ]
+    },
+    "commitments.go::attackIDArrayOK::LOOP_FIRST::1ddd37275ce6": {
+      "class": "DEAD",
+      "snippet": "for _, id := range attacks { if !declared[id] { return false } }",
+      "branch": "taken"
     },
     "commitments.go::attackIDArrayOK::RET_FALSE::7e4fe8351c22": {
       "class": "KILLED",
@@ -399,6 +419,14 @@
         "bad-986-pinned-second-interception-unmatched"
       ]
     },
+    "commitments.go::attributionBindings::LOOP_FIRST::c7cbbbf5ed0f": {
+      "class": "KILLED",
+      "snippet": "for i := range p.Rows { row := &p.Rows[i] if row.Attribution == nil || *row.Attribution != AttributionPinned { continue } if !rowResolves(row, kinds, ...",
+      "killers": [
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable"
+      ]
+    },
     "commitments.go::carriedRecordsCover::CODE_OFF::a8adfb8c06a1": {
       "class": "KILLED",
       "snippet": "appendCode(codes, ev.failCode)",
@@ -462,6 +490,28 @@
         "bad-1016-examination-carried-method-intercepted"
       ]
     },
+    "commitments.go::carriedRecordsCover::LOOP_FIRST::037eeb9efaa3": {
+      "class": "KILLED",
+      "snippet": "for i := range p.Records { if !isCoveringKind(kinds[i]) { continue } a := analyzePayload(&p.Records[i], &states[i], binding) if len(a.codes) > 0 { con...",
+      "killers": [
+        "bad-1001-sealed-missing-dropcount-unreferenced",
+        "bad-1002-stillarmed-non-boolean-unreferenced",
+        "bad-1003-sealed-stillarmed-false-unreferenced",
+        "bad-1004-sealed-drops-no-bound-unreferenced",
+        "bad-1005-sealed-drops-exceed-bound-unreferenced",
+        "bad-1006-sealed-posture-mismatch-unreferenced",
+        "bad-1007-sealed-noncovering-unreferenced",
+        "bad-1008-sealed-missing-stillarmed-unreferenced",
+        "bad-1009-sealed-missing-posture-unreferenced",
+        "bad-1010-sealed-method-reconstructed-unreferenced",
+        "bad-1011-sealed-negative-dropcount-unreferenced",
+        "bad-1012-sealed-missing-observedset-unreferenced",
+        "bad-1013-sealed-missing-observedattacks-unreferenced",
+        "bad-1014-sealed-observedattacks-unknown-unreferenced",
+        "bad-1015-arming-carried-missing-armedat",
+        "bad-1016-examination-carried-method-intercepted"
+      ]
+    },
     "commitments.go::cleanRowsContradicted::IF_OFF::3300e7c56811": {
       "class": "KILLED",
       "snippet": "if !isCleanLabel(voc, row.ContainmentObserved) { continue }",
@@ -500,6 +550,11 @@
         "bad-950-clean-row-refs-interception"
       ]
     },
+    "commitments.go::cleanRowsContradicted::LOOP_FIRST::4a865b2ffd5c": {
+      "class": "DEAD",
+      "snippet": "for i := range p.Rows { row := &p.Rows[i] if !isCleanLabel(voc, row.ContainmentObserved) { continue } if rowResolves(row, kinds, KindInterception) { r...",
+      "branch": "taken"
+    },
     "commitments.go::commitmentArrayOK::IF_DISJ::04986aa63347": {
       "class": "DEAD",
       "snippet": "!isSortedNoDuplicates(values)",
@@ -525,6 +580,11 @@
       "killers": [
         "bad-966-commitment-empty-array"
       ]
+    },
+    "commitments.go::commitmentArrayOK::LOOP_FIRST::204b47a6eb7b": {
+      "class": "DEAD",
+      "snippet": "for _, v := range values { if !IsLowerHex64(v) { return false } }",
+      "branch": "taken"
     },
     "commitments.go::commitmentArrayOK::RET_FALSE::7e4fe8351c22": {
       "class": "KILLED",
@@ -791,6 +851,13 @@
       "snippet": "if !isCaughtLabel(voc, row.ContainmentObserved) { continue }",
       "branch": "taken"
     },
+    "commitments.go::interceptionsOrphaned::LOOP_FIRST::2c90a971fd59": {
+      "class": "KILLED",
+      "snippet": "for i := range p.Records { if kinds[i] == KindInterception && !resolved[i] { return []Code{CodeInterceptionRecordOrphaned} } }",
+      "killers": [
+        "bad-972-second-interception-unresolved"
+      ]
+    },
     "commitments.go::isCoveringKind::CASE_DEL::b072e76fc1f8": {
       "class": "KILLED",
       "snippet": "case KindInterception, KindArming, KindSealed, KindExamination: return true",
@@ -997,6 +1064,13 @@
       "snippet": "if idx < 0 || idx >= len(kinds) || kinds[idx] != KindInterception { continue }",
       "branch": "never-taken"
     },
+    "commitments.go::pinMatches::LOOP_FIRST::00b32c2cd730": {
+      "class": "KILLED",
+      "snippet": "for _, idx := range row.Refs { if idx < 0 || idx >= len(kinds) || kinds[idx] != KindInterception { continue } obj := payloadObject(&states[idx]) value...",
+      "killers": [
+        "bad-986-pinned-second-interception-unmatched"
+      ]
+    },
     "commitments.go::recordKinds::IF_OFF::393355581d91": {
       "class": "DEAD",
       "snippet": "if states[i].decodeErr { continue }",
@@ -1190,6 +1264,11 @@
       "snippet": "if !row.RefsPresent || row.RefsErr != nil { return false }",
       "branch": "never-taken"
     },
+    "commitments.go::rowResolves::LOOP_FIRST::e3794d061bb3": {
+      "class": "DEAD",
+      "snippet": "for _, idx := range row.Refs { if idx >= 0 && idx < len(kinds) && kinds[idx] == kind { return true } }",
+      "branch": "taken"
+    },
     "commitments.go::rowResolves::RET_FALSE::7e4fe8351c22": {
       "class": "KILLED",
       "snippet": "return true",
@@ -1316,6 +1395,16 @@
         "bad-955-seal-names-clean-attack"
       ]
     },
+    "commitments.go::sealNamedAttacksCaught::LOOP_FIRST::3d3251b9ae02": {
+      "class": "DEAD",
+      "snippet": "for i := range p.Records { if kinds[i] != KindSealed { continue } obj := payloadObject(&states[i]) if rb, ok := objString(obj, memberRunBinding); !ok ...",
+      "branch": "taken"
+    },
+    "commitments.go::sealNamedAttacksCaught::LOOP_FIRST::ae56eaae571a": {
+      "class": "DEAD",
+      "snippet": "for _, id := range attacks { if !caughtIDs[id] { return []Code{CodeObservedAttackUncaught} } }",
+      "branch": "taken"
+    },
     "commitments.go::sealedRecordPresent::IF_OFF::413a03e635ce": {
       "class": "KILLED",
       "snippet": "if evaluateKind(a, pinnedPosture, nil, issuedAt, declaredAttackIDs(p)).valid { return nil }",
@@ -1393,6 +1482,11 @@
         "bad-1017-sole-seal-moat-down-all-caught",
         "bad-952-substrate-row-no-seal"
       ]
+    },
+    "commitments.go::sealedRecordPresent::LOOP_FIRST::9b7233787103": {
+      "class": "SILENT",
+      "snippet": "for i := range p.Records { if kinds[i] != KindSealed { continue } a := analyzePayload(&p.Records[i], &states[i], binding) if len(a.codes) > 0 { contin...",
+      "branch": "taken"
     },
     "commitments.go::sealsCommitToCarriedSet::IF_DISJ::1d1f550a6ec2": {
       "class": "DEAD",
@@ -1495,6 +1589,11 @@
     "commitments.go::sealsCommitToCarriedSet::IF_OFF::b8f9040fd3a9": {
       "class": "DEAD",
       "snippet": "if kinds[i] != KindSealed { continue }",
+      "branch": "taken"
+    },
+    "commitments.go::sealsCommitToCarriedSet::LOOP_FIRST::3d3251b9ae02": {
+      "class": "DEAD",
+      "snippet": "for i := range p.Records { if kinds[i] != KindSealed { continue } obj := payloadObject(&states[i]) if rb, ok := objString(obj, memberRunBinding); !ok ...",
       "branch": "taken"
     },
     "jcs.go::Canonicalize::IF_OFF::9af821f55d67": {
@@ -2388,6 +2487,168 @@
       "class": "DEAD",
       "snippet": "if err := appendCanonical(buf, el, depth+1); err != nil { return err }",
       "branch": "never-taken"
+    },
+    "jcs.go::appendCanonical::LOOP_FIRST::5a22c4f1aa9f": {
+      "class": "KILLED",
+      "snippet": "for i, k := range keys { if i > 0 { buf.WriteByte(',') } appendJCSString(buf, k) buf.WriteByte(':') if err := appendCanonical(buf, t.values[k], depth+...",
+      "killers": [
+        "bad-002-result-mismatch-caught",
+        "bad-005-result-mismatch-coverage-gap",
+        "bad-006-result-fail-on-pass",
+        "bad-007-result-degraded-on-pass",
+        "bad-010-result-pass-indirect-on-direct-clean-row",
+        "bad-1001-sealed-missing-dropcount-unreferenced",
+        "bad-1002-stillarmed-non-boolean-unreferenced",
+        "bad-1003-sealed-stillarmed-false-unreferenced",
+        "bad-1004-sealed-drops-no-bound-unreferenced",
+        "bad-1005-sealed-drops-exceed-bound-unreferenced",
+        "bad-1006-sealed-posture-mismatch-unreferenced",
+        "bad-1007-sealed-noncovering-unreferenced",
+        "bad-1008-sealed-missing-stillarmed-unreferenced",
+        "bad-1009-sealed-missing-posture-unreferenced",
+        "bad-1010-sealed-method-reconstructed-unreferenced",
+        "bad-1011-sealed-negative-dropcount-unreferenced",
+        "bad-1012-sealed-missing-observedset-unreferenced",
+        "bad-1013-sealed-missing-observedattacks-unreferenced",
+        "bad-1014-sealed-observedattacks-unknown-unreferenced",
+        "bad-1015-arming-carried-missing-armedat",
+        "bad-1016-examination-carried-method-intercepted",
+        "bad-104-caught-refs-arming-only",
+        "bad-105-reconstructed-refs-interception",
+        "bad-106-clean-missing-sealed",
+        "bad-107-clean-missing-arming",
+        "bad-302-method-inflation",
+        "bad-304-method-cap-multirecord",
+        "bad-701-arming-missing-armedat",
+        "bad-702-armedat-after-issuedat",
+        "bad-703-arming-posture-mismatch",
+        "bad-704-arming-method-reconstructed",
+        "bad-705-sealed-missing-dropcount",
+        "bad-706-stillarmed-non-boolean",
+        "bad-707-sealed-stillarmed-false",
+        "bad-708-sealed-drops-no-bound",
+        "bad-709-sealed-drops-exceed-bound",
+        "bad-710-sealed-posture-mismatch",
+        "bad-712-examination-method-intercepted",
+        "bad-713-only-sealed-ref-noncovering",
+        "bad-714-unknown-kind-sole-cover",
+        "bad-715-sealed-missing-stillarmed",
+        "bad-716-sealed-missing-posture",
+        "bad-717-arming-missing-posture",
+        "bad-718-chain-runseq-zero",
+        "bad-719-chain-missing-scope",
+        "bad-720-chain-prev-not-hex",
+        "bad-721-chain-scope-not-array",
+        "bad-722-chain-scope-unknown-dimension",
+        "bad-723-chain-scope-not-canonical",
+        "bad-726-arming-binding-version-carried",
+        "bad-727-armedat-non-utc-offset",
+        "bad-750-armedat-lowercase-separator",
+        "bad-751-armedat-lowercase-zone-designator",
+        "bad-900-sealed-method-reconstructed",
+        "bad-901-sealed-negative-dropcount",
+        "bad-902-sealed-posture-ne-arming",
+        "bad-953-observed-set-drops-a-record",
+        "bad-954-observed-set-gains-a-record",
+        "bad-955-seal-names-clean-attack",
+        "bad-957-assessed-exceeds-declaration",
+        "bad-958-pinned-row-resolves-no-interception",
+        "bad-960-pinned-commitment-unmatched",
+        "bad-965-commitment-not-hex",
+        "bad-966-commitment-empty-array",
+        "bad-967-commitment-absent",
+        "bad-973-pinned-clean-row",
+        "bad-974-sealed-missing-observedset",
+        "bad-975-sealed-missing-observedattacks",
+        "bad-976-sealed-observedattacks-unknown",
+        "bad-977-arming-missing-assessedattacks",
+        "bad-978-arming-assessedattacks-unsorted",
+        "bad-980-moat-drop-sole-cover",
+        "bad-981-uncommitted-observation-sole-cover",
+        "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
+        "bad-986-pinned-second-interception-unmatched",
+        "ok-001-caught-intercepted-fail",
+        "ok-002-clean-pass-armed-sealed",
+        "ok-003-clean-pass-bounded-drops",
+        "ok-004-degraded-out-of-scope",
+        "ok-005-degraded-routed-elsewhere",
+        "ok-006-clean-reconstructed",
+        "ok-011-shared-run-records",
+        "ok-012-selectors-present",
+        "ok-013-unknown-kind-extra-record",
+        "ok-014-three-record-odd-split",
+        "ok-015-four-record-tree",
+        "ok-016-caught-actuallayer-none",
+        "ok-017-method-weakening-allowed",
+        "ok-018-aee-prefix-ignored",
+        "ok-019-wrong-keyid-sig-verifies",
+        "ok-020-non-pae-signature",
+        "ok-021-producer-extra-members",
+        "ok-022-two-arming-records",
+        "ok-023-no-tofu-embedded-key",
+        "ok-024-mixed-basis-rows",
+        "ok-025-does-not-assert-present",
+        "ok-026-five-record-tree",
+        "ok-028-empty-caught-pass",
+        "ok-030-method-min-multirecord",
+        "ok-031-caught-reconstructed",
+        "ok-033-artifact-degraded",
+        "ok-034-arming-chain-genesis",
+        "ok-035-unknown-kind-excluded-from-cap",
+        "ok-036-payload-nesting-at-bound",
+        "ok-039-armedat-negative-zero-offset",
+        "ok-040-posture-no-network",
+        "ok-041-posture-allowlist",
+        "ok-042-posture-unsafe-bypass-egress",
+        "ok-043-posture-producer-member-bound",
+        "ok-045-mixed-clean-rows-indirect",
+        "ok-046-seal-attacks-lower-bound",
+        "ok-047-attribution-pinned",
+        "ok-048-attribution-paired-despite-expectation",
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
+        "ok-055-pinned-row-two-interceptions",
+        "ok-900-fail-outranks-degraded",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
+      ]
+    },
+    "jcs.go::appendCanonical::LOOP_FIRST::aaf8c75c88c9": {
+      "class": "KILLED",
+      "snippet": "for i, el := range t { if i > 0 { buf.WriteByte(',') } if err := appendCanonical(buf, el, depth+1); err != nil { return err } }",
+      "killers": [
+        "bad-005-result-mismatch-coverage-gap",
+        "bad-402-root-no-domain-separation",
+        "bad-403-root-bitcoin-padding",
+        "bad-404-root-leaf-order-swapped",
+        "bad-723-chain-scope-not-canonical",
+        "bad-950-clean-row-refs-interception",
+        "bad-978-arming-assessedattacks-unsorted",
+        "bad-986-pinned-second-interception-unmatched",
+        "ok-004-degraded-out-of-scope",
+        "ok-005-degraded-routed-elsewhere",
+        "ok-011-shared-run-records",
+        "ok-014-three-record-odd-split",
+        "ok-015-four-record-tree",
+        "ok-024-mixed-basis-rows",
+        "ok-026-five-record-tree",
+        "ok-045-mixed-clean-rows-indirect",
+        "ok-046-seal-attacks-lower-bound",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-055-pinned-row-two-interceptions",
+        "vate-2a-aggregate-overrun-unread"
+      ]
     },
     "jcs.go::appendJCSString::CASE_DEL::0cffda5a0178": {
       "class": "DEAD",
@@ -3930,6 +4191,23 @@
       "snippet": "if hasSupplementaryMemberName(val) { return true }",
       "branch": "never-taken"
     },
+    "jcs.go::hasSupplementaryMemberName::LOOP_FIRST::9fe1cc00b085": {
+      "class": "KILLED",
+      "snippet": "for _, k := range t.keys { if !isBMPOnly(k) { return true } }",
+      "killers": [
+        "bad-208-payload-member-non-bmp"
+      ]
+    },
+    "jcs.go::hasSupplementaryMemberName::LOOP_FIRST::c1f0548c0c7f": {
+      "class": "DEAD",
+      "snippet": "for _, el := range t { if hasSupplementaryMemberName(el) { return true } }",
+      "branch": "taken"
+    },
+    "jcs.go::hasSupplementaryMemberName::LOOP_FIRST::f567a59ebfa8": {
+      "class": "DEAD",
+      "snippet": "for _, val := range t.values { if hasSupplementaryMemberName(val) { return true } }",
+      "branch": "taken"
+    },
     "jcs.go::hasSupplementaryMemberName::RET_FALSE::7e4fe8351c22": {
       "class": "KILLED",
       "snippet": "return true",
@@ -4124,12 +4402,30 @@
       "snippet": "if len(b) < 4 { return 0, false }",
       "branch": "never-taken"
     },
+    "jcs.go::hex4::LOOP_FIRST::22c1927fde1c": {
+      "class": "KILLED",
+      "snippet": "for _, c := range b[:4] { switch { case c >= '0' && c <= '9': v = v<<4 | uint32(c-'0') case c >= 'a' && c <= 'f': v = v<<4 | uint32(c-'a'+10) case c >...",
+      "killers": [
+        "bad-733-statement-lone-high-surrogate-escape",
+        "bad-734-statement-lone-low-surrogate-escape",
+        "bad-735-statement-reversed-surrogate-pair",
+        "bad-739-payload-lone-surrogate-escape",
+        "bad-743-statement-noncharacter-vocabulary-label"
+      ]
+    },
     "jcs.go::isBMPOnly::IF_OFF::f51e13c29d7a": {
       "class": "KILLED",
       "snippet": "if r > 0xFFFF { return false }",
       "killers": [
         "bad-208-payload-member-non-bmp",
         "bad-612-labels-non-bmp"
+      ]
+    },
+    "jcs.go::isBMPOnly::LOOP_FIRST::c24f6b5e26bc": {
+      "class": "KILLED",
+      "snippet": "for _, r := range s { if r > 0xFFFF { return false } }",
+      "killers": [
+        "bad-208-payload-member-non-bmp"
       ]
     },
     "jcs.go::isBMPOnly::RET_FALSE::7e4fe8351c22": {
@@ -6906,6 +7202,11 @@
         "vate-1c-two-subjects-artifact-and-admission"
       ]
     },
+    "statement.go::Gate0::LOOP_FIRST::edb1c4c3adfc": {
+      "class": "DEAD",
+      "snippet": "for i := range p.Rows { row := &p.Rows[i] if row.ActualLayer == nil { codes = appendCode(codes, CodeMissingActualLayer) continue } if vocabOK && isCle...",
+      "branch": "taken"
+    },
     "statement.go::appendStringArray::IF_OFF::510b306923b4": {
       "class": "KILLED",
       "snippet": "if i > 0 { buf.WriteByte(',') }",
@@ -7115,6 +7416,11 @@
       "snippet": "case CodeVocabularyMissing, CodeVocabularyNotCanonical, CodeVocabularyCaughtNotSubset, CodeVocabularyDigestMismatch: return true",
       "branch": "taken"
     },
+    "statement.go::containsVocabularyCodes::LOOP_FIRST::0a74b26355dc": {
+      "class": "DEAD",
+      "snippet": "for _, c := range codes { switch c { case CodeVocabularyMissing, CodeVocabularyNotCanonical, CodeVocabularyCaughtNotSubset, CodeVocabularyDigestMismat...",
+      "branch": "taken"
+    },
     "statement.go::containsVocabularyCodes::RET_FALSE::7e4fe8351c22": {
       "class": "DEAD",
       "snippet": "return true",
@@ -7195,6 +7501,29 @@
       "class": "DEAD",
       "snippet": "if err != nil { return appendCode(codes, CodeStatementMalformed) }",
       "branch": "never-taken"
+    },
+    "statement.go::gate0Corpus::LOOP_FIRST::66749a31c9c7": {
+      "class": "KILLED",
+      "snippet": "for _, class := range sortedKeys(c.Classes) { for _, id := range c.Classes[class] { declared++ if seen[id] { codes = appendCode(codes, CodeManifestDup...",
+      "killers": [
+        "bad-804-attackid-two-classes",
+        "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
+        "bad-986-pinned-second-interception-unmatched",
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-055-pinned-row-two-interceptions"
+      ]
+    },
+    "statement.go::gate0Corpus::LOOP_FIRST::c504df3a8c26": {
+      "class": "KILLED",
+      "snippet": "for _, id := range c.Classes[class] { declared++ if seen[id] { codes = appendCode(codes, CodeManifestDuplicateAttack) } seen[id] = true }",
+      "killers": [
+        "bad-804-attackid-two-classes"
+      ]
     },
     "statement.go::gate0CoverageIntegrity::CODE_OFF::50fff9c8a347": {
       "class": "SILENT",
@@ -7286,6 +7615,36 @@
       "killers": [
         "bad-806-coverage-attack-omitted",
         "bad-807-coverage-attack-superset"
+      ]
+    },
+    "statement.go::gate0CoverageIntegrity::LOOP_FIRST::534871901d62": {
+      "class": "KILLED",
+      "snippet": "for i := range p.Rows { id := p.Rows[i].AttackID if rowIDs[id] { codes = appendCode(codes, CodeStatementMalformed) } rowIDs[id] = true if !inManifest[...",
+      "killers": [
+        "bad-402-root-no-domain-separation",
+        "bad-403-root-bitcoin-padding",
+        "bad-404-root-leaf-order-swapped",
+        "bad-729-duplicate-attackid-rows",
+        "bad-807-coverage-attack-superset",
+        "bad-950-clean-row-refs-interception",
+        "bad-978-arming-assessedattacks-unsorted",
+        "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
+        "bad-986-pinned-second-interception-unmatched",
+        "ok-011-shared-run-records",
+        "ok-014-three-record-odd-split",
+        "ok-015-four-record-tree",
+        "ok-024-mixed-basis-rows",
+        "ok-026-five-record-tree",
+        "ok-045-mixed-clean-rows-indirect",
+        "ok-046-seal-attacks-lower-bound",
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-055-pinned-row-two-interceptions",
+        "vate-2a-aggregate-overrun-unread"
       ]
     },
     "statement.go::gate0ExpectedPayloads::CODE_OFF::ed38a7d4c130": {
@@ -7539,6 +7898,16 @@
       "killers": [
         "bad-963-expected-payloads-not-hex"
       ]
+    },
+    "statement.go::gate0ExpectedPayloads::LOOP_FIRST::25b1491deb87": {
+      "class": "DEAD",
+      "snippet": "for _, id := range sortedKeys(c.ExpectedPayloads) { values := c.ExpectedPayloads[id] if !declaredIDs[id] || len(values) == 0 || !isSortedNoDuplicates(...",
+      "branch": "taken"
+    },
+    "statement.go::gate0ExpectedPayloads::LOOP_FIRST::824a60ec4b9a": {
+      "class": "DEAD",
+      "snippet": "for _, v := range values { if !IsLowerHex64(v) { return appendCode(codes, CodeManifestExpectedPayloadsMalformed) } }",
+      "branch": "taken"
     },
     "statement.go::gate0SubstrateBindingInputs::CODE_OFF::78d916ef7610": {
       "class": "KILLED",
@@ -7818,6 +8187,13 @@
       "class": "DEAD",
       "snippet": "if !IsLowerHex64(sha) { codes = appendCode(codes, CodeDigestNotCanonical) }",
       "branch": "never-taken"
+    },
+    "statement.go::gate0SubstrateBindingInputs::LOOP_FIRST::21fed48aab0f": {
+      "class": "KILLED",
+      "snippet": "for _, digest := range []string{ env.CatchPolicy.Sha256(), env.Corpus.Sha256(), env.NetworkPosture.Sha256(), env.Substrate.Sha256(), } { if digest != ...",
+      "killers": [
+        "bad-609-digest-truncated"
+      ]
     },
     "statement.go::gate0Vocabulary::CODE_OFF::2779dced1eb0": {
       "class": "KILLED",
@@ -8122,6 +8498,13 @@
         "bad-905-vocabulary-labels-absent"
       ]
     },
+    "statement.go::gate0Vocabulary::LOOP_FIRST::5df9d0bfa19e": {
+      "class": "KILLED",
+      "snippet": "for _, c := range v.Caught { if !labelSet[c] { codes = appendCode(codes, CodeVocabularyCaughtNotSubset) break } }",
+      "killers": [
+        "bad-602-caught-not-subset"
+      ]
+    },
     "statement.go::hasSubstrateRows::IF_OFF::94d8946668a1": {
       "class": "KILLED",
       "snippet": "if p.Rows[i].IsSubstrate() { return true }",
@@ -8232,6 +8615,11 @@
         "vate-1a-admission-receipt-substituted-splice",
         "vate-3a-substrate-substituted-splice"
       ]
+    },
+    "statement.go::hasSubstrateRows::LOOP_FIRST::53fd68366196": {
+      "class": "DEAD",
+      "snippet": "for i := range p.Rows { if p.Rows[i].IsSubstrate() { return true } }",
+      "branch": "taken"
     },
     "statement.go::hasSubstrateRows::RET_FALSE::7e4fe8351c22": {
       "class": "KILLED",
@@ -9068,6 +9456,11 @@
         "bad-806-coverage-attack-omitted"
       ]
     },
+    "statement.go::sameStringSet::LOOP_FIRST::9a743a714eb9": {
+      "class": "DEAD",
+      "snippet": "for k := range a { if !b[k] { return false } }",
+      "branch": "taken"
+    },
     "statement.go::sameStringSet::RET_FALSE::7e4fe8351c22": {
       "class": "KILLED",
       "snippet": "return true",
@@ -9290,6 +9683,18 @@
       "killers": [
         "bad-612-labels-non-bmp"
       ]
+    },
+    "statement.go::vocabularyStringsBMPOnly::LOOP_FIRST::0181cc8af3f1": {
+      "class": "KILLED",
+      "snippet": "for _, s := range arr { if !isBMPOnly(s) { return false } }",
+      "killers": [
+        "bad-612-labels-non-bmp"
+      ]
+    },
+    "statement.go::vocabularyStringsBMPOnly::LOOP_FIRST::fc0e7b553b7f": {
+      "class": "DEAD",
+      "snippet": "for _, arr := range [][]string{labels, caught} { for _, s := range arr { if !isBMPOnly(s) { return false } } }",
+      "branch": "taken"
     },
     "statement.go::vocabularyStringsBMPOnly::RET_FALSE::7e4fe8351c22": {
       "class": "KILLED",
@@ -9523,6 +9928,16 @@
       "snippet": "if len(rowCodes) > 0 { return fmt.Errorf(\"row %d (%s) is not gate-1 valid: %v\", i, row.AttackID, rowCodes) }",
       "branch": "never-taken"
     },
+    "tier.go::(recv).CheckRecordSignatures::LOOP_FIRST::cefd06ca0db3": {
+      "class": "DEAD",
+      "snippet": "for _, idx := range covering { if !recordVerifies(&ctx.states[idx], p.Records[idx].Signatures, keys) { return fmt.Errorf(\"row %d (%s): covering record...",
+      "branch": "never-taken"
+    },
+    "tier.go::(recv).CheckRecordSignatures::LOOP_FIRST::d7548b4928ab": {
+      "class": "DEAD",
+      "snippet": "for i := range p.Rows { row := &p.Rows[i] if !row.IsSubstrate() { continue } rowCodes, covering := checkSubstrateRow(p, row, ctx.states, ctx.binding, ...",
+      "branch": "never-taken"
+    },
     "tier.go::(recv).DeriveTiers::IF_DISJ::3ae6a3e3c7b6": {
       "class": "DEAD",
       "snippet": "len(policy.SubstrateObservationKeys) == 0",
@@ -9679,6 +10094,16 @@
       "class": "DEAD",
       "snippet": "if err != nil { continue }",
       "branch": "never-taken"
+    },
+    "tier.go::recordVerifies::LOOP_FIRST::09f5bf2e90cc": {
+      "class": "DEAD",
+      "snippet": "for _, sig := range sigs { sigBytes, err := base64.StdEncoding.Strict().DecodeString(sig.Sig) if err != nil { continue } for _, key := range keys { if...",
+      "branch": "taken"
+    },
+    "tier.go::recordVerifies::LOOP_FIRST::707a541d7647": {
+      "class": "DEAD",
+      "snippet": "for _, key := range keys { if ed25519.Verify(key, state.pae, sigBytes) { return true } }",
+      "branch": "taken"
     },
     "tier.go::recordVerifies::RET_FALSE::7e4fe8351c22": {
       "class": "KILLED",
@@ -14415,6 +14840,36 @@
       "snippet": "if err := json.Unmarshal(covRaw, cov); err != nil { codes = appendCode(codes, CodeStatementMalformed) } else { p.Coverage = cov }",
       "branch": "never-taken"
     },
+    "types.go::parsePredicate::LOOP_FIRST::feafa88a8499": {
+      "class": "KILLED",
+      "snippet": "for _, rr := range rawRows { row, rowCodes := parseRow(rr) p.Rows = append(p.Rows, row) for _, c := range rowCodes { codes = appendCode(codes, c) } }",
+      "killers": [
+        "bad-402-root-no-domain-separation",
+        "bad-403-root-bitcoin-padding",
+        "bad-404-root-leaf-order-swapped",
+        "bad-729-duplicate-attackid-rows",
+        "bad-807-coverage-attack-superset",
+        "bad-950-clean-row-refs-interception",
+        "bad-978-arming-assessedattacks-unsorted",
+        "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-985-liveness-middle-channel-probe-uncaught",
+        "bad-986-pinned-second-interception-unmatched",
+        "ok-011-shared-run-records",
+        "ok-014-three-record-odd-split",
+        "ok-015-four-record-tree",
+        "ok-024-mixed-basis-rows",
+        "ok-026-five-record-tree",
+        "ok-045-mixed-clean-rows-indirect",
+        "ok-046-seal-attacks-lower-bound",
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-055-pinned-row-two-interceptions",
+        "vate-2a-aggregate-overrun-unread"
+      ]
+    },
     "types.go::parseRow::CODE_OFF::5389d1247932": {
       "class": "DEAD",
       "snippet": "appendCode(codes, CodeStatementMalformed)",
@@ -15063,6 +15518,16 @@
         "bad-724-artifact-ref-out-of-range"
       ]
     },
+    "validity.go::anyObservationRefOutOfRange::LOOP_FIRST::aae56837cfb1": {
+      "class": "DEAD",
+      "snippet": "for i := range p.Rows { row := &p.Rows[i] if !row.RefsPresent || row.RefsErr != nil { continue } for _, idx := range row.Refs { if idx < 0 || idx >= l...",
+      "branch": "taken"
+    },
+    "validity.go::anyObservationRefOutOfRange::LOOP_FIRST::f8c0272da535": {
+      "class": "DEAD",
+      "snippet": "for _, idx := range row.Refs { if idx < 0 || idx >= len(p.Records) { return true } }",
+      "branch": "taken"
+    },
     "validity.go::anyObservationRefOutOfRange::RET_FALSE::7e4fe8351c22": {
       "class": "KILLED",
       "snippet": "return true",
@@ -15138,6 +15603,11 @@
         "bad-745-record-signatures-empty",
         "bad-749-record-signatures-not-an-array"
       ]
+    },
+    "validity.go::anyRecordSignaturesEmpty::LOOP_FIRST::d82e591b140a": {
+      "class": "SILENT",
+      "snippet": "for i := range p.Records { if len(p.Records[i].Signatures) == 0 { return true } }",
+      "branch": "taken"
     },
     "validity.go::anyRecordSignaturesEmpty::RET_FALSE::7e4fe8351c22": {
       "class": "KILLED",
@@ -15292,6 +15762,11 @@
       "killers": [
         "ok-034-arming-chain-genesis"
       ]
+    },
+    "validity.go::armingChainSyntaxValid::LOOP_FIRST::2483eabfc0fd": {
+      "class": "DEAD",
+      "snippet": "for _, tok := range scope { if !chainScopeVocabulary[tok] { return false } }",
+      "branch": "taken"
     },
     "validity.go::armingChainSyntaxValid::RET_FALSE::2b3f9b59a222": {
       "class": "DEAD",
@@ -15743,6 +16218,118 @@
         "ok-044-clean-artifact-intercepted-indirect",
         "ok-900-fail-outranks-degraded",
         "ok-901-row-missing-basis"
+      ]
+    },
+    "validity.go::checkRecordsStatementLevel::LOOP_FIRST::80c2e9fa583f": {
+      "class": "KILLED",
+      "snippet": "for i := range p.Records { payload, err := base64.StdEncoding.Strict().DecodeString(p.Records[i].PayloadB64) if err != nil { states[i].decodeErr = tru...",
+      "killers": [
+        "bad-002-result-mismatch-caught",
+        "bad-005-result-mismatch-coverage-gap",
+        "bad-006-result-fail-on-pass",
+        "bad-007-result-degraded-on-pass",
+        "bad-010-result-pass-indirect-on-direct-clean-row",
+        "bad-1001-sealed-missing-dropcount-unreferenced",
+        "bad-1002-stillarmed-non-boolean-unreferenced",
+        "bad-1003-sealed-stillarmed-false-unreferenced",
+        "bad-1004-sealed-drops-no-bound-unreferenced",
+        "bad-1005-sealed-drops-exceed-bound-unreferenced",
+        "bad-1006-sealed-posture-mismatch-unreferenced",
+        "bad-1007-sealed-noncovering-unreferenced",
+        "bad-1008-sealed-missing-stillarmed-unreferenced",
+        "bad-1009-sealed-missing-posture-unreferenced",
+        "bad-1010-sealed-method-reconstructed-unreferenced",
+        "bad-1011-sealed-negative-dropcount-unreferenced",
+        "bad-1012-sealed-missing-observedset-unreferenced",
+        "bad-1013-sealed-missing-observedattacks-unreferenced",
+        "bad-1014-sealed-observedattacks-unknown-unreferenced",
+        "bad-1015-arming-carried-missing-armedat",
+        "bad-1016-examination-carried-method-intercepted",
+        "bad-104-caught-refs-arming-only",
+        "bad-105-reconstructed-refs-interception",
+        "bad-107-clean-missing-arming",
+        "bad-304-method-cap-multirecord",
+        "bad-705-sealed-missing-dropcount",
+        "bad-706-stillarmed-non-boolean",
+        "bad-707-sealed-stillarmed-false",
+        "bad-708-sealed-drops-no-bound",
+        "bad-709-sealed-drops-exceed-bound",
+        "bad-710-sealed-posture-mismatch",
+        "bad-713-only-sealed-ref-noncovering",
+        "bad-714-unknown-kind-sole-cover",
+        "bad-715-sealed-missing-stillarmed",
+        "bad-716-sealed-missing-posture",
+        "bad-900-sealed-method-reconstructed",
+        "bad-901-sealed-negative-dropcount",
+        "bad-902-sealed-posture-ne-arming",
+        "bad-953-observed-set-drops-a-record",
+        "bad-954-observed-set-gains-a-record",
+        "bad-955-seal-names-clean-attack",
+        "bad-972-second-interception-unresolved",
+        "bad-974-sealed-missing-observedset",
+        "bad-975-sealed-missing-observedattacks",
+        "bad-976-sealed-observedattacks-unknown",
+        "bad-982-pinned-assignment-spliced",
+        "bad-983-liveness-middle-channel-commitment-unmatched",
+        "bad-984-liveness-last-channel-unpinnable",
+        "bad-986-pinned-second-interception-unmatched",
+        "ok-001-caught-intercepted-fail",
+        "ok-002-clean-pass-armed-sealed",
+        "ok-003-clean-pass-bounded-drops",
+        "ok-004-degraded-out-of-scope",
+        "ok-005-degraded-routed-elsewhere",
+        "ok-006-clean-reconstructed",
+        "ok-011-shared-run-records",
+        "ok-012-selectors-present",
+        "ok-013-unknown-kind-extra-record",
+        "ok-014-three-record-odd-split",
+        "ok-015-four-record-tree",
+        "ok-016-caught-actuallayer-none",
+        "ok-017-method-weakening-allowed",
+        "ok-018-aee-prefix-ignored",
+        "ok-019-wrong-keyid-sig-verifies",
+        "ok-020-non-pae-signature",
+        "ok-021-producer-extra-members",
+        "ok-022-two-arming-records",
+        "ok-023-no-tofu-embedded-key",
+        "ok-024-mixed-basis-rows",
+        "ok-025-does-not-assert-present",
+        "ok-026-five-record-tree",
+        "ok-028-empty-caught-pass",
+        "ok-029-artifact-with-records",
+        "ok-030-method-min-multirecord",
+        "ok-031-caught-reconstructed",
+        "ok-034-arming-chain-genesis",
+        "ok-035-unknown-kind-excluded-from-cap",
+        "ok-036-payload-nesting-at-bound",
+        "ok-039-armedat-negative-zero-offset",
+        "ok-040-posture-no-network",
+        "ok-041-posture-allowlist",
+        "ok-042-posture-unsafe-bypass-egress",
+        "ok-043-posture-producer-member-bound",
+        "ok-045-mixed-clean-rows-indirect",
+        "ok-046-seal-attacks-lower-bound",
+        "ok-047-attribution-pinned",
+        "ok-048-attribution-paired-despite-expectation",
+        "ok-049-seal-names-caught-attack",
+        "ok-050-registered-noncovering-kinds",
+        "ok-051-two-pinned-rows",
+        "ok-052-liveness-probe-per-channel",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "ok-054-producer-ordered-axis-inert",
+        "ok-055-pinned-row-two-interceptions",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
+      ]
+    },
+    "validity.go::checkRecordsStatementLevel::LOOP_FIRST::b10d77ab14cf": {
+      "class": "KILLED",
+      "snippet": "for i := range p.Records { if states[i].decodeErr { continue } if seen[leaves[i]] { codes = appendCode(codes, CodeDuplicateRecord) break } seen[leaves...",
+      "killers": [
+        "bad-405-duplicate-records"
       ]
     },
     "validity.go::checkSubstrateRow::CASE_OFF::91cd8894b314": {
@@ -16286,6 +16873,99 @@
         "bad-302-method-inflation",
         "bad-304-method-cap-multirecord"
       ]
+    },
+    "validity.go::checkSubstrateRow::LOOP_FIRST::878e8c60517d": {
+      "class": "KILLED",
+      "snippet": "for _, idx := range row.Refs { if idx >= len(p.Records) { codes = appendCode(codes, CodeRefOutOfRange) continue } if !seen[idx] { seen[idx] = true uni...",
+      "killers": [
+        "bad-005-result-mismatch-coverage-gap",
+        "bad-006-result-fail-on-pass",
+        "bad-007-result-degraded-on-pass",
+        "bad-010-result-pass-indirect-on-direct-clean-row",
+        "bad-304-method-cap-multirecord",
+        "bad-902-sealed-posture-ne-arming",
+        "ok-002-clean-pass-armed-sealed",
+        "ok-003-clean-pass-bounded-drops",
+        "ok-004-degraded-out-of-scope",
+        "ok-005-degraded-routed-elsewhere",
+        "ok-011-shared-run-records",
+        "ok-012-selectors-present",
+        "ok-013-unknown-kind-extra-record",
+        "ok-014-three-record-odd-split",
+        "ok-015-four-record-tree",
+        "ok-018-aee-prefix-ignored",
+        "ok-019-wrong-keyid-sig-verifies",
+        "ok-022-two-arming-records",
+        "ok-023-no-tofu-embedded-key",
+        "ok-025-does-not-assert-present",
+        "ok-026-five-record-tree",
+        "ok-028-empty-caught-pass",
+        "ok-034-arming-chain-genesis",
+        "ok-035-unknown-kind-excluded-from-cap",
+        "ok-036-payload-nesting-at-bound",
+        "ok-039-armedat-negative-zero-offset",
+        "ok-040-posture-no-network",
+        "ok-041-posture-allowlist",
+        "ok-042-posture-unsafe-bypass-egress",
+        "ok-043-posture-producer-member-bound",
+        "ok-045-mixed-clean-rows-indirect",
+        "ok-050-registered-noncovering-kinds",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
+      ]
+    },
+    "validity.go::checkSubstrateRow::LOOP_FIRST::8c5019eca05c": {
+      "class": "KILLED",
+      "snippet": "for _, idx := range uniqueRefs { a := analyzePayload(&p.Records[idx], &states[idx], binding) analyses[idx] = a for _, c := range a.codes { codes = app...",
+      "killers": [
+        "bad-005-result-mismatch-coverage-gap",
+        "bad-006-result-fail-on-pass",
+        "bad-007-result-degraded-on-pass",
+        "bad-010-result-pass-indirect-on-direct-clean-row",
+        "bad-304-method-cap-multirecord",
+        "bad-902-sealed-posture-ne-arming",
+        "ok-002-clean-pass-armed-sealed",
+        "ok-003-clean-pass-bounded-drops",
+        "ok-004-degraded-out-of-scope",
+        "ok-005-degraded-routed-elsewhere",
+        "ok-011-shared-run-records",
+        "ok-012-selectors-present",
+        "ok-013-unknown-kind-extra-record",
+        "ok-014-three-record-odd-split",
+        "ok-015-four-record-tree",
+        "ok-018-aee-prefix-ignored",
+        "ok-019-wrong-keyid-sig-verifies",
+        "ok-022-two-arming-records",
+        "ok-023-no-tofu-embedded-key",
+        "ok-025-does-not-assert-present",
+        "ok-026-five-record-tree",
+        "ok-028-empty-caught-pass",
+        "ok-034-arming-chain-genesis",
+        "ok-035-unknown-kind-excluded-from-cap",
+        "ok-036-payload-nesting-at-bound",
+        "ok-039-armedat-negative-zero-offset",
+        "ok-040-posture-no-network",
+        "ok-041-posture-allowlist",
+        "ok-042-posture-unsafe-bypass-egress",
+        "ok-043-posture-producer-member-bound",
+        "ok-045-mixed-clean-rows-indirect",
+        "ok-050-registered-noncovering-kinds",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "vate-1b-carried-admission-digest-unread",
+        "vate-1d-admission-receipt-as-sole-subject",
+        "vate-2a-aggregate-overrun-unread",
+        "vate-3b-admitted-vs-observed-runtime-unread",
+        "vate-3c-substrate-substituted-and-resigned"
+      ]
+    },
+    "validity.go::checkSubstrateRow::LOOP_FIRST::a3b881e887d1": {
+      "class": "SILENT",
+      "snippet": "for _, req := range reqs { satisfied := false candidateFail := Code(\"\") for _, idx := range uniqueRefs { ev := evals[idx] if ev.kind != req.kind { con...",
+      "branch": "taken"
     },
     "validity.go::evaluateKind::CASE_DEL::1dc1a6248ccf": {
       "class": "KILLED",
@@ -16831,6 +17511,11 @@
         "bad-724-artifact-ref-out-of-range"
       ]
     },
+    "validity.go::gate1WithContext::LOOP_FIRST::b4c878c2906a": {
+      "class": "SILENT",
+      "snippet": "for i := range p.Rows { row := &p.Rows[i] if !row.IsSubstrate() { continue } rowCodes, _ := checkSubstrateRow(p, row, states, binding, issuedAt) for _...",
+      "branch": "taken"
+    },
     "validity.go::objBool::IF_OFF::8323d795edac": {
       "class": "DEAD",
       "snippet": "if obj == nil { return false, false }",
@@ -16892,6 +17577,21 @@
       "class": "DEAD",
       "snippet": "if !ok { return nil, false }",
       "branch": "never-taken"
+    },
+    "validity.go::objStringArray::LOOP_FIRST::64b3a24055ab": {
+      "class": "KILLED",
+      "snippet": "for _, el := range arr { s, ok := el.(string) if !ok { return nil, false } out = append(out, s) }",
+      "killers": [
+        "bad-723-chain-scope-not-canonical",
+        "bad-978-arming-assessedattacks-unsorted",
+        "ok-011-shared-run-records",
+        "ok-014-three-record-odd-split",
+        "ok-015-four-record-tree",
+        "ok-026-five-record-tree",
+        "ok-045-mixed-clean-rows-indirect",
+        "ok-053-liveness-probe-uncaught-on-one-channel",
+        "vate-2a-aggregate-overrun-unread"
+      ]
     },
     "validity.go::rowFailsClosed::IF_DISJ::35b92ccb619d": {
       "class": "KILLED",
@@ -17163,6 +17863,13 @@
     "validity.go::sealedConstraintsMet::IF_OFF::e06b34432c6f": {
       "class": "KILLED",
       "snippet": "if posture != ap { return false }",
+      "killers": [
+        "bad-902-sealed-posture-ne-arming"
+      ]
+    },
+    "validity.go::sealedConstraintsMet::LOOP_FIRST::a9fe08ae75dc": {
+      "class": "KILLED",
+      "snippet": "for _, ap := range armingPostures { if posture != ap { return false } }",
       "killers": [
         "bad-902-sealed-posture-ne-arming"
       ]
@@ -17854,6 +18561,11 @@
     "verify.go::tierPolicySatisfied::IF_OFF::790773716dab": {
       "class": "DEAD",
       "snippet": "if rows[i].IsSubstrate() && tiers[i] != TierAttested { return false }",
+      "branch": "taken"
+    },
+    "verify.go::tierPolicySatisfied::LOOP_FIRST::19419ba22b41": {
+      "class": "DEAD",
+      "snippet": "for i := range rows { if rows[i].IsSubstrate() && tiers[i] != TierAttested { return false } }",
       "branch": "taken"
     },
     "verify.go::tierPolicySatisfied::RET_FALSE::7e4fe8351c22": {

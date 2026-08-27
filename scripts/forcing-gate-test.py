@@ -426,6 +426,16 @@ def coverage_cases() -> Failures:
     guard = {"file": "validity.go", "line": 9, "op": "IF_OFF"}
     body = {"file": "validity.go", "line": 20, "op": "CODE_OFF"}
     absent = {"file": "other.go", "line": 1, "op": "CODE_OFF"}
+    # The `for` line runs even when the collection is empty, so a loop no vector
+    # enters would read as taken if the probe were not moved to the body. That
+    # is the whole question LOOP_FIRST asks, so getting it wrong would publish
+    # an unentered loop as a universal the corpus declines to force.
+    loop = {"file": "validity.go", "line": 9, "op": "LOOP_FIRST"}
+    if fg.branch_taken(blocks, loop) != "never-taken":
+        failures.append(
+            "a loop whose body no vector entered was not reported never-taken; the "
+            "coverage probe read the `for` line, which executes on an empty collection"
+        )
     if fg.branch_taken(blocks, guard) != "never-taken":
         failures.append("a guard whose body no vector entered was not reported never-taken")
     if fg.branch_taken(blocks, body) != "taken":

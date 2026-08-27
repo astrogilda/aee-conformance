@@ -704,9 +704,15 @@ def branch_taken(blocks: dict[str, list[tuple[int, int, int]]], site: dict[str, 
     For a guard operator the site line is the condition, which executes whether or
     not the branch is taken, so the body's first line is the honest probe. For a
     body-level operator the site line already is the body.
+
+    `LOOP_FIRST` is a guard for this purpose even though it is not a condition:
+    the site line is the `for`, which executes whether or not the collection has
+    a single member, so a loop no vector ever enters would read as taken. The
+    body's first line is the honest probe there too, and it has to be, because
+    the whole question this operator asks is what happens on the SECOND member.
     """
     line = site["line"]
-    if site["op"].startswith(("IF_", "CASE_OFF", "CASE_DISJ", "CASE_CONJ")):
+    if site["op"].startswith(("IF_", "CASE_OFF", "CASE_DISJ", "CASE_CONJ", "LOOP_FIRST")):
         line += 1
     hits = [c for (a, b, c) in blocks.get(site["file"], []) if a <= line <= b]
     if not hits:

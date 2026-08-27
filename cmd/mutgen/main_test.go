@@ -65,6 +65,71 @@ func Pred(a, b bool) bool {
 func Assign(e *ev, a bool) {
 	e.valid = a
 }
+
+// Every member must be CodeA: a universal LOOP_FIRST weakens to its first
+// witness.
+func All(xs []Code, codes []Code) []Code {
+	for i := range xs {
+		if xs[i] != CodeA {
+			codes = appendCode(codes, CodeA)
+		}
+	}
+	return codes
+}
+
+// An accumulator. It asserts nothing about any member, so LOOP_FIRST must not
+// enumerate it.
+func Gather(xs []Code) []Code {
+	out := []Code{}
+	for _, x := range xs {
+		out = append(out, x)
+	}
+	return out
+}
+
+// A body that always leaves on its first element. A break appended here could
+// never run, so LOOP_FIRST must not enumerate it either.
+func Head(xs []Code) Code {
+	for _, x := range xs {
+		return x
+	}
+	return CodeA
+}
+
+// A code splice. The emission is the loop's own element, so the loop judges
+// nothing and LOOP_FIRST must not enumerate it.
+func Splice(src []Code, dst []Code) []Code {
+	for _, c := range src {
+		dst = appendCode(dst, c)
+	}
+	return dst
+}
+
+// Every arm of the switch leaves the body and a default covers the rest, so an
+// appended break could never run.
+func Scan(xs []Code) bool {
+	for _, x := range xs {
+		switch x {
+		case CodeA:
+			continue
+		default:
+			return false
+		}
+	}
+	return true
+}
+
+// A universal that reports through a nested splice. The inner loop emits its
+// own range variable and is not a quantifier; the outer one judges each member
+// and is. Both readings have to come out of one enumeration.
+func Nested(xs []Code, codes []Code) []Code {
+	for _, x := range xs {
+		for _, c := range Splice([]Code{x}, nil) {
+			codes = appendCode(codes, c)
+		}
+	}
+	return codes
+}
 `
 
 func fixturePkg(t *testing.T) string {
@@ -110,10 +175,81 @@ func TestListCoversEveryOperator(t *testing.T) {
 	for _, op := range []string{
 		"IF_OFF", "IF_DISJ", "IF_CONJ", "CASE_OFF", "CASE_DISJ", "CASE_CONJ",
 		"CASE_DEL", "RET_TRUE", "RET_FALSE", "CODE_OFF", "VALID_TRUE",
+		"LOOP_FIRST",
 	} {
 		if !seen[op] {
 			t.Errorf("operator %s produced no site; the fixture or the enumerator lost it", op)
 		}
+	}
+}
+
+// The quantifier operator has to be narrow to mean anything. A loop that builds
+// a value out of every element makes no claim about any of them, so weakening
+// it measures how the rail computes rather than what the corpus forces; and a
+// loop that always leaves on its first element is already existential, so the
+// appended break would be a mutation that changes nothing and scores DEAD for a
+// reason that is about this operator rather than about the corpus. Both would
+// be reported as universals the suite does not force, which is the specific
+// false claim this test exists to keep out of the baseline.
+func TestLoopFirstOnlyEnumeratesQuantifiers(t *testing.T) {
+	count := map[string]int{}
+	for _, s := range listSites(t, fixturePkg(t)) {
+		if s.Op == "LOOP_FIRST" {
+			count[s.Func]++
+		}
+	}
+	for _, fn := range []string{"All", "Nested"} {
+		if count[fn] == 0 {
+			t.Errorf("%s ranges over a collection and reports a violating member; "+
+				"LOOP_FIRST enumerated no site there, so the operator fires nowhere", fn)
+		}
+	}
+	for _, fn := range []string{"Gather", "Head", "Splice", "Scan"} {
+		if count[fn] != 0 {
+			t.Errorf("LOOP_FIRST enumerated %d site(s) in %s, which carries no universal",
+				count[fn], fn)
+		}
+	}
+	// Nested holds two loops and exactly one of them is a quantifier. Counting
+	// is the point: the inner loop emits its own range variable and the test
+	// would pass on presence alone if both were enumerated.
+	if count["Nested"] != 1 {
+		t.Errorf("Nested has one quantifier and one splice; LOOP_FIRST enumerated %d site(s)",
+			count["Nested"])
+	}
+}
+
+// The weakening itself: the body gains a break and nothing else moves. Checked
+// on the printed source rather than on the AST, because the printed source is
+// what the campaign compiles.
+func TestLoopFirstAppendsExactlyABreak(t *testing.T) {
+	dir := fixturePkg(t)
+	var target site
+	for _, s := range listSites(t, dir) {
+		if s.Op == "LOOP_FIRST" {
+			target = s
+			break
+		}
+	}
+	if target.Key == "" {
+		t.Fatal("no LOOP_FIRST site in the fixture")
+	}
+	var out, errs bytes.Buffer
+	if code := run([]string{"-pkg", dir, "-apply", target.Key}, &out, &errs); code != 0 {
+		t.Fatalf("-apply %s exited %d: %s", target.Key, code, errs.String())
+	}
+	got := out.String()
+	if strings.Count(got, "break") != strings.Count(fixture, "break")+1 {
+		t.Errorf("expected exactly one break to be added:\n%s", got)
+	}
+	if _, err := parser.ParseFile(token.NewFileSet(), "mutant.go", got, 0); err != nil {
+		t.Fatalf("the weakened loop does not parse: %v\n%s", err, got)
+	}
+	// The break must close the loop BODY. Printed adjacent to the previous
+	// statement it would still parse and would still be inside the body, so the
+	// shape is asserted rather than assumed.
+	if !strings.Contains(got, "\t\tbreak\n\t}") {
+		t.Errorf("the break did not land as the last statement of the loop body:\n%s", got)
 	}
 }
 

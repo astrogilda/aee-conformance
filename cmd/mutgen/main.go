@@ -20,6 +20,22 @@
 //	RET_FALSE   return <boolexpr>      -> return false && (<expr>)
 //	CODE_OFF    appendCode(cs, CodeX)  -> cs                         one emission off
 //	VALID_TRUE  ev.valid = <expr>      -> ev.valid = true || (<expr>)
+//	LOOP_FIRST  for _, x := range xs   -> a `break` closes the body   for-all -> for-one
+//
+// LOOP_FIRST is the quantifier weakening, and it answers a question none of the
+// others can. A rule of the form "EVERY carried record MUST satisfy P" is
+// written here as a loop that reports a violating member, and every operator
+// above leaves the loop alone: switch the guard inside it off and the corpus
+// notices because P stops being checked at all. Weakening the QUANTIFIER
+// instead keeps P exactly as it is and applies it to one member only. A vector
+// that still passes was never forcing the universal -- it carried one witness,
+// or its bad member happened to be the one the weakened rail still looks at --
+// so the "for every" in the rule is untested and the site is DEAD in precisely
+// the sense this campaign means.
+//
+// It is enumerated only on loops that can report a violating member, because a
+// loop that merely builds a value out of every element asserts nothing about
+// any of them; see `quantifies` in mutate.go for what that excludes and why.
 //
 // This command is measurement tooling, not part of the consumer surface: nothing
 // a relying party runs imports it, and it never touches a tree outside the one

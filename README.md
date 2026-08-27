@@ -224,6 +224,29 @@ and still disagree about which condition each statement violated, and that
 disagreement stays invisible until the codes are compared. Two of the divergences
 this suite has fixed were exactly that shape.
 
+Grading on the intersection has a cost, paid on this side rather than yours: a
+code the reference rail emits that the entry does not declare is compared against
+nothing at all. `bad-817` declared two and emitted four, and when suiteRevision 27
+moved its parent from a caught row to a reconstructed one, one of the two
+undeclared codes changed with it and every gate stayed green. Nineteen of the 258
+vectors were in that state, with 24 unpinned emissions between them. Those
+emissions are now written down, in an `expected.alsoEmits` array on the entries
+that carry them, and `scripts/observed-code-closure-gate.py` refuses both an
+emitted code that no field declares and a declared one the rail has stopped
+emitting.
+
+**This changes nothing you are required to do.** `alsoEmits` records what THIS
+rail reports and obliges no other rail to report it; a strict single-code
+implementation and a superset-emitting one still certify against one manifest,
+exactly as the paragraph above says, and the comparison surface is the same
+verdict and result token it has always been. Nothing you emit is compared against
+`alsoEmits`, and nothing you omit from it can fail a vector. The gate that reads
+it drives the reference rail alone and never runs over an external one, which is
+also why the rule lives in a gate and not in the replay harness that external
+rails go through. Read the array as a published measurement of our verifier —
+useful if you are chasing a reason-parity figure, and safe to ignore entirely if
+you are not.
+
 ### The registry
 
 The codes are this suite's registry rather than the specification's. The

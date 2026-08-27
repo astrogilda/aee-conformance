@@ -7,6 +7,47 @@ byte-identically from the generators.
 
 ## suiteRevision 27 (a reject vector IS its parent plus one mutation, and the gate says so)
 
+- **The rail's own output is now pinned, which it was not.** A reject vector is
+  graded by INTERSECTING the codes a rail emits with the codes the entry declares,
+  so a code emitted outside that set was compared against nothing at all. Measured
+  across all 258 vectors, 19 were in that state -- 17 reject and both indeterminate
+  members -- carrying 24 unpinned emissions between them, of which
+  `caught-row-uncovered` accounted for ten. `bad-817` was the worst of them,
+  declaring two codes and emitting four, and it is where this was found: when the
+  corpus-wide rewrite above moved its declared parent from a caught row to a
+  reconstructed one, one of its two undeclared codes changed with it, from
+  `caught-row-uncovered` to `reconstructed-row-uncovered`. That change was correct
+  and nothing in the repository could see it.
+- **The pin is a new declaration, not a wider expectation.** Each of those 19 rows
+  gains an `(also emits: ...)` clause naming what the reference rail reports beyond
+  what the vector declares, and `vectors/gen_manifest.py` carries it into the
+  manifest as `expected.alsoEmits`. No expectation moves, no vector is weakened,
+  and no vector file changes, so `corpusDigest` is exactly what the rest of this
+  revision published.
+- **Nothing changes for a third-party implementer, and that is a design constraint
+  rather than a happy result.** `comparisonSurface` still declares the verdict and
+  an accepted statement's result token normative and the condition codes measured;
+  README still promises that a strict single-code implementation and a
+  superset-emitting one certify against one manifest. `alsoEmits` is compared
+  against nothing an external rail produces. That is why the check is
+  `scripts/observed-code-closure-gate.py`, driving the reference rail alone, and
+  not a rule inside `packaging/run_vectors.py`, which external rails replay
+  through: a closure rule there would have promoted this repository's private
+  vocabulary into an obligation on everybody, which is the one thing the manifest
+  promises it will not do.
+- **It is also not spelled as an `also carries` clause**, which would have been the
+  smaller edit. That clause is the second-fault self-check's exemption key, and
+  `payload-not-canonical` -- one of the two codes `bad-817` has to declare -- sits
+  in the binding fault family, so the smaller edit would have bought the pin by
+  switching `_sfa_binding` off on the very vector that motivated it. A declaration
+  that a rail emits something must never be spelled as an exemption from a check.
+- **The gate refuses in both directions**: an emitted code that no field of the
+  entry names, and a code pinned as emitted that the rail no longer emits. Its
+  mutation proof reconstructs the `bad-817` drift verbatim and requires both arms
+  to fire on it, and one of its six cases patches the reference rail rather than
+  the manifest, because every manifest-only case would also pass a gate that
+  compared the manifest against nothing but itself.
+
 - Corpus: **258 vectors (60 accept, 196 reject, 2 indeterminate)**, unchanged in
   count from suiteRevision 26. Every reject vector file changes, so `corpusDigest`
   in `vectors/MANIFEST.json` moves. No accept vector file changes, no expectation

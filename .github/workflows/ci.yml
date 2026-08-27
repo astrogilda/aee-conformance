@@ -108,7 +108,7 @@ jobs:
       - name: sync toolchain
         run: uv sync --extra dev --extra generators
       - name: mypy --strict
-        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/interpretation-registry-gate-test.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-anchor-gate-test.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/code-contract-gate-test.py scripts/consumer-lag-gate.py scripts/consumer-lag-gate-test.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/condition-forcing-gate.py scripts/condition-forcing-gate-test.py scripts/condition-forcing-crosscheck.py scripts/condition-forcing-crosscheck-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py scripts/countcensus.py scripts/count-gate.py scripts/count-gate-test.py scripts/regenerability-gate.py scripts/mutationdiff.py scripts/accept-anchor-gate.py scripts/accept-anchor-gate-test.py scripts/liveness-probe.py scripts/liveness-probe-test.py scripts/citation-metadata-gate.py scripts/citation-metadata-gate-test.py scripts/expectation-slack-gate.py scripts/expectation-slack-gate-test.py scripts/uncited-crosscheck-gate.py scripts/reading-differential.py scripts/reading-differential-test.py scripts/vendor-remap-test.py
+        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/interpretation-registry-gate-test.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-anchor-gate-test.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/code-contract-gate-test.py scripts/consumer-lag-gate.py scripts/consumer-lag-gate-test.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/condition-forcing-gate.py scripts/condition-forcing-gate-test.py scripts/condition-forcing-crosscheck.py scripts/condition-forcing-crosscheck-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py scripts/countcensus.py scripts/count-gate.py scripts/count-gate-test.py scripts/regenerability-gate.py scripts/mutationdiff.py scripts/accept-anchor-gate.py scripts/accept-anchor-gate-test.py scripts/liveness-probe.py scripts/liveness-probe-test.py scripts/citation-metadata-gate.py scripts/citation-metadata-gate-test.py scripts/expectation-slack-gate.py scripts/expectation-slack-gate-test.py scripts/observed-code-closure-gate.py scripts/observed-code-closure-gate-test.py scripts/uncited-crosscheck-gate.py scripts/reading-differential.py scripts/reading-differential-test.py scripts/vendor-remap-test.py
       # Type-checks by DIRECTORY, which is why it sits beside the pass above
       # rather than replacing it. That one is driven from the list of files
       # written out on the line above, and a list is only accurate on the day it
@@ -248,6 +248,30 @@ jobs:
         run: |
           python3 scripts/expectation-slack-gate.py
           python3 scripts/expectation-slack-gate-test.py
+      # The mirror of the step above, and the half that was missing. That one
+      # refuses an expectation satisfied by too many of the codes a statement
+      # emits; this one refuses a code a statement emits that no expectation
+      # mentions at all. The intersection grading leaves the second kind
+      # entirely unchecked: `bad-817` declared two codes and emitted four, and
+      # when suiteRevision 27 moved its parent from a caught row to a
+      # reconstructed one, one of the two undeclared codes changed with it and
+      # nothing refused. Measured across the corpus, 19 of 258 vectors were in
+      # that state with 24 unpinned emissions between them.
+      #
+      # It is a gate here rather than a rule inside the replay for one reason:
+      # the replay runs over external rails, and a closure rule there would turn
+      # this repository's private code vocabulary into an obligation on everyone
+      # who replays the corpus. The manifest's comparisonSurface promises the
+      # opposite, and README promises that a superset-emitting implementation
+      # certifies against the same manifest as a single-code one. Both promises
+      # survive this gate unchanged, because the gate only ever drives the
+      # reference rail. Its test runs beside it and includes a case that patches
+      # the rail rather than the manifest, since every manifest-only case would
+      # also pass a gate that compared the manifest against nothing but itself.
+      - name: the reference rail emits no code the corpus declares nowhere
+        run: |
+          python3 scripts/observed-code-closure-gate.py
+          python3 scripts/observed-code-closure-gate-test.py
       # A verifier that rejects its input unconditionally passes every reject
       # vector ever written, and scored against a reject-only corpus it looks
       # perfect. The cure is a paired accept anchor, and the corpus said so in

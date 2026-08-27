@@ -11,6 +11,13 @@ the second-fault self-check's exemption key), the expected recomputed
 result for accept vectors, the declared readings of each indeterminate
 vector, and the expected per-row evidence tiers where
 the index pins them. Regenerate byte-identically: python3 gen_manifest.py
+
+One field here is not an expectation and is deliberately consumed by nothing in
+that harness: `alsoEmits` records what the REFERENCE RAIL reports beyond the
+codes a vector declares, so that the rail's observable output is pinned somewhere
+rather than compared against nothing. It changes no rail's obligations and is
+enforced separately, by scripts/observed-code-closure-gate.py. See also_emits_of
+below for why it is not folded into alsoCarries.
 """
 
 from __future__ import annotations
@@ -202,6 +209,32 @@ def indeterminate_rows(md_path: str) -> list[tuple[str, list[str], list[str]]]:
 
 
 _ALSO_CARRIES = "(also carries:"
+_ALSO_EMITS = "(also emits:"
+# Every trailing clause a cell may append after the tokens the cell is named
+# for. They are listed together because each one ENDS the one before it: a cell
+# spelling both clauses must not fold the second one's codes into the first,
+# and it must not fold either into the expectation.
+_CLAUSES = (_ALSO_CARRIES, _ALSO_EMITS)
+
+
+def _before_any_clause(cell: str) -> str:
+    """The head of a cell: everything before the first trailing clause."""
+    cuts = [cell.index(marker) for marker in _CLAUSES if marker in cell]
+    return cell[: min(cuts)] if cuts else cell
+
+
+def _clause_body(cell: str, marker: str) -> str:
+    """The text of one named clause, empty when the cell does not spell it.
+
+    A clause runs to the next clause rather than to the end of the cell, so the
+    two are order-independent in the index: a row may write `also carries`
+    before `also emits` or the other way round and parse the same either way.
+    """
+    _head, sep, tail = cell.partition(marker)
+    if not sep:
+        return ""
+    ends = [tail.index(other) for other in _CLAUSES if other in tail]
+    return tail[: min(ends)] if ends else tail
 
 
 def codes_of(cell: str) -> list[str]:
@@ -209,10 +242,11 @@ def codes_of(cell: str) -> list[str]:
 
     A cell may append an "also carries" clause naming conditions the statement
     carries deliberately but that a conforming rail is not expected to report as
-    its primary. Those are split off by also_carries_of below and never widen the
+    its primary, and an "also emits" clause recording what the reference rail
+    additionally reports. Both are split off below and neither widens the
     expectation, since widening it is exactly what a precedence pin must not do.
     """
-    return re.findall(r"`([a-z0-9-]+)`", cell.split(_ALSO_CARRIES)[0])
+    return re.findall(r"`([a-z0-9-]+)`", _before_any_clause(cell))
 
 
 def also_carries_of(cell: str) -> list[str]:
@@ -222,8 +256,40 @@ def also_carries_of(cell: str) -> list[str]:
     harness, and nothing else: declaring one does not make a rail reporting it
     conformant.
     """
-    parts = cell.split(_ALSO_CARRIES)
-    return re.findall(r"`([a-z0-9-]+)`", parts[1]) if len(parts) > 1 else []
+    return re.findall(r"`([a-z0-9-]+)`", _clause_body(cell, _ALSO_CARRIES))
+
+
+def also_emits_of(cell: str) -> list[str]:
+    """Codes the REFERENCE RAIL additionally reports on this vector.
+
+    Not an expectation and not an obligation on anybody. A reject vector's
+    comparison surface is its verdict and the codes it declares, and this clause
+    is outside it in both directions: a second rail is neither required to emit
+    these nor failed for omitting them, and adding one here can never satisfy a
+    vector that would otherwise go red.
+
+    What it is for is that the rail's own output was unpinned. `bad-817` emitted
+    four codes while declaring two, and when the corpus-wide rewrite of
+    suiteRevision 27 moved its declared parent from a caught row to a
+    reconstructed one, one of the two undeclared codes changed with it, from
+    `caught-row-uncovered` to `reconstructed-row-uncovered`. The change was
+    correct. Nothing in the repository could see it, because a reject vector is
+    graded by INTERSECTING the emitted set with the declared one and an emitted
+    code outside that set was compared against nothing at all.
+
+    Deliberately NOT folded into `alsoCarries`, which would have been the
+    smaller edit. That clause is the second-fault self-check's exemption key, so
+    a code declared there switches OFF a recompute -- and `payload-not-canonical`,
+    which `bad-817` needs to declare, sits in the binding fault family, so the
+    smaller edit would have bought this pin by disabling `_sfa_binding` on the
+    very vector that motivated it. A declaration that a rail emits something
+    must never be spelled as an exemption from a check.
+
+    `scripts/observed-code-closure-gate.py` is what makes the clause load-bearing:
+    it replays the reference rail and refuses when an emitted code is declared
+    nowhere, and equally when a code declared here is no longer emitted.
+    """
+    return re.findall(r"`([a-z0-9-]+)`", _clause_body(cell, _ALSO_EMITS))
 
 
 def conditions_of(cell: str) -> list[str]:
@@ -249,19 +315,28 @@ def indeterminate_entries(md_path: str) -> list[dict[str, Any]]:
                 f"{vid}: each reading column names exactly one condition; got "
                 f"{predicted}"
             )
+        expected: dict[str, Any] = {
+            "verdict": "invalid",
+            "family": family,
+            "readings": dict(zip(readings, (p[0] for p in predicted), strict=True)),
+        }
+        # The "also emits" clause rides the CONDITIONS cell here and the codes
+        # cell in the reject table, and the asymmetry is the table's rather than
+        # a preference. A reject row has one codes cell; an indeterminate row has
+        # one per declared reading, and what the rail emits is a property of the
+        # vector and not of any single reading, so there is no reading column it
+        # could honestly sit in. The conditions cell is the one per-row cell this
+        # table has, and conditions_of reads `aee-c-\d+` only, so a backticked
+        # code name there is invisible to it.
+        if emits := also_emits_of(cells[3]):
+            expected["alsoEmits"] = emits
         entries.append(
             {
                 "id": vid,
                 "kind": "indeterminate",
                 "file": f"indeterminate/{vid}.json",
                 "conditions": conditions_of(cells[3]),
-                "expected": {
-                    "verdict": "invalid",
-                    "family": family,
-                    "readings": dict(
-                        zip(readings, (p[0] for p in predicted), strict=True)
-                    ),
-                },
+                "expected": expected,
             }
         )
     return entries
@@ -293,6 +368,8 @@ def main() -> int:
         expected_reject: dict[str, Any] = {"verdict": "invalid", "codes": codes}
         if also := also_carries_of(cells[5]):
             expected_reject["alsoCarries"] = also
+        if emits := also_emits_of(cells[5]):
+            expected_reject["alsoEmits"] = emits
         vectors.append(
             {
                 "id": vid,

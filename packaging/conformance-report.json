@@ -2632,6 +2632,10 @@
         "verdict": "invalid",
         "codes": [
           "payload-not-canonical"
+        ],
+        "alsoEmits": [
+          "caught-row-uncovered",
+          "observed-set-mismatch"
         ]
       },
       "inManifest": true,
@@ -2666,6 +2670,9 @@
         ],
         "alsoCarries": [
           "observed-set-mismatch"
+        ],
+        "alsoEmits": [
+          "caught-row-uncovered"
         ]
       },
       "inManifest": true,
@@ -2700,6 +2707,9 @@
         ],
         "alsoCarries": [
           "observed-set-mismatch"
+        ],
+        "alsoEmits": [
+          "caught-row-uncovered"
         ]
       },
       "inManifest": true,
@@ -2730,6 +2740,9 @@
         "verdict": "invalid",
         "codes": [
           "payload-media-type"
+        ],
+        "alsoEmits": [
+          "caught-row-uncovered"
         ]
       },
       "inManifest": true,
@@ -2789,6 +2802,9 @@
         "verdict": "invalid",
         "codes": [
           "payload-missing-reserved"
+        ],
+        "alsoEmits": [
+          "record-kind-unknown-covers-nothing"
         ]
       },
       "inManifest": true,
@@ -2849,6 +2865,10 @@
         "verdict": "invalid",
         "codes": [
           "payload-not-canonical"
+        ],
+        "alsoEmits": [
+          "caught-row-uncovered",
+          "observed-set-mismatch"
         ]
       },
       "inManifest": true,
@@ -3721,6 +3741,9 @@
         "verdict": "invalid",
         "codes": [
           "run-entropy-missing"
+        ],
+        "alsoEmits": [
+          "sealed-record-absent"
         ]
       },
       "inManifest": true,
@@ -3871,6 +3894,9 @@
         "verdict": "invalid",
         "codes": [
           "subject-sha256-missing"
+        ],
+        "alsoEmits": [
+          "sealed-record-absent"
         ]
       },
       "inManifest": true,
@@ -3991,6 +4017,9 @@
           "arming-covers-nothing",
           "sealed-covers-nothing",
           "clean-row-uncovered"
+        ],
+        "alsoEmits": [
+          "sealed-record-absent"
         ]
       },
       "inManifest": true,
@@ -5011,6 +5040,9 @@
         ],
         "alsoCarries": [
           "observed-set-mismatch"
+        ],
+        "alsoEmits": [
+          "caught-row-uncovered"
         ]
       },
       "inManifest": true,
@@ -5045,6 +5077,9 @@
         ],
         "alsoCarries": [
           "observed-set-mismatch"
+        ],
+        "alsoEmits": [
+          "caught-row-uncovered"
         ]
       },
       "inManifest": true,
@@ -5079,6 +5114,9 @@
         ],
         "alsoCarries": [
           "observed-set-mismatch"
+        ],
+        "alsoEmits": [
+          "caught-row-uncovered"
         ]
       },
       "inManifest": true,
@@ -5113,6 +5151,9 @@
         ],
         "alsoCarries": [
           "observed-set-mismatch"
+        ],
+        "alsoEmits": [
+          "caught-row-uncovered"
         ]
       },
       "inManifest": true,
@@ -5176,6 +5217,9 @@
         ],
         "alsoCarries": [
           "observed-set-mismatch"
+        ],
+        "alsoEmits": [
+          "caught-row-uncovered"
         ]
       },
       "inManifest": true,
@@ -5527,6 +5571,9 @@
         "verdict": "invalid",
         "codes": [
           "coverage-incomplete"
+        ],
+        "alsoEmits": [
+          "interception-record-orphaned"
         ]
       },
       "inManifest": true,
@@ -5852,6 +5899,10 @@
         ],
         "alsoCarries": [
           "observed-set-mismatch"
+        ],
+        "alsoEmits": [
+          "payload-not-canonical",
+          "reconstructed-row-uncovered"
         ]
       },
       "inManifest": true,
@@ -6176,6 +6227,9 @@
         ],
         "alsoCarries": [
           "arming-covers-nothing"
+        ],
+        "alsoEmits": [
+          "sealed-record-absent"
         ]
       },
       "inManifest": true,
@@ -7416,7 +7470,11 @@
           "decode-first": "record-undecodable",
           "positional": "record-undecodable",
           "set-level": "record-signatures-empty"
-        }
+        },
+        "alsoEmits": [
+          "clean-row-uncovered",
+          "payload-not-canonical"
+        ]
       },
       "inManifest": true,
       "reasons": []
@@ -7451,7 +7509,11 @@
           "decode-first": "record-undecodable",
           "positional": "record-signatures-empty",
           "set-level": "record-signatures-empty"
-        }
+        },
+        "alsoEmits": [
+          "clean-row-uncovered",
+          "payload-not-canonical"
+        ]
       },
       "inManifest": true,
       "reasons": []

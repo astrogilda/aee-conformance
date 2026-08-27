@@ -107,6 +107,18 @@ In this order:
 - **Add its row to the index table** in the same directory, carrying the
   condition ids it cites and the specification anchor.
 - **Regenerate the manifest**: `python3 vectors/gen_manifest.py`.
+- **Pin every code the reference rail emits.** Run
+  `python3 scripts/observed-code-closure-gate.py`; if it names your vector, add
+  the codes it lists to an `(also emits: ...)` clause on the row — in the codes
+  cell for a reject vector, in the conditions cell for an indeterminate one,
+  because that table has a codes cell per reading and the emission set belongs to
+  the vector rather than to any one reading. The clause is a record of what our
+  verifier reports and nothing else: it never widens what the vector measures, it
+  obliges no other rail to emit the same, and it is checked in both directions, so
+  a code that stops being emitted has to leave the clause in the same change.
+  Do **not** reach for the `also carries` clause instead — that one is the
+  second-fault self-check's exemption key, so a code declared there switches a
+  recompute off.
 - **Bump `suiteRevision` and write the changelog entry.** The entry states the
   corpus size, what changed, and — this is the part that matters — what the
   revision does *not* exercise. A revision that makes a rule normative over a

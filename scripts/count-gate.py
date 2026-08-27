@@ -682,6 +682,26 @@ DELEGATED: tuple[Delegated, ...] = (
         r"all\s+\d+\s+reject\s+vectors\s+declare\s+a\s+parent",
         "scripts/accept-anchor-gate.py",
     ),
+    # The one-mutation relation: how many reject vectors are exactly one
+    # mutation from the accept vector they declare, and how many are declared
+    # to need more. Both are recomputed on every run over the committed
+    # vectors, and the gate that computes them reads these two sentences back,
+    # so the owner is the one that measures rather than this census.
+    Delegated(
+        "vectors/CHANGES.md",
+        "the one-mutation figure",
+        r"\*\*\d+\s+of\s+the\s+\d+\s+reject\s+vectors\s+are\s+now\s+"
+        r"exactly\s+one\s+mutation\s+from\s+their\s+declared\s*\n?\s*"
+        r"parent",
+        "scripts/accept-anchor-gate.py",
+    ),
+    Delegated(
+        "vectors/CHANGES.md",
+        "the declared multi-mutation count",
+        r"The\s+remaining\s+\d+\s+cannot\s+express\s+their\s+declared\s+"
+        r"fault",
+        "scripts/accept-anchor-gate.py",
+    ),
 )
 
 

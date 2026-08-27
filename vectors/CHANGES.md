@@ -5,59 +5,88 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
-## suiteRevision 27 (the case-1 control was not controlling for its field)
+## suiteRevision 27 (a reject vector IS its parent plus one mutation, and the gate says so)
 
 - Corpus: **258 vectors (60 accept, 196 reject, 2 indeterminate)**, unchanged in
-  count from suiteRevision 26. One vector file changes,
-  `vate-1a-admission-receipt-substituted-splice`, so `corpusDigest` in
-  `vectors/MANIFEST.json` moves. The vendored specification does not move:
-  `specDigest` and `specUpstreamCommit` are exactly what suiteRevision 26
-  carried, because this revision corrects a vector and changes no rule and no
-  reading. No expectation changes: `vate-1a` remains a reject vector, on the
-  same conditions, with the same expected code.
-- **The fault, which was ours.** suiteRevision 26 published `vate-1a` and
+  count from suiteRevision 26. Every reject vector file changes, so `corpusDigest`
+  in `vectors/MANIFEST.json` moves. No accept vector file changes, no expectation
+  changes, and no vector is added, removed or weakened: every refusal keeps its
+  conditions and its expected code. The vendored specification does not move:
+  `specDigest` and `specUpstreamCommit` are exactly what suiteRevision 26 carried,
+  because this revision corrects the corpus and changes no rule and no reading.
+- **The fault, which was ours.** Both indexes, and the accept-anchor gate's own
+  docstring, describe a reject vector as "a fully valid parent statement plus
+  exactly one mutation". That was a statement about shape. Nothing compared the
+  bytes, and under the gap the relation rotted. Compared as raw JSON leaves,
+  exactly ONE of the 196 reject vectors was within one leaf of the accept vector
+  it declared and the rest ranged from six to forty-one. Compared the way the
+  new check compares -- over the semantic pre-image, with the derived fields
+  absorbed -- four measured one and the rest ranged from five to seventeen, and
+  three of those four are vectors whose file does not parse at all, where a
+  single sentinel stands for the whole statement and the count says nothing.
+  Both figures are recorded because they answer different questions and the
+  second is the one the gate now holds. suiteRevision 26 published `vate-1a` and
   `vate-1d` as a control pair and said in three places that they were one
-  mutation apart. They were not. They differed in eleven leaves: the subject
-  digest the control is about, and alongside it the catch-policy, network-posture
-  and run-entropy digests, the corpus name and purl, the batch root, both record
-  payloads and both record signatures. A pair that differs in more than the field
-  under test does not control for that field, so a rail's refusal of `vate-1a`
-  was not attributable to the substituted admission digest, and attribution is
-  the entire property the pair exists to carry. The prose claimed a control; the
-  bytes shipped a pair of related statements.
+  mutation apart, and they differed in eleven leaves. That pair was repaired in
+  this revision's first commit; this is the rest of it.
 - **The cause was one shape built twice.** The accept generator and the reject
-  generator each carry their own synthetic environment fixtures, and the reject
-  generator held a second, hand-maintained construction of the `vate-1d` shape
-  under the name `P_receipt_clean`. It produced the same SHAPE as `vate-1d` and
-  never the same STATEMENT, and nothing compared the two: the accept-anchor gate
-  resolves a declared parent by whole-id membership among the shipped accept
-  vectors, which is a check that the parent EXISTS and not a check that the child
-  is that parent plus one mutation.
-- **The fix removes the second construction rather than reconciling it.**
-  `P_receipt_clean` now reads
-  `vectors/accept/vate-1d-admission-receipt-as-sole-subject.json` and returns it,
-  and `vate-1a` is that statement with `subject[0].digest.sha256` moved from
-  admission receipt A to admission receipt B and every record left exactly as the
-  producer signed it for A. The one-mutation relation is now true by construction
-  instead of by two generators happening to agree, so it cannot drift back. The
-  regenerability gate already runs the accept generator before the reject one, so
-  the file read is the one that run just wrote; an unreadable file is a hard
-  failure there and never a rebuilt approximation. The shipped pair now differs
-  in one leaf and in nothing else.
-- **What is not fixed, stated here rather than left to be rediscovered.** The
-  same divergence holds between every other reject vector and its declared accept
-  parent, `vate-1c` and `vate-3a` among them, for the same reason: the two
-  generators do not share environment fixtures. Those vectors are not published
-  as controls for a single field, so no claim in this repository is wrong because
-  of it, but the accept-anchor gate's own description of a reject vector as "a
-  fully valid parent statement plus exactly one mutation" is a statement about
-  shape and is read easily as a statement about bytes. Making it true corpus-wide
-  means giving both generators one set of fixtures, which moves every reject
-  vector, and it is not done here.
-- **Found by an outside reader.** The pair was reported by an independent
-  implementer who reproduced the corpus at 258 of 258 and regenerated the
-  generated files byte-identically before raising it. Three earlier corrections
-  from the same review are already carried in suiteRevision 26.
+  generator each carried their own synthetic environment fixtures. The
+  catch-policy and network-posture pre-image objects, the run-entropy and
+  unchecked-binding pre-images, the corpus name and purl, the value an
+  interception record commits to and the note beside it, and the reasons a
+  coverage declaration carries each had two spellings, and the two sets never
+  agreed. A reject vector built to mirror an accept vector therefore got the same
+  SHAPE and never the same STATEMENT. The accept-anchor gate resolved a declared
+  parent by whole-id membership among the shipped accept vectors, which is a check
+  that the parent EXISTS and never a check that the child is that parent plus one
+  mutation.
+- **The fix deletes the second construction rather than reconciling it.** The
+  reject generator imports the accept generator's fixtures instead of restating
+  them, and every parent builder is replaced by a read of the shipped accept
+  vector. A reconciliation drifts again; a deletion cannot, because there is no
+  second copy left to drift. The regenerability gate runs the accept generator
+  before the reject one, so the file each parent reads is the one that run just
+  wrote, and an unreadable file is a hard failure rather than a rebuilt
+  approximation.
+- **Three parents named an accept vector they were not**, which the whole-id check
+  could not see because the vector they named does ship. The reconstructed parent
+  is `ok-031` and not `ok-006`; the two-caught-row parent is `ok-046` and not
+  `ok-011`; the multirecord parent is `ok-030`, whose record set the previous
+  builder did not produce at all. Each is re-pointed at the vector it is. Two
+  builders both claimed `ok-007` and only one of them could be it, so the artifact
+  family now has one builder and it is the shipped shape.
+- **Three vectors now express the same fault in one edit rather than several.**
+  `bad-817` moves to the parent whose covering payload has slack trailing bits,
+  because a non-canonical base64 encoding of the same bytes exists only where the
+  payload length is not a multiple of three. `bad-960` and `bad-983` alter the
+  commitment alone instead of the commitment and the producer note beside it.
+- **The relation is now enforced, which is the half that was missing.** Check 4 of
+  `scripts/accept-anchor-gate.py` diffs every reject vector against the accept
+  vector it declares and refuses when the count is wrong, naming the vector, its
+  parent, the count and every differing path. The comparison is over the semantic
+  pre-image: a derived field -- a signature, a batch root, a run binding, the
+  carried result, a digest OF material the statement also carries -- collapses to
+  a token where BOTH sides agree with their own derivation, and is compared as
+  written where either does not. So a field that moved because the mutation moved
+  is not counted, and a field set to a value the derivation does not produce IS
+  the mutation and is counted where it was set. The arithmetic and its reasoning
+  live in `scripts/mutationdiff.py`.
+- **152 of the 196 reject vectors are now exactly one mutation from their declared
+  parent, up from one.** The remaining 44 cannot express their declared fault in a
+  single edit, and each is declared in `docs/MULTI-MUTATION-VECTORS.json` with its
+  count and the reason -- the seal-constraint family carries a second healthy seal
+  so the defective one is not also the only covering record; the laundering family
+  is a vector plus a reference move by construction; a run-chain declaration is
+  members that only exist together; a record replaced by one of another kind
+  carries different members. The gate refuses an UNDECLARED multi-mutation, a
+  declared count the vector has outgrown, a row for a vector nobody ships, a row
+  with no reason, and a row that has stopped being an exception. The last one
+  matters most: an allowlist recording which vectors were excused and not why is
+  the same defect one level up.
+- **Found by an outside reader.** The pair that exposed all of this was reported
+  by an independent implementer who reproduced the corpus at 258 of 258 and
+  regenerated the generated files byte-identically before raising it. Three
+  earlier corrections from the same review are already carried in suiteRevision 26.
 
 ## suiteRevision 26 (what this predicate does not read across an external admission)
 

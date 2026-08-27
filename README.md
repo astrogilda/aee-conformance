@@ -410,8 +410,20 @@ written, so every refusal here is paired with a statement that must be
 accepted: `scripts/accept-anchor-gate.py` requires each reject vector's parent
 to ship as an accept vector, and measures, as a ratchet rather than a claim in
 prose, the conditions that only refusals cite. It also checks the sentences
-that publish both figures, because the count census skips them on the strength
+that publish those figures, because the count census skips them on the strength
 of naming this gate their owner.
+
+Requiring the parent to SHIP establishes that it exists. The same gate now also
+requires the child to BE it: every reject vector is diffed against the accept
+vector it declares, over a semantic pre-image in which a derived field --
+a signature, a batch root, a run binding, the carried result, a digest of
+material the statement also carries -- collapses to a token only where both
+sides agree with their own derivation. A vector that is not one mutation from
+its parent is refused, named, and its differing paths printed. The handful that
+cannot express their fault in one edit are declared in
+`docs/MULTI-MUTATION-VECTORS.json` with a reason each, and a row with no reason,
+a row for a vector nobody ships, and a row that has stopped being an exception
+are all refused too.
 
 ### Condition ids
 

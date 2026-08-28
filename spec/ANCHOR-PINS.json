@@ -386,6 +386,12 @@
       "opens": "`containmentObserved` label is from the carried",
       "closes": "accidental omission. `none` is also valid on a caught row, and there"
     },
+    "vectors/reject/gen_invalid_vectors.py::bad-994-second-clean-row-layer-not-none#0": {
+      "anchor": "L1278-1283",
+      "digest": "de9df6c7bc49ff92e6a889c7a54f268ae5a57b68d1f10fc6db1b127c8e4a8400",
+      "opens": "`containmentObserved` label is from the carried",
+      "closes": "accidental omission. `none` is also valid on a caught row, and there"
+    },
     "vectors/reject/gen_invalid_vectors.py::bad-818-artifact-clean-row-layer-not-none#0": {
       "anchor": "L1278-1283",
       "digest": "de9df6c7bc49ff92e6a889c7a54f268ae5a57b68d1f10fc6db1b127c8e4a8400",
@@ -710,6 +716,12 @@
       "opens": "and `aeeChainScope` (the population the sequence counts, declared as a",
       "closes": "3.2.3); REQUIRED whenever `aeeRunSeq` is present). The chain is always"
     },
+    "vectors/reject/gen_invalid_vectors.py::bad-988-chain-scope-later-token-unknown#0": {
+      "anchor": "L1615-1619",
+      "digest": "cb516eb6220545b8fca5acb2dc5083d871e2cf9c5fe7c4d7d0b7ed3ec03d157b",
+      "opens": "and `aeeChainScope` (the population the sequence counts, declared as a",
+      "closes": "3.2.3); REQUIRED whenever `aeeRunSeq` is present). The chain is always"
+    },
     "vectors/reject/gen_invalid_vectors.py::bad-724-artifact-ref-out-of-range#0": {
       "anchor": "L552-553",
       "digest": "37927ecc5e852c49e9b3c8865fe8bba048cef7ed0095b81ea68c95c681129c47",
@@ -717,6 +729,30 @@
       "closes": "`observationRecords`;"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-724-artifact-ref-out-of-range#1": {
+      "anchor": "L946-951",
+      "digest": "0a6d81b7327455da85fc036da6a4c110bee2369b0e1e9f609a7b98fb0fc2fbd1",
+      "opens": "before that comparison, not left to it.",
+      "closes": "independent of any gate, so a reference that does not resolve is never"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-990-artifact-refs-later-out-of-range#0": {
+      "anchor": "L552-553",
+      "digest": "37927ecc5e852c49e9b3c8865fe8bba048cef7ed0095b81ea68c95c681129c47",
+      "opens": "- its `observationRefs` is non-empty and every index is in range for",
+      "closes": "`observationRecords`;"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-990-artifact-refs-later-out-of-range#1": {
+      "anchor": "L946-951",
+      "digest": "0a6d81b7327455da85fc036da6a4c110bee2369b0e1e9f609a7b98fb0fc2fbd1",
+      "opens": "before that comparison, not left to it.",
+      "closes": "independent of any gate, so a reference that does not resolve is never"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-993-second-row-refs-out-of-range#0": {
+      "anchor": "L552-553",
+      "digest": "37927ecc5e852c49e9b3c8865fe8bba048cef7ed0095b81ea68c95c681129c47",
+      "opens": "- its `observationRefs` is non-empty and every index is in range for",
+      "closes": "`observationRecords`;"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-993-second-row-refs-out-of-range#1": {
       "anchor": "L946-951",
       "digest": "0a6d81b7327455da85fc036da6a4c110bee2369b0e1e9f609a7b98fb0fc2fbd1",
       "opens": "before that comparison, not left to it.",
@@ -1160,7 +1196,37 @@
       "opens": "`aeeObservedSet` _string_, required on a `sealed` record: the lowercase",
       "closes": "`basis: substrate` row, such a statement is invalid."
     },
+    "vectors/reject/gen_invalid_vectors.py::bad-996-second-seal-observed-set-mismatch#0": {
+      "anchor": "L609-613",
+      "digest": "9d0b06600f14c5864f729c548ae84140885f8a5a6083811fd190aa328ca3d8af",
+      "opens": "- `aeeObservedSet` on every carried `sealed` record equals the value",
+      "closes": "recompute;"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-996-second-seal-observed-set-mismatch#1": {
+      "anchor": "L1499-1508",
+      "digest": "eaad0484d6a6b504f2593621a22a1090aca5e925cb044be69da7efdd94995d2d",
+      "opens": "`aeeObservedSet` _string_, required on a `sealed` record: the lowercase",
+      "closes": "`basis: substrate` row, such a statement is invalid."
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-997-second-seal-attack-uncaught#0": {
+      "anchor": "L1535-1542",
+      "digest": "70709d5fcc5de86270fb5134c4e42130eeb7694bfd7e3b094bdda37277592e0c",
+      "opens": "`aeeObservedAttacks` _array of strings_, required on a `sealed` record: the",
+      "closes": "violating that is invalid."
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-998-second-arming-declares-nothing#0": {
+      "anchor": "L1467-1473",
+      "digest": "73613b4a9907be27fe0349c0a706b5d927d8912f2988f23b94ea24f52de8a9d5",
+      "opens": "`aeeAssessedAttacks` _array of strings_, required on an `arming` record: the",
+      "closes": "this array, and a statement violating that is invalid."
+    },
     "vectors/reject/gen_invalid_vectors.py::bad-955-seal-names-clean-attack#0": {
+      "anchor": "L1535-1542",
+      "digest": "70709d5fcc5de86270fb5134c4e42130eeb7694bfd7e3b094bdda37277592e0c",
+      "opens": "`aeeObservedAttacks` _array of strings_, required on a `sealed` record: the",
+      "closes": "violating that is invalid."
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-995-seal-later-attack-uncaught#0": {
       "anchor": "L1535-1542",
       "digest": "70709d5fcc5de86270fb5134c4e42130eeb7694bfd7e3b094bdda37277592e0c",
       "opens": "`aeeObservedAttacks` _array of strings_, required on a `sealed` record: the",
@@ -1227,6 +1293,12 @@
       "closes": "malformed. The map is a sibling of `classes` rather than an enrichment of it,"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-965-commitment-not-hex#0": {
+      "anchor": "L1454-1465",
+      "digest": "cd23b897a81a6eedc377337bd8fdd24bfb1a87f06f88c93a132f352ebb18b756",
+      "opens": "`aeePayloadCommitment` _array of strings_, required on an `interception`",
+      "closes": "more than one row and may commit to more than one observed value."
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-989-commitment-later-entry-not-hex#0": {
       "anchor": "L1454-1465",
       "digest": "cd23b897a81a6eedc377337bd8fdd24bfb1a87f06f88c93a132f352ebb18b756",
       "opens": "`aeePayloadCommitment` _array of strings_, required on an `interception`",
@@ -1316,6 +1388,12 @@
       "opens": "`aeeAssessedAttacks` _array of strings_, required on an `arming` record: the",
       "closes": "this array, and a statement violating that is invalid."
     },
+    "vectors/reject/gen_invalid_vectors.py::bad-987-arming-assessedattacks-later-undeclared#0": {
+      "anchor": "L1467-1473",
+      "digest": "73613b4a9907be27fe0349c0a706b5d927d8912f2988f23b94ea24f52de8a9d5",
+      "opens": "`aeeAssessedAttacks` _array of strings_, required on an `arming` record: the",
+      "closes": "this array, and a statement violating that is invalid."
+    },
     "vectors/reject/gen_invalid_vectors.py::bad-980-moat-drop-sole-cover#0": {
       "anchor": "L1394-1408",
       "digest": "4ecf7ab01093b4768592ea5a2c4ba706426553ee44a340ece7171b8028d1688b",
@@ -1351,6 +1429,18 @@
       "digest": "e6145aaf2d71677274b634b8f9d5a83ab011e63f709a6146ae6e0ea74c606e7f",
       "opens": "- a row declaring `attribution: pinned` resolves at least one",
       "closes": "declares the stronger of the two values with nothing checking it."
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-991-expected-payloads-later-entry-not-hex#0": {
+      "anchor": "L815-821",
+      "digest": "04b6e9eb7f8f626ce5731b7932f440c2d237bfb47b84bc73112d294ff598a485",
+      "opens": "`corpus.manifest.expectedPayloads` is an optional map from attack identifier",
+      "closes": "malformed. The map is a sibling of `classes` rather than an enrichment of it,"
+    },
+    "vectors/reject/gen_invalid_vectors.py::bad-992-expected-payloads-later-key-undeclared#0": {
+      "anchor": "L815-821",
+      "digest": "04b6e9eb7f8f626ce5731b7932f440c2d237bfb47b84bc73112d294ff598a485",
+      "opens": "`corpus.manifest.expectedPayloads` is an optional map from attack identifier",
+      "closes": "malformed. The map is a sibling of `classes` rather than an enrichment of it,"
     },
     "vectors/reject/gen_invalid_vectors.py::bad-983-liveness-middle-channel-commitment-unmatched#0": {
       "anchor": "L614-623",

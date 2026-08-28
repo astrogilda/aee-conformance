@@ -3522,6 +3522,9 @@
         "verdict": "invalid",
         "codes": [
           "manifest-expected-payloads-malformed"
+        ],
+        "alsoEmits": [
+          "attribution-unpinnable"
         ]
       }
     },
@@ -3536,6 +3539,9 @@
         "verdict": "invalid",
         "codes": [
           "manifest-expected-payloads-malformed"
+        ],
+        "alsoEmits": [
+          "attribution-unpinnable"
         ]
       }
     },

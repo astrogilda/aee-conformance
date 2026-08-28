@@ -7540,6 +7540,9 @@
         "verdict": "invalid",
         "codes": [
           "manifest-expected-payloads-malformed"
+        ],
+        "alsoEmits": [
+          "attribution-unpinnable"
         ]
       },
       "inManifest": true,
@@ -7570,6 +7573,9 @@
         "verdict": "invalid",
         "codes": [
           "manifest-expected-payloads-malformed"
+        ],
+        "alsoEmits": [
+          "attribution-unpinnable"
         ]
       },
       "inManifest": true,

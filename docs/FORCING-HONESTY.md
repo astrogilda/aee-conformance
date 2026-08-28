@@ -29,7 +29,7 @@ all.**
 | corpus | suiteRevision 27, 272 vectors (61 accept, 209 reject, 2 indeterminate) |
 | vendored specification | commit `0dbe10bcc959b63dc42370a5db09812c9476f59a`, fetchable from `astrogilda/attestation` at branch `predicate/adversarial-execution-evidence` |
 | reviewed at | `in-toto/attestation#570` |
-| `vectors/MANIFEST.json` | `sha256:3b4c3c2981eb8b703c18035363c15bbecada5552ce53a990879d3974fc59f719` |
+| `vectors/MANIFEST.json` | `sha256:eb24532be577ee6a936410e6850482847cecac07147aa3c76d737fc730d4bf2b` |
 | `docs/FORCING-BASELINE.json` | `sha256:b8e2ee09ab271358b1182dbb69c90328af101cb0efe21f584f2a9e0fa550a368` |
 | campaign | 807 single-site weakenings: 459 KILLED, 32 SILENT, 311 DEAD, 5 INCONCLUSIVE |
 

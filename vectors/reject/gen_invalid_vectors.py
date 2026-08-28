@@ -933,6 +933,18 @@ OBSERVED_EXTRA: dict[str, list[str]] = {
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
     )},
+    # The two manifest-shape refusals derived from ok-055. Their parent is the
+    # only accept vector whose rows declare `pinned`, and a malformed
+    # expectedPayloads map leaves the rail with no expectation to compare those
+    # rows against, so it reports the attribution as unpinnable alongside the
+    # malformed manifest. The shipped CLI stops at GATE 0 and prints the declared
+    # code alone; this rail carries both, which is what the clause records.
+    # bad-961 and bad-963 are the same manifest faults on a parent whose row
+    # declares `paired`, and they emit nothing extra.
+    **{vid: ["attribution-unpinnable"] for vid in (
+        "bad-991-expected-payloads-later-entry-not-hex",
+        "bad-992-expected-payloads-later-key-undeclared",
+    )},
     "bad-206-payload-missing-kind": ["record-kind-unknown-covers-nothing"],
     "bad-806-coverage-attack-omitted": ["interception-record-orphaned"],
     "bad-817-payload-noncanonical-base64": [

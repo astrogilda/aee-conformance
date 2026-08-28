@@ -2,9 +2,9 @@
   "$comment": "What the conformance corpus FORCES, measured by mutation rather than counted. Each row is one single-site weakening of the Go rail in aee/, replayed over the whole corpus: KILLED means some vector goes PASS->FAIL and the corpus forces the rule; SILENT means the corpus sees the rail change and stays green; DEAD means nothing in the corpus depends on the rule; INCONCLUSIVE means the mutant did not build, crash-free, terminate, and nothing is asserted about it. `annotations` records the sites where 'unforced' would be the wrong word -- `unkillable` for a true equivalent mutant no vector can ever kill, `masked` for a real rule an earlier check reaches first, which is unmintable rather than unminted. Both are claims this gate falsifies: an annotated site that is ever KILLED fails it. scripts/forcing-gate.py holds every KILLED row as a tighten-only ratchet and rewrites this file with --scope all --sync.",
   "suite": "adversarial-execution-evidence-conformance",
   "counts": {
-    "KILLED": 447,
+    "KILLED": 459,
     "SILENT": 32,
-    "DEAD": 323,
+    "DEAD": 311,
     "INCONCLUSIVE": 5
   },
   "annotations": {
@@ -71,7 +71,11 @@
         "bad-982-pinned-assignment-spliced",
         "bad-983-liveness-middle-channel-commitment-unmatched",
         "bad-984-liveness-last-channel-unpinnable",
-        "bad-986-pinned-second-interception-unmatched"
+        "bad-986-pinned-second-interception-unmatched",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing"
       ]
     },
     "commitments.go::assessedSetDeclared::IF_DISJ::1d1f550a6ec2": {
@@ -133,13 +137,16 @@
       "class": "KILLED",
       "snippet": "if !declaredSet[id] { return []Code{CodeAssessedSetExceedsDeclaration} }",
       "killers": [
-        "bad-957-assessed-exceeds-declaration"
+        "bad-957-assessed-exceeds-declaration",
+        "bad-998-second-arming-declares-nothing"
       ]
     },
     "commitments.go::assessedSetDeclared::LOOP_FIRST::1979ce2147f6": {
-      "class": "DEAD",
+      "class": "KILLED",
       "snippet": "for i := range p.Records { if kinds[i] != KindArming { continue } obj := payloadObject(&states[i]) if rb, ok := objString(obj, memberRunBinding); !ok ...",
-      "branch": "taken"
+      "killers": [
+        "bad-998-second-arming-declares-nothing"
+      ]
     },
     "commitments.go::assessedSetDeclared::LOOP_FIRST::892b23a9fef0": {
       "class": "DEAD",
@@ -158,13 +165,16 @@
       "snippet": "if !declared[id] { return false }",
       "killers": [
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
-        "bad-976-sealed-observedattacks-unknown"
+        "bad-976-sealed-observedattacks-unknown",
+        "bad-987-arming-assessedattacks-later-undeclared"
       ]
     },
     "commitments.go::attackIDArrayOK::LOOP_FIRST::1ddd37275ce6": {
-      "class": "DEAD",
+      "class": "KILLED",
       "snippet": "for _, id := range attacks { if !declared[id] { return false } }",
-      "branch": "taken"
+      "killers": [
+        "bad-987-arming-assessedattacks-later-undeclared"
+      ]
     },
     "commitments.go::attackIDArrayOK::RET_FALSE::7e4fe8351c22": {
       "class": "KILLED",
@@ -177,6 +187,9 @@
         "bad-010-result-pass-indirect-on-direct-clean-row",
         "bad-955-seal-names-clean-attack",
         "bad-957-assessed-exceeds-declaration",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -240,7 +253,8 @@
       "snippet": "return false",
       "killers": [
         "bad-1014-sealed-observedattacks-unknown-unreferenced",
-        "bad-976-sealed-observedattacks-unknown"
+        "bad-976-sealed-observedattacks-unknown",
+        "bad-987-arming-assessedattacks-later-undeclared"
       ]
     },
     "commitments.go::attributionBindings::IF_DISJ::a4e30554c16d": {
@@ -571,7 +585,8 @@
       "class": "KILLED",
       "snippet": "if !IsLowerHex64(v) { return false }",
       "killers": [
-        "bad-965-commitment-not-hex"
+        "bad-965-commitment-not-hex",
+        "bad-989-commitment-later-entry-not-hex"
       ]
     },
     "commitments.go::commitmentArrayOK::IF_OFF::26d797c24e4d": {
@@ -582,9 +597,11 @@
       ]
     },
     "commitments.go::commitmentArrayOK::LOOP_FIRST::204b47a6eb7b": {
-      "class": "DEAD",
+      "class": "KILLED",
       "snippet": "for _, v := range values { if !IsLowerHex64(v) { return false } }",
-      "branch": "taken"
+      "killers": [
+        "bad-989-commitment-later-entry-not-hex"
+      ]
     },
     "commitments.go::commitmentArrayOK::RET_FALSE::7e4fe8351c22": {
       "class": "KILLED",
@@ -625,7 +642,8 @@
       "class": "KILLED",
       "snippet": "return false",
       "killers": [
-        "bad-965-commitment-not-hex"
+        "bad-965-commitment-not-hex",
+        "bad-989-commitment-later-entry-not-hex"
       ]
     },
     "commitments.go::declaredAttackIDs::IF_DISJ::45bddfbb8e09": {
@@ -1114,6 +1132,10 @@
         "bad-983-liveness-middle-channel-commitment-unmatched",
         "bad-984-liveness-last-channel-unpinnable",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -1179,7 +1201,9 @@
       "class": "KILLED",
       "snippet": "idx < len(kinds)",
       "killers": [
-        "bad-724-artifact-ref-out-of-range"
+        "bad-724-artifact-ref-out-of-range",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range"
       ]
     },
     "commitments.go::rowResolves::IF_CONJ::dd8c1363be2e": {
@@ -1392,18 +1416,24 @@
       "class": "KILLED",
       "snippet": "if !caughtIDs[id] { return []Code{CodeObservedAttackUncaught} }",
       "killers": [
-        "bad-955-seal-names-clean-attack"
+        "bad-955-seal-names-clean-attack",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-997-second-seal-attack-uncaught"
       ]
     },
     "commitments.go::sealNamedAttacksCaught::LOOP_FIRST::3d3251b9ae02": {
-      "class": "DEAD",
+      "class": "KILLED",
       "snippet": "for i := range p.Records { if kinds[i] != KindSealed { continue } obj := payloadObject(&states[i]) if rb, ok := objString(obj, memberRunBinding); !ok ...",
-      "branch": "taken"
+      "killers": [
+        "bad-997-second-seal-attack-uncaught"
+      ]
     },
     "commitments.go::sealNamedAttacksCaught::LOOP_FIRST::ae56eaae571a": {
-      "class": "DEAD",
+      "class": "KILLED",
       "snippet": "for _, id := range attacks { if !caughtIDs[id] { return []Code{CodeObservedAttackUncaught} } }",
-      "branch": "taken"
+      "killers": [
+        "bad-995-seal-later-attack-uncaught"
+      ]
     },
     "commitments.go::sealedRecordPresent::IF_OFF::413a03e635ce": {
       "class": "KILLED",
@@ -1513,7 +1543,8 @@
       "snippet": "if got != want { return []Code{CodeObservedSetMismatch} }",
       "killers": [
         "bad-953-observed-set-drops-a-record",
-        "bad-954-observed-set-gains-a-record"
+        "bad-954-observed-set-gains-a-record",
+        "bad-996-second-seal-observed-set-mismatch"
       ]
     },
     "commitments.go::sealsCommitToCarriedSet::IF_OFF::10f307da5fd5": {
@@ -1592,9 +1623,11 @@
       "branch": "taken"
     },
     "commitments.go::sealsCommitToCarriedSet::LOOP_FIRST::3d3251b9ae02": {
-      "class": "DEAD",
+      "class": "KILLED",
       "snippet": "for i := range p.Records { if kinds[i] != KindSealed { continue } obj := payloadObject(&states[i]) if rb, ok := objString(obj, memberRunBinding); !ok ...",
-      "branch": "taken"
+      "killers": [
+        "bad-996-second-seal-observed-set-mismatch"
+      ]
     },
     "jcs.go::Canonicalize::IF_OFF::9af821f55d67": {
       "class": "DEAD",
@@ -1657,6 +1690,7 @@
         "bad-974-sealed-missing-observedset",
         "bad-975-sealed-missing-observedattacks",
         "bad-976-sealed-observedattacks-unknown",
+        "bad-988-chain-scope-later-token-unknown",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -1851,6 +1885,17 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-991-expected-payloads-later-entry-not-hex",
+        "bad-992-expected-payloads-later-key-undeclared",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -2154,6 +2199,17 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-991-expected-payloads-later-entry-not-hex",
+        "bad-992-expected-payloads-later-key-undeclared",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -2323,6 +2379,9 @@
         "bad-950-clean-row-refs-interception",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
         "ok-004-degraded-out-of-scope",
         "ok-005-degraded-routed-elsewhere",
         "ok-011-shared-run-records",
@@ -2420,6 +2479,14 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -2570,6 +2637,14 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -2635,6 +2710,9 @@
         "bad-950-clean-row-refs-interception",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
         "ok-004-degraded-out-of-scope",
         "ok-005-degraded-routed-elsewhere",
         "ok-011-shared-run-records",
@@ -3002,6 +3080,18 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-991-expected-payloads-later-entry-not-hex",
+        "bad-992-expected-payloads-later-key-undeclared",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-994-second-clean-row-layer-not-none",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -3310,6 +3400,18 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-991-expected-payloads-later-entry-not-hex",
+        "bad-992-expected-payloads-later-key-undeclared",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-994-second-clean-row-layer-not-none",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -3521,6 +3623,17 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-991-expected-payloads-later-entry-not-hex",
+        "bad-992-expected-payloads-later-key-undeclared",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -3732,6 +3845,17 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-991-expected-payloads-later-entry-not-hex",
+        "bad-992-expected-payloads-later-key-undeclared",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -3950,6 +4074,17 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-991-expected-payloads-later-entry-not-hex",
+        "bad-992-expected-payloads-later-key-undeclared",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -4295,6 +4430,9 @@
         "bad-978-arming-assessedattacks-unsorted",
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -4565,6 +4703,16 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-994-second-clean-row-layer-not-none",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -4826,6 +4974,16 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-994-second-clean-row-layer-not-none",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -5035,6 +5193,16 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-994-second-clean-row-layer-not-none",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -5191,6 +5359,14 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -5383,6 +5559,14 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -5565,6 +5749,14 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -5762,6 +5954,14 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -5823,7 +6023,9 @@
       "killers": [
         "bad-609-digest-truncated",
         "bad-720-chain-prev-not-hex",
-        "bad-965-commitment-not-hex"
+        "bad-965-commitment-not-hex",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-991-expected-payloads-later-entry-not-hex"
       ]
     },
     "pae.go::IsLowerHex64::RET_TRUE::19921ccfad14#2": {
@@ -6321,6 +6523,13 @@
         "bad-978-arming-assessedattacks-unsorted",
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -6512,7 +6721,8 @@
       "snippet": "appendCode(codes, CodeCleanRowLayerNotNone)",
       "killers": [
         "bad-503-clean-row-layer-not-none",
-        "bad-818-artifact-clean-row-layer-not-none"
+        "bad-818-artifact-clean-row-layer-not-none",
+        "bad-994-second-clean-row-layer-not-none"
       ]
     },
     "statement.go::Gate0::CODE_OFF::e905a8da7971": {
@@ -6648,6 +6858,14 @@
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-002-clean-pass-armed-sealed",
@@ -6754,6 +6972,8 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-995-seal-later-attack-uncaught",
         "ok-001-caught-intercepted-fail",
         "ok-014-three-record-odd-split",
         "ok-015-four-record-tree",
@@ -6909,6 +7129,15 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -7112,7 +7341,9 @@
         "bad-961-expected-payloads-unknown-attack",
         "bad-962-expected-payloads-unsorted",
         "bad-963-expected-payloads-not-hex",
-        "bad-964-expected-payloads-empty-array"
+        "bad-964-expected-payloads-empty-array",
+        "bad-991-expected-payloads-later-entry-not-hex",
+        "bad-992-expected-payloads-later-key-undeclared"
       ]
     },
     "statement.go::Gate0::IF_OFF::8a2311d73965": {
@@ -7190,7 +7421,8 @@
       "snippet": "if vocabOK && isCleanLabel(env.Vocabulary, row.ContainmentObserved) && *row.ActualLayer != ActualLayerNone { codes = appendCode(codes, CodeCleanRowLay...",
       "killers": [
         "bad-503-clean-row-layer-not-none",
-        "bad-818-artifact-clean-row-layer-not-none"
+        "bad-818-artifact-clean-row-layer-not-none",
+        "bad-994-second-clean-row-layer-not-none"
       ]
     },
     "statement.go::Gate0::IF_OFF::ffb9aae8d106": {
@@ -7203,9 +7435,11 @@
       ]
     },
     "statement.go::Gate0::LOOP_FIRST::edb1c4c3adfc": {
-      "class": "DEAD",
+      "class": "KILLED",
       "snippet": "for i := range p.Rows { row := &p.Rows[i] if row.ActualLayer == nil { codes = appendCode(codes, CodeMissingActualLayer) continue } if vocabOK && isCle...",
-      "branch": "taken"
+      "killers": [
+        "bad-994-second-clean-row-layer-not-none"
+      ]
     },
     "statement.go::appendStringArray::IF_OFF::510b306923b4": {
       "class": "KILLED",
@@ -7344,6 +7578,16 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-994-second-clean-row-layer-not-none",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -7431,7 +7675,8 @@
       "snippet": "return false",
       "killers": [
         "bad-503-clean-row-layer-not-none",
-        "bad-818-artifact-clean-row-layer-not-none"
+        "bad-818-artifact-clean-row-layer-not-none",
+        "bad-994-second-clean-row-layer-not-none"
       ]
     },
     "statement.go::gate0Corpus::CODE_OFF::1315418f819e": {
@@ -7512,6 +7757,7 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-995-seal-later-attack-uncaught",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
         "ok-053-liveness-probe-uncaught-on-one-channel",
@@ -7633,6 +7879,9 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
         "ok-011-shared-run-records",
         "ok-014-three-record-odd-split",
         "ok-015-four-record-tree",
@@ -7658,14 +7907,16 @@
       "killers": [
         "bad-961-expected-payloads-unknown-attack",
         "bad-962-expected-payloads-unsorted",
-        "bad-964-expected-payloads-empty-array"
+        "bad-964-expected-payloads-empty-array",
+        "bad-992-expected-payloads-later-key-undeclared"
       ]
     },
     "statement.go::gate0ExpectedPayloads::CODE_OFF::ed38a7d4c130#3": {
       "class": "KILLED",
       "snippet": "appendCode(codes, CodeManifestExpectedPayloadsMalformed)",
       "killers": [
-        "bad-963-expected-payloads-not-hex"
+        "bad-963-expected-payloads-not-hex",
+        "bad-991-expected-payloads-later-entry-not-hex"
       ]
     },
     "statement.go::gate0ExpectedPayloads::IF_DISJ::04986aa63347": {
@@ -7679,7 +7930,8 @@
       "class": "KILLED",
       "snippet": "!declaredIDs[id]",
       "killers": [
-        "bad-961-expected-payloads-unknown-attack"
+        "bad-961-expected-payloads-unknown-attack",
+        "bad-992-expected-payloads-later-key-undeclared"
       ]
     },
     "statement.go::gate0ExpectedPayloads::IF_DISJ::a797d884d499": {
@@ -7695,7 +7947,8 @@
       "killers": [
         "bad-961-expected-payloads-unknown-attack",
         "bad-962-expected-payloads-unsorted",
-        "bad-964-expected-payloads-empty-array"
+        "bad-964-expected-payloads-empty-array",
+        "bad-992-expected-payloads-later-key-undeclared"
       ]
     },
     "statement.go::gate0ExpectedPayloads::IF_OFF::83b9c794867d": {
@@ -7826,6 +8079,14 @@
         "bad-979-artifact-only-interception-orphaned",
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -7896,18 +8157,23 @@
       "class": "KILLED",
       "snippet": "if !IsLowerHex64(v) { return appendCode(codes, CodeManifestExpectedPayloadsMalformed) }",
       "killers": [
-        "bad-963-expected-payloads-not-hex"
+        "bad-963-expected-payloads-not-hex",
+        "bad-991-expected-payloads-later-entry-not-hex"
       ]
     },
     "statement.go::gate0ExpectedPayloads::LOOP_FIRST::25b1491deb87": {
-      "class": "DEAD",
+      "class": "KILLED",
       "snippet": "for _, id := range sortedKeys(c.ExpectedPayloads) { values := c.ExpectedPayloads[id] if !declaredIDs[id] || len(values) == 0 || !isSortedNoDuplicates(...",
-      "branch": "taken"
+      "killers": [
+        "bad-992-expected-payloads-later-key-undeclared"
+      ]
     },
     "statement.go::gate0ExpectedPayloads::LOOP_FIRST::824a60ec4b9a": {
-      "class": "DEAD",
+      "class": "KILLED",
       "snippet": "for _, v := range values { if !IsLowerHex64(v) { return appendCode(codes, CodeManifestExpectedPayloadsMalformed) } }",
-      "branch": "taken"
+      "killers": [
+        "bad-991-expected-payloads-later-entry-not-hex"
+      ]
     },
     "statement.go::gate0SubstrateBindingInputs::CODE_OFF::78d916ef7610": {
       "class": "KILLED",
@@ -8069,6 +8335,14 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -8395,6 +8669,16 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-994-second-clean-row-layer-not-none",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -8608,6 +8892,13 @@
         "bad-978-arming-assessedattacks-unsorted",
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ok-019-wrong-keyid-sig-verifies",
         "ok-023-no-tofu-embedded-key",
         "ok-024-mixed-basis-rows",
@@ -8724,6 +9015,13 @@
         "bad-978-arming-assessedattacks-unsorted",
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ok-019-wrong-keyid-sig-verifies",
         "ok-023-no-tofu-embedded-key",
         "ok-024-mixed-basis-rows",
@@ -8745,6 +9043,7 @@
         "bad-970-artifact-row-missing-attribution",
         "bad-971-artifact-row-attribution-oov",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-990-artifact-refs-later-out-of-range",
         "ok-007-artifact-only-recordless",
         "ok-008-artifact-fail-closed-method",
         "ok-009-artifact-oov-label-fail",
@@ -8822,6 +9121,8 @@
         "bad-610-empty-labels-substrate",
         "bad-902-sealed-posture-ne-arming",
         "bad-955-seal-names-clean-attack",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-997-second-seal-attack-uncaught",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
         "ok-004-degraded-out-of-scope",
@@ -8876,6 +9177,7 @@
         "bad-818-artifact-clean-row-layer-not-none",
         "bad-902-sealed-posture-ne-arming",
         "bad-950-clean-row-refs-interception",
+        "bad-994-second-clean-row-layer-not-none",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
         "ok-004-degraded-out-of-scope",
@@ -8969,6 +9271,8 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-995-seal-later-attack-uncaught",
         "ok-001-caught-intercepted-fail",
         "ok-014-three-record-odd-split",
         "ok-015-four-record-tree",
@@ -9126,6 +9430,15 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -9347,6 +9660,16 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-994-second-clean-row-layer-not-none",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -9597,6 +9920,15 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -9834,6 +10166,16 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-994-second-clean-row-layer-not-none",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -10231,6 +10573,13 @@
         "bad-978-arming-assessedattacks-unsorted",
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ok-019-wrong-keyid-sig-verifies",
         "ok-020-non-pae-signature",
         "ok-023-no-tofu-embedded-key",
@@ -10253,6 +10602,7 @@
         "bad-970-artifact-row-missing-attribution",
         "bad-971-artifact-row-attribution-oov",
         "bad-979-artifact-only-interception-orphaned",
+        "bad-990-artifact-refs-later-out-of-range",
         "ok-007-artifact-only-recordless",
         "ok-008-artifact-fail-closed-method",
         "ok-009-artifact-oov-label-fail",
@@ -10465,6 +10815,15 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -10734,6 +11093,15 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -10976,6 +11344,15 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -11192,6 +11569,15 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -11281,6 +11667,8 @@
         "bad-982-pinned-assignment-spliced",
         "bad-983-liveness-middle-channel-commitment-unmatched",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-991-expected-payloads-later-entry-not-hex",
+        "bad-992-expected-payloads-later-key-undeclared",
         "ok-047-attribution-pinned",
         "ok-051-two-pinned-rows",
         "ok-052-liveness-probe-per-channel",
@@ -11444,6 +11832,17 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-991-expected-payloads-later-entry-not-hex",
+        "bad-992-expected-payloads-later-key-undeclared",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -11523,6 +11922,7 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-995-seal-later-attack-uncaught",
         "ok-047-attribution-pinned",
         "ok-048-attribution-paired-despite-expectation",
         "ok-051-two-pinned-rows",
@@ -11667,6 +12067,15 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -11847,6 +12256,13 @@
         "bad-978-arming-assessedattacks-unsorted",
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -12090,6 +12506,15 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -12306,6 +12731,15 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -12537,6 +12971,17 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-991-expected-payloads-later-entry-not-hex",
+        "bad-992-expected-payloads-later-key-undeclared",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -12740,6 +13185,15 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -12940,6 +13394,14 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -13156,6 +13618,17 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-991-expected-payloads-later-entry-not-hex",
+        "bad-992-expected-payloads-later-key-undeclared",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -13372,6 +13845,16 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-994-second-clean-row-layer-not-none",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -13615,6 +14098,15 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -13827,6 +14319,15 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -14037,6 +14538,16 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-994-second-clean-row-layer-not-none",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -14254,6 +14765,15 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -14457,6 +14977,15 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -14691,6 +15220,18 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-991-expected-payloads-later-entry-not-hex",
+        "bad-992-expected-payloads-later-key-undeclared",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-994-second-clean-row-layer-not-none",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -14856,6 +15397,10 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-994-second-clean-row-layer-not-none",
+        "bad-995-seal-later-attack-uncaught",
         "ok-011-shared-run-records",
         "ok-014-three-record-odd-split",
         "ok-015-four-record-tree",
@@ -14949,6 +15494,7 @@
         "bad-950-clean-row-refs-interception",
         "bad-980-moat-drop-sole-cover",
         "bad-981-uncommitted-observation-sole-cover",
+        "bad-994-second-clean-row-layer-not-none",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -15143,6 +15689,15 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "ok-001-caught-intercepted-fail",
@@ -15258,6 +15813,8 @@
         "bad-983-liveness-middle-channel-commitment-unmatched",
         "bad-984-liveness-last-channel-unpinnable",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -15498,7 +16055,9 @@
       "class": "KILLED",
       "snippet": "idx >= len(p.Records)",
       "killers": [
-        "bad-724-artifact-ref-out-of-range"
+        "bad-724-artifact-ref-out-of-range",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range"
       ]
     },
     "validity.go::anyObservationRefOutOfRange::IF_DISJ::d4cf28d4412d": {
@@ -15515,24 +16074,32 @@
       "class": "KILLED",
       "snippet": "if idx < 0 || idx >= len(p.Records) { return true }",
       "killers": [
-        "bad-724-artifact-ref-out-of-range"
+        "bad-724-artifact-ref-out-of-range",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range"
       ]
     },
     "validity.go::anyObservationRefOutOfRange::LOOP_FIRST::aae56837cfb1": {
-      "class": "DEAD",
+      "class": "KILLED",
       "snippet": "for i := range p.Rows { row := &p.Rows[i] if !row.RefsPresent || row.RefsErr != nil { continue } for _, idx := range row.Refs { if idx < 0 || idx >= l...",
-      "branch": "taken"
+      "killers": [
+        "bad-993-second-row-refs-out-of-range"
+      ]
     },
     "validity.go::anyObservationRefOutOfRange::LOOP_FIRST::f8c0272da535": {
-      "class": "DEAD",
+      "class": "KILLED",
       "snippet": "for _, idx := range row.Refs { if idx < 0 || idx >= len(p.Records) { return true } }",
-      "branch": "taken"
+      "killers": [
+        "bad-990-artifact-refs-later-out-of-range"
+      ]
     },
     "validity.go::anyObservationRefOutOfRange::RET_FALSE::7e4fe8351c22": {
       "class": "KILLED",
       "snippet": "return true",
       "killers": [
-        "bad-724-artifact-ref-out-of-range"
+        "bad-724-artifact-ref-out-of-range",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range"
       ]
     },
     "validity.go::anyObservationRefOutOfRange::RET_TRUE::19921ccfad14": {
@@ -15738,7 +16305,8 @@
       "class": "KILLED",
       "snippet": "if !chainScopeVocabulary[tok] { return false }",
       "killers": [
-        "bad-722-chain-scope-unknown-dimension"
+        "bad-722-chain-scope-unknown-dimension",
+        "bad-988-chain-scope-later-token-unknown"
       ]
     },
     "validity.go::armingChainSyntaxValid::IF_OFF::9ead85f75767": {
@@ -15764,9 +16332,11 @@
       ]
     },
     "validity.go::armingChainSyntaxValid::LOOP_FIRST::2483eabfc0fd": {
-      "class": "DEAD",
+      "class": "KILLED",
       "snippet": "for _, tok := range scope { if !chainScopeVocabulary[tok] { return false } }",
-      "branch": "taken"
+      "killers": [
+        "bad-988-chain-scope-later-token-unknown"
+      ]
     },
     "validity.go::armingChainSyntaxValid::RET_FALSE::2b3f9b59a222": {
       "class": "DEAD",
@@ -15840,7 +16410,8 @@
       "class": "KILLED",
       "snippet": "return false",
       "killers": [
-        "bad-722-chain-scope-unknown-dimension"
+        "bad-722-chain-scope-unknown-dimension",
+        "bad-988-chain-scope-later-token-unknown"
       ]
     },
     "validity.go::armingChainSyntaxValid::RET_TRUE::19921ccfad14#4": {
@@ -15961,7 +16532,8 @@
         "bad-720-chain-prev-not-hex",
         "bad-721-chain-scope-not-array",
         "bad-722-chain-scope-unknown-dimension",
-        "bad-723-chain-scope-not-canonical"
+        "bad-723-chain-scope-not-canonical",
+        "bad-988-chain-scope-later-token-unknown"
       ]
     },
     "validity.go::armingConstraintsMet::IF_OFF::0cef27e50fe3": {
@@ -16066,7 +16638,8 @@
         "bad-720-chain-prev-not-hex",
         "bad-721-chain-scope-not-array",
         "bad-722-chain-scope-unknown-dimension",
-        "bad-723-chain-scope-not-canonical"
+        "bad-723-chain-scope-not-canonical",
+        "bad-988-chain-scope-later-token-unknown"
       ]
     },
     "validity.go::armingConstraintsMet::RET_TRUE::f0bdd630336a": {
@@ -16074,7 +16647,8 @@
       "snippet": "return ok && attackIDArrayOK(declared, declaredAttacks)",
       "killers": [
         "bad-977-arming-missing-assessedattacks",
-        "bad-978-arming-assessedattacks-unsorted"
+        "bad-978-arming-assessedattacks-unsorted",
+        "bad-987-arming-assessedattacks-later-undeclared"
       ]
     },
     "validity.go::checkRecordsStatementLevel::CODE_OFF::2856950fd481": {
@@ -16273,6 +16847,10 @@
         "bad-983-liveness-middle-channel-commitment-unmatched",
         "bad-984-liveness-last-channel-unpinnable",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ok-001-caught-intercepted-fail",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
@@ -17116,6 +17694,8 @@
         "bad-751-armedat-lowercase-zone-designator",
         "bad-977-arming-missing-assessedattacks",
         "bad-978-arming-assessedattacks-unsorted",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
         "ok-002-clean-pass-armed-sealed",
         "ok-003-clean-pass-bounded-drops",
         "ok-004-degraded-out-of-scope",
@@ -17190,7 +17770,8 @@
       "snippet": "if _, present := a.obj.values[memberPayloadCommitment]; present && !commitmentArrayOK(values) { ev.failCode = CodePayloadCommitmentMalformed return ev...",
       "killers": [
         "bad-965-commitment-not-hex",
-        "bad-966-commitment-empty-array"
+        "bad-966-commitment-empty-array",
+        "bad-989-commitment-later-entry-not-hex"
       ]
     },
     "validity.go::evaluateKind::VALID_TRUE::3dd452b33b7b": {
@@ -17256,7 +17837,9 @@
         "bad-750-armedat-lowercase-separator",
         "bad-751-armedat-lowercase-zone-designator",
         "bad-977-arming-missing-assessedattacks",
-        "bad-978-arming-assessedattacks-unsorted"
+        "bad-978-arming-assessedattacks-unsorted",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown"
       ]
     },
     "validity.go::evaluateKind::VALID_TRUE::f4ee85d3a752": {
@@ -17376,7 +17959,11 @@
         "bad-953-observed-set-drops-a-record",
         "bad-954-observed-set-gains-a-record",
         "bad-955-seal-names-clean-attack",
-        "bad-957-assessed-exceeds-declaration"
+        "bad-957-assessed-exceeds-declaration",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing"
       ]
     },
     "validity.go::gate1WithContext::CODE_OFF::603bad3b9011": {
@@ -17388,7 +17975,9 @@
       "class": "KILLED",
       "snippet": "appendCode(codes, CodeRefOutOfRange)",
       "killers": [
-        "bad-724-artifact-ref-out-of-range"
+        "bad-724-artifact-ref-out-of-range",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range"
       ]
     },
     "validity.go::gate1WithContext::CODE_OFF::ca55eaf2da3a": {
@@ -17508,7 +18097,9 @@
       "class": "KILLED",
       "snippet": "if len(p.Records) > 0 && anyObservationRefOutOfRange(p) { codes = appendCode(codes, CodeRefOutOfRange) }",
       "killers": [
-        "bad-724-artifact-ref-out-of-range"
+        "bad-724-artifact-ref-out-of-range",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range"
       ]
     },
     "validity.go::gate1WithContext::LOOP_FIRST::b4c878c2906a": {
@@ -17584,6 +18175,10 @@
       "killers": [
         "bad-723-chain-scope-not-canonical",
         "bad-978-arming-assessedattacks-unsorted",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-995-seal-later-attack-uncaught",
         "ok-011-shared-run-records",
         "ok-014-three-record-odd-split",
         "ok-015-four-record-tree",
@@ -18126,6 +18721,15 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "vate-1a-admission-receipt-substituted-splice",
@@ -18187,6 +18791,9 @@
         "bad-962-expected-payloads-unsorted",
         "bad-963-expected-payloads-not-hex",
         "bad-964-expected-payloads-empty-array",
+        "bad-991-expected-payloads-later-entry-not-hex",
+        "bad-992-expected-payloads-later-key-undeclared",
+        "bad-994-second-clean-row-layer-not-none",
         "vate-1c-two-subjects-artifact-and-admission"
       ]
     },
@@ -18424,6 +19031,18 @@
         "bad-984-liveness-last-channel-unpinnable",
         "bad-985-liveness-middle-channel-probe-uncaught",
         "bad-986-pinned-second-interception-unmatched",
+        "bad-987-arming-assessedattacks-later-undeclared",
+        "bad-988-chain-scope-later-token-unknown",
+        "bad-989-commitment-later-entry-not-hex",
+        "bad-990-artifact-refs-later-out-of-range",
+        "bad-991-expected-payloads-later-entry-not-hex",
+        "bad-992-expected-payloads-later-key-undeclared",
+        "bad-993-second-row-refs-out-of-range",
+        "bad-994-second-clean-row-layer-not-none",
+        "bad-995-seal-later-attack-uncaught",
+        "bad-996-second-seal-observed-set-mismatch",
+        "bad-997-second-seal-attack-uncaught",
+        "bad-998-second-arming-declares-nothing",
         "ind-001-undecodable-then-signatures-empty",
         "ind-002-signatures-empty-then-undecodable",
         "vate-1a-admission-receipt-substituted-splice",

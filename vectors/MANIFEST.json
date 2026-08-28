@@ -7,7 +7,7 @@
   "specUpstreamCommit": "0dbe10bcc959b63dc42370a5db09812c9476f59a",
   "counts": {
     "accept": 61,
-    "reject": 197,
+    "reject": 209,
     "indeterminate": 2
   },
   "comparisonSurface": {
@@ -20,7 +20,7 @@
     ],
     "note": "A rail conforms when its verdict, and for an accepted statement its result token, match this manifest. The codes on a reject entry are the reference verifier's own vocabulary, not the specification's: a rail names a reason from whatever set it declares, and a differing code is a reason-parity datum rather than a failure. Report that parity as its own figure. The divergences worth finding are the statements two rails both reject for different reasons, and scoring on codes would hide exactly those."
   },
-  "corpusDigest": "a33946c4a872d9b9e72c480b06afd850b8ecaf12b575cbca2d6b2ef5deec2084",
+  "corpusDigest": "9511932915617bfcbd7bafdb4cf6e6b050fec69225ed6fb2883984c0b098008a",
   "vectors": [
     {
       "id": "ok-001-caught-intercepted-fail",
@@ -1537,6 +1537,20 @@
       }
     },
     {
+      "id": "bad-994-second-clean-row-layer-not-none",
+      "kind": "reject",
+      "file": "reject/bad-994-second-clean-row-layer-not-none.json",
+      "conditions": [
+        "aee-c-48"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "clean-row-layer-not-none"
+        ]
+      }
+    },
+    {
       "id": "bad-818-artifact-clean-row-layer-not-none",
       "kind": "reject",
       "file": "reject/bad-818-artifact-clean-row-layer-not-none.json",
@@ -2153,9 +2167,51 @@
       }
     },
     {
+      "id": "bad-988-chain-scope-later-token-unknown",
+      "kind": "reject",
+      "file": "reject/bad-988-chain-scope-later-token-unknown.json",
+      "conditions": [
+        "aee-c-89"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ]
+      }
+    },
+    {
       "id": "bad-724-artifact-ref-out-of-range",
       "kind": "reject",
       "file": "reject/bad-724-artifact-ref-out-of-range.json",
+      "conditions": [
+        "aee-c-11"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "ref-out-of-range"
+        ]
+      }
+    },
+    {
+      "id": "bad-990-artifact-refs-later-out-of-range",
+      "kind": "reject",
+      "file": "reject/bad-990-artifact-refs-later-out-of-range.json",
+      "conditions": [
+        "aee-c-11"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "ref-out-of-range"
+        ]
+      }
+    },
+    {
+      "id": "bad-993-second-row-refs-out-of-range",
+      "kind": "reject",
+      "file": "reject/bad-993-second-row-refs-out-of-range.json",
       "conditions": [
         "aee-c-11"
       ],
@@ -2964,9 +3020,65 @@
       }
     },
     {
+      "id": "bad-996-second-seal-observed-set-mismatch",
+      "kind": "reject",
+      "file": "reject/bad-996-second-seal-observed-set-mismatch.json",
+      "conditions": [
+        "aee-c-97"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "observed-set-mismatch"
+        ]
+      }
+    },
+    {
+      "id": "bad-997-second-seal-attack-uncaught",
+      "kind": "reject",
+      "file": "reject/bad-997-second-seal-attack-uncaught.json",
+      "conditions": [
+        "aee-c-98"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "observed-attack-uncaught"
+        ]
+      }
+    },
+    {
+      "id": "bad-998-second-arming-declares-nothing",
+      "kind": "reject",
+      "file": "reject/bad-998-second-arming-declares-nothing.json",
+      "conditions": [
+        "aee-c-99"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "assessed-set-exceeds-declaration"
+        ]
+      }
+    },
+    {
       "id": "bad-955-seal-names-clean-attack",
       "kind": "reject",
       "file": "reject/bad-955-seal-names-clean-attack.json",
+      "conditions": [
+        "aee-c-98"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "observed-attack-uncaught"
+        ]
+      }
+    },
+    {
+      "id": "bad-995-seal-later-attack-uncaught",
+      "kind": "reject",
+      "file": "reject/bad-995-seal-later-attack-uncaught.json",
       "conditions": [
         "aee-c-98"
       ],
@@ -3109,6 +3221,20 @@
       "id": "bad-965-commitment-not-hex",
       "kind": "reject",
       "file": "reject/bad-965-commitment-not-hex.json",
+      "conditions": [
+        "aee-c-104"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "payload-commitment-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-989-commitment-later-entry-not-hex",
+      "kind": "reject",
+      "file": "reject/bad-989-commitment-later-entry-not-hex.json",
       "conditions": [
         "aee-c-104"
       ],
@@ -3316,6 +3442,20 @@
       }
     },
     {
+      "id": "bad-987-arming-assessedattacks-later-undeclared",
+      "kind": "reject",
+      "file": "reject/bad-987-arming-assessedattacks-later-undeclared.json",
+      "conditions": [
+        "aee-c-99"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ]
+      }
+    },
+    {
       "id": "bad-980-moat-drop-sole-cover",
       "kind": "reject",
       "file": "reject/bad-980-moat-drop-sole-cover.json",
@@ -3368,6 +3508,34 @@
         "verdict": "invalid",
         "codes": [
           "attribution-pin-unmatched"
+        ]
+      }
+    },
+    {
+      "id": "bad-991-expected-payloads-later-entry-not-hex",
+      "kind": "reject",
+      "file": "reject/bad-991-expected-payloads-later-entry-not-hex.json",
+      "conditions": [
+        "aee-c-103"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "manifest-expected-payloads-malformed"
+        ]
+      }
+    },
+    {
+      "id": "bad-992-expected-payloads-later-key-undeclared",
+      "kind": "reject",
+      "file": "reject/bad-992-expected-payloads-later-key-undeclared.json",
+      "conditions": [
+        "aee-c-103"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "manifest-expected-payloads-malformed"
         ]
       }
     },

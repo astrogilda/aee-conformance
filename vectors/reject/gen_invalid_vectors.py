@@ -762,6 +762,28 @@ def P_artifact_degraded() -> dict[str, Any]:
     return accept_parent("ok-033-artifact-degraded")
 
 
+def P_mixed_clean() -> dict[str, Any]:
+    """ok-045-mixed-clean-rows-indirect: a substrate clean row, then an artifact one.
+
+    The row ORDER is what this parent is for. A rule quantified over rows and
+    evaluated only where the offending row comes first cannot be told apart
+    from one that reads a single row, so a refusal derived from here puts the
+    fault on the SECOND row and leaves a well-formed row ahead of it.
+    """
+    return accept_parent("ok-045-mixed-clean-rows-indirect")
+
+
+def P_liveness_honest() -> dict[str, Any]:
+    """ok-053-liveness-probe-uncaught-on-one-channel: three channels, one clean.
+
+    The only shipped statement whose seal names more than one attack while a
+    THIRD declared attack has a clean row, which is what a refusal about the
+    second identifier the seal names needs: a caught first entry, and a
+    declared identifier available to put behind it.
+    """
+    return accept_parent("ok-053-liveness-probe-uncaught-on-one-channel")
+
+
 PARENTS = {
     "ok-001 shape (caught intercepted, 1 interception)": P_caught,
     "ok-002 shape (clean pass, arming+sealed drop 0)": P_clean,
@@ -778,6 +800,8 @@ PARENTS = {
     "ok-014 shape (three-record odd-split tree)": P_three_records,
     "ok-029 shape (artifact rows + unreferenced records + root)": P_artifact_with_records,
     "ok-033 shape (artifact-only degraded)": P_artifact_degraded,
+    "ok-045 shape (substrate clean row, then artifact clean row)": P_mixed_clean,
+    "ok-053 shape (three channels, the middle one clean)": P_liveness_honest,
 }
 
 
@@ -1498,6 +1522,18 @@ vec("bad-503-clean-row-layer-not-none", "ok-002",
     _row_mut(P_clean, 0,
              lambda r: {**r, "actualLayer": "policy.egress_sinkhole"}),
     spec="L1278-1283")
+vec("bad-994-second-clean-row-layer-not-none", "ok-011",
+    'the SECOND of two clean rows carries actualLayer: '
+    '"policy.egress_sinkhole" while the first keeps the literal "none"',
+    [], [48], ["clean-row-layer-not-none"],
+    _row_mut(P_clean_two, 1,
+             lambda r: {**r, "actualLayer": "policy.egress_sinkhole"}),
+    spec="L1278-1283",
+    note="the altitude rule is stated over every row, and bad-503 and "
+         "bad-818 each put the offending row first, where a rail that reads "
+         "one row and stops reports the same answer. The parent's rows are "
+         "otherwise identical, so the row INDEX is the only thing separating "
+         "the two vectors")
 vec("bad-818-artifact-clean-row-layer-not-none", "ok-007",
     'artifact clean row actualLayer: "policy.egress_sinkhole" (a clean row '
     'MUST carry the literal "none" regardless of basis)', [], [48],
@@ -2050,6 +2086,23 @@ vec("bad-723-chain-scope-not-canonical", "ok-002",
     spec="L1615-1619",
     note="canonical order is corpus < networkPosture < subject; the same "
          "canonicality rule as observationVocabulary.labels")
+vec("bad-988-chain-scope-later-token-unknown", "ok-002",
+    "arming payload gains aeeRunSeq: 1 with an aeeChainScope whose first "
+    "token is registered and whose second is outside the closed dimension "
+    "vocabulary",
+    ["re-sign-record", "recompute-batch-root"], [89],
+    ["arming-covers-nothing"],
+    _rec_mut(P_clean, 0,
+             lambda o: {**o, "aeeChainScope": ["corpus",
+                                               "unregistered-dimension"],
+                        "aeeRunSeq": 1}),
+    spec="L1615-1619",
+    note="the scope rule is quantified over EVERY token, and bad-722 carries "
+         "a one-token array, where a universal and an existential agree. A "
+         "rail that reads the first token and stops accepts this one: the "
+         "array opens with a registered dimension and closes with a token no "
+         "minor version has defined, which is the shape a producer reaches "
+         "for when it wants a dimension the vocabulary does not grant")
 vec("bad-724-artifact-ref-out-of-range", "ok-029",
     "an artifact row carries an observationRefs index out of range for "
     "observationRecords (fail-closed on any row, not only substrate rows)",
@@ -2063,6 +2116,31 @@ vec("bad-724-artifact-ref-out-of-range", "ok-029",
          "introduces the member, and it is what this vector is written "
          "against: the substrate-row anchor alone reads as a duplicate of "
          "bad-102")
+vec("bad-990-artifact-refs-later-out-of-range", "ok-029",
+    "an artifact row carries an in-range observationRefs index and then one "
+    "out of range for observationRecords",
+    [], [11], ["ref-out-of-range"],
+    set_refs(P_artifact_with_records, 0, [0, 99]),
+    spec="L552-553; L946-951",
+    note="the statement-level scan is quantified over every index a row "
+         "carries, and bad-724 hands it a single index that is already the "
+         "faulty one, so a rail reading only the first index reports the same "
+         "answer. Here the first index resolves and the second does not, "
+         "which is the only shape that separates the two readings. The row is "
+         "artifact-basis deliberately: on a substrate row the per-row gate "
+         "reports the same code from its own scan, and the statement-level "
+         "quantifier would be measured through a check that is not it")
+vec("bad-993-second-row-refs-out-of-range", "ok-045",
+    "the artifact row that follows a fully covered substrate row carries an "
+    "observationRefs index out of range for observationRecords",
+    [], [11], ["ref-out-of-range"],
+    set_refs(P_mixed_clean, 1, [99]),
+    spec="L552-553; L946-951",
+    note="the ROW quantifier of the same scan bad-990 measures inside one "
+         "row. Every vector carrying this condition put the offending index "
+         "on the first row, where a rail that reads one row and stops still "
+         "finds it. Here the first row's indexes all resolve, so only a rail "
+         "that walks every row reports anything at all")
 
 def _b725() -> str:
     """A statement carrying a duplicate top-level member (RFC 7493). The dict
@@ -3361,6 +3439,94 @@ vec("bad-954-observed-set-gains-a-record", "ok-001",
     spec="L609-613; L1499-1508")
 
 
+def _b996() -> dict[str, Any]:
+    """A SECOND seal, bound to this run, committing to the wrong observed set.
+
+    The run-end equality is quantified over every carried sealed record, and
+    every statement in this corpus carried exactly one, where a universal and
+    an existential agree. bad-953 and bad-954 both move the sole seal, so a
+    rail that finds the first seal bound to this run, compares it and stops
+    reports the same answer they do.
+
+    Here the parent's own seal is left exactly as it was and a second one is
+    added beside it, one hex digit away from the recompute. Seals contribute no
+    leaf to the observed set -- only interception and examination records do --
+    so adding one moves nothing the first seal committed to, and resealing is
+    suppressed because the wrong value IS the subject.
+    """
+    st = P_clean()
+    recs = st["predicate"]["observationRecords"]
+    first = json.loads(unb64(recs[1]["payload"]))
+    env = st["predicate"]["observationEnvironment"]
+    recs.append(record(sealed_payload(
+        binding_for(env), observed=hex_tamper(first["aeeObservedSet"]))))
+    return reroot(st, reseal_first=False)
+
+
+vec("bad-996-second-seal-observed-set-mismatch", "ok-002",
+    "a second sealed record bound to this run commits to an observed set one "
+    "digit away from the recompute, while the first still commits to it",
+    ["recompute-batch-root"], [97], ["observed-set-mismatch"], _b996,
+    spec="L609-613; L1499-1508",
+    note="the record quantifier of the equality. A producer that cannot make "
+         "its seal say what it wants can carry a second one that does, and a "
+         "rail comparing the first bound seal it meets never reads it")
+
+
+def _b997() -> dict[str, Any]:
+    """A SECOND seal naming an attack whose only row reports a clean containment.
+
+    bad-955 puts the false claim on the statement's only seal. The rule is
+    quantified over every carried sealed record, so the claim survives being
+    moved off the seal a rail reads first: the parent's seal keeps its honest
+    empty array and the added one names the attack the clean row denies.
+    """
+    st = P_clean()
+    env = st["predicate"]["observationEnvironment"]
+    st["predicate"]["observationRecords"].append(record(sealed_payload(
+        binding_for(env), observed_attacks=["XA-EXAMPLE-1"])))
+    return reroot(st)
+
+
+vec("bad-997-second-seal-attack-uncaught", "ok-002",
+    "a second sealed record bound to this run names an attack whose only row "
+    "reports a clean containment, while the first names none",
+    ["recompute-batch-root"], [98],
+    ["observed-attack-uncaught"], _b997,
+    spec="L1535-1542",
+    note="the record quantifier of bad-955. Both seals satisfy every "
+         "constraint their kind imposes, so nothing older refuses either of "
+         "them, and only a rail that reads every carried seal finds the claim")
+
+
+def _b998() -> dict[str, Any]:
+    """A SECOND arming record declaring no assessed attack at all.
+
+    The subset comparison is quantified over every carried arming record, and
+    bad-957 moves the statement's only one. Here the parent's arming record
+    still declares the identifier the carried coverage assesses, and the added
+    one declares nothing: the empty array satisfies the kind's own shape rule,
+    so the record covers something by its own constraints and is refused only
+    by the statement rule that compares it with the coverage.
+    """
+    st = P_clean()
+    env = st["predicate"]["observationEnvironment"]
+    st["predicate"]["observationRecords"].append(
+        record(arming_payload(binding_for(env), assessed=[])))
+    return reroot(st)
+
+
+vec("bad-998-second-arming-declares-nothing", "ok-002",
+    "a second arming record bound to this run declares an empty assessed set "
+    "while the first declares the identifier the coverage assesses",
+    ["recompute-batch-root"], [99],
+    ["assessed-set-exceeds-declaration"], _b998,
+    spec="L1467-1473",
+    note="a run-start declaration a producer can add to is not a declaration. "
+         "A rail that compares the first arming record it meets and stops "
+         "accepts a statement carrying two contradictory ones")
+
+
 def _b955() -> dict[str, Any]:
     """A seal naming an attack whose row is CLEAN rather than caught."""
     st = P_clean()
@@ -3380,6 +3546,23 @@ vec("bad-955-seal-names-clean-attack", "ok-002",
          "while the row says nothing was caught. The rule reads one way only, "
          "so it is the naming that obliges the caught row and never the "
          "omission that obliges a clean one")
+
+
+vec("bad-995-seal-later-attack-uncaught", "ok-053",
+    "the seal keeps its first named attack, whose row reports a catch, and "
+    "replaces the second with the declared attack whose row is clean",
+    ["re-sign-record", "recompute-batch-root"], [98],
+    ["observed-attack-uncaught"],
+    _rec_mut(P_liveness_honest, 3,
+             lambda o: {**o, "aeeObservedAttacks": ["XA-EXAMPLE-1",
+                                                    "XB-EXAMPLE-1"]}),
+    spec="L1535-1542",
+    note="the rule is quantified over every identifier the seal names, and "
+         "bad-955 names one, where a universal and an existential agree. Both "
+         "identifiers here are declared and the array stays canonical, so the "
+         "shape rule the kind imposes is untouched; a rail that reads the "
+         "first named attack, finds its caught row and stops accepts a seal "
+         "claiming a catch the statement's own rows deny")
 
 
 def _b956() -> dict[str, Any]:
@@ -3565,6 +3748,23 @@ vec("bad-965-commitment-not-hex", "ok-001",
          "present-but-malformed value is a different fault: a producer told "
          "its record is missing a value the record plainly carries has been "
          "told the wrong thing")
+
+vec("bad-989-commitment-later-entry-not-hex", "ok-001",
+    "the interception record's aeePayloadCommitment carries the parent's "
+    "valid entry and then one that is not lowercase 64-hex",
+    ["re-sign-record", "recompute-batch-root"], [104],
+    ["payload-commitment-malformed"],
+    _rec_mut(P_caught, 0, lambda o: {
+        **o, "aeePayloadCommitment": [o["aeePayloadCommitment"][0],
+                                      "not-a-commitment"]}),
+    spec="L1454-1465",
+    note="the entry rule is quantified over the whole array, and every "
+         "commitment array this corpus carried held one entry, where a "
+         "universal and an existential agree. bad-965 replaces that single "
+         "entry, so a rail reading the first entry and stopping reports the "
+         "same answer. Here the first entry is the parent's own commitment "
+         "and the malformed value follows it, so only a rail that reads every "
+         "entry refuses")
 
 vec("bad-966-commitment-empty-array", "ok-001",
     "the interception record's aeePayloadCommitment is an empty array",
@@ -3797,6 +3997,25 @@ vec("bad-978-arming-assessedattacks-unsorted", "ok-011",
          "vocabulary arrays already carry. Two entries are the fewest that "
          "can be out of order, and a one-attack manifest cannot express it")
 
+vec("bad-987-arming-assessedattacks-later-undeclared", "ok-011",
+    "the arming aeeAssessedAttacks names the two identifiers the manifest "
+    "declares and then a third the manifest does not",
+    ["re-sign-record", "recompute-batch-root"], [99],
+    ["arming-covers-nothing"],
+    _rec_mut(P_clean_two, 0,
+             lambda o: {**o, "aeeAssessedAttacks": ["XA-EXAMPLE-1",
+                                                    "XA-EXAMPLE-2",
+                                                    "XZ-EXAMPLE-9"]}),
+    spec="L1467-1473",
+    note="the membership rule is quantified over every identifier the array "
+         "names, and bad-976 carries a one-entry array where a universal and "
+         "an existential agree. The two declared identifiers stay first and "
+         "stay in place, so the subset comparison the statement rule makes "
+         "against the carried coverage is untouched and the undeclared "
+         "identifier is the only fault: a rail that reads the first entry and "
+         "stops accepts a run-start declaration naming an attack the corpus "
+         "never carried")
+
 
 # --- (h2) the two kinds registered as non-covering -------------------------
 
@@ -3940,6 +4159,67 @@ vec("bad-986-pinned-second-interception-unmatched", "ok-055",
          "attack is valid and one observed effect corresponds to it, while a "
          "second effect on the same row corresponds to a different declared "
          "attack, so a rail reading `every` as `some` calls this conformant")
+
+
+def _manifest_mutated(
+        mutfn: Callable[[dict[str, Any]], None]) -> Callable[[], dict[str, Any]]:
+    """ok-055 with its carried manifest edited, and everything that follows it.
+
+    The manifest sits inside the corpus digest and the corpus digest sits
+    inside the derived run binding, so an edit to it moves both. Recomputing
+    the digest and rebinding every record keeps the edit the ONLY difference
+    from the parent: a vector that left the parent's digest or the parent's
+    binding in place would carry a second fault and the self-check below would
+    refuse it.
+    """
+    def b() -> dict[str, Any]:
+        st = P_pin_multi()
+        corpus = st["predicate"]["observationEnvironment"]["corpus"]
+        mutfn(corpus["manifest"])
+        corpus["digest"]["sha256"] = jcs_digest(corpus["manifest"])
+        return rebind_records(st)
+    return b
+
+
+def _b991_mutation(manifest: dict[str, Any]) -> None:
+    manifest["expectedPayloads"]["XA-EXAMPLE-1"] = (
+        list(manifest["expectedPayloads"]["XA-EXAMPLE-1"]) + ["not-a-commitment"])
+
+
+vec("bad-991-expected-payloads-later-entry-not-hex", "ok-055",
+    "an expectedPayloads array carries the parent's two valid entries and "
+    "then one that is not lowercase 64-hex",
+    ["recompute-corpus-digest", "rederive-binding", "re-sign-record",
+     "recompute-batch-root"],
+    [103], ["manifest-expected-payloads-malformed"],
+    _manifest_mutated(_b991_mutation),
+    spec="L815-821",
+    note="bad-963 replaces the sole entry of a one-entry array, so a rail "
+         "that reads the first entry and stops reports the same answer. "
+         "ok-055 is the only accept vector whose manifest declares more than "
+         "one value for an attack, and appending the malformed value to it "
+         "leaves both records still matching what the manifest declares: the "
+         "array shape is the only fault, and it is not the first entry")
+
+
+def _b992_mutation(manifest: dict[str, Any]) -> None:
+    manifest["expectedPayloads"]["XZ-EXAMPLE-9"] = [D["intercepted-bytes-3"]]
+
+
+vec("bad-992-expected-payloads-later-key-undeclared", "ok-055",
+    "expectedPayloads gains, after the two attacks the manifest declares, an "
+    "entry keyed on an identifier it does not",
+    ["recompute-corpus-digest", "rederive-binding", "re-sign-record",
+     "recompute-batch-root"],
+    [103], ["manifest-expected-payloads-malformed"],
+    _manifest_mutated(_b992_mutation),
+    spec="L815-821",
+    note="bad-961 carries a single undeclared key, which is also the first "
+         "key, so a rail that reads one entry and stops still finds it. Here "
+         "the two declared keys sort ahead of it and both are well formed, so "
+         "the fault is reachable only by a rail that walks the whole map. The "
+         "added entry names no row and its value is a well-formed commitment, "
+         "which keeps the undeclared key the sole fault")
 
 
 # --- (p) detector liveness, per channel ------------------------------------

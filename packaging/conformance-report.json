@@ -5,8 +5,8 @@
   "externalVerifierProbe": "no external verifier supplied; using the reference rail",
   "pinnedTestKeyRole": "substrate-observation-test",
   "totals": {
-    "vectors": 260,
-    "pass": 260,
+    "vectors": 272,
+    "pass": 272,
     "fail": 0,
     "suiteRefusals": 0
   },
@@ -7394,6 +7394,356 @@
         "verdict": "invalid",
         "codes": [
           "attribution-pin-unmatched"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-987-arming-assessedattacks-later-undeclared",
+      "file": "vectors/reject/bad-987-arming-assessedattacks-later-undeclared.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ],
+        "primaryCode": "arming-covers-nothing",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-988-chain-scope-later-token-unknown",
+      "file": "vectors/reject/bad-988-chain-scope-later-token-unknown.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ],
+        "primaryCode": "arming-covers-nothing",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "arming-covers-nothing"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-989-commitment-later-entry-not-hex",
+      "file": "vectors/reject/bad-989-commitment-later-entry-not-hex.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "payload-commitment-malformed"
+        ],
+        "primaryCode": "payload-commitment-malformed",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "payload-commitment-malformed"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-990-artifact-refs-later-out-of-range",
+      "file": "vectors/reject/bad-990-artifact-refs-later-out-of-range.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "ref-out-of-range"
+        ],
+        "primaryCode": "ref-out-of-range",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "ref-out-of-range"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-991-expected-payloads-later-entry-not-hex",
+      "file": "vectors/reject/bad-991-expected-payloads-later-entry-not-hex.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "manifest-expected-payloads-malformed",
+          "attribution-unpinnable"
+        ],
+        "primaryCode": "manifest-expected-payloads-malformed",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "manifest-expected-payloads-malformed"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-992-expected-payloads-later-key-undeclared",
+      "file": "vectors/reject/bad-992-expected-payloads-later-key-undeclared.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "manifest-expected-payloads-malformed",
+          "attribution-unpinnable"
+        ],
+        "primaryCode": "manifest-expected-payloads-malformed",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "manifest-expected-payloads-malformed"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-993-second-row-refs-out-of-range",
+      "file": "vectors/reject/bad-993-second-row-refs-out-of-range.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "-",
+        "gate1": "PASS",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "ref-out-of-range"
+        ],
+        "primaryCode": "ref-out-of-range",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "ref-out-of-range"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-994-second-clean-row-layer-not-none",
+      "file": "vectors/reject/bad-994-second-clean-row-layer-not-none.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "clean-row-layer-not-none"
+        ],
+        "primaryCode": "clean-row-layer-not-none",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "clean-row-layer-not-none"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-995-seal-later-attack-uncaught",
+      "file": "vectors/reject/bad-995-seal-later-attack-uncaught.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "observed-attack-uncaught"
+        ],
+        "primaryCode": "observed-attack-uncaught",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "observed-attack-uncaught"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-996-second-seal-observed-set-mismatch",
+      "file": "vectors/reject/bad-996-second-seal-observed-set-mismatch.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "observed-set-mismatch"
+        ],
+        "primaryCode": "observed-set-mismatch",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "observed-set-mismatch"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-997-second-seal-attack-uncaught",
+      "file": "vectors/reject/bad-997-second-seal-attack-uncaught.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "observed-attack-uncaught"
+        ],
+        "primaryCode": "observed-attack-uncaught",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "observed-attack-uncaught"
+        ]
+      },
+      "inManifest": true,
+      "reasons": []
+    },
+    {
+      "id": "bad-998-second-arming-declares-nothing",
+      "file": "vectors/reject/bad-998-second-arming-declares-nothing.json",
+      "kind": "reject",
+      "status": "PASS",
+      "gates": {
+        "gate0": "PASS",
+        "gate1": "-",
+        "recompute": "-",
+        "tier": "-",
+        "self-check": "PASS"
+      },
+      "observed": {
+        "verdict": "invalid",
+        "codes": [
+          "assessed-set-exceeds-declaration"
+        ],
+        "primaryCode": "assessed-set-exceeds-declaration",
+        "result": null
+      },
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "assessed-set-exceeds-declaration"
         ]
       },
       "inManifest": true,

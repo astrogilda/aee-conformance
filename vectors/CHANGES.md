@@ -48,15 +48,43 @@ byte-identically from the generators.
   the manifest, because every manifest-only case would also pass a gate that
   compared the manifest against nothing but itself.
 
-- Corpus: **260 vectors (61 accept, 197 reject, 2 indeterminate)**, two more than
-  suiteRevision 26. Every reject vector file changes, so `corpusDigest` in
+- Corpus: **272 vectors (61 accept, 209 reject, 2 indeterminate)**, fourteen more
+  than suiteRevision 26. Every reject vector file changes, so `corpusDigest` in
   `vectors/MANIFEST.json` moves. No expectation is widened and no vector is
   removed or weakened: every refusal keeps its conditions and its expected code.
-  The two additions are the `ok-055` / `bad-986` pair below. The vendored
+  The additions are the `ok-055` / `bad-986` pair below and the twelve refusals
+  of the quantifier round after it. The vendored
   specification does not move: `specDigest` and `specUpstreamCommit` are exactly
   what suiteRevision 26 carried, because this revision corrects the corpus and
-  changes no rule and no reading. With the pair added, all 197 reject vectors
+  changes no rule and no reading. With the additions, all 209 reject vectors
   declare a parent that ships as an accept vector.
+- **Twelve more universals that the corpus proved it ran and never proved it
+  quantified.** `LOOP_FIRST` weakens "for every member, P" to "for the first
+  member that reaches the end of the body, P" by closing a range body with a
+  `break`, and it enumerated 53 sites in `aee/`. Twenty-six of them survived the
+  weakening with byte-identical output on every vector then shipped, and
+  twenty-four of those twenty-six sat on a branch the corpus demonstrably
+  ENTERS: vectors reach the loop, and not one of them carries a second member
+  whose treatment could differ from the first's. Twelve are now forced.
+  Each new refusal is its declared accept parent plus one mutation, and each
+  puts a well-formed member ahead of the offending one, which is the only shape
+  that separates a universal from an existential:
+  `bad-987` (a third assessed identifier the manifest does not declare),
+  `bad-988` (a second chain-scope token outside the closed vocabulary),
+  `bad-989` (a second payload commitment that is not lowercase 64-hex),
+  `bad-990` and `bad-993` (an out-of-range `observationRefs` index behind an
+  in-range one, and behind a fully covered row),
+  `bad-991` and `bad-992` (a malformed `expectedPayloads` entry and an
+  undeclared key, both behind well-formed ones),
+  `bad-994` (the second of two clean rows carrying an actualLayer that is not
+  `none`),
+  `bad-995` (the second attack a seal names, whose row is clean),
+  `bad-996`, `bad-997` and `bad-998` (a second sealed or arming record, bound to
+  the same run, contradicting the first). Twelve of the twenty-four sites move
+  from DEAD to KILLED in `docs/FORCING-BASELINE.json`; the remaining twelve are
+  recorded there as they were measured, and two of them range over a Go map,
+  where a single-witness reading picks its witness at random and no vector can
+  refuse it deterministically.
 - **A rule quantified over a set, and a corpus that only ever handed it one
   element.** The third part of the pinned-attribution rule reads "every
   `interception` record it resolves carries in its `aeePayloadCommitment` at
@@ -135,8 +163,8 @@ byte-identically from the generators.
   is not counted, and a field set to a value the derivation does not produce IS
   the mutation and is counted where it was set. The arithmetic and its reasoning
   live in `scripts/mutationdiff.py`.
-- **153 of the 197 reject vectors are now exactly one mutation from their declared
-  parent, up from one.** The remaining 44 cannot express their declared fault in a
+- **163 of the 209 reject vectors are now exactly one mutation from their declared
+  parent, up from one.** The remaining 46 cannot express their declared fault in a
   single edit, and each is declared in `docs/MULTI-MUTATION-VECTORS.json` with its
   count and the reason -- the seal-constraint family carries a second healthy seal
   so the defective one is not also the only covering record; the laundering family

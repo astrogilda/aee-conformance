@@ -176,6 +176,14 @@
     "bad-985-liveness-middle-channel-probe-uncaught": {
       "mutations": 3,
       "reason": "the middle channel's interception is deleted, and the two rows whose indices the deletion moves are re-pointed. Leaving either row alone would make it resolve a record belonging to another channel"
+    },
+    "bad-988-chain-scope-later-token-unknown": {
+      "mutations": 2,
+      "reason": "as bad-722, and for the same reason: a run-chain declaration is not one member. aeeChainScope and aeeRunSeq only exist together, so a scope carrying a second unregistered token cannot be added to a parent that declares no sequence at all"
+    },
+    "bad-990-artifact-refs-later-out-of-range": {
+      "mutations": 2,
+      "reason": "two indexes are the fewest that can put an out-of-range reference BEHIND an in-range one, and the parent's artifact row carries an empty observationRefs array. bad-724 is the one-index form and both readings of the scan find it; the second index is what this vector is"
     }
   }
 }

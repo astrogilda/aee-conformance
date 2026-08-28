@@ -26,12 +26,12 @@ all.**
 | what | value |
 |---|---|
 | suite | `adversarial-execution-evidence-conformance` |
-| corpus | suiteRevision 27, 260 vectors (61 accept, 197 reject, 2 indeterminate) |
+| corpus | suiteRevision 27, 272 vectors (61 accept, 209 reject, 2 indeterminate) |
 | vendored specification | commit `0dbe10bcc959b63dc42370a5db09812c9476f59a`, fetchable from `astrogilda/attestation` at branch `predicate/adversarial-execution-evidence` |
 | reviewed at | `in-toto/attestation#570` |
-| `vectors/MANIFEST.json` | `sha256:28af687a1d01169d9dbc77fb5d746f65f343869e1cef687490dfedf3ab31e025` |
-| `docs/FORCING-BASELINE.json` | `sha256:5b209bdeab7860f369430660b9a7996daffa01eb827213e06aee0b30af43d564` |
-| campaign | 807 single-site weakenings: 447 KILLED, 32 SILENT, 323 DEAD, 5 INCONCLUSIVE |
+| `vectors/MANIFEST.json` | `sha256:3b4c3c2981eb8b703c18035363c15bbecada5552ce53a990879d3974fc59f719` |
+| `docs/FORCING-BASELINE.json` | `sha256:b8e2ee09ab271358b1182dbb69c90328af101cb0efe21f584f2a9e0fa550a368` |
+| campaign | 807 single-site weakenings: 459 KILLED, 32 SILENT, 311 DEAD, 5 INCONCLUSIVE |
 
 Every vector in the corpus is depended on by at least one recorded weakening, so no
 vector is wholly redundant and the campaign covers the corpus as it stands.

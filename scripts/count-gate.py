@@ -1127,6 +1127,17 @@ MASKS = tuple(
         # measures and never one written as a bare quantity: no count this
         # repository publishes is spelled `447 bytes`.
         r"\b\d+[\s-]?bytes?\b",
+        # A line number, spelled out. Same family as the two above: the digit
+        # names a POSITION in a file and counts nothing, and it stayed invisible
+        # only while no published quantity equalled it. The reject count reached
+        # 209 when twelve quantifier vectors landed, and the sentence in
+        # docs/UNCITED-OBLIGATIONS.md recording that a sentence beginning on
+        # line 210 was attributed to line 209 was reported as an unaccounted
+        # count on the same run. The word has to sit next to the number, so an
+        # integer written as a bare quantity is still checked, and no count this
+        # repository publishes is spelled `line 209`. Spec anchors already have
+        # their own mask above; this one covers the prose that discusses them.
+        r"\blines?\s+\d+\b",
         r"\bdecisions?\s+\d+",  # interpretation-registry decision ids
     )
 )

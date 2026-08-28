@@ -59,7 +59,8 @@ one line early.** The script attributes a sentence to the last buffered line
 whose cumulative offset does not exceed the sentence's start, so a sentence
 beginning mid-line is attributed to the line the PREVIOUS sentence began on.
 Row 2 below is exactly this: the subject-cardinality obligation begins on line
-210, was reported at 209, and is forced by two vectors that anchor L210-213.
+210, was reported at line 209, and is forced by two vectors that anchor
+L210-213.
 Widening that anchor to L209-213 was tried and `scripts/spec-anchor-gate.py`
 refused it, printing the line it now addressed -- "axis rather than against the
 producer's clock". **An uncited count is an upper bound until each sentence's

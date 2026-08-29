@@ -4,7 +4,7 @@
 Regenerate byte-identically: python3 gen_vectors.py
 
 Ground truth: in-toto/attestation#588, spec/predicates/ai-agent-action.md at
-639ec56cdbb2d7b3c9fc672adeef7fe46d995f7b.
+8783c6b800247f2ffe34714a32a9b722e438d851.
 
 Every member is a complete in-toto Statement. Members whose claim is about
 the hash chain carry a sidecar under records/, the JSONL lines the chain hash
@@ -28,7 +28,7 @@ import struct
 HERE = os.path.dirname(os.path.abspath(__file__))
 PREDICATE_TYPE = "https://in-toto.io/attestation/ai-agent-action/v0.1"
 UPSTREAM_PR = "in-toto/attestation#588"
-UPSTREAM_COMMIT = "639ec56cdbb2d7b3c9fc672adeef7fe46d995f7b"
+UPSTREAM_COMMIT = "8783c6b800247f2ffe34714a32a9b722e438d851"
 
 # WHERE THE COMMIT LIVED, AND WHY THAT IS PAST TENSE.
 #

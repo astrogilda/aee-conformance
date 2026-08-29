@@ -1,7 +1,7 @@
 # AI Agent Action v0.1 conformance suite
 
 Conformance vectors for the AI Agent Action predicate proposed in
-in-toto/attestation#588, tracked at `639ec56`.
+in-toto/attestation#588, tracked at `8783c6b`.
 
 That commit no longer resolves anywhere. It lived on
 `add-ai-agent-action-predicate` in the fork `elang2/attestation`, which the pull

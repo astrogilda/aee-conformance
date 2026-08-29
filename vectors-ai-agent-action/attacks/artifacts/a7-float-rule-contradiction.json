@@ -4,6 +4,10 @@
   "clause_a_present": true,
   "clause_b": "This is necessary because MCP payloads can contain floating-point values that the signing canonical form rejects by design.",
   "clause_b_present": true,
+  "read_path_control": {
+    "phrase": "safe integer",
+    "occurrences": 5
+  },
   "payload": {
     "temperature": 0.7,
     "maxTokens": 4096

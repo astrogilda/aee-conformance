@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Adversarial harness against in-toto/attestation#588 at 639ec56.
+"""Adversarial harness against in-toto/attestation#588 at 8783c6b.
 
 Every attack constructs concrete artifacts on disk and reports SUCCEEDED
 (the text as written permits the divergence) or FORECLOSED (the text
@@ -7,9 +7,9 @@ already rules it out). Nothing here is a claim about the reference
 implementation; the target is the specification text, because a second
 implementer has only the text.
 
-Ground truth: ../spec-vendored/ai-agent-action-639ec56.md, fetched from
+Ground truth: ../spec-vendored/ai-agent-action-8783c6b.md, fetched from
 repos/elang2/attestation/contents/spec/predicates/ai-agent-action.md
-at ref 639ec56cdbb2d7b3c9fc672adeef7fe46d995f7b.
+at ref 8783c6b800247f2ffe34714a32a9b722e438d851.
 """
 
 from __future__ import annotations
@@ -70,6 +70,34 @@ BASE_RECORD_JS = """{
 # ---------------------------------------------------------------------------
 # A1  ECMAScript integer-like member ordering inside extensions
 # ---------------------------------------------------------------------------
+def section(text: str, start: str, end: str) -> str:
+    """The span between two headings, or a REFUSAL naming the one that is missing.
+
+    WHY THIS EXISTS. Both call sites used ``text.split(heading)[1]`` directly, so a spec
+    revision that RENAMED a heading raised ``IndexError: list index out of range`` from
+    inside an attack function. That is the wrong failure in two ways: it names a list
+    index instead of the heading, and it aborts the whole harness, so every attack after
+    it never runs and the run reports nothing about them. Measured when the vendored spec
+    moved from 639ec56 to 8783c6b and ``### Genesis and chain continuity`` became
+    ``#### Genesis and breaks``: F3 crashed and the run exited 1 with no verdict.
+
+    A heading this harness cannot find is a fact about the spec, so say which one.
+    """
+    if start not in text:
+        raise SystemExit(
+            f"run_attacks: REFUSED -- the vendored spec has no heading {start!r}. "
+            "It was renamed or removed upstream. Re-read the spec, update the heading "
+            "here, and re-run; do not delete the check."
+        )
+    tail = text.split(start, 1)[1]
+    if end not in tail:
+        raise SystemExit(
+            f"run_attacks: REFUSED -- no heading {end!r} follows {start!r} in the "
+            "vendored spec, so the section has no end and the span cannot be read."
+        )
+    return tail.split(end, 1)[0]
+
+
 def attack_a1() -> None:
     ext_js = '{"10": "ten", "2": "two", "zz": "last", "aa": "first"}'
     js_bytes = node_stringify(BASE_RECORD_JS % ext_js)
@@ -297,7 +325,7 @@ def attack_a5() -> None:
 # A6  Checkpoint records are not on the chain the Fields table defines
 # ---------------------------------------------------------------------------
 def attack_a6() -> None:
-    spec = os.path.join(HERE, "..", "spec-vendored", "ai-agent-action-639ec56.md")
+    spec = os.path.join(HERE, "..", "spec-vendored", "ai-agent-action-8783c6b.md")
     with open(spec, encoding="utf-8") as fh:
         text = fh.read()
 
@@ -305,8 +333,8 @@ def attack_a6() -> None:
     flat = " ".join(text.split())
     control = flat.count("carries the break record's chain hash")
     absent = flat.count("carries the checkpoint record's chain hash")
-    chain_field_on_checkpoint = "\"chain\"" in text.split(
-        "### Checkpoint record")[1].split("### Chain break record")[0]
+    chain_field_on_checkpoint = "\"chain\"" in section(
+        text, "### Checkpoint record", "### Chain break record")
 
     body = {
         "attack": "a6-checkpoint-not-on-the-chain",
@@ -343,15 +371,33 @@ def attack_a6() -> None:
 # A7  The float rule contradicts itself
 # ---------------------------------------------------------------------------
 def attack_a7() -> None:
-    spec = os.path.join(HERE, "..", "spec-vendored", "ai-agent-action-639ec56.md")
+    spec = os.path.join(HERE, "..", "spec-vendored", "ai-agent-action-8783c6b.md")
     with open(spec, encoding="utf-8") as fh:
         text = fh.read()
     # The spec is hard-wrapped, so a phrase spanning a line break is absent
     # from the raw text and present in the prose. Normalize before probing,
     # or the probe reports an absence the document does not have.
     flat = " ".join(text.split())
-    both_forms = "Constraints on both forms" in flat
-    floats_needed = "MCP payloads can contain floating-point values" in flat
+    # READ-PATH CONTROL FIRST. This probe was two literal searches with no control,
+    # so when 8783c6b reworded both clauses the searches returned False and the attack
+    # reported FORECLOSED -- the right verdict reached by a route that cannot tell a
+    # resolved contradiction from a renamed heading. Same defect as F2, opposite sign.
+    control_phrase = "safe integer"
+    control = flat.lower().count(control_phrase)
+    if control == 0:
+        raise SystemExit(
+            "run_attacks: REFUSED -- A7's read-path control found no occurrence of "
+            f"{control_phrase!r} in the vendored spec. An absence measured through a "
+            "read path that cannot find a present thing is not a finding."
+        )
+    # Probe the SUBSTANCE, in any phrasing: a safe-integer bound on the signing form,
+    # and floats admitted anywhere in the document.
+    both_forms = ("Constraints on both forms" in flat
+                  or "MUST be safe integers" in flat
+                  or "MUST remain within the I-JSON safe integer range" in flat)
+    floats_needed = ("MCP payloads can contain floating-point values" in flat
+                     or "tool payloads are arbitrary JSON that may contain floats" in flat
+                     or "Floats are permitted here and only here" in flat)
 
     payload = {"temperature": 0.7, "maxTokens": 4096}
     jcs = json.dumps(payload, separators=(",", ":"), sort_keys=True).encode()
@@ -365,6 +411,7 @@ def attack_a7() -> None:
                     "floating-point values that the signing canonical form "
                     "rejects by design.",
         "clause_b_present": floats_needed,
+        "read_path_control": {"phrase": control_phrase, "occurrences": control},
         "payload": payload,
         "implementer_reading_clause_a": "reject the record",
         "implementer_reading_clause_b": "accept and digest under JCS",
@@ -461,7 +508,7 @@ def attack_a9() -> None:
 # A10 The signing canonical form's field list is not in the specification
 # ---------------------------------------------------------------------------
 def attack_a10() -> None:
-    spec = os.path.join(HERE, "..", "spec-vendored", "ai-agent-action-639ec56.md")
+    spec = os.path.join(HERE, "..", "spec-vendored", "ai-agent-action-8783c6b.md")
     with open(spec, encoding="utf-8") as fh:
         text = fh.read()
     flat = " ".join(text.split())
@@ -534,14 +581,30 @@ def attack_f1() -> None:
 
 def attack_f2() -> None:
     """Unpaired surrogate in a signed string."""
-    spec = os.path.join(HERE, "..", "spec-vendored", "ai-agent-action-639ec56.md")
+    spec = os.path.join(HERE, "..", "spec-vendored", "ai-agent-action-8783c6b.md")
     with open(spec, encoding="utf-8") as fh:
         text = fh.read()
-    pinned = "MUST NOT contain unpaired UTF-16 surrogates" in text
+    # PROBE THE RULE, NOT THE SENTENCE. This was a single literal search for
+    # "MUST NOT contain unpaired UTF-16 surrogates", which is how 639ec56 worded it.
+    # 8783c6b REWORDED and STRENGTHENED the same constraint (unpaired escape halves
+    # are malformed, no surrogate encoded directly in UTF-8, no overlong form), and
+    # the literal probe returned False -- so the harness reported the attack
+    # SUCCEEDED against a spec that had closed it harder. A probe that reads a
+    # rewording as a removal manufactures a regression, which is the most expensive
+    # false positive available to a conformance corpus. Any one of these phrasings
+    # establishes the constraint.
+    surrogate_rules = (
+        "MUST NOT contain unpaired UTF-16 surrogates",
+        "unpaired escape of either half is malformed",
+        "no surrogate encoded directly in UTF-8",
+    )
+    matched = [r for r in surrogate_rules if r in text]
+    pinned = bool(matched)
     body = {
         "attack": "f2-unpaired-surrogate",
         "clause": "Strings MUST NOT contain unpaired UTF-16 surrogates.",
         "clause_present": pinned,
+        "matched_phrasings": matched,
         "why_foreclosed": "Stated for both forms, so a lone \\ud800 is "
                           "malformed rather than a divergence. The narrower "
                           "gaps #570 also closes -- noncharacters, overlong "
@@ -558,11 +621,11 @@ def attack_f2() -> None:
 
 def attack_f3() -> None:
     """Replay a second genesis to restart the chain and drop history."""
-    spec = os.path.join(HERE, "..", "spec-vendored", "ai-agent-action-639ec56.md")
+    spec = os.path.join(HERE, "..", "spec-vendored", "ai-agent-action-8783c6b.md")
     with open(spec, encoding="utf-8") as fh:
         text = fh.read()
-    must = "MUST" in text.split("### Genesis and chain continuity")[1].split(
-        "### Parsing Rules")[0]
+    must = "MUST" in section(
+        text, "#### Genesis and breaks", "### Parsing Rules")
     should_only = "SHOULD treat it as" in text
     body = {
         "attack": "f3-second-genesis",

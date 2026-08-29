@@ -5,7 +5,7 @@ layout, laid out the same way as `vectors/reject/` for the
 adversarial-execution-evidence suite next to it.
 
 Ground truth: in-toto/attestation#588, `spec/predicates/ai-agent-action.md`
-at `639ec56`, type URI
+at `8783c6b`, type URI
 `https://in-toto.io/attestation/ai-agent-action/v0.1`.
 
 That commit is not an address. The pull request is opened from

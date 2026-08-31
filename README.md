@@ -5,15 +5,34 @@
 <p align="center">
   <a href="https://github.com/astrogilda/aee-conformance/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/astrogilda/aee-conformance/ci.yml?branch=main&label=build" alt="build status"></a>
   <img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="license Apache-2.0">
-  <img src="https://img.shields.io/badge/conformance%20vectors-272-e8951c" alt="272 conformance vectors">
+  <img src="https://img.shields.io/badge/AEE%20vectors-272-e8951c" alt="272 AEE conformance vectors">
+  <img src="https://img.shields.io/badge/AI%20Agent%20Action%20vectors-53-e8951c" alt="53 AI Agent Action conformance vectors">
   <img src="https://img.shields.io/badge/rails-Go%20%C2%B7%20Python-546274" alt="Go and Python rails">
   <img src="https://img.shields.io/badge/predicate-in--toto%20AEE%20v0.7-6f57c2" alt="in-toto AEE v0.7 predicate">
 </p>
 
-A recomputable execution attestation toolkit for the in-toto Adversarial
-Execution Evidence predicate, version 0.7.
+A recomputable execution attestation toolkit for two in-toto predicates:
+**Adversarial Execution Evidence**, predicate version 0.7, and **AI Agent
+Action**, predicate version 0.1, proposed in
+[in-toto/attestation#588](https://github.com/in-toto/attestation/pull/588).
+Each has its own corpus, `vectors/` and `vectors-ai-agent-action/`.
 
-The predicate's model is execute-and-attest, not match-and-assert: the
+**Three different numbers on this page are called a version, so every one of
+them names its axis.** A *predicate* version belongs to a specification in
+in-toto and changes when that specification changes; there are two of them here
+and they are unrelated to each other. A *release* tag belongs to this
+repository and changes when anything here ships. They move independently: the
+suite reached release v0.8.0 by adding a second corpus while still implementing
+predicate v0.7, so those two numbers disagreeing is the normal state rather
+than a defect. A bare number cannot tell you which axis you are reading, which
+is why none is written bare.
+
+Neither predicate version above is typed by hand. Both are derived from the
+`predicateType` each corpus manifest declares, and `scripts/count-gate.py`
+refuses a version written here that its manifest does not support — the same
+rule the vector counts already live under, for the same reason.
+
+The AEE predicate's model is execute-and-attest, not match-and-assert: the
 consumer recomputes the outcome from carried bytes instead of trusting a
 producer-asserted verdict. This repository is a second, independently usable
 implementation of that contract: any future producer of the predicateType

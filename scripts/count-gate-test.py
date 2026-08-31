@@ -126,9 +126,7 @@ def retype(root: Path, rel: str, pattern: str) -> None:
             "case would assert nothing. Fix the case, never the gate."
         )
     start, end = found[0].span(1)
-    path.write_text(
-        text[:start] + str(int(found[0].group(1)) + 1) + text[end:], encoding="utf-8"
-    )
+    path.write_text(text[:start] + str(int(found[0].group(1)) + 1) + text[end:], encoding="utf-8")
 
 
 def reword(root: Path, rel: str, pattern: str, replacement: str) -> None:
@@ -178,6 +176,54 @@ def corpus_figure(root: Path, key: str) -> int:
     return len(loaded["vectors"]) if key == "total" else int(loaded["counts"][key])
 
 
+def agent_action_figure(root: Path, key: str) -> int:
+    """The same, for the second corpus.
+
+    A sibling rather than a parameter on `corpus_figure`, because the two corpora
+    are independent artifacts that happen to share a manifest shape: they carry
+    different predicates, move on different schedules, and a case that reads the
+    wrong one must fail to compile rather than quietly assert about the other.
+    """
+    loaded = json.loads(
+        (root / "vectors-ai-agent-action" / "MANIFEST.json").read_text(encoding="utf-8")
+    )
+    return len(loaded["vectors"]) if key == "total" else int(loaded["counts"][key])
+
+
+def manifest_predicate_version(root: Path, corpus: str) -> str:
+    """The version a corpus manifest declares, read the way the gate reads it.
+
+    Read rather than named, for the reason `corpus_figure` gives about sizes: a
+    case that hard-codes `0.7` in order to break it restates a measured value in
+    a second place and goes stale the moment the predicate moves, which is the
+    exact event this case exists to catch.
+    """
+    loaded = json.loads((root / corpus / "MANIFEST.json").read_text(encoding="utf-8"))
+    return str(loaded["predicateType"]).rsplit("/v", 1)[-1]
+
+
+def revise(root: Path, rel: str, edit: Callable[[str], str]) -> None:
+    """Rewrite a SOURCE, so a claim that no longer matches it is the finding.
+
+    `retype` perturbs a claim site and asks whether the gate notices the prose is
+    wrong. This asks the opposite and more important question: the source moves,
+    nobody touches the prose, and the prose is now stale while still looking
+    authoritative. That is the direction a version number actually rots in.
+
+    A no-op edit is refused for the same reason `retype` refuses a missing match:
+    the case would still run and would be asserting nothing.
+    """
+    path = root / rel
+    before = path.read_text(encoding="utf-8")
+    after = edit(before)
+    if after == before:
+        raise SystemExit(
+            f"test setup: revising {rel} changed nothing, so this case would "
+            "assert nothing. Fix the case, never the gate."
+        )
+    path.write_text(after, encoding="utf-8")
+
+
 def head_row(root: Path) -> None:
     """Add one to the total on the changelog's NEWEST row, whichever row that is.
 
@@ -211,9 +257,7 @@ def head_row(root: Path) -> None:
             "never the gate."
         )
     start, end = row.span(1)
-    path.write_text(
-        text[:start] + str(int(row.group(1)) + 1) + text[end:], encoding="utf-8"
-    )
+    path.write_text(text[:start] + str(int(row.group(1)) + 1) + text[end:], encoding="utf-8")
 
 
 def append(root: Path, rel: str, text: str) -> None:
@@ -231,6 +275,8 @@ def create(root: Path, rel: str, text: str) -> None:
 # the gate will have measured, and a case that says which number it expects to
 # see refused keeps saying it after the corpus moves.
 TOTAL = corpus_figure(REPO_ROOT, "total")
+AGENT_ACTION_TOTAL = agent_action_figure(REPO_ROOT, "total")
+PREDICATE_VERSION = manifest_predicate_version(REPO_ROOT, "vectors")
 ACCEPT = corpus_figure(REPO_ROOT, "accept")
 REJECT = corpus_figure(REPO_ROOT, "reject")
 INDETERMINATE = corpus_figure(REPO_ROOT, "indeterminate")
@@ -243,8 +289,36 @@ INDETERMINATE = corpus_figure(REPO_ROOT, "indeterminate")
 CLAIM_CASES: list[Case] = [
     (
         "a published count drifts from the corpus",
-        lambda root: retype(root, "README.md", r"conformance%20vectors-(\d+)-e8951c"),
+        lambda root: retype(root, "README.md", r"AEE%20vectors-(\d+)-e8951c"),
         (f"says '{TOTAL + 1}' where the sources say '{TOTAL}'",),
+    ),
+    (
+        # The second corpus arrived with release v0.8.0 and this suite modelled
+        # one, so a badge could understate a repository that ships two while
+        # every case passed. The count was never wrong; the SCOPE was.
+        "the second corpus's count drifts from its manifest",
+        lambda root: retype(root, "README.md", r"AI%20Agent%20Action%20vectors-(\d+)-e8951c"),
+        (f"says '{AGENT_ACTION_TOTAL + 1}' where the sources say '{AGENT_ACTION_TOTAL}'",),
+    ),
+    (
+        # A predicate version rots exactly like a count: written into prose, the
+        # specification moves, and the prose keeps its old number while looking
+        # authoritative. This is the case the operator reported -- a README
+        # reading v0.7 beside a v0.8.0 release, with nothing able to say whether
+        # that was drift or two different axes.
+        "a predicate version drifts from the manifest that declares it",
+        lambda root: revise(
+            root,
+            "vectors/MANIFEST.json",
+            lambda text: text.replace(
+                f"adversarial-execution-evidence/v{PREDICATE_VERSION}",
+                "adversarial-execution-evidence/v99.0",
+            ),
+        ),
+        (
+            f"the AEE predicate version, in the badge says "
+            f"'{PREDICATE_VERSION}' where the sources say '99.0'",
+        ),
     ),
     (
         "a forcing count drifts from the baseline",
@@ -269,10 +343,7 @@ CLAIM_CASES: list[Case] = [
             f"\nNor does agreement on {corpus_figure(root, 'total')} vectors say "
             "anything about tomorrow.\n",
         ),
-        (
-            "the scoping paragraph on what agreement does not say was found 2 "
-            "time(s), expected 1",
-        ),
+        ("the scoping paragraph on what agreement does not say was found 2 time(s), expected 1",),
     ),
     (
         "a delegated span is reworded, leaving it owned by nobody",
@@ -289,12 +360,10 @@ CLAIM_CASES: list[Case] = [
     ),
     (
         "a frozen incident figure is quietly made to track the corpus",
-        lambda root: edit(
-            root, "README.md", "it scored\n0 of 186.", "it scored\n0 of 190."
-        ),
+        lambda root: edit(root, "README.md", "it scored\n0 of 186.", "it scored\n0 of 190."),
         (
             "the frozen figure \"the external-rail contract, the shipped CLI's "
-            "score\" was found 0 time(s)",
+            'score" was found 0 time(s)',
         ),
     ),
 ]
@@ -309,8 +378,7 @@ CENSUS_CASES: list[Case] = [
         lambda root: append(
             root,
             "BUILD-NOTES.md",
-            f"\nThe corpus holds {corpus_figure(root, 'total')} files as this is "
-            "written.\n",
+            f"\nThe corpus holds {corpus_figure(root, 'total')} files as this is written.\n",
         ),
         (f"'{TOTAL}' is an integer equal to the corpus total",),
     ),
@@ -319,16 +387,13 @@ CENSUS_CASES: list[Case] = [
         lambda root: append(
             root,
             "BUILD-NOTES.md",
-            f"\nOf those, {corpus_figure(root, 'accept')} are statements a verifier "
-            "accepts.\n",
+            f"\nOf those, {corpus_figure(root, 'accept')} are statements a verifier accepts.\n",
         ),
         (f"'{ACCEPT}' is an integer equal to the accept count",),
     ),
     (
         "a new paragraph counts vectors at a size the corpus has never had",
-        lambda root: append(
-            root, "BUILD-NOTES.md", "\nThe suite ships 192 vectors in total.\n"
-        ),
+        lambda root: append(root, "BUILD-NOTES.md", "\nThe suite ships 192 vectors in total.\n"),
         ("'192' is an integer counting vectors",),
     ),
     (
@@ -434,9 +499,7 @@ SOURCE_CASES: list[Case] = [
         # bucket whose table nothing reconciles against the manifest is exactly
         # how five vectors once sat in a directory with no row behind them.
         "the indeterminate index heading drifts from the corpus",
-        lambda root: retype(
-            root, "vectors/indeterminate/INDEX.md", r"## Vectors \((\d+)\)"
-        ),
+        lambda root: retype(root, "vectors/indeterminate/INDEX.md", r"## Vectors \((\d+)\)"),
         (
             f"the vector-table heading says {INDETERMINATE + 1} and "
             f"vectors/MANIFEST.json carries {INDETERMINATE} indeterminate vector(s)",
@@ -444,9 +507,7 @@ SOURCE_CASES: list[Case] = [
     ),
     (
         "an indeterminate vector file is added without the manifest hearing about it",
-        lambda root: create(
-            root, "vectors/indeterminate/ind-999-invented.json", "{}\n"
-        ),
+        lambda root: create(root, "vectors/indeterminate/ind-999-invented.json", "{}\n"),
         (f"vectors/indeterminate/ holds {INDETERMINATE + 1} file(s)",),
     ),
     # The case the old heading check could not make. Its two sides lived in one

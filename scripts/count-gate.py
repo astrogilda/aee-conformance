@@ -174,6 +174,12 @@ from countcensus import (
 # ever editing the repository it is testing.
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MANIFEST_REL = "vectors/MANIFEST.json"
+#: The second corpus. It arrived with release v0.8.0 and this gate did not model
+#: it, so the README could say `conformance vectors 272` -- correct for the only
+#: manifest the gate knew, and understating a repository that ships two corpora --
+#: while every check passed. The count was never wrong; the SCOPE was, which is
+#: the same shape as a citation that resolves to the wrong line.
+AGENT_ACTION_MANIFEST_REL = "vectors-ai-agent-action/MANIFEST.json"
 CHANGES_REL = "vectors/CHANGES.md"
 BASELINE_REL = "docs/FORCING-BASELINE.json"
 RUNS_REL = "docs/INDEPENDENT-RUNS.json"
@@ -181,6 +187,7 @@ RUNS_REL = "docs/INDEPENDENT-RUNS.json"
 
 def source(rel: str) -> Path:
     return REPO_ROOT / rel
+
 
 # `## suiteRevision 16 (the corpus is regenerable, and was measured to prove it)`
 REVISION_HEADING = re.compile(r"^## suiteRevision (\d+)\b", re.MULTILINE)
@@ -222,6 +229,16 @@ class Sources:
     annotated: int
     ledger: dict[int, tuple[int, int, int, int]]
     figures: frozenset[str]
+    #: The second corpus, and the predicate version each corpus declares. A
+    #: predicate version is as derived as a count and rots the same way: it is
+    #: written into prose, the specification moves, and the prose keeps its old
+    #: number while looking authoritative. Both are read from the `predicateType`
+    #: the corpus manifest declares, so neither is typed by hand anywhere.
+    agent_action_total: int
+    agent_action_accept: int
+    agent_action_reject: int
+    predicate_version: str
+    agent_action_predicate_version: str
 
     def current(self) -> dict[int, str]:
         """The values that must not be typed by hand, and what each one is."""
@@ -301,8 +318,35 @@ def revision_ledger() -> dict[int, tuple[int, int, int, int]]:
     return ledger
 
 
+def predicate_version(manifest: dict[str, object]) -> str:
+    """The version segment of a manifest's declared predicateType, e.g. `0.7`.
+
+    Read from the manifest rather than from a constant in this file, because a
+    constant here would be the unchecked cache the whole gate exists to refuse.
+    The trailing segment is the version by the in-toto predicateType convention
+    (`https://in-toto.io/attestation/<name>/v<version>`); a URI that does not end
+    that way is a refusal rather than a guess, because a predicate version this
+    gate cannot read is one it must not certify.
+    """
+    declared = manifest.get("predicateType")
+    if not isinstance(declared, str):
+        raise SystemExit(
+            "FAIL: a corpus manifest declares no predicateType string, so no "
+            "predicate version can be derived from it."
+        )
+    tail = declared.rsplit("/", 1)[-1]
+    if not tail.startswith("v") or not tail[1:]:
+        raise SystemExit(
+            f"FAIL: a corpus manifest declares predicateType {declared!r}, whose "
+            "final segment is not the `v<version>` the in-toto convention puts "
+            "there, so the version cannot be read rather than guessed."
+        )
+    return tail[1:]
+
+
 def load_sources() -> Sources:
     manifest = json.loads(source(MANIFEST_REL).read_text(encoding="utf-8"))
+    agent_action = json.loads(source(AGENT_ACTION_MANIFEST_REL).read_text(encoding="utf-8"))
     baseline = json.loads(source(BASELINE_REL).read_text(encoding="utf-8"))
     runs = json.loads(source(RUNS_REL).read_text(encoding="utf-8"))
     ledger = revision_ledger()
@@ -321,10 +365,13 @@ def load_sources() -> Sources:
         annotated=len(baseline["annotations"]),
         ledger=ledger,
         figures=frozenset(
-            str(figure["figure"])
-            for run in runs["runs"]
-            for figure in run.get("figures", [])
+            str(figure["figure"]) for run in runs["runs"] for figure in run.get("figures", [])
         ),
+        agent_action_total=len(agent_action["vectors"]),
+        agent_action_accept=agent_action["counts"]["accept"],
+        agent_action_reject=agent_action["counts"]["reject"],
+        predicate_version=predicate_version(manifest),
+        agent_action_predicate_version=predicate_version(agent_action),
     )
 
 
@@ -379,9 +426,7 @@ INDEX_FAMILY = {
 }
 
 
-def index_failures(
-    texts: dict[str, str], covered: dict[str, list[Covered]]
-) -> list[str]:
+def index_failures(texts: dict[str, str], covered: dict[str, list[Covered]]) -> list[str]:
     """Each index table carries exactly one row per corpus vector of its family.
 
     This used to check a `## Vectors (N)` heading against the table beneath it,
@@ -433,10 +478,7 @@ def index_failures(
                 "them, so nothing here says what they test."
             )
         if extra := sorted(set(rows) - set(expected)):
-            out.append(
-                f"{rel}: {extra} have a row here and no entry in "
-                "vectors/MANIFEST.json."
-            )
+            out.append(f"{rel}: {extra} have a row here and no entry in vectors/MANIFEST.json.")
     return out
 
 
@@ -476,17 +518,52 @@ def claims(src: Sources) -> tuple[Claim, ...]:
     return (
         Claim(
             "README.md",
-            "the vector-count badge, its image",
-            "badge/conformance%20vectors-",
+            "the AEE vector-count badge, its image",
+            "badge/AEE%20vectors-",
             "-e8951c",
             str(src.total),
         ),
         Claim(
             "README.md",
-            "the vector-count badge, its alt text",
+            "the AEE vector-count badge, its alt text",
             'alt="',
-            ' conformance vectors"',
+            ' AEE conformance vectors"',
             str(src.total),
+        ),
+        Claim(
+            "README.md",
+            "the AI Agent Action vector-count badge, its image",
+            "badge/AI%20Agent%20Action%20vectors-",
+            "-e8951c",
+            str(src.agent_action_total),
+        ),
+        Claim(
+            "README.md",
+            "the AI Agent Action vector-count badge, its alt text",
+            'alt="',
+            ' AI Agent Action conformance vectors"',
+            str(src.agent_action_total),
+        ),
+        Claim(
+            "README.md",
+            "the AEE predicate version, in the badge",
+            "badge/predicate-in--toto%20AEE%20v",
+            "-6f57c2",
+            src.predicate_version,
+        ),
+        Claim(
+            "README.md",
+            "the AEE predicate version, in the opening sentence",
+            "**Adversarial Execution Evidence**, predicate version ",
+            ", and **AI Agent",
+            src.predicate_version,
+        ),
+        Claim(
+            "README.md",
+            "the AI Agent Action predicate version, in the opening sentence",
+            "**AI Agent\nAction**, predicate version ",
+            ", proposed in",
+            src.agent_action_predicate_version,
         ),
         Claim(
             "README.md",
@@ -808,8 +885,7 @@ FROZEN: tuple[Frozen, ...] = (
         "docs/UNCITED-OBLIGATIONS.md",
         "the coverage measurement this work moved",
         "rose from 55 obligations cited to 57",
-        "The prose record of the same before-and-after reading the proof script "
-        "carries.",
+        "The prose record of the same before-and-after reading the proof script carries.",
     ),
     Frozen(
         "docs/UNCITED-OBLIGATIONS.md",
@@ -906,8 +982,7 @@ FROZEN: tuple[Frozen, ...] = (
         "scripts/forcing-gate-test.py",
         "the list of checks that could not fail",
         "scored 0 of 186 while its own unit test",
-        "The same incident, cited among the checks that ran green while enforcing "
-        "nothing.",
+        "The same incident, cited among the checks that ran green while enforcing nothing.",
     ),
     Frozen(
         "docs/interpretation-decisions-open.md",
@@ -940,8 +1015,7 @@ FROZEN: tuple[Frozen, ...] = (
     Frozen(
         "TODO.md",
         "the forcing-measurement entry, what a full replay reported",
-        "the suite still reports 186 of 186, exit 0. `cmd/mutgen` enumerates 590 "
-        "single-site",
+        "the suite still reports 186 of 186, exit 0. `cmd/mutgen` enumerates 590 single-site",
         "A dated completed-work entry. The figures are the measurement as it stood "
         "when the work landed.",
     ),
@@ -969,8 +1043,7 @@ FROZEN: tuple[Frozen, ...] = (
         ".github/workflows/ci.yml",
         "the condition-registry step's note",
         "# 17 ids were cited by live vectors and registered nowhere",
-        "The same past defect, recorded at the step that now reconciles both "
-        "directions.",
+        "The same past defect, recorded at the step that now reconciles both directions.",
     ),
     Frozen(
         "scripts/condition-registry-gate.py",
@@ -982,8 +1055,7 @@ FROZEN: tuple[Frozen, ...] = (
         "vectors/reject/gen_invalid_vectors.py",
         "the generated registry paragraph's account of the unresolvable ids",
         'which left 17 ids cited by vectors and resolvable"',
-        "The same past defect, in the generator that emits the sentence into the "
-        "reject index.",
+        "The same past defect, in the generator that emits the sentence into the reject index.",
     ),
     Frozen(
         "vectors/CHANGES.md",
@@ -1256,9 +1328,7 @@ def changelog_scope(text: str, position: int) -> int | None:
     return scope
 
 
-def changelog_route(
-    rel: str, text: str, token: Token, quantities: Quantities
-) -> str | None:
+def changelog_route(rel: str, text: str, token: Token, quantities: Quantities) -> str | None:
     """Route 5: a changelog entry is scoped by the heading it sits under.
 
     A revision section may cite any size the corpus had at or before that

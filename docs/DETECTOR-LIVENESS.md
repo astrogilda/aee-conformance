@@ -45,7 +45,7 @@ has measured a sample and called it a census, so the verdict is computed per
 entry of `coverage.assessedClasses` and is never rolled into one boolean for
 the run. One fixture per claimed channel is the minimum.
 
-`ok-052-liveness-probe-per-channel` carries three channels, three planted
+`vda285efc96ac6e75` carries three channels, three planted
 probes and three demonstrations at once. Three rather than two, because a rail
 that decides on the first row and the last passes a two-channel statement while
 skipping everything between. The three refusals beside it each place their
@@ -53,9 +53,9 @@ fault on a channel that is not the first:
 
 | Vector | Fault, and on which channel |
 |---|---|
-| `bad-983-liveness-middle-channel-commitment-unmatched` | the middle channel's interception commits to a value the corpus declared for no attack, with the channels either side left satisfied |
-| `bad-984-liveness-last-channel-unpinnable` | the corpus drops the last channel's `expectedPayloads` entry while its row keeps declaring `pinned` |
-| `bad-985-liveness-middle-channel-probe-uncaught` | the middle channel's interception is deleted and its row re-pointed at the seal, so a caught `pinned` row resolves no interception at all |
+| `v1043dbabae5f8ace` | the middle channel's interception commits to a value the corpus declared for no attack, with the channels either side left satisfied |
+| `v0e22ac9c30338ad5` | the corpus drops the last channel's `expectedPayloads` entry while its row keeps declaring `pinned` |
+| `v21e964dddeba0d08` | the middle channel's interception is deleted and its row re-pointed at the seal, so a caught `pinned` row resolves no interception at all |
 
 Each is one mutation away from `ok-052` and reports an existing condition
 (`aee-c-102`, `aee-c-101`, `aee-c-100` respectively). What is new is where the
@@ -69,7 +69,7 @@ every one of them.
 
 **Liveness is not a validity requirement at this version, and one accept vector
 exists to stop it becoming one by accident.**
-`ok-053-liveness-probe-uncaught-on-one-channel` carries the same three planted
+`v73244f2068e58c68` carries the same three planted
 probes with the middle channel's row clean, its attribution at the honest
 floor, and its attack absent from the seal. That is a producer whose detector
 did not fire saying so, and it MUST be accepted: refusing it would refuse the

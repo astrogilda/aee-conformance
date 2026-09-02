@@ -304,7 +304,7 @@ def exception_that_has_stopped_being_one(_m: Path, _i: Path, _b: Path,
     it excuses whatever that vector becomes next.
     """
     data = load(exceptions)
-    data["vectors"]["bad-001-result-uppercase"] = {
+    data["vectors"]["vf35474dd75d6b14a"] = {
         "mutations": 2, "reason": "a row that has outlived its vector"}
     dump(exceptions, data)
 

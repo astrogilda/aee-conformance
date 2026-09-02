@@ -104,15 +104,15 @@ here.
 
 | # | Raised by | Where | Resolution | Landed | Forcing vectors |
 | --- | --- | --- | --- | --- | --- |
-| DC-01 | Rul1an | in-toto/attestation#570 | **adopted** | suiteRevision 4 | `bad-741-payload-nesting-exceeds-max-depth` |
-| DC-02 | Rul1an | Rul1an/aee-checker#3 | **adopted** | suiteRevision 6 | `ok-036-payload-nesting-at-bound`, `bad-742-payload-nesting-empty-container-leaf` |
-| DC-03 | Rul1an | in-toto/attestation#570 | **declined** | suiteRevision 2 | `bad-730-coverage-class-overlap` |
-| DC-04 | Rul1an | in-toto/attestation#570 | **adopted** | suiteRevision 2 | `bad-727-armedat-non-utc-offset` |
-| DC-05 | Rul1an | in-toto/attestation#570 | **adopted** | suiteRevision 2 | `bad-729-duplicate-attackid-rows` |
-| DC-06 | Rul1an | in-toto/attestation#570 | **adopted** | suiteRevision 2 | `bad-728-artifact-two-subjects` |
+| DC-01 | Rul1an | in-toto/attestation#570 | **adopted** | suiteRevision 4 | `v08251931ec038e91` |
+| DC-02 | Rul1an | Rul1an/aee-checker#3 | **adopted** | suiteRevision 6 | `vb2af33bb3cc0da77`, `v83f4b7fe6068ef86` |
+| DC-03 | Rul1an | in-toto/attestation#570 | **declined** | suiteRevision 2 | `v70e970d18ae52833` |
+| DC-04 | Rul1an | in-toto/attestation#570 | **adopted** | suiteRevision 2 | `v1b0b0cafb5ee8d08` |
+| DC-05 | Rul1an | in-toto/attestation#570 | **adopted** | suiteRevision 2 | `vf14f5310b2f02875` |
+| DC-06 | Rul1an | in-toto/attestation#570 | **adopted** | suiteRevision 2 | `v423dab49f4ed4d29` |
 | DC-07 | Rul1an | in-toto/attestation#570 | **adopted** | no corpus revision | none |
-| DC-08 | Rul1an | in-toto/attestation#570 (round 8) | **adopted** | suiteRevision 3 | `bad-731-outofscope-unknown-class`, `bad-732-routedelsewhere-unknown-class` |
-| DC-09 | Rul1an | in-toto/attestation#570 | **adopted** | suiteRevision 2 | `ok-035-unknown-kind-excluded-from-cap`, `bad-818-artifact-clean-row-layer-not-none`, `bad-819-assessed-class-not-in-manifest` |
+| DC-08 | Rul1an | in-toto/attestation#570 (round 8) | **adopted** | suiteRevision 3 | `vb3c92d4ecb62bbfb`, `ved230b46692c0ada` |
+| DC-09 | Rul1an | in-toto/attestation#570 | **adopted** | suiteRevision 2 | `v164cf7f3f529eaff`, `v692f9605520a617d`, `v5a842871df5bfe33` |
 
 ### DC-01 · in-toto/attestation#570
 

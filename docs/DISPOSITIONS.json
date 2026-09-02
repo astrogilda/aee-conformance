@@ -28,7 +28,7 @@
       "landedAtRevision": 4,
       "landedNote": null,
       "vectors": [
-        "bad-741-payload-nesting-exceeds-max-depth"
+        "v08251931ec038e91"
       ],
       "residual": null,
       "note": "The corpus did not exercise the new rule at the revision that made it normative, and the changelog entry says so in its own words rather than leaving a reader to discover it. The vector arrived at the next revision, and the boundary case at the one after that, under DC-02.",
@@ -57,8 +57,8 @@
       "landedAtRevision": 6,
       "landedNote": null,
       "vectors": [
-        "ok-036-payload-nesting-at-bound",
-        "bad-742-payload-nesting-empty-container-leaf"
+        "vb2af33bb3cc0da77",
+        "v83f4b7fe6068ef86"
       ],
       "residual": null,
       "note": "The pair also closed a split between this repository's own two reference rails, which had disagreed on identical bytes at one exact depth for as long as both existed. Five rails written by one author could not show it to each other; one outside reader surfaced it on contact.",
@@ -87,7 +87,7 @@
       "landedAtRevision": 2,
       "landedNote": null,
       "vectors": [
-        "bad-730-coverage-class-overlap"
+        "v70e970d18ae52833"
       ],
       "residual": "This is the one editorial call among the corners raised at that revision, and it is recorded as reversible at vetting. Nothing about the corpus forces the direction; a later decision to tolerate the overlap would retire this vector and change the text, and it would not be a defect in either reading.",
       "note": null,
@@ -116,7 +116,7 @@
       "landedAtRevision": 2,
       "landedNote": null,
       "vectors": [
-        "bad-727-armedat-non-utc-offset"
+        "v1b0b0cafb5ee8d08"
       ],
       "residual": null,
       "note": "The fix was half a fix and stayed half a fix for eight revisions, which the repository record now says plainly. The rule was written on one field and applied at one call site, so the sibling timestamp carried no zone rule at all and the sentence that pinned the zone never pinned the case of the designator. Both halves closed at suiteRevision 10 by running every timestamp through one parse that carries the whole profile.",
@@ -145,7 +145,7 @@
       "landedAtRevision": 2,
       "landedNote": null,
       "vectors": [
-        "bad-729-duplicate-attackid-rows"
+        "vf14f5310b2f02875"
       ],
       "residual": null,
       "note": null,
@@ -174,7 +174,7 @@
       "landedAtRevision": 2,
       "landedNote": null,
       "vectors": [
-        "bad-728-artifact-two-subjects"
+        "v423dab49f4ed4d29"
       ],
       "residual": "The direction, unconditional against substrate-scoped, is recorded as an editorial call reversible at vetting. The gap it closed is not reversible; only the scope of the requirement is.",
       "note": null,
@@ -226,8 +226,8 @@
       "landedAtRevision": 3,
       "landedNote": null,
       "vectors": [
-        "bad-731-outofscope-unknown-class",
-        "bad-732-routedelsewhere-unknown-class"
+        "vb3c92d4ecb62bbfb",
+        "ved230b46692c0ada"
       ],
       "residual": null,
       "note": null,
@@ -256,9 +256,9 @@
       "landedAtRevision": 2,
       "landedNote": null,
       "vectors": [
-        "ok-035-unknown-kind-excluded-from-cap",
-        "bad-818-artifact-clean-row-layer-not-none",
-        "bad-819-assessed-class-not-in-manifest"
+        "v164cf7f3f529eaff",
+        "v692f9605520a617d",
+        "v5a842871df5bfe33"
       ],
       "residual": null,
       "note": "A fourth corner recorded at the same time, out-of-range references on artifact rows, needed no change: the corpus already locked it.",

@@ -151,10 +151,13 @@ BASELINE_COMMENT = (
     "typed here rather than measured records an intention instead of a fact."
 )
 
-# A reject-index vector row: `| `bad-101-refs-empty` | ok-001 | ... `.
+# A reject-index vector row: `| `v131478f1be775746` | ok-001 | ... `.
 # Matched on the first two cells only; the prose in the rest of the row may
 # contain anything, including pipes inside code spans.
-_ROW = re.compile(r"^\|\s*`((?:bad|vate)-[^`]+)`\s*\|\s*`?([^|`]+?)`?\s*\|")
+# A published identifier is a digest of the vector's bytes, and so is the parent
+# identifier in the second column. Neither carries a family any more, which is
+# the point: the row used to say `bad-` or `ok-` and thereby say the verdict.
+_ROW = re.compile(r"^\|\s*`(v[0-9a-f]{16})`\s*\|\s*`?(v[0-9a-f]{16})`?\s*\|")
 
 # An accept vector's own id, anchored at BOTH ends. A declared parent is then
 # resolved by membership in the set of ids that ship, whole, rather than by
@@ -164,7 +167,7 @@ _ROW = re.compile(r"^\|\s*`((?:bad|vate)-[^`]+)`\s*\|\s*`?([^|`]+?)`?\s*\|")
 # `ok-002` and passed. The check's claim is that a refusal ships beside the
 # accept vector it names; a string naming nothing satisfied it as long as its
 # first characters collided with something real.
-_ACCEPT_ID = re.compile(r"^(ok-[0-9]+|vate-[0-9]+[a-z])(?:-[a-z0-9-]+)?$")
+_ACCEPT_ID = re.compile(r"^v[0-9a-f]{16}$")
 
 
 def load_manifest(path: Path) -> dict[str, Any]:
@@ -209,22 +212,26 @@ def accept_index(manifest: dict[str, Any]) -> tuple[dict[str, str], list[str]]:
         if vector["kind"] != "accept":
             continue
         vid = str(vector["id"])
-        match = _ACCEPT_ID.match(vid)
-        if match is None:
+        if _ACCEPT_ID.match(vid) is None:
             errors.append(
-                f"accept vector {vid!r} is not named ok-<number> or "
-                "ok-<number>-<slug>, so no refusal can cite it as a parent and "
-                "it anchors nothing"
+                f"accept vector {vid!r} is not a published identifier, so no "
+                "refusal can cite it as a parent and it anchors nothing"
             )
             continue
-        short = match.group(1)
-        if short in index:
+        # There is no short form to fold onto any more, and that is a
+        # simplification rather than a loss. An identifier used to be a family
+        # and a number, so a refusal cited `ok-002` and this index had to map
+        # that back onto the full name -- and had to refuse two accept vectors
+        # sharing a number, because the short form was not unique by
+        # construction. A digest of the vector's own bytes is unique by
+        # construction, and a refusal now cites it in full.
+        if vid in index:
             errors.append(
-                f"accept vectors {index[short]} and {vid} share the number "
-                f"{short}, so a refusal declaring that parent names neither"
+                f"accept vector {vid} appears twice in the manifest, so a "
+                "refusal declaring it as a parent names neither occurrence"
             )
             continue
-        index[short] = vid
+        index[vid] = vid
     return index, errors
 
 

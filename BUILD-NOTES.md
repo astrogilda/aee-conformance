@@ -44,11 +44,11 @@ type.
 
 End-to-end, library-mode runs of `aee-witness-demo` cover both
 builder-generated and suite-vector evidence. Feeding it the accept vector
-`ok-002-clean-pass-armed-sealed.json` as `aee-evidence.json` exits 0 with
+`vcc938c6038536dcb.json` as `aee-evidence.json` exits 0 with
 a signed DSSE envelope whose payload statement carries the AEE
 `predicateType`, the validated predicate bytes, and exactly one subject
 (`example-agent-bundle`). Feeding it the reject vector
-`bad-605-vocabulary-digest-mismatch.json` exits 1 with nothing signed, and
+`v7ecdfe261d1dcd84.json` exits 1 with nothing signed, and
 the operative error names the failing gate and code through the refusal
 backstop (see the upstream observations below). A builder-generated
 method-inflation evidence file also exits 1, with `refusing to sign:
@@ -105,7 +105,7 @@ differential findings.
   neither cap nor tier-gate. Records that cover nothing do not
   participate in the method cap.
 - `record-undecodable` is a registry-extension code for a record whose
-  `payload` is not valid base64; `bad-817-payload-noncanonical-base64`
+  `payload` is not valid base64; `v4ff6cb70764bf703`
   exercises it.
 - `record-signatures-empty` is a registry-extension code for a record
   carrying zero `signatures` entries, which the spec forbids. An absent
@@ -120,8 +120,8 @@ differential findings.
   is caught only at the tier. The count is asked once over the whole
   record set before any payload is decoded, which follows the spec's
   verify-then-read discipline: a record with no signature at all is
-  settled ahead of the bytes it carries. `bad-745-record-signatures-empty`
-  exercises the empty array, `bad-749-record-signatures-not-an-array` the
+  settled ahead of the bytes it carries. `vca61adf35d265632`
+  exercises the empty array, `ve0e5dddf8f3b812a` the
   wrong type, and `bad-748-signatures-empty-precedes-undecodable-record`
   pins the ordering against a statement that also carries an undecodable
   payload.

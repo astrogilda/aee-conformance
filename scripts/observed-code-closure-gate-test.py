@@ -38,7 +38,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 GATE_REL = Path("scripts") / "observed-code-closure-gate.py"
 MANIFEST_REL = Path("vectors") / "MANIFEST.json"
 RAIL_REL = Path("packaging") / "run_vectors.py"
-DRIFTED = "bad-817-payload-noncanonical-base64"
+DRIFTED = "v4ff6cb70764bf703"
 
 # The line the rail mutation patches, and what it becomes. Kept as constants so
 # a rail edit that moves this text fails the case loudly rather than leaving a

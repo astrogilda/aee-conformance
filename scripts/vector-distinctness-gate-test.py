@@ -153,7 +153,7 @@ def duplicate_member_onto_reject(root: Path) -> None:
     """
     accept_id = first_of(root, "vectors", "accept")
     reject_id = first_of(
-        root, "vectors", "reject", skip=("bad-725-statement-duplicate-member",)
+        root, "vectors", "reject", skip=("v5155dde01a4538fd",)
     )
     text = path_of(root, "vectors", accept_id).read_text(encoding="utf-8")
     lines = text.split("\n")
@@ -163,9 +163,9 @@ def duplicate_member_onto_reject(root: Path) -> None:
 
 def two_rejects_decode_alike(root: Path) -> None:
     """One label, two identifiers, one decoded statement, and no declaration."""
-    a = first_of(root, "vectors", "reject", skip=("bad-725-statement-duplicate-member",))
+    a = first_of(root, "vectors", "reject", skip=("v5155dde01a4538fd",))
     b = first_of(
-        root, "vectors", "reject", skip=("bad-725-statement-duplicate-member", a)
+        root, "vectors", "reject", skip=("v5155dde01a4538fd", a)
     )
     text = path_of(root, "vectors", a).read_text(encoding="utf-8")
     reflowed = json.dumps(json.loads(text), indent=6, sort_keys=True) + "\n"
@@ -233,9 +233,9 @@ def remove_the_ledger(root: Path) -> None:
 
 def two_undecodable_rejects(root: Path) -> None:
     """Both files stop parsing, in different ways. Neither holds a value."""
-    a = first_of(root, "vectors", "reject", skip=("bad-725-statement-duplicate-member",))
+    a = first_of(root, "vectors", "reject", skip=("v5155dde01a4538fd",))
     b = first_of(
-        root, "vectors", "reject", skip=("bad-725-statement-duplicate-member", a)
+        root, "vectors", "reject", skip=("v5155dde01a4538fd", a)
     )
     path_of(root, "vectors", a).write_bytes(b'{"a": \xc0\xaf}')
     path_of(root, "vectors", b).write_bytes(b'{"b": \xed\xa0\x80')
@@ -251,7 +251,7 @@ def reformat_a_reject(root: Path) -> None:
     target = path_of(
         root,
         "vectors",
-        first_of(root, "vectors", "reject", skip=("bad-725-statement-duplicate-member",)),
+        first_of(root, "vectors", "reject", skip=("v5155dde01a4538fd",)),
     )
     decoded = json.loads(target.read_text(encoding="utf-8"))
     target.write_text(json.dumps(decoded, indent=8, sort_keys=True) + "\n", encoding="utf-8")

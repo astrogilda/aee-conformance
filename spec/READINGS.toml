@@ -182,11 +182,11 @@ clean intercepted row, since `row-uncovered-sealed` fires first and hides the \
 question otherwise.\
 """
 witnessCandidates = [
-  "bad-1003-sealed-stillarmed-false-unreferenced",
-  "bad-1004-sealed-drops-no-bound-unreferenced",
-  "bad-1005-sealed-drops-exceed-bound-unreferenced",
-  "bad-1006-sealed-posture-mismatch-unreferenced",
-  "bad-1007-sealed-noncovering-unreferenced",
+  "v4da2f99ac2897154",
+  "v80e2a3fba582ed4d",
+  "vd7be865fc69eacc2",
+  "v7258b9f4ed52a08d",
+  "vfb979cb9ce40f1be",
 ]
 # REPORT-ONLY rather than DISCRIMINATED, and the difference is the finding.
 # Restricted to the five candidates above -- the vectors a registry entry would

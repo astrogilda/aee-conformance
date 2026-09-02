@@ -37,6 +37,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import pathlib
 from collections.abc import Callable
 from typing import Any
 
@@ -48,6 +49,16 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
 
 OUT = os.path.dirname(os.path.abspath(__file__))
 ACCEPT_DIR = os.path.join(OUT, os.pardir, "accept")
+# One directory for every vector this corpus publishes, named after its bytes.
+STATEMENTS_DIR = os.path.normpath(os.path.join(OUT, os.pardir, "statements"))
+BUILD_IDS = os.path.normpath(
+    os.path.join(OUT, os.pardir, os.pardir, ".build", "aee-accept-ids.json"))
+REJECT_IDS = pathlib.Path(OUT).parent.parent / ".build" / "aee-reject-ids.json"
+ID_HEX = 16
+
+
+def vector_id_of(body: bytes) -> str:
+    return "v" + hashlib.sha256(body).hexdigest()[:ID_HEX]
 
 
 def _load_accept_generator() -> Any:
@@ -635,6 +646,76 @@ def rebind_records(st: dict[str, Any]) -> dict[str, Any]:
 # each one fully gate-valid, so a parent that stops being acceptable fails here
 # rather than in a consumer.
 
+def published_parent(ref: str) -> str:
+    """The identifier the accept vector `ref` ships under.
+
+    Every reject vector declares its parent by a SHORT reference -- `ok-002`,
+    `vate-1d` -- because that is what a person writing a vector types. The
+    published index has to carry the parent's real identifier instead, which is
+    a digest, so the short form is resolved here against the accept generator's
+    map.
+
+    An ambiguous or unmatched reference is refused rather than guessed. A
+    resolver that silently picked the first match would let a renamed or deleted
+    accept vector redirect a whole family of reject vectors at the wrong parent,
+    and the index would still render.
+    """
+    slugs = accept_ids()
+    if ref in slugs:
+        return slugs[ref]
+    hits = sorted(s for s in slugs if s.startswith(ref + "-"))
+    if len(hits) != 1:
+        raise SystemExit(
+            f"the parent reference {ref!r} matches {len(hits)} accept vectors "
+            f"({', '.join(hits) if hits else 'none'}). A parent must resolve to "
+            "exactly one, and a reference that does not is fixed rather than "
+            "guessed at."
+        )
+    return slugs[hits[0]]
+
+
+_ACCEPT_IDS: dict[str, str] | None = None
+
+
+def accept_ids() -> dict[str, str]:
+    """The accept generator's slug-to-identifier map, or a refusal naming it.
+
+    Accept vectors are named after their own bytes, so this generator cannot
+    know a parent's filename without being told. The accept generator writes the
+    map on every run and it is not committed, because the slug surface it holds
+    is label-bearing: measured against its own permutation null it scores 0.9936
+    as it stands and still 0.7307 on the description words alone, so a committed
+    version would republish exactly what content-addressing removed.
+
+    A MISSING MAP IS A DID-NOT-RUN AND NEVER A RUN-WITH-DEFAULTS. There is no
+    fallback to rebuilding parents here and there must never be one: rebuilding
+    is what accept_parent() exists to prevent, and when it was last done every
+    reject vector differed from the accept vector it named in six to forty-one
+    leaves while every count still agreed.
+    """
+    global _ACCEPT_IDS
+    if _ACCEPT_IDS is not None:
+        return _ACCEPT_IDS
+    if not os.path.isfile(BUILD_IDS):
+        raise SystemExit(
+            f"the accept identifier map is not at {BUILD_IDS}, so no parent can "
+            "be resolved. Run vectors/accept/gen_valid_vectors.py first; it "
+            "writes the map on every run. This generator will NOT rebuild a "
+            "parent to get past a missing map -- that is the divergence "
+            "accept_parent() exists to prevent."
+        )
+    with open(BUILD_IDS, encoding="utf-8") as handle:
+        loaded: dict[str, str] = json.load(handle)
+    if not loaded:
+        raise SystemExit(
+            f"the accept identifier map at {BUILD_IDS} is empty, which resolves "
+            "no parent and agrees with everything. Re-run "
+            "vectors/accept/gen_valid_vectors.py."
+        )
+    _ACCEPT_IDS = loaded
+    return _ACCEPT_IDS
+
+
 def accept_parent(vector_id: str) -> dict[str, Any]:
     """The shipped accept vector `vector_id`, read from disk.
 
@@ -657,7 +738,7 @@ def accept_parent(vector_id: str) -> dict[str, Any]:
     a locally built approximation would restore the divergence silently, which
     is exactly the defect this function exists to remove.
     """
-    path = os.path.join(ACCEPT_DIR, vector_id + ".json")
+    path = os.path.join(STATEMENTS_DIR, accept_ids()[vector_id] + ".json")
     try:
         with open(path, encoding="utf-8") as handle:
             parent: dict[str, Any] = json.load(handle)
@@ -5467,7 +5548,8 @@ def write_index() -> None:
             emits = ", ".join(f"`{c}`" for c in v["emits"])
             codes += f" (also emits: {emits})"
         red = ", ".join(v["rederive"]) if v["rederive"] else "-"
-        L.append(f"| `{v['id']}` | {v['parent']} | {v['mutation']} | {red} "
+        L.append(f"| `{v['vid']}` | {published_parent(v['parent'])} "
+                 f"| {v['mutation']} | {red} "
                  f"| {conds} | {codes} | {v['spec']} |")
     L.append("")
     L.append("## Notes on specific vectors")
@@ -5701,7 +5783,8 @@ def write_ind_index() -> None:
                 emits = ", ".join(f"`{c}`" for c in m["emits"])
                 conds += f" (also emits: {emits})"
             cells = " | ".join(f"`{m['readings'][r]}`" for r in declared)
-            L.append(f"| `{m['id']}` | {m['parent']} | {m['mutation']} | {conds} "
+            L.append(f"| `{m['vid']}` | {published_parent(m['parent'])} "
+                     f"| {m['mutation']} | {conds} "
                      f"| {cells} | {m['spec']} |")
         L.append("")
     L.append("## Notes on specific vectors")
@@ -5750,30 +5833,53 @@ def write_ind_index() -> None:
 
 # ---------------------------------------------------------------- main
 
-def main() -> None:
-    # 1. parents must be fully valid
-    for name, fn in PARENTS.items():
-        parent_gate_check(name, fn())
+def write_reject_vectors() -> tuple[set[str], dict[str, str]]:
+    """Serialize, name after the bytes, and write every reject vector.
 
-    # 2. generate, self-check, write
+    Extracted from main() so that function stays inside the complexity policy;
+    the ordering is the substance. A vector's identifier is a digest of its own
+    bytes, so the bytes have to exist before a path does, and the three tiers
+    reach those bytes by three routes: a byte-level vector IS bytes, a
+    raw-statement vector is text crafted to carry a fault a dict cannot express,
+    and an ordinary vector is a dict serialized here.
+    """
+    os.makedirs(STATEMENTS_DIR, exist_ok=True)
     ids: set[str] = set()
+    minted: dict[str, str] = {}
     for v in VECTORS:
         assert v["id"] not in ids, "duplicate id " + v["id"]
         ids.add(v["id"])
         st = v["build"]()
         second_fault_absence(v, st)
-        path = os.path.join(OUT, v["id"] + ".json")
-        if isinstance(st, bytes):
-            # Byte-level vector: the fault IS the encoding, so the file is not
-            # valid UTF-8 and cannot be produced by any serializer. Written
-            # verbatim in binary. These are the only vectors exempt from the
-            # re-parse check below, and the exemption is the assertion: a
-            # byte-level vector that decodes as UTF-8 is not testing what it
-            # claims to, so it must fail to decode.
-            with open(path, "wb") as fb:
-                fb.write(st if st.endswith(b"\n") else st + b"\n")
-            with open(path, "rb") as fb:
-                written = fb.read()
+
+        raw_bytes = isinstance(st, bytes)
+        if raw_bytes:
+            body = st if st.endswith(b"\n") else st + b"\n"
+        elif isinstance(st, str):
+            body = (st if st.endswith("\n") else st + "\n").encode("utf-8")
+        else:
+            body = (json.dumps(st, indent=2, sort_keys=True, ensure_ascii=False)
+                    + "\n").encode("utf-8")
+
+        vid = vector_id_of(body)
+        if vid in minted:
+            raise SystemExit(
+                f"{v['id']} and {minted[vid]} serialize to identical bytes, so "
+                f"they share the identifier {vid}. Two identifiers may not "
+                "address one statement, and a content-addressed corpus cannot "
+                "pretend otherwise."
+            )
+        minted[vid] = v["id"]
+        v["vid"] = vid
+        path = os.path.join(STATEMENTS_DIR, vid + ".json")
+        with open(path, "wb") as fb:
+            fb.write(body)
+
+        with open(path, "rb") as fb:
+            written = fb.read()
+        if raw_bytes:
+            # A byte-level vector's fault IS the encoding, so it must NOT
+            # decode. The exemption from the parse check is the assertion.
             try:
                 json.loads(written.decode("utf-8"))
             except (UnicodeDecodeError, ValueError):
@@ -5784,36 +5890,32 @@ def main() -> None:
                 "vector belongs in the raw-statement tier, whose members are "
                 "parseable and carry their fault in the parsed content"
             )
-        with open(path, "w") as f:
-            if isinstance(st, str):
-                # Raw-statement vector: bytes crafted to carry a fault the dict
-                # representation cannot express (e.g. a duplicate top-level
-                # member). Written verbatim, not re-serialized from a dict.
-                f.write(st if st.endswith("\n") else st + "\n")
-            else:
-                json.dump(st, f, indent=2, sort_keys=True, ensure_ascii=False)
-                f.write("\n")
-        with open(path) as f:
-            json.load(f)  # every vector parses as JSON (a duplicate member is last-wins)
+        # Every other vector parses (a duplicate member is last-wins).
+        json.loads(written.decode("utf-8"))
 
-    # Drop tripwire, read from the committed corpus rather than typed here. A
-    # typed count only ever states what was true when someone last edited it,
-    # and it is blind in the direction that actually went wrong: five vector
-    # files were once committed into this directory with no builder behind
-    # them, which leaves a typed count agreeing with the builders it still has
-    # while the directory holds more files than this generator can produce.
-    # Reading the directory fails on that, on a builder deleted without its
-    # file, and on a file deleted without its builder, and it cannot itself go
-    # stale. Deleting a vector deliberately means deleting both, which is the
-    # act the tripwire should permit and the only one it does.
-    on_disk = len([f for f in os.listdir(OUT)
-                   if (f.startswith("bad-") or f.startswith("vate-"))
-                   and f.endswith(".json")])
-    assert len(VECTORS) == on_disk, (
-        f"built {len(VECTORS)} reject vectors but {on_disk} bad-*.json files "
-        "are committed beside this generator; a file with no builder cannot "
-        "be regenerated and a builder with no file was silently dropped"
-    )
+    return ids, minted
+
+
+def main() -> None:
+    # 1. parents must be fully valid
+    for name, fn in PARENTS.items():
+        parent_gate_check(name, fn())
+
+    # 2. generate, self-check, name after the bytes, write
+    #
+    # Serializing BEFORE naming is the whole shape of this loop now. A vector's
+    # published identifier is a digest of its own bytes, so the bytes have to
+    # exist before a path does, and the three tiers below reach those bytes by
+    # three different routes: a byte-level vector IS bytes, a raw-statement
+    # vector is text crafted to carry a fault a dict cannot express, and an
+    # ordinary vector is a dict that gets serialized here.
+    ids, minted = write_reject_vectors()
+
+    # The count tripwire that stood here counted bad-*.json files beside this
+    # generator. It cannot survive the flattening: one directory now holds every
+    # corpus, so no generator can tell a file it did not write from a stray one.
+    # The question moved to vectors/gen_manifest.py, which sees the whole corpus
+    # and answers it in both directions rather than one.
 
     # 3. the indeterminate family, built the same way into the sibling directory
     ind_family_check()
@@ -5827,9 +5929,17 @@ def main() -> None:
         # many faults it carries: an undeclared third fault would give a rail a
         # third answer and the declared readings would stop being exhaustive.
         second_fault_absence(iv, ist)
-        with open(os.path.join(IND_OUT, iv["id"] + ".json"), "w") as f:
-            json.dump(ist, f, indent=2, sort_keys=True, ensure_ascii=False)
-            f.write("\n")
+        ind_body = (json.dumps(ist, indent=2, sort_keys=True, ensure_ascii=False)
+                    + "\n").encode("utf-8")
+        ind_vid = vector_id_of(ind_body)
+        if ind_vid in minted:
+            raise SystemExit(
+                f"{iv['id']} and {minted[ind_vid]} serialize to identical bytes"
+            )
+        minted[ind_vid] = iv["id"]
+        iv["vid"] = ind_vid
+        with open(os.path.join(STATEMENTS_DIR, ind_vid + ".json"), "wb") as f:
+            f.write(ind_body)
 
     # Both of these tables are keyed by identifier and read with .get, so a key
     # that matches no vector contributes nothing AND SAYS NOTHING: the vector
@@ -5852,12 +5962,19 @@ def main() -> None:
             "graded against a smaller set than its author wrote"
         )
 
-    ind_on_disk = len([f for f in os.listdir(IND_OUT) if f.startswith("ind-")
-                       and f.endswith(".json")])
-    assert len(IND_VECTORS) == ind_on_disk, (
-        f"built {len(IND_VECTORS)} indeterminate vectors but {ind_on_disk} "
-        "ind-*.json files are committed in vectors/indeterminate/; the same "
-        "tripwire the reject set carries, for the same reason"
+
+    # The reject side's own slug-to-identifier map, covering the indeterminate
+    # family too, which is why it is written HERE and not beside the reject
+    # write loop: those vectors are built in the step above and have no
+    # identifier until then. Same rule as the accept generator's map -- an
+    # intermediate the tooling reads, never committed, because the slug surface
+    # scores 0.9936 against a null near 0.585 and still 0.7307 with the prefix
+    # and the number stripped. The vocabulary is the label.
+    REJECT_IDS.parent.mkdir(exist_ok=True)
+    REJECT_IDS.write_text(
+        json.dumps({v["id"]: v["vid"] for v in VECTORS + IND_VECTORS},
+                   indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
     )
 
     # 4. indexes

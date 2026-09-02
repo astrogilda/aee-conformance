@@ -39,7 +39,7 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parent.parent
 GATE_REL = Path("scripts") / "expectation-slack-gate.py"
 MANIFEST_REL = Path("vectors") / "MANIFEST.json"
-PIN = "bad-1017-sole-seal-moat-down-all-caught"
+PIN = "vd538496f284b4761"
 
 
 def _digest(text: str) -> str:
@@ -124,7 +124,7 @@ def case_frozen_entry_no_longer_overlaps(manifest: dict[str, Any]) -> None:
     now describes nothing and would cover the NEXT widening of that vector in
     silence.
     """
-    _entry(manifest, "bad-001-result-uppercase")["expected"]["codes"] = ["result-vocabulary"]
+    _entry(manifest, "vf35474dd75d6b14a")["expected"]["codes"] = ["result-vocabulary"]
 
 
 def case_frozen_entry_changes_shape(manifest: dict[str, Any]) -> None:
@@ -134,7 +134,7 @@ def case_frozen_entry_changes_shape(manifest: dict[str, Any]) -> None:
     pass this. It is a new finding: the vector now fails to pin a condition it
     was never recorded as failing to pin.
     """
-    entry = _entry(manifest, "bad-703-arming-posture-mismatch")
+    entry = _entry(manifest, "vb704d6c2420a1c43")
     entry["expected"]["codes"] = ["arming-covers-nothing", "sealed-record-absent"]
 
 

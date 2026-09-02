@@ -114,9 +114,30 @@ KINDS = ("accept", "reject", "indeterminate")
 
 def corpus_files(root: str) -> list[tuple[str, str]]:
     """Every vector file the published digest covers, in the order it covers them."""
+    # One directory, because a directory per verdict named the answer. The
+    # relative path each line commits to therefore changes for every vector,
+    # which moves corpusDigest for every consumer at once; that is stated in the
+    # release notes rather than worked around, since the alternative is keeping
+    # a path that tells a rail the verdict before it opens the file.
+    #
+    # BOTH LAYOUTS ARE READ, and that is not a compatibility shim for the corpus
+    # -- it is a requirement of the question this function is asked. The
+    # consumer-lag gate computes this digest over the DEFAULT BRANCH's tree to
+    # learn what the rails could have vendored, and that tree predates the
+    # flattening. A digest function that only understood the new layout would
+    # crash on the old one, and a gate that cannot read the branch it compares
+    # against reports nothing rather than a lag.
+    flat = os.path.join(root, "statements")
+    if os.path.isdir(flat):
+        return sorted(
+            (f"statements/{name}", os.path.join(flat, name))
+            for name in os.listdir(flat)
+            if name.endswith(".json")
+        )
     return sorted(
         (f"{kind}/{name}", os.path.join(root, kind, name))
         for kind in KINDS
+        if os.path.isdir(os.path.join(root, kind))
         for name in os.listdir(os.path.join(root, kind))
         if name.endswith(".json")
     )
@@ -156,7 +177,11 @@ def corpus_digest(root: str) -> str:
 # of an index table has to agree about them. `vate-` is the family that is not
 # numbered from a single sequence: its ids carry the case number and letter of
 # the external conformance case that prompted them.
-VECTOR_ID = re.compile(r"^((ok|bad|ind)-\d|vate-\d)")
+# A published identifier is a digest of the vector's own bytes. It deliberately
+# carries no family, no sequence and no verdict: an identifier that said which
+# answer a vector wanted let a rail score the corpus without reading it, and
+# measured over the whole path it predicted the verdict perfectly.
+VECTOR_ID = re.compile(r"^v[0-9a-f]{16}$")
 
 
 def table_rows(md_path: str) -> list[list[str]]:
@@ -244,14 +269,30 @@ def indeterminate_rows(md_path: str) -> list[tuple[str, list[str], list[str]]]:
                 readings = found
                 continue
             cells = [c.strip() for c in line.strip("|").split("|")]
-            if cells and re.match(r"^`?ind-\d", cells[0]):
-                if not family or not readings:
+            if not cells:
+                continue
+            # VECTOR_ID, not a second pattern written out here. This line
+            # carried its own `^ind-\d` regex, which is the same defect the
+            # vector-table reader had and which survived the round that fixed
+            # that one BECAUSE it was spelled separately: when identifiers
+            # became digests both indeterminate rows stopped matching, were
+            # skipped in silence, and their vectors left the manifest. The
+            # corpus-wide closure check is what noticed. One pattern, one place.
+            if not VECTOR_ID.match(cells[0].strip("`")):
+                if cells[0].startswith("`") and cells[0].endswith("`"):
                     raise SystemExit(
-                        f"{cells[0]}: a vector row with no '### Family' heading or "
-                        "no reading columns above it. The family and the readings "
-                        "are the whole of what this row declares."
+                        f"{md_path}: a row identifies itself as {cells[0]}, which "
+                        "is not an identifier shape this corpus publishes. "
+                        "Skipping it silently drops the vector from the manifest."
                     )
-                out.append((family, readings, cells))
+                continue
+            if not family or not readings:
+                raise SystemExit(
+                    f"{cells[0]}: a vector row with no '### Family' heading or "
+                    "no reading columns above it. The family and the readings "
+                    "are the whole of what this row declares."
+                )
+            out.append((family, readings, cells))
     return out
 
 
@@ -381,12 +422,40 @@ def indeterminate_entries(md_path: str) -> list[dict[str, Any]]:
             {
                 "id": vid,
                 "kind": "indeterminate",
-                "file": f"indeterminate/{vid}.json",
+                "file": f"statements/{vid}.json",
                 "conditions": conditions_of(cells[3]),
                 "expected": expected,
             }
         )
     return entries
+
+
+BUILD_IDS = os.path.join(HERE, os.pardir, ".build", "aee-accept-ids.json")
+
+
+def accept_slugs() -> dict[str, str]:
+    """Published identifier -> authoring slug, read from the accept build map.
+
+    TIER_EXPECTATIONS is written by hand and therefore keyed by the slug a
+    person types, while the index this generator reads is keyed by the digest a
+    vector ships under. Something has to join the two, and it is this map rather
+    than a second copy of the correspondence written down somewhere.
+
+    A missing map is a did-not-run: the accept generator writes it on every run
+    and this generator is documented to run after it. Guessing would mean
+    dropping every tier pin silently, which is the exact failure the
+    reconciliation below exists to make loud.
+    """
+    if not os.path.isfile(BUILD_IDS):
+        raise SystemExit(
+            f"the accept identifier map is not at {BUILD_IDS}, so no tier pin "
+            "can be matched to the vector it pins. Run "
+            "vectors/accept/gen_valid_vectors.py first; it writes the map on "
+            "every run."
+        )
+    with open(BUILD_IDS, encoding="utf-8") as handle:
+        forward: dict[str, str] = json.load(handle)
+    return {vid: slug for slug, vid in forward.items()}
 
 
 def check_tier_claims(claimed: set[str]) -> None:
@@ -418,18 +487,20 @@ def main() -> int:
     # would have compared are not there to disagree. The reconciliation below is
     # what makes that loud.
     tiers_claimed: set[str] = set()
+    slugs = accept_slugs()
 
     for cells in table_rows(os.path.join(HERE, "accept", "INDEX.md")):
         vid = cells[0].strip("`")
         result = cells[1]
         expected: dict[str, Any] = {"verdict": "valid", "result": result}
-        expected.update(TIER_EXPECTATIONS.get(vid, {}))
-        tiers_claimed.add(vid)
+        slug = slugs.get(vid, vid)
+        expected.update(TIER_EXPECTATIONS.get(slug, {}))
+        tiers_claimed.add(slug)
         vectors.append(
             {
                 "id": vid,
                 "kind": "accept",
-                "file": f"accept/{vid}.json",
+                "file": f"statements/{vid}.json",
                 "conditions": conditions_of(cells[2]),
                 "expected": expected,
             }
@@ -451,7 +522,7 @@ def main() -> int:
             {
                 "id": vid,
                 "kind": "reject",
-                "file": f"reject/{vid}.json",
+                "file": f"statements/{vid}.json",
                 "conditions": conditions_of(cells[4]),
                 "expected": expected_reject,
             }
@@ -465,20 +536,28 @@ def main() -> int:
     # versa. Without this a malformed INDEX row is silently skipped by table_rows
     # and its vector is omitted from the manifest -- silently untested in
     # MANIFEST-mode replay.
-    for kind in KINDS:
-        files = {
-            f[: -len(".json")]
-            for f in os.listdir(os.path.join(HERE, kind))
-            if f.endswith(".json")
-        }
-        indexed = {v["id"] for v in vectors if v["kind"] == kind}
-        if missing := files - indexed:
-            raise SystemExit(
-                f"{kind}: vector file(s) with no INDEX.md row (would be silently "
-                f"untested): {sorted(missing)}"
-            )
-        if extra := indexed - files:
-            raise SystemExit(f"{kind}: INDEX.md row(s) with no vector file: {sorted(extra)}")
+    #
+    # Asked over the WHOLE corpus rather than once per verdict, because there is
+    # one directory now. That also makes this the only place the question can
+    # still be asked: each generator used to count the files beside it, and none
+    # of them can do that any more without mistaking another generator's output
+    # for a stray. Both directions are checked, and the file-with-no-row
+    # direction is the one that matters -- a row table_rows could not read used
+    # to be skipped in silence, leaving its vector out of the manifest and
+    # untested in replay while every count still agreed.
+    files = {
+        f[: -len(".json")]
+        for f in os.listdir(os.path.join(HERE, "statements"))
+        if f.endswith(".json")
+    }
+    indexed = {v["id"] for v in vectors}
+    if missing := files - indexed:
+        raise SystemExit(
+            "vector file(s) with no INDEX.md row (would be silently untested): "
+            f"{sorted(missing)}"
+        )
+    if extra := indexed - files:
+        raise SystemExit(f"INDEX.md row(s) with no vector file: {sorted(extra)}")
 
     ok = sum(1 for v in vectors if v["kind"] == "accept")
     bad = sum(1 for v in vectors if v["kind"] == "reject")

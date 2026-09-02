@@ -35,7 +35,7 @@ package aee_test
 // one row is the identity, so the corpus could not reach the arm and none of the
 // three vendored consumer copies was ever measured against it. A control the
 // corpus cannot exercise is a control no consumer is held to.
-// `ok-051-two-pinned-rows` and `bad-982-pinned-assignment-spliced` are the same
+// `vd1aa74416099f3f0` and `v6ed1e2626b2af5ad` are the same
 // operator on the same shape, in the corpus, so the kill now travels with the
 // vectors. What stays here is what the corpus cannot carry: the null and its
 // two controls side by side, built by one operator over three bases, which is

@@ -37,6 +37,37 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import (
 
 OUT_DIR = Path(__file__).resolve().parent
 
+# Every vector in this corpus, accepted and rejected alike, is written here and
+# named after a digest of its own bytes. There is no directory per verdict and
+# no prefix, because both of those told a rail the answer before it read the
+# statement: measured over the whole manifest-relative path, the identifier
+# predicted accept-or-reject with a separability of 1.0000.
+STATEMENTS_DIR = OUT_DIR.parent / "statements"
+
+# The authoring slug of each accept vector, mapped to the identifier it was
+# published under. The reject generator needs this to resolve the parent every
+# reject vector declares, and it is DELIBERATELY NOT COMMITTED.
+#
+# That is measured rather than cautious. Run through the same classifier and the
+# same permutation null as every other surface, the slug surface scores 0.9936
+# as it stands, 0.7260 with the ok-/bad- family token removed, and 0.7307 on the
+# description words alone -- each against a null near 0.585. So the leak is not
+# the prefix, it is the vocabulary: a slug says `missing`, `mismatch`,
+# `duplicate` and `wrong` on one side and `clean`, `canonical` and `pass` on the
+# other. There is no spelling of a committed slug-to-identifier map that carries
+# no label, which makes this an intermediate like an object file rather than
+# anything the corpus may ship.
+BUILD_IDS = OUT_DIR.parent.parent / ".build" / "aee-accept-ids.json"
+
+# Sixteen hex characters of SHA-256 over the vector's own bytes. Sixty-four bits
+# is far beyond what a corpus this size needs, and a collision is refused rather
+# than trusted to arithmetic.
+ID_HEX = 16
+
+
+def vector_id(body: bytes) -> str:
+    return "v" + hashlib.sha256(body).hexdigest()[:ID_HEX]
+
 STATEMENT_TYPE = "https://in-toto.io/Statement/v1"
 PREDICATE_TYPE = "https://in-toto.io/attestation/adversarial-execution-evidence/v0.7"
 PAYLOAD_TYPE = "application/vnd.example.aee-observation.v1+json"
@@ -2386,26 +2417,16 @@ def verify_signatures(stmt: dict[str, Any]) -> dict[int, str]:
     return out
 
 
-def committed_count() -> int:
-    """How many accept vector files sit beside this generator.
+def write_build_ids(ids: dict[str, str]) -> None:
+    """Record slug -> published identifier for the reject generator to read.
 
-    The drop-tripwire at the end of main compares the built set against this
-    rather than against a number typed here. A typed number only ever states
-    what was true when someone last edited it, and it is blind in the direction
-    that actually went wrong: seven vector files were once committed with no
-    builder behind them, which leaves a typed count agreeing with the builders it
-    still has while the directory holds more files than the generator can
-    produce. Reading the directory fails on exactly that, and it cannot itself go
-    stale.
-
-    It is read AFTER the write pass on purpose. Read before, it also refuses a
-    builder whose file was deleted, which is a state this generator exists to
-    repair rather than refuse, and it makes the generator unrunnable in an empty
-    directory -- which is where scripts/regenerability-gate.py runs it, precisely
-    so that a file nothing writes is visible as an absence rather than as bytes
-    left over from the copy.
+    Written, never committed. See BUILD_IDS above for the measurement that
+    decided that.
     """
-    return len(list(OUT_DIR.glob("ok-*.json"))) + len(list(OUT_DIR.glob("vate-*.json")))
+    BUILD_IDS.parent.mkdir(exist_ok=True)
+    BUILD_IDS.write_text(
+        json.dumps(ids, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
 
 # The accept index, emitted rather than hand-written.
@@ -3109,7 +3130,7 @@ ACCEPT_INDEX: dict[str, tuple[str, str, str]] = {
 }
 
 
-def write_index(vectors: dict[str, Any]) -> None:
+def write_index(vectors: dict[str, Any], ids: dict[str, str]) -> None:
     """Emit accept/INDEX.md: the prose, then one row per vector.
 
     Every row's identifier comes from the corpus that was just built rather than
@@ -3148,7 +3169,9 @@ def write_index(vectors: dict[str, Any]) -> None:
                 f"carries {declared!r}. The index is emitted from the corpus, so "
                 "the two cannot be allowed to differ."
             )
-        out.append(f"| {slug} | {result} | {conditions} | {exercises} |")
+        out.append(
+            f"| {ids[slug]} | {result} | {conditions} | {exercises} |"
+        )
     out.extend(line.replace("{predicate_type}", PREDICATE_TYPE)
                for line in ACCEPT_INDEX_TAIL)
     (OUT_DIR / "INDEX.md").write_text("\n".join(out), encoding="utf-8")
@@ -3157,23 +3180,37 @@ def write_index(vectors: dict[str, Any]) -> None:
 def main() -> int:
     vectors = build_vectors()
     failures = 0
+    STATEMENTS_DIR.mkdir(exist_ok=True)
+    ids: dict[str, str] = {}
+    minted: dict[str, str] = {}
     for name, stmt in vectors.items():
         errs = verify(stmt)
         if errs:
             failures += 1
             print(f"INVALID {name}: {errs}")
-        path = OUT_DIR / f"{name}.json"
-        text = json.dumps(stmt, sort_keys=True, indent=2, ensure_ascii=False) + "\n"
-        path.write_text(text, encoding="utf-8")
+        body = (json.dumps(stmt, sort_keys=True, indent=2, ensure_ascii=False)
+                + "\n").encode("utf-8")
+        vid = vector_id(body)
+        if vid in minted:
+            raise SystemExit(
+                f"{name} and {minted[vid]} serialize to identical bytes, so they "
+                f"share the identifier {vid}. A content-addressed corpus cannot "
+                "give one statement two names, and should not want to: one of "
+                "them is a copy of the other."
+            )
+        minted[vid] = name
+        path = STATEMENTS_DIR / f"{vid}.json"
+        path.write_bytes(body)
         json.loads(path.read_text())  # parse check
+        ids[name] = vid
         print(f"wrote {path.name}  result={stmt['predicate']['result']}")
-    write_index(vectors)
-    on_disk = committed_count()
-    assert len(vectors) == on_disk, (
-        f"built {len(vectors)} accept vectors and {on_disk} ok-*.json files now "
-        "sit beside this generator; a file with no builder cannot be regenerated "
-        "by anyone"
-    )
+    write_build_ids(ids)
+    write_index(vectors, ids)
+    # The count tripwire that used to live here counted ok-*.json files beside
+    # this generator. It cannot survive the flattening: every corpus now shares
+    # one directory, so no generator can tell a file it did not write from a
+    # stray one. The question moved to vectors/gen_manifest.py, which sees the
+    # whole corpus and can answer it properly in both directions.
     print(f"keyids: substrate-observation-test={SUB_KEYID}")
     print(f"        wrong-signer-test={WRONG_KEYID}")
     print(f"        statement-test={STMT_KEYID}")

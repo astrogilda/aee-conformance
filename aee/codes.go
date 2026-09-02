@@ -79,7 +79,7 @@ const (
 	CodeBatchRootOrphaned Code = "batch-root-orphaned"
 	CodeDuplicateRecord   Code = "duplicate-record"
 	CodeRecordsAbsent     Code = "records-absent"
-	CodeRecordUndecodable Code = "record-undecodable" // registry extension: a record whose payload is not valid base64 (bad-817-payload-noncanonical-base64)
+	CodeRecordUndecodable Code = "record-undecodable" // registry extension: a record whose payload is not valid base64 (v4ff6cb70764bf703)
 	// CodeRecordSignaturesEmpty is a registry extension for a record whose
 	// signatures array is absent or carries zero entries, which the spec
 	// forbids ("signatures, which MUST carry at least one entry"). The name

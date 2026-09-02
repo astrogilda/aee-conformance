@@ -85,8 +85,8 @@ claim their manifest entry makes differs.
 
 | vector | parent | single mutation | conditions (aee-c ids) | reading `decode-first` | reading `positional` | reading `set-level` | spec |
 |---|---|---|---|---|---|---|---|
-| `ind-001-undecodable-then-signatures-empty` | ok-002 | arming record payload re-encoded as non-canonical base64 AND the sealed record's signatures array emptied, in that wire order | aee-c-91 (also emits: `clean-row-uncovered`, `payload-not-canonical`) | `record-undecodable` | `record-undecodable` | `record-signatures-empty` | L413-415; L1300-1302; L1302-1309 |
-| `ind-002-signatures-empty-then-undecodable` | ok-002 | arming record's signatures array emptied AND the sealed record's payload re-encoded as non-canonical base64, in that wire order | aee-c-91 (also emits: `clean-row-uncovered`, `payload-not-canonical`) | `record-undecodable` | `record-signatures-empty` | `record-signatures-empty` | L413-415; L1300-1302; L1302-1309 |
+| `v78efec12284a51d6` | vcc938c6038536dcb | arming record payload re-encoded as non-canonical base64 AND the sealed record's signatures array emptied, in that wire order | aee-c-91 (also emits: `clean-row-uncovered`, `payload-not-canonical`) | `record-undecodable` | `record-undecodable` | `record-signatures-empty` | L413-415; L1300-1302; L1302-1309 |
+| `v7cd4ebe08eb1605a` | vcc938c6038536dcb | arming record's signatures array emptied AND the sealed record's payload re-encoded as non-canonical base64, in that wire order | aee-c-91 (also emits: `clean-row-uncovered`, `payload-not-canonical`) | `record-undecodable` | `record-signatures-empty` | `record-signatures-empty` | L413-415; L1300-1302; L1302-1309 |
 
 ## Notes on specific vectors
 

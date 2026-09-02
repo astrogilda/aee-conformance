@@ -81,15 +81,14 @@ GENERATORS = (
 # happened to write could not tell a file that was not regenerated from a file
 # that was never meant to be.
 OWNED = (
-    ("vectors/accept", "ok-*.json"),
-    ("vectors/accept", "vate-*.json"),
-    ("vectors/reject", "bad-*.json"),
+    # One flat directory of content-addressed statements, so the pattern is the
+    # identifier shape rather than a prefix that named the verdict.
+    ("vectors/statements", "v*.json"),
     # The vate-* prefix is listed beside each id prefix it joins rather than
     # folded into it, because a pattern that enumerates ids by prefix skips a
     # family it was not told about and then reports the corpus clean -- which is
     # the shape of failure this gate exists to catch. Eight vector files sat
     # outside this tuple while the gate printed a total that agreed with itself.
-    ("vectors/reject", "vate-*.json"),
     ("vectors/reject", "INDEX.md"),
     # Emitted since the accept identifiers became a function of the bytes:
     # a content digest is not something a person can write into a table.
@@ -100,7 +99,6 @@ OWNED = (
     # under its own generator for that reason, and it is listed at all because a
     # bucket outside this gate is a bucket whose files can be hand-placed, which
     # is the defect the gate was written for.
-    ("vectors/indeterminate", "ind-*.json"),
     ("vectors/indeterminate", "INDEX.md"),
     ("vectors", "MANIFEST.json"),
     # The AI Agent Action suite. The record sidecars are listed because the

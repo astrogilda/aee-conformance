@@ -18,7 +18,7 @@ checking the anchor against the wording of the claim beside it" -- and its
 aim check is asked only of registry decisions, never of the per-vector and
 condition-registry anchors the four citations were written into. So the check
 was run against the corpus: an anchor reading ``L1725-1748`` was appended to
-``bad-906-corpus-manifest-absent``, a vector about a dropped corpus manifest,
+``v03547f8918e0d7dc``, a vector about a dropped corpus manifest,
 naming two consumer obligations about out-of-band class pinning that this very
 document rules structurally untestable by any conformance vector. The
 measurement rose from 55 obligations cited to 57. The anchor gate pinned the new
@@ -41,14 +41,14 @@ them quietly stops forcing the rule.
 
 The two vectors are proved the same way and were first:
 
-``bad-724-artifact-ref-out-of-range`` carries an unresolvable reference on a row
+``v3300d78454ab852f`` carries an unresolvable reference on a row
 no gate reads. The rule is quantified over every row that carries the member
 (spec L920-925), and a rail that checks references only where it needs to
 resolve them -- inside the substrate-row walk -- satisfies every other vector in
 the reference family, because every one of them puts the bad index on a
 substrate row.
 
-``ok-054-producer-ordered-axis-inert`` carries a producer-defined member whose
+``v7400cd757fd046e9`` carries a producer-defined member whose
 value is a token this predicate itself orders. Producer territory is inert to a
 verifier and the ordered case is the one a verifier is tempted to read (spec
 L1588-1591). A rail that folds such a member into the weakest-input method
@@ -112,8 +112,8 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
 HARNESS = ROOT / "packaging" / "run_vectors.py"
-BAD724 = ROOT / "vectors" / "reject" / "bad-724-artifact-ref-out-of-range.json"
-OK054 = ROOT / "vectors" / "accept" / "ok-054-producer-ordered-axis-inert.json"
+BAD724 = ROOT / "vectors" / "reject" / "v3300d78454ab852f.json"
+OK054 = ROOT / "vectors" / "accept" / "v7400cd757fd046e9.json"
 GO_RAIL = os.environ.get("AEE_EXTERNAL_VERIFIER", "")
 
 # A rail that checks references only where a gate resolves them.
@@ -180,19 +180,19 @@ TIMESTAMP_TO = """    if not isinstance(v, str) or not RFC3339_RE.match(v.upper(
 # name -> (mutation source, mutation replacement, every vector that must go red)
 MUTATIONS: tuple[tuple[str, str, str, list[str]], ...] = (
     ("scoped_refs", SCOPED_REFS_FROM, SCOPED_REFS_TO,
-     ["bad-724-artifact-ref-out-of-range"]),
+     ["v3300d78454ab852f"]),
     ("ranking_cap", RANKING_CAP_FROM, RANKING_CAP_TO,
-     ["ok-054-producer-ordered-axis-inert"]),
+     ["v7400cd757fd046e9"]),
     ("precondition", PRECONDITION_FROM, PRECONDITION_TO,
-     ["bad-201-payload-unsorted-keys", "bad-208-payload-member-non-bmp"]),
+     ["v85caf3c6f7516ba2", "v9d1f7c44f94cb929"]),
     ("uncoverable", UNCOVERABLE_FROM, UNCOVERABLE_TO,
-     ["bad-106-clean-missing-sealed", "bad-107-clean-missing-arming",
-      "bad-714-unknown-kind-sole-cover"]),
+     ["ve025b4bed04cfb68", "v132435a4d6d10043",
+      "v5dcc150714259e09"]),
     ("timestamp", TIMESTAMP_FROM, TIMESTAMP_TO,
-     ["bad-727-armedat-non-utc-offset", "bad-750-armedat-lowercase-separator",
-      "bad-751-armedat-lowercase-zone-designator", "bad-820-issuedat-non-utc-offset",
-      "bad-821-issuedat-lowercase-separator",
-      "bad-822-issuedat-lowercase-zone-designator"]),
+     ["v1b0b0cafb5ee8d08", "v3c527c28aa2da8db",
+      "v65fa8117aa487fbe", "vc9f401685f448104",
+      "v28d48cc69a324b81",
+      "v7d4d7d92a346c7a5"]),
 )
 
 SPEC = ROOT / "spec" / "predicates" / "adversarial-execution-evidence.md"

@@ -3,7 +3,7 @@
 
 Why this exists, stated as what actually happened rather than as a principle.
 
-`bad-817-payload-noncanonical-base64` declares two codes -- `record-undecodable`
+`v4ff6cb70764bf703` declares two codes -- `record-undecodable`
 in its expectation and `observed-set-mismatch` in its `also carries` clause --
 and the reference rail emits FOUR. The other two, `payload-not-canonical` and
 `reconstructed-row-uncovered`, were declared nowhere at all. During the

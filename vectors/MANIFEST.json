@@ -20,12 +20,12 @@
     ],
     "note": "A rail conforms when its verdict, and for an accepted statement its result token, match this manifest. The codes on a reject entry are the reference verifier's own vocabulary, not the specification's: a rail names a reason from whatever set it declares, and a differing code is a reason-parity datum rather than a failure. Report that parity as its own figure. The divergences worth finding are the statements two rails both reject for different reasons, and scoring on codes would hide exactly those."
   },
-  "corpusDigest": "9511932915617bfcbd7bafdb4cf6e6b050fec69225ed6fb2883984c0b098008a",
+  "corpusDigest": "8b035678def9e5ac00ba761b8c640e4412c57163134afb9d2c1a90f49d573a52",
   "vectors": [
     {
-      "id": "ok-001-caught-intercepted-fail",
+      "id": "vcf20eae7df4f1f1b",
       "kind": "accept",
-      "file": "accept/ok-001-caught-intercepted-fail.json",
+      "file": "statements/vcf20eae7df4f1f1b.json",
       "conditions": [
         "aee-c-1",
         "aee-c-3",
@@ -39,9 +39,9 @@
       }
     },
     {
-      "id": "ok-002-clean-pass-armed-sealed",
+      "id": "vcc938c6038536dcb",
       "kind": "accept",
-      "file": "accept/ok-002-clean-pass-armed-sealed.json",
+      "file": "statements/vcc938c6038536dcb.json",
       "conditions": [
         "aee-c-7",
         "aee-c-14",
@@ -57,9 +57,9 @@
       }
     },
     {
-      "id": "ok-003-clean-pass-bounded-drops",
+      "id": "v02f2be8cd63828f4",
       "kind": "accept",
-      "file": "accept/ok-003-clean-pass-bounded-drops.json",
+      "file": "statements/v02f2be8cd63828f4.json",
       "conditions": [
         "aee-c-65"
       ],
@@ -69,9 +69,9 @@
       }
     },
     {
-      "id": "ok-004-degraded-out-of-scope",
+      "id": "v393e5fb361cedaae",
       "kind": "accept",
-      "file": "accept/ok-004-degraded-out-of-scope.json",
+      "file": "statements/v393e5fb361cedaae.json",
       "conditions": [
         "aee-c-1",
         "aee-c-6"
@@ -82,9 +82,9 @@
       }
     },
     {
-      "id": "ok-005-degraded-routed-elsewhere",
+      "id": "vcebc3fca7e54f763",
       "kind": "accept",
-      "file": "accept/ok-005-degraded-routed-elsewhere.json",
+      "file": "statements/vcebc3fca7e54f763.json",
       "conditions": [
         "aee-c-6"
       ],
@@ -94,9 +94,9 @@
       }
     },
     {
-      "id": "ok-006-clean-reconstructed",
+      "id": "vc8db427883cd80ea",
       "kind": "accept",
-      "file": "accept/ok-006-clean-reconstructed.json",
+      "file": "statements/vc8db427883cd80ea.json",
       "conditions": [
         "aee-c-2",
         "aee-c-13",
@@ -108,9 +108,9 @@
       }
     },
     {
-      "id": "ok-007-artifact-only-recordless",
+      "id": "vc2782e6c3cbdb9b7",
       "kind": "accept",
-      "file": "accept/ok-007-artifact-only-recordless.json",
+      "file": "statements/vc2782e6c3cbdb9b7.json",
       "conditions": [
         "aee-c-2",
         "aee-c-31",
@@ -122,9 +122,9 @@
       }
     },
     {
-      "id": "ok-008-artifact-fail-closed-method",
+      "id": "v51e9223d08fcc4e1",
       "kind": "accept",
-      "file": "accept/ok-008-artifact-fail-closed-method.json",
+      "file": "statements/v51e9223d08fcc4e1.json",
       "conditions": [
         "aee-c-5",
         "aee-c-44"
@@ -135,9 +135,9 @@
       }
     },
     {
-      "id": "ok-009-artifact-oov-label-fail",
+      "id": "v87d0a19d4b41aafc",
       "kind": "accept",
-      "file": "accept/ok-009-artifact-oov-label-fail.json",
+      "file": "statements/v87d0a19d4b41aafc.json",
       "conditions": [
         "aee-c-4"
       ],
@@ -147,9 +147,9 @@
       }
     },
     {
-      "id": "ok-010-artifact-retired-basis-fail",
+      "id": "vea21d85d4e531e66",
       "kind": "accept",
-      "file": "accept/ok-010-artifact-retired-basis-fail.json",
+      "file": "statements/vea21d85d4e531e66.json",
       "conditions": [
         "aee-c-43"
       ],
@@ -159,9 +159,9 @@
       }
     },
     {
-      "id": "ok-011-shared-run-records",
+      "id": "v097ad0cc5b7c0490",
       "kind": "accept",
-      "file": "accept/ok-011-shared-run-records.json",
+      "file": "statements/v097ad0cc5b7c0490.json",
       "conditions": [
         "aee-c-15"
       ],
@@ -171,9 +171,9 @@
       }
     },
     {
-      "id": "ok-012-selectors-present",
+      "id": "v12389306fa02ce0c",
       "kind": "accept",
-      "file": "accept/ok-012-selectors-present.json",
+      "file": "statements/v12389306fa02ce0c.json",
       "conditions": [
         "aee-c-16"
       ],
@@ -183,9 +183,9 @@
       }
     },
     {
-      "id": "ok-013-unknown-kind-extra-record",
+      "id": "v26db60a5d09ec82c",
       "kind": "accept",
-      "file": "accept/ok-013-unknown-kind-extra-record.json",
+      "file": "statements/v26db60a5d09ec82c.json",
       "conditions": [
         "aee-c-32",
         "aee-c-71"
@@ -196,9 +196,9 @@
       }
     },
     {
-      "id": "ok-014-three-record-odd-split",
+      "id": "v3bf3c0fa0e6a52b3",
       "kind": "accept",
-      "file": "accept/ok-014-three-record-odd-split.json",
+      "file": "statements/v3bf3c0fa0e6a52b3.json",
       "conditions": [
         "aee-c-26"
       ],
@@ -208,9 +208,9 @@
       }
     },
     {
-      "id": "ok-015-four-record-tree",
+      "id": "va1881488724114fd",
       "kind": "accept",
-      "file": "accept/ok-015-four-record-tree.json",
+      "file": "statements/va1881488724114fd.json",
       "conditions": [
         "aee-c-26"
       ],
@@ -220,9 +220,9 @@
       }
     },
     {
-      "id": "ok-016-caught-actuallayer-none",
+      "id": "vba7081ad0eae11bf",
       "kind": "accept",
-      "file": "accept/ok-016-caught-actuallayer-none.json",
+      "file": "statements/vba7081ad0eae11bf.json",
       "conditions": [
         "aee-c-49"
       ],
@@ -232,9 +232,9 @@
       }
     },
     {
-      "id": "ok-017-method-weakening-allowed",
+      "id": "v194265397248929b",
       "kind": "accept",
-      "file": "accept/ok-017-method-weakening-allowed.json",
+      "file": "statements/v194265397248929b.json",
       "conditions": [
         "aee-c-23"
       ],
@@ -244,9 +244,9 @@
       }
     },
     {
-      "id": "ok-018-aee-prefix-ignored",
+      "id": "v79735e29bd3c1c55",
       "kind": "accept",
-      "file": "accept/ok-018-aee-prefix-ignored.json",
+      "file": "statements/v79735e29bd3c1c55.json",
       "conditions": [
         "aee-c-38",
         "aee-c-61"
@@ -257,9 +257,9 @@
       }
     },
     {
-      "id": "ok-019-wrong-keyid-sig-verifies",
+      "id": "vfcb846afff2d6979",
       "kind": "accept",
-      "file": "accept/ok-019-wrong-keyid-sig-verifies.json",
+      "file": "statements/vfcb846afff2d6979.json",
       "conditions": [
         "aee-c-35"
       ],
@@ -275,9 +275,9 @@
       }
     },
     {
-      "id": "ok-020-non-pae-signature",
+      "id": "v550c91df0d36a218",
       "kind": "accept",
-      "file": "accept/ok-020-non-pae-signature.json",
+      "file": "statements/v550c91df0d36a218.json",
       "conditions": [
         "aee-c-36"
       ],
@@ -293,9 +293,9 @@
       }
     },
     {
-      "id": "ok-021-producer-extra-members",
+      "id": "vfa152052ea49dfdb",
       "kind": "accept",
-      "file": "accept/ok-021-producer-extra-members.json",
+      "file": "statements/vfa152052ea49dfdb.json",
       "conditions": [
         "aee-c-73"
       ],
@@ -305,9 +305,9 @@
       }
     },
     {
-      "id": "ok-022-two-arming-records",
+      "id": "vdf9d432c5a63e441",
       "kind": "accept",
-      "file": "accept/ok-022-two-arming-records.json",
+      "file": "statements/vdf9d432c5a63e441.json",
       "conditions": [
         "aee-c-68"
       ],
@@ -317,9 +317,9 @@
       }
     },
     {
-      "id": "ok-023-no-tofu-embedded-key",
+      "id": "v05e2e6ba0093d37a",
       "kind": "accept",
-      "file": "accept/ok-023-no-tofu-embedded-key.json",
+      "file": "statements/v05e2e6ba0093d37a.json",
       "conditions": [
         "aee-c-34"
       ],
@@ -335,9 +335,9 @@
       }
     },
     {
-      "id": "ok-024-mixed-basis-rows",
+      "id": "vcf5a4601dee5c2ee",
       "kind": "accept",
-      "file": "accept/ok-024-mixed-basis-rows.json",
+      "file": "statements/vcf5a4601dee5c2ee.json",
       "conditions": [
         "aee-c-33",
         "aee-c-41"
@@ -358,9 +358,9 @@
       }
     },
     {
-      "id": "ok-025-does-not-assert-present",
+      "id": "v774eb1ad06e94311",
       "kind": "accept",
-      "file": "accept/ok-025-does-not-assert-present.json",
+      "file": "statements/v774eb1ad06e94311.json",
       "conditions": [
         "aee-c-84"
       ],
@@ -370,9 +370,9 @@
       }
     },
     {
-      "id": "ok-026-five-record-tree",
+      "id": "v4130b125a1c2d5b1",
       "kind": "accept",
-      "file": "accept/ok-026-five-record-tree.json",
+      "file": "statements/v4130b125a1c2d5b1.json",
       "conditions": [
         "aee-c-26"
       ],
@@ -382,9 +382,9 @@
       }
     },
     {
-      "id": "ok-027-artifact-missing-method",
+      "id": "v48542b44ffd26237",
       "kind": "accept",
-      "file": "accept/ok-027-artifact-missing-method.json",
+      "file": "statements/v48542b44ffd26237.json",
       "conditions": [
         "aee-c-5",
         "aee-c-42",
@@ -396,9 +396,9 @@
       }
     },
     {
-      "id": "ok-028-empty-caught-pass",
+      "id": "v085acd94abf21364",
       "kind": "accept",
-      "file": "accept/ok-028-empty-caught-pass.json",
+      "file": "statements/v085acd94abf21364.json",
       "conditions": [
         "aee-c-3",
         "aee-c-52"
@@ -409,9 +409,9 @@
       }
     },
     {
-      "id": "ok-029-artifact-with-records",
+      "id": "v9cc570167acf4ae8",
       "kind": "accept",
-      "file": "accept/ok-029-artifact-with-records.json",
+      "file": "statements/v9cc570167acf4ae8.json",
       "conditions": [
         "aee-c-2",
         "aee-c-24",
@@ -431,9 +431,9 @@
       }
     },
     {
-      "id": "ok-030-method-min-multirecord",
+      "id": "v0099f25838779fcc",
       "kind": "accept",
-      "file": "accept/ok-030-method-min-multirecord.json",
+      "file": "statements/v0099f25838779fcc.json",
       "conditions": [
         "aee-c-23",
         "aee-c-45"
@@ -444,9 +444,9 @@
       }
     },
     {
-      "id": "ok-031-caught-reconstructed",
+      "id": "v3fbc377adbe6dcf1",
       "kind": "accept",
-      "file": "accept/ok-031-caught-reconstructed.json",
+      "file": "statements/v3fbc377adbe6dcf1.json",
       "conditions": [
         "aee-c-13"
       ],
@@ -456,9 +456,9 @@
       }
     },
     {
-      "id": "ok-032-method-inferred-retired",
+      "id": "v948fbb64b96197e6",
       "kind": "accept",
-      "file": "accept/ok-032-method-inferred-retired.json",
+      "file": "statements/v948fbb64b96197e6.json",
       "conditions": [
         "aee-c-5",
         "aee-c-43"
@@ -469,9 +469,9 @@
       }
     },
     {
-      "id": "ok-033-artifact-degraded",
+      "id": "vc7a74e2cef5586ed",
       "kind": "accept",
-      "file": "accept/ok-033-artifact-degraded.json",
+      "file": "statements/vc7a74e2cef5586ed.json",
       "conditions": [
         "aee-c-6"
       ],
@@ -481,9 +481,9 @@
       }
     },
     {
-      "id": "ok-034-arming-chain-genesis",
+      "id": "vf720662dff34b8f5",
       "kind": "accept",
-      "file": "accept/ok-034-arming-chain-genesis.json",
+      "file": "statements/vf720662dff34b8f5.json",
       "conditions": [
         "aee-c-89"
       ],
@@ -493,9 +493,9 @@
       }
     },
     {
-      "id": "ok-035-unknown-kind-excluded-from-cap",
+      "id": "v164cf7f3f529eaff",
       "kind": "accept",
-      "file": "accept/ok-035-unknown-kind-excluded-from-cap.json",
+      "file": "statements/v164cf7f3f529eaff.json",
       "conditions": [
         "aee-c-23",
         "aee-c-45",
@@ -507,9 +507,9 @@
       }
     },
     {
-      "id": "ok-036-payload-nesting-at-bound",
+      "id": "vb2af33bb3cc0da77",
       "kind": "accept",
-      "file": "accept/ok-036-payload-nesting-at-bound.json",
+      "file": "statements/vb2af33bb3cc0da77.json",
       "conditions": [
         "aee-c-18"
       ],
@@ -519,9 +519,9 @@
       }
     },
     {
-      "id": "ok-038-issuedat-negative-zero-offset",
+      "id": "v4dfeab58a9cbdf24",
       "kind": "accept",
-      "file": "accept/ok-038-issuedat-negative-zero-offset.json",
+      "file": "statements/v4dfeab58a9cbdf24.json",
       "conditions": [
         "aee-c-2",
         "aee-c-85"
@@ -532,9 +532,9 @@
       }
     },
     {
-      "id": "ok-039-armedat-negative-zero-offset",
+      "id": "v9a886701250e5a06",
       "kind": "accept",
-      "file": "accept/ok-039-armedat-negative-zero-offset.json",
+      "file": "statements/v9a886701250e5a06.json",
       "conditions": [
         "aee-c-63",
         "aee-c-85"
@@ -545,9 +545,9 @@
       }
     },
     {
-      "id": "ok-040-posture-no-network",
+      "id": "v5ec463cdbbe6dab5",
       "kind": "accept",
-      "file": "accept/ok-040-posture-no-network.json",
+      "file": "statements/v5ec463cdbbe6dab5.json",
       "conditions": [
         "aee-c-93"
       ],
@@ -557,9 +557,9 @@
       }
     },
     {
-      "id": "ok-041-posture-allowlist",
+      "id": "v0a8a7826e4499ff6",
       "kind": "accept",
-      "file": "accept/ok-041-posture-allowlist.json",
+      "file": "statements/v0a8a7826e4499ff6.json",
       "conditions": [
         "aee-c-93"
       ],
@@ -569,9 +569,9 @@
       }
     },
     {
-      "id": "ok-042-posture-unsafe-bypass-egress",
+      "id": "vdb34a3c9aca2ad5c",
       "kind": "accept",
-      "file": "accept/ok-042-posture-unsafe-bypass-egress.json",
+      "file": "statements/vdb34a3c9aca2ad5c.json",
       "conditions": [
         "aee-c-93"
       ],
@@ -581,9 +581,9 @@
       }
     },
     {
-      "id": "ok-043-posture-producer-member-bound",
+      "id": "v44c5b469882b4a0e",
       "kind": "accept",
-      "file": "accept/ok-043-posture-producer-member-bound.json",
+      "file": "statements/v44c5b469882b4a0e.json",
       "conditions": [
         "aee-c-60"
       ],
@@ -593,9 +593,9 @@
       }
     },
     {
-      "id": "ok-044-clean-artifact-intercepted-indirect",
+      "id": "v15e3a93a59a65391",
       "kind": "accept",
-      "file": "accept/ok-044-clean-artifact-intercepted-indirect.json",
+      "file": "statements/v15e3a93a59a65391.json",
       "conditions": [
         "aee-c-2",
         "aee-c-31"
@@ -606,9 +606,9 @@
       }
     },
     {
-      "id": "ok-045-mixed-clean-rows-indirect",
+      "id": "vf1fcbad160189ca5",
       "kind": "accept",
-      "file": "accept/ok-045-mixed-clean-rows-indirect.json",
+      "file": "statements/vf1fcbad160189ca5.json",
       "conditions": [
         "aee-c-2",
         "aee-c-14"
@@ -627,9 +627,9 @@
       }
     },
     {
-      "id": "ok-046-seal-attacks-lower-bound",
+      "id": "vf88590533f7b3599",
       "kind": "accept",
-      "file": "accept/ok-046-seal-attacks-lower-bound.json",
+      "file": "statements/vf88590533f7b3599.json",
       "conditions": [
         "aee-c-98"
       ],
@@ -639,9 +639,9 @@
       }
     },
     {
-      "id": "ok-047-attribution-pinned",
+      "id": "v9383066da404cbda",
       "kind": "accept",
-      "file": "accept/ok-047-attribution-pinned.json",
+      "file": "statements/v9383066da404cbda.json",
       "conditions": [
         "aee-c-100",
         "aee-c-101",
@@ -654,9 +654,9 @@
       }
     },
     {
-      "id": "ok-048-attribution-paired-despite-expectation",
+      "id": "v1b2d2d26efeb7835",
       "kind": "accept",
-      "file": "accept/ok-048-attribution-paired-despite-expectation.json",
+      "file": "statements/v1b2d2d26efeb7835.json",
       "conditions": [
         "aee-c-105"
       ],
@@ -666,9 +666,9 @@
       }
     },
     {
-      "id": "ok-049-seal-names-caught-attack",
+      "id": "vb9ffa071ee33678b",
       "kind": "accept",
-      "file": "accept/ok-049-seal-names-caught-attack.json",
+      "file": "statements/vb9ffa071ee33678b.json",
       "conditions": [
         "aee-c-98"
       ],
@@ -678,9 +678,9 @@
       }
     },
     {
-      "id": "ok-050-registered-noncovering-kinds",
+      "id": "v7d2a79cb1ddc59a5",
       "kind": "accept",
-      "file": "accept/ok-050-registered-noncovering-kinds.json",
+      "file": "statements/v7d2a79cb1ddc59a5.json",
       "conditions": [
         "aee-c-23",
         "aee-c-45",
@@ -693,9 +693,9 @@
       }
     },
     {
-      "id": "ok-051-two-pinned-rows",
+      "id": "vd1aa74416099f3f0",
       "kind": "accept",
-      "file": "accept/ok-051-two-pinned-rows.json",
+      "file": "statements/vd1aa74416099f3f0.json",
       "conditions": [
         "aee-c-100",
         "aee-c-101",
@@ -708,9 +708,9 @@
       }
     },
     {
-      "id": "ok-052-liveness-probe-per-channel",
+      "id": "vda285efc96ac6e75",
       "kind": "accept",
-      "file": "accept/ok-052-liveness-probe-per-channel.json",
+      "file": "statements/vda285efc96ac6e75.json",
       "conditions": [
         "aee-c-98",
         "aee-c-100",
@@ -725,9 +725,9 @@
       }
     },
     {
-      "id": "ok-053-liveness-probe-uncaught-on-one-channel",
+      "id": "v73244f2068e58c68",
       "kind": "accept",
-      "file": "accept/ok-053-liveness-probe-uncaught-on-one-channel.json",
+      "file": "statements/v73244f2068e58c68.json",
       "conditions": [
         "aee-c-14",
         "aee-c-98",
@@ -741,9 +741,9 @@
       }
     },
     {
-      "id": "ok-054-producer-ordered-axis-inert",
+      "id": "v7400cd757fd046e9",
       "kind": "accept",
-      "file": "accept/ok-054-producer-ordered-axis-inert.json",
+      "file": "statements/v7400cd757fd046e9.json",
       "conditions": [
         "aee-c-23",
         "aee-c-45",
@@ -755,9 +755,9 @@
       }
     },
     {
-      "id": "ok-055-pinned-row-two-interceptions",
+      "id": "v36fe88ae1da31194",
       "kind": "accept",
-      "file": "accept/ok-055-pinned-row-two-interceptions.json",
+      "file": "statements/v36fe88ae1da31194.json",
       "conditions": [
         "aee-c-100",
         "aee-c-101",
@@ -770,9 +770,9 @@
       }
     },
     {
-      "id": "ok-900-fail-outranks-degraded",
+      "id": "vd601fae914a58643",
       "kind": "accept",
-      "file": "accept/ok-900-fail-outranks-degraded.json",
+      "file": "statements/vd601fae914a58643.json",
       "conditions": [
         "aee-c-1"
       ],
@@ -782,9 +782,9 @@
       }
     },
     {
-      "id": "ok-901-row-missing-basis",
+      "id": "v18bdbadef67b38f4",
       "kind": "accept",
-      "file": "accept/ok-901-row-missing-basis.json",
+      "file": "statements/v18bdbadef67b38f4.json",
       "conditions": [
         "aee-c-1"
       ],
@@ -794,9 +794,9 @@
       }
     },
     {
-      "id": "vate-1b-carried-admission-digest-unread",
+      "id": "v4f78835e75e8a400",
       "kind": "accept",
-      "file": "accept/vate-1b-carried-admission-digest-unread.json",
+      "file": "statements/v4f78835e75e8a400.json",
       "conditions": [
         "aee-c-73"
       ],
@@ -806,9 +806,9 @@
       }
     },
     {
-      "id": "vate-1d-admission-receipt-as-sole-subject",
+      "id": "va4d6b048f2e9cc5f",
       "kind": "accept",
-      "file": "accept/vate-1d-admission-receipt-as-sole-subject.json",
+      "file": "statements/va4d6b048f2e9cc5f.json",
       "conditions": [
         "aee-c-22",
         "aee-c-60"
@@ -819,9 +819,9 @@
       }
     },
     {
-      "id": "vate-2a-aggregate-overrun-unread",
+      "id": "v9aa8ed2b3bfb4042",
       "kind": "accept",
-      "file": "accept/vate-2a-aggregate-overrun-unread.json",
+      "file": "statements/v9aa8ed2b3bfb4042.json",
       "conditions": [
         "aee-c-73"
       ],
@@ -831,9 +831,9 @@
       }
     },
     {
-      "id": "vate-3b-admitted-vs-observed-runtime-unread",
+      "id": "vd024efc41945fe54",
       "kind": "accept",
-      "file": "accept/vate-3b-admitted-vs-observed-runtime-unread.json",
+      "file": "statements/vd024efc41945fe54.json",
       "conditions": [
         "aee-c-73"
       ],
@@ -843,9 +843,9 @@
       }
     },
     {
-      "id": "vate-3c-substrate-substituted-and-resigned",
+      "id": "vb835ee95031d6e97",
       "kind": "accept",
-      "file": "accept/vate-3c-substrate-substituted-and-resigned.json",
+      "file": "statements/vb835ee95031d6e97.json",
       "conditions": [
         "aee-c-22",
         "aee-c-60"
@@ -856,9 +856,9 @@
       }
     },
     {
-      "id": "bad-001-result-uppercase",
+      "id": "vf35474dd75d6b14a",
       "kind": "reject",
-      "file": "reject/bad-001-result-uppercase.json",
+      "file": "statements/vf35474dd75d6b14a.json",
       "conditions": [
         "aee-c-1",
         "aee-c-2"
@@ -872,9 +872,9 @@
       }
     },
     {
-      "id": "bad-002-result-mismatch-caught",
+      "id": "vcb23d2c4509c9daf",
       "kind": "reject",
-      "file": "reject/bad-002-result-mismatch-caught.json",
+      "file": "statements/vcb23d2c4509c9daf.json",
       "conditions": [
         "aee-c-2"
       ],
@@ -886,9 +886,9 @@
       }
     },
     {
-      "id": "bad-003-result-mismatch-oov-label",
+      "id": "v27930cf8d66b2b90",
       "kind": "reject",
-      "file": "reject/bad-003-result-mismatch-oov-label.json",
+      "file": "statements/v27930cf8d66b2b90.json",
       "conditions": [
         "aee-c-2",
         "aee-c-4"
@@ -901,9 +901,9 @@
       }
     },
     {
-      "id": "bad-004-result-mismatch-failclosed",
+      "id": "v621854cac9e3b77b",
       "kind": "reject",
-      "file": "reject/bad-004-result-mismatch-failclosed.json",
+      "file": "statements/v621854cac9e3b77b.json",
       "conditions": [
         "aee-c-2",
         "aee-c-5"
@@ -916,9 +916,9 @@
       }
     },
     {
-      "id": "bad-005-result-mismatch-coverage-gap",
+      "id": "va1d44b528c20101b",
       "kind": "reject",
-      "file": "reject/bad-005-result-mismatch-coverage-gap.json",
+      "file": "statements/va1d44b528c20101b.json",
       "conditions": [
         "aee-c-2",
         "aee-c-6"
@@ -931,9 +931,9 @@
       }
     },
     {
-      "id": "bad-006-result-fail-on-pass",
+      "id": "ve7d572bb5e39fe9e",
       "kind": "reject",
-      "file": "reject/bad-006-result-fail-on-pass.json",
+      "file": "statements/ve7d572bb5e39fe9e.json",
       "conditions": [
         "aee-c-2"
       ],
@@ -945,9 +945,9 @@
       }
     },
     {
-      "id": "bad-007-result-degraded-on-pass",
+      "id": "ve7fa00ccb08c9987",
       "kind": "reject",
-      "file": "reject/bad-007-result-degraded-on-pass.json",
+      "file": "statements/ve7fa00ccb08c9987.json",
       "conditions": [
         "aee-c-2"
       ],
@@ -959,9 +959,9 @@
       }
     },
     {
-      "id": "bad-008-result-unknown-token",
+      "id": "v87a339f53f689d9f",
       "kind": "reject",
-      "file": "reject/bad-008-result-unknown-token.json",
+      "file": "statements/v87a339f53f689d9f.json",
       "conditions": [
         "aee-c-1",
         "aee-c-2"
@@ -975,9 +975,9 @@
       }
     },
     {
-      "id": "bad-009-result-pass-on-indirect-clean-row",
+      "id": "v14d9059f14696fe6",
       "kind": "reject",
-      "file": "reject/bad-009-result-pass-on-indirect-clean-row.json",
+      "file": "statements/v14d9059f14696fe6.json",
       "conditions": [
         "aee-c-2"
       ],
@@ -989,9 +989,9 @@
       }
     },
     {
-      "id": "bad-010-result-pass-indirect-on-direct-clean-row",
+      "id": "vaec3b6d70dfbbc47",
       "kind": "reject",
-      "file": "reject/bad-010-result-pass-indirect-on-direct-clean-row.json",
+      "file": "statements/vaec3b6d70dfbbc47.json",
       "conditions": [
         "aee-c-2"
       ],
@@ -1003,9 +1003,9 @@
       }
     },
     {
-      "id": "bad-101-refs-empty",
+      "id": "v131478f1be775746",
       "kind": "reject",
-      "file": "reject/bad-101-refs-empty.json",
+      "file": "statements/v131478f1be775746.json",
       "conditions": [
         "aee-c-10",
         "aee-c-12"
@@ -1022,9 +1022,9 @@
       }
     },
     {
-      "id": "bad-102-ref-out-of-range",
+      "id": "vbe54956653060e0c",
       "kind": "reject",
-      "file": "reject/bad-102-ref-out-of-range.json",
+      "file": "statements/vbe54956653060e0c.json",
       "conditions": [
         "aee-c-11"
       ],
@@ -1036,9 +1036,9 @@
       }
     },
     {
-      "id": "bad-103-ref-negative",
+      "id": "va06ffeb35650b992",
       "kind": "reject",
-      "file": "reject/bad-103-ref-negative.json",
+      "file": "statements/va06ffeb35650b992.json",
       "conditions": [
         "aee-c-11"
       ],
@@ -1053,9 +1053,9 @@
       }
     },
     {
-      "id": "bad-104-caught-refs-arming-only",
+      "id": "v59e16f48a28bec9d",
       "kind": "reject",
-      "file": "reject/bad-104-caught-refs-arming-only.json",
+      "file": "statements/v59e16f48a28bec9d.json",
       "conditions": [
         "aee-c-12"
       ],
@@ -1070,9 +1070,9 @@
       }
     },
     {
-      "id": "bad-105-reconstructed-refs-interception",
+      "id": "vf362be6b8302b409",
       "kind": "reject",
-      "file": "reject/bad-105-reconstructed-refs-interception.json",
+      "file": "statements/vf362be6b8302b409.json",
       "conditions": [
         "aee-c-13"
       ],
@@ -1087,9 +1087,9 @@
       }
     },
     {
-      "id": "bad-106-clean-missing-sealed",
+      "id": "ve025b4bed04cfb68",
       "kind": "reject",
-      "file": "reject/bad-106-clean-missing-sealed.json",
+      "file": "statements/ve025b4bed04cfb68.json",
       "conditions": [
         "aee-c-14"
       ],
@@ -1101,9 +1101,9 @@
       }
     },
     {
-      "id": "bad-107-clean-missing-arming",
+      "id": "v132435a4d6d10043",
       "kind": "reject",
-      "file": "reject/bad-107-clean-missing-arming.json",
+      "file": "statements/v132435a4d6d10043.json",
       "conditions": [
         "aee-c-14"
       ],
@@ -1115,9 +1115,9 @@
       }
     },
     {
-      "id": "bad-108-ref-non-integer",
+      "id": "va507b8f9a9cc675c",
       "kind": "reject",
-      "file": "reject/bad-108-ref-non-integer.json",
+      "file": "statements/va507b8f9a9cc675c.json",
       "conditions": [
         "aee-c-11"
       ],
@@ -1132,9 +1132,9 @@
       }
     },
     {
-      "id": "bad-201-payload-unsorted-keys",
+      "id": "v85caf3c6f7516ba2",
       "kind": "reject",
-      "file": "reject/bad-201-payload-unsorted-keys.json",
+      "file": "statements/v85caf3c6f7516ba2.json",
       "conditions": [
         "aee-c-17"
       ],
@@ -1150,9 +1150,9 @@
       }
     },
     {
-      "id": "bad-202-payload-bignum",
+      "id": "v61efcc48543d8cea",
       "kind": "reject",
-      "file": "reject/bad-202-payload-bignum.json",
+      "file": "statements/v61efcc48543d8cea.json",
       "conditions": [
         "aee-c-18"
       ],
@@ -1170,9 +1170,9 @@
       }
     },
     {
-      "id": "bad-203-payload-duplicate-member",
+      "id": "v94d877ffcc3a30fe",
       "kind": "reject",
-      "file": "reject/bad-203-payload-duplicate-member.json",
+      "file": "statements/v94d877ffcc3a30fe.json",
       "conditions": [
         "aee-c-18"
       ],
@@ -1190,9 +1190,9 @@
       }
     },
     {
-      "id": "bad-204-payload-media-type",
+      "id": "vbea799eb2cd2852c",
       "kind": "reject",
-      "file": "reject/bad-204-payload-media-type.json",
+      "file": "statements/vbea799eb2cd2852c.json",
       "conditions": [
         "aee-c-19"
       ],
@@ -1207,9 +1207,9 @@
       }
     },
     {
-      "id": "bad-208-payload-member-non-bmp",
+      "id": "v9d1f7c44f94cb929",
       "kind": "reject",
-      "file": "reject/bad-208-payload-member-non-bmp.json",
+      "file": "statements/v9d1f7c44f94cb929.json",
       "conditions": [
         "aee-c-87"
       ],
@@ -1225,9 +1225,9 @@
       }
     },
     {
-      "id": "bad-205-payload-missing-runbinding",
+      "id": "v08584c6c7d501f77",
       "kind": "reject",
-      "file": "reject/bad-205-payload-missing-runbinding.json",
+      "file": "statements/v08584c6c7d501f77.json",
       "conditions": [
         "aee-c-20"
       ],
@@ -1239,9 +1239,9 @@
       }
     },
     {
-      "id": "bad-206-payload-missing-kind",
+      "id": "v6c900389fd3f9a1b",
       "kind": "reject",
-      "file": "reject/bad-206-payload-missing-kind.json",
+      "file": "statements/v6c900389fd3f9a1b.json",
       "conditions": [
         "aee-c-20"
       ],
@@ -1256,9 +1256,9 @@
       }
     },
     {
-      "id": "bad-207-payload-missing-method",
+      "id": "v2c7c29f498719ddf",
       "kind": "reject",
-      "file": "reject/bad-207-payload-missing-method.json",
+      "file": "statements/v2c7c29f498719ddf.json",
       "conditions": [
         "aee-c-20"
       ],
@@ -1270,9 +1270,9 @@
       }
     },
     {
-      "id": "bad-301-run-binding-splice",
+      "id": "v0cf043f1bc09bccb",
       "kind": "reject",
-      "file": "reject/bad-301-run-binding-splice.json",
+      "file": "statements/v0cf043f1bc09bccb.json",
       "conditions": [
         "aee-c-22",
         "aee-c-62"
@@ -1288,9 +1288,9 @@
       }
     },
     {
-      "id": "bad-302-method-inflation",
+      "id": "v5a93b650d229c1bf",
       "kind": "reject",
-      "file": "reject/bad-302-method-inflation.json",
+      "file": "statements/v5a93b650d229c1bf.json",
       "conditions": [
         "aee-c-23"
       ],
@@ -1302,9 +1302,9 @@
       }
     },
     {
-      "id": "bad-303-binding-version-1",
+      "id": "v89cc66f8a44a1977",
       "kind": "reject",
-      "file": "reject/bad-303-binding-version-1.json",
+      "file": "statements/v89cc66f8a44a1977.json",
       "conditions": [
         "aee-c-75",
         "aee-c-22"
@@ -1320,9 +1320,9 @@
       }
     },
     {
-      "id": "bad-726-arming-binding-version-carried",
+      "id": "v081d9eeddbd5634f",
       "kind": "reject",
-      "file": "reject/bad-726-arming-binding-version-carried.json",
+      "file": "statements/v081d9eeddbd5634f.json",
       "conditions": [
         "aee-c-75"
       ],
@@ -1334,9 +1334,9 @@
       }
     },
     {
-      "id": "bad-304-method-cap-multirecord",
+      "id": "v093aa7f10f378951",
       "kind": "reject",
-      "file": "reject/bad-304-method-cap-multirecord.json",
+      "file": "statements/v093aa7f10f378951.json",
       "conditions": [
         "aee-c-23",
         "aee-c-45"
@@ -1349,9 +1349,9 @@
       }
     },
     {
-      "id": "bad-401-records-no-batchroot",
+      "id": "vdad33f132b5b08ef",
       "kind": "reject",
-      "file": "reject/bad-401-records-no-batchroot.json",
+      "file": "statements/vdad33f132b5b08ef.json",
       "conditions": [
         "aee-c-24"
       ],
@@ -1363,9 +1363,9 @@
       }
     },
     {
-      "id": "bad-402-root-no-domain-separation",
+      "id": "v28b0cf874ea02de1",
       "kind": "reject",
-      "file": "reject/bad-402-root-no-domain-separation.json",
+      "file": "statements/v28b0cf874ea02de1.json",
       "conditions": [
         "aee-c-25"
       ],
@@ -1377,9 +1377,9 @@
       }
     },
     {
-      "id": "bad-403-root-bitcoin-padding",
+      "id": "v4a2da6bda218a1fb",
       "kind": "reject",
-      "file": "reject/bad-403-root-bitcoin-padding.json",
+      "file": "statements/v4a2da6bda218a1fb.json",
       "conditions": [
         "aee-c-26"
       ],
@@ -1391,9 +1391,9 @@
       }
     },
     {
-      "id": "bad-404-root-leaf-order-swapped",
+      "id": "v0ec069decbfbc59f",
       "kind": "reject",
-      "file": "reject/bad-404-root-leaf-order-swapped.json",
+      "file": "statements/v0ec069decbfbc59f.json",
       "conditions": [
         "aee-c-27"
       ],
@@ -1405,9 +1405,9 @@
       }
     },
     {
-      "id": "bad-405-duplicate-records",
+      "id": "vd70d546cef512eff",
       "kind": "reject",
-      "file": "reject/bad-405-duplicate-records.json",
+      "file": "statements/vd70d546cef512eff.json",
       "conditions": [
         "aee-c-29"
       ],
@@ -1419,9 +1419,9 @@
       }
     },
     {
-      "id": "bad-406-root-hex-tamper",
+      "id": "v44881386e8e5c467",
       "kind": "reject",
-      "file": "reject/bad-406-root-hex-tamper.json",
+      "file": "statements/v44881386e8e5c467.json",
       "conditions": [
         "aee-c-30"
       ],
@@ -1433,9 +1433,9 @@
       }
     },
     {
-      "id": "bad-407-substrate-row-no-records",
+      "id": "v02fe83a8a13cd303",
       "kind": "reject",
-      "file": "reject/bad-407-substrate-row-no-records.json",
+      "file": "statements/v02fe83a8a13cd303.json",
       "conditions": [
         "aee-c-31",
         "aee-c-11"
@@ -1449,9 +1449,9 @@
       }
     },
     {
-      "id": "bad-408-batchroot-without-records",
+      "id": "v577011f7dd9a08fe",
       "kind": "reject",
-      "file": "reject/bad-408-batchroot-without-records.json",
+      "file": "statements/v577011f7dd9a08fe.json",
       "conditions": [
         "aee-c-31"
       ],
@@ -1463,9 +1463,9 @@
       }
     },
     {
-      "id": "bad-409-artifact-records-bad-root",
+      "id": "v090ca9dadcff9e20",
       "kind": "reject",
-      "file": "reject/bad-409-artifact-records-bad-root.json",
+      "file": "statements/v090ca9dadcff9e20.json",
       "conditions": [
         "aee-c-30",
         "aee-c-24"
@@ -1478,9 +1478,9 @@
       }
     },
     {
-      "id": "bad-410-duplicate-and-undecodable-record",
+      "id": "v7622b2c58c2e272d",
       "kind": "reject",
-      "file": "reject/bad-410-duplicate-and-undecodable-record.json",
+      "file": "statements/v7622b2c58c2e272d.json",
       "conditions": [
         "aee-c-29"
       ],
@@ -1493,9 +1493,9 @@
       }
     },
     {
-      "id": "bad-501-substrate-unknown-method",
+      "id": "vcac966c6b2ba6295",
       "kind": "reject",
-      "file": "reject/bad-501-substrate-unknown-method.json",
+      "file": "statements/vcac966c6b2ba6295.json",
       "conditions": [
         "aee-c-44",
         "aee-c-5",
@@ -1509,9 +1509,9 @@
       }
     },
     {
-      "id": "bad-502-missing-actual-layer",
+      "id": "v9df7fc4321c024c5",
       "kind": "reject",
-      "file": "reject/bad-502-missing-actual-layer.json",
+      "file": "statements/v9df7fc4321c024c5.json",
       "conditions": [
         "aee-c-47"
       ],
@@ -1523,9 +1523,9 @@
       }
     },
     {
-      "id": "bad-503-clean-row-layer-not-none",
+      "id": "v8b78d15e86851925",
       "kind": "reject",
-      "file": "reject/bad-503-clean-row-layer-not-none.json",
+      "file": "statements/v8b78d15e86851925.json",
       "conditions": [
         "aee-c-48"
       ],
@@ -1537,9 +1537,9 @@
       }
     },
     {
-      "id": "bad-994-second-clean-row-layer-not-none",
+      "id": "vf44cfce2b3744894",
       "kind": "reject",
-      "file": "reject/bad-994-second-clean-row-layer-not-none.json",
+      "file": "statements/vf44cfce2b3744894.json",
       "conditions": [
         "aee-c-48"
       ],
@@ -1551,9 +1551,9 @@
       }
     },
     {
-      "id": "bad-818-artifact-clean-row-layer-not-none",
+      "id": "v692f9605520a617d",
       "kind": "reject",
-      "file": "reject/bad-818-artifact-clean-row-layer-not-none.json",
+      "file": "statements/v692f9605520a617d.json",
       "conditions": [
         "aee-c-48"
       ],
@@ -1565,9 +1565,9 @@
       }
     },
     {
-      "id": "bad-504-substrate-oov-label",
+      "id": "v539055896bf3a954",
       "kind": "reject",
-      "file": "reject/bad-504-substrate-oov-label.json",
+      "file": "statements/v539055896bf3a954.json",
       "conditions": [
         "aee-c-4",
         "aee-c-44"
@@ -1583,9 +1583,9 @@
       }
     },
     {
-      "id": "bad-505-substrate-missing-method",
+      "id": "v84f40e16772e5f91",
       "kind": "reject",
-      "file": "reject/bad-505-substrate-missing-method.json",
+      "file": "statements/v84f40e16772e5f91.json",
       "conditions": [
         "aee-c-5",
         "aee-c-42",
@@ -1599,9 +1599,9 @@
       }
     },
     {
-      "id": "bad-506-actuallayer-json-number",
+      "id": "v3eb268f467674845",
       "kind": "reject",
-      "file": "reject/bad-506-actuallayer-json-number.json",
+      "file": "statements/v3eb268f467674845.json",
       "conditions": [
         "aee-c-88"
       ],
@@ -1616,9 +1616,9 @@
       }
     },
     {
-      "id": "bad-601-vocabulary-absent",
+      "id": "v089e746847cd0af2",
       "kind": "reject",
-      "file": "reject/bad-601-vocabulary-absent.json",
+      "file": "statements/v089e746847cd0af2.json",
       "conditions": [
         "aee-c-51"
       ],
@@ -1630,9 +1630,9 @@
       }
     },
     {
-      "id": "bad-602-caught-not-subset",
+      "id": "v109b606952f6ee6c",
       "kind": "reject",
-      "file": "reject/bad-602-caught-not-subset.json",
+      "file": "statements/v109b606952f6ee6c.json",
       "conditions": [
         "aee-c-52"
       ],
@@ -1644,9 +1644,9 @@
       }
     },
     {
-      "id": "bad-603-labels-unsorted",
+      "id": "v62e5552063975fc9",
       "kind": "reject",
-      "file": "reject/bad-603-labels-unsorted.json",
+      "file": "statements/v62e5552063975fc9.json",
       "conditions": [
         "aee-c-53"
       ],
@@ -1658,9 +1658,9 @@
       }
     },
     {
-      "id": "bad-604-caught-duplicate",
+      "id": "vded1d495746a647a",
       "kind": "reject",
-      "file": "reject/bad-604-caught-duplicate.json",
+      "file": "statements/vded1d495746a647a.json",
       "conditions": [
         "aee-c-53"
       ],
@@ -1672,9 +1672,9 @@
       }
     },
     {
-      "id": "bad-605-vocabulary-digest-mismatch",
+      "id": "v7ecdfe261d1dcd84",
       "kind": "reject",
-      "file": "reject/bad-605-vocabulary-digest-mismatch.json",
+      "file": "statements/v7ecdfe261d1dcd84.json",
       "conditions": [
         "aee-c-54"
       ],
@@ -1686,9 +1686,9 @@
       }
     },
     {
-      "id": "bad-606-missing-runentropy",
+      "id": "v3d70f1cdb9050246",
       "kind": "reject",
-      "file": "reject/bad-606-missing-runentropy.json",
+      "file": "statements/v3d70f1cdb9050246.json",
       "conditions": [
         "aee-c-57"
       ],
@@ -1703,9 +1703,9 @@
       }
     },
     {
-      "id": "bad-607-two-subjects-substrate",
+      "id": "v6f6941efba2cbe28",
       "kind": "reject",
-      "file": "reject/bad-607-two-subjects-substrate.json",
+      "file": "statements/v6f6941efba2cbe28.json",
       "conditions": [
         "aee-c-58"
       ],
@@ -1717,9 +1717,9 @@
       }
     },
     {
-      "id": "bad-608-digest-uppercase",
+      "id": "v495bb03f306ef6aa",
       "kind": "reject",
-      "file": "reject/bad-608-digest-uppercase.json",
+      "file": "statements/v495bb03f306ef6aa.json",
       "conditions": [
         "aee-c-59"
       ],
@@ -1731,9 +1731,9 @@
       }
     },
     {
-      "id": "bad-609-digest-truncated",
+      "id": "vbd93d974436e11eb",
       "kind": "reject",
-      "file": "reject/bad-609-digest-truncated.json",
+      "file": "statements/vbd93d974436e11eb.json",
       "conditions": [
         "aee-c-59"
       ],
@@ -1745,9 +1745,9 @@
       }
     },
     {
-      "id": "bad-610-empty-labels-substrate",
+      "id": "va54b6faefcfb1f9e",
       "kind": "reject",
-      "file": "reject/bad-610-empty-labels-substrate.json",
+      "file": "statements/va54b6faefcfb1f9e.json",
       "conditions": [
         "aee-c-4",
         "aee-c-44",
@@ -1764,9 +1764,9 @@
       }
     },
     {
-      "id": "bad-611-subject-no-sha256",
+      "id": "v886b2a92cf14bd54",
       "kind": "reject",
-      "file": "reject/bad-611-subject-no-sha256.json",
+      "file": "statements/v886b2a92cf14bd54.json",
       "conditions": [
         "aee-c-59",
         "aee-c-60"
@@ -1782,9 +1782,9 @@
       }
     },
     {
-      "id": "bad-612-labels-non-bmp",
+      "id": "v4fb9c4caa3a2cd8d",
       "kind": "reject",
-      "file": "reject/bad-612-labels-non-bmp.json",
+      "file": "statements/v4fb9c4caa3a2cd8d.json",
       "conditions": [
         "aee-c-86"
       ],
@@ -1796,9 +1796,9 @@
       }
     },
     {
-      "id": "bad-701-arming-missing-armedat",
+      "id": "v6b15bd108cb9c27a",
       "kind": "reject",
-      "file": "reject/bad-701-arming-missing-armedat.json",
+      "file": "statements/v6b15bd108cb9c27a.json",
       "conditions": [
         "aee-c-63"
       ],
@@ -1810,9 +1810,9 @@
       }
     },
     {
-      "id": "bad-702-armedat-after-issuedat",
+      "id": "v05f8f5c8bb0b1d43",
       "kind": "reject",
-      "file": "reject/bad-702-armedat-after-issuedat.json",
+      "file": "statements/v05f8f5c8bb0b1d43.json",
       "conditions": [
         "aee-c-63"
       ],
@@ -1824,9 +1824,9 @@
       }
     },
     {
-      "id": "bad-703-arming-posture-mismatch",
+      "id": "vb704d6c2420a1c43",
       "kind": "reject",
-      "file": "reject/bad-703-arming-posture-mismatch.json",
+      "file": "statements/vb704d6c2420a1c43.json",
       "conditions": [
         "aee-c-63",
         "aee-c-65"
@@ -1844,9 +1844,9 @@
       }
     },
     {
-      "id": "bad-704-arming-method-reconstructed",
+      "id": "vb730e62ac8f072b0",
       "kind": "reject",
-      "file": "reject/bad-704-arming-method-reconstructed.json",
+      "file": "statements/vb730e62ac8f072b0.json",
       "conditions": [
         "aee-c-63"
       ],
@@ -1858,9 +1858,9 @@
       }
     },
     {
-      "id": "bad-705-sealed-missing-dropcount",
+      "id": "vc994d0402bf6b129",
       "kind": "reject",
-      "file": "reject/bad-705-sealed-missing-dropcount.json",
+      "file": "statements/vc994d0402bf6b129.json",
       "conditions": [
         "aee-c-64"
       ],
@@ -1872,9 +1872,9 @@
       }
     },
     {
-      "id": "bad-706-stillarmed-non-boolean",
+      "id": "v1471516f09370430",
       "kind": "reject",
-      "file": "reject/bad-706-stillarmed-non-boolean.json",
+      "file": "statements/v1471516f09370430.json",
       "conditions": [
         "aee-c-64"
       ],
@@ -1886,9 +1886,9 @@
       }
     },
     {
-      "id": "bad-707-sealed-stillarmed-false",
+      "id": "vea5ff2dabe340db7",
       "kind": "reject",
-      "file": "reject/bad-707-sealed-stillarmed-false.json",
+      "file": "statements/vea5ff2dabe340db7.json",
       "conditions": [
         "aee-c-65"
       ],
@@ -1900,9 +1900,9 @@
       }
     },
     {
-      "id": "bad-708-sealed-drops-no-bound",
+      "id": "vab69ab3304958ebd",
       "kind": "reject",
-      "file": "reject/bad-708-sealed-drops-no-bound.json",
+      "file": "statements/vab69ab3304958ebd.json",
       "conditions": [
         "aee-c-65"
       ],
@@ -1914,9 +1914,9 @@
       }
     },
     {
-      "id": "bad-709-sealed-drops-exceed-bound",
+      "id": "v9982646034457eb6",
       "kind": "reject",
-      "file": "reject/bad-709-sealed-drops-exceed-bound.json",
+      "file": "statements/v9982646034457eb6.json",
       "conditions": [
         "aee-c-65"
       ],
@@ -1928,9 +1928,9 @@
       }
     },
     {
-      "id": "bad-710-sealed-posture-mismatch",
+      "id": "v9d0f50db6d287d35",
       "kind": "reject",
-      "file": "reject/bad-710-sealed-posture-mismatch.json",
+      "file": "statements/v9d0f50db6d287d35.json",
       "conditions": [
         "aee-c-65"
       ],
@@ -1942,9 +1942,9 @@
       }
     },
     {
-      "id": "bad-712-examination-method-intercepted",
+      "id": "v205d5ea1079eb8e5",
       "kind": "reject",
-      "file": "reject/bad-712-examination-method-intercepted.json",
+      "file": "statements/v205d5ea1079eb8e5.json",
       "conditions": [
         "aee-c-66"
       ],
@@ -1956,9 +1956,9 @@
       }
     },
     {
-      "id": "bad-713-only-sealed-ref-noncovering",
+      "id": "vc05cf94374f0d0d6",
       "kind": "reject",
-      "file": "reject/bad-713-only-sealed-ref-noncovering.json",
+      "file": "statements/vc05cf94374f0d0d6.json",
       "conditions": [
         "aee-c-68"
       ],
@@ -1970,9 +1970,9 @@
       }
     },
     {
-      "id": "bad-714-unknown-kind-sole-cover",
+      "id": "v5dcc150714259e09",
       "kind": "reject",
-      "file": "reject/bad-714-unknown-kind-sole-cover.json",
+      "file": "statements/v5dcc150714259e09.json",
       "conditions": [
         "aee-c-71"
       ],
@@ -1984,9 +1984,9 @@
       }
     },
     {
-      "id": "bad-715-sealed-missing-stillarmed",
+      "id": "v6a727606acc4b146",
       "kind": "reject",
-      "file": "reject/bad-715-sealed-missing-stillarmed.json",
+      "file": "statements/v6a727606acc4b146.json",
       "conditions": [
         "aee-c-64"
       ],
@@ -1998,9 +1998,9 @@
       }
     },
     {
-      "id": "bad-716-sealed-missing-posture",
+      "id": "v73659435d1998490",
       "kind": "reject",
-      "file": "reject/bad-716-sealed-missing-posture.json",
+      "file": "statements/v73659435d1998490.json",
       "conditions": [
         "aee-c-64",
         "aee-c-65"
@@ -2013,9 +2013,9 @@
       }
     },
     {
-      "id": "bad-717-arming-missing-posture",
+      "id": "vc79ff8c5db77cc00",
       "kind": "reject",
-      "file": "reject/bad-717-arming-missing-posture.json",
+      "file": "statements/vc79ff8c5db77cc00.json",
       "conditions": [
         "aee-c-63"
       ],
@@ -2027,9 +2027,9 @@
       }
     },
     {
-      "id": "bad-727-armedat-non-utc-offset",
+      "id": "v1b0b0cafb5ee8d08",
       "kind": "reject",
-      "file": "reject/bad-727-armedat-non-utc-offset.json",
+      "file": "statements/v1b0b0cafb5ee8d08.json",
       "conditions": [
         "aee-c-63"
       ],
@@ -2041,9 +2041,9 @@
       }
     },
     {
-      "id": "bad-728-artifact-two-subjects",
+      "id": "v423dab49f4ed4d29",
       "kind": "reject",
-      "file": "reject/bad-728-artifact-two-subjects.json",
+      "file": "statements/v423dab49f4ed4d29.json",
       "conditions": [
         "aee-c-58"
       ],
@@ -2055,9 +2055,9 @@
       }
     },
     {
-      "id": "bad-729-duplicate-attackid-rows",
+      "id": "vf14f5310b2f02875",
       "kind": "reject",
-      "file": "reject/bad-729-duplicate-attackid-rows.json",
+      "file": "statements/vf14f5310b2f02875.json",
       "conditions": [
         "aee-c-90"
       ],
@@ -2069,9 +2069,9 @@
       }
     },
     {
-      "id": "bad-730-coverage-class-overlap",
+      "id": "v70e970d18ae52833",
       "kind": "reject",
-      "file": "reject/bad-730-coverage-class-overlap.json",
+      "file": "statements/v70e970d18ae52833.json",
       "conditions": [
         "aee-c-82"
       ],
@@ -2083,9 +2083,9 @@
       }
     },
     {
-      "id": "bad-718-chain-runseq-zero",
+      "id": "vef2571e9001d7bd1",
       "kind": "reject",
-      "file": "reject/bad-718-chain-runseq-zero.json",
+      "file": "statements/vef2571e9001d7bd1.json",
       "conditions": [
         "aee-c-89"
       ],
@@ -2097,9 +2097,9 @@
       }
     },
     {
-      "id": "bad-719-chain-missing-scope",
+      "id": "v3cf298b019a0405f",
       "kind": "reject",
-      "file": "reject/bad-719-chain-missing-scope.json",
+      "file": "statements/v3cf298b019a0405f.json",
       "conditions": [
         "aee-c-89"
       ],
@@ -2111,9 +2111,9 @@
       }
     },
     {
-      "id": "bad-720-chain-prev-not-hex",
+      "id": "v2bac3fa36d7a5947",
       "kind": "reject",
-      "file": "reject/bad-720-chain-prev-not-hex.json",
+      "file": "statements/v2bac3fa36d7a5947.json",
       "conditions": [
         "aee-c-89"
       ],
@@ -2125,9 +2125,9 @@
       }
     },
     {
-      "id": "bad-721-chain-scope-not-array",
+      "id": "v8a7008d1673711a9",
       "kind": "reject",
-      "file": "reject/bad-721-chain-scope-not-array.json",
+      "file": "statements/v8a7008d1673711a9.json",
       "conditions": [
         "aee-c-89"
       ],
@@ -2139,9 +2139,9 @@
       }
     },
     {
-      "id": "bad-722-chain-scope-unknown-dimension",
+      "id": "v4360d4e15f84145f",
       "kind": "reject",
-      "file": "reject/bad-722-chain-scope-unknown-dimension.json",
+      "file": "statements/v4360d4e15f84145f.json",
       "conditions": [
         "aee-c-89"
       ],
@@ -2153,9 +2153,9 @@
       }
     },
     {
-      "id": "bad-723-chain-scope-not-canonical",
+      "id": "v04993666ec44cda9",
       "kind": "reject",
-      "file": "reject/bad-723-chain-scope-not-canonical.json",
+      "file": "statements/v04993666ec44cda9.json",
       "conditions": [
         "aee-c-89"
       ],
@@ -2167,9 +2167,9 @@
       }
     },
     {
-      "id": "bad-988-chain-scope-later-token-unknown",
+      "id": "v8a7532ae4cffa163",
       "kind": "reject",
-      "file": "reject/bad-988-chain-scope-later-token-unknown.json",
+      "file": "statements/v8a7532ae4cffa163.json",
       "conditions": [
         "aee-c-89"
       ],
@@ -2181,9 +2181,9 @@
       }
     },
     {
-      "id": "bad-724-artifact-ref-out-of-range",
+      "id": "v3300d78454ab852f",
       "kind": "reject",
-      "file": "reject/bad-724-artifact-ref-out-of-range.json",
+      "file": "statements/v3300d78454ab852f.json",
       "conditions": [
         "aee-c-11"
       ],
@@ -2195,9 +2195,9 @@
       }
     },
     {
-      "id": "bad-990-artifact-refs-later-out-of-range",
+      "id": "vc19ea5aaacc5b72a",
       "kind": "reject",
-      "file": "reject/bad-990-artifact-refs-later-out-of-range.json",
+      "file": "statements/vc19ea5aaacc5b72a.json",
       "conditions": [
         "aee-c-11"
       ],
@@ -2209,9 +2209,9 @@
       }
     },
     {
-      "id": "bad-993-second-row-refs-out-of-range",
+      "id": "v1a3d0ce04c3f7524",
       "kind": "reject",
-      "file": "reject/bad-993-second-row-refs-out-of-range.json",
+      "file": "statements/v1a3d0ce04c3f7524.json",
       "conditions": [
         "aee-c-11"
       ],
@@ -2223,9 +2223,9 @@
       }
     },
     {
-      "id": "bad-725-statement-duplicate-member",
+      "id": "v5155dde01a4538fd",
       "kind": "reject",
-      "file": "reject/bad-725-statement-duplicate-member.json",
+      "file": "statements/v5155dde01a4538fd.json",
       "conditions": [
         "aee-c-18"
       ],
@@ -2237,9 +2237,9 @@
       }
     },
     {
-      "id": "bad-801-wrong-predicatetype",
+      "id": "v8a866332628b4b6f",
       "kind": "reject",
-      "file": "reject/bad-801-wrong-predicatetype.json",
+      "file": "statements/v8a866332628b4b6f.json",
       "conditions": [
         "aee-c-77"
       ],
@@ -2251,9 +2251,9 @@
       }
     },
     {
-      "id": "bad-802-missing-catchpolicy",
+      "id": "v6275ec117f5e7e99",
       "kind": "reject",
-      "file": "reject/bad-802-missing-catchpolicy.json",
+      "file": "statements/v6275ec117f5e7e99.json",
       "conditions": [
         "aee-c-78"
       ],
@@ -2265,9 +2265,9 @@
       }
     },
     {
-      "id": "bad-803-corpus-digest-mismatch",
+      "id": "v02fd1bc1d7916002",
       "kind": "reject",
-      "file": "reject/bad-803-corpus-digest-mismatch.json",
+      "file": "statements/v02fd1bc1d7916002.json",
       "conditions": [
         "aee-c-79"
       ],
@@ -2279,9 +2279,9 @@
       }
     },
     {
-      "id": "bad-804-attackid-two-classes",
+      "id": "v3b58f7a2e30d8cad",
       "kind": "reject",
-      "file": "reject/bad-804-attackid-two-classes.json",
+      "file": "statements/v3b58f7a2e30d8cad.json",
       "conditions": [
         "aee-c-80"
       ],
@@ -2293,9 +2293,9 @@
       }
     },
     {
-      "id": "bad-805-row-unknown-attackid",
+      "id": "v210a8e2d17bfcc47",
       "kind": "reject",
-      "file": "reject/bad-805-row-unknown-attackid.json",
+      "file": "statements/v210a8e2d17bfcc47.json",
       "conditions": [
         "aee-c-81",
         "aee-c-82"
@@ -2309,9 +2309,9 @@
       }
     },
     {
-      "id": "bad-806-coverage-attack-omitted",
+      "id": "vaf114f3145d4a55a",
       "kind": "reject",
-      "file": "reject/bad-806-coverage-attack-omitted.json",
+      "file": "statements/vaf114f3145d4a55a.json",
       "conditions": [
         "aee-c-82"
       ],
@@ -2326,9 +2326,9 @@
       }
     },
     {
-      "id": "bad-807-coverage-attack-superset",
+      "id": "vbbbcb6a491ac43c0",
       "kind": "reject",
-      "file": "reject/bad-807-coverage-attack-superset.json",
+      "file": "statements/vbbbcb6a491ac43c0.json",
       "conditions": [
         "aee-c-82"
       ],
@@ -2340,9 +2340,9 @@
       }
     },
     {
-      "id": "bad-816-coverage-class-dropped",
+      "id": "v212f439c82b123ed",
       "kind": "reject",
-      "file": "reject/bad-816-coverage-class-dropped.json",
+      "file": "statements/v212f439c82b123ed.json",
       "conditions": [
         "aee-c-82"
       ],
@@ -2354,9 +2354,9 @@
       }
     },
     {
-      "id": "bad-819-assessed-class-not-in-manifest",
+      "id": "v5a842871df5bfe33",
       "kind": "reject",
-      "file": "reject/bad-819-assessed-class-not-in-manifest.json",
+      "file": "statements/v5a842871df5bfe33.json",
       "conditions": [
         "aee-c-82"
       ],
@@ -2368,9 +2368,9 @@
       }
     },
     {
-      "id": "bad-731-outofscope-unknown-class",
+      "id": "vb3c92d4ecb62bbfb",
       "kind": "reject",
-      "file": "reject/bad-731-outofscope-unknown-class.json",
+      "file": "statements/vb3c92d4ecb62bbfb.json",
       "conditions": [
         "aee-c-82"
       ],
@@ -2382,9 +2382,9 @@
       }
     },
     {
-      "id": "bad-732-routedelsewhere-unknown-class",
+      "id": "ved230b46692c0ada",
       "kind": "reject",
-      "file": "reject/bad-732-routedelsewhere-unknown-class.json",
+      "file": "statements/ved230b46692c0ada.json",
       "conditions": [
         "aee-c-82"
       ],
@@ -2396,9 +2396,9 @@
       }
     },
     {
-      "id": "bad-733-statement-lone-high-surrogate-escape",
+      "id": "v5717f72827e39413",
       "kind": "reject",
-      "file": "reject/bad-733-statement-lone-high-surrogate-escape.json",
+      "file": "statements/v5717f72827e39413.json",
       "conditions": [
         "aee-c-18"
       ],
@@ -2410,9 +2410,9 @@
       }
     },
     {
-      "id": "bad-734-statement-lone-low-surrogate-escape",
+      "id": "v198c19b52cf8890e",
       "kind": "reject",
-      "file": "reject/bad-734-statement-lone-low-surrogate-escape.json",
+      "file": "statements/v198c19b52cf8890e.json",
       "conditions": [
         "aee-c-18"
       ],
@@ -2424,9 +2424,9 @@
       }
     },
     {
-      "id": "bad-735-statement-reversed-surrogate-pair",
+      "id": "v86f3484735f41acb",
       "kind": "reject",
-      "file": "reject/bad-735-statement-reversed-surrogate-pair.json",
+      "file": "statements/v86f3484735f41acb.json",
       "conditions": [
         "aee-c-18"
       ],
@@ -2438,9 +2438,9 @@
       }
     },
     {
-      "id": "bad-736-statement-cesu8-vocabulary-label",
+      "id": "vf5599bb2dbe66e12",
       "kind": "reject",
-      "file": "reject/bad-736-statement-cesu8-vocabulary-label.json",
+      "file": "statements/vf5599bb2dbe66e12.json",
       "conditions": [
         "aee-c-18"
       ],
@@ -2452,9 +2452,9 @@
       }
     },
     {
-      "id": "bad-737-statement-overlong-utf8",
+      "id": "vbc7012fb2fcbf1f8",
       "kind": "reject",
-      "file": "reject/bad-737-statement-overlong-utf8.json",
+      "file": "statements/vbc7012fb2fcbf1f8.json",
       "conditions": [
         "aee-c-18"
       ],
@@ -2466,9 +2466,9 @@
       }
     },
     {
-      "id": "bad-738-statement-raw-control-character",
+      "id": "vb705b260669aedc7",
       "kind": "reject",
-      "file": "reject/bad-738-statement-raw-control-character.json",
+      "file": "statements/vb705b260669aedc7.json",
       "conditions": [
         "aee-c-18"
       ],
@@ -2480,9 +2480,9 @@
       }
     },
     {
-      "id": "bad-739-payload-lone-surrogate-escape",
+      "id": "vdef377fb4f572b4d",
       "kind": "reject",
-      "file": "reject/bad-739-payload-lone-surrogate-escape.json",
+      "file": "statements/vdef377fb4f572b4d.json",
       "conditions": [
         "aee-c-18"
       ],
@@ -2500,9 +2500,9 @@
       }
     },
     {
-      "id": "bad-740-payload-cesu8",
+      "id": "v5e14357c80f6239b",
       "kind": "reject",
-      "file": "reject/bad-740-payload-cesu8.json",
+      "file": "statements/v5e14357c80f6239b.json",
       "conditions": [
         "aee-c-18"
       ],
@@ -2520,9 +2520,9 @@
       }
     },
     {
-      "id": "bad-741-payload-nesting-exceeds-max-depth",
+      "id": "v08251931ec038e91",
       "kind": "reject",
-      "file": "reject/bad-741-payload-nesting-exceeds-max-depth.json",
+      "file": "statements/v08251931ec038e91.json",
       "conditions": [
         "aee-c-18"
       ],
@@ -2540,9 +2540,9 @@
       }
     },
     {
-      "id": "bad-742-payload-nesting-empty-container-leaf",
+      "id": "v83f4b7fe6068ef86",
       "kind": "reject",
-      "file": "reject/bad-742-payload-nesting-empty-container-leaf.json",
+      "file": "statements/v83f4b7fe6068ef86.json",
       "conditions": [
         "aee-c-18"
       ],
@@ -2560,9 +2560,9 @@
       }
     },
     {
-      "id": "bad-743-statement-noncharacter-vocabulary-label",
+      "id": "va501d76c995de6d3",
       "kind": "reject",
-      "file": "reject/bad-743-statement-noncharacter-vocabulary-label.json",
+      "file": "statements/va501d76c995de6d3.json",
       "conditions": [
         "aee-c-18"
       ],
@@ -2574,9 +2574,9 @@
       }
     },
     {
-      "id": "bad-744-payload-noncharacter",
+      "id": "v0e731123ead5b96e",
       "kind": "reject",
-      "file": "reject/bad-744-payload-noncharacter.json",
+      "file": "statements/v0e731123ead5b96e.json",
       "conditions": [
         "aee-c-18"
       ],
@@ -2594,9 +2594,9 @@
       }
     },
     {
-      "id": "bad-745-record-signatures-empty",
+      "id": "vca61adf35d265632",
       "kind": "reject",
-      "file": "reject/bad-745-record-signatures-empty.json",
+      "file": "statements/vca61adf35d265632.json",
       "conditions": [
         "aee-c-91"
       ],
@@ -2608,9 +2608,9 @@
       }
     },
     {
-      "id": "bad-749-record-signatures-not-an-array",
+      "id": "ve0e5dddf8f3b812a",
       "kind": "reject",
-      "file": "reject/bad-749-record-signatures-not-an-array.json",
+      "file": "statements/ve0e5dddf8f3b812a.json",
       "conditions": [
         "aee-c-91"
       ],
@@ -2622,9 +2622,9 @@
       }
     },
     {
-      "id": "bad-746-manifest-empty-classes",
+      "id": "v3418101227718535",
       "kind": "reject",
-      "file": "reject/bad-746-manifest-empty-classes.json",
+      "file": "statements/v3418101227718535.json",
       "conditions": [
         "aee-c-92"
       ],
@@ -2636,9 +2636,9 @@
       }
     },
     {
-      "id": "bad-747-manifest-class-declares-no-attacks",
+      "id": "v22f545b6ff400646",
       "kind": "reject",
-      "file": "reject/bad-747-manifest-class-declares-no-attacks.json",
+      "file": "statements/v22f545b6ff400646.json",
       "conditions": [
         "aee-c-92"
       ],
@@ -2650,9 +2650,9 @@
       }
     },
     {
-      "id": "bad-817-payload-noncanonical-base64",
+      "id": "v4ff6cb70764bf703",
       "kind": "reject",
-      "file": "reject/bad-817-payload-noncanonical-base64.json",
+      "file": "statements/v4ff6cb70764bf703.json",
       "conditions": [
         "aee-c-19"
       ],
@@ -2671,9 +2671,9 @@
       }
     },
     {
-      "id": "bad-808-coverage-absent",
+      "id": "v7236a3440b6a398a",
       "kind": "reject",
-      "file": "reject/bad-808-coverage-absent.json",
+      "file": "statements/v7236a3440b6a398a.json",
       "conditions": [
         "aee-c-83"
       ],
@@ -2685,9 +2685,9 @@
       }
     },
     {
-      "id": "bad-809-snake-case-doesnotassert",
+      "id": "v3c3a76f63bf8dda8",
       "kind": "reject",
-      "file": "reject/bad-809-snake-case-doesnotassert.json",
+      "file": "statements/v3c3a76f63bf8dda8.json",
       "conditions": [
         "aee-c-84"
       ],
@@ -2699,9 +2699,9 @@
       }
     },
     {
-      "id": "bad-810-missing-issuedat",
+      "id": "vd873c2f37814b8f8",
       "kind": "reject",
-      "file": "reject/bad-810-missing-issuedat.json",
+      "file": "statements/vd873c2f37814b8f8.json",
       "conditions": [
         "aee-c-85"
       ],
@@ -2713,9 +2713,9 @@
       }
     },
     {
-      "id": "bad-811-issuedat-not-rfc3339",
+      "id": "v2729ba35eb041b05",
       "kind": "reject",
-      "file": "reject/bad-811-issuedat-not-rfc3339.json",
+      "file": "statements/v2729ba35eb041b05.json",
       "conditions": [
         "aee-c-85"
       ],
@@ -2727,9 +2727,9 @@
       }
     },
     {
-      "id": "bad-812-missing-networkposture",
+      "id": "vb2f1fb954c994515",
       "kind": "reject",
-      "file": "reject/bad-812-missing-networkposture.json",
+      "file": "statements/vb2f1fb954c994515.json",
       "conditions": [
         "aee-c-78"
       ],
@@ -2741,9 +2741,9 @@
       }
     },
     {
-      "id": "bad-813-missing-corpus",
+      "id": "v2adb319fc7515885",
       "kind": "reject",
-      "file": "reject/bad-813-missing-corpus.json",
+      "file": "statements/v2adb319fc7515885.json",
       "conditions": [
         "aee-c-78"
       ],
@@ -2755,9 +2755,9 @@
       }
     },
     {
-      "id": "bad-814-missing-substrate",
+      "id": "v8966a040c3decefc",
       "kind": "reject",
-      "file": "reject/bad-814-missing-substrate.json",
+      "file": "statements/v8966a040c3decefc.json",
       "conditions": [
         "aee-c-78"
       ],
@@ -2769,9 +2769,9 @@
       }
     },
     {
-      "id": "bad-815-wrong-statement-type",
+      "id": "v2be8b19383a5c613",
       "kind": "reject",
-      "file": "reject/bad-815-wrong-statement-type.json",
+      "file": "statements/v2be8b19383a5c613.json",
       "conditions": [
         "aee-c-77"
       ],
@@ -2783,9 +2783,9 @@
       }
     },
     {
-      "id": "bad-750-armedat-lowercase-separator",
+      "id": "v3c527c28aa2da8db",
       "kind": "reject",
-      "file": "reject/bad-750-armedat-lowercase-separator.json",
+      "file": "statements/v3c527c28aa2da8db.json",
       "conditions": [
         "aee-c-63"
       ],
@@ -2797,9 +2797,9 @@
       }
     },
     {
-      "id": "bad-751-armedat-lowercase-zone-designator",
+      "id": "v65fa8117aa487fbe",
       "kind": "reject",
-      "file": "reject/bad-751-armedat-lowercase-zone-designator.json",
+      "file": "statements/v65fa8117aa487fbe.json",
       "conditions": [
         "aee-c-63"
       ],
@@ -2811,9 +2811,9 @@
       }
     },
     {
-      "id": "bad-820-issuedat-non-utc-offset",
+      "id": "vc9f401685f448104",
       "kind": "reject",
-      "file": "reject/bad-820-issuedat-non-utc-offset.json",
+      "file": "statements/vc9f401685f448104.json",
       "conditions": [
         "aee-c-85"
       ],
@@ -2825,9 +2825,9 @@
       }
     },
     {
-      "id": "bad-821-issuedat-lowercase-separator",
+      "id": "v28d48cc69a324b81",
       "kind": "reject",
-      "file": "reject/bad-821-issuedat-lowercase-separator.json",
+      "file": "statements/v28d48cc69a324b81.json",
       "conditions": [
         "aee-c-85"
       ],
@@ -2839,9 +2839,9 @@
       }
     },
     {
-      "id": "bad-822-issuedat-lowercase-zone-designator",
+      "id": "v7d4d7d92a346c7a5",
       "kind": "reject",
-      "file": "reject/bad-822-issuedat-lowercase-zone-designator.json",
+      "file": "statements/v7d4d7d92a346c7a5.json",
       "conditions": [
         "aee-c-85"
       ],
@@ -2853,9 +2853,9 @@
       }
     },
     {
-      "id": "bad-823-posture-unregistered",
+      "id": "v1d1ba5041819e108",
       "kind": "reject",
-      "file": "reject/bad-823-posture-unregistered.json",
+      "file": "statements/v1d1ba5041819e108.json",
       "conditions": [
         "aee-c-93"
       ],
@@ -2867,9 +2867,9 @@
       }
     },
     {
-      "id": "bad-824-posture-not-a-string",
+      "id": "vc0340fb3e51cb2b3",
       "kind": "reject",
-      "file": "reject/bad-824-posture-not-a-string.json",
+      "file": "statements/vc0340fb3e51cb2b3.json",
       "conditions": [
         "aee-c-93"
       ],
@@ -2881,9 +2881,9 @@
       }
     },
     {
-      "id": "bad-825-posture-array",
+      "id": "va729442fd496e59a",
       "kind": "reject",
-      "file": "reject/bad-825-posture-array.json",
+      "file": "statements/va729442fd496e59a.json",
       "conditions": [
         "aee-c-93"
       ],
@@ -2895,9 +2895,9 @@
       }
     },
     {
-      "id": "bad-305-posture-swapped",
+      "id": "vc8e3b44ea967460b",
       "kind": "reject",
-      "file": "reject/bad-305-posture-swapped.json",
+      "file": "statements/vc8e3b44ea967460b.json",
       "conditions": [
         "aee-c-22",
         "aee-c-60"
@@ -2913,9 +2913,9 @@
       }
     },
     {
-      "id": "bad-306-vocabulary-caught-narrowed",
+      "id": "v51dd58a56a16716d",
       "kind": "reject",
-      "file": "reject/bad-306-vocabulary-caught-narrowed.json",
+      "file": "statements/v51dd58a56a16716d.json",
       "conditions": [
         "aee-c-22",
         "aee-c-60"
@@ -2931,9 +2931,9 @@
       }
     },
     {
-      "id": "bad-307-posture-member-added-after-arming",
+      "id": "v77fb0077815e78cc",
       "kind": "reject",
-      "file": "reject/bad-307-posture-member-added-after-arming.json",
+      "file": "statements/v77fb0077815e78cc.json",
       "conditions": [
         "aee-c-22",
         "aee-c-60"
@@ -2949,9 +2949,9 @@
       }
     },
     {
-      "id": "bad-950-clean-row-refs-interception",
+      "id": "v26f7c477598f8207",
       "kind": "reject",
-      "file": "reject/bad-950-clean-row-refs-interception.json",
+      "file": "statements/v26f7c477598f8207.json",
       "conditions": [
         "aee-c-94"
       ],
@@ -2963,9 +2963,9 @@
       }
     },
     {
-      "id": "bad-951-interception-no-caught-row",
+      "id": "v2d1f9da3e912c63a",
       "kind": "reject",
-      "file": "reject/bad-951-interception-no-caught-row.json",
+      "file": "statements/v2d1f9da3e912c63a.json",
       "conditions": [
         "aee-c-95"
       ],
@@ -2978,9 +2978,9 @@
       }
     },
     {
-      "id": "bad-952-substrate-row-no-seal",
+      "id": "vdec5ea66f3ff63d5",
       "kind": "reject",
-      "file": "reject/bad-952-substrate-row-no-seal.json",
+      "file": "statements/vdec5ea66f3ff63d5.json",
       "conditions": [
         "aee-c-96"
       ],
@@ -2992,9 +2992,9 @@
       }
     },
     {
-      "id": "bad-953-observed-set-drops-a-record",
+      "id": "vc66a19c407888f78",
       "kind": "reject",
-      "file": "reject/bad-953-observed-set-drops-a-record.json",
+      "file": "statements/vc66a19c407888f78.json",
       "conditions": [
         "aee-c-97"
       ],
@@ -3006,9 +3006,9 @@
       }
     },
     {
-      "id": "bad-954-observed-set-gains-a-record",
+      "id": "vc2432d962eedc6a8",
       "kind": "reject",
-      "file": "reject/bad-954-observed-set-gains-a-record.json",
+      "file": "statements/vc2432d962eedc6a8.json",
       "conditions": [
         "aee-c-97"
       ],
@@ -3020,9 +3020,9 @@
       }
     },
     {
-      "id": "bad-996-second-seal-observed-set-mismatch",
+      "id": "vea599b89dfdc6a0a",
       "kind": "reject",
-      "file": "reject/bad-996-second-seal-observed-set-mismatch.json",
+      "file": "statements/vea599b89dfdc6a0a.json",
       "conditions": [
         "aee-c-97"
       ],
@@ -3034,9 +3034,9 @@
       }
     },
     {
-      "id": "bad-997-second-seal-attack-uncaught",
+      "id": "v98eef7d31c9870b6",
       "kind": "reject",
-      "file": "reject/bad-997-second-seal-attack-uncaught.json",
+      "file": "statements/v98eef7d31c9870b6.json",
       "conditions": [
         "aee-c-98"
       ],
@@ -3048,9 +3048,9 @@
       }
     },
     {
-      "id": "bad-998-second-arming-declares-nothing",
+      "id": "v559ea641021fea75",
       "kind": "reject",
-      "file": "reject/bad-998-second-arming-declares-nothing.json",
+      "file": "statements/v559ea641021fea75.json",
       "conditions": [
         "aee-c-99"
       ],
@@ -3062,9 +3062,9 @@
       }
     },
     {
-      "id": "bad-955-seal-names-clean-attack",
+      "id": "v41de149d50373e9e",
       "kind": "reject",
-      "file": "reject/bad-955-seal-names-clean-attack.json",
+      "file": "statements/v41de149d50373e9e.json",
       "conditions": [
         "aee-c-98"
       ],
@@ -3076,9 +3076,9 @@
       }
     },
     {
-      "id": "bad-995-seal-later-attack-uncaught",
+      "id": "v320cc6344593c639",
       "kind": "reject",
-      "file": "reject/bad-995-seal-later-attack-uncaught.json",
+      "file": "statements/v320cc6344593c639.json",
       "conditions": [
         "aee-c-98"
       ],
@@ -3090,9 +3090,9 @@
       }
     },
     {
-      "id": "bad-956-seal-names-rowless-attack",
+      "id": "vde0891384c1018ae",
       "kind": "reject",
-      "file": "reject/bad-956-seal-names-rowless-attack.json",
+      "file": "statements/vde0891384c1018ae.json",
       "conditions": [
         "aee-c-98"
       ],
@@ -3105,9 +3105,9 @@
       }
     },
     {
-      "id": "bad-957-assessed-exceeds-declaration",
+      "id": "vfae885f5e5f78197",
       "kind": "reject",
-      "file": "reject/bad-957-assessed-exceeds-declaration.json",
+      "file": "statements/vfae885f5e5f78197.json",
       "conditions": [
         "aee-c-99"
       ],
@@ -3119,9 +3119,9 @@
       }
     },
     {
-      "id": "bad-958-pinned-row-resolves-no-interception",
+      "id": "v99fb4ac5cb385049",
       "kind": "reject",
-      "file": "reject/bad-958-pinned-row-resolves-no-interception.json",
+      "file": "statements/v99fb4ac5cb385049.json",
       "conditions": [
         "aee-c-100"
       ],
@@ -3134,9 +3134,9 @@
       }
     },
     {
-      "id": "bad-959-pinned-without-expectation",
+      "id": "va246c9dbdf73e8cf",
       "kind": "reject",
-      "file": "reject/bad-959-pinned-without-expectation.json",
+      "file": "statements/va246c9dbdf73e8cf.json",
       "conditions": [
         "aee-c-101"
       ],
@@ -3148,9 +3148,9 @@
       }
     },
     {
-      "id": "bad-960-pinned-commitment-unmatched",
+      "id": "v4730792ca7a8691e",
       "kind": "reject",
-      "file": "reject/bad-960-pinned-commitment-unmatched.json",
+      "file": "statements/v4730792ca7a8691e.json",
       "conditions": [
         "aee-c-102"
       ],
@@ -3162,9 +3162,9 @@
       }
     },
     {
-      "id": "bad-961-expected-payloads-unknown-attack",
+      "id": "v6662e73ba03dfd36",
       "kind": "reject",
-      "file": "reject/bad-961-expected-payloads-unknown-attack.json",
+      "file": "statements/v6662e73ba03dfd36.json",
       "conditions": [
         "aee-c-103"
       ],
@@ -3176,9 +3176,9 @@
       }
     },
     {
-      "id": "bad-962-expected-payloads-unsorted",
+      "id": "v2dd443f340e8a1c7",
       "kind": "reject",
-      "file": "reject/bad-962-expected-payloads-unsorted.json",
+      "file": "statements/v2dd443f340e8a1c7.json",
       "conditions": [
         "aee-c-103"
       ],
@@ -3190,9 +3190,9 @@
       }
     },
     {
-      "id": "bad-963-expected-payloads-not-hex",
+      "id": "vf8029fa61d5f1b13",
       "kind": "reject",
-      "file": "reject/bad-963-expected-payloads-not-hex.json",
+      "file": "statements/vf8029fa61d5f1b13.json",
       "conditions": [
         "aee-c-103"
       ],
@@ -3204,9 +3204,9 @@
       }
     },
     {
-      "id": "bad-964-expected-payloads-empty-array",
+      "id": "v1a8005dac6c3e806",
       "kind": "reject",
-      "file": "reject/bad-964-expected-payloads-empty-array.json",
+      "file": "statements/v1a8005dac6c3e806.json",
       "conditions": [
         "aee-c-103"
       ],
@@ -3218,9 +3218,9 @@
       }
     },
     {
-      "id": "bad-965-commitment-not-hex",
+      "id": "vc7111b58eecb4d0c",
       "kind": "reject",
-      "file": "reject/bad-965-commitment-not-hex.json",
+      "file": "statements/vc7111b58eecb4d0c.json",
       "conditions": [
         "aee-c-104"
       ],
@@ -3232,9 +3232,9 @@
       }
     },
     {
-      "id": "bad-989-commitment-later-entry-not-hex",
+      "id": "vf6717a2ded406b68",
       "kind": "reject",
-      "file": "reject/bad-989-commitment-later-entry-not-hex.json",
+      "file": "statements/vf6717a2ded406b68.json",
       "conditions": [
         "aee-c-104"
       ],
@@ -3246,9 +3246,9 @@
       }
     },
     {
-      "id": "bad-966-commitment-empty-array",
+      "id": "v0ac6d948f2af5b6f",
       "kind": "reject",
-      "file": "reject/bad-966-commitment-empty-array.json",
+      "file": "statements/v0ac6d948f2af5b6f.json",
       "conditions": [
         "aee-c-104"
       ],
@@ -3260,9 +3260,9 @@
       }
     },
     {
-      "id": "bad-967-commitment-absent",
+      "id": "v244bd03c59cd03cc",
       "kind": "reject",
-      "file": "reject/bad-967-commitment-absent.json",
+      "file": "statements/v244bd03c59cd03cc.json",
       "conditions": [
         "aee-c-104"
       ],
@@ -3274,9 +3274,9 @@
       }
     },
     {
-      "id": "bad-968-substrate-row-missing-attribution",
+      "id": "v590d80afd6a67f0f",
       "kind": "reject",
-      "file": "reject/bad-968-substrate-row-missing-attribution.json",
+      "file": "statements/v590d80afd6a67f0f.json",
       "conditions": [
         "aee-c-105"
       ],
@@ -3288,9 +3288,9 @@
       }
     },
     {
-      "id": "bad-969-substrate-row-attribution-oov",
+      "id": "vb370622a59690b75",
       "kind": "reject",
-      "file": "reject/bad-969-substrate-row-attribution-oov.json",
+      "file": "statements/vb370622a59690b75.json",
       "conditions": [
         "aee-c-105"
       ],
@@ -3302,9 +3302,9 @@
       }
     },
     {
-      "id": "bad-970-artifact-row-missing-attribution",
+      "id": "v9d92e2e234987c76",
       "kind": "reject",
-      "file": "reject/bad-970-artifact-row-missing-attribution.json",
+      "file": "statements/v9d92e2e234987c76.json",
       "conditions": [
         "aee-c-105"
       ],
@@ -3316,9 +3316,9 @@
       }
     },
     {
-      "id": "bad-971-artifact-row-attribution-oov",
+      "id": "v38dc376c7746314b",
       "kind": "reject",
-      "file": "reject/bad-971-artifact-row-attribution-oov.json",
+      "file": "statements/v38dc376c7746314b.json",
       "conditions": [
         "aee-c-105"
       ],
@@ -3330,9 +3330,9 @@
       }
     },
     {
-      "id": "bad-972-second-interception-unresolved",
+      "id": "vbc974f64e9105f97",
       "kind": "reject",
-      "file": "reject/bad-972-second-interception-unresolved.json",
+      "file": "statements/vbc974f64e9105f97.json",
       "conditions": [
         "aee-c-95"
       ],
@@ -3344,9 +3344,9 @@
       }
     },
     {
-      "id": "bad-973-pinned-clean-row",
+      "id": "vacd28b5127a54254",
       "kind": "reject",
-      "file": "reject/bad-973-pinned-clean-row.json",
+      "file": "statements/vacd28b5127a54254.json",
       "conditions": [
         "aee-c-100"
       ],
@@ -3358,9 +3358,9 @@
       }
     },
     {
-      "id": "bad-974-sealed-missing-observedset",
+      "id": "v42c1c063e3ecf305",
       "kind": "reject",
-      "file": "reject/bad-974-sealed-missing-observedset.json",
+      "file": "statements/v42c1c063e3ecf305.json",
       "conditions": [
         "aee-c-97"
       ],
@@ -3372,9 +3372,9 @@
       }
     },
     {
-      "id": "bad-975-sealed-missing-observedattacks",
+      "id": "v81c4d6a0592c51d9",
       "kind": "reject",
-      "file": "reject/bad-975-sealed-missing-observedattacks.json",
+      "file": "statements/v81c4d6a0592c51d9.json",
       "conditions": [
         "aee-c-98"
       ],
@@ -3386,9 +3386,9 @@
       }
     },
     {
-      "id": "bad-976-sealed-observedattacks-unknown",
+      "id": "v1b77d64eede0add3",
       "kind": "reject",
-      "file": "reject/bad-976-sealed-observedattacks-unknown.json",
+      "file": "statements/v1b77d64eede0add3.json",
       "conditions": [
         "aee-c-98"
       ],
@@ -3400,9 +3400,9 @@
       }
     },
     {
-      "id": "bad-977-arming-missing-assessedattacks",
+      "id": "v84c52616decf0653",
       "kind": "reject",
-      "file": "reject/bad-977-arming-missing-assessedattacks.json",
+      "file": "statements/v84c52616decf0653.json",
       "conditions": [
         "aee-c-99"
       ],
@@ -3414,9 +3414,9 @@
       }
     },
     {
-      "id": "bad-979-artifact-only-interception-orphaned",
+      "id": "v37b29638601ce5ba",
       "kind": "reject",
-      "file": "reject/bad-979-artifact-only-interception-orphaned.json",
+      "file": "statements/v37b29638601ce5ba.json",
       "conditions": [
         "aee-c-95"
       ],
@@ -3428,9 +3428,9 @@
       }
     },
     {
-      "id": "bad-978-arming-assessedattacks-unsorted",
+      "id": "va763626ffc99b681",
       "kind": "reject",
-      "file": "reject/bad-978-arming-assessedattacks-unsorted.json",
+      "file": "statements/va763626ffc99b681.json",
       "conditions": [
         "aee-c-99"
       ],
@@ -3442,9 +3442,9 @@
       }
     },
     {
-      "id": "bad-987-arming-assessedattacks-later-undeclared",
+      "id": "vea9deaa7d7ef8934",
       "kind": "reject",
-      "file": "reject/bad-987-arming-assessedattacks-later-undeclared.json",
+      "file": "statements/vea9deaa7d7ef8934.json",
       "conditions": [
         "aee-c-99"
       ],
@@ -3456,9 +3456,9 @@
       }
     },
     {
-      "id": "bad-980-moat-drop-sole-cover",
+      "id": "v0639562eb10e87fb",
       "kind": "reject",
-      "file": "reject/bad-980-moat-drop-sole-cover.json",
+      "file": "statements/v0639562eb10e87fb.json",
       "conditions": [
         "aee-c-106"
       ],
@@ -3470,9 +3470,9 @@
       }
     },
     {
-      "id": "bad-981-uncommitted-observation-sole-cover",
+      "id": "vece82b6a9a07327a",
       "kind": "reject",
-      "file": "reject/bad-981-uncommitted-observation-sole-cover.json",
+      "file": "statements/vece82b6a9a07327a.json",
       "conditions": [
         "aee-c-107"
       ],
@@ -3484,9 +3484,9 @@
       }
     },
     {
-      "id": "bad-982-pinned-assignment-spliced",
+      "id": "v6ed1e2626b2af5ad",
       "kind": "reject",
-      "file": "reject/bad-982-pinned-assignment-spliced.json",
+      "file": "statements/v6ed1e2626b2af5ad.json",
       "conditions": [
         "aee-c-102"
       ],
@@ -3498,9 +3498,9 @@
       }
     },
     {
-      "id": "bad-986-pinned-second-interception-unmatched",
+      "id": "v1e9751e918994a98",
       "kind": "reject",
-      "file": "reject/bad-986-pinned-second-interception-unmatched.json",
+      "file": "statements/v1e9751e918994a98.json",
       "conditions": [
         "aee-c-102"
       ],
@@ -3512,9 +3512,9 @@
       }
     },
     {
-      "id": "bad-991-expected-payloads-later-entry-not-hex",
+      "id": "v3772d801e5cae557",
       "kind": "reject",
-      "file": "reject/bad-991-expected-payloads-later-entry-not-hex.json",
+      "file": "statements/v3772d801e5cae557.json",
       "conditions": [
         "aee-c-103"
       ],
@@ -3529,9 +3529,9 @@
       }
     },
     {
-      "id": "bad-992-expected-payloads-later-key-undeclared",
+      "id": "v113349f8afb946bf",
       "kind": "reject",
-      "file": "reject/bad-992-expected-payloads-later-key-undeclared.json",
+      "file": "statements/v113349f8afb946bf.json",
       "conditions": [
         "aee-c-103"
       ],
@@ -3546,9 +3546,9 @@
       }
     },
     {
-      "id": "bad-983-liveness-middle-channel-commitment-unmatched",
+      "id": "v1043dbabae5f8ace",
       "kind": "reject",
-      "file": "reject/bad-983-liveness-middle-channel-commitment-unmatched.json",
+      "file": "statements/v1043dbabae5f8ace.json",
       "conditions": [
         "aee-c-102"
       ],
@@ -3560,9 +3560,9 @@
       }
     },
     {
-      "id": "bad-984-liveness-last-channel-unpinnable",
+      "id": "v0e22ac9c30338ad5",
       "kind": "reject",
-      "file": "reject/bad-984-liveness-last-channel-unpinnable.json",
+      "file": "statements/v0e22ac9c30338ad5.json",
       "conditions": [
         "aee-c-101"
       ],
@@ -3574,9 +3574,9 @@
       }
     },
     {
-      "id": "bad-985-liveness-middle-channel-probe-uncaught",
+      "id": "v21e964dddeba0d08",
       "kind": "reject",
-      "file": "reject/bad-985-liveness-middle-channel-probe-uncaught.json",
+      "file": "statements/v21e964dddeba0d08.json",
       "conditions": [
         "aee-c-100"
       ],
@@ -3589,9 +3589,9 @@
       }
     },
     {
-      "id": "bad-900-sealed-method-reconstructed",
+      "id": "v7f62f32c0ccda2fb",
       "kind": "reject",
-      "file": "reject/bad-900-sealed-method-reconstructed.json",
+      "file": "statements/v7f62f32c0ccda2fb.json",
       "conditions": [
         "aee-c-65"
       ],
@@ -3603,9 +3603,9 @@
       }
     },
     {
-      "id": "bad-901-sealed-negative-dropcount",
+      "id": "v1ec06de44fe4000d",
       "kind": "reject",
-      "file": "reject/bad-901-sealed-negative-dropcount.json",
+      "file": "statements/v1ec06de44fe4000d.json",
       "conditions": [
         "aee-c-65"
       ],
@@ -3617,9 +3617,9 @@
       }
     },
     {
-      "id": "bad-902-sealed-posture-ne-arming",
+      "id": "v7f35f318b31ca92a",
       "kind": "reject",
-      "file": "reject/bad-902-sealed-posture-ne-arming.json",
+      "file": "statements/v7f35f318b31ca92a.json",
       "conditions": [
         "aee-c-65"
       ],
@@ -3637,9 +3637,9 @@
       }
     },
     {
-      "id": "bad-905-vocabulary-labels-absent",
+      "id": "v300ab22f5f2fe523",
       "kind": "reject",
-      "file": "reject/bad-905-vocabulary-labels-absent.json",
+      "file": "statements/v300ab22f5f2fe523.json",
       "conditions": [
         "aee-c-51"
       ],
@@ -3651,9 +3651,9 @@
       }
     },
     {
-      "id": "bad-906-corpus-manifest-absent",
+      "id": "v03547f8918e0d7dc",
       "kind": "reject",
-      "file": "reject/bad-906-corpus-manifest-absent.json",
+      "file": "statements/v03547f8918e0d7dc.json",
       "conditions": [
         "aee-c-78"
       ],
@@ -3665,9 +3665,9 @@
       }
     },
     {
-      "id": "bad-1001-sealed-missing-dropcount-unreferenced",
+      "id": "v59b24935f1fa8a4b",
       "kind": "reject",
-      "file": "reject/bad-1001-sealed-missing-dropcount-unreferenced.json",
+      "file": "statements/v59b24935f1fa8a4b.json",
       "conditions": [
         "aee-c-108"
       ],
@@ -3679,9 +3679,9 @@
       }
     },
     {
-      "id": "bad-1002-stillarmed-non-boolean-unreferenced",
+      "id": "v755ceccd7c4da990",
       "kind": "reject",
-      "file": "reject/bad-1002-stillarmed-non-boolean-unreferenced.json",
+      "file": "statements/v755ceccd7c4da990.json",
       "conditions": [
         "aee-c-108"
       ],
@@ -3693,9 +3693,9 @@
       }
     },
     {
-      "id": "bad-1003-sealed-stillarmed-false-unreferenced",
+      "id": "v4da2f99ac2897154",
       "kind": "reject",
-      "file": "reject/bad-1003-sealed-stillarmed-false-unreferenced.json",
+      "file": "statements/v4da2f99ac2897154.json",
       "conditions": [
         "aee-c-108"
       ],
@@ -3707,9 +3707,9 @@
       }
     },
     {
-      "id": "bad-1004-sealed-drops-no-bound-unreferenced",
+      "id": "v80e2a3fba582ed4d",
       "kind": "reject",
-      "file": "reject/bad-1004-sealed-drops-no-bound-unreferenced.json",
+      "file": "statements/v80e2a3fba582ed4d.json",
       "conditions": [
         "aee-c-108"
       ],
@@ -3721,9 +3721,9 @@
       }
     },
     {
-      "id": "bad-1005-sealed-drops-exceed-bound-unreferenced",
+      "id": "vd7be865fc69eacc2",
       "kind": "reject",
-      "file": "reject/bad-1005-sealed-drops-exceed-bound-unreferenced.json",
+      "file": "statements/vd7be865fc69eacc2.json",
       "conditions": [
         "aee-c-108"
       ],
@@ -3735,9 +3735,9 @@
       }
     },
     {
-      "id": "bad-1006-sealed-posture-mismatch-unreferenced",
+      "id": "v7258b9f4ed52a08d",
       "kind": "reject",
-      "file": "reject/bad-1006-sealed-posture-mismatch-unreferenced.json",
+      "file": "statements/v7258b9f4ed52a08d.json",
       "conditions": [
         "aee-c-108"
       ],
@@ -3749,9 +3749,9 @@
       }
     },
     {
-      "id": "bad-1007-sealed-noncovering-unreferenced",
+      "id": "vfb979cb9ce40f1be",
       "kind": "reject",
-      "file": "reject/bad-1007-sealed-noncovering-unreferenced.json",
+      "file": "statements/vfb979cb9ce40f1be.json",
       "conditions": [
         "aee-c-108"
       ],
@@ -3763,9 +3763,9 @@
       }
     },
     {
-      "id": "bad-1008-sealed-missing-stillarmed-unreferenced",
+      "id": "v7fefd467a21566ca",
       "kind": "reject",
-      "file": "reject/bad-1008-sealed-missing-stillarmed-unreferenced.json",
+      "file": "statements/v7fefd467a21566ca.json",
       "conditions": [
         "aee-c-108"
       ],
@@ -3777,9 +3777,9 @@
       }
     },
     {
-      "id": "bad-1009-sealed-missing-posture-unreferenced",
+      "id": "v0d364d8f9d815092",
       "kind": "reject",
-      "file": "reject/bad-1009-sealed-missing-posture-unreferenced.json",
+      "file": "statements/v0d364d8f9d815092.json",
       "conditions": [
         "aee-c-108"
       ],
@@ -3791,9 +3791,9 @@
       }
     },
     {
-      "id": "bad-1010-sealed-method-reconstructed-unreferenced",
+      "id": "veb0e5002608390cc",
       "kind": "reject",
-      "file": "reject/bad-1010-sealed-method-reconstructed-unreferenced.json",
+      "file": "statements/veb0e5002608390cc.json",
       "conditions": [
         "aee-c-108"
       ],
@@ -3805,9 +3805,9 @@
       }
     },
     {
-      "id": "bad-1011-sealed-negative-dropcount-unreferenced",
+      "id": "vb1337e5ecad985c2",
       "kind": "reject",
-      "file": "reject/bad-1011-sealed-negative-dropcount-unreferenced.json",
+      "file": "statements/vb1337e5ecad985c2.json",
       "conditions": [
         "aee-c-108"
       ],
@@ -3819,9 +3819,9 @@
       }
     },
     {
-      "id": "bad-1012-sealed-missing-observedset-unreferenced",
+      "id": "vd9041fbad8a6b721",
       "kind": "reject",
-      "file": "reject/bad-1012-sealed-missing-observedset-unreferenced.json",
+      "file": "statements/vd9041fbad8a6b721.json",
       "conditions": [
         "aee-c-108"
       ],
@@ -3833,9 +3833,9 @@
       }
     },
     {
-      "id": "bad-1013-sealed-missing-observedattacks-unreferenced",
+      "id": "va62d3b1847c9e0bd",
       "kind": "reject",
-      "file": "reject/bad-1013-sealed-missing-observedattacks-unreferenced.json",
+      "file": "statements/va62d3b1847c9e0bd.json",
       "conditions": [
         "aee-c-108"
       ],
@@ -3847,9 +3847,9 @@
       }
     },
     {
-      "id": "bad-1014-sealed-observedattacks-unknown-unreferenced",
+      "id": "v47fc43d883b16a9b",
       "kind": "reject",
-      "file": "reject/bad-1014-sealed-observedattacks-unknown-unreferenced.json",
+      "file": "statements/v47fc43d883b16a9b.json",
       "conditions": [
         "aee-c-108"
       ],
@@ -3861,9 +3861,9 @@
       }
     },
     {
-      "id": "bad-1015-arming-carried-missing-armedat",
+      "id": "vc325d584b58dcc99",
       "kind": "reject",
-      "file": "reject/bad-1015-arming-carried-missing-armedat.json",
+      "file": "statements/vc325d584b58dcc99.json",
       "conditions": [
         "aee-c-108"
       ],
@@ -3875,9 +3875,9 @@
       }
     },
     {
-      "id": "bad-1016-examination-carried-method-intercepted",
+      "id": "vb877a9c1703557b2",
       "kind": "reject",
-      "file": "reject/bad-1016-examination-carried-method-intercepted.json",
+      "file": "statements/vb877a9c1703557b2.json",
       "conditions": [
         "aee-c-108"
       ],
@@ -3889,9 +3889,9 @@
       }
     },
     {
-      "id": "bad-1017-sole-seal-moat-down-all-caught",
+      "id": "vd538496f284b4761",
       "kind": "reject",
-      "file": "reject/bad-1017-sole-seal-moat-down-all-caught.json",
+      "file": "statements/vd538496f284b4761.json",
       "conditions": [
         "aee-c-96"
       ],
@@ -3906,9 +3906,9 @@
       }
     },
     {
-      "id": "vate-1a-admission-receipt-substituted-splice",
+      "id": "vb79f5508ae0c97d4",
       "kind": "reject",
-      "file": "reject/vate-1a-admission-receipt-substituted-splice.json",
+      "file": "statements/vb79f5508ae0c97d4.json",
       "conditions": [
         "aee-c-22",
         "aee-c-60"
@@ -3924,9 +3924,9 @@
       }
     },
     {
-      "id": "vate-1c-two-subjects-artifact-and-admission",
+      "id": "v399c693cbf60143b",
       "kind": "reject",
-      "file": "reject/vate-1c-two-subjects-artifact-and-admission.json",
+      "file": "statements/v399c693cbf60143b.json",
       "conditions": [
         "aee-c-58"
       ],
@@ -3938,9 +3938,9 @@
       }
     },
     {
-      "id": "vate-3a-substrate-substituted-splice",
+      "id": "vf6d46cca59bd2748",
       "kind": "reject",
-      "file": "reject/vate-3a-substrate-substituted-splice.json",
+      "file": "statements/vf6d46cca59bd2748.json",
       "conditions": [
         "aee-c-22",
         "aee-c-60"
@@ -3956,9 +3956,9 @@
       }
     },
     {
-      "id": "ind-001-undecodable-then-signatures-empty",
+      "id": "v78efec12284a51d6",
       "kind": "indeterminate",
-      "file": "indeterminate/ind-001-undecodable-then-signatures-empty.json",
+      "file": "statements/v78efec12284a51d6.json",
       "conditions": [
         "aee-c-91"
       ],
@@ -3977,9 +3977,9 @@
       }
     },
     {
-      "id": "ind-002-signatures-empty-then-undecodable",
+      "id": "v7cd4ebe08eb1605a",
       "kind": "indeterminate",
-      "file": "indeterminate/ind-002-signatures-empty-then-undecodable.json",
+      "file": "statements/v7cd4ebe08eb1605a.json",
       "conditions": [
         "aee-c-91"
       ],

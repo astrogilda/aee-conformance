@@ -3,7 +3,7 @@
 
 Why this exists, stated as what actually happened rather than as a principle.
 
-`bad-1017-sole-seal-moat-down-all-caught` is the first vector in this corpus
+`vd538496f284b4761` is the first vector in this corpus
 that separates the two readings of the sealed existential. It does that for one
 reason and one reason only: its `codes` cell names `sealed-record-absent` and
 nothing else, while the second condition the statement carries on purpose,
@@ -66,22 +66,22 @@ import run_vectors  # noqa: E402
 # that a vector drifting into a DIFFERENT overlap is a new finding rather than a
 # silently covered one.
 INHERITED_SLACK: dict[str, tuple[str, ...]] = {
-    "bad-001-result-uppercase": ("result-recompute-mismatch", "result-vocabulary"),
-    "bad-008-result-unknown-token": ("result-recompute-mismatch", "result-vocabulary"),
-    "bad-101-refs-empty": ("caught-row-uncovered", "refs-empty"),
-    "bad-410-duplicate-and-undecodable-record": ("duplicate-record", "record-undecodable"),
-    "bad-703-arming-posture-mismatch": ("arming-covers-nothing", "sealed-covers-nothing"),
-    "bad-805-row-unknown-attackid": ("coverage-incomplete", "row-attack-unknown"),
-    "bad-951-interception-no-caught-row": (
+    "vf35474dd75d6b14a": ("result-recompute-mismatch", "result-vocabulary"),
+    "v87a339f53f689d9f": ("result-recompute-mismatch", "result-vocabulary"),
+    "v131478f1be775746": ("caught-row-uncovered", "refs-empty"),
+    "v7622b2c58c2e272d": ("duplicate-record", "record-undecodable"),
+    "vb704d6c2420a1c43": ("arming-covers-nothing", "sealed-covers-nothing"),
+    "v210a8e2d17bfcc47": ("coverage-incomplete", "row-attack-unknown"),
+    "v2d1f9da3e912c63a": (
         "caught-row-uncovered",
         "interception-record-orphaned",
     ),
-    "bad-956-seal-names-rowless-attack": ("coverage-incomplete", "observed-attack-uncaught"),
-    "bad-958-pinned-row-resolves-no-interception": (
+    "vde0891384c1018ae": ("coverage-incomplete", "observed-attack-uncaught"),
+    "v99fb4ac5cb385049": (
         "attribution-pinned-recordless",
         "caught-row-uncovered",
     ),
-    "bad-985-liveness-middle-channel-probe-uncaught": (
+    "v21e964dddeba0d08": (
         "attribution-pinned-recordless",
         "caught-row-uncovered",
     ),

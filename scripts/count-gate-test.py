@@ -521,11 +521,11 @@ SOURCE_CASES: list[Case] = [
         lambda root: edit(
             root,
             "vectors/reject/INDEX.md",
-            "| `bad-906-corpus-manifest-absent` |",
-            "| skipped-bad-906-corpus-manifest-absent |",
+            "| `v03547f8918e0d7dc` |",
+            "| skipped-v03547f8918e0d7dc |",
         ),
         (
-            "the corpus carries ['bad-906-corpus-manifest-absent'] and this table "
+            "the corpus carries ['v03547f8918e0d7dc'] and this table "
             "has no row for them",
         ),
     ),
@@ -534,8 +534,8 @@ SOURCE_CASES: list[Case] = [
         lambda root: edit(
             root,
             "vectors/accept/INDEX.md",
-            "| ok-901-row-missing-basis |",
-            "| ok-901-row-missing-basis |\n| ok-902-invented | fail | aee-c-1 | none |",
+            "| v18bdbadef67b38f4 |",
+            "| v18bdbadef67b38f4 |\n| ok-902-invented | fail | aee-c-1 | none |",
         ),
         ("['ok-902-invented'] have a row here and no entry",),
     ),
@@ -544,11 +544,11 @@ SOURCE_CASES: list[Case] = [
         lambda root: edit(
             root,
             "vectors/accept/INDEX.md",
-            "| ok-901-row-missing-basis |",
-            "| ok-901-row-missing-basis | fail | aee-c-1 | a second row |\n"
-            "| ok-901-row-missing-basis |",
+            "| v18bdbadef67b38f4 |",
+            "| v18bdbadef67b38f4 | fail | aee-c-1 | a second row |\n"
+            "| v18bdbadef67b38f4 |",
         ),
-        ("['ok-901-row-missing-basis'] each carry more than one row",),
+        ("['v18bdbadef67b38f4'] each carry more than one row",),
     ),
 ]
 

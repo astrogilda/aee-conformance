@@ -460,7 +460,7 @@ under suiteRevision 17.
   failing base64 switched off both, and a statement carrying a duplicate beside an
   undecodable record reported the decode failure and dropped `duplicate-record`. The
   corpus could not see it because no statement carried both conditions;
-  `bad-410-duplicate-and-undecodable-record` does now. The Go rail was split first, the
+  `v7622b2c58c2e272d` does now. The Go rail was split first, the
   Python reference rail carried the same masking with a comment saying it was mirroring
   the Go rail, and both are split now: the scan runs over the records that decoded and
   skips the ones that did not, and the root check stays behind the decode guard, where
@@ -521,7 +521,7 @@ under suiteRevision 17.
   `docs/FORCING-BASELINE.json`: 331 KILLED, 17 SILENT, 237 DEAD, 5 INCONCLUSIVE. Site identity is
   content-addressed (file, function, operator, digest of the mutated source), so an inserted rule
   disturbs one row instead of renumbering every row below it. Proven able to fail in both
-  directions: deleting `bad-608-digest-uppercase`, the sole forcer of the lowercase-hex digest
+  directions: deleting `v495bb03f306ef6aa`, the sole forcer of the lowercase-hex digest
   rule, turns four rows red by name and restoring it turns them green, and deleting the
   `len(s) != 64` check from `IsLowerHex64` is refused as two retired rules. Per push CI runs the
   rules recorded as forced -- the complete set where a regression is possible, and the set already
@@ -600,7 +600,7 @@ under suiteRevision 17.
 - [x] **Force reason-map membership on all three coverage sets** (2026-07-26, `cf0d540`) —
   the spec already made the three coverage sets a disjoint partition of the manifest's
   classes, but only `bad-819` forced the `assessedClasses` side. Added
-  `bad-731-outofscope-unknown-class` and `bad-732-routedelsewhere-unknown-class`: each puts
+  `vb3c92d4ecb62bbfb` and `ved230b46692c0ada`: each puts
   an unknown class key in one reason map, leaves the result alone, and is rejected as
   coverage-incomplete. Both reference rails (Go `aee/statement.go`, Python
   `_coverage_partition_ok` in `packaging/run_vectors.py`) already enforced it, so the two

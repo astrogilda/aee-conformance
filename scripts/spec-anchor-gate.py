@@ -621,6 +621,7 @@ def decision_subjects() -> tuple[list[Subject], list[str]]:
     an anchor could stop being checked without anyone seeing it.
     """
     source = REPO_ROOT / DECISIONS_REL
+    prose = vector_prose()
     raw = json.loads(source.read_text(encoding="utf-8"))
     subjects: list[Subject] = []
     unreadable: list[str] = []
@@ -631,7 +632,21 @@ def decision_subjects() -> tuple[list[Subject], list[str]]:
             [
                 str(entry.get("title", "")),
                 str(entry.get("reading", "")),
-                " ".join(entry.get("forcingVectors", [])).replace("-", " "),
+                # What the forcing vectors DO, not what they are called.
+                #
+                # This used to splice the vector identifiers in with their
+                # hyphens turned into spaces, which worked only for as long as
+                # an identifier was a description: `bad-205-payload-missing-
+                # runbinding` contributed `payload` and `runbinding` to the
+                # vocabulary this anchor is judged against. Identifiers are
+                # digests of the vector's own bytes now, deliberately carrying
+                # no description at all, so that source went silent -- and a
+                # silent source here does not fail, it quietly shrinks the term
+                # set until an anchor is judged against almost nothing.
+                #
+                # The description still exists; it is in the index row beside
+                # each vector, which is where a person reads it too.
+                " ".join(prose.get(v, "") for v in entry.get("forcingVectors", [])),
             ]
         )
         anchors = entry.get("specAnchors", [])
@@ -663,6 +678,43 @@ def decision_subjects() -> tuple[list[Subject], list[str]]:
                 )
             )
     return subjects, unreadable
+
+
+
+def vector_prose() -> dict[str, str]:
+    """Identifier -> the sentence its index row uses to describe it.
+
+    One descriptive column per index, chosen rather than joining every cell:
+    the condition ids and spec anchors in the other columns would add terms the
+    row never claims, which would widen every anchor's aim test instead of
+    aiming it.
+    """
+    out: dict[str, str] = {}
+    for rel, column in (
+        ("vectors/accept/INDEX.md", 3),
+        ("vectors/reject/INDEX.md", 2),
+        ("vectors/indeterminate/INDEX.md", 2),
+    ):
+        path = REPO_ROOT / rel
+        if not path.is_file():
+            continue
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line.startswith("|"):
+                continue
+            cells = [c.strip() for c in line.strip("|").split("|")]
+            if len(cells) <= column:
+                continue
+            vid = cells[0].strip("`")
+            if re.fullmatch(r"v[0-9a-f]{16}", vid):
+                out[vid] = cells[column]
+    if not out:
+        raise SystemExit(
+            "no index row described any vector, so every forced decision would "
+            "be judged against its title and reading alone. An empty read here "
+            "weakens the aim test silently, which is the one thing it must not do."
+        )
+    return out
 
 
 def nearest_rule(

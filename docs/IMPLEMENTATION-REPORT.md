@@ -170,7 +170,7 @@ directed 232/232 is not evidence about the determinacy of the text, and the blin
    the changelog was read before implementing, unlike the 125/125.
 
    At suiteRevision 5 the checker scored 149/149 (aee-checker#3). The vector
-   `bad-741-payload-nesting-exceeds-max-depth` had pinned the nesting bound at 128
+   `v08251931ec038e91` had pinned the nesting bound at 128
    where that build read 256; it adopted 128 and, rather than only move the constant,
    moved the depth increment from per parsed value into the container branch, which
    is the counting rule the spec states next to the bound.

@@ -139,7 +139,16 @@ func runManifestMode(t *testing.T, dir string) {
 			// had taught this runner about would have been read out of
 			// accept/ and replayed as an accept. checkManifestClosure refuses
 			// an unreplayed kind by name before the loop is reached.
-			body, err := os.ReadFile(filepath.Join(dir, v.Kind, v.ID+".json"))
+			// The MANIFEST names the file. It used to be derived from the
+			// kind and the id, which works only while a vector's directory
+			// spells its verdict -- and a corpus laid out that way tells a
+			// rail the answer before the rail opens anything, so it cannot
+			// measure whether an implementation read the statement at all.
+			rel := v.File
+			if rel == "" {
+				rel = filepath.Join(v.Kind, v.ID+".json")
+			}
+			body, err := os.ReadFile(filepath.Join(dir, rel))
 			if err != nil {
 				t.Fatalf("vector body missing: %v", err)
 			}
@@ -180,6 +189,32 @@ var replayedKinds = map[string]bool{
 //     entry to correspond to a directory that exists.
 var suiteNonVectorDirs = []string{"__pycache__", "keys"}
 
+// flatLayout returns the single directory every MANIFEST row declares its file
+// under, or "" when the suite is laid out one directory per kind.
+//
+// The flat shape is not a preference. A vector sitting in reject/ has told this
+// runner the expected verdict before the runner has opened it, so a corpus laid
+// out that way cannot measure whether an implementation read the statement.
+func flatLayout(vectors []manifestVector) string {
+	only := ""
+	for _, v := range vectors {
+		i := strings.Index(v.File, "/")
+		if v.File == "" || i < 0 {
+			return ""
+		}
+		d := v.File[:i]
+		if only == "" {
+			only = d
+		} else if only != d {
+			return ""
+		}
+	}
+	if replayedKinds[only] {
+		return ""
+	}
+	return only
+}
+
 // checkManifestClosure asserts that the MANIFEST and the vector files on disk
 // name each other exactly, in both directions and per kind.
 //
@@ -197,6 +232,7 @@ var suiteNonVectorDirs = []string{"__pycache__", "keys"}
 // which is a third copy of the same number, so it is checked against the other
 // two rather than trusted or ignored.
 func checkManifestClosure(t *testing.T, dir string, m *suiteManifest, vectors []manifestVector) {
+	flat := flatLayout(vectors)
 	t.Helper()
 
 	if m.PredicateType != "" && m.PredicateType != aee.PredicateType {
@@ -216,8 +252,13 @@ func checkManifestClosure(t *testing.T, dir string, m *suiteManifest, vectors []
 				"absence with a green tick on it", v.ID, v.Kind)
 			continue
 		}
-		if want := v.Kind + "/" + v.ID + ".json"; v.File != "" && v.File != want {
-			t.Errorf("MANIFEST row %s declares file %q; this runner reads %q", v.ID, v.File, want)
+		if v.File == "" {
+			t.Errorf("MANIFEST row %s declares no file, so this runner would have to "+
+				"guess one from its kind -- which is the derivation the flat layout "+
+				"exists to remove", v.ID)
+		} else if _, err := os.Stat(filepath.Join(dir, v.File)); err != nil {
+			t.Errorf("MANIFEST row %s declares file %q, which is not readable: %v",
+				v.ID, v.File, err)
 		}
 		listed[v.Kind] = append(listed[v.Kind], v.ID)
 	}
@@ -259,6 +300,9 @@ func checkManifestClosure(t *testing.T, dir string, m *suiteManifest, vectors []
 		if declaredKinds[e.Name()] {
 			continue
 		}
+		if flat != "" && e.Name() == flat {
+			continue // the one directory every vector is declared to live in
+		}
 		if !containsString(suiteNonVectorDirs, e.Name()) {
 			t.Errorf("%s/ is named by no MANIFEST kind and is not one of the suite's declared "+
 				"non-vector directories %v, so whatever it carries is replayed by nothing. "+
@@ -269,6 +313,34 @@ func checkManifestClosure(t *testing.T, dir string, m *suiteManifest, vectors []
 		if n := len(jsonVectors(t, filepath.Join(dir, e.Name()))); n > 0 {
 			t.Errorf("%s/ is declared to hold no vectors and holds %d vector file(s)", e.Name(), n)
 		}
+	}
+
+	if flat != "" {
+		held := jsonVectors(t, filepath.Join(dir, flat))
+		total := 0
+		for kind, ids := range listed {
+			total += len(ids)
+			if got, ok := m.Counts[kind]; !ok {
+				t.Errorf("MANIFEST counts declares no entry for kind %q, which %d rows carry",
+					kind, len(ids))
+			} else if got != len(ids) {
+				// One directory holds every kind, so a per-kind count cannot be
+				// read off it. The rows carry the kind; the total below is what
+				// keeps the directory in the chain.
+				t.Errorf("MANIFEST counts[%q] is %d; the MANIFEST carries %d row(s) of that kind",
+					kind, got, len(ids))
+			}
+		}
+		if len(held) != total {
+			t.Errorf("%s/ holds %d vector file(s) and the MANIFEST carries %d row(s)",
+				flat, len(held), total)
+		}
+		for kind := range m.Counts {
+			if _, ok := listed[kind]; !ok {
+				t.Errorf("MANIFEST counts declares kind %q that no MANIFEST row carries", kind)
+			}
+		}
+		return
 	}
 
 	for kind, ids := range listed {
@@ -464,7 +536,7 @@ func jsonVectors(t *testing.T, dir string) []string {
 // Pinned tier columns for the flagship mixed-tier vector (declared in the
 // suite's valid/INDEX.md row for ok-024 and in the BUILD-SPEC re-pin).
 var pinnedTiers = map[string][2][]string{
-	"ok-024-mixed-basis-rows": {
+	"vcf5a4601dee5c2ee": {
 		{"attested", "unattested", "declared"},   // with pinned key
 		{"unattested", "unattested", "declared"}, // without key
 	},
@@ -719,7 +791,7 @@ func containsString(ss []string, s string) bool {
 // AND a record whose payload does not decode. It is named here because the
 // assertion below is about that statement specifically and nothing else in the
 // corpus can stand in for it.
-const pairedRecordFaultVector = "bad-410-duplicate-and-undecodable-record"
+const pairedRecordFaultVector = "v7622b2c58c2e272d"
 
 // TestSetEmissionOnPairedRecordFaults holds THIS rail to reporting both
 // conditions the paired-fault vector carries, over the vector's own committed
@@ -742,8 +814,36 @@ const pairedRecordFaultVector = "bad-410-duplicate-and-undecodable-record"
 // shared guard restored, the corpus replay stays green here and the whole
 // harness reports every vector passing through the mutant CLI, while this
 // assertion goes red and names the vector.
+// vectorPath returns the file the MANIFEST declares for a vector id.
+func vectorPath(t *testing.T, id string) string {
+	t.Helper()
+	raw, err := os.ReadFile(filepath.Join(suiteDir(), "MANIFEST.json"))
+	if err != nil {
+		return filepath.Join(suiteDir(), id+".json")
+	}
+	var m suiteManifest
+	if err := json.Unmarshal(raw, &m); err != nil {
+		t.Fatalf("MANIFEST.json does not parse: %v", err)
+	}
+	rows := m.Vectors
+	if len(rows) == 0 {
+		rows = m.Index
+	}
+	for _, v := range rows {
+		if v.ID == id && v.File != "" {
+			return filepath.Join(suiteDir(), v.File)
+		}
+	}
+	t.Fatalf("the MANIFEST declares no file for %s, which this assertion is about", id)
+	return ""
+}
+
 func TestSetEmissionOnPairedRecordFaults(t *testing.T) {
-	path := filepath.Join(suiteDir(), "reject", pairedRecordFaultVector+".json")
+	// Resolved through the MANIFEST rather than built from a kind directory.
+	// A path spelled "reject/<id>.json" only exists while the layout spells the
+	// verdict, and this assertion is about one specific statement, so it must
+	// find that statement rather than a place one used to sit.
+	path := vectorPath(t, pairedRecordFaultVector)
 	body, err := os.ReadFile(path) // #nosec G304 -- a corpus path under the suite directory
 	if err != nil {
 		if os.Getenv("AEE_SKIP_VECTORS") == "1" {

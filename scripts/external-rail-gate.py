@@ -132,7 +132,7 @@ def check_full_corpus(binary: str, work_dir: str) -> list[str]:
 
 def check_single_line(binary: str) -> list[str]:
     """The harness's own parse function, against the shipped CLI's own output."""
-    vector = REPO_ROOT / "vectors" / "accept" / "ok-024-mixed-basis-rows.json"
+    vector = REPO_ROOT / "vectors" / "accept" / "vcf5a4601dee5c2ee.json"
     parsed = run_vectors.run_external([binary, "-json"], str(vector), None, "gate")
     errors: list[str] = []
     if parsed["verdict"] != "valid" or parsed["result"] is None or parsed["tiers"] is None:

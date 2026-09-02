@@ -58,7 +58,7 @@ KEY = "496cbe15e391eccd3a0864f2709df0eeb4f5b6c1bad750c95cc80ee49bceae62"
 # a question only a real signature check can answer.
 OTHER_KEY = "76fcffb8ad34381d915b530b16b8d2935d94dfddf785dc4239a3a71ca634de34"
 
-LIVE = ACCEPT / "ok-052-liveness-probe-per-channel.json"
+LIVE = ACCEPT / "vda285efc96ac6e75.json"
 
 # A valid base64 field whose bytes are an ed25519 signature length and are not
 # a signature. Replacing a `sig` with this leaves the record parseable and
@@ -80,19 +80,19 @@ PINNED: tuple[tuple[Path, Channels], ...] = (
     # The honest report of a detector that did not fire on the middle channel.
     # It is an ACCEPT vector and its middle channel is not demonstrated, which
     # is the whole distinction: valid, honest, and not a demonstration.
-    (ACCEPT / "ok-053-liveness-probe-uncaught-on-one-channel.json",
+    (ACCEPT / "v73244f2068e58c68.json",
      {"XA": "demonstrated", "XB": "not-demonstrated", "XC": "demonstrated"}),
     # The three refusals, each faulted on a channel that is not the first.
-    (REJECT / "bad-983-liveness-middle-channel-commitment-unmatched.json",
+    (REJECT / "v1043dbabae5f8ace.json",
      {"XA": "demonstrated", "XB": "not-demonstrated", "XC": "demonstrated"}),
-    (REJECT / "bad-984-liveness-last-channel-unpinnable.json",
+    (REJECT / "v0e22ac9c30338ad5.json",
      {"XA": "demonstrated", "XB": "demonstrated", "XC": "unprobed"}),
-    (REJECT / "bad-985-liveness-middle-channel-probe-uncaught.json",
+    (REJECT / "v21e964dddeba0d08.json",
      {"XA": "demonstrated", "XB": "not-demonstrated", "XC": "demonstrated"}),
     # The seal arm: a matched probe whose run-end seal names nothing.
-    (ACCEPT / "ok-047-attribution-pinned.json", {"XA": "unsealed"}),
+    (ACCEPT / "v9383066da404cbda.json", {"XA": "unsealed"}),
     # The attribution arm: the same run declaring the weaker of the two values.
-    (ACCEPT / "ok-048-attribution-paired-despite-expectation.json",
+    (ACCEPT / "v1b2d2d26efeb7835.json",
      {"XA": "not-demonstrated"}),
 )
 
@@ -323,7 +323,7 @@ def check_exit_codes(tmp: Path) -> Outcome:
 
     code, out = run_probe([
         "--require-demonstrated", "--key", KEY,
-        str(ACCEPT / "ok-053-liveness-probe-uncaught-on-one-channel.json")])
+        str(ACCEPT / "v73244f2068e58c68.json")])
     if code == 0:
         failures.append(
             "--require-demonstrated cleared ok-053, whose middle channel is "

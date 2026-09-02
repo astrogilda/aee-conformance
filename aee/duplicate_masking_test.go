@@ -18,7 +18,7 @@ import (
 // `duplicate-record` entirely.
 //
 // No vector in the corpus paired those two conditions, which is why nothing
-// caught it. One does now: bad-410-duplicate-and-undecodable-record, replayed
+// caught it. One does now: v7622b2c58c2e272d, replayed
 // against this rail by TestSetEmissionOnPairedRecordFaults in vectors_test.go.
 // The tests here work on the record-set check directly and that one works on
 // the vector's committed bytes, which is the difference between pinning the

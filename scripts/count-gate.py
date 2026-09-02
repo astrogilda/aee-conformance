@@ -386,18 +386,31 @@ def manifest_integrity_failures(src: Sources) -> list[str]:
     """
     manifest = json.loads(source(MANIFEST_REL).read_text(encoding="utf-8"))
     out: list[str] = []
+    total_entries = len(manifest["vectors"])
+    on_disk = len(list((REPO_ROOT / "vectors" / "statements").glob("*.json")))
+    if total_entries != on_disk:
+        out.append(
+            f"vectors/MANIFEST.json carries {total_entries} entr(ies) and "
+            f"vectors/statements/ holds {on_disk} file(s). Every published count "
+            "descends from this field, so it may not disagree with the corpus it "
+            "counts."
+        )
     for kind, declared in (
         ("accept", src.accept),
         ("reject", src.reject),
         ("indeterminate", src.indeterminate),
     ):
         entries = sum(1 for v in manifest["vectors"] if v.get("kind") == kind)
-        on_disk = len(list((REPO_ROOT / "vectors" / kind).glob("*.json")))
-        if declared == entries == on_disk:
+        # Counted against the manifest alone, because one flat directory of
+        # content-addressed statements cannot be split by verdict -- which is
+        # exactly why it is flat. The directory is still grounded, in the total
+        # below, and vectors/gen_manifest.py refuses a file with no row and a
+        # row with no file before any of this is read.
+        if declared == entries:
             continue
         out.append(
-            f"vectors/MANIFEST.json: it declares {declared} {kind} vector(s), carries "
-            f"{entries} {kind} entr(ies), and vectors/{kind}/ holds {on_disk} file(s). "
+            f"vectors/MANIFEST.json: it declares {declared} {kind} vector(s) and "
+            f"carries {entries} {kind} entr(ies). "
             "Every published count descends from this field, so it may not disagree "
             "with the corpus it counts."
         )
@@ -414,10 +427,10 @@ INDEX_HEADING = re.compile(r"^## Vectors \((\d+)\)$", re.MULTILINE)
 # reject index backticks its ids and the accept index does not. This mirrors
 # gen_manifest.table_rows deliberately -- a second, looser parser here would let
 # a row the manifest generator skips be counted as present by this gate.
-INDEX_ROW_ID = re.compile(
-    r"^\| *`?((?:ok|bad|ind)-[0-9][0-9a-z-]*|vate-[0-9][0-9a-z-]*)`? *\|",
-    re.MULTILINE,
-)
+# A published identifier is a digest of the vector's own bytes. It carries no
+# family, which is the point: a table row used to name the verdict in its first
+# cell, and so did the filename and the directory.
+INDEX_ROW_ID = re.compile(r"^\| *`?(v[0-9a-f]{16})`? *\|", re.MULTILINE)
 # Which family of the corpus each index table is the table of.
 INDEX_FAMILY = {
     "vectors/accept/INDEX.md": "accept",

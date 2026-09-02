@@ -43,9 +43,10 @@ def _live_vector_ids() -> set[str]:
 
 
 def _vector_file_exists(vid: str) -> bool:
-    return (REPO_ROOT / "vectors" / "accept" / f"{vid}.json").is_file() or (
-        REPO_ROOT / "vectors" / "reject" / f"{vid}.json"
-    ).is_file()
+    # One directory. A vector used to be looked for under the verdict it
+    # carried, which meant this helper had to know the answer before it could
+    # find the question.
+    return (REPO_ROOT / "vectors" / "statements" / f"{vid}.json").is_file()
 
 
 def _check_decision(

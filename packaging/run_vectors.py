@@ -1250,7 +1250,7 @@ class ReferenceVerifier:
         # first for as long as the rule has existed, while the Go, TypeScript,
         # standalone-Python and server rails all enforced both -- a four-against-one
         # divergence in the REFERENCE implementation, and invisible because no
-        # vector forced the rule. `bad-902-sealed-posture-ne-arming` forces it now:
+        # vector forced the rule. `v7f35f318b31ca92a` forces it now:
         # it carries a second arming record whose posture differs, which is the only
         # shape that reaches this equality, because with one arming record the
         # pinned-posture check above always fires first.
@@ -1450,7 +1450,7 @@ class ReferenceVerifier:
                 # produced verdict "valid" here and "invalid" on Go -- the second
                 # reference-rail divergence found by the same forcing pass that
                 # found the sealed-posture one, and invisible for the same reason:
-                # no vector forced it. `bad-906-corpus-manifest-absent` does now.
+                # no vector forced it. `v03547f8918e0d7dc` does now.
                 out.add("environment-incomplete")
             if isinstance(manifest, dict):
                 self._corpus_digest(out, corpus, manifest)
@@ -1741,7 +1741,7 @@ class ReferenceVerifier:
                 # undecodable record reported the decode failure and dropped
                 # duplicate-record entirely, on every rail at once. The records
                 # that decoded still carry whatever duplicate they carried, and
-                # bad-410-duplicate-and-undecodable-record is the statement that
+                # v7622b2c58c2e272d is the statement that
                 # asks.
                 out.add("record-undecodable")
             else:
@@ -2860,7 +2860,28 @@ REPLAYED_KINDS = ("accept", "indeterminate", "reject")
 #   - __pycache__/ is a gitignored artifact of running the generators in the
 #     tree. It is absent in CI, which is why nothing here requires an entry to
 #     correspond to a directory that exists.
-SUITE_NON_VECTOR_DIRS = ("__pycache__", "keys")
+SUITE_NON_VECTOR_DIRS = ("__pycache__", "keys", ".build")
+
+
+def flat_layout(idx: dict[str, Any]) -> str | None:
+    """The single directory every vector lives in, or None if there isn't one.
+
+    A suite lays its vectors out one directory per kind, or all together with
+    the kind recorded in the MANIFEST. The second shape is not a preference: a
+    file in `reject/` has told a rail the expected verdict before the rail has
+    read it, so a corpus laid out that way cannot measure whether an
+    implementation read anything at all.
+    """
+    dirs = set()
+    for entry in idx.values():
+        rel = entry.get("file")
+        if not isinstance(rel, str) or "/" not in rel:
+            return None
+        dirs.add(rel.split("/", 1)[0])
+    if len(dirs) != 1:
+        return None
+    only = dirs.pop()
+    return None if only in REPLAYED_KINDS else only
 
 
 def manifest_kinds(idx: dict[str, dict[str, Any]]) -> dict[str, list[str]]:
@@ -2892,6 +2913,28 @@ def discover_vectors(suite_dir: str, kinds: Sequence[str]) -> list[tuple[str, st
     quietly skipped.
     """
     found: list[tuple[str, str]] = []
+
+    # A suite may lay its vectors out one directory per kind, or put every
+    # vector in one directory and record the kind in the MANIFEST. The second
+    # shape exists because the first one ANSWERS THE QUESTION: a file in
+    # `reject/` has told a rail the expected verdict before the rail has opened
+    # it, and a suite whose layout leaks its own labels cannot measure whether
+    # an implementation read anything. So when the MANIFEST names a file for
+    # each vector, that is what is replayed, and the kind comes from the entry
+    # rather than from the path.
+    manifest = load_manifest(suite_dir)
+    entries = manifest.get("vectors") if isinstance(manifest, dict) else None
+    if isinstance(entries, list) and entries:
+        by_path: list[tuple[str, str]] = []
+        for entry in entries:
+            rel = entry.get("file")
+            kind = entry.get("kind")
+            if not isinstance(rel, str) or not isinstance(kind, str):
+                continue
+            by_path.append((kind, os.path.join(suite_dir, rel)))
+        if by_path and all(os.path.isfile(p) for _, p in by_path):
+            return sorted(by_path, key=lambda pair: pair[1])
+
     seen: set[str] = set()
     for kind in kinds:
         if kind in seen:
@@ -3517,6 +3560,37 @@ def _closure_kind_coverage(listed: dict[str, list[str]]) -> list[str]:
     return failures
 
 
+def _closure_flat(
+    suite_dir: str, idx: dict[str, dict[str, Any]], listed: dict[str, list[str]],
+    flat: str
+) -> tuple[list[str], dict[str, str]]:
+    """Rows against files for a suite whose vectors share one directory."""
+    failures: list[str] = []
+    unlisted: dict[str, str] = {}
+    held = set(vector_files_in(os.path.join(suite_dir, flat)))
+    for kind in sorted(listed):
+        if kind not in REPLAYED_KINDS:
+            continue
+        for vid in listed[kind]:
+            declared = idx[vid].get("file")
+            if not isinstance(declared, str) or not declared:
+                failures.append(f"MANIFEST row {vid} declares no file")
+                continue
+            if not os.path.isfile(os.path.join(suite_dir, declared)):
+                failures.append(
+                    f"MANIFEST row {vid} declares file {declared!r}, which is "
+                    "not on disk"
+                )
+    for vid in sorted(held):
+        if not any(vid in listed[k] for k in listed):
+            unlisted[vid] = flat
+            failures.append(
+                f"{flat}/{vid}.json is committed and named by no MANIFEST row, "
+                "so it is replayed by nothing"
+            )
+    return failures, unlisted
+
+
 def _closure_both_directions(
     suite_dir: str, idx: dict[str, dict[str, Any]], listed: dict[str, list[str]]
 ) -> tuple[list[str], dict[str, str]]:
@@ -3529,6 +3603,15 @@ def _closure_both_directions(
     """
     failures: list[str] = []
     unlisted: dict[str, str] = {}
+
+    # A suite that puts every vector in one directory and records the kind in
+    # the MANIFEST is checked against the file each row DECLARES, because there
+    # is no kind directory to derive a path from -- and deriving one is what a
+    # rail must stop doing when the layout stops naming the answer.
+    flat = flat_layout(idx)
+    if flat is not None:
+        return _closure_flat(suite_dir, idx, listed, flat)
+
     for kind in sorted(listed):
         if kind not in REPLAYED_KINDS:
             continue  # already refused by name; do not report it twice
@@ -3553,7 +3636,9 @@ def _closure_both_directions(
     return failures, unlisted
 
 
-def _closure_directories(suite_dir: str, listed: dict[str, list[str]]) -> list[str]:
+def _closure_directories(
+    suite_dir: str, listed: dict[str, list[str]], idx: dict[str, Any]
+) -> list[str]:
     """Every directory under the suite root is a MANIFEST kind or a declared
     non-vector directory.
 
@@ -3565,11 +3650,14 @@ def _closure_directories(suite_dir: str, listed: dict[str, list[str]]) -> list[s
     like an absent one.
     """
     failures: list[str] = []
+    flat = flat_layout(idx)
     for name in sorted(os.listdir(suite_dir)):
         if not os.path.isdir(os.path.join(suite_dir, name)):
             continue
         if name in listed:
             continue
+        if flat is not None and name == flat:
+            continue  # the one directory every vector is declared to live in
         if name not in SUITE_NON_VECTOR_DIRS:
             failures.append(
                 f"{name}/ is named by no MANIFEST kind and is not one of the suite's "
@@ -3586,8 +3674,48 @@ def _closure_directories(suite_dir: str, listed: dict[str, list[str]]) -> list[s
     return failures
 
 
+def _counts_against_rows(
+    suite_dir: str, counts: Any, listed: dict[str, list[str]], flat: str | None
+) -> list[str]:
+    """The counts block against the rows, and the rows against the directory."""
+    failures: list[str] = []
+    for kind in sorted(listed):
+        if kind not in REPLAYED_KINDS:
+            continue
+        if flat is None:
+            held = len(vector_files_in(os.path.join(suite_dir, kind)))
+            where = f"{kind}/"
+        else:
+            # One directory holds every kind, so a per-kind count cannot be read
+            # off it. The rows carry the kind instead, and the TOTAL is still
+            # grounded in the directory below, so the chain is unbroken: counts
+            # against rows, rows against files.
+            held = len(listed[kind])
+            where = "the MANIFEST rows"
+        if kind not in counts:
+            failures.append(
+                f"MANIFEST counts declares no entry for kind {kind!r}, which "
+                f"{len(listed[kind])} row(s) carry"
+            )
+        elif counts[kind] != held:
+            failures.append(
+                f"MANIFEST counts[{kind!r}] is {counts[kind]}; {where} holds "
+                f"{held} vector(s)"
+            )
+    if flat is not None:
+        total_files = len(vector_files_in(os.path.join(suite_dir, flat)))
+        total_rows = sum(len(v) for v in listed.values())
+        if total_files != total_rows:
+            failures.append(
+                f"{flat}/ holds {total_files} vector file(s) and the MANIFEST "
+                f"carries {total_rows} row(s)"
+            )
+    return failures
+
+
 def _closure_counts(
-    suite_dir: str, counts: Any, listed: dict[str, list[str]]
+    suite_dir: str, counts: Any, listed: dict[str, list[str]],
+    idx: dict[str, Any]
 ) -> list[str]:
     """The MANIFEST's own counts block against the tree.
 
@@ -3601,20 +3729,8 @@ def _closure_counts(
     if not isinstance(counts, dict):
         return [f"MANIFEST counts is {type(counts).__name__}, not an object"]
     failures: list[str] = []
-    for kind in sorted(listed):
-        if kind not in REPLAYED_KINDS:
-            continue
-        on_disk = vector_files_in(os.path.join(suite_dir, kind))
-        if kind not in counts:
-            failures.append(
-                f"MANIFEST counts declares no entry for kind {kind!r}, which "
-                f"{len(listed[kind])} row(s) carry"
-            )
-        elif counts[kind] != len(on_disk):
-            failures.append(
-                f"MANIFEST counts[{kind!r}] is {counts[kind]}; {kind}/ holds "
-                f"{len(on_disk)} vector file(s)"
-            )
+    flat = flat_layout(idx)
+    failures.extend(_counts_against_rows(suite_dir, counts, listed, flat))
     for kind in sorted(counts):
         if kind not in listed:
             failures.append(
@@ -3643,8 +3759,10 @@ def manifest_closure(
     failures = _closure_kind_coverage(listed)
     direction_failures, unlisted = _closure_both_directions(suite_dir, idx, listed)
     failures.extend(direction_failures)
-    failures.extend(_closure_directories(suite_dir, listed))
-    failures.extend(_closure_counts(suite_dir, manifest.get("counts"), listed))
+    failures.extend(_closure_directories(suite_dir, listed, idx))
+    failures.extend(
+        _closure_counts(suite_dir, manifest.get("counts"), listed, idx)
+    )
     return failures, unlisted
 
 
@@ -4052,7 +4170,7 @@ def self_test() -> int:
     # rails, so one record failing base64 suppressed both and a statement
     # carrying a duplicate beside an undecodable record reported the decode
     # failure alone. The corpus asks this over committed bytes at
-    # bad-410-duplicate-and-undecodable-record; it is asked here as well because
+    # v7622b2c58c2e272d; it is asked here as well because
     # the harness compares reject expectations by intersecting code sets, and
     # both conditions sit in one expected set, so replaying that vector passes
     # whether or not the duplicate is ever looked for. This is where the rail's

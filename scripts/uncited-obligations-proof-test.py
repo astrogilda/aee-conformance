@@ -4,7 +4,7 @@
 The ratchet exists because a citation is free text. Adding a line range to an
 anchor column raises the measured obligation coverage the instant it is typed,
 and before the ratchet nothing in the corpus checked it: an anchor reading
-``L1725-1748`` appended to ``bad-906-corpus-manifest-absent`` -- a vector about
+``L1725-1748`` appended to ``v03547f8918e0d7dc`` -- a vector about
 a dropped corpus manifest, naming two consumer obligations the corpus itself
 rules structurally untestable -- moved the measurement from 55 obligations cited
 to 57 while the anchor gate, its ``--sync``, the condition registry gate, the
@@ -102,10 +102,10 @@ def case_fabricated_anchor(root: Path) -> str | None:
     """The attack itself: a vector about a dropped corpus manifest, cited
     against two consumer obligations no vector can decide."""
     return edit(root, REJECT_REL,
-                "| `bad-906-corpus-manifest-absent` | ok-033 | drop corpus.manifest, "
+                "| `v03547f8918e0d7dc` | ok-033 | drop corpus.manifest, "
                 "keeping the corpus name, uri and digest | - | aee-c-78 | "
                 "`environment-incomplete` | L757-767 |",
-                "| `bad-906-corpus-manifest-absent` | ok-033 | drop corpus.manifest, "
+                "| `v03547f8918e0d7dc` | ok-033 | drop corpus.manifest, "
                 "keeping the corpus name, uri and digest | - | aee-c-78 | "
                 "`environment-incomplete` | L757-767; L1725-1748 |")
 

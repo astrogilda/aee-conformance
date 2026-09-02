@@ -3,7 +3,7 @@
 
 Why this exists, stated as what actually happened rather than as a principle.
 
-`bad-707-sealed-stillarmed-false` and `bad-713-only-sealed-ref-noncovering` were
+`vea5ff2dabe340db7` and `vc05cf94374f0d0d6` were
 BYTE-IDENTICAL, sha256 `80f1d055…` for both, while the manifest credited them to
 different conditions -- `aee-c-65` and `aee-c-68`. So `aee-c-68`'s only reject
 vector was a copy of another condition's, and the corpus credited a condition

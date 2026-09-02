@@ -43,7 +43,7 @@ caught, one clean) is exactly the ambiguity the recompute must not arbitrate.
   `gate0CoverageIntegrity`, Python `_coverage_check_rows`), emitting
   `statement-malformed`. Previously the set-based coverage check absorbed the
   duplicate with no effect (all rails accepted).
-- **Vector.** `bad-729-duplicate-attackid-rows` (a second row with the same
+- **Vector.** `vf14f5310b2f02875` (a second row with the same
   `attackId` -> `statement-malformed`). Registry decision 13.
 
 ## RESOLVED: Corner B -- `assessedClasses` overlapping the gap maps
@@ -69,7 +69,7 @@ vetting.**
   disjoint partition check (Go `gate0CoverageIntegrity`, Python
   `_coverage_partition_ok`), emitting `coverage-incomplete`. The spec text now
   matches the rails rather than the rails being opinionated ahead of the text.
-- **Vector.** `bad-730-coverage-class-overlap` (class XA in both
+- **Vector.** `v70e970d18ae52833` (class XA in both
   `assessedClasses` and `outOfScope` -> `coverage-incomplete`). Registry
   decision 14.
 
@@ -95,7 +95,7 @@ statement has no coherent meaning.
   `_check_subject_cardinality`); the substrate-scoped binding-digest-input
   check is unchanged. Previously both rails accepted an artifact-only
   two-subject statement (cardinality ran only under `hasSubstrateRows`).
-- **Vector.** `bad-728-artifact-two-subjects` (an artifact-only statement with a
+- **Vector.** `v423dab49f4ed4d29` (an artifact-only statement with a
   second subject -> `subject-cardinality`). `bad-607` retains the substrate
   case. Decision 12 in the registry lists both.
 - **Reversibility.** The direction (unconditional vs substrate-scoped) is an
@@ -113,7 +113,7 @@ precedes `issuedAt` was accepted. The independent-checker grok classified this
 as a real rail bug rather than an editorial call: the spec already mandates UTC,
 so accepting `+05:00` is out of spec. **Fixed:** the spec text pinned the zero
 UTC offset explicitly, both rails rejected it, and
-`bad-727-armedat-non-utc-offset` locked it (a valid `+05:00` instant before
+`v1b0b0cafb5ee8d08` locked it (a valid `+05:00` instant before
 `issuedAt`, rejected as `arming-covers-nothing`, distinct from a late
 `armedAt`).
 

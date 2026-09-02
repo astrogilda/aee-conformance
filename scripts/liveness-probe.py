@@ -91,7 +91,9 @@ from pathlib import Path
 from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-ACCEPT_DIR = REPO_ROOT / "vectors" / "accept"
+# One flat directory of content-addressed statements. Directories named for a
+# verdict told a rail the answer from the path, which is why they are gone.
+ACCEPT_DIR = REPO_ROOT / "vectors" / "statements"
 
 # Per-channel verdicts. Ordered worst to best for the summary line.
 UNPROBED = "unprobed"          # the corpus planted no stimulus on this channel
@@ -373,7 +375,14 @@ def main() -> int:
 
     paths = list(args.files)
     if args.corpus:
-        paths += sorted(ACCEPT_DIR.glob("ok-*.json"))
+        # The identifier shape, not a verdict prefix. An `ok-*` glob matched
+        # nothing once identifiers became digests, and a --corpus run that
+        # silently selected no statement would have reported a clean probe over
+        # an empty set.
+        found = sorted(ACCEPT_DIR.glob("v*.json"))
+        if not found:
+            ap.error(f"--corpus selected no statement under {ACCEPT_DIR}")
+        paths += found
     if not paths:
         ap.error("no statements given; pass files or --corpus")
 

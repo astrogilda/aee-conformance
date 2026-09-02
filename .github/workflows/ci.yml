@@ -307,7 +307,7 @@ jobs:
         run: |
           uv run python scripts/liveness-probe.py --require-demonstrated \
             --key 496cbe15e391eccd3a0864f2709df0eeb4f5b6c1bad750c95cc80ee49bceae62 \
-            vectors/accept/vda285efc96ac6e75.json
+            vectors/statements/vda285efc96ac6e75.json
           uv run python scripts/liveness-probe-test.py
       - name: requirement-coverage matrix is current
         run: python3 scripts/coverage-matrix-gate.py --check

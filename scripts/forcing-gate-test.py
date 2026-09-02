@@ -381,17 +381,16 @@ def corpus_pin_cases(tmp: Path) -> Failures:
     """
     failures: Failures = []
     root = tmp / "corpus-pin"
-    for sub in ("accept", "reject", "indeterminate"):
-        (root / sub).mkdir(parents=True, exist_ok=True)
+    (root / "statements").mkdir(parents=True, exist_ok=True)
     (root / "MANIFEST.json").write_text('{"vectors": []}', encoding="utf-8")
-    (root / "reject" / "bad-1.json").write_text('{"a": 1}', encoding="utf-8")
+    (root / "statements" / "bad-1.json").write_text('{"a": 1}', encoding="utf-8")
 
     first = fg.corpus_fingerprint(root)
     if first != fg.corpus_fingerprint(root):
         failures.append("the corpus fingerprint is not stable over an unchanged tree")
     fg.refuse_moved_corpus(first, first)
 
-    (root / "reject" / "bad-1.json").write_text('{"a": 2}', encoding="utf-8")
+    (root / "statements" / "bad-1.json").write_text('{"a": 2}', encoding="utf-8")
     edited = fg.corpus_fingerprint(root)
     failures += refuses(
         lambda: fg.refuse_moved_corpus(first, edited),
@@ -399,8 +398,8 @@ def corpus_pin_cases(tmp: Path) -> Failures:
         "a vector rewritten mid-campaign",
     )
 
-    (root / "reject" / "bad-1.json").write_text('{"a": 1}', encoding="utf-8")
-    (root / "reject" / "bad-2.json").write_text('{"a": 1}', encoding="utf-8")
+    (root / "statements" / "bad-1.json").write_text('{"a": 1}', encoding="utf-8")
+    (root / "statements" / "bad-2.json").write_text('{"a": 1}', encoding="utf-8")
     failures += refuses(
         lambda: fg.refuse_moved_corpus(first, fg.corpus_fingerprint(root)),
         "changed while the campaign was running",
@@ -409,8 +408,8 @@ def corpus_pin_cases(tmp: Path) -> Failures:
     # A rename that keeps every byte is still a different corpus: the manifest is
     # keyed on file names and a replay globs them, so two trees with the same
     # contents under different names do not answer the same question.
-    (root / "reject" / "bad-2.json").unlink()
-    (root / "reject" / "bad-1.json").rename(root / "reject" / "bad-3.json")
+    (root / "statements" / "bad-2.json").unlink()
+    (root / "statements" / "bad-1.json").rename(root / "statements" / "bad-3.json")
     failures += refuses(
         lambda: fg.refuse_moved_corpus(first, fg.corpus_fingerprint(root)),
         "changed while the campaign was running",

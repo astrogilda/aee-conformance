@@ -35,16 +35,19 @@ func writeKeys(t *testing.T, dir string, pub ed25519.PublicKey) string {
 func corpus(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
-	for _, sub := range []string{"accept", "reject"} {
+	// One flat directory, matching the corpus this harness reads. The fixture
+	// used to build the per-verdict layout, which is the layout that told a
+	// rail the verdict from the path and which mutrun no longer reads at all.
+	for _, sub := range []string{"statements"} {
 		if err := os.MkdirAll(filepath.Join(dir, sub), 0o750); err != nil {
 			t.Fatalf("mkdir: %v", err)
 		}
 	}
 	good := aeetest.Build(aeetest.Options{})
-	if err := os.WriteFile(filepath.Join(dir, "accept", "ok-000-example.json"), good, 0o600); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "statements", "v0000000000000000.json"), good, 0o600); err != nil {
 		t.Fatalf("write accept: %v", err)
 	}
-	if err := os.WriteFile(filepath.Join(dir, "reject", "bad-000-not-json.json"), []byte("{"), 0o600); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "statements", "v1111111111111111.json"), []byte("{"), 0o600); err != nil {
 		t.Fatalf("write reject: %v", err)
 	}
 	return dir
@@ -75,7 +78,7 @@ func TestReplayEmitsOneLinePerVectorInOrder(t *testing.T) {
 	if len(obs) != 2 {
 		t.Fatalf("expected 2 observations, got %d", len(obs))
 	}
-	if obs[0].ID != "ok-000-example" || obs[1].ID != "bad-000-not-json" {
+	if obs[0].ID != "v0000000000000000" || obs[1].ID != "v1111111111111111" {
 		t.Fatalf("ids or ordering wrong: %q, %q", obs[0].ID, obs[1].ID)
 	}
 	if obs[0].Verdict != "valid" {

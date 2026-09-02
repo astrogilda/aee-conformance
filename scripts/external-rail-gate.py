@@ -130,9 +130,24 @@ def check_full_corpus(binary: str, work_dir: str) -> list[str]:
     return errors
 
 
+def _manifest_file(vector_id: str) -> str:
+    """The file the MANIFEST declares for a vector id."""
+    manifest = json.loads(
+        (REPO_ROOT / "vectors" / "MANIFEST.json").read_text(encoding="utf-8")
+    )
+    for entry in manifest["vectors"]:
+        if entry["id"] == vector_id:
+            return str(entry["file"])
+    raise SystemExit(
+        f"the MANIFEST declares no file for {vector_id}, which this gate reads."
+    )
+
+
 def check_single_line(binary: str) -> list[str]:
     """The harness's own parse function, against the shipped CLI's own output."""
-    vector = REPO_ROOT / "vectors" / "accept" / "vcf5a4601dee5c2ee.json"
+    # Resolved through the MANIFEST rather than built from a kind directory:
+    # a path spelling the verdict only exists while the layout spells it.
+    vector = REPO_ROOT / "vectors" / _manifest_file("vcf5a4601dee5c2ee")
     parsed = run_vectors.run_external([binary, "-json"], str(vector), None, "gate")
     errors: list[str] = []
     if parsed["verdict"] != "valid" or parsed["result"] is None or parsed["tiers"] is None:

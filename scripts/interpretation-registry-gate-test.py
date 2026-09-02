@@ -63,7 +63,7 @@ def _staged_copy(tmp: Path) -> Path:
     shutil.copy2(REPO_ROOT / GATE_REL, root / GATE_REL)
     shutil.copy2(REPO_ROOT / REGISTRY_REL, root / REGISTRY_REL)
     shutil.copy2(REPO_ROOT / "vectors" / "MANIFEST.json", root / "vectors" / "MANIFEST.json")
-    for sub in ("accept", "reject"):
+    for sub in ("statements",):
         src = REPO_ROOT / "vectors" / sub
         if src.is_dir():
             shutil.copytree(src, root / "vectors" / sub)

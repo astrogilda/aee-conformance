@@ -160,6 +160,7 @@ LEDGER = VECTORS / "CONSUMERS.json"
 sys.path.insert(0, str(VECTORS))
 from gen_manifest import (  # noqa: E402
     corpus_digest,
+    corpus_files,
     historical_corpus_digest,
     historical_corpus_files,
 )
@@ -323,13 +324,24 @@ def published_corpus(ref: str) -> Published:
                 f"FAIL: {ref} carries no vectors/ directory, so it publishes no "
                 "corpus for any consumer rail to vendor."
             )
-        # The DEFAULT BRANCH's tree, which until suiteRevision 28 reaches it
-        # carries the retired per-verdict layout. Read with the historical
-        # reader, which is named separately so this repository's own corpus
-        # cannot reach it, and which refuses the moment that branch goes flat --
-        # at which point this call and that reader are both to be deleted.
-        digest = historical_corpus_digest(str(root))
-        vectors = len(historical_corpus_files(str(root)))
+        # The DEFAULT BRANCH's tree, read in whatever layout that branch has.
+        # This is the ONLY place in the repository that reads two, it reads a
+        # FOREIGN tree rather than this corpus, and it exists because the
+        # comparison this gate makes spans the revision that flattened the
+        # layout: until suiteRevision 28 reaches the default branch, the corpus
+        # a rail could actually have vendored is the per-verdict one.
+        #
+        # The dispatch and historical_corpus_digest die together, and the row
+        # tracking that is in TODO.md. It is NOT a forced red: making the gate
+        # refuse a flat default branch would make it fail its own test, whose
+        # fixtures stage a self-contained repository from this corpus and so are
+        # always flat. That is stated rather than worked around.
+        if (Path(root) / "statements").is_dir():
+            digest = corpus_digest(str(root))
+            vectors = len(corpus_files(str(root)))
+        else:
+            digest = historical_corpus_digest(str(root))
+            vectors = len(historical_corpus_files(str(root)))
         changes = root / "CHANGES.md"
         manifest = root / "MANIFEST.json"
         for needed in (changes, manifest):

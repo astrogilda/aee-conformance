@@ -340,16 +340,25 @@ def read_corpus(root: Path) -> tuple[Corpus | None, list[str]]:
     entries = manifest["vectors"]
     errors: list[str] = []
     kinds: dict[str, int] = {}
+    # Per-kind against the ROWS, because one flat directory of
+    # content-addressed statements holds every kind and cannot be split by
+    # verdict -- which is exactly why it is flat. The directory is still in the
+    # chain: the total below is grounded in it.
     for kind in ("accept", "reject", "indeterminate"):
         declared = int(manifest["counts"][kind])
         carried = sum(1 for v in entries if v.get("kind") == kind)
-        on_disk = len(list((root / "vectors" / kind).glob("*.json")))
         kinds[kind] = declared
-        if declared == carried == on_disk:
+        if declared == carried:
             continue
         errors.append(
-            f"{MANIFEST_REL}: it declares {declared} {kind} vector(s), carries "
-            f"{carried} entr(ies) and vectors/{kind}/ holds {on_disk} file(s)"
+            f"{MANIFEST_REL}: it declares {declared} {kind} vector(s) and carries "
+            f"{carried} entr(ies)"
+        )
+    on_disk = len(list((root / "vectors" / "statements").glob("*.json")))
+    if on_disk != len(entries):
+        errors.append(
+            f"{MANIFEST_REL}: it carries {len(entries)} entr(ies) and "
+            f"vectors/statements/ holds {on_disk} file(s)"
         )
     total = len(entries)
     if sum(kinds.values()) != total:

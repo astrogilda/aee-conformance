@@ -3646,7 +3646,7 @@ def _closure_directories(
 
 
 def _counts_against_rows(
-    suite_dir: str, counts: Any, listed: dict[str, list[str]], flat: str | None
+    suite_dir: str, counts: Any, listed: dict[str, list[str]], flat: str
 ) -> list[str]:
     """The counts block against the rows, and the rows against the directory."""
     failures: list[str] = []

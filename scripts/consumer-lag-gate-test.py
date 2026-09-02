@@ -156,7 +156,7 @@ def bump_corpus(root: Path) -> None:
     tell this one nothing.
     """
     vectors = root / "vectors"
-    (vectors / "accept" / "zz-a-vector-this-test-adds.json").write_text(
+    (vectors / "statements" / "zz-a-vector-this-test-adds.json").write_text(
         json.dumps({"_comment": "staged by scripts/consumer-lag-gate-test.py"}) + "\n",
         encoding="utf-8",
     )

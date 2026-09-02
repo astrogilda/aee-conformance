@@ -53,6 +53,26 @@ against what turned out to be sampling noise.
 
 Still open, and the first is the largest thing on this page:
 
+- [ ] **Delete the historical corpus reader when the rename reaches the default branch.**
+  `vectors/gen_manifest.py` carries `historical_corpus_files` and
+  `historical_corpus_digest`, read by `scripts/consumer-lag-gate.py` and by nothing else.
+  They exist because that gate materializes the DEFAULT BRANCH's tree to learn what the
+  consumer rails could actually have vendored, and until this revision lands there, that
+  tree carries the retired per-verdict layout. The reader refuses outright if handed an
+  already-flat tree, so it cannot be reached for this repository's own corpus.
+  **It is NOT a forced red, and that is worth stating rather than implying.** Making the
+  gate refuse a flat default branch would make it fail its own test: those fixtures stage
+  a self-contained repository from this corpus and so are always flat. The dispatch in
+  `consumer-lag-gate.py` is the only place in the repository that reads two layouts, and
+  it dies together with the reader. Removing both is the last step of the rename.
+- [ ] **`scripts/uncited-obligations-proof.py` fails its own sentence guard, and did so
+  before this work.** It pins the specification at a normative/obligation sentence split
+  that the vendored text no longer produces, so it refuses before any case runs. Verified
+  pre-existing by running it unchanged at the commit this work started from, where it
+  fails identically. It is not a CI step -- `ci.yml` never invokes it -- which is why it
+  went unnoticed. Either re-pin the two constants against the vendored specification and
+  say what moved, or wire it into CI so the next drift is caught when it happens.
+
 - [x] **The AI Agent Action corpus is content-addressed and flat** (2026-09-02). Every
   member is named after a digest of its own bytes and lives in `statements/`; there is no
   `accept/` or `reject/` directory and no prefix. Its identifier surface went from 1.0000

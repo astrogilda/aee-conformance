@@ -222,8 +222,15 @@ def corpus_fingerprint(root: Path) -> str:
     """
     hashed = hashlib.sha256()
     paths = [root / "MANIFEST.json"]
-    for sub in ("accept", "reject", "indeterminate"):
-        paths += sorted((root / sub).glob("*.json"))
+    # One directory. A fingerprint that walked a directory per verdict would
+    # silently cover nothing once the corpus stopped having them, and a
+    # fingerprint over nothing agrees with every corpus.
+    paths += sorted((root / "statements").glob("*.json"))
+    if len(paths) == 1:
+        raise SystemExit(
+            f"{root}/statements holds no vectors, so this fingerprint would "
+            "cover the manifest alone and agree with any corpus at all."
+        )
     for path in paths:
         hashed.update(path.relative_to(root).as_posix().encode("utf-8") + b"\0")
         hashed.update(hashlib.sha256(path.read_bytes()).digest())

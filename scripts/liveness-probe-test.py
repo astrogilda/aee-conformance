@@ -46,8 +46,10 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PROBE = REPO_ROOT / "scripts" / "liveness-probe.py"
-ACCEPT = REPO_ROOT / "vectors" / "accept"
-REJECT = REPO_ROOT / "vectors" / "reject"
+# One flat directory of content-addressed statements. Directories named for a
+# verdict told a rail the answer from the path, which is why they are gone.
+ACCEPT = REPO_ROOT / "vectors" / "statements"
+REJECT = REPO_ROOT / "vectors" / "statements"
 
 # The suite's own signing key, whose seed is the published constant
 # SHA-256("in-toto-aee-test-key/substrate-observation-test/v1"); the derivation

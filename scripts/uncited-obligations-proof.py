@@ -112,8 +112,10 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
 HARNESS = ROOT / "packaging" / "run_vectors.py"
-BAD724 = ROOT / "vectors" / "reject" / "v3300d78454ab852f.json"
-OK054 = ROOT / "vectors" / "accept" / "v7400cd757fd046e9.json"
+# One flat directory: a path spelling the verdict only exists while the layout
+# spells it, and this corpus deliberately stopped doing that.
+BAD724 = ROOT / "vectors" / "statements" / "v3300d78454ab852f.json"
+OK054 = ROOT / "vectors" / "statements" / "v7400cd757fd046e9.json"
 GO_RAIL = os.environ.get("AEE_EXTERNAL_VERIFIER", "")
 
 # A rail that checks references only where a gate resolves them.

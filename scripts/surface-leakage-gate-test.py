@@ -16,12 +16,29 @@ built by hand: it puts one member into every reject statement and nowhere else,
 which is exactly what an accidentally leaky generator does. If that case does not
 refuse, the gate is not measuring the corpus.
 
-`de-leaking the identifiers retires their declaration` runs the fix the baseline
-says is blocked -- it content-addresses every vector filename -- and requires the
-gate to refuse the declarations that are now stale. It proves the ratchet turns
-downward as well as upward, so slack a corpus no longer needs cannot be kept, and
-it doubles as a live check that the figure recorded as the counterfactual is
-reachable rather than asserted.
+`the verdict back in every vector's name` is the reverse of the fix that landed:
+it renames every vector after its answer and files it under `accept/` or
+`reject/` again, which is the shape both corpora had until they were
+content-addressed. The gate must refuse the rise. That keeps the identifier
+surface pinned at the level the fix reached, so the largest leak this repository
+ever carried cannot come back the way it arrived.
+
+It replaces a case that ran the fix FORWARDS -- content-addressing the filenames
+and flattening the tree -- and required the gate to refuse the declarations left
+stale behind it. That case was written while the leak was live, and the fix has
+since landed for both corpora. Run against the corpus as it now stands its
+mutation renamed each vector to the name it already had, the gate accepted the
+untouched tree, and the refusal it asserted could not fire, because the
+declaration it was about had already been removed. A refusal case whose mutation
+is a no-op passes vacuously and is worth less than no case at all, so it is gone
+and this one holds the same surface from the other side. The downward turn of the
+ratchet is still covered, by `a surface inside its null still naming a blocker`.
+
+A mutation that cannot be built against the tree as it stands raises
+`CannotConstruct` and is reported as a FAILURE of its case, never skipped and
+never allowed to surface as a raw `KeyError`. The distinction is the one the whole
+repository runs on: a case that could not construct its input is a case that did
+not run, and a case that did not run has not passed.
 
 The two acceptance cases are the control. Without them every case here would be
 satisfied by a gate that refuses everything, which is the same non-evidence in the
@@ -50,6 +67,38 @@ STAGED = ("vectors/", "vectors-ai-agent-action/", BASELINE_REL)
 
 Mutation = Callable[[Path], None]
 Case = tuple[str, Mutation, tuple[str, ...]]
+
+
+class CannotConstruct(Exception):
+    """A case could not build the mutation it exists to make.
+
+    Raised instead of letting a `KeyError` out, and instead of skipping. Every
+    case below is a claim about what the gate does to a particular defect, and
+    the claim is only tested if the defect gets built. When a schema moves under
+    a case -- which is what happened when the corpora were content-addressed and
+    the `blockedBy` row a case deleted stopped existing -- the case stops
+    constructing anything, and the two ways that can be reported are a crash
+    nobody can act on and a silence that reads as a pass. Neither says which key
+    went missing or what the file carries now, so this does.
+    """
+
+
+def require(holder: Any, key: str, what: str) -> Any:
+    """One member of `holder`, or a refusal naming what is there instead."""
+    if not isinstance(holder, dict):
+        raise CannotConstruct(
+            f"{what} is a {type(holder).__name__}, not an object, so {key!r} cannot "
+            "be read from it. This case builds no mutation, so the refusal it "
+            "asserts is unproven: repoint it at the shape the file now has."
+        )
+    if key not in holder:
+        raise CannotConstruct(
+            f"{what} carries no {key!r}; it carries {sorted(holder)!r}. This case "
+            "builds no mutation, so the refusal it asserts is unproven. Repoint it "
+            "at a subject that exists -- never delete the assertion, and never "
+            "treat the missing key as the gate having nothing left to refuse."
+        )
+    return holder[key]
 
 
 def stage(destination: Path) -> None:
@@ -114,6 +163,26 @@ def write_baseline(root: Path, data: dict[str, Any]) -> None:
 # --- corpus mutations ------------------------------------------------------
 
 
+def vector_rows(data: dict[str, Any], corpus: str) -> list[dict[str, Any]]:
+    """The manifest rows OF THE PASSED DICT, so a caller that rewrites the file
+    writes back the object it mutated. Re-reading the manifest here instead would
+    hand back rows belonging to a second copy, and a mutation that renamed files
+    while updating that copy would move every vector out from under a manifest
+    still naming the old paths."""
+    listed = require(data, "vectors", f"{corpus}/MANIFEST.json")
+    if not isinstance(listed, list) or not listed:
+        raise CannotConstruct(
+            f"{corpus}/MANIFEST.json lists no vectors, so every case below would be "
+            "mutating an empty corpus."
+        )
+    return [row for row in listed if isinstance(row, dict)]
+
+
+def rows_of(root: Path, corpus: str) -> list[dict[str, Any]]:
+    """Manifest rows for a case that only reads them or edits files in place."""
+    return vector_rows(manifest(root, corpus), corpus)
+
+
 def giveaway_member(root: Path) -> None:
     """One member, present on every reject statement and no accept one.
 
@@ -123,10 +192,10 @@ def giveaway_member(root: Path) -> None:
     """
     corpus = "vectors"
     touched = 0
-    for entry in manifest(root, corpus)["vectors"]:
-        if entry["kind"] != "reject":
+    for entry in rows_of(root, corpus):
+        if require(entry, "kind", f"{corpus} manifest row") != "reject":
             continue
-        path = root / corpus / str(entry["file"])
+        path = root / corpus / str(require(entry, "file", f"{corpus} manifest row"))
         try:
             statement = json.loads(path.read_text(encoding="utf-8"))
         except (UnicodeDecodeError, ValueError):
@@ -137,7 +206,10 @@ def giveaway_member(root: Path) -> None:
         path.write_text(json.dumps(statement, indent=2) + "\n", encoding="utf-8")
         touched += 1
     if touched < 2:
-        raise SystemExit("test setup: no reject statement was tagged.")
+        raise CannotConstruct(
+            f"{corpus} holds fewer than two decodable reject statements, so no "
+            "member could be added to the invalid side and nothing was tagged."
+        )
 
 
 def giveaway_depth(root: Path) -> None:
@@ -148,10 +220,10 @@ def giveaway_depth(root: Path) -> None:
     """
     corpus = "vectors"
     touched = 0
-    for entry in manifest(root, corpus)["vectors"]:
-        if entry["kind"] != "reject":
+    for entry in rows_of(root, corpus):
+        if require(entry, "kind", f"{corpus} manifest row") != "reject":
             continue
-        path = root / corpus / str(entry["file"])
+        path = root / corpus / str(require(entry, "file", f"{corpus} manifest row"))
         try:
             statement = json.loads(path.read_text(encoding="utf-8"))
         except (UnicodeDecodeError, ValueError):
@@ -162,32 +234,48 @@ def giveaway_depth(root: Path) -> None:
         path.write_text(json.dumps(statement, indent=2) + "\n", encoding="utf-8")
         touched += 1
     if touched < 2:
-        raise SystemExit("test setup: no reject statement was padded.")
+        raise CannotConstruct(
+            f"{corpus} holds fewer than two decodable reject statements, so none "
+            "could be nested deeper and nothing was padded."
+        )
 
 
-def content_address_identifiers(root: Path) -> None:
-    """Run the fix the baseline records as blocked, and leave the rows behind.
+def relabel_identifiers(root: Path) -> None:
+    """Put the verdict back in every vector's name and directory.
 
-    The fix is TWO changes and this case performs both, because performing only
-    the first measures almost nothing. Content-addressing the filename while the
-    file stays in `accept/` or `reject/` leaves the directory naming the label,
-    and the whole-surface figure of the larger corpus moves by about two
-    hundredths -- from near-certainty to near-certainty. So the vectors are also
-    flattened into one directory per corpus, which is what actually removes the
-    label from the path.
+    The reverse of the change that closed the largest leak this repository has
+    carried. Both corpora used to name each vector `ok-...` or `bad-...` and file
+    it under `accept/` or `reject/`, and measured over the whole manifest-relative
+    path a classifier read the verdict off the name alone with a separability of
+    1.0000. They are content-addressed and flat now, and the identifier surface
+    measures at its own null, which is to say it carries nothing.
+
+    This case undoes that, so the gate has to refuse the rise on the identifier
+    surface. Both halves of the old shape are restored, because either alone very
+    nearly names the label and a case that restored only one would understate what
+    is being held back.
     """
+    moved = 0
     for corpus in ("vectors", "vectors-ai-agent-action"):
         data = manifest(root, corpus)
-        for entry in data["vectors"]:
-            source = root / corpus / str(entry["file"])
-            if not source.is_file():
+        for index, entry in enumerate(vector_rows(data, corpus)):
+            kind = str(require(entry, "kind", f"{corpus} manifest row"))
+            source = root / corpus / str(require(entry, "file", f"{corpus} manifest row"))
+            if not source.is_file() or kind not in ("accept", "reject"):
                 continue
-            digest = hashlib.sha256(source.read_bytes()).hexdigest()[:16]
-            new_rel = f"statements/v{digest}.json"
-            (root / corpus / new_rel).parent.mkdir(parents=True, exist_ok=True)
-            source.rename(root / corpus / new_rel)
+            prefix = "ok" if kind == "accept" else "bad"
+            new_rel = f"{kind}/{prefix}-{index:04d}-restored-old-name.json"
+            target = root / corpus / new_rel
+            target.parent.mkdir(parents=True, exist_ok=True)
+            source.rename(target)
             entry["file"] = new_rel
+            moved += 1
         write_manifest(root, corpus, data)
+    if moved < 2:
+        raise CannotConstruct(
+            "no vector was renamed, so the identifier surface is unchanged and "
+            "this case measured nothing."
+        )
 
 
 def one_more_reject_vector(root: Path) -> None:
@@ -195,21 +283,42 @@ def one_more_reject_vector(root: Path) -> None:
 
     A gate that refused here would refuse every future vector, so this is the
     case that keeps the whole file from being satisfiable by refusing everything.
+
+    The vector is written the way the corpus is actually built -- named after a
+    digest of its own bytes, in the one directory that holds every kind. Written
+    the old way, under `reject/` with the verdict in its name, this case FAILS,
+    and correctly: one label-bearing filename is enough to lift the identifier
+    surface of a corpus that now carries nothing off its own null, and the gate
+    refusing that is the ratchet doing its job rather than a false alarm.
     """
     corpus = "vectors"
     data = manifest(root, corpus)
-    parent = next(e for e in data["vectors"] if e["kind"] == "accept")
+    parents = [
+        e
+        for e in vector_rows(data, corpus)
+        if require(e, "kind", f"{corpus} manifest row") == "accept"
+    ]
+    if not parents:
+        raise CannotConstruct(
+            f"{corpus} holds no accept vector to build an ordinary reject vector "
+            "from, so this case cannot add one the way the corpus grows."
+        )
+    parent = parents[0]
     statement = json.loads(
-        (root / corpus / str(parent["file"])).read_text(encoding="utf-8")
+        (root / corpus / str(require(parent, "file", f"{corpus} manifest row")))
+        .read_text(encoding="utf-8")
     )
-    statement["predicate"]["result"] = "PASS"
-    rel = "reject/bad-9990-example-added-by-a-test.json"
-    (root / corpus / rel).write_text(
-        json.dumps(statement, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    predicate = require(statement, "predicate", f"{corpus} accept statement")
+    require(predicate, "result", f"{corpus} accept statement's predicate")
+    predicate["result"] = "PASS"
+    raw = (json.dumps(statement, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    identifier = "v" + hashlib.sha256(raw).hexdigest()[:16]
+    rel = f"statements/{identifier}.json"
+    (root / corpus / rel).parent.mkdir(parents=True, exist_ok=True)
+    (root / corpus / rel).write_bytes(raw)
     data["vectors"].append(
         {
-            "id": "bad-9990-example-added-by-a-test",
+            "id": identifier,
             "kind": "reject",
             "file": rel,
             "conditions": ["aee-c-1"],
@@ -223,38 +332,88 @@ def one_more_reject_vector(root: Path) -> None:
 
 
 def surfaces_of(data: dict[str, Any], corpus: str) -> dict[str, Any]:
-    rows: dict[str, Any] = data["corpora"][corpus]["surfaces"]
+    corpora = require(data, "corpora", BASELINE_REL)
+    recorded = require(corpora, corpus, f"{BASELINE_REL} corpora")
+    rows: dict[str, Any] = require(recorded, "surfaces", f"{BASELINE_REL} {corpus}")
     return rows
+
+
+def row_of(data: dict[str, Any], corpus: str, surface: str) -> dict[str, Any]:
+    row: dict[str, Any] = require(
+        surfaces_of(data, corpus), surface, f"{BASELINE_REL} {corpus} surfaces"
+    )
+    return row
+
+
+DECLARED = ("vectors-ai-agent-action", "paths")
+"""The row a blocker is dropped from, and it is pinned rather than searched for.
+
+Searching the baseline for whichever row happens to carry a `blockedBy` would
+make this case quietly weaker every time one is retired, and silently vacuous
+once the last is: nothing to drop reads exactly like nothing to refuse. Pinned,
+the case names the row it is about, and when that row's declaration is retired --
+which is what should eventually happen to this one -- the case refuses to
+construct and says so, which is the prompt to repoint it at a row that still has
+one, or to retire it deliberately.
+
+This is the defect this pin exists to prevent, and it has already happened once:
+the case dropped `vectors`/`identifier`'s blocker until content-addressing the
+corpus brought that surface back inside its null and the ratchet removed the
+declaration. The case then raised `KeyError` mid-run, taking every other case's
+verdict with it.
+"""
 
 
 def lower_a_recorded_figure(root: Path) -> None:
     data = baseline(root)
-    surfaces_of(data, "vectors")["paths"]["separability"] = 0.30
+    row_of(data, "vectors", "paths")["separability"] = 0.30
     write_baseline(root, data)
 
 
 def raise_a_recorded_figure(root: Path) -> None:
     data = baseline(root)
-    surfaces_of(data, "vectors")["paths"]["separability"] = 0.90
+    row_of(data, "vectors", "paths")["separability"] = 0.90
     write_baseline(root, data)
 
 
 def drop_a_blocker(root: Path) -> None:
+    """Strip the declaration off a surface that is genuinely outside its null."""
+    corpus, surface = DECLARED
     data = baseline(root)
-    del surfaces_of(data, "vectors")["identifier"]["blockedBy"]
+    row = row_of(data, corpus, surface)
+    require(row, "blockedBy", f"{BASELINE_REL} {corpus}/{surface}")
+    if float(row.get("separability", 0.0)) <= float(row.get("null", 1.0)):
+        raise CannotConstruct(
+            f"{BASELINE_REL} {corpus}/{surface} records "
+            f"{row.get('separability')} against a null of {row.get('null')}, so it "
+            "is inside its null and dropping its blocker would test the stale-"
+            "declaration rule instead of this one. Repoint the case at a row that "
+            "is genuinely outside its null."
+        )
+    del row["blockedBy"]
     write_baseline(root, data)
 
 
 def declare_a_surface_inside_its_null(root: Path) -> None:
     """A blocker on a surface that shuffling the labels already explains."""
     data = baseline(root)
-    surfaces_of(data, "vectors")["shape"]["blockedBy"] = "nothing at all"
+    row = row_of(data, "vectors", "shape")
+    if float(row.get("separability", 1.0)) > float(row.get("null", 0.0)):
+        raise CannotConstruct(
+            f"{BASELINE_REL} vectors/shape records {row.get('separability')} "
+            f"against a null of {row.get('null')}, so it is already outside its "
+            "null and a blocker on it would not be stale. Repoint the case at a "
+            "surface that is inside its own null."
+        )
+    row["blockedBy"] = "nothing at all"
     write_baseline(root, data)
 
 
 def drop_a_surface_row(root: Path) -> None:
     data = baseline(root)
-    del surfaces_of(data, "vectors")["lexicon"]
+    rows = surfaces_of(data, "vectors")
+    require(rows, "lexicon", f"{BASELINE_REL} vectors surfaces")
+    del rows["lexicon"]
     write_baseline(root, data)
 
 
@@ -266,7 +425,9 @@ def sink_a_recorded_null(root: Path) -> None:
     somebody can quietly tune to make a corpus look dirty or clean.
     """
     data = baseline(root)
-    surfaces_of(data, "vectors")["paths"]["null"] = 0.30
+    row = row_of(data, "vectors", "paths")
+    require(row, "null", f"{BASELINE_REL} vectors/paths")
+    row["null"] = 0.30
     write_baseline(root, data)
 
 
@@ -278,12 +439,25 @@ def move_the_fingerprint(root: Path) -> None:
     keep applying a stale noise floor after the corpus grew.
     """
     data = baseline(root)
-    data["corpora"]["vectors"]["fingerprint"]["accept"] += 21
+    corpora = require(data, "corpora", BASELINE_REL)
+    recorded = require(corpora, "vectors", f"{BASELINE_REL} corpora")
+    shape = require(recorded, "fingerprint", f"{BASELINE_REL} vectors")
+    counted = int(require(shape, "accept", f"{BASELINE_REL} vectors fingerprint"))
+    # More than the drift the null tolerates, computed from the recorded count
+    # rather than pinned to a constant, so this stays a real overshoot as the
+    # corpus grows instead of quietly becoming a figure the gate waves through.
+    shape["accept"] = counted + max(2, int(counted * 0.2))
     write_baseline(root, data)
 
 
 def remove_the_baseline(root: Path) -> None:
-    (root / BASELINE_REL).unlink()
+    path = root / BASELINE_REL
+    if not path.is_file():
+        raise CannotConstruct(
+            f"{BASELINE_REL} is not in the staged tree, so removing it changes "
+            "nothing and this case would assert a refusal of its own staging bug."
+        )
+    path.unlink()
 
 
 def sync_after_a_giveaway(root: Path) -> tuple[int, str]:
@@ -323,9 +497,9 @@ REFUSALS: list[Case] = [
         ("shape", "more predictable"),
     ),
     (
-        "de-leaking the identifiers retires their declaration",
-        content_address_identifiers,
-        ("identifier", "outlived its subject"),
+        "the verdict back in every vector's name",
+        relabel_identifiers,
+        ("identifier", "more predictable"),
     ),
     (
         "a recorded figure edited below what the corpus measures",
@@ -367,13 +541,26 @@ ACCEPTANCES: list[Case] = [
 ]
 
 
+def unbuildable(name: str, reason: str) -> str:
+    return (
+        f"{name}: the mutation could not be constructed, so the gate was never "
+        f"asked and this case proves nothing. {reason}"
+    )
+
+
 def check(group: str, cases: list[Case], want_refusal: bool, tmp: Path) -> list[str]:
     failures: list[str] = []
     for index, (name, mutate, phrases) in enumerate(cases):
         root = tmp / f"{group}{index}"
         root.mkdir()
         stage(root)
-        mutate(root)
+        try:
+            mutate(root)
+        except CannotConstruct as unmet:
+            # A failure of this case, never a skip and never a crash that takes
+            # the rest of the run's verdicts with it.
+            failures.append(unbuildable(name, str(unmet)))
+            continue
         code, output = run(root)
         if want_refusal and code == 0:
             failures.append(f"{name}: the gate accepted it:\n{output}")
@@ -401,7 +588,11 @@ def main() -> int:
             root = tmp / f"sync{index}"
             root.mkdir()
             stage(root)
-            code, output = drive(root)
+            try:
+                code, output = drive(root)
+            except CannotConstruct as unmet:
+                failures.append(unbuildable(name, str(unmet)))
+                continue
             if code == 0:
                 failures.append(f"{name}: --sync accepted it:\n{output}")
             else:

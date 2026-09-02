@@ -88,11 +88,16 @@ every surface at the level it has reached and makes any corpus change that adds
 predictability fail on the change that added it.
 
 A measurement above TARGET must additionally be declared in the baseline with the
-constraint that blocks it. Three surfaces are declared today and the reasons are
-recorded there rather than here. A declaration is not a permanent allowance: when
-a surface comes under target the declaration is stale and the gate refuses until
-it is removed, so the ratchet turns in both directions and slack that is no longer
-needed cannot be kept.
+constraint that blocks it, and the reasons are recorded there rather than here. A
+declaration is not a permanent allowance: when a surface comes under target the
+declaration is stale and the gate refuses until it is removed, so the ratchet
+turns in both directions and slack that is no longer needed cannot be kept.
+
+`--sync` re-records what is measured and will LOWER a figure, never raise one. A
+sync that adopted whatever it found would be this gate's own bypass -- the refusal
+names the surface, and one command would write the leak down rather than remove
+it. Recording a rise means editing the file by hand and putting the reason beside
+it, which leaves a diff somebody reviews.
 
 Usage:
     python3 scripts/surface-leakage-gate.py
@@ -402,19 +407,40 @@ def render(measured: dict[str, dict[str, float]], baseline: dict[str, Any]) -> s
     return "\n".join(lines)
 
 
-def sync(tree: Path, measured: dict[str, dict[str, float]]) -> None:
+def sync(tree: Path, measured: dict[str, dict[str, float]]) -> list[str]:
+    """Re-record the baseline. It may lower a figure and it may not raise one.
+
+    A sync that adopted whatever it measured would be the gate's own bypass: the
+    refusal names the surface, the fix is one command away, and the command
+    writes down the leak instead of removing it. So a rise beyond tolerance is
+    refused here as well, and the only way to record one is to edit the file by
+    hand and write the reason next to it -- which is a deliberate act that leaves
+    a diff somebody reviews, rather than a command that leaves nothing.
+    """
     existing = read_baseline(tree)
     kept = existing.get("surfaces", {})
+    refused: list[str] = []
     surfaces: dict[str, dict[str, dict[str, Any]]] = {}
     for corpus, per_surface in measured.items():
         surfaces[corpus] = {}
         for surface, value in per_surface.items():
-            row: dict[str, Any] = {"separability": value}
             previous = kept.get(corpus, {}).get(surface, {})
+            recorded = previous.get("separability")
+            if recorded is not None and value > float(recorded) + TOLERANCE:
+                refused.append(
+                    f"{corpus}/{surface} measures {value:.4f} against a recorded "
+                    f"{float(recorded):.4f}. --sync will not raise a figure: that "
+                    "would be writing the leak down instead of removing it. Fix it, "
+                    "or record the rise by hand with the reason beside it."
+                )
+                continue
+            row: dict[str, Any] = {"separability": value}
             if value > TARGET and previous.get("blockedBy"):
                 row["blockedBy"] = previous["blockedBy"]
                 row["reason"] = previous.get("reason", "")
             surfaces[corpus][surface] = row
+    if refused:
+        return refused
     payload = {
         "$comment": existing.get("$comment", ""),
         "target": TARGET,
@@ -424,6 +450,7 @@ def sync(tree: Path, measured: dict[str, dict[str, float]]) -> None:
     (tree / BASELINE_REL).write_text(
         json.dumps(payload, indent=2) + "\n", encoding="utf-8"
     )
+    return []
 
 
 def main() -> int:
@@ -435,7 +462,14 @@ def main() -> int:
 
     measured = measure(args.root)
     if args.sync:
-        sync(args.root, measured)
+        refused = sync(args.root, measured)
+        if refused:
+            print(
+                f"FAIL: --sync will not record {len(refused)} rise(s):", file=sys.stderr
+            )
+            for problem in refused:
+                print(f"  - {problem}", file=sys.stderr)
+            return 1
         print("baseline rewritten:")
         print(render(measured, read_baseline(args.root)))
         return 0

@@ -247,6 +247,31 @@ def remove_the_baseline(root: Path) -> None:
     (root / BASELINE_REL).unlink()
 
 
+def sync_after_a_giveaway(root: Path) -> tuple[int, str]:
+    """--sync must not be the way out of a refusal it just made.
+
+    Run with the gate's own sync argument rather than through `run`, because the
+    property under test is that the escape hatch refuses too. A gate whose fix
+    command silently records the leak has a bypass with no diff behind it.
+    """
+    giveaway_member(root)
+    proc = subprocess.run(
+        [sys.executable, str(GATE), "--root", str(root), "--sync"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return proc.returncode, proc.stdout + proc.stderr
+
+
+SYNC_CASES: list[tuple[str, Callable[[Path], tuple[int, str]], tuple[str, ...]]] = [
+    (
+        "--sync refuses to write down a leak it just refused",
+        sync_after_a_giveaway,
+        ("will not raise a figure",),
+    ),
+]
+
 REFUSALS: list[Case] = [
     (
         "a giveaway member on every reject vector",
@@ -323,15 +348,26 @@ def main() -> int:
         tmp = Path(raw)
         failures.extend(check("refuse", REFUSALS, True, tmp))
         failures.extend(check("accept", ACCEPTANCES, False, tmp))
-    total = len(REFUSALS) + len(ACCEPTANCES)
+        for index, (name, drive, phrases) in enumerate(SYNC_CASES):
+            root = tmp / f"sync{index}"
+            root.mkdir()
+            stage(root)
+            code, output = drive(root)
+            if code == 0:
+                failures.append(f"{name}: --sync accepted it:\n{output}")
+            else:
+                missing = [phrase for phrase in phrases if phrase not in output]
+                if missing:
+                    failures.append(f"{name}: the refusal omits {missing!r}\n{output}")
+    total = len(REFUSALS) + len(ACCEPTANCES) + len(SYNC_CASES)
     if failures:
         print(f"FAIL: {len(failures)} of {total} case(s) do not hold:", file=sys.stderr)
         for failure in failures:
             print(f"  {failure}", file=sys.stderr)
         return 1
     print(
-        f"OK: {total} case(s), of which {len(REFUSALS)} assert a refusal the gate "
-        "makes and name the surface it makes it about."
+        f"OK: {total} case(s), of which {len(REFUSALS) + len(SYNC_CASES)} assert a "
+        "refusal the gate makes and name the surface it makes it about."
     )
     return 0
 

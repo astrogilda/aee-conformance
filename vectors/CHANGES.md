@@ -5,6 +5,46 @@ The vector corpus is a versioned, immutable-per-revision artifact. A published
 or a corpus addition bumps the revision and regenerates the vectors
 byte-identically from the generators.
 
+## suiteRevision 28 (identifiers name the bytes, not the answer)
+
+- **This corrects a defect in our own corpus, found by a gate in this repository.**
+  Every vector carried its verdict twice: an `ok-`/`bad-` prefix in its name and an
+  `accept/` or `reject/` directory around it. Measured over each vector's whole
+  manifest-relative path, a cheap classifier predicted accept-or-reject from the
+  identifier alone with a separability of **1.0000** against a permutation null of
+  0.5879 -- a perfect score, on a corpus whose whole purpose is to measure whether an
+  implementation read the statement. A rail could have certified against this suite
+  without opening a single file.
+- **Every vector is now named after a digest of its own bytes and lives in
+  `statements/`.** There is no directory per verdict and no prefix. The verdict is in
+  `vectors/MANIFEST.json`, which is where a scoring harness reads it. The identifier
+  surface measures **0.5075 against a null of 0.5075** -- it carries nothing, because
+  shuffling the labels produces the same figure -- and the whole surface fell from
+  **0.9906 to 0.5567 against a null of 0.5817**. Every surface of this corpus is now
+  inside its own noise floor.
+- **The slug surface is why no old-to-new mapping is published.** Run through the same
+  classifier and the same null, the authoring slugs score 0.9936 as they stand, 0.7260
+  with the family token removed, and 0.7307 on the description words alone, against a
+  null near 0.585. The leak is not the prefix, it is the vocabulary: a slug says
+  `missing`, `mismatch`, `duplicate` and `wrong` on one side and `clean`, `canonical`
+  and `pass` on the other. There is no spelling of a published map that carries no
+  label, and a corpus shipping its own decoder would have relocated the leak rather
+  than closed it. **That is a general result about naming test cases, not a fact about
+  this corpus.** Identifiers are retired with the vectors that carried them, none is
+  reused, and the way to get current results is to re-run the suite.
+- **`corpusDigest` moves for every vector**, because its preimage commits to each
+  vector's path and every path changed. Every consumer rail must re-vendor. The digest
+  function reads both layouts, since the consumer-lag gate computes it over the default
+  branch's tree, which predates this revision.
+- **No expectation moves and no vector is weakened.** Every vector keeps its
+  conditions, its expected verdict and its expected codes; 272 replay green on the
+  reference rail and both Go modules pass. A fresh checkout builds the corpus
+  byte-identically through the documented generator sequence.
+- Corpus: **272 vectors (61 accept, 209 reject, 2 indeterminate)**, unchanged in
+  size from suiteRevision 27. Every vector file changes, so `corpusDigest` in
+  `vectors/MANIFEST.json` moves; the vendored specification does not move, because
+  this revision renames the corpus and changes no rule and no reading.
+
 ## suiteRevision 27 (a reject vector IS its parent plus one mutation, and the gate says so)
 
 - **The rail's own output is now pinned, which it was not.** A reject vector is

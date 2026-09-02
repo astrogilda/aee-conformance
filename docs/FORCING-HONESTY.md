@@ -26,7 +26,7 @@ all.**
 | what | value |
 |---|---|
 | suite | `adversarial-execution-evidence-conformance` |
-| corpus | suiteRevision 27, 272 vectors (61 accept, 209 reject, 2 indeterminate) |
+| corpus | suiteRevision 28, 272 vectors (61 accept, 209 reject, 2 indeterminate) |
 | vendored specification | commit `0dbe10bcc959b63dc42370a5db09812c9476f59a`, fetchable from `astrogilda/attestation` at branch `predicate/adversarial-execution-evidence` |
 | reviewed at | `in-toto/attestation#570` |
 | `vectors/MANIFEST.json` | `sha256:eb24532be577ee6a936410e6850482847cecac07147aa3c76d737fc730d4bf2b` |

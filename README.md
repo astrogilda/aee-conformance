@@ -245,7 +245,7 @@ this suite has fixed were exactly that shape.
 
 Grading on the intersection has a cost, paid on this side rather than yours: a
 code the reference rail emits that the entry does not declare is compared against
-nothing at all. `bad-817` declared two and emitted four, and when suiteRevision 27
+nothing at all. `bad-817` declared two and emitted four, and when suiteRevision 28
 moved its parent from a caught row to a reconstructed one, one of the two
 undeclared codes changed with it and every gate stayed green. Measured before this
 revision added `ok-055` and `bad-986`, nineteen of the vectors then shipped were in

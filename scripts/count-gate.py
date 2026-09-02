@@ -796,6 +796,16 @@ DELEGATED: tuple[Delegated, ...] = (
 
 
 FROZEN: tuple[Frozen, ...] = (
+    Frozen(
+        "vectors/CHANGES.md",
+        "the suiteRevision-18 citation remap tally",
+        "moved 28 `spec:NNN`",
+        "A count of citations remapped when the specification was re-vendored, "
+        "recorded at suiteRevision 18. It collided with the corpus's own "
+        "revision number the moment that number reached 28, which is the "
+        "collision this census exists to surface. Declared rather than "
+        "rewritten: rewriting it would restate a past run as a present one.",
+    ),
     # ---- measurements taken while building the reading-differential harness,
     # the uncited-obligation sweep and the expectation-slack gate. Every one of
     # these records what a run produced on the day it ran. The corpus has since

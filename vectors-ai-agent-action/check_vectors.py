@@ -63,7 +63,8 @@ def fail(vid: str, why: str) -> None:
     FAILURES.append(f"{vid}: {why}")
 
 
-def check_chain_members(vid: str, kind: str, lines: list[bytes]) -> None:
+def check_chain_members(vid: str, kind: str, entry: dict,
+                        lines: list[bytes]) -> None:
     """Each line's declared previousHash must resolve, or must not."""
     canonical: list[bool] = []
     for ln in lines:
@@ -78,10 +79,20 @@ def check_chain_members(vid: str, kind: str, lines: list[bytes]) -> None:
                 fail(vid, "an accept member carries an unencodable string")
     if kind == "accept" and not all(canonical):
         fail(vid, "an accept member carries a non-canonical log line")
-    if vid.startswith("bad-10") and vid[:7] in (
-            "bad-101", "bad-102", "bad-103", "bad-104") and all(canonical):
+    if kind == "reject" and CANONICAL_BYTES_CONDITIONS & set(
+            entry.get("conditions", [])) and all(canonical):
         fail(vid, "a canonicalization reject member is already canonical, "
                   "so it demonstrates nothing")
+
+
+# The conditions whose reject members exist to carry NON-canonical bytes. This
+# used to be a list of four identifiers matched by prefix, which stopped being
+# expressible the moment identifiers stopped carrying a family in their spelling
+# -- and which was the wrong question anyway. Whether a member must be
+# non-canonical is a property of the rule it forces, not of what it is called,
+# and reading it off the declared conditions asks the vector rather than its
+# name. The set is exactly the conditions those four members declared.
+CANONICAL_BYTES_CONDITIONS = {"aia-c-1", "aia-c-3", "aia-c-4"}
 
 
 def check_member_name_orders(vid: str, kind: str, stmt: dict, entry: dict,
@@ -225,7 +236,7 @@ def main() -> None:
                 continue
             with open(rp, "rb") as fh:
                 lines = [ln for ln in fh.read().split(b"\n") if ln]
-            check_chain_members(vid, kind, lines)
+            check_chain_members(vid, kind, entry, lines)
             declared = entry["expected"].get("chainHash")
             if declared and kind == "accept":
                 if sha(lines[-1]) != declared:

@@ -53,53 +53,42 @@ against what turned out to be sampling noise.
 
 Still open, and the first is the largest thing on this page:
 
-- [ ] **Content-address the identifier namespace and flatten the corpus.** The
-  identifier surface is a PERFECT predictor on both corpora when measured over the whole
-  manifest-relative path: the `ok-`/`bad-` prefix and the `accept/`/`reject/` directory
-  each name the label outright. The gate's own test performs the fix and measures it —
-  the larger corpus goes to 0.5568 against a null of 0.5836, which is inside the noise
-  floor, and the identifier surface itself to 0.5075.
-  **`GOVERNANCE.md` does not block this.** Its commitment is that an identifier is never
-  REUSED and that a retired identifier is retired with its vector; renaming and retiring
-  the old name permanently is exactly that clause honoured. The other four commitments
-  cover failure-code spellings, code removal, message text and precedence, and a rename
-  touches none of them.
-  Two things do need deciding, and neither is a reason not to proceed:
-  - The corpus digest hashes `"{kind}/{name}"` into its preimage
-    (`vectors/gen_manifest.py`), and that definition is deliberately duplicated in every
-    downstream consumer's vendoring script. Flattening moves the digest for every
-    consumer at once. `vectors/CONSUMERS.json` records opaque ids and says on purpose
-    that which checkout each refers to is supplied at sync time and not written down, so
-    the rails cannot be updated from this repository.
-  - The retired-to-new mapping is worth publishing so an outside implementer's
-    per-vector results stay interpretable, and publishing it necessarily republishes the
-    old names. It should be declared as its own surface in the leakage baseline rather
-    than left where a green gate implies it does not exist.
-  Edit surface, mapped: the name is chosen at five sites — `gen_valid_vectors.py:2419`,
-  `gen_invalid_vectors.py:5765` and `:5830`, `gen_vectors.py:243` and `:249` — and no
-  name appears inside any emitted vector's bytes, so a content digest is a stable
-  identifier with no fixpoint problem. What must migrate with the ids: `INHERENT_EXTRA`
-  (23 keys), `OBSERVED_EXTRA` (19), `TIER_EXPECTATIONS` (6), `_SWAPPED` (14 pairs),
-  `PARENTS` (21 prose keys), 22 `accept_parent()` slug literals, 195 `vec()` parent
-  arguments, and two hard dict lookups in the accept generator's `main()`.
-  `gen_manifest.py` takes a vector's KIND from which `INDEX.md` it is reading and
-  prepends the directory to the `file` field, so flattening needs a kind column instead.
-  Two things fail silently rather than loudly and need guarding first:
-  `gen_manifest.py:352` (`TIER_EXPECTATIONS.get(vid, {})` stops pinning tiers without
-  raising) and `gen_manifest.py:168` (a row whose id does not match `^(ok|bad|ind)-\d`
-  is dropped before any closure check sees it).
-- [ ] **The AI Agent Action corpus leaks through its content, and that one is real.**
-  Its `paths` surface measures 0.7835 against a null of 0.6944 and its `lexicon` 0.7943
-  against 0.7595 — outside the noise floor, unlike everything the calibration retired.
-  Most of its accept statements carry a `predicate.contentDigest` member and almost
-  none of its reject statements do, because the RFC 8785 Appendix B
-  number-serialization family sits entirely on the accept side, generated in one
-  loop, with no reject counterpart at all.
-  This is the leak that SURVIVES the identifier fix: content-addressed and flattened,
-  this corpus still measures 0.7780 against a null of 0.6716. The fix is on the reject
-  side — Appendix B rows that serialize the number wrongly, built from the same template
-  — and it is the most mechanical corpus work on this page.
-  File: `vectors-ai-agent-action/gen_vectors.py`, the loop at line 337.
+- [x] **The AI Agent Action corpus is content-addressed and flat** (2026-09-02). Every
+  member is named after a digest of its own bytes and lives in `statements/`; there is no
+  `accept/` or `reject/` directory and no prefix. Its identifier surface went from 1.0000
+  — a perfect predictor — to 0.5245 against a null of 0.5245, and its whole surface from
+  0.9238 to 0.7810. No old-to-new mapping is published: such a file would list a retired
+  `ok-`/`bad-` name beside a live identifier for every member, which is the surface the
+  change removed. `check_vectors.py` no longer branches on an identifier prefix; the one
+  place it did now reads the conditions the vector declares, which is the better question
+  anyway.
+- [ ] **Content-address and flatten the AEE corpus too.** Its identifier surface is the
+  same perfect predictor (1.0000 over the whole path) and the whole surface is 0.9906
+  against a null of 0.6003. Simulating the fix puts it at 0.5568 against 0.5836, inside
+  the noise floor, so this corpus goes fully clean where the smaller one did not.
+  **`GOVERNANCE.md` does not block it**: the commitment is that an identifier is never
+  REUSED, and renaming with permanent retirement is that clause honoured.
+  It is structurally harder than the corpus already done, for one reason worth knowing
+  before starting: **`vectors/accept/INDEX.md` is hand-authored AND is the input
+  `vectors/gen_manifest.py` reads to derive every accept vector's id, kind, conditions and
+  expectations.** A content-addressed id is a function of generated bytes, so a person
+  cannot write it into that table by hand. The accept index therefore has to become
+  generated — its per-row prose moving into `gen_valid_vectors.py` beside each vector, the
+  way the reject generator already holds it — or the manifest has to stop deriving accept
+  vectors from a markdown table. Neither is hard; both are larger than a rename.
+  The rest is mapped: the name is chosen at five sites, no name appears inside any emitted
+  vector's bytes (so there is no fixpoint problem), and the two-pass build used for the
+  smaller corpus transfers directly. What must migrate with the ids: `INHERENT_EXTRA` (23
+  keys), `OBSERVED_EXTRA` (19), `TIER_EXPECTATIONS` (6), `_SWAPPED` (14 pairs), `PARENTS`
+  (21 prose keys), 22 `accept_parent()` literals and 195 `vec()` parent arguments. All four
+  of those tables now refuse a key that names no vector, so a migration that drops one
+  fails loudly instead of shipping a weaker pin.
+  One consequence to state in the release: the corpus digest hashes `"{kind}/{name}"` into
+  its preimage, and that definition is duplicated in every consumer rail's vendoring
+  script, so flattening moves the digest for all of them at once. `vectors/CONSUMERS.json`
+  records opaque ids and says on purpose that which checkout each refers to is supplied at
+  sync time, so the rails cannot be updated from this repository. Naming the consequence is
+  the deliverable; performing it is not ours to perform.
 
 ## The predicate moved to v0.7 and the corpus moved with it
 

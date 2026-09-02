@@ -14,141 +14,13 @@
     "accept": 37,
     "reject": 16
   },
-  "corpusDigest": "db565dc8fc3f0ea6cf1a7cec0bcadda1223cdb83d890f1f5a05b1164f6976bd2",
+  "corpusDigest": "7ca4db853dc416774167cfdb9ae5e5d31c11fefe793bbca0938dc79d26a01379",
   "note": "A reject member is rejectable under the proposed canonicalization text, not under #588 as it stands. Each accept member is the conformant twin of the reject member sharing its condition, so a verifier that rejects everything scores zero rather than full marks.",
   "vectors": [
     {
-      "id": "bad-101-chain-hash-ecmascript-member-order",
+      "id": "v0805461f7a5c9a1f",
       "kind": "reject",
-      "file": "reject/bad-101-chain-hash-ecmascript-member-order.json",
-      "conditions": [
-        "aia-c-1"
-      ],
-      "expected": {
-        "verdict": "invalid",
-        "codes": [
-          "chain-hash-mismatch"
-        ]
-      },
-      "cites": "A1: JSON.stringify orders 2 before 10 and leaves zz before aa; JCS orders 10, 2, aa, zz. Three languages, three chain hashes.",
-      "records": "records/bad-101-chain-hash-ecmascript-member-order.jsonl"
-    },
-    {
-      "id": "bad-102-chain-hash-ascii-escaped-string",
-      "kind": "reject",
-      "file": "reject/bad-102-chain-hash-ascii-escaped-string.json",
-      "conditions": [
-        "aia-c-3"
-      ],
-      "expected": {
-        "verdict": "invalid",
-        "codes": [
-          "chain-hash-mismatch"
-        ]
-      },
-      "cites": "A2: a producer whose serializer defaults to ASCII escaping emits different bytes for the same string",
-      "records": "records/bad-102-chain-hash-ascii-escaped-string.jsonl"
-    },
-    {
-      "id": "bad-103-chain-hash-html-escaped-string",
-      "kind": "reject",
-      "file": "reject/bad-103-chain-hash-html-escaped-string.json",
-      "conditions": [
-        "aia-c-3"
-      ],
-      "expected": {
-        "verdict": "invalid",
-        "codes": [
-          "chain-hash-mismatch"
-        ]
-      },
-      "cites": "A2b: Go's encoding/json escapes <, > and & by default, so a Go gateway and a Node gateway disagree on identical input",
-      "records": "records/bad-103-chain-hash-html-escaped-string.jsonl"
-    },
-    {
-      "id": "bad-104-log-line-not-canonical-bytes",
-      "kind": "reject",
-      "file": "reject/bad-104-log-line-not-canonical-bytes.json",
-      "conditions": [
-        "aia-c-4"
-      ],
-      "expected": {
-        "verdict": "invalid",
-        "codes": [
-          "noncanonical-bytes"
-        ]
-      },
-      "cites": "A3: the record parses identically and hashes differently; any log shipper that reserializes produces this",
-      "records": "records/bad-104-log-line-not-canonical-bytes.jsonl"
-    },
-    {
-      "id": "bad-105-duplicate-member-toolname",
-      "kind": "reject",
-      "file": "reject/bad-105-duplicate-member-toolname.json",
-      "conditions": [
-        "aia-c-5"
-      ],
-      "expected": {
-        "verdict": "invalid",
-        "codes": [
-          "duplicate-member"
-        ]
-      },
-      "cites": "A4: a first-wins reader displays read_file while the hash commits to delete_repository",
-      "records": "records/bad-105-duplicate-member-toolname.jsonl"
-    },
-    {
-      "id": "bad-106-chain-fork-shared-previoushash",
-      "kind": "reject",
-      "file": "reject/bad-106-chain-fork-shared-previoushash.json",
-      "conditions": [
-        "aia-c-6"
-      ],
-      "expected": {
-        "verdict": "invalid",
-        "codes": [
-          "chain-fork"
-        ]
-      },
-      "cites": "A5: two records carry one previousHash. Every hash verifies, the genesis hash and therefore the subject digest are unchanged, and the presenter chooses which branch the auditor sees.",
-      "records": "records/bad-106-chain-fork-shared-previoushash.jsonl"
-    },
-    {
-      "id": "bad-107-checkpoint-omitted-from-chain",
-      "kind": "reject",
-      "file": "reject/bad-107-checkpoint-omitted-from-chain.json",
-      "conditions": [
-        "aia-c-8"
-      ],
-      "expected": {
-        "verdict": "invalid",
-        "codes": [
-          "checkpoint-not-linked"
-        ]
-      },
-      "cites": "A6: the successor chains past the checkpoint to the record before it, so the checkpoint is deletable and the anti-truncation mechanism carries no weight",
-      "records": "records/bad-107-checkpoint-omitted-from-chain.jsonl"
-    },
-    {
-      "id": "bad-108-float-in-signed-record-field",
-      "kind": "reject",
-      "file": "reject/bad-108-float-in-signed-record-field.json",
-      "conditions": [
-        "aia-c-9"
-      ],
-      "expected": {
-        "verdict": "invalid",
-        "codes": [
-          "non-integer-in-signed-field"
-        ]
-      },
-      "cites": "A7: the safe-integer profile binds signed record fields; the content-digest form is where a float belongs",
-      "records": "records/bad-108-float-in-signed-record-field.jsonl"
-    },
-    {
-      "id": "bad-109-error-response-digest-over-null",
-      "kind": "reject",
-      "file": "reject/bad-109-error-response-digest-over-null.json",
+      "file": "statements/v0805461f7a5c9a1f.json",
       "conditions": [
         "aia-c-10"
       ],
@@ -159,586 +31,28 @@
         ]
       },
       "cites": "A8: one of four readings a verifier could take of an absent result member, and the only one this suite forbids by naming the other",
-      "records": "records/bad-109-error-response-digest-over-null.jsonl"
+      "records": "records/v0805461f7a5c9a1f.jsonl"
     },
     {
-      "id": "bad-110-previoushash-uppercase-hex",
+      "id": "v0f4f2093061d303f",
       "kind": "reject",
-      "file": "reject/bad-110-previoushash-uppercase-hex.json",
-      "conditions": [
-        "aia-c-11"
-      ],
-      "expected": {
-        "verdict": "invalid",
-        "codes": [
-          "previoushash-not-canonical"
-        ]
-      },
-      "cites": "A9: a case-normalizing verifier links it and a byte-comparing one does not, so the same logical link has two spellings"
-    },
-    {
-      "id": "bad-111-previoushash-wrong-length",
-      "kind": "reject",
-      "file": "reject/bad-111-previoushash-wrong-length.json",
-      "conditions": [
-        "aia-c-11"
-      ],
-      "expected": {
-        "verdict": "invalid",
-        "codes": [
-          "previoushash-not-canonical"
-        ]
-      },
-      "cites": "A9b: 40 hex digits. Nothing in the current text excludes a digest from another algorithm"
-    },
-    {
-      "id": "bad-112-second-genesis-after-break",
-      "kind": "reject",
-      "file": "reject/bad-112-second-genesis-after-break.json",
-      "conditions": [
-        "aia-c-7"
-      ],
-      "expected": {
-        "verdict": "invalid",
-        "codes": [
-          "duplicate-genesis"
-        ]
-      },
-      "cites": "F3: the successor of a break restarts at genesis instead of chaining from the break, discarding the scar. #588 makes detection SHOULD; this member makes it MUST",
-      "records": "records/bad-112-second-genesis-after-break.jsonl"
-    },
-    {
-      "id": "bad-113-unpaired-surrogate-in-toolname",
-      "kind": "reject",
-      "file": "reject/bad-113-unpaired-surrogate-in-toolname.json",
-      "conditions": [
-        "aia-c-13"
-      ],
-      "expected": {
-        "verdict": "invalid",
-        "codes": [
-          "ill-formed-string"
-        ]
-      },
-      "cites": "F2: already forbidden by #588's own text. The vector is what stops the rule from being advice",
-      "records": "records/bad-113-unpaired-surrogate-in-toolname.jsonl"
-    },
-    {
-      "id": "bad-114-extensions-depth-129",
-      "kind": "reject",
-      "file": "reject/bad-114-extensions-depth-129.json",
-      "conditions": [
-        "aia-c-12"
-      ],
-      "expected": {
-        "verdict": "invalid",
-        "codes": [
-          "depth-exceeded"
-        ]
-      },
-      "cites": "bounds: one level past the stated cap, so the counting rule is exercised rather than assumed"
-    },
-    {
-      "id": "bad-115-unsafe-integer-durationms",
-      "kind": "reject",
-      "file": "reject/bad-115-unsafe-integer-durationms.json",
-      "conditions": [
-        "aia-c-14"
-      ],
-      "expected": {
-        "verdict": "invalid",
-        "codes": [
-          "unsafe-integer"
-        ]
-      },
-      "cites": "bounds: 2^53 + 1, the first value the I-JSON profile excludes"
-    },
-    {
-      "id": "bad-116-astral-extension-member-name",
-      "kind": "reject",
-      "file": "reject/bad-116-astral-extension-member-name.json",
-      "conditions": [
-        "aia-c-15"
-      ],
-      "expected": {
-        "verdict": "invalid",
-        "codes": [
-          "non-bmp-member-name"
-        ],
-        "chainHashUtf16": "e26dfc02e6a3f491a4d597cf5a06c2591f447ebbec28539b7ae723cf20b32b9a",
-        "chainHashCodePoint": "d6037ab7134f90983da5db5894790d3228c0386b62f3eabfc8e2488cb66af4eb"
-      },
-      "cites": "strings: U+1F680 is encoded UTF-16 as D83D DE80, so it sorts before U+FF3A by code unit and after it by code point. The record is well formed and every field is untouched; it has two canonical byte strings and therefore two chain hashes, so the successor's previousHash and the chain's subject digest both fork.",
-      "records": "records/bad-116-astral-extension-member-name.jsonl"
-    },
-    {
-      "id": "ok-001-canonical-chain-hash-integer-like-keys",
-      "kind": "accept",
-      "file": "accept/ok-001-canonical-chain-hash-integer-like-keys.json",
-      "conditions": [
-        "aia-c-1",
-        "aia-c-2"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "chainHash": "4e70d92204aee18162dc4db4d6bdc2462b73ec0c45d794ec5912bfec124cea3e"
-      },
-      "cites": "canonicalization: member ordering is JCS, never the host language's property order",
-      "records": "records/ok-001-canonical-chain-hash-integer-like-keys.jsonl"
-    },
-    {
-      "id": "ok-002-canonical-chain-hash-non-ascii",
-      "kind": "accept",
-      "file": "accept/ok-002-canonical-chain-hash-non-ascii.json",
-      "conditions": [
-        "aia-c-3"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "chainHash": "85f45ae27d2215c81483e0626d1e2adad7c543835a4881cac8426cc87f429147"
-      },
-      "cites": "canonicalization: JCS emits the character, never a \\u escape",
-      "records": "records/ok-002-canonical-chain-hash-non-ascii.jsonl"
-    },
-    {
-      "id": "ok-003-log-line-equals-canonical-bytes",
-      "kind": "accept",
-      "file": "accept/ok-003-log-line-equals-canonical-bytes.json",
-      "conditions": [
-        "aia-c-4"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "chainHash": "18ac4f55035ff446f1d047e1b8c3784fc1815c0b428fe64a63b23b98af1c8914"
-      },
-      "cites": "canonicalization: the log line IS the canonical bytes, so the two readings of the preimage coincide",
-      "records": "records/ok-003-log-line-equals-canonical-bytes.jsonl"
-    },
-    {
-      "id": "ok-004-unique-members",
-      "kind": "accept",
-      "file": "accept/ok-004-unique-members.json",
+      "file": "statements/v0f4f2093061d303f.json",
       "conditions": [
         "aia-c-5"
       ],
       "expected": {
-        "verdict": "valid",
-        "chainHash": "8442e5333a1e618d68a1aba6ac8cbdae918d759c0d76abcd3dca92ecb48e8ede"
+        "verdict": "invalid",
+        "codes": [
+          "duplicate-member"
+        ]
       },
-      "cites": "canonicalization: I-JSON, no duplicate member at any depth",
-      "records": "records/ok-004-unique-members.jsonl"
+      "cites": "A4: a first-wins reader displays read_file while the hash commits to delete_repository",
+      "records": "records/v0f4f2093061d303f.jsonl"
     },
     {
-      "id": "ok-005-linear-chain-single-head",
+      "id": "v0fbb0059f0813e81",
       "kind": "accept",
-      "file": "accept/ok-005-linear-chain-single-head.json",
-      "conditions": [
-        "aia-c-6",
-        "aia-c-7"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "chainHash": "f349dd6a3000e83717650769673bf9717018295db70a8ad272d53741f2e5f9ae",
-        "records": 3
-      },
-      "cites": "chain shape: exactly one record carries any given previousHash",
-      "records": "records/ok-005-linear-chain-single-head.jsonl"
-    },
-    {
-      "id": "ok-006-checkpoint-carries-chain-link",
-      "kind": "accept",
-      "file": "accept/ok-006-checkpoint-carries-chain-link.json",
-      "conditions": [
-        "aia-c-8"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "chainHash": "0abf7a119b815b4a6a3ac47e1cbc2f2dc92eedf5e4e94b227cf3853891df8bc1"
-      },
-      "cites": "chain shape: every record type links through predicate.chain",
-      "records": "records/ok-006-checkpoint-carries-chain-link.jsonl"
-    },
-    {
-      "id": "ok-007-float-in-content-payload-only",
-      "kind": "accept",
-      "file": "accept/ok-007-float-in-content-payload-only.json",
-      "conditions": [
-        "aia-c-9"
-      ],
-      "expected": {
-        "verdict": "valid"
-      },
-      "cites": "canonicalization: the safe-integer profile binds signed record fields; content payloads are JCS and admit floats"
-    },
-    {
-      "id": "ok-008-error-response-digest-over-error-member",
-      "kind": "accept",
-      "file": "accept/ok-008-error-response-digest-over-error-member.json",
-      "conditions": [
-        "aia-c-10"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "responseDigest": "431ee0d9da1351dadbe66395800815f6021ce4b288c612e44b7f3d091b1a832f"
-      },
-      "cites": "content digest: a failed call digests the error member, named explicitly rather than left to the reader",
-      "records": "records/ok-008-error-response-digest-over-error-member.jsonl"
-    },
-    {
-      "id": "ok-009-previoushash-lowercase-64-hex",
-      "kind": "accept",
-      "file": "accept/ok-009-previoushash-lowercase-64-hex.json",
-      "conditions": [
-        "aia-c-11"
-      ],
-      "expected": {
-        "verdict": "valid"
-      },
-      "cites": "chain shape: previousHash is lowercase 64-hex or the literal genesis"
-    },
-    {
-      "id": "ok-010-extensions-depth-128",
-      "kind": "accept",
-      "file": "accept/ok-010-extensions-depth-128.json",
-      "conditions": [
-        "aia-c-12"
-      ],
-      "expected": {
-        "verdict": "valid"
-      },
-      "cites": "bounds: 128 is admissible; the counting rule is #570's"
-    },
-    {
-      "id": "ok-011-paired-surrogate-in-toolname",
-      "kind": "accept",
-      "file": "accept/ok-011-paired-surrogate-in-toolname.json",
-      "conditions": [
-        "aia-c-13"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "chainHash": "8de2e0ae9a35490ca05419514c11efa5b93d5fae63f5920572c67041107b6744"
-      },
-      "cites": "strings: the rule excludes an unpaired half, never a valid supplementary-plane character, so a verifier that rejects both is over-rejecting",
-      "records": "records/ok-011-paired-surrogate-in-toolname.jsonl"
-    },
-    {
-      "id": "ok-012-largest-safe-integer-durationms",
-      "kind": "accept",
-      "file": "accept/ok-012-largest-safe-integer-durationms.json",
-      "conditions": [
-        "aia-c-14"
-      ],
-      "expected": {
-        "verdict": "valid"
-      },
-      "cites": "bounds: 2^53 - 1 is admissible, so the boundary is exercised from both sides rather than assumed"
-    },
-    {
-      "id": "ok-013-bmp-extension-member-names",
-      "kind": "accept",
-      "file": "accept/ok-013-bmp-extension-member-names.json",
-      "conditions": [
-        "aia-c-15"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "chainHash": "4342fd30cea6e77413e19e51fbf7f6d0b79d30cb639a8fa2d4d09a5569ac6698",
-        "chainHashUtf16": "4342fd30cea6e77413e19e51fbf7f6d0b79d30cb639a8fa2d4d09a5569ac6698",
-        "chainHashCodePoint": "4342fd30cea6e77413e19e51fbf7f6d0b79d30cb639a8fa2d4d09a5569ac6698"
-      },
-      "cites": "strings: extension member names inside the BMP sort the same way under UTF-16 code units and under code points, so the record has one canonical form and one chain hash",
-      "records": "records/ok-013-bmp-extension-member-names.jsonl"
-    },
-    {
-      "id": "ok-014-appendix-b-zero",
-      "kind": "accept",
-      "file": "accept/ok-014-appendix-b-zero.json",
-      "conditions": [
-        "aia-c-16"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "ieee754": "0000000000000000",
-        "canonicalNumber": "0",
-        "requestDigest": "23d7b286bd429460b92a2a1c21b6afc34110446c5034c17363fda363aa0a7c5d"
-      },
-      "cites": "number serialization: RFC 8785 Appendix B row 1. The IEEE 754 double 0000000000000000 is the JSON number 0, and no other text. Zero."
-    },
-    {
-      "id": "ok-015-appendix-b-minus-zero",
-      "kind": "accept",
-      "file": "accept/ok-015-appendix-b-minus-zero.json",
-      "conditions": [
-        "aia-c-16"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "ieee754": "8000000000000000",
-        "canonicalNumber": "0",
-        "requestDigest": "23d7b286bd429460b92a2a1c21b6afc34110446c5034c17363fda363aa0a7c5d"
-      },
-      "cites": "number serialization: RFC 8785 Appendix B row 2. The IEEE 754 double 8000000000000000 is the JSON number 0, and no other text. Minus zero."
-    },
-    {
-      "id": "ok-016-appendix-b-min-pos-number",
-      "kind": "accept",
-      "file": "accept/ok-016-appendix-b-min-pos-number.json",
-      "conditions": [
-        "aia-c-16"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "ieee754": "0000000000000001",
-        "canonicalNumber": "5e-324",
-        "requestDigest": "8f275eb622ce665f3cf21739b40600308dcea7c36627451f1c210a4152343c85"
-      },
-      "cites": "number serialization: RFC 8785 Appendix B row 3. The IEEE 754 double 0000000000000001 is the JSON number 5e-324, and no other text. Min pos number."
-    },
-    {
-      "id": "ok-017-appendix-b-min-neg-number",
-      "kind": "accept",
-      "file": "accept/ok-017-appendix-b-min-neg-number.json",
-      "conditions": [
-        "aia-c-16"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "ieee754": "8000000000000001",
-        "canonicalNumber": "-5e-324",
-        "requestDigest": "ab7b8bf379e41464b0e5750cbcbd9747ea2d326b5a1140c916352769663ecc85"
-      },
-      "cites": "number serialization: RFC 8785 Appendix B row 4. The IEEE 754 double 8000000000000001 is the JSON number -5e-324, and no other text. Min neg number."
-    },
-    {
-      "id": "ok-018-appendix-b-max-pos-number",
-      "kind": "accept",
-      "file": "accept/ok-018-appendix-b-max-pos-number.json",
-      "conditions": [
-        "aia-c-16"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "ieee754": "7fefffffffffffff",
-        "canonicalNumber": "1.7976931348623157e+308",
-        "requestDigest": "17579ea1287f0c7ed8799e2047914a528123a4c6fb86f604b1d37aa75b09303a"
-      },
-      "cites": "number serialization: RFC 8785 Appendix B row 5. The IEEE 754 double 7fefffffffffffff is the JSON number 1.7976931348623157e+308, and no other text. Max pos number."
-    },
-    {
-      "id": "ok-019-appendix-b-max-neg-number",
-      "kind": "accept",
-      "file": "accept/ok-019-appendix-b-max-neg-number.json",
-      "conditions": [
-        "aia-c-16"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "ieee754": "ffefffffffffffff",
-        "canonicalNumber": "-1.7976931348623157e+308",
-        "requestDigest": "4044b8207dfb123bf2b3d08cdb3772e056eff9707b60fd377495c6c8128c7f28"
-      },
-      "cites": "number serialization: RFC 8785 Appendix B row 6. The IEEE 754 double ffefffffffffffff is the JSON number -1.7976931348623157e+308, and no other text. Max neg number."
-    },
-    {
-      "id": "ok-020-appendix-b-max-pos-int",
-      "kind": "accept",
-      "file": "accept/ok-020-appendix-b-max-pos-int.json",
-      "conditions": [
-        "aia-c-16"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "ieee754": "4340000000000000",
-        "canonicalNumber": "9007199254740992",
-        "requestDigest": "3b0d9a238f369ef1d4cb7182e6ca467e10b5501cbab84e9c80d1d91053253504"
-      },
-      "cites": "number serialization: RFC 8785 Appendix B row 7. The IEEE 754 double 4340000000000000 is the JSON number 9007199254740992, and no other text. Max pos int."
-    },
-    {
-      "id": "ok-021-appendix-b-max-neg-int",
-      "kind": "accept",
-      "file": "accept/ok-021-appendix-b-max-neg-int.json",
-      "conditions": [
-        "aia-c-16"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "ieee754": "c340000000000000",
-        "canonicalNumber": "-9007199254740992",
-        "requestDigest": "f90641db2d34a12b1031df0a732b1386073d883ef4340b20541a1c110c0ce386"
-      },
-      "cites": "number serialization: RFC 8785 Appendix B row 8. The IEEE 754 double c340000000000000 is the JSON number -9007199254740992, and no other text. Max neg int."
-    },
-    {
-      "id": "ok-022-appendix-b-two-to-the-68",
-      "kind": "accept",
-      "file": "accept/ok-022-appendix-b-two-to-the-68.json",
-      "conditions": [
-        "aia-c-16"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "ieee754": "4430000000000000",
-        "canonicalNumber": "295147905179352830000",
-        "requestDigest": "57c82398dfd8be4a4ac903d1d2d01beee4c1d7179c9a5afc574bdf972646783b"
-      },
-      "cites": "number serialization: RFC 8785 Appendix B row 9. The IEEE 754 double 4430000000000000 is the JSON number 295147905179352830000, and no other text. ~2**68."
-    },
-    {
-      "id": "ok-023-appendix-b-below-1e23",
-      "kind": "accept",
-      "file": "accept/ok-023-appendix-b-below-1e23.json",
-      "conditions": [
-        "aia-c-16"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "ieee754": "44b52d02c7e14af5",
-        "canonicalNumber": "9.999999999999997e+22",
-        "requestDigest": "da4897f0a6118742f26a7882cb6a8ddabef00bbb37597630d4c329bacc74e573"
-      },
-      "cites": "number serialization: RFC 8785 Appendix B row 10. The IEEE 754 double 44b52d02c7e14af5 is the JSON number 9.999999999999997e+22, and no other text."
-    },
-    {
-      "id": "ok-024-appendix-b-at-1e23",
-      "kind": "accept",
-      "file": "accept/ok-024-appendix-b-at-1e23.json",
-      "conditions": [
-        "aia-c-16"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "ieee754": "44b52d02c7e14af6",
-        "canonicalNumber": "1e+23",
-        "requestDigest": "5add8f0ad0ac9f9e9fbd027279b5a7db972ab4d6219508a116d56f6db62677b3"
-      },
-      "cites": "number serialization: RFC 8785 Appendix B row 11. The IEEE 754 double 44b52d02c7e14af6 is the JSON number 1e+23, and no other text."
-    },
-    {
-      "id": "ok-025-appendix-b-above-1e23",
-      "kind": "accept",
-      "file": "accept/ok-025-appendix-b-above-1e23.json",
-      "conditions": [
-        "aia-c-16"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "ieee754": "44b52d02c7e14af7",
-        "canonicalNumber": "1.0000000000000001e+23",
-        "requestDigest": "26c6ab71e1be17098d15e39e8df6e19023008270262a02f17608c3c86f0eaa8a"
-      },
-      "cites": "number serialization: RFC 8785 Appendix B row 12. The IEEE 754 double 44b52d02c7e14af7 is the JSON number 1.0000000000000001e+23, and no other text."
-    },
-    {
-      "id": "ok-026-appendix-b-below-1e21",
-      "kind": "accept",
-      "file": "accept/ok-026-appendix-b-below-1e21.json",
-      "conditions": [
-        "aia-c-16"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "ieee754": "444b1ae4d6e2ef4e",
-        "canonicalNumber": "999999999999999700000",
-        "requestDigest": "87b1b35f24fc744edaa61cdc8f99025ee9c540f4579cb1695bc0be3e73abe7be"
-      },
-      "cites": "number serialization: RFC 8785 Appendix B row 13. The IEEE 754 double 444b1ae4d6e2ef4e is the JSON number 999999999999999700000, and no other text."
-    },
-    {
-      "id": "ok-027-appendix-b-just-below-1e21",
-      "kind": "accept",
-      "file": "accept/ok-027-appendix-b-just-below-1e21.json",
-      "conditions": [
-        "aia-c-16"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "ieee754": "444b1ae4d6e2ef4f",
-        "canonicalNumber": "999999999999999900000",
-        "requestDigest": "23dd4ee5341464abe01689237ed41c9ab80ddd78bc418c7d3e4583c3b396d3fa"
-      },
-      "cites": "number serialization: RFC 8785 Appendix B row 14. The IEEE 754 double 444b1ae4d6e2ef4f is the JSON number 999999999999999900000, and no other text."
-    },
-    {
-      "id": "ok-028-appendix-b-at-1e21",
-      "kind": "accept",
-      "file": "accept/ok-028-appendix-b-at-1e21.json",
-      "conditions": [
-        "aia-c-16"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "ieee754": "444b1ae4d6e2ef50",
-        "canonicalNumber": "1e+21",
-        "requestDigest": "776bf0d292f3767fdfca3fdc9683d0ba51886b8e6e79cd228a41bafcfa9a1a6f"
-      },
-      "cites": "number serialization: RFC 8785 Appendix B row 15. The IEEE 754 double 444b1ae4d6e2ef50 is the JSON number 1e+21, and no other text."
-    },
-    {
-      "id": "ok-029-appendix-b-below-1e-6",
-      "kind": "accept",
-      "file": "accept/ok-029-appendix-b-below-1e-6.json",
-      "conditions": [
-        "aia-c-16"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "ieee754": "3eb0c6f7a0b5ed8c",
-        "canonicalNumber": "9.999999999999997e-7",
-        "requestDigest": "f1ad5ca9e0c403a896658b2c5125b3dbfb0336899ab21ca1eb6ce1c875825a3a"
-      },
-      "cites": "number serialization: RFC 8785 Appendix B row 16. The IEEE 754 double 3eb0c6f7a0b5ed8c is the JSON number 9.999999999999997e-7, and no other text."
-    },
-    {
-      "id": "ok-030-appendix-b-at-1e-6",
-      "kind": "accept",
-      "file": "accept/ok-030-appendix-b-at-1e-6.json",
-      "conditions": [
-        "aia-c-16"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "ieee754": "3eb0c6f7a0b5ed8d",
-        "canonicalNumber": "0.000001",
-        "requestDigest": "bc1c982dd4e677d72ff5821cc67554e045e838a31ddc55fa0fdb1a32d5a1dce9"
-      },
-      "cites": "number serialization: RFC 8785 Appendix B row 17. The IEEE 754 double 3eb0c6f7a0b5ed8d is the JSON number 0.000001, and no other text."
-    },
-    {
-      "id": "ok-031-appendix-b-ulp-minus-two",
-      "kind": "accept",
-      "file": "accept/ok-031-appendix-b-ulp-minus-two.json",
-      "conditions": [
-        "aia-c-16"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "ieee754": "41b3de4355555553",
-        "canonicalNumber": "333333333.3333332",
-        "requestDigest": "084cb94da04b9a78898f22f0728cf700df95db124a598170e72647e005efd711"
-      },
-      "cites": "number serialization: RFC 8785 Appendix B row 18. The IEEE 754 double 41b3de4355555553 is the JSON number 333333333.3333332, and no other text."
-    },
-    {
-      "id": "ok-032-appendix-b-ulp-minus-one",
-      "kind": "accept",
-      "file": "accept/ok-032-appendix-b-ulp-minus-one.json",
-      "conditions": [
-        "aia-c-16"
-      ],
-      "expected": {
-        "verdict": "valid",
-        "ieee754": "41b3de4355555554",
-        "canonicalNumber": "333333333.33333325",
-        "requestDigest": "d59eb6cb5a7ac135ef01403ecbc65a28a05fbb406d7f6af21952065613337a0f"
-      },
-      "cites": "number serialization: RFC 8785 Appendix B row 19. The IEEE 754 double 41b3de4355555554 is the JSON number 333333333.33333325, and no other text."
-    },
-    {
-      "id": "ok-033-appendix-b-ulp-centre",
-      "kind": "accept",
-      "file": "accept/ok-033-appendix-b-ulp-centre.json",
+      "file": "statements/v0fbb0059f0813e81.json",
       "conditions": [
         "aia-c-16"
       ],
@@ -751,9 +65,590 @@
       "cites": "number serialization: RFC 8785 Appendix B row 20. The IEEE 754 double 41b3de4355555555 is the JSON number 333333333.3333333, and no other text."
     },
     {
-      "id": "ok-034-appendix-b-ulp-plus-one",
+      "id": "v19200ece1a40066b",
       "kind": "accept",
-      "file": "accept/ok-034-appendix-b-ulp-plus-one.json",
+      "file": "statements/v19200ece1a40066b.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "c340000000000000",
+        "canonicalNumber": "-9007199254740992",
+        "requestDigest": "f90641db2d34a12b1031df0a732b1386073d883ef4340b20541a1c110c0ce386"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 8. The IEEE 754 double c340000000000000 is the JSON number -9007199254740992, and no other text. Max neg int."
+    },
+    {
+      "id": "v1aa63bb62de9b357",
+      "kind": "accept",
+      "file": "statements/v1aa63bb62de9b357.json",
+      "conditions": [
+        "aia-c-11"
+      ],
+      "expected": {
+        "verdict": "valid"
+      },
+      "cites": "chain shape: previousHash is lowercase 64-hex or the literal genesis"
+    },
+    {
+      "id": "v26230ff87959bda5",
+      "kind": "reject",
+      "file": "statements/v26230ff87959bda5.json",
+      "conditions": [
+        "aia-c-1"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "chain-hash-mismatch"
+        ]
+      },
+      "cites": "A1: JSON.stringify orders 2 before 10 and leaves zz before aa; JCS orders 10, 2, aa, zz. Three languages, three chain hashes.",
+      "records": "records/v26230ff87959bda5.jsonl"
+    },
+    {
+      "id": "v27af706aa6237b7a",
+      "kind": "accept",
+      "file": "statements/v27af706aa6237b7a.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "7fefffffffffffff",
+        "canonicalNumber": "1.7976931348623157e+308",
+        "requestDigest": "17579ea1287f0c7ed8799e2047914a528123a4c6fb86f604b1d37aa75b09303a"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 5. The IEEE 754 double 7fefffffffffffff is the JSON number 1.7976931348623157e+308, and no other text. Max pos number."
+    },
+    {
+      "id": "v2d317372d8b62a5b",
+      "kind": "accept",
+      "file": "statements/v2d317372d8b62a5b.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "41b3de4355555554",
+        "canonicalNumber": "333333333.33333325",
+        "requestDigest": "d59eb6cb5a7ac135ef01403ecbc65a28a05fbb406d7f6af21952065613337a0f"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 19. The IEEE 754 double 41b3de4355555554 is the JSON number 333333333.33333325, and no other text."
+    },
+    {
+      "id": "v362600d69975d14c",
+      "kind": "accept",
+      "file": "statements/v362600d69975d14c.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "4430000000000000",
+        "canonicalNumber": "295147905179352830000",
+        "requestDigest": "57c82398dfd8be4a4ac903d1d2d01beee4c1d7179c9a5afc574bdf972646783b"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 9. The IEEE 754 double 4430000000000000 is the JSON number 295147905179352830000, and no other text. ~2**68."
+    },
+    {
+      "id": "v3e30ec52a2e1f716",
+      "kind": "accept",
+      "file": "statements/v3e30ec52a2e1f716.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "41b3de4355555553",
+        "canonicalNumber": "333333333.3333332",
+        "requestDigest": "084cb94da04b9a78898f22f0728cf700df95db124a598170e72647e005efd711"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 18. The IEEE 754 double 41b3de4355555553 is the JSON number 333333333.3333332, and no other text."
+    },
+    {
+      "id": "v401b49d063fe0a5e",
+      "kind": "accept",
+      "file": "statements/v401b49d063fe0a5e.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "ffefffffffffffff",
+        "canonicalNumber": "-1.7976931348623157e+308",
+        "requestDigest": "4044b8207dfb123bf2b3d08cdb3772e056eff9707b60fd377495c6c8128c7f28"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 6. The IEEE 754 double ffefffffffffffff is the JSON number -1.7976931348623157e+308, and no other text. Max neg number."
+    },
+    {
+      "id": "v43175cd2ad003639",
+      "kind": "accept",
+      "file": "statements/v43175cd2ad003639.json",
+      "conditions": [
+        "aia-c-12"
+      ],
+      "expected": {
+        "verdict": "valid"
+      },
+      "cites": "bounds: 128 is admissible; the counting rule is #570's"
+    },
+    {
+      "id": "v4c882a9f1bbeb7f0",
+      "kind": "accept",
+      "file": "statements/v4c882a9f1bbeb7f0.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "0000000000000001",
+        "canonicalNumber": "5e-324",
+        "requestDigest": "8f275eb622ce665f3cf21739b40600308dcea7c36627451f1c210a4152343c85"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 3. The IEEE 754 double 0000000000000001 is the JSON number 5e-324, and no other text. Min pos number."
+    },
+    {
+      "id": "v4d02dbb1731f4972",
+      "kind": "reject",
+      "file": "statements/v4d02dbb1731f4972.json",
+      "conditions": [
+        "aia-c-11"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "previoushash-not-canonical"
+        ]
+      },
+      "cites": "A9b: 40 hex digits. Nothing in the current text excludes a digest from another algorithm"
+    },
+    {
+      "id": "v5866a1997c7b2d76",
+      "kind": "reject",
+      "file": "statements/v5866a1997c7b2d76.json",
+      "conditions": [
+        "aia-c-7"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "duplicate-genesis"
+        ]
+      },
+      "cites": "F3: the successor of a break restarts at genesis instead of chaining from the break, discarding the scar. #588 makes detection SHOULD; this member makes it MUST",
+      "records": "records/v5866a1997c7b2d76.jsonl"
+    },
+    {
+      "id": "v663dae0ae9cfda97",
+      "kind": "accept",
+      "file": "statements/v663dae0ae9cfda97.json",
+      "conditions": [
+        "aia-c-5"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "chainHash": "8442e5333a1e618d68a1aba6ac8cbdae918d759c0d76abcd3dca92ecb48e8ede"
+      },
+      "cites": "canonicalization: I-JSON, no duplicate member at any depth",
+      "records": "records/v663dae0ae9cfda97.jsonl"
+    },
+    {
+      "id": "v679f56481420e45a",
+      "kind": "reject",
+      "file": "statements/v679f56481420e45a.json",
+      "conditions": [
+        "aia-c-14"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "unsafe-integer"
+        ]
+      },
+      "cites": "bounds: 2^53 + 1, the first value the I-JSON profile excludes"
+    },
+    {
+      "id": "v6d21ff18cfa69ef8",
+      "kind": "accept",
+      "file": "statements/v6d21ff18cfa69ef8.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "444b1ae4d6e2ef50",
+        "canonicalNumber": "1e+21",
+        "requestDigest": "776bf0d292f3767fdfca3fdc9683d0ba51886b8e6e79cd228a41bafcfa9a1a6f"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 15. The IEEE 754 double 444b1ae4d6e2ef50 is the JSON number 1e+21, and no other text."
+    },
+    {
+      "id": "v726e35aa6179f8d9",
+      "kind": "accept",
+      "file": "statements/v726e35aa6179f8d9.json",
+      "conditions": [
+        "aia-c-6",
+        "aia-c-7"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "chainHash": "f349dd6a3000e83717650769673bf9717018295db70a8ad272d53741f2e5f9ae",
+        "records": 3
+      },
+      "cites": "chain shape: exactly one record carries any given previousHash",
+      "records": "records/v726e35aa6179f8d9.jsonl"
+    },
+    {
+      "id": "v7460b093ad19f68d",
+      "kind": "accept",
+      "file": "statements/v7460b093ad19f68d.json",
+      "conditions": [
+        "aia-c-14"
+      ],
+      "expected": {
+        "verdict": "valid"
+      },
+      "cites": "bounds: 2^53 - 1 is admissible, so the boundary is exercised from both sides rather than assumed"
+    },
+    {
+      "id": "v791c2a09aa3a06bc",
+      "kind": "accept",
+      "file": "statements/v791c2a09aa3a06bc.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "8000000000000001",
+        "canonicalNumber": "-5e-324",
+        "requestDigest": "ab7b8bf379e41464b0e5750cbcbd9747ea2d326b5a1140c916352769663ecc85"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 4. The IEEE 754 double 8000000000000001 is the JSON number -5e-324, and no other text. Min neg number."
+    },
+    {
+      "id": "v79fbd4b605a4d914",
+      "kind": "reject",
+      "file": "statements/v79fbd4b605a4d914.json",
+      "conditions": [
+        "aia-c-4"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "noncanonical-bytes"
+        ]
+      },
+      "cites": "A3: the record parses identically and hashes differently; any log shipper that reserializes produces this",
+      "records": "records/v79fbd4b605a4d914.jsonl"
+    },
+    {
+      "id": "v7d0402b3c091526e",
+      "kind": "accept",
+      "file": "statements/v7d0402b3c091526e.json",
+      "conditions": [
+        "aia-c-9"
+      ],
+      "expected": {
+        "verdict": "valid"
+      },
+      "cites": "canonicalization: the safe-integer profile binds signed record fields; content payloads are JCS and admit floats"
+    },
+    {
+      "id": "v7d78f7f696236714",
+      "kind": "accept",
+      "file": "statements/v7d78f7f696236714.json",
+      "conditions": [
+        "aia-c-3"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "chainHash": "85f45ae27d2215c81483e0626d1e2adad7c543835a4881cac8426cc87f429147"
+      },
+      "cites": "canonicalization: JCS emits the character, never a \\u escape",
+      "records": "records/v7d78f7f696236714.jsonl"
+    },
+    {
+      "id": "v7fe454a506f992b2",
+      "kind": "accept",
+      "file": "statements/v7fe454a506f992b2.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "0000000000000000",
+        "canonicalNumber": "0",
+        "requestDigest": "23d7b286bd429460b92a2a1c21b6afc34110446c5034c17363fda363aa0a7c5d"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 1. The IEEE 754 double 0000000000000000 is the JSON number 0, and no other text. Zero."
+    },
+    {
+      "id": "v843566cf72cd33c3",
+      "kind": "accept",
+      "file": "statements/v843566cf72cd33c3.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "44b52d02c7e14af5",
+        "canonicalNumber": "9.999999999999997e+22",
+        "requestDigest": "da4897f0a6118742f26a7882cb6a8ddabef00bbb37597630d4c329bacc74e573"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 10. The IEEE 754 double 44b52d02c7e14af5 is the JSON number 9.999999999999997e+22, and no other text."
+    },
+    {
+      "id": "v861f20f3fa63ce2b",
+      "kind": "reject",
+      "file": "statements/v861f20f3fa63ce2b.json",
+      "conditions": [
+        "aia-c-6"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "chain-fork"
+        ]
+      },
+      "cites": "A5: two records carry one previousHash. Every hash verifies, the genesis hash and therefore the subject digest are unchanged, and the presenter chooses which branch the auditor sees.",
+      "records": "records/v861f20f3fa63ce2b.jsonl"
+    },
+    {
+      "id": "v86bb8bc8908fea42",
+      "kind": "reject",
+      "file": "statements/v86bb8bc8908fea42.json",
+      "conditions": [
+        "aia-c-13"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "ill-formed-string"
+        ]
+      },
+      "cites": "F2: already forbidden by #588's own text. The vector is what stops the rule from being advice",
+      "records": "records/v86bb8bc8908fea42.jsonl"
+    },
+    {
+      "id": "v886b10508ab8ba51",
+      "kind": "accept",
+      "file": "statements/v886b10508ab8ba51.json",
+      "conditions": [
+        "aia-c-13"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "chainHash": "8de2e0ae9a35490ca05419514c11efa5b93d5fae63f5920572c67041107b6744"
+      },
+      "cites": "strings: the rule excludes an unpaired half, never a valid supplementary-plane character, so a verifier that rejects both is over-rejecting",
+      "records": "records/v886b10508ab8ba51.jsonl"
+    },
+    {
+      "id": "v904d162069c03d18",
+      "kind": "accept",
+      "file": "statements/v904d162069c03d18.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "4340000000000000",
+        "canonicalNumber": "9007199254740992",
+        "requestDigest": "3b0d9a238f369ef1d4cb7182e6ca467e10b5501cbab84e9c80d1d91053253504"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 7. The IEEE 754 double 4340000000000000 is the JSON number 9007199254740992, and no other text. Max pos int."
+    },
+    {
+      "id": "v925e6daf8ac78ef3",
+      "kind": "reject",
+      "file": "statements/v925e6daf8ac78ef3.json",
+      "conditions": [
+        "aia-c-3"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "chain-hash-mismatch"
+        ]
+      },
+      "cites": "A2: a producer whose serializer defaults to ASCII escaping emits different bytes for the same string",
+      "records": "records/v925e6daf8ac78ef3.jsonl"
+    },
+    {
+      "id": "v97f5d8777e514257",
+      "kind": "reject",
+      "file": "statements/v97f5d8777e514257.json",
+      "conditions": [
+        "aia-c-9"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "non-integer-in-signed-field"
+        ]
+      },
+      "cites": "A7: the safe-integer profile binds signed record fields; the content-digest form is where a float belongs",
+      "records": "records/v97f5d8777e514257.jsonl"
+    },
+    {
+      "id": "v9a8b364b8bc121de",
+      "kind": "accept",
+      "file": "statements/v9a8b364b8bc121de.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "8000000000000000",
+        "canonicalNumber": "0",
+        "requestDigest": "23d7b286bd429460b92a2a1c21b6afc34110446c5034c17363fda363aa0a7c5d"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 2. The IEEE 754 double 8000000000000000 is the JSON number 0, and no other text. Minus zero."
+    },
+    {
+      "id": "v9bcf0d6fd251418f",
+      "kind": "reject",
+      "file": "statements/v9bcf0d6fd251418f.json",
+      "conditions": [
+        "aia-c-11"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "previoushash-not-canonical"
+        ]
+      },
+      "cites": "A9: a case-normalizing verifier links it and a byte-comparing one does not, so the same logical link has two spellings"
+    },
+    {
+      "id": "v9cc43bcbf367a00e",
+      "kind": "reject",
+      "file": "statements/v9cc43bcbf367a00e.json",
+      "conditions": [
+        "aia-c-3"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "chain-hash-mismatch"
+        ]
+      },
+      "cites": "A2b: Go's encoding/json escapes <, > and & by default, so a Go gateway and a Node gateway disagree on identical input",
+      "records": "records/v9cc43bcbf367a00e.jsonl"
+    },
+    {
+      "id": "va1ecbadeabba7b77",
+      "kind": "accept",
+      "file": "statements/va1ecbadeabba7b77.json",
+      "conditions": [
+        "aia-c-4"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "chainHash": "18ac4f55035ff446f1d047e1b8c3784fc1815c0b428fe64a63b23b98af1c8914"
+      },
+      "cites": "canonicalization: the log line IS the canonical bytes, so the two readings of the preimage coincide",
+      "records": "records/va1ecbadeabba7b77.jsonl"
+    },
+    {
+      "id": "vaa33c34f7bd1058b",
+      "kind": "accept",
+      "file": "statements/vaa33c34f7bd1058b.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "444b1ae4d6e2ef4e",
+        "canonicalNumber": "999999999999999700000",
+        "requestDigest": "87b1b35f24fc744edaa61cdc8f99025ee9c540f4579cb1695bc0be3e73abe7be"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 13. The IEEE 754 double 444b1ae4d6e2ef4e is the JSON number 999999999999999700000, and no other text."
+    },
+    {
+      "id": "vad17f7bf034c8dde",
+      "kind": "accept",
+      "file": "statements/vad17f7bf034c8dde.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "44b52d02c7e14af6",
+        "canonicalNumber": "1e+23",
+        "requestDigest": "5add8f0ad0ac9f9e9fbd027279b5a7db972ab4d6219508a116d56f6db62677b3"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 11. The IEEE 754 double 44b52d02c7e14af6 is the JSON number 1e+23, and no other text."
+    },
+    {
+      "id": "vaf1b67f038ffff84",
+      "kind": "accept",
+      "file": "statements/vaf1b67f038ffff84.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "3eb0c6f7a0b5ed8d",
+        "canonicalNumber": "0.000001",
+        "requestDigest": "bc1c982dd4e677d72ff5821cc67554e045e838a31ddc55fa0fdb1a32d5a1dce9"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 17. The IEEE 754 double 3eb0c6f7a0b5ed8d is the JSON number 0.000001, and no other text."
+    },
+    {
+      "id": "vb177ef3b3a945a72",
+      "kind": "accept",
+      "file": "statements/vb177ef3b3a945a72.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "444b1ae4d6e2ef4f",
+        "canonicalNumber": "999999999999999900000",
+        "requestDigest": "23dd4ee5341464abe01689237ed41c9ab80ddd78bc418c7d3e4583c3b396d3fa"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 14. The IEEE 754 double 444b1ae4d6e2ef4f is the JSON number 999999999999999900000, and no other text."
+    },
+    {
+      "id": "vb1f091f42efd0715",
+      "kind": "reject",
+      "file": "statements/vb1f091f42efd0715.json",
+      "conditions": [
+        "aia-c-15"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "non-bmp-member-name"
+        ],
+        "chainHashUtf16": "e26dfc02e6a3f491a4d597cf5a06c2591f447ebbec28539b7ae723cf20b32b9a",
+        "chainHashCodePoint": "d6037ab7134f90983da5db5894790d3228c0386b62f3eabfc8e2488cb66af4eb"
+      },
+      "cites": "strings: U+1F680 is encoded UTF-16 as D83D DE80, so it sorts before U+FF3A by code unit and after it by code point. The record is well formed and every field is untouched; it has two canonical byte strings and therefore two chain hashes, so the successor's previousHash and the chain's subject digest both fork.",
+      "records": "records/vb1f091f42efd0715.jsonl"
+    },
+    {
+      "id": "vb7dd5fb8dcb6e345",
+      "kind": "accept",
+      "file": "statements/vb7dd5fb8dcb6e345.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "44b52d02c7e14af7",
+        "canonicalNumber": "1.0000000000000001e+23",
+        "requestDigest": "26c6ab71e1be17098d15e39e8df6e19023008270262a02f17608c3c86f0eaa8a"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 12. The IEEE 754 double 44b52d02c7e14af7 is the JSON number 1.0000000000000001e+23, and no other text."
+    },
+    {
+      "id": "vbd5d1d64de299ed7",
+      "kind": "accept",
+      "file": "statements/vbd5d1d64de299ed7.json",
       "conditions": [
         "aia-c-16"
       ],
@@ -766,24 +661,38 @@
       "cites": "number serialization: RFC 8785 Appendix B row 21. The IEEE 754 double 41b3de4355555556 is the JSON number 333333333.3333334, and no other text."
     },
     {
-      "id": "ok-035-appendix-b-ulp-plus-two",
+      "id": "vc79800639733ed68",
       "kind": "accept",
-      "file": "accept/ok-035-appendix-b-ulp-plus-two.json",
+      "file": "statements/vc79800639733ed68.json",
+      "conditions": [
+        "aia-c-8"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "chainHash": "0abf7a119b815b4a6a3ac47e1cbc2f2dc92eedf5e4e94b227cf3853891df8bc1"
+      },
+      "cites": "chain shape: every record type links through predicate.chain",
+      "records": "records/vc79800639733ed68.jsonl"
+    },
+    {
+      "id": "vced2927f55260ad1",
+      "kind": "accept",
+      "file": "statements/vced2927f55260ad1.json",
       "conditions": [
         "aia-c-16"
       ],
       "expected": {
         "verdict": "valid",
-        "ieee754": "41b3de4355555557",
-        "canonicalNumber": "333333333.33333343",
-        "requestDigest": "3576cfe0a9f45d92dd9d4433262eb9caf14ef42f414db0db461cde7561712f65"
+        "ieee754": "43143ff3c1cb0959",
+        "canonicalNumber": "1424953923781206.2",
+        "requestDigest": "00cbcfaa5fb8be8f61d91ca13788a3ef47d243f857514826109c7b0dae7096c7"
       },
-      "cites": "number serialization: RFC 8785 Appendix B row 22. The IEEE 754 double 41b3de4355555557 is the JSON number 333333333.33333343, and no other text."
+      "cites": "number serialization: RFC 8785 Appendix B row 24. The IEEE 754 double 43143ff3c1cb0959 is the JSON number 1424953923781206.2, and no other text. Round to even."
     },
     {
-      "id": "ok-036-appendix-b-negative-small-fraction",
+      "id": "vd2659c36ece7eb47",
       "kind": "accept",
-      "file": "accept/ok-036-appendix-b-negative-small-fraction.json",
+      "file": "statements/vd2659c36ece7eb47.json",
       "conditions": [
         "aia-c-16"
       ],
@@ -796,19 +705,110 @@
       "cites": "number serialization: RFC 8785 Appendix B row 23. The IEEE 754 double becbf647612f3696 is the JSON number -0.0000033333333333333333, and no other text."
     },
     {
-      "id": "ok-037-appendix-b-round-to-even",
+      "id": "vd473932a82fd8779",
       "kind": "accept",
-      "file": "accept/ok-037-appendix-b-round-to-even.json",
+      "file": "statements/vd473932a82fd8779.json",
+      "conditions": [
+        "aia-c-15"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "chainHash": "4342fd30cea6e77413e19e51fbf7f6d0b79d30cb639a8fa2d4d09a5569ac6698",
+        "chainHashUtf16": "4342fd30cea6e77413e19e51fbf7f6d0b79d30cb639a8fa2d4d09a5569ac6698",
+        "chainHashCodePoint": "4342fd30cea6e77413e19e51fbf7f6d0b79d30cb639a8fa2d4d09a5569ac6698"
+      },
+      "cites": "strings: extension member names inside the BMP sort the same way under UTF-16 code units and under code points, so the record has one canonical form and one chain hash",
+      "records": "records/vd473932a82fd8779.jsonl"
+    },
+    {
+      "id": "vd94ac70c9f0d84bf",
+      "kind": "reject",
+      "file": "statements/vd94ac70c9f0d84bf.json",
+      "conditions": [
+        "aia-c-12"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "depth-exceeded"
+        ]
+      },
+      "cites": "bounds: one level past the stated cap, so the counting rule is exercised rather than assumed"
+    },
+    {
+      "id": "vdd8899ebf08f5040",
+      "kind": "accept",
+      "file": "statements/vdd8899ebf08f5040.json",
+      "conditions": [
+        "aia-c-10"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "responseDigest": "431ee0d9da1351dadbe66395800815f6021ce4b288c612e44b7f3d091b1a832f"
+      },
+      "cites": "content digest: a failed call digests the error member, named explicitly rather than left to the reader",
+      "records": "records/vdd8899ebf08f5040.jsonl"
+    },
+    {
+      "id": "ve763abe0a98c932f",
+      "kind": "reject",
+      "file": "statements/ve763abe0a98c932f.json",
+      "conditions": [
+        "aia-c-8"
+      ],
+      "expected": {
+        "verdict": "invalid",
+        "codes": [
+          "checkpoint-not-linked"
+        ]
+      },
+      "cites": "A6: the successor chains past the checkpoint to the record before it, so the checkpoint is deletable and the anti-truncation mechanism carries no weight",
+      "records": "records/ve763abe0a98c932f.jsonl"
+    },
+    {
+      "id": "ve78d80f4d7221cd9",
+      "kind": "accept",
+      "file": "statements/ve78d80f4d7221cd9.json",
       "conditions": [
         "aia-c-16"
       ],
       "expected": {
         "verdict": "valid",
-        "ieee754": "43143ff3c1cb0959",
-        "canonicalNumber": "1424953923781206.2",
-        "requestDigest": "00cbcfaa5fb8be8f61d91ca13788a3ef47d243f857514826109c7b0dae7096c7"
+        "ieee754": "41b3de4355555557",
+        "canonicalNumber": "333333333.33333343",
+        "requestDigest": "3576cfe0a9f45d92dd9d4433262eb9caf14ef42f414db0db461cde7561712f65"
       },
-      "cites": "number serialization: RFC 8785 Appendix B row 24. The IEEE 754 double 43143ff3c1cb0959 is the JSON number 1424953923781206.2, and no other text. Round to even."
+      "cites": "number serialization: RFC 8785 Appendix B row 22. The IEEE 754 double 41b3de4355555557 is the JSON number 333333333.33333343, and no other text."
+    },
+    {
+      "id": "ve8b9155afcbd8224",
+      "kind": "accept",
+      "file": "statements/ve8b9155afcbd8224.json",
+      "conditions": [
+        "aia-c-1",
+        "aia-c-2"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "chainHash": "4e70d92204aee18162dc4db4d6bdc2462b73ec0c45d794ec5912bfec124cea3e"
+      },
+      "cites": "canonicalization: member ordering is JCS, never the host language's property order",
+      "records": "records/ve8b9155afcbd8224.jsonl"
+    },
+    {
+      "id": "vf2f6991c55096b1a",
+      "kind": "accept",
+      "file": "statements/vf2f6991c55096b1a.json",
+      "conditions": [
+        "aia-c-16"
+      ],
+      "expected": {
+        "verdict": "valid",
+        "ieee754": "3eb0c6f7a0b5ed8c",
+        "canonicalNumber": "9.999999999999997e-7",
+        "requestDigest": "f1ad5ca9e0c403a896658b2c5125b3dbfb0336899ab21ca1eb6ce1c875825a3a"
+      },
+      "cites": "number serialization: RFC 8785 Appendix B row 16. The IEEE 754 double 3eb0c6f7a0b5ed8c is the JSON number 9.999999999999997e-7, and no other text."
     }
   ]
 }

@@ -1,5 +1,40 @@
 # AI Agent Action v0.1 conformance suite
 
+## Identifiers name the bytes, not the answer
+
+Every member of this suite is named after a digest of its own bytes and lives in
+`statements/`, alongside a record sidecar in `records/` where it has one. There
+is no `accept/` directory, no `reject/` directory, and no `ok-`/`bad-` prefix.
+The verdict is in `MANIFEST.json`, which is where a scoring harness reads it.
+
+This was a defect in this corpus, found by a gate in this repository, and it is
+worth stating plainly rather than presenting the layout as though it had always
+been this way. Measured over each vector's whole manifest-relative path, a cheap
+classifier predicted accept-or-reject from the identifier alone with a
+separability of 1.0000 -- a perfect score, because the prefix and the directory
+each named the answer and either one alone was enough. A rail could have
+certified against this suite without reading a single statement.
+
+After the change the identifier surface measures 0.5245 against a null of
+0.5245, which is to say it carries nothing: shuffling the labels produces the
+same figure. The whole surface fell from 0.9238 to 0.7810.
+
+It did not fall to chance, and the remaining gap is a second and separate defect
+that this change does not fix. Most accept members carry a `contentDigest`
+member and almost no reject member does, because the RFC 8785 Appendix B
+number-serialization family sits entirely on the accept side with no reject
+counterpart, so the presence of one member path still very nearly names the
+verdict. That is content rather than naming, it measures 0.7810 against a null
+of 0.6458, and closing it means writing Appendix B reject members from the same
+template. It is tracked in `TODO.md`.
+
+Identifiers are not reused. The names this corpus published before are retired
+with the vectors that carried them, and no mapping from the old names to the new
+ones is published: such a file would list a retired `ok-`/`bad-` name beside a
+live identifier for every member, which is the surface this change removed.
+Re-run the suite to get current results.
+
+
 Conformance vectors for the AI Agent Action predicate proposed in
 in-toto/attestation#588, tracked at `8783c6b`.
 
@@ -48,7 +83,7 @@ succeeded. The three that did not are recorded too, in
 you the text already closed something, and that is a result worth keeping rather
 than a dead end worth deleting.
 
-The sharpest member is `bad-106`. The chain forks: two records carry the same
+The sharpest member is the chain-fork member (`v861f20f3fa63ce2b`, condition aia-c-6). The chain forks: two records carry the same
 `previousHash`, so both branches verify completely, the genesis hash and
 therefore the subject digest are identical on both, and a presenter chooses which
 branch an auditor is shown. No hash is broken, no second genesis appears, and no

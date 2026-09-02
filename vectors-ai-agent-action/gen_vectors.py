@@ -48,10 +48,34 @@ UPSTREAM_COMMIT = "8783c6b800247f2ffe34714a32a9b722e438d851"
 SPEC_UPSTREAM_REPO = "elang2/attestation"
 SPEC_UPSTREAM_REF = "add-ai-agent-action-predicate"
 
-for sub in ("accept", "reject", "records"):
+for sub in ("statements", "records"):
     os.makedirs(os.path.join(HERE, sub), exist_ok=True)
 
 MANIFEST: list[dict] = []
+
+# Every vector, in the order add() was called, before any of them has a name.
+#
+# A vector's published identifier is a digest of the vector itself, so it cannot
+# be known until the bytes exist, and the bytes are what add() is given. So the
+# build runs in two passes: this list collects what each vector IS, and emit()
+# below turns each entry into bytes, derives the identifier from those bytes,
+# and only then chooses a path. The authoring slug each call still passes stays
+# in this process and reaches no published artifact.
+DRAFTS: list[dict] = []
+
+# The identifier is sixteen hex characters of SHA-256 over the vector's own
+# bytes -- the statement, and the record sidecar too where one ships, because a
+# vector distinguished only by its record lines is a different vector. Sixteen
+# is 64 bits: for a corpus of this size the chance of a collision is far below
+# the chance of every other thing that could go wrong, and the distinctness gate
+# refuses one anyway rather than trusting the arithmetic.
+ID_HEX = 16
+
+
+def vector_id(statement_bytes: bytes, record_bytes: bytes | None) -> str:
+    joined = statement_bytes if record_bytes is None else (
+        statement_bytes + b"\x00" + record_bytes)
+    return "v" + hashlib.sha256(joined).hexdigest()[:ID_HEX]
 
 
 def jcs(obj) -> bytes:
@@ -237,19 +261,53 @@ def underlying(previous_hash: str, tool: str = "create_pull_request",
     return rec
 
 
-def add(vid: str, kind: str, predicate: dict, subject: str,
+def add(slug: str, kind: str, predicate: dict, subject: str,
         conditions: list[str], expected: dict, records: list[bytes] | None,
         cites: str) -> None:
-    rel = f"{kind}/{vid}.json"
-    write(rel, json.dumps(statement(subject, predicate), indent=2,
-                          sort_keys=True, ensure_ascii=False).encode() + b"\n")
-    entry = {"id": vid, "kind": kind, "file": rel,
-             "conditions": conditions, "expected": expected, "cites": cites}
-    if records is not None:
-        rec_rel = f"records/{vid}.jsonl"
-        write(rec_rel, b"\n".join(records) + b"\n")
-        entry["records"] = rec_rel
-    MANIFEST.append(entry)
+    """Record what a vector IS. Naming it is emit()'s job, once it has bytes.
+
+    `slug` is the authoring name -- the thing a person types when writing the
+    vector and greps for when changing it. It is deliberately NOT the published
+    identifier and it reaches no artifact this repository ships: it stays in
+    DRAFTS, it is used to keep the build order readable and to make a duplicate
+    obvious, and it is dropped at emit(). It used to be both, and being both is
+    what made the corpus scoreable without reading it -- an `ok-`/`bad-` prefix
+    on the input's own name is the answer, handed to the rail with the question.
+    """
+    DRAFTS.append({"slug": slug, "kind": kind,
+                   "statement": statement(subject, predicate),
+                   "conditions": conditions, "expected": expected,
+                   "records": records, "cites": cites})
+
+
+def emit() -> None:
+    """Serialize every draft, name it after its own bytes, and write it out."""
+    seen: dict[str, str] = {}
+    for draft in DRAFTS:
+        body = json.dumps(draft["statement"], indent=2, sort_keys=True,
+                          ensure_ascii=False).encode() + b"\n"
+        record_bytes = None
+        if draft["records"] is not None:
+            record_bytes = b"\n".join(draft["records"]) + b"\n"
+        vid = vector_id(body, record_bytes)
+        if vid in seen:
+            raise SystemExit(
+                f"{draft['slug']} and {seen[vid]} are the same vector: identical "
+                f"bytes, so they share the identifier {vid}. A content-addressed "
+                "corpus cannot give one statement two names, and it should not "
+                "want to -- one of them is a copy of the other."
+            )
+        seen[vid] = draft["slug"]
+        rel = f"statements/{vid}.json"
+        write(rel, body)
+        entry = {"id": vid, "kind": draft["kind"], "file": rel,
+                 "conditions": draft["conditions"], "expected": draft["expected"],
+                 "cites": draft["cites"]}
+        if record_bytes is not None:
+            rec_rel = f"records/{vid}.jsonl"
+            write(rec_rel, record_bytes)
+            entry["records"] = rec_rel
+        MANIFEST.append(entry)
 
 
 # ---------------------------------------------------------------------------
@@ -727,6 +785,7 @@ def main() -> None:
     build_accept()
     build_appendix_b()
     build_reject()
+    emit()
     counts = {"accept": sum(1 for m in MANIFEST if m["kind"] == "accept"),
               "reject": sum(1 for m in MANIFEST if m["kind"] == "reject")}
     corpus = h(b"".join(

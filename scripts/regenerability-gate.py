@@ -107,8 +107,10 @@ OWNED = (
     # chain-hash members are preimages rather than Statements: a sidecar that
     # stopped being regenerated would leave the vector claiming a divergence
     # over bytes no generator writes.
-    ("vectors-ai-agent-action/accept", "ok-*.json"),
-    ("vectors-ai-agent-action/reject", "bad-*.json"),
+    # Named after their own bytes and no longer sorted into a directory per
+    # verdict, so the pattern is the identifier shape rather than a prefix that
+    # said which answer the file carried.
+    ("vectors-ai-agent-action/statements", "v*.json"),
     ("vectors-ai-agent-action/records", "*.jsonl"),
     ("vectors-ai-agent-action", "MANIFEST.json"),
 )

@@ -2863,25 +2863,40 @@ REPLAYED_KINDS = ("accept", "indeterminate", "reject")
 SUITE_NON_VECTOR_DIRS = ("__pycache__", "keys", ".build")
 
 
-def flat_layout(idx: dict[str, Any]) -> str | None:
-    """The single directory every vector lives in, or None if there isn't one.
+def flat_layout(idx: dict[str, Any]) -> str:
+    """The single directory every vector is declared under.
 
-    A suite lays its vectors out one directory per kind, or all together with
-    the kind recorded in the MANIFEST. The second shape is not a preference: a
-    file in `reject/` has told a rail the expected verdict before the rail has
-    read it, so a corpus laid out that way cannot measure whether an
-    implementation read anything at all.
+    A REQUIREMENT rather than a detection, and there is no per-verdict fallback
+    behind it. A directory named for the verdict told a rail the answer before
+    it opened the file -- measured over the whole path it predicted accept from
+    reject perfectly -- so reading one is not a compatibility nicety, it is
+    reading the defect. A corpus that still has one is refused by name.
     """
     dirs = set()
     for entry in idx.values():
         rel = entry.get("file")
         if not isinstance(rel, str) or "/" not in rel:
-            return None
+            raise SystemExit(
+                "a MANIFEST row declares no file under a directory, so this rail "
+                "would have to derive a path from the vector's kind -- which is "
+                "the derivation the flat layout exists to remove."
+            )
         dirs.add(rel.split("/", 1)[0])
     if len(dirs) != 1:
-        return None
+        raise SystemExit(
+            f"the MANIFEST spreads its vectors over {sorted(dirs)}. This rail "
+            "reads one flat directory of content-addressed statements; a corpus "
+            "sorted into a directory per verdict is the retired layout and is "
+            "not read."
+        )
     only = dirs.pop()
-    return None if only in REPLAYED_KINDS else only
+    if only in REPLAYED_KINDS:
+        raise SystemExit(
+            f"the MANIFEST declares its vectors under {only!r}, which is a verdict "
+            "name. That layout tells a rail the answer before it reads the "
+            "statement and is not supported."
+        )
+    return only
 
 
 def manifest_kinds(idx: dict[str, dict[str, Any]]) -> dict[str, list[str]]:
@@ -2912,39 +2927,24 @@ def discover_vectors(suite_dir: str, kinds: Sequence[str]) -> list[tuple[str, st
     does not name as a kind is now refused by manifest_closure instead of being
     quietly skipped.
     """
-    found: list[tuple[str, str]] = []
-
-    # A suite may lay its vectors out one directory per kind, or put every
-    # vector in one directory and record the kind in the MANIFEST. The second
-    # shape exists because the first one ANSWERS THE QUESTION: a file in
-    # `reject/` has told a rail the expected verdict before the rail has opened
-    # it, and a suite whose layout leaks its own labels cannot measure whether
-    # an implementation read anything. So when the MANIFEST names a file for
-    # each vector, that is what is replayed, and the kind comes from the entry
-    # rather than from the path.
+    # Every vector this suite declares, read from the file each MANIFEST row
+    # names. The kind comes from the row, never from the path: a path that
+    # carried the kind would be answering the question this corpus exists to
+    # ask.
     manifest = load_manifest(suite_dir)
-    entries = manifest.get("vectors") if isinstance(manifest, dict) else None
-    if isinstance(entries, list) and entries:
-        by_path: list[tuple[str, str]] = []
-        for entry in entries:
-            rel = entry.get("file")
-            kind = entry.get("kind")
-            if not isinstance(rel, str) or not isinstance(kind, str):
-                continue
-            by_path.append((kind, os.path.join(suite_dir, rel)))
-        if by_path and all(os.path.isfile(p) for _, p in by_path):
-            return sorted(by_path, key=lambda pair: pair[1])
-
-    seen: set[str] = set()
-    for kind in kinds:
-        if kind in seen:
-            continue
-        seen.add(kind)
-        d = os.path.join(suite_dir, kind)
-        if os.path.isdir(d):
-            for name in sorted(os.listdir(d)):
-                if name.endswith(".json"):
-                    found.append((kind, os.path.join(d, name)))
+    entries = (manifest or {}).get("vectors") or (manifest or {}).get("index") or []
+    if not entries:
+        raise SystemExit(f"{suite_dir}/MANIFEST.json declares no vectors to replay")
+    flat_layout({str(e.get("id")): e for e in entries})
+    found: list[tuple[str, str]] = []
+    for entry in entries:
+        rel = entry.get("file")
+        kind = entry.get("kind")
+        if not isinstance(rel, str) or not isinstance(kind, str):
+            raise SystemExit(
+                f"MANIFEST row {entry.get('id')!r} declares no file or no kind"
+            )
+        found.append((kind, os.path.join(suite_dir, rel)))
     return found
 
 
@@ -3601,39 +3601,10 @@ def _closure_both_directions(
     FAIL rather than leaving a totals line reading zero failures beside a
     non-zero exit.
     """
-    failures: list[str] = []
-    unlisted: dict[str, str] = {}
-
-    # A suite that puts every vector in one directory and records the kind in
-    # the MANIFEST is checked against the file each row DECLARES, because there
-    # is no kind directory to derive a path from -- and deriving one is what a
-    # rail must stop doing when the layout stops naming the answer.
-    flat = flat_layout(idx)
-    if flat is not None:
-        return _closure_flat(suite_dir, idx, listed, flat)
-
-    for kind in sorted(listed):
-        if kind not in REPLAYED_KINDS:
-            continue  # already refused by name; do not report it twice
-        on_disk = vector_files_in(os.path.join(suite_dir, kind))
-        for vid in listed[kind]:
-            declared = idx[vid].get("file")
-            want = f"{kind}/{vid}.json"
-            if isinstance(declared, str) and declared and declared != want:
-                failures.append(
-                    f"MANIFEST row {vid} declares file {declared!r}; this rail reads {want!r}"
-                )
-            if vid not in on_disk:
-                failures.append(f"MANIFEST row {vid} has no committed vector file in {kind}/")
-        for vid in on_disk:
-            if vid not in listed[kind]:
-                unlisted[vid] = kind
-                failures.append(
-                    f"{kind}/{vid}.json is committed and has no MANIFEST row, so it is "
-                    "scored against a verdict derived from its directory and counted in a "
-                    "total no manifest backs"
-                )
-    return failures, unlisted
+    # Every vector is checked against the file its MANIFEST row DECLARES. There
+    # is no kind directory to derive a path from, and deriving one is what a
+    # rail must stop doing once the layout stops naming the answer.
+    return _closure_flat(suite_dir, idx, listed, flat_layout(idx))
 
 
 def _closure_directories(
@@ -3656,7 +3627,7 @@ def _closure_directories(
             continue
         if name in listed:
             continue
-        if flat is not None and name == flat:
+        if name == flat:
             continue  # the one directory every vector is declared to live in
         if name not in SUITE_NON_VECTOR_DIRS:
             failures.append(
@@ -3682,16 +3653,12 @@ def _counts_against_rows(
     for kind in sorted(listed):
         if kind not in REPLAYED_KINDS:
             continue
-        if flat is None:
-            held = len(vector_files_in(os.path.join(suite_dir, kind)))
-            where = f"{kind}/"
-        else:
-            # One directory holds every kind, so a per-kind count cannot be read
-            # off it. The rows carry the kind instead, and the TOTAL is still
-            # grounded in the directory below, so the chain is unbroken: counts
-            # against rows, rows against files.
-            held = len(listed[kind])
-            where = "the MANIFEST rows"
+        # One directory holds every kind, so a per-kind count cannot be read off
+        # it. The rows carry the kind, and the TOTAL below is still grounded in
+        # the directory, so the chain is unbroken: counts against rows, rows
+        # against files.
+        held = len(listed[kind])
+        where = "the MANIFEST rows"
         if kind not in counts:
             failures.append(
                 f"MANIFEST counts declares no entry for kind {kind!r}, which "
@@ -3702,14 +3669,13 @@ def _counts_against_rows(
                 f"MANIFEST counts[{kind!r}] is {counts[kind]}; {where} holds "
                 f"{held} vector(s)"
             )
-    if flat is not None:
-        total_files = len(vector_files_in(os.path.join(suite_dir, flat)))
-        total_rows = sum(len(v) for v in listed.values())
-        if total_files != total_rows:
-            failures.append(
-                f"{flat}/ holds {total_files} vector file(s) and the MANIFEST "
-                f"carries {total_rows} row(s)"
-            )
+    total_files = len(vector_files_in(os.path.join(suite_dir, flat)))
+    total_rows = sum(len(v) for v in listed.values())
+    if total_files != total_rows:
+        failures.append(
+            f"{flat}/ holds {total_files} vector file(s) and the MANIFEST "
+            f"carries {total_rows} row(s)"
+        )
     return failures
 
 

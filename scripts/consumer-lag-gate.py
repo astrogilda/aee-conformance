@@ -158,7 +158,11 @@ LEDGER = VECTORS / "CONSUMERS.json"
 # copies of the definition of "the same corpus" inside one repository is the defect
 # this gate exists to catch, arrived at from the inside.
 sys.path.insert(0, str(VECTORS))
-from gen_manifest import corpus_digest, corpus_files  # noqa: E402
+from gen_manifest import (  # noqa: E402
+    corpus_digest,
+    historical_corpus_digest,
+    historical_corpus_files,
+)
 
 MANIFEST = VECTORS / "MANIFEST.json"
 REPORT = REPO_ROOT / "docs" / "IMPLEMENTATION-REPORT.md"
@@ -319,8 +323,13 @@ def published_corpus(ref: str) -> Published:
                 f"FAIL: {ref} carries no vectors/ directory, so it publishes no "
                 "corpus for any consumer rail to vendor."
             )
-        digest = corpus_digest(str(root))
-        vectors = len(corpus_files(str(root)))
+        # The DEFAULT BRANCH's tree, which until suiteRevision 28 reaches it
+        # carries the retired per-verdict layout. Read with the historical
+        # reader, which is named separately so this repository's own corpus
+        # cannot reach it, and which refuses the moment that branch goes flat --
+        # at which point this call and that reader are both to be deleted.
+        digest = historical_corpus_digest(str(root))
+        vectors = len(historical_corpus_files(str(root)))
         changes = root / "CHANGES.md"
         manifest = root / "MANIFEST.json"
         for needed in (changes, manifest):

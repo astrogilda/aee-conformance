@@ -113,22 +113,26 @@ func vectorPaths(vecDir string) ([]string, error) {
 	// forcing campaign does not replay is a bucket whose rules the campaign
 	// records as unforced whether they are or not, which would make the
 	// measurement wrong about the newest part of the corpus first.
-	// One directory holding every vector, and the per-verdict directories a
-	// vendored copy of an older corpus may still have. Both are read: a
-	// directory per verdict named the answer in the path, which is why the
-	// corpus stopped using one, but a rail replaying a vendored copy from
-	// before that change must still find its vectors.
-	for _, sub := range []string{"statements", "accept", "reject", "indeterminate"} {
-		matches, err := filepath.Glob(filepath.Join(vecDir, sub, "*.json"))
-		if err != nil {
-			return nil, err
-		}
-		paths = append(paths, matches...)
+	// ONE directory, and no fallback to the per-verdict layout that preceded
+	// it. That layout is not merely superseded, it is the defect: measured over
+	// each vector's whole path it predicted the verdict perfectly, so a reader
+	// that still parses it keeps the leaky structure alive in code where
+	// something can write it again, and makes every future change have to be
+	// correct twice on a path nothing exercises. A copy of the older corpus
+	// gains nothing from being readable here either -- corpusDigest moved for
+	// every vector, so such a copy is already incompatible on the digest
+	// whatever this harness can parse.
+	matches, err := filepath.Glob(filepath.Join(vecDir, "statements", "*.json"))
+	if err != nil {
+		return nil, err
 	}
+	paths = append(paths, matches...)
 	if len(paths) == 0 {
 		return nil, fmt.Errorf(
-			"no vectors under %s/statements or %s/{accept,reject,indeterminate}",
-			vecDir, vecDir)
+			"no vectors under %s/statements. This harness reads the flat, "+
+				"content-addressed corpus at suiteRevision 28 and later, and "+
+				"deliberately does not read the retired per-verdict layout; a "+
+				"corpus that still has one is too old for it", vecDir)
 	}
 	sort.Strings(paths)
 	return paths, nil

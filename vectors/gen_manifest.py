@@ -113,26 +113,60 @@ KINDS = ("accept", "reject", "indeterminate")
 
 
 def corpus_files(root: str) -> list[tuple[str, str]]:
-    """Every vector file the published digest covers, in the order it covers them."""
-    # One directory, because a directory per verdict named the answer. The
-    # relative path each line commits to therefore changes for every vector,
-    # which moves corpusDigest for every consumer at once; that is stated in the
-    # release notes rather than worked around, since the alternative is keeping
-    # a path that tells a rail the verdict before it opens the file.
-    #
-    # BOTH LAYOUTS ARE READ, and that is not a compatibility shim for the corpus
-    # -- it is a requirement of the question this function is asked. The
-    # consumer-lag gate computes this digest over the DEFAULT BRANCH's tree to
-    # learn what the rails could have vendored, and that tree predates the
-    # flattening. A digest function that only understood the new layout would
-    # crash on the old one, and a gate that cannot read the branch it compares
-    # against reports nothing rather than a lag.
+    """Every vector file the published digest covers, in the order it covers them.
+
+    ONE layout, and no fallback. A directory per verdict named the answer in the
+    path -- measured over each vector's whole path it predicted accept from
+    reject perfectly -- so a reader that still parses it keeps the leaky
+    structure alive in code where something can write it again. The retired
+    layout is refused by name rather than read.
+    """
     flat = os.path.join(root, "statements")
-    if os.path.isdir(flat):
-        return sorted(
-            (f"statements/{name}", os.path.join(flat, name))
-            for name in os.listdir(flat)
-            if name.endswith(".json")
+    if not os.path.isdir(flat):
+        raise SystemExit(
+            f"{root} has no statements/ directory. This reads the flat, "
+            "content-addressed corpus at suiteRevision 28 and later. A tree "
+            "sorted into a directory per verdict is the retired layout; if it is "
+            "a published tree from before that revision, read it with "
+            "historical_corpus_files, which exists for exactly that and refuses "
+            "anything else."
+        )
+    return sorted(
+        (f"statements/{name}", os.path.join(flat, name))
+        for name in os.listdir(flat)
+        if name.endswith(".json")
+    )
+
+
+def historical_corpus_files(root: str) -> list[tuple[str, str]]:
+    """The same digest preimage, over a PUBLISHED tree that predates flattening.
+
+    This exists for exactly one caller: scripts/consumer-lag-gate.py, which
+    materializes the DEFAULT BRANCH's tree to learn what the consumer rails
+    could actually have vendored. Until suiteRevision 28 reaches that branch,
+    that tree carries the retired per-verdict layout -- a published artifact
+    this repository does not control and cannot rewrite, which is the same
+    reason vectors/CHANGES.md is not rewritten either. It is named separately so
+    the historical path is UNREACHABLE for this repository's own corpus rather
+    than merely discouraged.
+
+    IT HAS A DEATH DATE AND REFUSES TO OUTLIVE IT. The moment the default branch
+    carries the flat corpus there is nothing old left to read, this function has
+    no caller, and it becomes precisely the alias that three readers were
+    stripped of in this same revision -- kept alive by nobody noticing it went
+    unused. So being handed an already-flat tree is a hard failure here, which
+    turns the first run after the push red on its own account and makes the
+    deletion forced rather than remembered. Removing this function is the last
+    step of the rename, not an optional tidy.
+    """
+    if os.path.isdir(os.path.join(root, "statements")):
+        raise SystemExit(
+            f"{root} already carries the flat corpus, so this reader's purpose "
+            "has expired. It exists only to read a published tree from before "
+            "suiteRevision 28, and the default branch now has one that is "
+            "flat. DELETE historical_corpus_files and its caller in "
+            "scripts/consumer-lag-gate.py; that removal is the last step of the "
+            "identifier rename."
         )
     return sorted(
         (f"{kind}/{name}", os.path.join(root, kind, name))
@@ -141,6 +175,24 @@ def corpus_files(root: str) -> list[tuple[str, str]]:
         for name in os.listdir(os.path.join(root, kind))
         if name.endswith(".json")
     )
+
+
+def _digest_over(files: list[tuple[str, str]]) -> str:
+    """The one hashing routine, so two callers cannot drift on the preimage."""
+    h = hashlib.sha256()
+    for rel, path in files:
+        h.update(rel.encode("utf-8"))
+        h.update(b"\0")
+        with open(path, "rb") as f:
+            h.update(hashlib.sha256(f.read()).hexdigest().encode("ascii"))
+        h.update(b"\n")
+    return h.hexdigest()
+
+
+def historical_corpus_digest(root: str) -> str:
+    """corpus_digest over a published pre-flattening tree. See
+    historical_corpus_files for why this exists and when it must be deleted."""
+    return _digest_over(historical_corpus_files(root))
 
 
 def corpus_digest(root: str) -> str:
@@ -163,14 +215,7 @@ def corpus_digest(root: str) -> str:
     stop matching the stamp this repository's vendoring wrote, so it reddens that
     rail's existing self-check on the next run rather than going quiet.
     """
-    h = hashlib.sha256()
-    for rel, path in corpus_files(root):
-        h.update(rel.encode("utf-8"))
-        h.update(b"\0")
-        with open(path, "rb") as f:
-            h.update(hashlib.sha256(f.read()).hexdigest().encode("ascii"))
-        h.update(b"\n")
-    return h.hexdigest()
+    return _digest_over(corpus_files(root))
 
 
 # The identifier shapes this corpus publishes, in ONE place because every reader

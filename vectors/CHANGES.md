@@ -67,6 +67,37 @@ byte-identically from the generators.
   first time anybody measured it, which is the one kind of claim this repository must
   not make. Pre-1.0 semantics already license the breaking change, so nothing is lost by
   waiting. **1.0.0 is what the Appendix B fix earns.**
+- **One way to find a vector, and one reader that is scheduled to die.** The rename
+  briefly left four readers able to parse both layouts. Three were aliases and are
+  deleted: `cmd/mutrun`, the reference rail and the Go conformance runner each read
+  `statements/` and nothing else now, and refuse a tree without it rather than falling
+  back. Keeping a reader for the retired layout would have kept the leaky structure
+  alive in code, where something could write it again, and would have meant every future
+  change had to be correct twice on a path nobody exercises. An old vendored copy gains
+  nothing from it either: `corpusDigest` moves for every vector, so such a copy is
+  already incompatible on the digest whatever a runner can parse.
+- **The fourth reader is an exception, and it carries its own expiry.**
+  `scripts/consumer-lag-gate.py` materializes the DEFAULT BRANCH's tree to learn what
+  the consumer rails could actually have vendored, and until this revision lands there
+  that tree is the retired layout -- a published artifact this repository does not
+  control and cannot rewrite, which is the same argument that keeps this changelog's own
+  history unrewritten. It is a SEPARATELY NAMED reader, so the historical path is
+  unreachable for this repository's own corpus rather than merely discouraged.
+  **It refuses, loudly, the moment it is handed a tree that is already flat**, naming
+  that its purpose has expired and that it is to be deleted. So the first run after this
+  revision reaches the default branch turns it red on its own account, and removing it
+  is the last step of this change rather than an optional tidy. A reader that expires
+  silently is the same defect as a gate that narrows silently, and two of those were
+  found in the course of this revision.
+- **A rename touching every identifier changed nothing about what the corpus forces,
+  and that was verified rather than asserted.** Re-running the whole forcing campaign
+  after the rename reported 40 sites whose forcing vectors had "changed". Every one of
+  them was checked AS A SET: all 40 were identical in membership and differed only in
+  order, because the identifiers were substituted in place while the campaign emits them
+  sorted. Zero sites gained or lost a vector. The baseline is re-recorded so the ordering
+  matches what the campaign produces, which is a diff of 12,561 lines that moves no
+  meaning. Ground truth over the same run: 272 vectors, 0 discrepancies against the Go
+  verifier through the Python rail, across every enumerated mutation site.
 - Corpus: **272 vectors (61 accept, 209 reject, 2 indeterminate)**, unchanged in
   size from suiteRevision 27. Every vector file changes, so `corpusDigest` in
   `vectors/MANIFEST.json` moves; the vendored specification does not move, because

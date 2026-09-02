@@ -268,7 +268,7 @@ directed 232/232 is not evidence about the determinacy of the text, and the blin
    expectation should always have.
 2. **The consumer rails carry the suiteRevision-27 corpus.** The TypeScript rail,
    the standalone Python rail and the MCP server rail each vendor all 272 vectors of
-   suiteRevision 28 byte-for-byte (`VENDOR-STAMP.json` pins the source spec digest,
+   suiteRevision 27 byte-for-byte (`VENDOR-STAMP.json` pins the source spec digest,
    upstream commit and a content digest; a consumer-side drift gate fails CI on any
    change without a re-vendor). "pass" means the rail implements the rule, is
    parity-tested on it, and replays the full 272. The three rails are two vendored

@@ -144,11 +144,10 @@ func runManifestMode(t *testing.T, dir string) {
 			// spells its verdict -- and a corpus laid out that way tells a
 			// rail the answer before the rail opens anything, so it cannot
 			// measure whether an implementation read the statement at all.
-			rel := v.File
-			if rel == "" {
-				rel = filepath.Join(v.Kind, v.ID+".json")
+			if v.File == "" {
+				t.Fatalf("MANIFEST row %s declares no file", v.ID)
 			}
-			body, err := os.ReadFile(filepath.Join(dir, rel))
+			body, err := os.ReadFile(filepath.Join(dir, v.File))
 			if err != nil {
 				t.Fatalf("vector body missing: %v", err)
 			}
@@ -190,29 +189,38 @@ var replayedKinds = map[string]bool{
 var suiteNonVectorDirs = []string{"__pycache__", "keys"}
 
 // flatLayout returns the single directory every MANIFEST row declares its file
-// under, or "" when the suite is laid out one directory per kind.
+// under, and fails the test when there is not exactly one.
 //
-// The flat shape is not a preference. A vector sitting in reject/ has told this
-// runner the expected verdict before the runner has opened it, so a corpus laid
-// out that way cannot measure whether an implementation read the statement.
-func flatLayout(vectors []manifestVector) string {
-	only := ""
+// A REQUIREMENT rather than a detection, with no per-verdict fallback behind
+// it. A vector sitting in reject/ told this runner the expected verdict before
+// it opened the file -- measured over the whole path it predicted the verdict
+// perfectly -- so reading that layout is reading the defect, not supporting an
+// older corpus. A copy old enough to have one is already incompatible on
+// corpusDigest, which moved for every vector.
+func flatLayout(t *testing.T, vectors []manifestVector) string {
+	t.Helper()
+	dirs := map[string]bool{}
 	for _, v := range vectors {
 		i := strings.Index(v.File, "/")
 		if v.File == "" || i < 0 {
-			return ""
+			t.Fatalf("MANIFEST row %s declares no file under a directory, so this "+
+				"runner would have to derive a path from its kind -- the derivation "+
+				"the flat layout exists to remove", v.ID)
 		}
-		d := v.File[:i]
-		if only == "" {
-			only = d
-		} else if only != d {
-			return ""
+		dirs[v.File[:i]] = true
+	}
+	if len(dirs) != 1 {
+		t.Fatalf("the MANIFEST spreads its vectors over %d directories; this runner "+
+			"reads one flat directory of content-addressed statements", len(dirs))
+	}
+	for d := range dirs {
+		if replayedKinds[d] {
+			t.Fatalf("the MANIFEST declares its vectors under %q, which is a verdict "+
+				"name; that layout is retired and is not read", d)
 		}
+		return d
 	}
-	if replayedKinds[only] {
-		return ""
-	}
-	return only
+	return ""
 }
 
 // checkManifestClosure asserts that the MANIFEST and the vector files on disk
@@ -232,7 +240,7 @@ func flatLayout(vectors []manifestVector) string {
 // which is a third copy of the same number, so it is checked against the other
 // two rather than trusted or ignored.
 func checkManifestClosure(t *testing.T, dir string, m *suiteManifest, vectors []manifestVector) {
-	flat := flatLayout(vectors)
+	flat := flatLayout(t, vectors)
 	t.Helper()
 
 	if m.PredicateType != "" && m.PredicateType != aee.PredicateType {
@@ -300,7 +308,7 @@ func checkManifestClosure(t *testing.T, dir string, m *suiteManifest, vectors []
 		if declaredKinds[e.Name()] {
 			continue
 		}
-		if flat != "" && e.Name() == flat {
+		if e.Name() == flat {
 			continue // the one directory every vector is declared to live in
 		}
 		if !containsString(suiteNonVectorDirs, e.Name()) {
@@ -315,56 +323,31 @@ func checkManifestClosure(t *testing.T, dir string, m *suiteManifest, vectors []
 		}
 	}
 
-	if flat != "" {
-		held := jsonVectors(t, filepath.Join(dir, flat))
-		total := 0
-		for kind, ids := range listed {
-			total += len(ids)
-			if got, ok := m.Counts[kind]; !ok {
-				t.Errorf("MANIFEST counts declares no entry for kind %q, which %d rows carry",
-					kind, len(ids))
-			} else if got != len(ids) {
-				// One directory holds every kind, so a per-kind count cannot be
-				// read off it. The rows carry the kind; the total below is what
-				// keeps the directory in the chain.
-				t.Errorf("MANIFEST counts[%q] is %d; the MANIFEST carries %d row(s) of that kind",
-					kind, got, len(ids))
-			}
+	held := jsonVectors(t, filepath.Join(dir, flat))
+	total := 0
+	for kind, ids := range listed {
+		total += len(ids)
+		if got, ok := m.Counts[kind]; !ok {
+			t.Errorf("MANIFEST counts declares no entry for kind %q, which %d rows carry",
+				kind, len(ids))
+		} else if got != len(ids) {
+			// One directory holds every kind, so a per-kind count cannot be
+			// read off it. The rows carry the kind; the total below is what
+			// keeps the directory in the chain.
+			t.Errorf("MANIFEST counts[%q] is %d; the MANIFEST carries %d row(s) of that kind",
+				kind, got, len(ids))
 		}
-		if len(held) != total {
-			t.Errorf("%s/ holds %d vector file(s) and the MANIFEST carries %d row(s)",
-				flat, len(held), total)
+	}
+	if len(held) != total {
+		t.Errorf("%s/ holds %d vector file(s) and the MANIFEST carries %d row(s)",
+			flat, len(held), total)
+	}
+	for kind := range m.Counts {
+		if _, ok := listed[kind]; !ok {
+			t.Errorf("MANIFEST counts declares kind %q that no MANIFEST row carries", kind)
 		}
-		for kind := range m.Counts {
-			if _, ok := listed[kind]; !ok {
-				t.Errorf("MANIFEST counts declares kind %q that no MANIFEST row carries", kind)
-			}
-		}
-		return
 	}
 
-	for kind, ids := range listed {
-		onDisk := jsonVectors(t, filepath.Join(dir, kind))
-		sort.Strings(ids)
-		if strings.Join(ids, ",") != strings.Join(onDisk, ",") {
-			for _, id := range ids {
-				if !containsString(onDisk, id) {
-					t.Errorf("MANIFEST row %s has no committed vector file in %s/", id, kind)
-				}
-			}
-			for _, id := range onDisk {
-				if !containsString(ids, id) {
-					t.Errorf("%s/%s.json is committed and has no MANIFEST row, so it is replayed by "+
-						"nothing and compared to nothing", kind, id)
-				}
-			}
-		}
-		if got, ok := m.Counts[kind]; !ok {
-			t.Errorf("MANIFEST counts declares no entry for kind %q, which %d rows carry", kind, len(ids))
-		} else if got != len(onDisk) {
-			t.Errorf("MANIFEST counts[%q] is %d; %s/ holds %d vector file(s)", kind, got, kind, len(onDisk))
-		}
-	}
 	for kind := range m.Counts {
 		if _, ok := listed[kind]; !ok {
 			t.Errorf("MANIFEST counts declares kind %q that no MANIFEST row carries", kind)

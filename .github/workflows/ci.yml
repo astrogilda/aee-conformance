@@ -108,7 +108,7 @@ jobs:
       - name: sync toolchain
         run: uv sync --extra dev --extra generators
       - name: mypy --strict
-        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/interpretation-registry-gate-test.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-anchor-gate-test.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/code-contract-gate-test.py scripts/consumer-lag-gate.py scripts/consumer-lag-gate-test.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/condition-forcing-gate.py scripts/condition-forcing-gate-test.py scripts/condition-forcing-crosscheck.py scripts/condition-forcing-crosscheck-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py scripts/countcensus.py scripts/count-gate.py scripts/count-gate-test.py scripts/regenerability-gate.py scripts/mutationdiff.py scripts/accept-anchor-gate.py scripts/accept-anchor-gate-test.py scripts/liveness-probe.py scripts/liveness-probe-test.py scripts/citation-metadata-gate.py scripts/citation-metadata-gate-test.py scripts/expectation-slack-gate.py scripts/expectation-slack-gate-test.py scripts/observed-code-closure-gate.py scripts/observed-code-closure-gate-test.py scripts/uncited-crosscheck-gate.py scripts/reading-differential.py scripts/reading-differential-test.py scripts/vendor-remap-test.py scripts/vector-distinctness-gate.py scripts/vector-distinctness-gate-test.py
+        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/interpretation-registry-gate-test.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-anchor-gate-test.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/code-contract-gate-test.py scripts/consumer-lag-gate.py scripts/consumer-lag-gate-test.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/condition-forcing-gate.py scripts/condition-forcing-gate-test.py scripts/condition-forcing-crosscheck.py scripts/condition-forcing-crosscheck-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py scripts/countcensus.py scripts/count-gate.py scripts/count-gate-test.py scripts/regenerability-gate.py scripts/mutationdiff.py scripts/accept-anchor-gate.py scripts/accept-anchor-gate-test.py scripts/liveness-probe.py scripts/liveness-probe-test.py scripts/citation-metadata-gate.py scripts/citation-metadata-gate-test.py scripts/expectation-slack-gate.py scripts/expectation-slack-gate-test.py scripts/observed-code-closure-gate.py scripts/observed-code-closure-gate-test.py scripts/uncited-crosscheck-gate.py scripts/reading-differential.py scripts/reading-differential-test.py scripts/vendor-remap-test.py scripts/vector-distinctness-gate.py scripts/vector-distinctness-gate-test.py scripts/surface-leakage-gate.py scripts/surface-leakage-gate-test.py
       # Type-checks by DIRECTORY, which is why it sits beside the pass above
       # rather than replacing it. That one is driven from the list of files
       # written out on the line above, and a list is only accurate on the day it
@@ -405,6 +405,33 @@ jobs:
         run: |
           python3 scripts/vector-distinctness-gate.py
           python3 scripts/vector-distinctness-gate-test.py
+      # Every other check in this directory asks whether one vector forces one
+      # rule. This one asks the question a corpus can fail as a whole: can a
+      # consumer answer it without implementing anything? A cheap classifier is
+      # trained on the surface -- the identifier's tokens, the file's size, the
+      # statement's shape, the member paths it carries, its member names and
+      # short string values -- and asked to predict accept-or-reject. Chance is
+      # 0.5 and the target is 0.55.
+      #
+      # It is worth more than the two specific checks above it precisely because
+      # it is not told what to look for: it covers every corpus shipped here and
+      # goes red for a leak nobody has thought of. The number it holds is a
+      # property of the corpus rather than of any rail, which is what makes a
+      # rail's published score mean something.
+      #
+      # Eight of the twelve surface measurements are over target today and each
+      # names the constraint blocking it in docs/SURFACE-LEAKAGE-BASELINE.json.
+      # The largest by far is the identifier namespace -- the `ok-`/`bad-` prefix
+      # means the name alone is very nearly the label -- and it is blocked by the
+      # immutability commitments in GOVERNANCE.md rather than by any difficulty.
+      # The gate is still a live guard while that is true: every surface is held
+      # at the figure it has reached, so a change that adds predictability fails
+      # on the change that added it, and a declaration that comes back under
+      # target is refused as stale.
+      - name: the corpus is not scoreable from its surface
+        run: |
+          python3 scripts/surface-leakage-gate.py
+          python3 scripts/surface-leakage-gate-test.py
       # The corpus is vendored into rails that live in other repositories, and
       # each of those checks its own copy against its own stamp. Nothing asked
       # whether the copy was current, so the refresh ran when somebody

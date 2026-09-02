@@ -1,0 +1,63 @@
+{
+  "$comment": "What each surface of each corpus currently measures, written by scripts/surface-leakage-gate.py --sync and enforced by the same script with no argument. `separability` is max(auc, 1-auc) for a naive-Bayes classifier predicting accept-or-reject from that surface alone, under stratified cross-validation averaged over a fixed seed list; 0.5 is chance. A figure above its recorded value refuses, whether or not the surface is already over target. A figure over `target` refuses unless the row names the constraint blocking it, and a row that names one after coming back under target refuses as a stale declaration. Do not raise a number here to quiet the gate: the recorded figure is the level a surface has reached and the only sanctioned way to move it up is to have a reason a reader accepts.",
+  "target": 0.55,
+  "tolerance": 0.02,
+  "surfaces": {
+    "vectors": {
+      "identifier": {
+        "separability": 0.9936,
+        "blockedBy": "the published identifier namespace",
+        "reason": "Vector identifiers carry an `ok-`/`bad-` prefix, so the name alone very nearly IS the label and a consumer can score without opening the file. Content-addressing the namespace is the fix and it measures: substituting a digest for every stem drops this surface to 0.5075 and the whole-surface figure from 0.9602 to 0.5567. It is not applied because the identifiers are published. GOVERNANCE.md commits that a published suiteRevision is never mutated in place and that identifiers are never reused; the filename sits inside the corpusDigest preimage, so a rename is a revision event; three vendored consumer rails carry the corpus byte-for-byte; docs/INDEPENDENT-RUNS.json and DISPOSITIONS.md record an outside implementation's per-vector results and adopted objections BY IDENTIFIER; and the `cited/5019931` tag exists precisely because a revision was cited. Renaming would leave those records pointing at nothing. This is an operator decision about a compatibility story, not a change a gate may make."
+      },
+      "file": {
+        "separability": 0.5176
+      },
+      "shape": {
+        "separability": 0.5059
+      },
+      "paths": {
+        "separability": 0.5453
+      },
+      "lexicon": {
+        "separability": 0.5513,
+        "blockedBy": "a second attack class carried more often on the accept side",
+        "reason": "The margin over target is a hundredth, and it is one regularity: statements naming a second attack class in the corpus manifest -- the `XB` class and its member id -- sit more often on the accept side than the reject side, because the vectors built to exercise multi-class coverage are mostly conformant ones. Nothing here names a verdict; it is a template that was reached for more often in one direction. Closing it means adding reject vectors over the same multi-class shape rather than removing anything, which is corpus authorship and a revision event."
+      },
+      "all": {
+        "separability": 0.9602,
+        "blockedBy": "the published identifier namespace",
+        "reason": "Carried by the identifier surface above and by nothing else: with identifiers content-addressed this figure is 0.5567, a hundredth over target, and the remaining margin is the lexicon regularity in the row above. It is listed separately because the combined surface is the one a real consumer sees, and a corpus can leak through a combination no single group shows."
+      }
+    },
+    "vectors-ai-agent-action": {
+      "identifier": {
+        "separability": 0.987,
+        "blockedBy": "the published identifier namespace",
+        "reason": "The same prefix, the same fix, and the same constraint as the identifier row of the other corpus. Content-addressing the stems measures 0.5459 here."
+      },
+      "file": {
+        "separability": 0.623,
+        "blockedBy": "one template supplying most of the accept side",
+        "reason": "Byte length alone. It is the same cause as the paths and lexicon rows below: most accept vectors in this corpus come from one generated family and are therefore one size, and the reject vectors are hand-built and are another."
+      },
+      "shape": {
+        "separability": 0.5111
+      },
+      "paths": {
+        "separability": 0.7835,
+        "blockedBy": "one template supplying most of the accept side",
+        "reason": "Measured cause, not a guess: the accept side carries `predicate.contentDigest` on 26 of its 37 members and the reject side on 1 of 16, so the presence of one member path very nearly names the label. It is there because 24 of the 37 accept vectors are the RFC 8785 Appendix B number-serialization family, generated in one loop that supplies a content digest, and that family has no reject counterpart at all. The fix is on the reject side -- Appendix B rows that serialize the number wrongly, built from the same template -- which is corpus authorship and a revision event, not a gate's business."
+      },
+      "lexicon": {
+        "separability": 0.7927,
+        "blockedBy": "one template supplying most of the accept side",
+        "reason": "The member names and the shared digest string of the same Appendix B family described in the paths row above. One string value appears in 25 of 37 accept vectors and no reject vector."
+      },
+      "all": {
+        "separability": 0.8779,
+        "blockedBy": "one template supplying most of the accept side, over the published identifier namespace",
+        "reason": "Both causes at once. Content-addressing the identifiers takes this corpus to 0.7775 rather than to chance, because unlike the other corpus its content leaks on its own. This corpus is the one to fix first: it is smaller, it is not vendored into any consumer rail, and its remaining margin is a single missing vector family rather than a namespace nobody can move."
+      }
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "$comment": "Every place where two vector identifiers address one statement, checked by scripts/vector-distinctness-gate.py. This is a ledger and not an exemption list: an entry pins the corpus, the reading the collision holds under, both identifiers and a digest of the colliding value, so a declaration stops applying the moment either side moves, and a declaration naming a collision that is no longer present fails exactly as loudly as an undeclared one. Do not hand-add a row to quiet the gate. A row here is a statement that somebody looked at the pair and decided which of the two dispositions it has: `inherent` means the collision is what the vector is for and removing it would stop the vector forcing anything; `open` means it is a defect nobody has fixed and the reason carries the remedy.",
+  "collisions": [
+    {
+      "corpus": "vectors",
+      "reading": "canonical-json",
+      "ids": [
+        "bad-725-statement-duplicate-member",
+        "ok-002-clean-pass-armed-sealed"
+      ],
+      "digest": "f249eee4f2d93a43",
+      "disposition": "inherent",
+      "reason": "bad-725 is ok-002's bytes carrying a second top-level predicateType member, and it decodes to ok-002 exactly because a lenient parser keeps the last member and says nothing. That silence IS the condition the vector forces: the statement is parsed as strict I-JSON over its raw bytes, not as whatever a decoder handed back. A version of bad-725 that decoded to something other than its parent would be refused by any rail for a reason that has nothing to do with the duplicate, and the corpus would lose its only proof that the whole statement, and not only the record payloads, is read as bytes. The pair is therefore the one cross-label decode collision this corpus is entitled to, and it is also the reason a rail may not decode before it compares."
+    },
+    {
+      "corpus": "vectors",
+      "reading": "canonical-json",
+      "ids": [
+        "bad-733-statement-lone-high-surrogate-escape",
+        "bad-736-statement-cesu8-vocabulary-label"
+      ],
+      "digest": "24294771116174f6",
+      "disposition": "inherent",
+      "reason": "One label, two ways of putting it on the wire: bad-733 writes the unpaired high surrogate as a backslash-u escape in a file that is valid UTF-8, and bad-736 encodes the same code point directly as ED A0 80, which is not. They must decode to one value or the pair is not asking its question, and CPython's own decoder is what makes the point -- json.loads over bytes decodes with surrogatepass, so it hands back the identical statement for both. Both are reject and both name the same condition, so no rail is asked for two answers about one input; what the pair shows is that the two forms are separated only at the byte layer, which is where the rule lives."
+    },
+    {
+      "corpus": "vectors-ai-agent-action",
+      "reading": "bytes",
+      "ids": [
+        "ok-001-canonical-chain-hash-integer-like-keys",
+        "ok-003-log-line-equals-canonical-bytes"
+      ],
+      "digest": "e8b9155afcbd8224",
+      "disposition": "open",
+      "reason": "Statement and record line are both byte-identical: the two calls in vectors-ai-agent-action/gen_vectors.py differ in their identifier, their conditions and their citation, and in nothing else. So aia-c-4, the condition holding that the log line IS the canonical bytes, is credited with a discriminator that is a copy of the one aia-c-1 and aia-c-2 already have, and this corpus's accept side counts one vector twice. This is the defect this gate was originally written about, in the corpus it was not originally pointed at. Remedy: give ok-003 an underlying record of its own -- any record whose log line is its canonical serialization forces the condition, and a distinct toolName is enough -- then regenerate. It is recorded here rather than fixed because it moves a published corpusDigest, which is a revision event under GOVERNANCE.md and not a change a gate may make on its own account."
+    }
+  ]
+}

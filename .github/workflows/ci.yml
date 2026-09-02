@@ -108,7 +108,7 @@ jobs:
       - name: sync toolchain
         run: uv sync --extra dev --extra generators
       - name: mypy --strict
-        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/interpretation-registry-gate-test.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-anchor-gate-test.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/code-contract-gate-test.py scripts/consumer-lag-gate.py scripts/consumer-lag-gate-test.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/condition-forcing-gate.py scripts/condition-forcing-gate-test.py scripts/condition-forcing-crosscheck.py scripts/condition-forcing-crosscheck-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py scripts/countcensus.py scripts/count-gate.py scripts/count-gate-test.py scripts/regenerability-gate.py scripts/mutationdiff.py scripts/accept-anchor-gate.py scripts/accept-anchor-gate-test.py scripts/liveness-probe.py scripts/liveness-probe-test.py scripts/citation-metadata-gate.py scripts/citation-metadata-gate-test.py scripts/expectation-slack-gate.py scripts/expectation-slack-gate-test.py scripts/observed-code-closure-gate.py scripts/observed-code-closure-gate-test.py scripts/uncited-crosscheck-gate.py scripts/reading-differential.py scripts/reading-differential-test.py scripts/vendor-remap-test.py
+        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/interpretation-registry-gate-test.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-anchor-gate-test.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/code-contract-gate-test.py scripts/consumer-lag-gate.py scripts/consumer-lag-gate-test.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/condition-forcing-gate.py scripts/condition-forcing-gate-test.py scripts/condition-forcing-crosscheck.py scripts/condition-forcing-crosscheck-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py scripts/countcensus.py scripts/count-gate.py scripts/count-gate-test.py scripts/regenerability-gate.py scripts/mutationdiff.py scripts/accept-anchor-gate.py scripts/accept-anchor-gate-test.py scripts/liveness-probe.py scripts/liveness-probe-test.py scripts/citation-metadata-gate.py scripts/citation-metadata-gate-test.py scripts/expectation-slack-gate.py scripts/expectation-slack-gate-test.py scripts/observed-code-closure-gate.py scripts/observed-code-closure-gate-test.py scripts/uncited-crosscheck-gate.py scripts/reading-differential.py scripts/reading-differential-test.py scripts/vendor-remap-test.py scripts/vector-distinctness-gate.py scripts/vector-distinctness-gate-test.py
       # Type-checks by DIRECTORY, which is why it sits beside the pass above
       # rather than replacing it. That one is driven from the list of files
       # written out on the line above, and a list is only accurate on the day it
@@ -383,8 +383,28 @@ jobs:
       # count still added up. The suite's own weakness report could not see it
       # either, because it counts declared conditions rather than distinct
       # statements.
+      #
+      # It has since been widened twice, and both widenings found something. It
+      # read one manifest, so the AI Agent Action corpus was outside the only
+      # check asking this question, and a byte-identical accept pair had been
+      # sitting in it since it shipped. And it compared bytes only, so two files
+      # that differ in their bytes and decode to one statement were invisible to
+      # it -- which for a pair carrying DIFFERENT labels means the corpus is
+      # asking a decoding rail for two verdicts about one input, and the only
+      # thing separating them is the `ok-`/`bad-` prefix in the identifier. Both
+      # readings a rail can take are now asked, over both corpora, and every
+      # collision has to be declared with a reason in docs/VECTOR-COLLISIONS.json
+      # or the gate refuses it.
+      #
+      # The test runs beside the gate for the reason every other gate test in
+      # this file does, and one of its cases exists specifically to catch the
+      # narrowing coming back: it puts a collision in the second corpus and
+      # nowhere else, so a gate rescoped to one manifest fails that case while
+      # passing all the others.
       - name: no two vector identifiers address one statement
-        run: python3 scripts/vector-distinctness-gate.py
+        run: |
+          python3 scripts/vector-distinctness-gate.py
+          python3 scripts/vector-distinctness-gate-test.py
       # The corpus is vendored into rails that live in other repositories, and
       # each of those checks its own copy against its own stamp. Nothing asked
       # whether the copy was current, so the refresh ran when somebody

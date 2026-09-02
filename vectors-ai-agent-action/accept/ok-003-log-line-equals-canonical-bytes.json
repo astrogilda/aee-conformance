@@ -7,7 +7,7 @@
       "protocol": "mcp",
       "success": true,
       "timestamp": "2026-08-18T14:33:41.882Z",
-      "toolName": "create_pull_request",
+      "toolName": "append_audit_log",
       "type": "tool_call"
     },
     "agent": {
@@ -42,7 +42,7 @@
   "subject": [
     {
       "digest": {
-        "sha256": "4e70d92204aee18162dc4db4d6bdc2462b73ec0c45d794ec5912bfec124cea3e"
+        "sha256": "18ac4f55035ff446f1d047e1b8c3784fc1815c0b428fe64a63b23b98af1c8914"
       },
       "name": "session:agent-workspace-4f2a"
     }

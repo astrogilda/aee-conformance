@@ -188,13 +188,31 @@ def drop_a_declaration(root: Path) -> None:
     write_ledger(root, data)
 
 
-def repair_the_open_collision(root: Path) -> None:
-    """Fix the defect the ledger declares open, and leave the row behind."""
-    corpus = "vectors-ai-agent-action"
-    target = path_of(root, corpus, "ok-003-log-line-equals-canonical-bytes")
+def repair_a_declared_collision(root: Path) -> None:
+    """Break a collision the ledger declares, and leave the declaration behind.
+
+    Whichever collision is declared FIRST is the one repaired, rather than a
+    named pair. An earlier version of this case named the pair that happened to
+    be open at the time; that pair was then fixed for real, and the case went
+    quietly vacuous -- it mutated a vector that collided with nothing, the gate
+    correctly accepted, and a case asserting the ratchet turns downward was
+    asserting nothing. Reading the pair out of the ledger means the case follows
+    the ledger instead of a memory of it.
+    """
+    declared = ledger(root)["collisions"]
+    if not declared:
+        raise SystemExit("test setup: the ledger declares no collision to repair.")
+    entry = declared[0]
+    target = path_of(root, str(entry["corpus"]), str(entry["ids"][0]))
     statement = json.loads(target.read_text(encoding="utf-8"))
-    statement["subject"][0]["name"] = "a-distinct-subject-for-this-case"
-    target.write_text(json.dumps(statement, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    if not isinstance(statement, dict):
+        raise SystemExit("test setup: the declared vector is not an object.")
+    # A member no other vector carries: enough to move the decoded value, and so
+    # to break the collision, whatever reading the collision was declared under.
+    statement["_repairedByATestCase"] = True
+    target.write_text(
+        json.dumps(statement, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
 
 def blank_a_reason(root: Path) -> None:
@@ -267,7 +285,7 @@ REFUSALS: list[Case] = [
     ),
     (
         "a repaired collision retires its declaration",
-        repair_the_open_collision,
+        repair_a_declared_collision,
         ("stale declaration",),
     ),
     ("a declaration carrying no reason", blank_a_reason, ("declares no reason",)),

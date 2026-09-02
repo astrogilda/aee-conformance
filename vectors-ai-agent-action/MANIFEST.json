@@ -14,7 +14,7 @@
     "accept": 37,
     "reject": 16
   },
-  "corpusDigest": "f2be44dbb8d207a444eecc19874b7ba3e1276f15175c7f161e8062909ddc1d2a",
+  "corpusDigest": "db565dc8fc3f0ea6cf1a7cec0bcadda1223cdb83d890f1f5a05b1164f6976bd2",
   "note": "A reject member is rejectable under the proposed canonicalization text, not under #588 as it stands. Each accept member is the conformant twin of the reject member sharing its condition, so a verifier that rejects everything scores zero rather than full marks.",
   "vectors": [
     {
@@ -309,7 +309,7 @@
       ],
       "expected": {
         "verdict": "valid",
-        "chainHash": "4e70d92204aee18162dc4db4d6bdc2462b73ec0c45d794ec5912bfec124cea3e"
+        "chainHash": "18ac4f55035ff446f1d047e1b8c3784fc1815c0b428fe64a63b23b98af1c8914"
       },
       "cites": "canonicalization: the log line IS the canonical bytes, so the two readings of the preimage coincide",
       "records": "records/ok-003-log-line-equals-canonical-bytes.jsonl"

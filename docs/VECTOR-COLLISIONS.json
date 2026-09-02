@@ -22,17 +22,6 @@
       "digest": "24294771116174f6",
       "disposition": "inherent",
       "reason": "One label, two ways of putting it on the wire: bad-733 writes the unpaired high surrogate as a backslash-u escape in a file that is valid UTF-8, and bad-736 encodes the same code point directly as ED A0 80, which is not. They must decode to one value or the pair is not asking its question, and CPython's own decoder is what makes the point -- json.loads over bytes decodes with surrogatepass, so it hands back the identical statement for both. Both are reject and both name the same condition, so no rail is asked for two answers about one input; what the pair shows is that the two forms are separated only at the byte layer, which is where the rule lives."
-    },
-    {
-      "corpus": "vectors-ai-agent-action",
-      "reading": "bytes",
-      "ids": [
-        "ok-001-canonical-chain-hash-integer-like-keys",
-        "ok-003-log-line-equals-canonical-bytes"
-      ],
-      "digest": "e8b9155afcbd8224",
-      "disposition": "open",
-      "reason": "Statement and record line are both byte-identical: the two calls in vectors-ai-agent-action/gen_vectors.py differ in their identifier, their conditions and their citation, and in nothing else. So aia-c-4, the condition holding that the log line IS the canonical bytes, is credited with a discriminator that is a copy of the one aia-c-1 and aia-c-2 already have, and this corpus's accept side counts one vector twice. This is the defect this gate was originally written about, in the corpus it was not originally pointed at. Remedy: give ok-003 an underlying record of its own -- any record whose log line is its canonical serialization forces the condition, and a distinct toolName is enough -- then regenerate. It is recorded here rather than fixed because it moves a published corpusDigest, which is a revision event under GOVERNANCE.md and not a change a gate may make on its own account."
     }
   ]
 }

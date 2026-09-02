@@ -377,10 +377,20 @@ def build_accept() -> None:
         {"verdict": "valid", "chainHash": chain_hash(rec)}, [jcs(rec)],
         "canonicalization: JCS emits the character, never a \\u escape")
 
+    # A record OF ITS OWN, and that is the whole of this edit. Built from the
+    # shared parent, this vector was byte-identical to ok-001 above -- statement
+    # and record line both -- so aia-c-4 was credited with a discriminator
+    # aia-c-1 and aia-c-2 already carried, and the accept side of this corpus
+    # counted one statement twice. Nothing could see it: the distinctness gate
+    # read the other corpus's manifest only. Any record whose log line is its
+    # canonical serialization forces this condition, so a distinct tool name is
+    # the smallest change that makes the vector a vector.
+    log_rec = underlying("genesis", tool="append_audit_log", extensions=EXT)
     add("ok-003-log-line-equals-canonical-bytes", "accept",
-        tool_call("genesis", extensions=EXT), PARENT_HASH,
+        tool_call("genesis", tool="append_audit_log", extensions=EXT),
+        chain_hash(log_rec),
         ["aia-c-4"],
-        {"verdict": "valid", "chainHash": PARENT_HASH}, [jcs(PARENT_REC)],
+        {"verdict": "valid", "chainHash": chain_hash(log_rec)}, [jcs(log_rec)],
         "canonicalization: the log line IS the canonical bytes, so the two "
         "readings of the preimage coincide")
 

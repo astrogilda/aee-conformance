@@ -98,6 +98,39 @@ byte-identically from the generators.
   matches what the campaign produces, which is a diff of 12,561 lines that moves no
   meaning. Ground truth over the same run: 272 vectors, 0 discrepancies against the Go
   verifier through the Python rail, across every enumerated mutation site.
+- **Removing the fallback is what revealed that sixteen readers had stopped
+  measuring, and that is the most useful thing this revision produced.** When the
+  three dual-layout readers were deleted, sixteen steps of this repository's own
+  CI went red at once. Every one was a reader still deriving a path from the
+  per-verdict layout, and every one had gone on working while a fallback was
+  present. **The fallback was not compatibility. It was concealment.**
+  Four of the sixteen would have reported success while measuring nothing at all,
+  which is the failure mode this suite exists to make impossible in others:
+  - three gate tests staged their fixtures from `accept/` and `reject/` and so
+    copied NO vectors, meaning each control ran against an empty corpus and each
+    reported `CONTROL FAILED` only by luck of a later assertion;
+  - the forcing gate's corpus fingerprint walked the same directories and would
+    have hashed the manifest alone -- a fingerprint that agrees with every corpus
+    -- and now refuses an empty read;
+  - the liveness probe's `--corpus` mode globbed an `ok-` prefix that matches
+    nothing, and would have reported a clean probe over an empty selection; it
+    refuses that too.
+  The remaining twelve were honest breakages: hard-coded vector paths, per-kind
+  directory counts in two counting gates, a fixture builder, and one workflow
+  step. None of them is interesting on its own. What is interesting is that a
+  compatibility path had been holding all sixteen upright, so the corpus could
+  not have told anyone which of its own gates were still checking something.
+  A conformance corpus whose gates were partly inert, found by deleting the thing
+  that hid it, is worth publishing as plainly as any result about the vectors.
+- **The historical reader cannot outlive its reason, and a gate enforces that
+  rather than a comment.** `scripts/historical-reader-expiry-gate.py` reads the
+  published ref and the reader's own source and holds a four-row rule: while the
+  default branch publishes the per-verdict corpus the reader must exist, and the
+  moment it publishes the flat one the reader must be gone. Both failing rows were
+  watched to fire. It is a gate of its own because the obvious placement cannot
+  work -- making the consumer-lag gate refuse a flat default branch would make it
+  fail its own test, whose fixtures stage a self-contained repository from this
+  corpus and are therefore always flat. This one has no fixtures to collide with.
 - Corpus: **272 vectors (61 accept, 209 reject, 2 indeterminate)**, unchanged in
   size from suiteRevision 27. Every vector file changes, so `corpusDigest` in
   `vectors/MANIFEST.json` moves; the vendored specification does not move, because

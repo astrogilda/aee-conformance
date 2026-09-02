@@ -69,8 +69,10 @@ Still open, and the first is the largest thing on this page:
   before this work.** It pins the specification at a normative/obligation sentence split
   that the vendored text no longer produces, so it refuses before any case runs. Verified
   pre-existing by running it unchanged at the commit this work started from, where it
-  fails identically. It is not a CI step -- `ci.yml` never invokes it -- which is why it
-  went unnoticed. Either re-pin the two constants against the vendored specification and
+  fails identically. **The defect is that no workflow references it at all** -- `ci.yml`
+  never invokes it -- and the failing assertion is only how that became visible. A check
+  nothing runs is the first member of the family the sixteen repointed readers belong
+  to: it cannot report anything, so it cannot report that it has stopped applying. Either re-pin the two constants against the vendored specification and
   say what moved, or wire it into CI so the next drift is caught when it happens.
 
 - [x] **The AI Agent Action corpus is content-addressed and flat** (2026-09-02). Every

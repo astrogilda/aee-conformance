@@ -153,6 +153,13 @@ SPEC = REPO_ROOT / "spec" / "predicates" / "adversarial-execution-evidence.md"
 READINGS = REPO_ROOT / "spec" / "READINGS.toml"
 VECTORS = REPO_ROOT / "vectors"
 
+# ONE definition of how a vector row is found, imported rather than restated.
+# The reader below used to carry its own copy keyed on the retired `bad-` and
+# `ok-` name prefixes; when identifiers became content addresses it matched
+# nothing and reported an empty citation index without complaint.
+sys.path.insert(0, str(VECTORS))
+from gen_manifest import corpus_files, table_rows  # noqa: E402
+
 # Everything a build of cmd/mutrun reads. The whole repository is copied by the
 # forcing campaign because it mutates in place under many workers; this harness
 # builds a handful of trees and a 150 MB copy per variant would dominate the
@@ -310,6 +317,25 @@ def _spans(text: str) -> list[Span]:
     ]
 
 
+def _per_vector_spans(index: Path) -> list[Span]:
+    """Spec spans cited by the vector rows of one index, read by TABLE not name.
+
+    This reader used to keep the lines beginning ``| `bad-`` and ``| `ok-``,
+    which is a citation index keyed on a VECTOR NAME. When names became content
+    addresses both filters matched nothing, both sources reported zero spans
+    without a word, and layer 0 reported five obligations as cited by nothing
+    that five reject vectors cite by line range today. A citation source that
+    silently empties is worse than one that is missing: missing is checked for
+    above, empty is indistinguishable from a corpus that really has no citation.
+
+    So the rows are found the way ``gen_manifest.table_rows`` finds them -- by
+    the table whose first column is called `vector` -- and that function refuses
+    a row it cannot read rather than skipping it. Names will move again; the
+    header will not, and if it does the refusal names the file.
+    """
+    return [s for row in table_rows(str(index)) for cell in row for s in _spans(cell)]
+
+
 def citation_spans(root: Path) -> dict[str, list[Span]]:
     """Every line span anything in the corpus points at the specification with.
 
@@ -328,17 +354,18 @@ def citation_spans(root: Path) -> dict[str, list[Span]]:
     out["condition-registry"] = [
         s for line in reject_lines if re.match(r"^\|\s*aee-c-\d+\s*\|", line) for s in _spans(line)
     ]
-    out["reject-per-vector"] = [
-        s for line in reject_lines if line.startswith("| `bad-") for s in _spans(line)
-    ]
-    out["accept-per-vector"] = []
-    if accept_index.is_file():
-        out["accept-per-vector"] = [
-            s
-            for line in accept_index.read_text(encoding="utf-8").splitlines()
-            if line.startswith("| `ok-")
-            for s in _spans(line)
-        ]
+    out["reject-per-vector"] = _per_vector_spans(reject_index)
+    out["accept-per-vector"] = (
+        _per_vector_spans(accept_index) if accept_index.is_file() else []
+    )
+    if not out["reject-per-vector"]:
+        die(
+            f"{reject_index}: the vector table cites no specification line at "
+            "all. That table is the primary per-vector citation index and it "
+            "carries a `spec` column on every row; a reader that returns "
+            "nothing from it is a broken read path, and layer 0 would go on to "
+            "report every sentence only that table cites as uncited"
+        )
     registry = root / "vectors" / "interpretation-decisions.json"
     out["interpretation-registry"] = []
     if registry.is_file():
@@ -561,12 +588,17 @@ class Rail:
 
 
 def vector_files(vectors: Path) -> dict[str, Path]:
-    out: dict[str, Path] = {}
-    for sub in ("accept", "reject", "indeterminate"):
-        for path in sorted((vectors / sub).glob("*.json")):
-            out[path.stem] = path
+    """The corpus, read the one way the repository defines it.
+
+    This globbed a directory per verdict, which is the layout retired at
+    suiteRevision 28, and after the flat corpus landed it found nothing and
+    stopped layers 1 and 2 outright. Reading it through ``corpus_files`` means
+    the layout is defined once: a tree it cannot read is refused there, by name,
+    instead of coming back empty here.
+    """
+    out = {Path(path).stem: Path(path) for _, path in corpus_files(str(vectors))}
     if not out:
-        die(f"no vectors under {vectors}/{{accept,reject,indeterminate}}")
+        die(f"{vectors}/statements carries no vector; nothing below is a measurement")
     return out
 
 
@@ -598,12 +630,15 @@ def _one_vector_coverage(
 
     mutrun takes a corpus DIRECTORY, so the vector is presented as a one-file
     corpus of symlinks rather than by teaching the tool a second input mode.
+    The one-file corpus is FLAT, because that is the only layout the corpus
+    reader accepts: this built a directory per verdict and put the vector in the
+    one its path named, which after the flat corpus landed meant every scratch
+    corpus was three empty directories.
     """
     scratch = work / "pv" / vid
-    for sub in ("accept", "reject", "indeterminate"):
-        (scratch / "corpus" / sub).mkdir(parents=True, exist_ok=True)
-    bucket = path.parent.name
-    (scratch / "corpus" / bucket / path.name).symlink_to(path)
+    corpus = scratch / "corpus" / "statements"
+    corpus.mkdir(parents=True, exist_ok=True)
+    (corpus / path.name).symlink_to(path)
     covdir = scratch / "cov"
     covdir.mkdir(parents=True, exist_ok=True)
     subprocess.run(

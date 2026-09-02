@@ -174,10 +174,18 @@ why the item is written down rather than done.
 carries a per-vector anchor column and `vectors/accept/INDEX.md` does not, so
 `ok-054` forces L1700 and the measurement still counts that sentence as cited by
 nothing. Every obligation whose only possible instrument is an accept vector is
-invisible to the measure for the same reason. Closing it needs an anchor column
-added to the accept index, and the measure's row regex updated -- it currently
-matches ``| `ok-`` while the accept index writes `| ok-`, so it reads zero
-accept rows either way.
+invisible to the measure for the same reason. Closing it now needs only one
+thing: an anchor column added to the accept index. The second half of this item
+-- a row regex matching ``| `ok-`` against an index that writes `| ok-`, so that
+it read zero accept rows either way -- is closed. Both per-vector readers in
+`scripts/reading-differential.py` find their rows through
+`gen_manifest.table_rows`, by the table whose first column is called `vector`,
+and that function refuses a row it cannot read instead of skipping it. The
+reject reader had the identical defect and it was live: keyed on the retired
+`bad-` prefix, it matched nothing once identifiers became content addresses,
+reported an empty citation index in silence, and layer 0 called five obligations
+uncited that five reject vectors cite by line range. A citation source keyed on
+a vector NAME is the bug; names are content addresses now and will move again.
 
 **The reverse question is still open.** The same measurement reports that 62 of
 98 condition-registry spans contain no RFC 2119 sentence at all, so the

@@ -35,8 +35,10 @@ Exit 0 when every case behaves; 1 otherwise.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import hashlib
 import importlib.util
+import io
 import re
 import shutil
 import subprocess
@@ -324,6 +326,93 @@ def case_sentence_without_a_span(_: Any) -> Callable[[str], str]:
     return lambda text: re.sub(r'sentence = "L\d+-\d+"', 'sentence = "the nesting bullet"', text)
 
 
+def _staged_root(root: Path, edit: Callable[[str], str]) -> Path:
+    """A tree carrying only what ``citation_spans`` reads, with one file rigged."""
+    for rel in (
+        "vectors/reject/INDEX.md",
+        "vectors/accept/INDEX.md",
+        "vectors/interpretation-decisions.json",
+        "vectors/coverage-unforced.json",
+    ):
+        target = root / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        text = (REPO_ROOT / rel).read_text(encoding="utf-8")
+        target.write_text(edit(text) if rel.endswith("reject/INDEX.md") else text,
+                          encoding="utf-8")
+    return root
+
+
+def check_citation_read_path(module: Any, failures: list[str]) -> None:
+    """The per-vector citation index must be read, and must refuse to read empty.
+
+    This is not a ledger mutation and cannot be one: the defect it pins lived in
+    the GATE, not in any declaration. The reader kept the index lines beginning
+    ``| `bad-``, so when vector identifiers became content addresses it matched
+    nothing, reported an empty citation source without a word, and layer 0
+    called five obligations uncited that five reject vectors cite by line range.
+    A citation source that silently empties manufactures exactly the absence
+    this harness exists to refuse, so there are three assertions:
+
+      * a POSITIVE CONTROL first. An emptiness check whose read path is broken
+        passes for the wrong reason, so the live index must yield spans before
+        either refusal below proves anything.
+      * an index whose vector rows carry no `spec` column must DIE, not return
+        an empty list that layer 0 reads as a corpus citing nothing.
+      * an index whose identifiers have moved to a shape the shared definition
+        does not know must DIE naming the row. That is the exact rename this
+        reader survived by accident of matching nothing at all.
+    """
+    live = module.citation_spans(REPO_ROOT).get("reject-per-vector", [])
+    if not live:
+        failures.append(
+            "citation read path: the live reject index yields no per-vector "
+            "span, so the two refusals below would pass on a broken reader"
+        )
+        return
+    print(f"  control: the reject index cites {len(live)} spec spans")
+
+    rigged: list[tuple[str, Callable[[str], str], str]] = [
+        (
+            "a per-vector index whose rows cite no specification line",
+            lambda text: re.sub(r"\| L\d+[^|\n]*\|\n", "| |\n", text),
+            "broken read path",
+        ),
+        (
+            "a per-vector index whose identifiers moved to an unknown shape",
+            lambda text: re.sub(r"`v([0-9a-f]{16})`", r"`bad-\1`", text),
+            "not an identifier shape this corpus publishes",
+        ),
+    ]
+    for name, edit, phrase in rigged:
+        with tempfile.TemporaryDirectory() as td:
+            root = _staged_root(Path(td), edit)
+            if (root / "vectors/reject/INDEX.md").read_text(encoding="utf-8") == (
+                REPO_ROOT / "vectors/reject/INDEX.md"
+            ).read_text(encoding="utf-8"):
+                failures.append(f"{name}: the rigging changed no bytes")
+                continue
+            # `die` prints its reason and raises with only an exit code, so the
+            # reason is read off stderr rather than off the exception.
+            noise = io.StringIO()
+            try:
+                with contextlib.redirect_stderr(noise):
+                    spans = module.citation_spans(root)
+            except SystemExit as exc:
+                said = f"{exc}\n{noise.getvalue()}"
+                if phrase not in said:
+                    failures.append(
+                        f"{name}: refused, but never said {phrase!r}. A refusal "
+                        f"with the wrong reason is not the catch. It said:\n{said}"
+                    )
+                else:
+                    print(f"  caught: {name}")
+                continue
+            failures.append(
+                f"{name}: the reader ACCEPTED it and returned "
+                f"{len(spans.get('reject-per-vector', []))} per-vector spans"
+            )
+
+
 Case = tuple[str, Callable[[Any], Callable[[str], str]], list[str], int, str]
 
 FAST: list[Case] = [
@@ -396,6 +485,8 @@ def main() -> int:
                 return 1
             print("  control: the committed ledger passes (rc=0)")
 
+        check_citation_read_path(module, failures)
+
         for name, build, extra, expected_rc, phrase in cases:
             with tempfile.TemporaryDirectory() as td:
                 staged = Path(td) / "READINGS.toml"
@@ -429,7 +520,7 @@ def main() -> int:
             print(f"  - {failure}", file=sys.stderr)
         return 1
     print(
-        f"\nOK: control passes and all {len(cases)} mutations go red with a "
+        f"\nOK: control passes and all {len(cases) + 2} mutations go red with a "
         "named reason."
     )
     return 0

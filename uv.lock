@@ -8,7 +8,7 @@ resolution-markers = [
 
 [[package]]
 name = "aee-conformance"
-version = "0.7.0"
+version = "0.9.0"
 source = { virtual = "." }
 
 [package.optional-dependencies]

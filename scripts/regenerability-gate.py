@@ -39,10 +39,7 @@ mismatch, it is an absence, and an absence is what a checksum comparison over th
 files that were produced will never see.
 
 Two generated artifacts are deliberately NOT listed here.
-``vectors/accept/INDEX.md`` is authored by hand rather than emitted, and it is
-tied to the corpus from both ends anyway: ``vectors/gen_manifest.py`` refuses
-when a row and a file disagree, and ``scripts/count-gate.py`` refuses when a row
-and the manifest do. ``packaging/conformance-report.json`` is a run artifact
+``packaging/conformance-report.json`` is a run artifact
 rather than a source, and the run that writes it is its own check.
 
 Usage:
@@ -94,6 +91,9 @@ OWNED = (
     # outside this tuple while the gate printed a total that agreed with itself.
     ("vectors/reject", "vate-*.json"),
     ("vectors/reject", "INDEX.md"),
+    # Emitted since the accept identifiers became a function of the bytes:
+    # a content digest is not something a person can write into a table.
+    ("vectors/accept", "INDEX.md"),
     # The indeterminate family is built by the reject generator, from the same
     # parents, the same derived keys and the same second-fault self-check; only
     # the claim its manifest entry makes differs. It is listed here and not

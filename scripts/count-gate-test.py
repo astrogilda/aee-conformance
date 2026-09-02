@@ -266,7 +266,40 @@ def append(root: Path, rel: str, text: str) -> None:
 
 
 def create(root: Path, rel: str, text: str) -> None:
-    (root / rel).write_text(text, encoding="utf-8")
+    """Write a file that was not there, refusing to overwrite one that was.
+
+    A case that creates a path the corpus already carries changes no count, the
+    gate passes, and the case records a refusal nobody made. The identifier this
+    is called with is a fixed one rather than a real digest precisely so it
+    cannot collide -- and a guard is cheaper than the assumption.
+    """
+    path = root / rel
+    if path.exists():
+        raise SystemExit(
+            f"test setup: {rel} is already in the staged tree, so creating it "
+            "changes nothing and this case would assert nothing. Fix the case, "
+            "never the gate."
+        )
+    path.write_text(text, encoding="utf-8")
+
+
+def remove_first_statement(root: Path) -> None:
+    """Delete the statement file the staged manifest's first entry points at.
+
+    The file is chosen from the manifest rather than named here, so the case
+    keeps deleting a real vector after the corpus is regenerated and every
+    identifier changes. A name typed in here would stop matching, the deletion
+    would be a no-op, and the case would record a refusal nobody made -- which is
+    exactly what the two cases it replaces did.
+    """
+    manifest = json.loads((root / "vectors" / "MANIFEST.json").read_text(encoding="utf-8"))
+    target = root / "vectors" / str(manifest["vectors"][0]["file"])
+    if not target.is_file():
+        raise SystemExit(
+            f"test setup: {target} is not a file, so this case would assert "
+            "nothing. Fix the case, never the gate."
+        )
+    target.unlink()
 
 
 # The sentences a case expects back name figures too, and one that quotes the
@@ -466,12 +499,18 @@ SOURCE_CASES: list[Case] = [
     (
         "the manifest's declared count disagrees with the entries it carries",
         lambda root: retype(root, "vectors/MANIFEST.json", r'"accept": (\d+)'),
-        (f"it declares {ACCEPT + 1} accept vector(s), carries {ACCEPT}",),
+        (f"it declares {ACCEPT + 1} accept vector(s) and carries {ACCEPT} accept entr(ies)",),
     ),
     (
+        # Aimed at vectors/statements/, because that is where a vector file is.
+        # It used to create one in vectors/accept/, and when the corpus flattened
+        # into one content-addressed directory that path stopped being a place a
+        # vector could be: the case went on writing a file nothing reads, the gate
+        # went on passing, and a case asserting a refusal recorded a refusal that
+        # was never made.
         "a vector file is added without the manifest hearing about it",
-        lambda root: create(root, "vectors/accept/ok-999-invented.json", "{}\n"),
-        (f"vectors/accept/ holds {ACCEPT + 1} file(s)",),
+        lambda root: create(root, "vectors/statements/v0000000000000999.json", "{}\n"),
+        (f"carries {TOTAL} entr(ies) and vectors/statements/ holds {TOTAL + 1} file(s)",),
     ),
     (
         "the changelog's newest row drifts from the manifest",
@@ -506,9 +545,13 @@ SOURCE_CASES: list[Case] = [
         ),
     ),
     (
-        "an indeterminate vector file is added without the manifest hearing about it",
-        lambda root: create(root, "vectors/indeterminate/ind-999-invented.json", "{}\n"),
-        (f"vectors/indeterminate/ holds {INDETERMINATE + 1} file(s)",),
+        # The other direction. One flat directory cannot be split by verdict, so
+        # the per-family variant of the case above no longer says anything the
+        # case above does not; a file that DISAPPEARS does, and it is the half a
+        # generator that only ever adds rows would never exercise.
+        "a vector file disappears without the manifest hearing about it",
+        remove_first_statement,
+        (f"carries {TOTAL} entr(ies) and vectors/statements/ holds {TOTAL - 1} file(s)",),
     ),
     # The case the old heading check could not make. Its two sides lived in one
     # file, so a table short of the corpus and a heading agreeing with that short
@@ -530,14 +573,35 @@ SOURCE_CASES: list[Case] = [
         ),
     ),
     (
+        # The extra row names a WELL-FORMED identifier the corpus does not carry.
+        # It used to name `ok-902-invented`, a slug from the naming scheme the
+        # corpus retired, and once identifiers became digests the gate's row scan
+        # no longer recognised that cell as a row at all -- so the case that
+        # asserted the gate refuses an extra row was passing an input the gate
+        # could not see. A case about an extra row has to state a row.
         "an index table carries a row for a vector the corpus does not have",
+        lambda root: edit(
+            root,
+            "vectors/accept/INDEX.md",
+            "| v18bdbadef67b38f4 |",
+            "| v18bdbadef67b38f4 |\n| v0000000000000902 | fail | aee-c-1 | none |",
+        ),
+        ("['v0000000000000902'] have a row here and no entry",),
+    ),
+    (
+        # And the input the case above used to carry, asserted for what it
+        # actually is. A row inside the vector table whose first cell names no
+        # identifier is the sixth silent dropper: it is not a row to any reader,
+        # so the table is one vector shorter and every count derived from it
+        # still agrees with every other.
+        "a vector table row names no identifier, so no reader counts it",
         lambda root: edit(
             root,
             "vectors/accept/INDEX.md",
             "| v18bdbadef67b38f4 |",
             "| v18bdbadef67b38f4 |\n| ok-902-invented | fail | aee-c-1 | none |",
         ),
-        ("['ok-902-invented'] have a row here and no entry",),
+        ("['ok-902-invented'] sit in the vector table and name no identifier",),
     ),
     (
         "one vector is given two index rows, which are then free to disagree",

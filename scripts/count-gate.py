@@ -430,22 +430,64 @@ def manifest_integrity_failures(src: Sources) -> list[str]:
 
 
 INDEX_HEADING = re.compile(r"^## Vectors \((\d+)\)$", re.MULTILINE)
-# The first cell of a vector row, in the spelling gen_manifest.py reads it: the
-# reject index backticks its ids and the accept index does not. This mirrors
-# gen_manifest.table_rows deliberately -- a second, looser parser here would let
-# a row the manifest generator skips be counted as present by this gate.
-# A published identifier is a digest of the vector's own bytes. It carries no
-# family, which is the point: a table row used to name the verdict in its first
-# cell, and so did the filename and the directory.
-INDEX_ROW_ID = re.compile(
-    rf"^\| *`?({VECTOR_ID_PATTERN})`? *\|", re.MULTILINE
-)
+# A published identifier, anchored, in the spelling gen_manifest.py reads it: the
+# reject index backticks its ids and the accept index does not. A published
+# identifier is a digest of the vector's own bytes. It carries no family, which
+# is the point: a table row used to name the verdict in its first cell, and so
+# did the filename and the directory.
+INDEX_ROW_ID = re.compile(rf"^`?({VECTOR_ID_PATTERN})`?$")
+# The vector table is the one whose first column is called `vector`. An index
+# carries other tables -- the reject index has a digest-preimage table of
+# 64-hex rows -- so the identifier cannot be what tells a vector row from
+# another table's row: that is the very thing being checked.
+INDEX_TABLE_HEADER = "vector"
 # Which family of the corpus each index table is the table of.
 INDEX_FAMILY = {
     "vectors/accept/INDEX.md": "accept",
     "vectors/reject/INDEX.md": "reject",
     "vectors/indeterminate/INDEX.md": "indeterminate",
 }
+
+
+def vector_table_rows(text: str) -> tuple[list[str], list[str]]:
+    """The vector table's row identifiers, and the rows that carry none.
+
+    Scoped by the table's HEADER rather than by the identifier, because matching
+    the identifier is what a reader of this table must not use to decide whether
+    a line is a vector row: a row whose first cell stopped matching would simply
+    not be a row, the table would be one vector shorter, and every count derived
+    from it would still agree with every other. vectors/gen_manifest.py learned
+    that and refuses such a row; this gate declared in a comment that it mirrored
+    that reader while running a looser regex over the whole file, so a row the
+    generator would refuse outright was invisible here. That is the sixth silent
+    dropper of the same campaign, and it lived inside the sentence claiming it
+    could not.
+
+    Returns the identifiers found and the first cells that are not identifiers.
+    An unreadable row is returned to be reported, never dropped.
+    """
+    ids: list[str] = []
+    unreadable: list[str] = []
+    inside = False
+    for line in text.splitlines():
+        line = line.strip()
+        if not line.startswith("|"):
+            inside = False
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        first = cells[0] if cells else ""
+        if first == INDEX_TABLE_HEADER:
+            inside = True
+            continue
+        if not inside:
+            continue
+        if first and set(first) <= {"-", ":"}:
+            continue  # the header's underline
+        if match := INDEX_ROW_ID.match(first):
+            ids.append(match.group(1))
+            continue
+        unreadable.append(first)
+    return ids, unreadable
 
 
 def index_failures(texts: dict[str, str], covered: dict[str, list[Covered]]) -> list[str]:
@@ -475,7 +517,15 @@ def index_failures(texts: dict[str, str], covered: dict[str, list[Covered]]) -> 
         if family is None:
             continue
         expected = by_family.get(family, [])
-        rows = INDEX_ROW_ID.findall(text)
+        rows, unreadable = vector_table_rows(text)
+        if unreadable:
+            out.append(
+                f"{rel}: {sorted(unreadable)} sit in the vector table and name no "
+                "identifier this corpus publishes. A row that cannot be read is a "
+                "vector dropped from every count derived from this table, and the "
+                "counts would still agree with each other. Fix the row, or teach "
+                "vectors/gen_manifest.py's VECTOR_ID the new shape."
+            )
         for heading in INDEX_HEADING.finditer(text):
             covered.setdefault(rel, []).append(
                 Covered(heading.start(), heading.end(), "the vector-table heading")
@@ -486,21 +536,32 @@ def index_failures(texts: dict[str, str], covered: dict[str, list[Covered]]) -> 
                     f"vectors/MANIFEST.json carries {len(expected)} {family} "
                     "vector(s)."
                 )
-        seen: dict[str, int] = {}
-        for vid in rows:
-            seen[vid] = seen.get(vid, 0) + 1
-        if duplicated := sorted(vid for vid, n in seen.items() if n > 1):
-            out.append(
-                f"{rel}: {duplicated} each carry more than one row. A vector with two "
-                "rows is a vector whose two rows can disagree."
-            )
-        if missing := [vid for vid in expected if vid not in seen]:
-            out.append(
-                f"{rel}: the corpus carries {missing} and this table has no row for "
-                "them, so nothing here says what they test."
-            )
-        if extra := sorted(set(rows) - set(expected)):
-            out.append(f"{rel}: {extra} have a row here and no entry in vectors/MANIFEST.json.")
+        out.extend(row_reconciliation_failures(rel, rows, expected))
+    return out
+
+
+def row_reconciliation_failures(rel: str, rows: list[str], expected: list[str]) -> list[str]:
+    """One row per corpus vector of this family, in both directions, with duplicates.
+
+    Both sides come from outside the file, so a table cannot satisfy this by
+    agreeing with itself.
+    """
+    out: list[str] = []
+    seen: dict[str, int] = {}
+    for vid in rows:
+        seen[vid] = seen.get(vid, 0) + 1
+    if duplicated := sorted(vid for vid, n in seen.items() if n > 1):
+        out.append(
+            f"{rel}: {duplicated} each carry more than one row. A vector with two "
+            "rows is a vector whose two rows can disagree."
+        )
+    if missing := [vid for vid in expected if vid not in seen]:
+        out.append(
+            f"{rel}: the corpus carries {missing} and this table has no row for "
+            "them, so nothing here says what they test."
+        )
+    if extra := sorted(set(rows) - set(expected)):
+        out.append(f"{rel}: {extra} have a row here and no entry in vectors/MANIFEST.json.")
     return out
 
 

@@ -5831,6 +5831,27 @@ def main() -> None:
             json.dump(ist, f, indent=2, sort_keys=True, ensure_ascii=False)
             f.write("\n")
 
+    # Both of these tables are keyed by identifier and read with .get, so a key
+    # that matches no vector contributes nothing AND SAYS NOTHING: the vector
+    # simply ships without the clause, and every gate over the manifest passes
+    # because the code it would have compared is not declared to begin with.
+    # INHERENT_EXTRA carries the conditions a vector unavoidably also satisfies
+    # and OBSERVED_EXTRA the codes the reference rail emits beyond what the
+    # vector declares, so losing either quietly weakens exactly the pin that
+    # exists to stop a vector being graded against nothing. The reconciliation
+    # is here rather than inside vec() because it has to run after the whole
+    # corpus is built to know which identifiers exist.
+    built = {v["id"] for v in VECTORS} | {v["id"] for v in IND_VECTORS}
+    for table_name, table in (("INHERENT_EXTRA", INHERENT_EXTRA),
+                              ("OBSERVED_EXTRA", OBSERVED_EXTRA)):
+        orphaned = sorted(set(table) - built)
+        assert not orphaned, (
+            f"{table_name} names " + ", ".join(orphaned) + ", which no vector "
+            "in this corpus carries. A clause keyed to a vector that is not "
+            "there declares nothing and does it silently, so the vector ships "
+            "graded against a smaller set than its author wrote"
+        )
+
     ind_on_disk = len([f for f in os.listdir(IND_OUT) if f.startswith("ind-")
                        and f.endswith(".json")])
     assert len(IND_VECTORS) == ind_on_disk, (

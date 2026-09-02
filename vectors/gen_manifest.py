@@ -152,21 +152,68 @@ def corpus_digest(root: str) -> str:
     return h.hexdigest()
 
 
+# The identifier shapes this corpus publishes, in ONE place because every reader
+# of an index table has to agree about them. `vate-` is the family that is not
+# numbered from a single sequence: its ids carry the case number and letter of
+# the external conformance case that prompted them.
+VECTOR_ID = re.compile(r"^((ok|bad|ind)-\d|vate-\d)")
+
+
 def table_rows(md_path: str) -> list[list[str]]:
-    rows = []
+    """Every vector row of an index's VECTOR table, refusing on one it cannot read.
+
+    The refusal is the point and it was not here before. This used to keep the
+    rows whose first cell matched an identifier and SILENTLY DROP the rest, so a
+    row whose id stopped matching -- a renamed family, a new prefix, a typo in a
+    backtick -- left the table with one fewer vector in it and no complaint
+    anywhere. Every closure check downstream runs over what this function
+    returned, so a dropped row is not caught later either: it is a vector the
+    manifest never knew about, and the counts still agree with each other
+    because they are all derived from this same short list.
+
+    Refusing needs a way to tell a vector row from the other tables an index
+    carries, and matching the identifier cannot be it -- that is the very thing
+    under test. The table is identified by its HEADER instead: the vector table
+    is the one whose first column is called `vector`, and the digest-preimage
+    and condition-anchor tables beside it are called something else. Inside that
+    table every row is a vector row, so a first cell that does not match
+    VECTOR_ID is an error rather than something to skip.
+    """
+    rows: list[list[str]] = []
+    inside = False
     with open(md_path, encoding="utf-8") as f:
-        for line in f:
+        for number, line in enumerate(f, start=1):
             line = line.strip()
             if not line.startswith("|"):
+                inside = False
                 continue
             cells = [c.strip() for c in line.strip("|").split("|")]
-            # The four id families the corpus publishes. `vate-` is the one
-            # that is not numbered from a single sequence: its ids carry the
-            # case number and letter of the external conformance case that
-            # prompted them, so the pattern admits a digit or a letter after
-            # the prefix rather than a digit alone.
-            if cells and re.match(r"^`?((ok|bad|ind)-\d|vate-\d)", cells[0]):
+            if not cells:
+                continue
+            first = cells[0]
+            if first == "vector":
+                inside = True
+                continue
+            if not inside:
+                continue
+            if set(first) <= {"-", ":"} and first:
+                continue  # the header's underline
+            if VECTOR_ID.match(first.strip("`")):
                 rows.append(cells)
+                continue
+            raise SystemExit(
+                f"{md_path}:{number}: a row of the vector table identifies "
+                f"itself as {first}, which is not an identifier shape this "
+                "corpus publishes. Skipping it silently would drop the vector "
+                "from the manifest, and every count derived from it would still "
+                "agree. Fix the row, or teach VECTOR_ID the new shape."
+            )
+    if not rows:
+        raise SystemExit(
+            f"{md_path}: no vector rows were read at all. Either the table's "
+            "first column stopped being called `vector`, or the file no longer "
+            "carries one; both produce an empty corpus that agrees with itself."
+        )
     return rows
 
 
@@ -342,14 +389,42 @@ def indeterminate_entries(md_path: str) -> list[dict[str, Any]]:
     return entries
 
 
+def check_tier_claims(claimed: set[str]) -> None:
+    """Refuse a tier pin keyed to a vector the corpus does not carry.
+
+    TIER_EXPECTATIONS is read with .get, so a key matching no vector pins
+    nothing AND SAYS NOTHING: the manifest comes out without those tiers and
+    every gate over it passes, because the values it would have compared were
+    never written. This is the reconciliation that makes that loud, and it lives
+    in its own function so main() stays inside the complexity policy.
+    """
+    unclaimed = sorted(set(TIER_EXPECTATIONS) - claimed)
+    if unclaimed:
+        raise SystemExit(
+            "TIER_EXPECTATIONS names "
+            + ", ".join(unclaimed)
+            + ", which no accept vector carries. A tier pin keyed to a vector "
+            "that is not there pins nothing, and does it without raising: the "
+            "manifest loses the tiers and every check over it still passes."
+        )
+
+
 def main() -> int:
     vectors: list[dict[str, Any]] = []
+    # Which accept vectors were actually offered a tier pin. TIER_EXPECTATIONS is
+    # keyed by identifier and read with .get, so a key that matches no vector
+    # stops pinning anything and says nothing at all -- the manifest simply comes
+    # out without the tiers, and every gate over it passes because the tiers it
+    # would have compared are not there to disagree. The reconciliation below is
+    # what makes that loud.
+    tiers_claimed: set[str] = set()
 
     for cells in table_rows(os.path.join(HERE, "accept", "INDEX.md")):
         vid = cells[0].strip("`")
         result = cells[1]
         expected: dict[str, Any] = {"verdict": "valid", "result": result}
         expected.update(TIER_EXPECTATIONS.get(vid, {}))
+        tiers_claimed.add(vid)
         vectors.append(
             {
                 "id": vid,
@@ -359,6 +434,8 @@ def main() -> int:
                 "expected": expected,
             }
         )
+
+    check_tier_claims(tiers_claimed)
 
     for cells in table_rows(os.path.join(HERE, "reject", "INDEX.md")):
         vid = cells[0].strip("`")

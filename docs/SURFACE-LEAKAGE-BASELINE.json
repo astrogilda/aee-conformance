@@ -5,9 +5,9 @@
   "surfaces": {
     "vectors": {
       "identifier": {
-        "separability": 0.9936,
-        "blockedBy": "the published identifier namespace",
-        "reason": "Vector identifiers carry an `ok-`/`bad-` prefix, so the name alone very nearly IS the label and a consumer can score without opening the file. Content-addressing the namespace is the fix and it measures: substituting a digest for every stem drops this surface to 0.5075 and the whole-surface figure from 0.9602 to 0.5567. It is not applied because the identifiers are published. GOVERNANCE.md commits that a published suiteRevision is never mutated in place and that identifiers are never reused; the filename sits inside the corpusDigest preimage, so a rename is a revision event; three vendored consumer rails carry the corpus byte-for-byte; docs/INDEPENDENT-RUNS.json and DISPOSITIONS.md record an outside implementation's per-vector results and adopted objections BY IDENTIFIER; and the `cited/5019931` tag exists precisely because a revision was cited. Renaming would leave those records pointing at nothing. This is an operator decision about a compatibility story, not a change a gate may make."
+        "separability": 1.0,
+        "blockedBy": "the published identifier namespace, filename and directory both",
+        "reason": "Measured over the vector's whole manifest-relative path, this surface is a PERFECT predictor: the `ok-`/`bad-` prefix and the `accept/`/`reject/` directory each name the label outright, and either alone is enough. The figure was recorded lower before the surface was widened from the filename to the path, which understated it -- a content-addressed filename left inside `accept/` would have moved the leak rather than removed it and this gate would have gone green on the way past. The fix is to content-address the identifier and flatten the corpus into one directory, retiring every old identifier permanently; GOVERNANCE.md's commitment is that an identifier is never REUSED, which a permanent retirement honours. It is in progress and this row records the level it starts from."
       },
       "file": {
         "separability": 0.5176
@@ -21,42 +21,42 @@
       "lexicon": {
         "separability": 0.5513,
         "blockedBy": "a second attack class carried more often on the accept side",
-        "reason": "The margin over target is a hundredth, and it is one regularity: statements naming a second attack class in the corpus manifest -- the `XB` class and its member id -- sit more often on the accept side than the reject side, because the vectors built to exercise multi-class coverage are mostly conformant ones. Nothing here names a verdict; it is a template that was reached for more often in one direction. Closing it means adding reject vectors over the same multi-class shape rather than removing anything, which is corpus authorship and a revision event."
+        "reason": "The margin over target is a hundredth and it is one regularity: statements naming a second attack class in the corpus manifest sit more often on the accept side, because the vectors built to exercise multi-class coverage are mostly conformant ones. Closing it means adding reject vectors over the same shape rather than removing anything."
       },
       "all": {
-        "separability": 0.9602,
-        "blockedBy": "the published identifier namespace",
-        "reason": "Carried by the identifier surface above and by nothing else: with identifiers content-addressed this figure is 0.5567, a hundredth over target, and the remaining margin is the lexicon regularity in the row above. It is listed separately because the combined surface is the one a real consumer sees, and a corpus can leak through a combination no single group shows."
+        "separability": 0.9906,
+        "blockedBy": "the published identifier namespace, filename and directory both",
+        "reason": "Carried by the identifier surface above and by almost nothing else."
       }
     },
     "vectors-ai-agent-action": {
       "identifier": {
-        "separability": 0.987,
-        "blockedBy": "the published identifier namespace",
-        "reason": "The same prefix, the same fix, and the same constraint as the identifier row of the other corpus. Content-addressing the stems measures 0.5459 here."
+        "separability": 1.0,
+        "blockedBy": "the published identifier namespace, filename and directory both",
+        "reason": "Measured over the vector's whole manifest-relative path, this surface is a PERFECT predictor: the `ok-`/`bad-` prefix and the `accept/`/`reject/` directory each name the label outright, and either alone is enough. The figure was recorded lower before the surface was widened from the filename to the path, which understated it -- a content-addressed filename left inside `accept/` would have moved the leak rather than removed it and this gate would have gone green on the way past. The fix is to content-address the identifier and flatten the corpus into one directory, retiring every old identifier permanently; GOVERNANCE.md's commitment is that an identifier is never REUSED, which a permanent retirement honours. It is in progress and this row records the level it starts from."
       },
       "file": {
         "separability": 0.623,
         "blockedBy": "one template supplying most of the accept side",
-        "reason": "Byte length alone. It is the same cause as the paths and lexicon rows below: most accept vectors in this corpus come from one generated family and are therefore one size, and the reject vectors are hand-built and are another."
+        "reason": "The accept side carries `predicate.contentDigest` on most of its members and the reject side on almost none, because the RFC 8785 Appendix B number-serialization family is entirely on the accept side and has no reject counterpart. The presence of one member path therefore very nearly names the label, and it is why de-leaking the identifier alone does not bring this corpus near target. The fix is on the reject side: Appendix B rows that serialize the number wrongly, built from the same template."
       },
       "shape": {
         "separability": 0.5111
       },
       "paths": {
-        "separability": 0.7835,
+        "separability": 0.7844,
         "blockedBy": "one template supplying most of the accept side",
-        "reason": "Measured cause, not a guess: the accept side carries `predicate.contentDigest` on 26 of its 37 members and the reject side on 1 of 16, so the presence of one member path very nearly names the label. It is there because 24 of the 37 accept vectors are the RFC 8785 Appendix B number-serialization family, generated in one loop that supplies a content digest, and that family has no reject counterpart at all. The fix is on the reject side -- Appendix B rows that serialize the number wrongly, built from the same template -- which is corpus authorship and a revision event, not a gate's business."
+        "reason": "The accept side carries `predicate.contentDigest` on most of its members and the reject side on almost none, because the RFC 8785 Appendix B number-serialization family is entirely on the accept side and has no reject counterpart. The presence of one member path therefore very nearly names the label, and it is why de-leaking the identifier alone does not bring this corpus near target. The fix is on the reject side: Appendix B rows that serialize the number wrongly, built from the same template."
       },
       "lexicon": {
-        "separability": 0.7927,
+        "separability": 0.7943,
         "blockedBy": "one template supplying most of the accept side",
-        "reason": "The member names and the shared digest string of the same Appendix B family described in the paths row above. One string value appears in 25 of 37 accept vectors and no reject vector."
+        "reason": "The accept side carries `predicate.contentDigest` on most of its members and the reject side on almost none, because the RFC 8785 Appendix B number-serialization family is entirely on the accept side and has no reject counterpart. The presence of one member path therefore very nearly names the label, and it is why de-leaking the identifier alone does not bring this corpus near target. The fix is on the reject side: Appendix B rows that serialize the number wrongly, built from the same template."
       },
       "all": {
-        "separability": 0.8779,
-        "blockedBy": "one template supplying most of the accept side, over the published identifier namespace",
-        "reason": "Both causes at once. Content-addressing the identifiers takes this corpus to 0.7775 rather than to chance, because unlike the other corpus its content leaks on its own. This corpus is the one to fix first: it is smaller, it is not vendored into any consumer rail, and its remaining margin is a single missing vector family rather than a namespace nobody can move."
+        "separability": 0.9238,
+        "blockedBy": "one template supplying most of the accept side, over the published identifier namespace, filename and directory both",
+        "reason": "Both causes at once. Unlike the other corpus this one leaks through its content on its own, so the identifier fix does not take it to chance."
       }
     }
   }

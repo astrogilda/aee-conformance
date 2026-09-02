@@ -182,13 +182,26 @@ class Walked:
                 self.strings.add(value)
 
 
-def features(stem: str, raw: bytes) -> dict[str, set[str]]:
-    """Every surface of one vector, as sets of binary feature names."""
+def tokens_of(text: str) -> set[str]:
+    for separator in ("/", "_", ".", " "):
+        text = text.replace(separator, "-")
+    return {t for t in text.lower().split("-") if t}
+
+
+def features(rel_path: str, raw: bytes) -> dict[str, set[str]]:
+    """Every surface of one vector, as sets of binary feature names.
+
+    The identifier surface is built from the vector's WHOLE manifest-relative
+    path and not from its filename, because the directory names the label just
+    as loudly as the prefix does. A corpus that content-addressed its filenames
+    and left the files in `accept/` and `reject/` would move the leak rather
+    than remove it, and a gate reading only the stem would go green on the way
+    past. That is not hypothetical: it is the shape the obvious version of the
+    fix has, so the measurement has to be able to see it.
+    """
     lines = raw.count(b"\n") + 1
     groups: dict[str, set[str]] = {
-        "identifier": {
-            f"id.tok={t}" for t in stem.replace("_", "-").lower().split("-") if t
-        },
+        "identifier": {f"id.tok={t}" for t in tokens_of(rel_path)},
         "file": {
             f"file.bytes={bucket(len(raw))}",
             f"file.lines={bucket(lines)}",
@@ -311,9 +324,9 @@ def load(tree: Path, corpus: str) -> list[tuple[int, dict[str, set[str]]]]:
         kind = str(entry.get("kind"))
         if kind not in ("accept", "reject"):
             continue  # an indeterminate vector carries no binary label to predict
-        path = base / str(entry["file"])
-        stem = path.stem
-        rows.append((1 if kind == "reject" else 0, features(stem, path.read_bytes())))
+        rel = str(entry["file"])
+        path = base / rel
+        rows.append((1 if kind == "reject" else 0, features(rel, path.read_bytes())))
     return rows
 
 

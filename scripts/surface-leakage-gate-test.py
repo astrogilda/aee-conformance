@@ -166,17 +166,26 @@ def giveaway_depth(root: Path) -> None:
 
 
 def content_address_identifiers(root: Path) -> None:
-    """Run the fix the baseline records as blocked, and leave the rows behind."""
+    """Run the fix the baseline records as blocked, and leave the rows behind.
+
+    The fix is TWO changes and this case performs both, because performing only
+    the first measures almost nothing. Content-addressing the filename while the
+    file stays in `accept/` or `reject/` leaves the directory naming the label,
+    and the whole-surface figure of the larger corpus moves by about two
+    hundredths -- from near-certainty to near-certainty. So the vectors are also
+    flattened into one directory per corpus, which is what actually removes the
+    label from the path.
+    """
     for corpus in ("vectors", "vectors-ai-agent-action"):
         data = manifest(root, corpus)
         for entry in data["vectors"]:
-            old = root / corpus / str(entry["file"])
-            if not old.is_file():
+            source = root / corpus / str(entry["file"])
+            if not source.is_file():
                 continue
-            digest = hashlib.sha256(old.read_bytes()).hexdigest()[:24]
-            new_rel = f"{entry['kind']}/v{digest}.json"
+            digest = hashlib.sha256(source.read_bytes()).hexdigest()[:16]
+            new_rel = f"statements/v{digest}.json"
             (root / corpus / new_rel).parent.mkdir(parents=True, exist_ok=True)
-            old.rename(root / corpus / new_rel)
+            source.rename(root / corpus / new_rel)
             entry["file"] = new_rel
         write_manifest(root, corpus, data)
 

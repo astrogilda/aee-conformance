@@ -30,65 +30,76 @@ for the blind build.
 ## The corpus should not be scoreable without the specification
 
 A rail's published score is only worth what the corpus makes it worth. If a vector's
-label can be predicted from its surface — what it is called, how large it is, which
-members it carries — then a rail can post a good number without having implemented
-anything, and every figure this suite publishes about that rail says less than it
-appears to. `scripts/surface-leakage-gate.py` measures that directly and
-`docs/SURFACE-LEAKAGE-BASELINE.json` records what each surface of each corpus currently
-reaches, with the constraint blocking every surface that is over target.
+label can be predicted from its surface then a rail can post a good number without
+having implemented anything. `scripts/surface-leakage-gate.py` measures that directly.
 
-- [x] **Both readings a rail can take of a vector are now compared** (2026-09-02).
-  `scripts/vector-distinctness-gate.py` compared bytes over one of the two corpora; it
-  now compares raw bytes, canonical JSON and decoded-object equality over both, and
-  every collision is declared with a reason in `docs/VECTOR-COLLISIONS.json`. An
-  undecodable vector is equal to nothing, including another undecodable vector.
-- [x] **The surface-leakage gate is live and ratcheted** (2026-09-02). No surface may
-  rise above the figure it has reached, and a declaration is refused as stale the moment
-  its surface comes back under target.
+The threshold is the corpus's own NULL: the same estimator over the same features with
+the labels shuffled. That correction matters more than any single leak it found. The
+gate first shipped refusing above a flat 0.55, and permuting the labels showed that a
+corpus carrying no information at all scores about 0.54 on average and over 0.585 one
+run in twenty, because the statistic compared is folded and cannot go below 0.5. A
+round-number threshold was therefore unsatisfiable by any corpus of this size, and
+calibrating it retired four rows that had confident causal explanations written
+against what turned out to be sampling noise.
 
-Still open here, and the first of these is the largest thing on this page:
+- [x] **Both readings a rail can take of a vector are compared** (2026-09-02), over both
+  corpora, with every collision declared in `docs/VECTOR-COLLISIONS.json`.
+- [x] **The surface-leakage gate is live, ratcheted and null-calibrated** (2026-09-02).
+- [x] **The log-line vector has a statement of its own** (2026-09-02). It was
+  byte-identical to the member-ordering vector, so the log-line condition was
+  credited with a discriminator two other conditions already carried. This also had to land before
+  identifiers can be content-addressed: a digest cannot give two byte-identical vectors
+  two names.
 
-- [ ] **The identifier namespace names the answer, and de-leaking it is an operator
-  decision.** Identifiers carry an `ok-`/`bad-` prefix, so the name alone is very nearly
-  the label: the identifier surface measures near-certainty on both corpora, against a
-  target close to chance. Content-addressing the filenames fixes it, and the gate's own
-  test performs that substitution so the benefit is measured rather than argued —
-  the identifier surface falls to chance and the whole surface of the AEE corpus falls
-  to a hundredth over target. It was **not shipped** because the identifiers are
-  published: `GOVERNANCE.md` commits that a published `suiteRevision` is never mutated in
-  place and that identifiers are never reused; the filename sits inside the
-  `corpusDigest` preimage, so a rename is a revision event; three vendored consumer rails
-  carry the corpus byte-for-byte; `docs/INDEPENDENT-RUNS.json` and `DISPOSITIONS.md`
-  record an outside implementation's per-vector results and its adopted objections BY
-  IDENTIFIER; and the `cited/5019931` tag exists because a revision was cited. A rename
-  leaves all of those pointing at nothing. What is needed is a compatibility story — a
-  revision that publishes both namespaces with a mapping, or a decision that the older
-  citations resolve against the tag rather than the branch — and that is a call about
-  what this suite promises, not a refactor. An alias layer is not it: an identifier that
-  still resolves by its old name still names the answer.
-  Blast radius if it is taken: `spec/ANCHOR-PINS.json` keys embed the identifier,
-  `docs/FORCING-BASELINE.json` names every killer, `packaging/conformance-report.json`
-  and both `MANIFEST.json` files carry it twice each, the two index tables are keyed on
-  it, `scripts/forcing-gate.py` derives a vector's kind from the prefix when the manifest
-  has no entry, and several gates and both Go test rails discover files by the prefix.
-- [ ] **The AI Agent Action corpus leaks through its content as well.** Most of its
-  accept statements carry a `contentDigest` member and almost none of its reject
-  statements do, because the RFC 8785 Appendix B number-serialization family is entirely
-  on the accept side and has no reject counterpart. The presence of one member path
-  therefore very nearly names the label, and that is why de-leaking the identifiers alone
-  would not bring this corpus near target. The fix is on the reject side: Appendix B rows
-  that serialize the number wrongly, built from the same template. This corpus is the one
-  to fix first — it is smaller, and it is not vendored into any consumer rail.
-  File: `vectors-ai-agent-action/gen_vectors.py`.
-- [ ] **Two identifiers in that corpus address one statement, byte for byte.**
-  `ok-003-log-line-equals-canonical-bytes` and
-  `ok-001-canonical-chain-hash-integer-like-keys` are identical in both the statement and
-  the record line: the two calls differ in their identifier, their conditions and their
-  citation and in nothing else. So `aia-c-4` is credited with a discriminator `aia-c-1`
-  and `aia-c-2` already have. Remedy: give `ok-003` an underlying record of its own — any
-  record whose log line is its canonical serialization forces the condition, and a
-  distinct tool name is enough. It is declared `open` in `docs/VECTOR-COLLISIONS.json`
-  rather than fixed because it moves a published `corpusDigest`.
+Still open, and the first is the largest thing on this page:
+
+- [ ] **Content-address the identifier namespace and flatten the corpus.** The
+  identifier surface is a PERFECT predictor on both corpora when measured over the whole
+  manifest-relative path: the `ok-`/`bad-` prefix and the `accept/`/`reject/` directory
+  each name the label outright. The gate's own test performs the fix and measures it —
+  the larger corpus goes to 0.5568 against a null of 0.5836, which is inside the noise
+  floor, and the identifier surface itself to 0.5075.
+  **`GOVERNANCE.md` does not block this.** Its commitment is that an identifier is never
+  REUSED and that a retired identifier is retired with its vector; renaming and retiring
+  the old name permanently is exactly that clause honoured. The other four commitments
+  cover failure-code spellings, code removal, message text and precedence, and a rename
+  touches none of them.
+  Two things do need deciding, and neither is a reason not to proceed:
+  - The corpus digest hashes `"{kind}/{name}"` into its preimage
+    (`vectors/gen_manifest.py`), and that definition is deliberately duplicated in every
+    downstream consumer's vendoring script. Flattening moves the digest for every
+    consumer at once. `vectors/CONSUMERS.json` records opaque ids and says on purpose
+    that which checkout each refers to is supplied at sync time and not written down, so
+    the rails cannot be updated from this repository.
+  - The retired-to-new mapping is worth publishing so an outside implementer's
+    per-vector results stay interpretable, and publishing it necessarily republishes the
+    old names. It should be declared as its own surface in the leakage baseline rather
+    than left where a green gate implies it does not exist.
+  Edit surface, mapped: the name is chosen at five sites — `gen_valid_vectors.py:2419`,
+  `gen_invalid_vectors.py:5765` and `:5830`, `gen_vectors.py:243` and `:249` — and no
+  name appears inside any emitted vector's bytes, so a content digest is a stable
+  identifier with no fixpoint problem. What must migrate with the ids: `INHERENT_EXTRA`
+  (23 keys), `OBSERVED_EXTRA` (19), `TIER_EXPECTATIONS` (6), `_SWAPPED` (14 pairs),
+  `PARENTS` (21 prose keys), 22 `accept_parent()` slug literals, 195 `vec()` parent
+  arguments, and two hard dict lookups in the accept generator's `main()`.
+  `gen_manifest.py` takes a vector's KIND from which `INDEX.md` it is reading and
+  prepends the directory to the `file` field, so flattening needs a kind column instead.
+  Two things fail silently rather than loudly and need guarding first:
+  `gen_manifest.py:352` (`TIER_EXPECTATIONS.get(vid, {})` stops pinning tiers without
+  raising) and `gen_manifest.py:168` (a row whose id does not match `^(ok|bad|ind)-\d`
+  is dropped before any closure check sees it).
+- [ ] **The AI Agent Action corpus leaks through its content, and that one is real.**
+  Its `paths` surface measures 0.7835 against a null of 0.6944 and its `lexicon` 0.7943
+  against 0.7595 — outside the noise floor, unlike everything the calibration retired.
+  Most of its accept statements carry a `predicate.contentDigest` member and almost
+  none of its reject statements do, because the RFC 8785 Appendix B
+  number-serialization family sits entirely on the accept side, generated in one
+  loop, with no reject counterpart at all.
+  This is the leak that SURVIVES the identifier fix: content-addressed and flattened,
+  this corpus still measures 0.7780 against a null of 0.6716. The fix is on the reject
+  side — Appendix B rows that serialize the number wrongly, built from the same template
+  — and it is the most mechanical corpus work on this page.
+  File: `vectors-ai-agent-action/gen_vectors.py`, the loop at line 337.
 
 ## The predicate moved to v0.7 and the corpus moved with it
 

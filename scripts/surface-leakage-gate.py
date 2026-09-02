@@ -76,28 +76,32 @@ AUC. A classifier that is reliably wrong is a classifier: invert it and it is
 reliably right. Reporting the AUC alone would let a corpus leak in the one
 direction the threshold cannot see.
 
-Baseline, target, and why both
-------------------------------
+Baseline, null, and why both
+----------------------------
 
-`docs/SURFACE-LEAKAGE-BASELINE.json` records what each surface of each corpus
-currently measures, and the gate refuses on two different things.
+`docs/SURFACE-LEAKAGE-BASELINE.json` records, for every surface of every corpus,
+what it measures and what its own null is, and the gate refuses on two different
+things.
 
-A measurement ABOVE ITS OWN BASELINE is a new leak, and it fails whether or not
-the surface was already over target. This is the half that works today: it holds
-every surface at the level it has reached and makes any corpus change that adds
-predictability fail on the change that added it.
+A measurement ABOVE ITS OWN RECORDED FIGURE is a new leak, and it fails whether
+or not the surface was already outside its null. This half holds every surface at
+the level it has reached, so a change that adds predictability fails on the
+change that added it.
 
-A measurement above TARGET must additionally be declared in the baseline with the
-constraint that blocks it, and the reasons are recorded there rather than here. A
-declaration is not a permanent allowance: when a surface comes under target the
-declaration is stale and the gate refuses until it is removed, so the ratchet
-turns in both directions and slack that is no longer needed cannot be kept.
+A measurement OUTSIDE ITS OWN NULL is a regularity that shuffling the labels does
+not reproduce, and it must be declared in the baseline with the constraint that
+blocks it. A declaration is not a permanent allowance: when a surface comes back
+inside its null the declaration is stale and the gate refuses until it is
+removed, so the ratchet turns in both directions.
+
+The null is recorded rather than recomputed per run because it costs a couple of
+hundred times the measurement it calibrates, and it is pinned to the corpus's
+class counts so it cannot be carried across a change that moves its level.
 
 `--sync` re-records what is measured and will LOWER a figure, never raise one. A
-sync that adopted whatever it found would be this gate's own bypass -- the refusal
-names the surface, and one command would write the leak down rather than remove
-it. Recording a rise means editing the file by hand and putting the reason beside
-it, which leaves a diff somebody reviews.
+sync that adopted whatever it found would be this gate's own bypass. Recording a
+rise means editing the file by hand and putting the reason beside it, which
+leaves a diff somebody reviews.
 
 Usage:
     python3 scripts/surface-leakage-gate.py
@@ -126,9 +130,49 @@ CORPORA = ("vectors", "vectors-ai-agent-action")
 
 SURFACES = ("identifier", "file", "shape", "paths", "lexicon", "all")
 
-# Chance is 0.5. A corpus at or under this is one a rail cannot score on surface
-# alone to any useful degree.
-TARGET = 0.55
+# The threshold is MEASURED, not chosen, and the first version of this gate got
+# that wrong in a way worth recording.
+#
+# It refused above a flat 0.55, reasoning that chance is 0.5 and a little over
+# chance is close enough. But the figure compared against it is SEPARABILITY,
+# max(auc, 1 - auc), which is a FOLDED statistic: it cannot go below 0.5 by
+# construction, so ordinary sampling spread pushes it above 0.5 even when the
+# labels carry nothing at all. Permuting the labels of this repository's larger
+# corpus -- destroying every trace of signal -- and running this same estimator
+# gives a mean of about 0.536 and exceeds 0.585 one time in twenty. A corpus with
+# literally zero leakage would therefore have failed a 0.55 gate more often than
+# it passed, and no corpus of this size could ever have satisfied it. That is the
+# unsatisfiable gate this repository's own history warns about, and the only
+# thing an unsatisfiable gate teaches is the bypass flag.
+#
+# So the threshold each surface is held to is that surface's OWN null: the same
+# estimator, over the same features, with the labels shuffled. A figure inside
+# the null is a figure a corpus carrying no information could have produced, and
+# refusing on it would be refusing noise. A figure outside it is a regularity
+# that shuffling does not explain.
+#
+# The null is recorded in the baseline rather than recomputed on every run,
+# because computing it costs a couple of hundred times the measurement it
+# calibrates. It is pinned to a FINGERPRINT of the corpus it was computed over --
+# the class counts -- because those are what set the null's level, and a null
+# carried across a change in them is a threshold describing a different corpus.
+NULL_DRAWS = 20
+NULL_QUANTILE = 0.95
+
+# How far the class counts may drift before the recorded null stops describing
+# this corpus. Not zero, and the reason is the difference between a threshold
+# that is correct and a gate that is usable. The null's level is a function of
+# how many vectors there are and how unbalanced they are, and both move
+# CONTINUOUSLY: one more reject vector changes it by far less than the width of
+# the tolerance band below it. Pinning the counts exactly would therefore refuse
+# the single most common change anybody makes to this repository -- adding a
+# vector -- and demand a several-minute recalibration to clear it, which is how
+# a gate teaches people to reach for the bypass. A tenth is loose enough that
+# ordinary growth passes and tight enough that a corpus which has changed shape
+# enough to move its own noise floor has to be re-measured. Nothing is lost by
+# allowing the drift: the ratchet still refuses any surface whose figure rises,
+# so a leak arriving with a new vector is caught on the change that brought it.
+FINGERPRINT_DRIFT = 0.10
 
 # The estimator is deterministic, so this band is not measurement noise: it is
 # how much a legitimate corpus edit may move a figure before somebody has to look
@@ -302,6 +346,29 @@ def cross_validated_auc(rows: list[tuple[int, frozenset[str]]], seed: int) -> fl
     return auc(labelled)
 
 
+def null_separability(rows: list[tuple[int, frozenset[str]]]) -> float:
+    """What this estimator reports on these features when the labels mean nothing.
+
+    The labels are permuted and the whole measurement re-run, so the features,
+    the class balance and the corpus size are exactly the corpus's own; only the
+    correspondence between a vector and its verdict is destroyed. The quantile
+    rather than the maximum, because a maximum over a finite number of draws is
+    an estimate of an unbounded tail and would drift with the draw count.
+
+    The permutation seeds are literal constants, so this is a fixed number for a
+    fixed corpus rather than something that moves between runs.
+    """
+    labels = [label for label, _ in rows]
+    feats = [f for _, f in rows]
+    drawn: list[float] = []
+    for draw in range(NULL_DRAWS):
+        shuffled = labels[:]
+        random.Random(90000 + draw).shuffle(shuffled)
+        drawn.append(separability(list(zip(shuffled, feats, strict=True))))
+    drawn.sort()
+    return round(drawn[min(int(NULL_QUANTILE * len(drawn)), len(drawn) - 1)], 4)
+
+
 def separability(rows: list[tuple[int, frozenset[str]]]) -> float:
     """How far from chance the surface is, in whichever direction it leans.
 
@@ -330,26 +397,42 @@ def load(tree: Path, corpus: str) -> list[tuple[int, dict[str, set[str]]]]:
     return rows
 
 
-def measure(tree: Path) -> dict[str, dict[str, float]]:
-    out: dict[str, dict[str, float]] = {}
+def prepare(
+    rows: list[tuple[int, dict[str, set[str]]]], surface: str
+) -> list[tuple[int, frozenset[str]]]:
+    selected = [s for s in SURFACES if s != "all"] if surface == "all" else [surface]
+    return [
+        (label, frozenset().union(*(groups[s] for s in selected)))
+        for label, groups in rows
+    ]
+
+
+def fingerprint(rows: list[tuple[int, dict[str, set[str]]]]) -> dict[str, int]:
+    """What the null level depends on: how many of each class there are.
+
+    The null is a property of the corpus's SHAPE rather than of its content, so
+    a recorded null stays valid while the shape holds and stops being a
+    description of this corpus the moment it does not.
+    """
+    return {
+        "accept": sum(1 for label, _ in rows if label == 0),
+        "reject": sum(1 for label, _ in rows if label == 1),
+    }
+
+
+def measure(tree: Path, with_null: bool) -> dict[str, dict[str, Any]]:
+    out: dict[str, dict[str, Any]] = {}
     for corpus in CORPORA:
         rows = load(tree, corpus)
-        per_surface: dict[str, float] = {}
+        surfaces: dict[str, dict[str, float]] = {}
         for surface in SURFACES:
-            if surface == "all":
-                selected = [g for g in SURFACES if g != "all"]
-            else:
-                selected = [surface]
-            prepared = [
-                (label, frozenset().union(*(groups[g] for g in selected)))
-                for label, groups in rows
-            ]
-            per_surface[surface] = separability(prepared)
-        out[corpus] = per_surface
+            prepared = prepare(rows, surface)
+            cell: dict[str, float] = {"separability": separability(prepared)}
+            if with_null:
+                cell["null"] = null_separability(prepared)
+            surfaces[surface] = cell
+        out[corpus] = {"fingerprint": fingerprint(rows), "surfaces": surfaces}
     return out
-
-
-# --- gate ------------------------------------------------------------------
 
 
 def read_baseline(tree: Path) -> dict[str, Any]:
@@ -360,108 +443,161 @@ def read_baseline(tree: Path) -> dict[str, Any]:
     return loaded
 
 
-def judge(measured: dict[str, dict[str, float]], baseline: dict[str, Any]) -> list[str]:
-    recorded = baseline.get("surfaces", {})
+def fingerprint_drift(was: Any, now: dict[str, int]) -> str:
+    """Empty when the recorded null still describes this corpus, else why not."""
+    if not isinstance(was, dict):
+        return "not a recorded shape at all"
+    for cls in ("accept", "reject"):
+        before = int(was.get(cls, 0))
+        after = int(now.get(cls, 0))
+        if before == 0:
+            if after:
+                return f"{cls} went from none to {after}"
+            continue
+        if abs(after - before) / before > FINGERPRINT_DRIFT:
+            return (
+                f"{cls} moved from {before} to {after}, more than the "
+                f"{FINGERPRINT_DRIFT:.0%} the null tolerates"
+            )
+    return ""
+
+
+def judge(measured: dict[str, dict[str, Any]], baseline: dict[str, Any]) -> list[str]:
+    recorded_corpora = baseline.get("corpora", {})
     problems: list[str] = []
-    for corpus, per_surface in measured.items():
-        for surface, value in per_surface.items():
-            row = recorded.get(corpus, {}).get(surface)
-            if row is None:
-                problems.append(
-                    f"{corpus}/{surface} measures {value:.4f} and the baseline "
-                    "records nothing for it. A surface with no recorded figure is "
-                    "a surface nothing is holding, so it is refused rather than "
-                    "adopted at whatever it happens to be today."
-                )
-                continue
-            was = float(row.get("separability", 0.0))
-            blocked = str(row.get("blockedBy", "")).strip()
-            if value > was + TOLERANCE:
-                problems.append(
-                    f"{corpus}/{surface} measures {value:.4f}, up from {was:.4f}. "
-                    "Something in this change made the label more predictable from "
-                    "the surface than it was, which is a rail scoring without "
-                    "reading the specification."
-                )
-            if value > TARGET and not blocked:
-                problems.append(
-                    f"{corpus}/{surface} measures {value:.4f}, over the {TARGET} "
-                    "target, and declares no constraint blocking it. Fix the leak, "
-                    "or record what stops it being fixed."
-                )
-            if value <= TARGET and blocked:
-                problems.append(
-                    f"{corpus}/{surface} measures {value:.4f}, at or under the "
-                    f"{TARGET} target, while still declaring {blocked!r} as its "
-                    "blocker. The declaration has outlived its subject; remove it."
-                )
-            if was > value + TOLERANCE:
-                problems.append(
-                    f"{corpus}/{surface} measures {value:.4f} against a recorded "
-                    f"{was:.4f}. The baseline is holding slack the corpus no longer "
-                    "needs; re-record it with --sync so the ratchet keeps its grip."
-                )
+    for corpus, found in measured.items():
+        recorded = recorded_corpora.get(corpus)
+        if recorded is None:
+            problems.append(
+                f"{corpus} has no recorded baseline at all, so nothing holds any "
+                "of its surfaces and no increase in any of them can be detected."
+            )
+            continue
+        drifted = fingerprint_drift(recorded.get("fingerprint"), found["fingerprint"])
+        if drifted:
+            problems.append(
+                f"{corpus}: the recorded null was calibrated over "
+                f"{recorded.get('fingerprint')} and the corpus now holds "
+                f"{found['fingerprint']}, which is {drifted}. The class counts set the "
+                "null's level, so the recorded thresholds describe a different corpus. "
+                "Re-calibrate with --sync."
+            )
+            continue
+        problems.extend(_judge_surfaces(corpus, found, recorded))
     return problems
 
 
-def render(measured: dict[str, dict[str, float]], baseline: dict[str, Any]) -> str:
-    recorded = baseline.get("surfaces", {})
+def _judge_surfaces(
+    corpus: str, found: dict[str, Any], recorded: dict[str, Any]
+) -> list[str]:
+    problems: list[str] = []
+    rows = recorded.get("surfaces", {})
+    for surface in SURFACES:
+        value = float(found["surfaces"][surface]["separability"])
+        row = rows.get(surface)
+        if row is None:
+            problems.append(
+                f"{corpus}/{surface} measures {value:.4f} and the baseline records "
+                "nothing for it. A surface with no recorded figure is a surface "
+                "nothing is holding."
+            )
+            continue
+        was = float(row.get("separability", 0.0))
+        null = float(row.get("null", 0.0))
+        blocked = str(row.get("blockedBy", "")).strip()
+        if value > was + TOLERANCE:
+            problems.append(
+                f"{corpus}/{surface} measures {value:.4f}, up from {was:.4f}. "
+                "Something in this change made the label more predictable from the "
+                "surface than it was."
+            )
+        if was > value + TOLERANCE:
+            problems.append(
+                f"{corpus}/{surface} measures {value:.4f} against a recorded "
+                f"{was:.4f}. The baseline is holding slack the corpus no longer "
+                "needs; re-record it with --sync so the ratchet keeps its grip."
+            )
+        if value > null and not blocked:
+            problems.append(
+                f"{corpus}/{surface} measures {value:.4f}, outside its own null of "
+                f"{null:.4f} -- a figure shuffling the labels does not produce, so "
+                "it is a real regularity and not sampling noise. Fix the leak, or "
+                "record what stops it being fixed."
+            )
+        if value <= null and blocked:
+            problems.append(
+                f"{corpus}/{surface} measures {value:.4f}, inside its own null of "
+                f"{null:.4f}, while still declaring {blocked!r} as its blocker. The "
+                "declaration has outlived its subject; remove it."
+            )
+    return problems
+
+
+def render(measured: dict[str, dict[str, Any]], baseline: dict[str, Any]) -> str:
+    recorded = baseline.get("corpora", {})
     lines = []
-    for corpus, per_surface in measured.items():
-        lines.append(f"  {corpus}")
+    for corpus, found in measured.items():
+        rows = recorded.get(corpus, {}).get("surfaces", {})
+        lines.append(f"  {corpus}  {found['fingerprint']}")
         for surface in SURFACES:
-            value = per_surface[surface]
-            row = recorded.get(corpus, {}).get(surface, {})
-            note = ""
-            if row.get("blockedBy"):
-                note = f"  blocked by {row['blockedBy']}"
-            flag = "  OVER TARGET" if value > TARGET else ""
-            lines.append(f"    {surface:12s} {value:.4f}{flag}{note}")
+            value = float(found["surfaces"][surface]["separability"])
+            row = rows.get(surface, {})
+            null = float(row.get("null", 0.0)) if row else 0.0
+            flag = "  OUTSIDE NULL" if null and value > null else ""
+            note = f"  blocked by {row['blockedBy']}" if row.get("blockedBy") else ""
+            lines.append(
+                f"    {surface:12s} {value:.4f}  null {null:.4f}{flag}{note}"
+            )
     return "\n".join(lines)
 
 
-def sync(tree: Path, measured: dict[str, dict[str, float]]) -> list[str]:
+def sync(tree: Path, measured: dict[str, dict[str, Any]]) -> list[str]:
     """Re-record the baseline. It may lower a figure and it may not raise one.
 
     A sync that adopted whatever it measured would be the gate's own bypass: the
     refusal names the surface, the fix is one command away, and the command
     writes down the leak instead of removing it. So a rise beyond tolerance is
     refused here as well, and the only way to record one is to edit the file by
-    hand and write the reason next to it -- which is a deliberate act that leaves
-    a diff somebody reviews, rather than a command that leaves nothing.
+    hand and write the reason next to it.
     """
     existing = read_baseline(tree)
-    kept = existing.get("surfaces", {})
+    kept = existing.get("corpora", {})
     refused: list[str] = []
-    surfaces: dict[str, dict[str, dict[str, Any]]] = {}
-    for corpus, per_surface in measured.items():
-        surfaces[corpus] = {}
-        for surface, value in per_surface.items():
-            previous = kept.get(corpus, {}).get(surface, {})
-            recorded = previous.get("separability")
-            if recorded is not None and value > float(recorded) + TOLERANCE:
+    corpora: dict[str, Any] = {}
+    for corpus, found in measured.items():
+        previous_rows = kept.get(corpus, {}).get("surfaces", {})
+        surfaces: dict[str, Any] = {}
+        for surface in SURFACES:
+            cell = found["surfaces"][surface]
+            value = float(cell["separability"])
+            null = float(cell["null"])
+            previous = previous_rows.get(surface, {})
+            was = previous.get("separability")
+            if was is not None and value > float(was) + TOLERANCE:
                 refused.append(
                     f"{corpus}/{surface} measures {value:.4f} against a recorded "
-                    f"{float(recorded):.4f}. --sync will not raise a figure: that "
-                    "would be writing the leak down instead of removing it. Fix it, "
-                    "or record the rise by hand with the reason beside it."
+                    f"{float(was):.4f}. --sync will not raise a figure: that would "
+                    "be writing the leak down instead of removing it. Fix it, or "
+                    "record the rise by hand with the reason beside it."
                 )
                 continue
-            row: dict[str, Any] = {"separability": value}
-            if value > TARGET and previous.get("blockedBy"):
+            row: dict[str, Any] = {"separability": value, "null": null}
+            if value > null and previous.get("blockedBy"):
                 row["blockedBy"] = previous["blockedBy"]
                 row["reason"] = previous.get("reason", "")
-            surfaces[corpus][surface] = row
+            surfaces[surface] = row
+        corpora[corpus] = {"fingerprint": found["fingerprint"], "surfaces": surfaces}
     if refused:
         return refused
     payload = {
         "$comment": existing.get("$comment", ""),
-        "target": TARGET,
+        "nullDraws": NULL_DRAWS,
+        "nullQuantile": NULL_QUANTILE,
         "tolerance": TOLERANCE,
-        "surfaces": surfaces,
+        "corpora": corpora,
     }
     (tree / BASELINE_REL).write_text(
-        json.dumps(payload, indent=2) + "\n", encoding="utf-8"
+        json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
     return []
 
@@ -473,7 +609,7 @@ def main() -> int:
     parser.add_argument("--sync", action="store_true", help="rewrite the baseline")
     args = parser.parse_args()
 
-    measured = measure(args.root)
+    measured = measure(args.root, with_null=args.sync)
     if args.sync:
         refused = sync(args.root, measured)
         if refused:
@@ -491,7 +627,6 @@ def main() -> int:
     if args.report:
         print(render(measured, baseline))
         return 0
-
     if not baseline:
         print(
             f"FAIL: {BASELINE_REL} is absent, so nothing records what any surface "
@@ -509,17 +644,22 @@ def main() -> int:
         print(render(measured, baseline), file=sys.stderr)
         return 1
 
-    over = [
+    rows = baseline.get("corpora", {})
+    outside = [
         f"{c}/{s}"
-        for c, per in measured.items()
+        for c, found in measured.items()
         for s in SURFACES
-        if per[s] > TARGET
+        if float(found["surfaces"][s]["separability"])
+        > float(rows.get(c, {}).get("surfaces", {}).get(s, {}).get("null", 1.0))
     ]
     print(
         f"OK: {len(CORPORA) * len(SURFACES)} surface measurements, none above its "
-        f"recorded figure"
-        + (f"; {len(over)} declared over the {TARGET} target: {', '.join(over)}." if over
-           else f"; all at or under the {TARGET} target.")
+        "recorded figure"
+        + (
+            f"; {len(outside)} declared outside its null: {', '.join(outside)}."
+            if outside
+            else "; every surface inside the null its own labels shuffled produce."
+        )
     )
     return 0
 

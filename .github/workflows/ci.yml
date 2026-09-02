@@ -408,26 +408,27 @@ jobs:
       # Every other check in this directory asks whether one vector forces one
       # rule. This one asks the question a corpus can fail as a whole: can a
       # consumer answer it without implementing anything? A cheap classifier is
-      # trained on the surface -- the identifier's tokens, the file's size, the
-      # statement's shape, the member paths it carries, its member names and
-      # short string values -- and asked to predict accept-or-reject. Chance is
-      # 0.5 and the target is 0.55.
+      # trained on the surface -- the tokens of the vector's whole path, the
+      # file's size, the statement's shape, the member paths it carries, its
+      # member names and short string values -- and asked to predict
+      # accept-or-reject.
       #
-      # It is worth more than the two specific checks above it precisely because
-      # it is not told what to look for: it covers every corpus shipped here and
-      # goes red for a leak nobody has thought of. The number it holds is a
-      # property of the corpus rather than of any rail, which is what makes a
-      # rail's published score mean something.
+      # The threshold is MEASURED rather than chosen, and getting that wrong is
+      # the most useful thing this gate has done so far. It first refused above a
+      # flat 0.55, on the reasoning that chance is 0.5. But the statistic is
+      # folded, max(auc, 1 - auc), so it cannot go below 0.5 and ordinary
+      # sampling spread lifts it above 0.5 with no signal present at all:
+      # permuting the labels of the larger corpus gives a mean near 0.54 and
+      # exceeds 0.585 one run in twenty. A corpus with zero leakage would have
+      # failed that gate more often than it passed. Each surface is now held to
+      # its OWN null, and calibrating retired four rows that had confident
+      # causal explanations written against sampling noise.
       #
-      # Eight of the twelve surface measurements are over target today and each
-      # names the constraint blocking it in docs/SURFACE-LEAKAGE-BASELINE.json.
-      # The largest by far is the identifier namespace -- the `ok-`/`bad-` prefix
-      # means the name alone is very nearly the label -- and it is blocked by the
-      # immutability commitments in GOVERNANCE.md rather than by any difficulty.
-      # The gate is still a live guard while that is true: every surface is held
-      # at the figure it has reached, so a change that adds predictability fails
-      # on the change that added it, and a declaration that comes back under
-      # target is refused as stale.
+      # Six of the twelve measurements are genuinely outside their null and each
+      # names its constraint in docs/SURFACE-LEAKAGE-BASELINE.json. The largest
+      # is the identifier namespace: measured over the whole manifest-relative
+      # path it is a PERFECT predictor, because the prefix and the directory each
+      # name the label and either alone is enough.
       - name: the corpus is not scoreable from its surface
         run: |
           python3 scripts/surface-leakage-gate.py

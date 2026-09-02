@@ -222,33 +222,63 @@ def one_more_reject_vector(root: Path) -> None:
 # --- baseline mutations ----------------------------------------------------
 
 
+def surfaces_of(data: dict[str, Any], corpus: str) -> dict[str, Any]:
+    rows: dict[str, Any] = data["corpora"][corpus]["surfaces"]
+    return rows
+
+
 def lower_a_recorded_figure(root: Path) -> None:
     data = baseline(root)
-    data["surfaces"]["vectors"]["paths"]["separability"] = 0.30
+    surfaces_of(data, "vectors")["paths"]["separability"] = 0.30
     write_baseline(root, data)
 
 
 def raise_a_recorded_figure(root: Path) -> None:
     data = baseline(root)
-    data["surfaces"]["vectors"]["paths"]["separability"] = 0.90
+    surfaces_of(data, "vectors")["paths"]["separability"] = 0.90
     write_baseline(root, data)
 
 
 def drop_a_blocker(root: Path) -> None:
     data = baseline(root)
-    del data["surfaces"]["vectors"]["identifier"]["blockedBy"]
+    del surfaces_of(data, "vectors")["identifier"]["blockedBy"]
     write_baseline(root, data)
 
 
-def declare_an_under_target_surface(root: Path) -> None:
+def declare_a_surface_inside_its_null(root: Path) -> None:
+    """A blocker on a surface that shuffling the labels already explains."""
     data = baseline(root)
-    data["surfaces"]["vectors"]["shape"]["blockedBy"] = "nothing at all"
+    surfaces_of(data, "vectors")["shape"]["blockedBy"] = "nothing at all"
     write_baseline(root, data)
 
 
 def drop_a_surface_row(root: Path) -> None:
     data = baseline(root)
-    del data["surfaces"]["vectors"]["lexicon"]
+    del surfaces_of(data, "vectors")["lexicon"]
+    write_baseline(root, data)
+
+
+def sink_a_recorded_null(root: Path) -> None:
+    """Pretend a surface's noise floor is lower than it is.
+
+    The null is the threshold, so understating it turns ordinary sampling spread
+    into a reported leak. This is the case that stops the null being a number
+    somebody can quietly tune to make a corpus look dirty or clean.
+    """
+    data = baseline(root)
+    surfaces_of(data, "vectors")["paths"]["null"] = 0.30
+    write_baseline(root, data)
+
+
+def move_the_fingerprint(root: Path) -> None:
+    """Claim the null was calibrated over a corpus of a different shape.
+
+    The class counts set the null's level, so a null carried across a change in
+    them is a threshold describing some other corpus. Without this the gate would
+    keep applying a stale noise floor after the corpus grew.
+    """
+    data = baseline(root)
+    data["corpora"]["vectors"]["fingerprint"]["accept"] += 21
     write_baseline(root, data)
 
 
@@ -308,14 +338,24 @@ REFUSALS: list[Case] = [
         ("--sync",),
     ),
     (
-        "an over-target surface with no blocker named",
+        "a surface outside its null with no blocker named",
         drop_a_blocker,
-        ("declares no constraint",),
+        ("outside its own null",),
     ),
     (
-        "an under-target surface still naming a blocker",
-        declare_an_under_target_surface,
+        "a surface inside its null still naming a blocker",
+        declare_a_surface_inside_its_null,
         ("outlived its subject",),
+    ),
+    (
+        "a recorded null edited below the corpus's real noise floor",
+        sink_a_recorded_null,
+        ("outside its own null",),
+    ),
+    (
+        "a null calibrated over a corpus of another shape",
+        move_the_fingerprint,
+        ("describe a different corpus",),
     ),
     ("a surface the baseline records nothing for", drop_a_surface_row, ("records nothing",)),
     ("no baseline at all", remove_the_baseline, ("is absent",)),

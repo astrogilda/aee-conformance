@@ -2611,6 +2611,32 @@ ACCEPT_INDEX_TAIL: tuple[str, ...] = (
     '',
 )
 
+# The specification span each accept row cites, keyed by the SAME slug
+# ACCEPT_INDEX uses. Kept as its own map rather than a fourth tuple element
+# because sixty-one rows would have to be rewritten to add one anchor, and every
+# one of those edits is a chance to move a cell.
+#
+# A row with no entry here emits an empty cell, which is why write_index refuses
+# a key that names no row: an anchor map read with .get and never reconciled is
+# exactly the shape TIER_EXPECTATIONS had when a mistyped key stopped pinning
+# anything and said nothing at all. A missing anchor is invisible by
+# construction -- the reject index's anchors are what the coverage measure reads,
+# so an accept anchor that silently stopped emitting would show up only as an
+# obligation quietly going uncited again.
+#
+# The reject index publishes the same anchors and spec-anchor-gate.py pins them
+# because that file is in its AUTHORED list. This one is not, so the anchors
+# below are checked for aim by the coverage measure and are NOT pinned against a
+# re-vendor yet; docs/UNCITED-OBLIGATIONS.md records what closing that costs.
+ACCEPT_SPEC_ANCHORS: dict[str, str] = {
+    # L1700: a verifier MUST NOT rank the values of a producer-defined ordered
+    # axis nor compose it by weakest input. This vector is the instrument, and
+    # until the accept index carried a column there was nowhere to say so: the
+    # obligation was declared `forcible-but-unforced` in spec/READINGS.toml while
+    # the vector that forces it was already shipping.
+    'ok-054-producer-ordered-axis-inert': 'L1700',
+}
+
 ACCEPT_INDEX: dict[str, tuple[str, str, str]] = {
     'ok-001-caught-intercepted-fail': (
         'fail',
@@ -3150,11 +3176,18 @@ def write_index(vectors: dict[str, Any], ids: dict[str, str]) -> None:
             + ("".join(f"\n  built with no row: {m}" for m in missing))
             + ("".join(f"\n  row with nothing built: {o}" for o in orphaned))
         )
+    if unclaimed := sorted(set(ACCEPT_SPEC_ANCHORS) - described):
+        raise SystemExit(
+            "ACCEPT_SPEC_ANCHORS names row(s) that do not exist: "
+            f"{unclaimed}. The map is read per row, so a key that matches nothing "
+            "emits no anchor and reports no error, and the obligation it was "
+            "written to cite goes back to being uncited with every gate green."
+        )
 
     out: list[str] = [line.replace("{predicate_type}", PREDICATE_TYPE)
                       for line in ACCEPT_INDEX_PREAMBLE]
-    out.append("| vector | result | conditions (aee-c ids) | exercises |")
-    out.append("|---|---|---|---|")
+    out.append("| vector | result | conditions (aee-c ids) | exercises | spec |")
+    out.append("|---|---|---|---|---|")
     # ACCEPT_INDEX's order, not the build order: the two differ, and this table
     # is read by people as well as by gen_manifest.py, so it keeps the order it
     # was written in. The reconciliation above has already established that the
@@ -3169,8 +3202,9 @@ def write_index(vectors: dict[str, Any], ids: dict[str, str]) -> None:
                 f"carries {declared!r}. The index is emitted from the corpus, so "
                 "the two cannot be allowed to differ."
             )
+        anchor = ACCEPT_SPEC_ANCHORS.get(slug, "")
         out.append(
-            f"| {ids[slug]} | {result} | {conditions} | {exercises} |"
+            f"| {ids[slug]} | {result} | {conditions} | {exercises} | {anchor} |"
         )
     out.extend(line.replace("{predicate_type}", PREDICATE_TYPE)
                for line in ACCEPT_INDEX_TAIL)

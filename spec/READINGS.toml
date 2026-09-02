@@ -103,12 +103,6 @@ class = "restatement-elsewhere-normative"
 reason = "A pointer, stated under aeeObservedAttacks so that a reader meeting the seal first does not finish it believing the seal carries the attribution guarantee. The rule it points at is stated normatively under attackResults at L931-934 and is where the corpus addresses it; the sentence adds no requirement of its own, and citing it separately would make one obligation look like two. The half it names as checkable is checked on a row declaring pinned, and the half it names as outside every gate the document declares unreachable in the same breath."
 
 [[uncited]]
-sentence = "L1700"
-digest = "d18c099b045abe5a"
-class = "forcible-but-unforced"
-reason = "This one is NOT unvectorable and is the row that should not stay here. A verifier MUST NOT rank a producer-defined ordered axis nor compose it by weakest input, which is a checkable consequence: an accept vector carrying a producer-prefixed member with rankable values, expected to leave result and tier untouched, forces it. The paired changelog restatement at L2304 is uncited for the same reason, and one vector retires both rows."
-
-[[uncited]]
 sentence = "L1837"
 digest = "97ca3166dc01ecd4"
 class = "consumer-policy-unvectorable"
@@ -154,7 +148,7 @@ reason = "Changelog prose about the 0.6 to 0.7 migration, describing which membe
 sentence = "L2304"
 digest = "eb2bedf7fcde9f95"
 class = "restatement-elsewhere-normative"
-reason = "Changelog restatement of the producer-territory inertness rule at L1700. It is uncited because L1700 is; the vector named in that row retires both, and this row must be deleted at the same time rather than left as cover for it."
+reason = "Changelog restatement of the producer-territory inertness rule at L1700, which states it normatively and is now cited by an accept vector carrying a producer-prefixed member with rankable values. This sentence states no rule of its own, so it stays declared on its own merits rather than as cover for an unforced obligation; the row that WAS cover for one has been deleted."
 
 
 # ---------------------------------------------------------------------------

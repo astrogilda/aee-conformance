@@ -87,7 +87,7 @@ second was `bad-724`, which had been forcing the rule since it was written.
 | L1198 | The substrate observation key MUST NOT be accessible to the subject artifact | **(b) untestable** | A property of key custody in the producer's deployment. Nothing on the wire distinguishes a key held apart from one the artifact could reach: the same bytes, the same signatures, the same tier. The specification places the value of the tier on that separation and leaves the separation to consumer key policy, which is where it can be checked |
 | L1527 | Every site at which the substrate drops an observation rather than emitting it MUST increment `aeeDropCount` | **(b) untestable** | The document rules on this itself two sentences earlier: "Two producer obligations travel with it and neither is checkable by a verifier." A verifier sees the count the producer wrote and never the sites that should have moved it. What IS checkable -- the count against its self-declared bound -- is condition `aee-c-65` and is forced |
 | L1556 | Over-attribution is caught downstream at the row, by the `attackResults` rule that a producer MUST NOT reference a record from a row whose attack the record's committed payload does not evidence | **(c) not normative** | A pointer added under `aeeObservedAttacks` so that a reader meeting the seal first does not finish it believing the seal carries the attribution guarantee. The rule is stated normatively under `attackResults` at L931-934, which is where the corpus addresses it; this sentence imposes nothing of its own, and citing it separately would make one obligation look like two. Of the two halves it names, the `pinned` half is checked by the coverage validity requirement and the `paired` half the document declares outside every gate in the same breath |
-| L1700 | A verifier MUST NOT rank the values of a producer-defined ordered axis and MUST NOT compose it by weakest input | **(d) VECTOR WRITTEN, CITATION BLOCKED: `v7400cd757fd046e9`** | Written, executed on both rails, and proved. A covering interception payload carries `exampleFidelity: "reconstructed"` beside a signed `aeeMethod` of `intercepted`; a rail that folds the member into the weakest-input method composition reports `method-cap-exceeded` on a statement no requirement refuses. `ok-021` carries producer members too, but content-free ones, so it forces only that such a member does not stop the record covering. **The measurement still reads this sentence as uncited** -- see the open item below: the accept index carries no anchor column |
+| L1700 | A verifier MUST NOT rank the values of a producer-defined ordered axis and MUST NOT compose it by weakest input | **(a) citation** | Forced by `v7400cd757fd046e9`, which now anchors `L1700` in the accept index's `spec` column. A covering interception payload carries `exampleFidelity: "reconstructed"` beside a signed `aeeMethod` of `intercepted`; a rail that folds the member into the weakest-input method composition reports `method-cap-exceeded` on a statement no requirement refuses. `ok-021` carries producer members too, but content-free ones, so it forces only that such a member does not stop the record covering. The measurement reads the sentence as cited, and the `forcible-but-unforced` declaration that stood in for it is deleted |
 | L1792 | The date-time separator and zone designator MUST be uppercase, and the zone designator MUST be `Z`, `+00:00` or `-00:00` | **(a) citation** | Forced already by six vectors -- `bad-727`, `bad-750`, `bad-751` on `armedAt` and `bad-820`, `bad-821`, `bad-822` on `issuedAt` -- every one of which anchored L1784, the line that names the field. Condition `aee-c-85` now anchors `L1784; L1792-1795` and states the profile rather than only the requirement to carry the field. Proved by `scripts/uncited-obligations-proof.py`: a rail that keeps RFC 3339 and drops the two choices this sentence pins fails exactly those six and no others |
 | L1837 | A consumer MUST pin, out of band, the set of assessment classes it requires, and at consumption MUST compare it against `coverage.assessedClasses` | **(b) untestable** | The document names this as the one obligation in its section "whose value a consumer must derive from what it wants rather than from what a producer published". The pinned set is not in the statement and provably must not be: a demand read out of the producer's own bundle is not a demand. No vector can carry it |
 | L1857 | A consumer that demands no class MUST record that decision explicitly and MUST NOT fold it into the corpus and substrate pins | **(b) untestable** | An obligation about how a consumer records a policy decision. Nothing about it reaches the wire, in either direction |
@@ -170,14 +170,28 @@ to negative indexes; then a vector `bad-XXX-artifact-row-ref-negative`, parent
 ref-out-of-range}`. All three files are outside this work's ownership, which is
 why the item is written down rather than done.
 
-**An accept vector cannot cite a specification span.** `vectors/reject/INDEX.md`
-carries a per-vector anchor column and `vectors/accept/INDEX.md` does not, so
-`ok-054` forces L1700 and the measurement still counts that sentence as cited by
-nothing. Every obligation whose only possible instrument is an accept vector is
-invisible to the measure for the same reason. Closing it now needs only one
-thing: an anchor column added to the accept index. The second half of this item
--- a row regex matching ``| `ok-`` against an index that writes `| ok-`, so that
-it read zero accept rows either way -- is closed. Both per-vector readers in
+**An accept vector can cite a specification span, and now does.**
+`vectors/accept/INDEX.md` carries a `spec` column on every row, appended after
+`exercises` so that every positional reader of the first four cells is untouched,
+and `v7400cd757fd046e9` anchors `L1700` on it. The measurement counts that
+sentence as cited, the `forcible-but-unforced` declaration for it has been
+deleted from `spec/READINGS.toml` as no longer true, and the changelog
+restatement at L2304 keeps its own declaration on its own merits rather than as
+cover for an unforced obligation. Nothing in the reader changed: it takes spans
+from every cell of every vector row, so the column was picked up by being
+written. Every obligation whose only possible instrument is an accept vector is
+now reachable by the same route.
+
+One thing that column still lacks: `scripts/spec-anchor-gate.py` collects
+anchors from `AUTHORED` and `GENERATED` only, and `vectors/accept/INDEX.md` is
+in neither, so `L1700` here is not pinned and a re-vendor that moves the line
+will not be caught on this file. Adding the accept index to `AUTHORED` and
+syncing `spec/ANCHOR-PINS.json` closes it; that file is outside this work's
+ownership, which is why it is written down rather than done.
+
+The second half of this item -- a row regex matching ``| `ok-`` against an index
+that writes `| ok-`, so that it read zero accept rows either way -- is closed.
+Both per-vector readers in
 `scripts/reading-differential.py` find their rows through
 `gen_manifest.table_rows`, by the table whose first column is called `vector`,
 and that function refuses a row it cannot read instead of skipping it. The

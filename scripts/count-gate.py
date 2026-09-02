@@ -169,6 +169,13 @@ from countcensus import (
     run_census,
 )
 
+# ONE definition of a published identifier, imported rather than restated. A
+# commit that fixed four silent droppers shipped with five, because one reader
+# kept its own copy of a shared pattern; when identifiers changed shape that
+# copy stopped matching and dropped its rows without complaint.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "vectors"))
+from gen_manifest import VECTOR_ID_PATTERN  # noqa: E402
+
 # The tree under check. `--root` points it at a staged copy, which is how
 # scripts/count-gate-test.py mutates one file and asserts the refusal without
 # ever editing the repository it is testing.
@@ -430,7 +437,9 @@ INDEX_HEADING = re.compile(r"^## Vectors \((\d+)\)$", re.MULTILINE)
 # A published identifier is a digest of the vector's own bytes. It carries no
 # family, which is the point: a table row used to name the verdict in its first
 # cell, and so did the filename and the directory.
-INDEX_ROW_ID = re.compile(r"^\| *`?(v[0-9a-f]{16})`? *\|", re.MULTILINE)
+INDEX_ROW_ID = re.compile(
+    rf"^\| *`?({VECTOR_ID_PATTERN})`? *\|", re.MULTILINE
+)
 # Which family of the corpus each index table is the table of.
 INDEX_FAMILY = {
     "vectors/accept/INDEX.md": "accept",
@@ -1126,7 +1135,15 @@ FROZEN: tuple[Frozen, ...] = (
 MASKS = tuple(
     re.compile(pattern)
     for pattern in (
-        r"\b(?:ok|bad)-\d+(?:/\d+)*",  # vector ids and id lists: ok-006/007/029
+        # Two spellings, and this is the one place both are correct. These MASK
+        # prose so an identifier's digits are not read as a corpus count. The
+        # retired form still occurs throughout vectors/CHANGES.md, which is
+        # history and is not rewritten, so it still needs masking; the current
+        # form carries digit runs of its own and needs it too. Recall over
+        # prose, not an identity test -- an identity test that also matched
+        # `ok-006` is the confusion the shared definition exists to prevent.
+        r"\b(?:ok|bad)-\d+(?:/\d+)*",  # retired ids and id lists: ok-006/007/029
+        rf"\b{VECTOR_ID_PATTERN}\b",  # current ids: v0099f25838779fcc
         # Condition ids. This is a RECALL pattern and not an identity test, and
         # the difference is worth the paragraph because the two are one character
         # apart and fail in opposite directions.

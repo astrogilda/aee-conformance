@@ -29,8 +29,8 @@ all.**
 | corpus | suiteRevision 28, 272 vectors (61 accept, 209 reject, 2 indeterminate) |
 | vendored specification | commit `0dbe10bcc959b63dc42370a5db09812c9476f59a`, fetchable from `astrogilda/attestation` at branch `predicate/adversarial-execution-evidence` |
 | reviewed at | `in-toto/attestation#570` |
-| `vectors/MANIFEST.json` | `sha256:eb24532be577ee6a936410e6850482847cecac07147aa3c76d737fc730d4bf2b` |
-| `docs/FORCING-BASELINE.json` | `sha256:b8e2ee09ab271358b1182dbb69c90328af101cb0efe21f584f2a9e0fa550a368` |
+| `vectors/MANIFEST.json` | `sha256:7b6c7cc5f0068f5070f0da1eef2d43387eb070858cfd4041f850674de29471f0` |
+| `docs/FORCING-BASELINE.json` | `sha256:d9230ae5e0d8c4f359202f8ce7c04e4c2b599be62f742807c59222caf881aacb` |
 | campaign | 807 single-site weakenings: 459 KILLED, 32 SILENT, 311 DEAD, 5 INCONCLUSIVE |
 
 Every vector in the corpus is depended on by at least one recorded weakening, so no

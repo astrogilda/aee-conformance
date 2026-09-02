@@ -181,7 +181,15 @@ def corpus_digest(root: str) -> str:
 # carries no family, no sequence and no verdict: an identifier that said which
 # answer a vector wanted let a rail score the corpus without reading it, and
 # measured over the whole path it predicted the verdict perfectly.
-VECTOR_ID = re.compile(r"^v[0-9a-f]{16}$")
+# THE definition of a published identifier, imported by every reader rather than
+# restated. A commit that found and fixed four silent droppers shipped with
+# five: indeterminate_rows carried its own inline `^ind-\d`, so when identifiers
+# became digests it stopped matching, skipped both rows without complaint, and
+# dropped them from the manifest. It was invisible precisely because it looked
+# like the four that were fixed. A duplicated constant is how the next audit
+# finds a sixth, so there is one spelling and everything references it.
+VECTOR_ID_PATTERN = r"v[0-9a-f]{16}"
+VECTOR_ID = re.compile(rf"^{VECTOR_ID_PATTERN}$")
 
 
 def table_rows(md_path: str) -> list[list[str]]:

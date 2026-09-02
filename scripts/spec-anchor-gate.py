@@ -159,6 +159,13 @@ from specpins import (
     sync,
 )
 
+# ONE definition of a published identifier, imported rather than restated. A
+# commit that fixed four silent droppers shipped with five, because one reader
+# kept its own copy of a shared pattern; when identifiers changed shape that
+# copy stopped matching and dropped its rows without complaint.
+sys.path.insert(0, str(REPO_ROOT / "vectors"))
+from gen_manifest import VECTOR_ID  # noqa: E402
+
 SPEC_REL = "spec/predicates/adversarial-execution-evidence.md"
 
 LEDGER = Ledger(
@@ -706,7 +713,7 @@ def vector_prose() -> dict[str, str]:
             if len(cells) <= column:
                 continue
             vid = cells[0].strip("`")
-            if re.fullmatch(r"v[0-9a-f]{16}", vid):
+            if VECTOR_ID.match(vid):
                 out[vid] = cells[column]
     if not out:
         raise SystemExit(

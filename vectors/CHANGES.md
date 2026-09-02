@@ -40,6 +40,33 @@ byte-identically from the generators.
   conditions, its expected verdict and its expected codes; 272 replay green on the
   reference rail and both Go modules pass. A fresh checkout builds the corpus
   byte-identically through the documented generator sequence.
+- **A gate was drawing its own vocabulary out of the identifiers, and would have
+  stopped measuring in silence.** The spec-anchor gate's aim test decides whether an
+  anchor is drawn around a rule the decision it belongs to is actually about, and it
+  built the decision's term set from its title, its reading, and its forcing vectors'
+  identifiers with the hyphens turned into spaces. That worked only for as long as an
+  identifier was a description. Under content-addressed identifiers the term set would
+  have shrunk toward nothing and the test would have gone on reporting anchors as
+  aimed -- a check that narrows itself without failing, which is the second instance of
+  that shape found in one day. It now reads each vector's index-row prose instead:
+  what a vector does, rather than what it is called.
+- **One definition of an identifier, referenced everywhere.** The commit that found and
+  fixed four silent droppers shipped with five, because the indeterminate row reader
+  carried its own inline copy of the pattern instead of importing the shared one; when
+  identifiers changed shape it stopped matching, skipped both rows without complaint,
+  and dropped them from the manifest. It was invisible precisely because it looked like
+  the four that had been fixed. Every reader now imports one definition. Two spellings
+  survive in exactly one place, the prose mask in the count census, because the retired
+  form still occurs throughout this file -- which is history and is not rewritten -- and
+  the current form needs masking too; that site says so and says why.
+- **This revision does not earn 1.0.0, and the gate on it is written down here rather
+  than remembered.** A 1.0 would declare the corpus stable, and the AI Agent Action
+  suite still measures 0.7810 against a null of 0.6458 -- a real, named, unfixed leak in
+  the Appendix B family, which sits entirely on the accept side with no reject
+  counterpart. Declaring stability over a known leak is a claim that would fail the
+  first time anybody measured it, which is the one kind of claim this repository must
+  not make. Pre-1.0 semantics already license the breaking change, so nothing is lost by
+  waiting. **1.0.0 is what the Appendix B fix earns.**
 - Corpus: **272 vectors (61 accept, 209 reject, 2 indeterminate)**, unchanged in
   size from suiteRevision 27. Every vector file changes, so `corpusDigest` in
   `vectors/MANIFEST.json` moves; the vendored specification does not move, because

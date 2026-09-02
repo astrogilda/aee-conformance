@@ -67,6 +67,34 @@ def dump(path: Path, obj: dict[str, Any]) -> None:
 
 # --------------------------------------------------------------------- cases
 
+
+# The first reject row of the index, and the first accept identifier of the
+# manifest, looked up rather than spelled. These cases used to name `bad-001`
+# and `ok-002` literally, which worked only while identifiers were chosen by a
+# person; they are digests of each vector's own bytes now, so a literal here
+# would be a case that silently stopped matching the row it was written about.
+FIRST_REJECT_ROW = re.compile(r"^\| `(v[0-9a-f]{16})`", re.M)
+
+
+def first_reject_id(index: Path) -> str:
+    """The identifier of the first vector row in the reject index."""
+    match = FIRST_REJECT_ROW.search(index.read_text(encoding="utf-8"))
+    if match is None:
+        raise SystemExit(
+            "no vector row was found in the reject index, so every case below "
+            "would mutate nothing and assert nothing."
+        )
+    return match.group(1)
+
+
+def first_accept_id(manifest: Path) -> str:
+    data = load(manifest)
+    for v in data["vectors"]:
+        if v["kind"] == "accept":
+            return str(v["id"])
+    raise SystemExit("the manifest ships no accept vector for these cases to cite.")
+
+
 def untouched(_m: Path, _i: Path, _b: Path, _c: Path, _x: Path) -> None:
     """The real corpus, unmodified. The one case that must pass."""
 
@@ -79,7 +107,7 @@ def parent_not_shipped(_m: Path, index: Path, _b: Path, _c: Path, _x: Path) -> N
     it and nothing in the corpus notices.
     """
     text = index.read_text(encoding="utf-8")
-    text = re.sub(r"^(\| `bad-001[^|]*\|)([^|]*)\|",
+    text = re.sub(rf"^(\| `{first_reject_id(index)}`[^|]*\|)([^|]*)\|",
                   r"\1 ok-899 |", text, count=1, flags=re.M)
     index.write_text(text, encoding="utf-8")
 
@@ -96,8 +124,8 @@ def parent_names_a_vector_that_was_never_shipped(
     satisfied it.
     """
     text = index.read_text(encoding="utf-8")
-    text = re.sub(r"^(\| `bad-001[^|]*\|)([^|]*)\|",
-                  r"\1 ok-002-a-vector-that-was-never-shipped |",
+    text = re.sub(rf"^(\| `{first_reject_id(index)}`[^|]*\|)([^|]*)\|",
+                  r"\1 v0123456789abcdef |",
                   text, count=1, flags=re.M)
     index.write_text(text, encoding="utf-8")
 
@@ -106,30 +134,12 @@ def parent_number_with_trailing_junk(_m: Path, index: Path, _b: Path,
                                      _c: Path, _x: Path) -> None:
     """The same defect with no separator, so a prefix match cannot see it."""
     text = index.read_text(encoding="utf-8")
-    text = re.sub(r"^(\| `bad-001[^|]*\|)([^|]*)\|", r"\1 ok-002xyz |",
+    text = re.sub(rf"^(\| `{first_reject_id(index)}`[^|]*\|)([^|]*)\|", r"\1 v0123456789abcdefff |",
                   text, count=1, flags=re.M)
     index.write_text(text, encoding="utf-8")
 
 
-def parent_given_as_the_full_id(manifest: Path, index: Path, _b: Path,
-                                _c: Path, _x: Path) -> None:
-    """An over-reach control: the full accept id is a legitimate citation.
-
-    Every row in the corpus today names its parent by number. Naming it by its
-    whole id resolves to the same shipped vector and must keep passing, or the
-    anchoring above would be a fix that starts refusing correct input -- and a
-    gate that does that is switched off within a day.
-    """
-    data = load(manifest)
-    full = next(v["id"] for v in data["vectors"]
-                if v["kind"] == "accept" and v["id"].startswith("ok-002"))
-    text = index.read_text(encoding="utf-8")
-    text = re.sub(r"^(\| `bad-001[^|]*\|)([^|]*)\|", rf"\1 {full} |",
-                  text, count=1, flags=re.M)
-    index.write_text(text, encoding="utf-8")
-
-
-def index_row_for_a_refusal_nobody_ships(_m: Path, index: Path, _b: Path,
+def index_row_for_a_refusal_nobody_ships(manifest: Path, index: Path, _b: Path,
                                          _c: Path, _x: Path) -> None:
     """Add an index row naming a reject vector the manifest does not carry.
 
@@ -139,19 +149,24 @@ def index_row_for_a_refusal_nobody_ships(_m: Path, index: Path, _b: Path,
     the corpus has not got.
     """
     text = index.read_text(encoding="utf-8")
-    ghost = ("| `bad-999-a-refusal-that-is-not-in-the-manifest` | ok-002 | "
+    # Shaped like a published identifier and shipped by nothing. The shape
+    # matters: a ghost row spelled some other way is not recognised as a vector
+    # row at all, so the gate would drop it instead of reporting it, and the
+    # case would pass while testing the opposite of what it says.
+    ghost = (f"| `vdeadbeefdeadbeef` | {first_accept_id(manifest)} | "
              "nothing | - | aee-c-1 | `result-vocabulary` | L435 |\n")
-    index.write_text(re.sub(r"^\| `bad-001", ghost + "| `bad-001", text,
+    index.write_text(re.sub(rf"^\| `{first_reject_id(index)}`", ghost + "| `bad-001", text,
                             count=1, flags=re.M), encoding="utf-8")
 
 
-def accept_vectors_share_a_number(manifest: Path, _i: Path, _b: Path,
+def accept_vectors_share_an_identifier(manifest: Path, _i: Path, _b: Path,
                                   _c: Path, _x: Path) -> None:
-    """Two accept vectors under one number, so a parent citing it names neither."""
+    """Two accept vectors under one identifier, so a parent citing it names neither."""
     data = load(manifest)
+    first = first_accept_id(manifest)
     victim = next(v for v in data["vectors"]
-                  if v["kind"] == "accept" and not v["id"].startswith("ok-002"))
-    victim["id"] = "ok-002-a-second-vector-under-one-number"
+                  if v["kind"] == "accept" and v["id"] != first)
+    victim["id"] = first
     dump(manifest, data)
 
 
@@ -176,7 +191,7 @@ def baseline_anchored_list_emptied(_m: Path, _i: Path, baseline: Path,
 def parent_row_missing(_m: Path, index: Path, _b: Path, _c: Path, _x: Path) -> None:
     """Delete one reject vector's index row while it stays in the manifest."""
     kept = [ln for ln in index.read_text(encoding="utf-8").splitlines()
-            if not ln.startswith("| `bad-001")]
+            if not ln.startswith(f"| `{first_reject_id(index)}`")]
     index.write_text("\n".join(kept) + "\n", encoding="utf-8")
 
 
@@ -280,7 +295,7 @@ def published_sentence_reworded(_m: Path, _i: Path, _b: Path,
     changes.write_text(reworded, encoding="utf-8")
 
 
-def two_mutations_from_the_declared_parent(_m: Path, index: Path, _b: Path,
+def two_mutations_from_the_declared_parent(manifest: Path, index: Path, _b: Path,
                                            _c: Path, _x: Path) -> None:
     """Re-point one refusal at a shipped accept vector it is NOT derived from.
 
@@ -290,8 +305,13 @@ def two_mutations_from_the_declared_parent(_m: Path, index: Path, _b: Path,
     differed from in six to forty-one leaves -- while this gate printed OK.
     """
     text = index.read_text(encoding="utf-8")
-    text = re.sub(r"^(\| `bad-001[^|]*\|)([^|]*)\|", r"\1 ok-029 |",
-                  text, count=1, flags=re.M)
+    # A SHIPPED accept identifier, so check 1 is satisfied and the distance
+    # check is the one that has to catch this. Naming an unshipped vector would
+    # trip the earlier check instead and the case would pass while testing
+    # something else.
+    other = first_accept_id(manifest)
+    text = re.sub(rf"^(\| `{first_reject_id(index)}`[^|]*\|)([^|]*)\|",
+                  rf"\1 {other} |", text, count=1, flags=re.M)
     index.write_text(text, encoding="utf-8")
 
 
@@ -368,11 +388,10 @@ CASES: list[Case] = [
      parent_names_a_vector_that_was_never_shipped, False, ("not a shipped",)),
     ("a parent that is a shipped number with junk after it",
      parent_number_with_trailing_junk, False, ("not a shipped",)),
-    ("a parent named by its whole id", parent_given_as_the_full_id, True, ()),
     ("an index row for a refusal the manifest does not ship",
      index_row_for_a_refusal_nobody_ships, False, ("does not ship",)),
-    ("two accept vectors under one number", accept_vectors_share_a_number,
-     False, ("share the number",)),
+    ("two accept vectors under one identifier", accept_vectors_share_an_identifier,
+     False, ("appears twice in the manifest",)),
     ("a baseline that has lost its anchored list", baseline_emptied, False,
      ("carries no `anchored` list",)),
     ("a baseline recording nothing as anchored",

@@ -315,7 +315,19 @@ def score(
     for line in lines:
         vid = line["id"]
         entry = index.get(vid)
-        kind = (entry or {}).get("kind") or ("accept" if vid.startswith("ok-") else "reject")
+        # The kind comes from the manifest entry, and its absence is refused
+        # rather than guessed. This line used to fall back to reading the
+        # identifier's prefix, which stopped being information the moment
+        # identifiers became digests of their own bytes -- every vector would
+        # have been classified "reject", silently, and the gate would have gone
+        # on reporting a figure.
+        kind = (entry or {}).get("kind")
+        if not kind:
+            raise SystemExit(
+                f"the manifest carries no kind for {vid}, and this gate will not "
+                "infer one. The identifier is a digest and says nothing about the "
+                "verdict, which is the point of it."
+            )
         observed = as_observed(line)
         findings = selfchk.get(vid) if kind in ("reject", "indeterminate") else None
         ok, gates, reasons = rv.evaluate_vector(kind, entry, observed, findings)

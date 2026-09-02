@@ -113,7 +113,12 @@ func vectorPaths(vecDir string) ([]string, error) {
 	// forcing campaign does not replay is a bucket whose rules the campaign
 	// records as unforced whether they are or not, which would make the
 	// measurement wrong about the newest part of the corpus first.
-	for _, sub := range []string{"accept", "reject", "indeterminate"} {
+	// One directory holding every vector, and the per-verdict directories a
+	// vendored copy of an older corpus may still have. Both are read: a
+	// directory per verdict named the answer in the path, which is why the
+	// corpus stopped using one, but a rail replaying a vendored copy from
+	// before that change must still find its vectors.
+	for _, sub := range []string{"statements", "accept", "reject", "indeterminate"} {
 		matches, err := filepath.Glob(filepath.Join(vecDir, sub, "*.json"))
 		if err != nil {
 			return nil, err
@@ -121,7 +126,9 @@ func vectorPaths(vecDir string) ([]string, error) {
 		paths = append(paths, matches...)
 	}
 	if len(paths) == 0 {
-		return nil, fmt.Errorf("no vectors under %s/{accept,reject,indeterminate}", vecDir)
+		return nil, fmt.Errorf(
+			"no vectors under %s/statements or %s/{accept,reject,indeterminate}",
+			vecDir, vecDir)
 	}
 	sort.Strings(paths)
 	return paths, nil

@@ -54,6 +54,18 @@ jobs:
       - name: the shipped CLI clears the published corpus as an external rail
         run: python3 scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py
 
+      # No workflow referenced this proof at all. It had been refusing since the
+      # specification was re-vendored under it -- its pinned sentence split no
+      # longer matched the vendored text -- and nothing was there to hear it,
+      # which is the first member of the family every silently-stopped reader
+      # belongs to: a check nothing runs cannot report that it has stopped
+      # applying. It lives in this job because it builds cmd/aee-verify from
+      # source rather than trusting a binary beside the corpus.
+      - name: every newly cited obligation is paid for by a rail that gets it wrong
+        run: |
+          python3 scripts/uncited-obligations-proof.py
+          python3 scripts/uncited-obligations-proof-test.py
+
       - name: coverage (per-file 80% minimum)
         run: |
           go test ./aee/... ./cmd/... -coverprofile=core.cov -count=1

@@ -65,15 +65,29 @@ Still open, and the first is the largest thing on this page:
   a self-contained repository from this corpus and so are always flat. The dispatch in
   `consumer-lag-gate.py` is the only place in the repository that reads two layouts, and
   it dies together with the reader. Removing both is the last step of the rename.
-- [ ] **`scripts/uncited-obligations-proof.py` fails its own sentence guard, and did so
-  before this work.** It pins the specification at a normative/obligation sentence split
-  that the vendored text no longer produces, so it refuses before any case runs. Verified
-  pre-existing by running it unchanged at the commit this work started from, where it
-  fails identically. **The defect is that no workflow references it at all** -- `ci.yml`
-  never invokes it -- and the failing assertion is only how that became visible. A check
-  nothing runs is the first member of the family the sixteen repointed readers belong
-  to: it cannot report anything, so it cannot report that it has stopped applying. Either re-pin the two constants against the vendored specification and
-  say what moved, or wire it into CI so the next drift is caught when it happens.
+- [x] **`scripts/uncited-obligations-proof.py` fails its own sentence guard, and did so
+  before this work** (2026-09-02). It pinned the specification at a normative/obligation
+  sentence split that the vendored text no longer produces, so it refused before any case
+  ran. Verified pre-existing by running it unchanged at the commit this work started from,
+  where it fails identically. **The defect is that no workflow references it at all** --
+  `ci.yml` never invoked it -- and the failing assertion is only how that became visible. A
+  check nothing runs is the first member of the family the sixteen repointed readers belong
+  to: it cannot report anything, so it cannot report that it has stopped applying.
+  Both halves are done. The guard fired correctly on the re-vendor from `237f83b9` to
+  `0dbe10bc`, and the sets were RE-DERIVED rather than the constants raised: each of the
+  forty-five cited obligation lines was matched to its new line by the sentence text, all
+  forty-five survive the re-vendor verbatim, and the two sentences it added are both
+  dispositioned already -- L634 a SHOULD newly cited by `vd538496f284b4761`, L1556 a
+  pointer to the rule stated normatively at L931-934. The proof now runs in `ci.yml`'s
+  `go` job, which is where the Go toolchain it builds the external rail with lives.
+  Two defects surfaced underneath it, both fixed in the same change: the row selector read
+  the index tables by identifier prefix and both prefixes had stopped matching, so the
+  ratchet was comparing the condition registry alone against the full set on record -- it
+  now finds the vector table by its HEADER and refuses outright when it finds none, with a
+  case in `uncited-obligations-proof-test.py` proving that refusal fires; and the
+  `scoped_refs` mutation now kills three vectors where the pin named one, because the
+  corpus gained `vc19ea5aaacc5b72a` and `v1a3d0ce04c3f7524`, which force the same sentence
+  in shapes the first cannot reach. A coverage gain, pinned at three with the reason.
 
 - [x] **The AI Agent Action corpus is content-addressed and flat** (2026-09-02). Every
   member is named after a digest of its own bytes and lives in `statements/`; there is no

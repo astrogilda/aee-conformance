@@ -179,7 +179,7 @@ CASES: tuple[tuple[str, Callable[[Path], str | None], str, set[str]], ...] = (
     ("resplit_spec", case_resplit_spec,
      "Every line number in this file is an offset into the pinned document",
      ALL_PROVED),
-    ("unpaid_mutation", lambda root: None,
+    ("unpaid_mutation", lambda _root: None,
      "did not run or did not kill the vectors it named",
      ALL_PROVED - {"timestamp"}),
 )

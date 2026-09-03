@@ -579,6 +579,18 @@ under suiteRevision 17.
   reaches the rule. The proof script is unchanged because it was already right.
   Files: `vectors/accept/gen_valid_vectors.py`, `vectors/accept/INDEX.md`,
   `spec/ANCHOR-PINS.json`, `docs/UNCITED-OBLIGATIONS.md`.
+- [ ] **Two files carry `Lnnn` anchors that no ledger pins and no re-vendor remaps.**
+  `vectors/indeterminate/INDEX.md` carries ten distinct spans over fourteen occurrences and
+  `docs/UNCITED-OBLIGATIONS.md` carries more, and neither file is in the anchor gate's
+  `AUTHORED` or `GENERATED` lists or in `ANCHOR_PATHS` in `scripts/vendor-spec.py`, so
+  nothing pins them and no re-vendor moves them. This is the same shape as the
+  accept-index gap closed on 2026-09-02, arrived at from the same direction: an anchor in no
+  ledger survives a re-vendor pointing at whatever prose arrives, and nothing says so. The
+  indeterminate index is hand-authored rather than generated, so it belongs in `AUTHORED`
+  directly; the uncited-obligations document needs a reader's decision first, because its
+  first column is a sentence identifier on the measurement's axis rather than an anchor and
+  pinning the two axes alike would confuse them.
+  Files: `scripts/spec-anchor-gate.py`, `scripts/vendor-spec.py`.
 
 ## Recently landed
 

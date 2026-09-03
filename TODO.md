@@ -543,6 +543,35 @@ under suiteRevision 17.
   `vectors/coverage-unforced.json` and `docs/interpretation-decisions-open.md`, which
   carry anchors and prose side by side with no equivalent check.
   File: `scripts/interpretation-registry-gate.py`.
+- [x] **A row selector could go dead and every count derived from it stayed plausible**
+  (2026-09-02) -- the anchor gate's vector-row selector was spelled `bad-\d` and matched
+  zero of the two hundred and nine reject-index rows from the day identifiers became
+  content digests, so only the condition rows of that file were compared against the source
+  row that records them and every vector row fell into a whole-file question that passes
+  whenever any unrelated entry cites the same line. Every selector in the gate now declares
+  the files it is aimed at and `dead_selectors()` refuses a run in which one matches
+  nothing, on `--sync` as well as on a check; a deliberate zero must say so in
+  `Selector.silent` in writing. The gate publishes the keyed-versus-unkeyed split on every
+  run, so the figure moves when a reader goes blind and is read from the run rather than
+  copied to here, where nothing would re-derive it. Mutation-checked by restoring the dead
+  spelling, which the gate refuses by quoting the pattern back.
+  Files: `scripts/spec-anchor-gate.py`, `scripts/spec-anchor-gate-test.py`.
+- [x] **An accept vector's specification anchor was pinned, remapped and compared by
+  nothing** (2026-09-02) -- `vectors/accept/gen_valid_vectors.py` was in neither the anchor
+  gate's `AUTHORED` nor its `GENERATED` list, so `L1700` had no pin; `ANCHOR_PATHS` in
+  `scripts/vendor-spec.py` omitted the same file, so a re-vendor would have moved the line
+  out from under an anchor it never touched; and the index row carrying it was matched by
+  the dead selector above. All three are closed and `spec/ANCHOR-PINS.json` carries two new
+  pins. The re-vendor omission was found only because pinning the anchor made the gate's
+  own re-vendor test go red.
+- [ ] **`L1700` is a one-line anchor on a rule that spans four lines.**
+  `scripts/uncited-obligations-proof.py` cites the same obligation as `L1700-1703`, and the
+  accept anchor map records `L1700`, which opens on the rule's sentence and closes before
+  its `MUST NOT`. The pin now holds it to the line it addresses, so this is a question about
+  how the anchor was drawn rather than about whether it has rotted, and nothing mechanical
+  settles it: widening it changes a published cell in `vectors/accept/INDEX.md` and wants a
+  reader's judgement first. File: `vectors/accept/gen_valid_vectors.py`
+  (`ACCEPT_SPEC_ANCHORS`).
 
 ## Recently landed
 

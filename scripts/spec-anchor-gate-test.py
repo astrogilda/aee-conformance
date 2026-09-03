@@ -78,6 +78,15 @@ ANCHORED = (
     "docs/interpretation-decisions-open.md",
     "vectors/reject/INDEX.md",
     "docs/COVERAGE-MATRIX.md",
+    # The accept pair. Adding the accept generator to the gate's AUTHORED list
+    # is what put them here, and the re-vendor case failed the moment they were
+    # pinned and not remapped -- which was the true state of the repository:
+    # scripts/vendor-spec.py's own ANCHOR_PATHS omitted the accept generator, so
+    # a real re-vendor would have moved the specification out from under an
+    # anchor it never touched. The list here and the list there say the same
+    # thing about the same event and are now both complete.
+    "vectors/accept/gen_valid_vectors.py",
+    "vectors/accept/INDEX.md",
 )
 
 SPEC = "spec/predicates/adversarial-execution-evidence.md"
@@ -110,6 +119,27 @@ def stage(destination: Path) -> None:
         target = destination / rel
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, target)
+    # The generators' identifier maps, which are build intermediates rather
+    # than tracked files and so are not in the listing above. The gate resolves
+    # a published vector identifier to the slug its generator files anchors
+    # under, and without them it refuses -- correctly, and for a reason none of
+    # these cases is about, which would turn every one of them into a passing
+    # test of the wrong refusal.
+    maps = sorted((REPO_ROOT / ".build").glob("*.json"))
+    if not maps:
+        raise SystemExit(
+            "no generator identifier map was found under .build/, so every case "
+            "below would be staged without one and would refuse for that reason "
+            "rather than for the reason it asserts. A glob over a directory that "
+            "is not there returns the same empty list as one that is, which is "
+            "why this says so instead of copying nothing. Run "
+            "vectors/accept/gen_valid_vectors.py and "
+            "vectors/reject/gen_invalid_vectors.py."
+        )
+    for build in maps:
+        target = destination / ".build" / build.name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(build, target)
     for command in (
         ["git", "init", "-q"],
         ["git", "add", "-A"],
@@ -216,6 +246,51 @@ def blind(root: Path) -> None:
     )
 
 
+def selector_killed(root: Path) -> None:
+    """Put the vector-row selector back to the spelling it died in.
+
+    This is not a hypothetical mutation. ``bad-\\d`` is what that selector
+    carried, and it matched zero of the two hundred and nine reject-index vector
+    rows from the day identifiers became content digests: every vector row in
+    the corpus dropped out of the per-row comparison, the gate went on printing
+    OK over the anchors it could still see, and the commit that introduced an
+    anchor the reader could not see asserted in its own message that the reader
+    takes spans from every cell of every vector row.
+
+    A dead selector is invisible from the outside, which is why the check that
+    catches it has to be aimed at the pattern rather than at the result.
+    """
+    edit(
+        root,
+        "scripts/spec-anchor-gate.py",
+        r're.compile(rf"^\|\s*`?({VECTOR_ID_PATTERN})`?\s*\|"),',
+        r're.compile(r"^\|\s*`?(bad-\d[a-z0-9-]*)`?\s*\|"),',
+    )
+
+
+def owner_selector_killed(root: Path) -> None:
+    """The same failure on an owner selector: single quotes become double, so
+    the accept generator's anchor map stops being read and its entry's anchors
+    are filed under whatever prose happened to precede them."""
+    edit(
+        root,
+        "scripts/spec-anchor-gate.py",
+        "re.compile(r\"^\\s*'([a-z0-9-]+)':\\s*'L\"),",
+        're.compile(r"^\\s*\\"([a-z0-9-]+)\\":\\s*\\"L"),',
+    )
+
+
+def identifier_map_removed(root: Path) -> None:
+    """Delete a generator's identifier map.
+
+    A missing map is a did-not-run. Read as an empty one it resolves no row,
+    files every vector row under an owner no authored file has, and drops all of
+    them into the weaker whole-file question -- silently, and with the same OK
+    line as a healthy run.
+    """
+    (root / ".build" / "aee-reject-ids.json").unlink()
+
+
 def narrowed_by_a_revendor(root: Path) -> None:
     """A narrowing hidden inside an ordinary re-vendor, which is where one would
     actually arrive: the remapper moves every anchor, and one of them comes out
@@ -286,6 +361,30 @@ REFUSALS: list[Case] = [
         blind,
         (),
         ("checked nothing and its result means nothing",),
+    ),
+    (
+        "a row selector goes dead and reads every index as carrying no rows",
+        selector_killed,
+        (),
+        ("row selector(s) read nothing they are aimed at", "a vector row"),
+    ),
+    (
+        "the same selector is dead during a synchronise, which would pin less",
+        selector_killed,
+        ("--sync",),
+        ("row selector(s) read nothing they are aimed at",),
+    ),
+    (
+        "an owner selector goes dead, so its anchors are filed under prose",
+        owner_selector_killed,
+        (),
+        ("row selector(s) read nothing", "an accept anchor-map entry"),
+    ),
+    (
+        "a generator's identifier map is absent, so no row resolves to its slug",
+        identifier_map_removed,
+        (),
+        ("is not there", "instead of against its own source row"),
     ),
     (
         "an anchor names a line past the end of the document",

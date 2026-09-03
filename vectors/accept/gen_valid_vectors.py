@@ -2624,10 +2624,18 @@ ACCEPT_INDEX_TAIL: tuple[str, ...] = (
 # so an accept anchor that silently stopped emitting would show up only as an
 # obligation quietly going uncited again.
 #
-# The reject index publishes the same anchors and spec-anchor-gate.py pins them
-# because that file is in its AUTHORED list. This one is not, so the anchors
-# below are checked for aim by the coverage measure and are NOT pinned against a
-# re-vendor yet; docs/UNCITED-OBLIGATIONS.md records what closing that costs.
+# The anchors below are pinned. This file is in the AUTHORED list of
+# scripts/spec-anchor-gate.py and vectors/accept/INDEX.md is in its GENERATED
+# list, so each entry here is held against a digest of the prose it addresses
+# and the index row built from it is compared against this entry rather than
+# against the file as a whole. scripts/vendor-spec.py remaps this file too.
+#
+# All of those were missing at once and none of them announced itself. The
+# gate collected from neither list, so the anchor had no pin; the re-vendor's
+# own path list omitted this file, so a moved line would have left the anchor
+# behind; and the index row was matched by a selector still spelled for the
+# retired slug identifiers, so it was compared by a weaker question that passes
+# whenever some unrelated entry happens to cite the same line.
 ACCEPT_SPEC_ANCHORS: dict[str, str] = {
     # L1700: a verifier MUST NOT rank the values of a producer-defined ordered
     # axis nor compose it by weakest input. This vector is the instrument, and

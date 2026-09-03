@@ -182,12 +182,26 @@ from every cell of every vector row, so the column was picked up by being
 written. Every obligation whose only possible instrument is an accept vector is
 now reachable by the same route.
 
-One thing that column still lacks: `scripts/spec-anchor-gate.py` collects
-anchors from `AUTHORED` and `GENERATED` only, and `vectors/accept/INDEX.md` is
-in neither, so `L1700` here is not pinned and a re-vendor that moves the line
-will not be caught on this file. Adding the accept index to `AUTHORED` and
-syncing `spec/ANCHOR-PINS.json` closes it; that file is outside this work's
-ownership, which is why it is written down rather than done.
+The thing that column lacked is closed, and closing it cost more than the one
+line this paragraph used to ask for. `scripts/spec-anchor-gate.py` collects
+anchors from `AUTHORED` and `GENERATED` only and `vectors/accept/INDEX.md` was
+in neither, so `L1700` was pinned by nothing. The index is generated, so the
+file that belongs in `AUTHORED` is `vectors/accept/gen_valid_vectors.py`, whose
+anchor map is the source of that cell; putting the index there instead fails,
+because a generated table is checked against the source it was generated from
+and that source was in neither list either. Both are now listed, the map's entry
+is keyed by an owner pattern for its slug, and `spec/ANCHOR-PINS.json` carries
+two new pins for `L1700`.
+
+Two further readers had to be fixed for the pin to mean anything. The vector-row
+selector in the same gate was still spelled `bad-\d` and matched none of the two
+hundred and nine reject-index rows, so no vector row in either index was being
+compared against its own source row; it reads `VECTOR_ID_PATTERN` now, and the
+gate prints how many generated anchors got the per-row question on every run so
+that a selector going dead moves a published number. And `ANCHOR_PATHS` in
+`scripts/vendor-spec.py` omitted the accept generator, so a real re-vendor would
+have moved this line out from under an anchor it never touched -- which is what
+the gate's re-vendor test began refusing the moment the anchor was pinned.
 
 The second half of this item -- a row regex matching ``| `ok-`` against an index
 that writes `| ok-`, so that it read zero accept rows either way -- is closed.

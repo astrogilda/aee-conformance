@@ -348,6 +348,15 @@ ANCHOR_PATHS = (
     "vectors/coverage-unforced.json",
     "vectors/CHANGES.md",
     "docs/interpretation-decisions-open.md",
+    # The accept generator's anchor map, missed here for the same reason it was
+    # missed by the anchor gate: an accept vector citing a span is a recent
+    # shape, and every list of "the files that carry anchors" was written before
+    # there was one. It rotted the quietest way available -- the anchor was in
+    # no ledger, so a re-vendor that moved the line would have left it pointing
+    # at whatever prose arrived, and no check anywhere would have said so. Its
+    # index is generated from this file and is regenerated rather than remapped,
+    # which is why only the source is listed.
+    "vectors/accept/gen_valid_vectors.py",
     # The reading ledger and the document about it address the specification the
     # same way, and both were missed here for exactly as long as the anchor
     # spelling was. They rot differently from the files above, which is why the

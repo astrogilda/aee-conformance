@@ -126,6 +126,31 @@ identifiers and cited RFCs, is what makes a wrongly aimed anchor fail. The
 heading rule closes the obvious way around: an anchor stretched over a whole
 section contains some rule naming some term and would otherwise pass by width.
 
+*Is each of these questions still being asked of anything?* Every question above
+is asked of the rows a selector picks out, and a selector that picks out nothing
+does not fail: it reports on a smaller set and prints a total that reads as
+complete. This gate shipped in that state. Its vector-row selector was spelled
+``bad-\\d`` and matched zero of the two hundred and nine reject-index rows from
+the day identifiers became content digests, so every vector row in the corpus
+was dropped out of the per-row comparison into a weaker whole-file question that
+passes whenever some unrelated entry cites the same line -- and neighbouring
+rules here share spans constantly, so that is the ordinary case, not the exotic
+one. The commit that introduced an anchor the reader could not see asserted in
+its own message that the reader takes spans from every cell of every vector row.
+
+So every selector declares what it is aimed at, and ``dead_selectors`` refuses a
+run in which any of them matches nothing. A pattern matching zero rows is either
+a defect or a deliberate expectation; there is no third case, and the deliberate
+one has to say so in ``Selector.silent``, in writing, before it passes. It runs
+on ``--sync`` as well, because a synchronise performed through a dead selector
+writes a ledger missing every citation that selector would have found and
+reports the smaller number as the whole of them.
+
+The count is not a proof of aim and must not be read as one. That a pattern
+matches rows says the read path works; it does not say the rows are the right
+ones. What it removes is the failure where a reader stops reading entirely,
+which is the one this repository keeps having.
+
 What none of it does is decide whether a freshly written anchor cites the right
 rule. Nothing mechanical can read a claim and judge which paragraph settles it.
 The gate makes that a review question with the evidence attached rather than an
@@ -164,7 +189,7 @@ from specpins import (
 # kept its own copy of a shared pattern; when identifiers changed shape that
 # copy stopped matching and dropped its rows without complaint.
 sys.path.insert(0, str(REPO_ROOT / "vectors"))
-from gen_manifest import VECTOR_ID  # noqa: E402
+from gen_manifest import VECTOR_ID, VECTOR_ID_PATTERN  # noqa: E402
 
 SPEC_REL = "spec/predicates/adversarial-execution-evidence.md"
 
@@ -186,12 +211,20 @@ AUTHORED = (
     "vectors/coverage-unforced.json",
     "vectors/CHANGES.md",
     "docs/interpretation-decisions-open.md",
+    # The accept generator's anchor map. An accept vector can cite a span and
+    # one does, and until this line the citation was checked by nothing: the
+    # file was in neither list, so the accept index's anchor found no pin, and
+    # a re-vendor that moved the line would have gone through unremarked. The
+    # gap was written down in docs/UNCITED-OBLIGATIONS.md at the time it was
+    # opened, which is the only reason it was still findable.
+    "vectors/accept/gen_valid_vectors.py",
 )
 
 # Files generated from those. Their anchors are checked but never pinned.
 GENERATED = (
     "vectors/reject/INDEX.md",
     "docs/COVERAGE-MATRIX.md",
+    "vectors/accept/INDEX.md",
 )
 
 ANCHOR_RE = re.compile(r"\bL(\d+)(?:-(\d+))?\b")
@@ -204,21 +237,90 @@ REMEDY = (
     "matrix so the generated tables carry the corrected anchors too."
 )
 
+@dataclass(frozen=True)
+class Selector:
+    """A row pattern, the files it is aimed at, and what it is for.
+
+    The aim is declared rather than left implicit because a pattern's match
+    count is the only thing that says it is still a reader. Nothing else does:
+    a dead selector produces no error, no empty output and no missing row, only
+    a total that is smaller than it should be and reads as complete.
+    """
+
+    name: str
+    pattern: re.Pattern[str]
+    files: tuple[str, ...]
+    # A written reason this selector is expected to match nothing, or None when
+    # it must match something. There is no third case, and a selector that
+    # matches nothing without saying so in this field is refused.
+    silent: str | None = None
+
+
 # What a citation belongs to. A pin has to be found again after the spec has
 # moved under it, so it is filed under the thing doing the citing rather than
 # under a line number: this vector, this condition, this registry decision, this
 # section of prose. Adding a vector then disturbs one entry instead of shifting
 # every entry below it.
-OWNERS = (
-    re.compile(r'^vec\("([a-z0-9-]+)"'),                 # a reject vector
+OWNER_SELECTORS = (
+    Selector(
+        "a reject vector",
+        re.compile(r'^vec\("([a-z0-9-]+)"'),
+        ("vectors/reject/gen_invalid_vectors.py",),
+    ),
     # A condition table row. The anchor cell is matched loosely because a row may
     # carry several anchors; requiring a single one filed the extra anchors of a
     # multi-anchor condition under whichever row happened to precede it.
-    re.compile(r'^\s*(\d+): \("L'),
-    re.compile(r'^\s*"id":\s*"?([^",]+)"?,'),            # a registry entry
-    re.compile(r"^#{1,6}\s+(.+?)\s*$"),                  # a prose section
-    re.compile(r"^def (\w+)"),                           # generator prose
+    Selector(
+        "a condition table row",
+        re.compile(r'^\s*(\d+): \("L'),
+        ("vectors/reject/gen_invalid_vectors.py",),
+    ),
+    Selector(
+        "a registry entry",
+        re.compile(r'^\s*"id":\s*"?([^",]+)"?,'),
+        ("vectors/interpretation-decisions.json", "vectors/coverage-unforced.json"),
+    ),
+    Selector(
+        "a prose section",
+        re.compile(r"^#{1,6}\s+(.+?)\s*$"),
+        (
+            "vectors/CHANGES.md",
+            "docs/interpretation-decisions-open.md",
+            "vectors/reject/gen_invalid_vectors.py",
+            "vectors/accept/gen_valid_vectors.py",
+        ),
+    ),
+    Selector(
+        "generator prose",
+        re.compile(r"^def (\w+)"),
+        (
+            "vectors/reject/gen_invalid_vectors.py",
+            "vectors/accept/gen_valid_vectors.py",
+        ),
+    ),
+    # The accept generator's anchor map: one slug-keyed entry per accept vector
+    # that cites a span. It is matched ahead of nothing and after everything,
+    # because its lines are indented and no earlier pattern reaches them.
+    Selector(
+        "an accept anchor-map entry",
+        re.compile(r"^\s*'([a-z0-9-]+)':\s*'L"),
+        ("vectors/accept/gen_valid_vectors.py",),
+    ),
+    # The map itself, so the prose above its first entry is filed under the map
+    # rather than under whatever comment happened to precede it. A key built out
+    # of a sentence changes whenever the sentence is reworded, which turns an
+    # edit to a comment into an orphaned pin.
+    Selector(
+        "a module-level map",
+        re.compile(r"^([A-Z][A-Z0-9_]*): *dict\["),
+        (
+            "vectors/accept/gen_valid_vectors.py",
+            "vectors/reject/gen_invalid_vectors.py",
+        ),
+    ),
 )
+
+OWNERS = tuple(selector.pattern for selector in OWNER_SELECTORS)
 
 
 @dataclass(frozen=True)
@@ -234,11 +336,141 @@ class Anchor(Cited):
 # row: asking whether an anchor appears anywhere in the authored set passes for a
 # stale row whenever the number it carries is still cited by some unrelated
 # entry, which is common here because neighbouring rules share spans.
+# A vector row of either index. The identifier is VECTOR_ID_PATTERN, imported
+# rather than restated: this selector used to carry its own `bad-\d` spelling
+# and it matched zero of the two hundred and nine reject rows from the day
+# identifiers became content digests, so the per-row comparison below stopped
+# happening for every vector in the corpus and the file's total went on reading
+# as complete. It is one more reader in this repository to die of a private copy
+# of a published identifier -- scripts/count-gate-test.py already names a sixth
+# and no list of them is authoritative, which is the argument for one spelling
+# rather than for counting them.
 GENERATED_ROWS = (
-    re.compile(r"^\|\s*`?(bad-\d[a-z0-9-]*)`?\s*\|"),  # a reject-index vector row
-    re.compile(r"^\|\s*aee-c-(\d+)\s*\|"),             # a reject-index condition row
-    re.compile(r"^\|\s*(D\d+|U\d+)\s"),                # a coverage-matrix row
+    Selector(
+        "a vector row",
+        re.compile(rf"^\|\s*`?({VECTOR_ID_PATTERN})`?\s*\|"),
+        ("vectors/reject/INDEX.md", "vectors/accept/INDEX.md"),
+    ),
+    Selector(
+        "a reject-index condition row",
+        re.compile(r"^\|\s*aee-c-(\d+)\s*\|"),
+        ("vectors/reject/INDEX.md",),
+    ),
+    Selector(
+        "a coverage-matrix row",
+        re.compile(r"^\|\s*(D\d+|U\d+)\s"),
+        ("docs/COVERAGE-MATRIX.md",),
+    ),
 )
+
+# Where the published identifier of a vector is resolved back to the slug its
+# generator files the vector's anchors under. A vector is named after its own
+# bytes, so nothing about the identifier spells the slug and no committed file
+# carries the pairing: the slug surface is label-bearing, which is the whole
+# reason content addressing replaced it, so the generators write the map as a
+# build intermediate and it is not committed.
+IDENTIFIER_MAPS = (
+    REPO_ROOT / ".build" / "aee-accept-ids.json",
+    REPO_ROOT / ".build" / "aee-reject-ids.json",
+)
+
+_SLUGS: dict[str, str] | None = None
+
+
+def vector_slugs() -> dict[str, str]:
+    """Published identifier to slug, or a refusal naming the map that is absent.
+
+    A MISSING MAP IS A DID-NOT-RUN AND NEVER A RUN-WITH-DEFAULTS, for the same
+    reason the reject generator says so about the same files. Reading a missing
+    map as an empty one resolves no row, files every vector row under no owner,
+    and drops all of them into the weaker whole-file question -- which is the
+    exact state this gate has just been fixed out of, arrived at silently and
+    with a green run to show for it.
+    """
+    global _SLUGS
+    if _SLUGS is not None:
+        return _SLUGS
+    loaded: dict[str, str] = {}
+    for path in IDENTIFIER_MAPS:
+        if not path.is_file():
+            raise SystemExit(
+                f"FAIL: the identifier map {path.relative_to(REPO_ROOT)} is not "
+                "there, so no published vector identifier resolves to the slug "
+                "its generator files anchors under, and every vector row of "
+                "every index would be compared by the weaker whole-file "
+                "question instead of against its own source row. Run "
+                "vectors/accept/gen_valid_vectors.py and then "
+                "vectors/reject/gen_invalid_vectors.py; each writes its map on "
+                "every run."
+            )
+        entries: dict[str, str] = json.loads(path.read_text(encoding="utf-8"))
+        if not entries:
+            raise SystemExit(
+                f"FAIL: the identifier map {path.relative_to(REPO_ROOT)} is "
+                "empty, which resolves nothing and agrees with everything. "
+                "Re-run the generator that writes it."
+            )
+        loaded.update({vid: slug for slug, vid in entries.items()})
+    _SLUGS = loaded
+    return _SLUGS
+
+
+def dead_selectors() -> list[str]:
+    """Every selector that matches no row of any file it is aimed at.
+
+    This is the check that makes the defect above unrepeatable, and it is here
+    rather than in a test because a selector dies between runs of a gate, not
+    between edits to one. A pattern that matches nothing is either a defect or
+    a deliberate expectation; there is no third case, and the deliberate one has
+    to say so in ``Selector.silent`` before this will pass it.
+
+    It is deliberately a count and not a proof of aim. Showing that a pattern
+    matches rows says the read path works; it does not say the rows are the
+    right ones, and nothing mechanical here can. What it removes is the failure
+    where a reader stops reading entirely and reports a total that looks whole.
+    """
+    failures: list[str] = []
+    for selector in OWNER_SELECTORS + GENERATED_ROWS:
+        matched = 0
+        unreadable: list[str] = []
+        for rel in selector.files:
+            path = REPO_ROOT / rel
+            if not path.is_file():
+                unreadable.append(rel)
+                continue
+            matched += sum(
+                1
+                for line in path.read_text(encoding="utf-8").splitlines()
+                if selector.pattern.match(line)
+            )
+        if unreadable:
+            failures.append(
+                f"the selector for {selector.name} is aimed at "
+                f"{', '.join(unreadable)}, which cannot be read, so its match "
+                "count means nothing either way."
+            )
+            continue
+        if matched and selector.silent:
+            failures.append(
+                f"the selector for {selector.name} is recorded as matching "
+                f"nothing on purpose ({selector.silent}), and it matched "
+                f"{matched} row(s) in {', '.join(selector.files)}. A recorded "
+                "expectation that has stopped being true is re-read rather "
+                "than left standing."
+            )
+        if not matched and not selector.silent:
+            failures.append(
+                f"the selector for {selector.name} "
+                f"({selector.pattern.pattern}) matches no row of "
+                f"{', '.join(selector.files)}. A row selector that matches "
+                "nothing reads every one of those files as carrying no rows at "
+                "all, and every count derived from it stays plausible. Either "
+                "the pattern has gone stale against a spelling the files now "
+                "use -- which is what happened when identifiers became content "
+                "digests -- or the expectation is deliberate and belongs in "
+                "Selector.silent in writing."
+            )
+    return failures
 
 
 def owner_of(line: str) -> str | None:
@@ -251,12 +483,35 @@ def owner_of(line: str) -> str | None:
 
 def row_owner(line: str) -> str | None:
     """The identifier in a generated table row's first cell, in the spelling the
-    authored source files it under. The matrix prints a registry decision as
-    ``D13`` where the registry itself records the id ``13``."""
-    for pattern in GENERATED_ROWS:
-        m = pattern.match(line)
+    authored source files it under.
+
+    Translating between the two spellings is the whole of this function and the
+    reason it exists. The matrix prints a registry decision as ``D13`` where the
+    registry records the id ``13``; an index prints a vector as the digest of its
+    own bytes where the generator records it under the slug somebody typed. A
+    selector that matched the row but returned the published spelling would key
+    every vector row to an owner no authored file has, and each one would fall
+    into the weaker whole-file branch below -- a per-row check that matches every
+    row and compares none of them, which looks from the outside exactly like a
+    per-row check that is working.
+    """
+    for selector in GENERATED_ROWS:
+        m = selector.pattern.match(line)
         if m:
             name = m.group(1)
+            if VECTOR_ID.match(name):
+                slugs = vector_slugs()
+                if name not in slugs:
+                    raise SystemExit(
+                        f"FAIL: the index row for {name} names a vector no "
+                        "generator identifier map carries, so its anchors "
+                        "cannot be compared against the source row that "
+                        "records them. Defaulting to the published identifier "
+                        "here would key the row to an owner no authored file "
+                        "has and quietly downgrade it to the whole-file "
+                        "question. Re-run the generators."
+                    )
+                return slugs[name]
             return name[1:] if name[0] == "D" and name[1:].isdigit() else name
     return None
 
@@ -333,6 +588,22 @@ def generated_failures(
                 "generated table was not regenerated after the anchors moved."
             )
     return failures
+
+
+def keyed_split(generated: list[Anchor], authored: list[Anchor]) -> tuple[int, int]:
+    """How many generated anchors got the per-row question, and how many the
+    weaker whole-file one.
+
+    Printed on every run for the same reason the aim check prints its rule
+    density: the failure this gate has actually suffered is not a comparison
+    that disagrees, it is a comparison that stops being made. When the vector-row
+    selector died, this ratio fell from three hundred and fifty-one keyed to
+    ninety-eight and no output anywhere changed. A number that moves when a
+    reader goes blind has to be in front of somebody.
+    """
+    live_owners = {cite.owner for cite in authored}
+    keyed = sum(1 for cite in generated if cite.owner in live_owners)
+    return keyed, len(generated) - keyed
 
 
 # --------------------------------------------------------------------------
@@ -955,6 +1226,20 @@ def main(argv: list[str]) -> int:
         help="one citation key whose move onto different prose is intended",
     )
     args = ap.parse_args(argv[1:])
+    # Before anything reads a row: every selector that decides WHICH rows get
+    # read must prove it still matches some. This runs on --sync too, because a
+    # synchronise performed through a dead selector writes a ledger missing
+    # every citation the selector would have found and reports the smaller
+    # number as the whole of them.
+    dead = dead_selectors()
+    if dead:
+        print(
+            f"FAIL: {len(dead)} row selector(s) read nothing they are aimed at:",
+            file=sys.stderr,
+        )
+        for failure in dead:
+            print(f"  {failure}", file=sys.stderr)
+        return 1
     if args.sync:
         return sync(LEDGER, list(collect(AUTHORED)), set(args.accept_reaim))
 
@@ -977,6 +1262,12 @@ def main(argv: list[str]) -> int:
     failures += generated_failures(generated, authored, spec)
     failures += orphan_failures(pins, list(authored), LEDGER)
     pinned = report(failures, len(authored) + len(generated), LEDGER, REMEDY)
+    keyed, unkeyed = keyed_split(generated, authored)
+    print(
+        f"OK: {keyed} of {keyed + unkeyed} generated anchor(s) were compared "
+        f"against the source row that records them; {unkeyed} sit in prose with "
+        "no row to key on and kept the whole-file question."
+    )
     # Both verdicts are printed on every run. They answer different questions --
     # whether an anchor still addresses its recorded text, and whether it was
     # ever aimed at the right rule -- and a run that stopped at the first

@@ -149,6 +149,25 @@ jobs:
         run: uv run python scripts/complexity-table-gate.py --rail python
       - name: spec/corpus non-drift gate
         run: python3 scripts/spec-drift-gate.py
+      # The generators' slug-to-identifier maps. A vector is published under a
+      # digest of its own bytes while its generator files the vector's anchors
+      # under the slug somebody typed, so the anchor gate below cannot compare a
+      # published row against the source row that records it without the
+      # pairing. The maps are build intermediates and deliberately uncommitted:
+      # the slug surface is label-bearing, which is what content addressing
+      # removed. Each generator writes its map on every run, and both are
+      # deterministic -- the regenerability gate later in this job is the check
+      # that says so, which is also why running them here cannot dirty the tree.
+      #
+      # This runs BEFORE the anchor gate rather than being read opportunistically
+      # by it. A missing map is a did-not-run, and the gate refuses on one; read
+      # as an empty map instead it would resolve no row, file every vector row
+      # under an owner no source has, and drop all of them into a weaker
+      # whole-file question while still printing OK.
+      - name: the generator identifier maps the anchor gate resolves rows through
+        run: |
+          python3 vectors/accept/gen_valid_vectors.py
+          python3 vectors/reject/gen_invalid_vectors.py
       # Every line anchor into the specification is rewritten when the spec is
       # re-vendored, and that rewrite had never been exercised against an
       # insertion -- which is exactly what the next re-vendor carries. Its

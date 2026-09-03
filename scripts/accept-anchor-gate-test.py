@@ -41,6 +41,9 @@ BASELINE = REPO_ROOT / "docs" / "ACCEPT-ANCHOR-BASELINE.json"
 CHANGES = REPO_ROOT / "vectors" / "CHANGES.md"
 EXCEPTIONS = REPO_ROOT / "docs" / "MULTI-MUTATION-VECTORS.json"
 
+sys.path.insert(0, str(REPO_ROOT / "vectors"))
+from gen_manifest import VECTOR_ID_PATTERN  # noqa: E402
+
 Mutation = Callable[[Path, Path, Path, Path, Path], None]
 Case = tuple[str, Mutation, bool, tuple[str, ...]]
 
@@ -73,7 +76,14 @@ def dump(path: Path, obj: dict[str, Any]) -> None:
 # and `ok-002` literally, which worked only while identifiers were chosen by a
 # person; they are digests of each vector's own bytes now, so a literal here
 # would be a case that silently stopped matching the row it was written about.
-FIRST_REJECT_ROW = re.compile(r"^\| `(v[0-9a-f]{16})`", re.M)
+#
+# The shape is VECTOR_ID_PATTERN, imported rather than spelled again. This line
+# carried its own copy of it, which is one step short of the defect above: the
+# literal identifier was gone but the literal PATTERN was not, and a private
+# copy of a published pattern is exactly how the reject index's own vector-row
+# selector came to match nothing at all while the module it belongs to had
+# already been fixed. The gate this file tests imports the same name.
+FIRST_REJECT_ROW = re.compile(rf"^\| `({VECTOR_ID_PATTERN})`", re.M)
 
 
 def first_reject_id(index: Path) -> str:

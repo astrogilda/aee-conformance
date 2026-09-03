@@ -2893,6 +2893,18 @@
       "digest": "35e9ab4bcf1a395e5705a067656c306b77e3b080bc410b89623fa4cc913c3cc4",
       "opens": "there all sit inside the binding. The object the binding covers is the",
       "closes": "do not carry, and its statement is invalid on that ground."
+    },
+    "vectors/accept/gen_valid_vectors.py::ACCEPT_SPEC_ANCHORS#0": {
+      "anchor": "L1700",
+      "digest": "7225612d06eb0e91a493c6b677195a1edf5c1dce70b7503fd208d31f20e952de",
+      "opens": "read. A producer that defines an ordered axis there, meaning any member",
+      "closes": "read. A producer that defines an ordered axis there, meaning any member"
+    },
+    "vectors/accept/gen_valid_vectors.py::ok-054-producer-ordered-axis-inert#0": {
+      "anchor": "L1700",
+      "digest": "7225612d06eb0e91a493c6b677195a1edf5c1dce70b7503fd208d31f20e952de",
+      "opens": "read. A producer that defines an ordered axis there, meaning any member",
+      "closes": "read. A producer that defines an ordered axis there, meaning any member"
     }
   }
 }

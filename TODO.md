@@ -564,14 +564,21 @@ under suiteRevision 17.
   the dead selector above. All three are closed and `spec/ANCHOR-PINS.json` carries two new
   pins. The re-vendor omission was found only because pinning the anchor made the gate's
   own re-vendor test go red.
-- [ ] **`L1700` is a one-line anchor on a rule that spans four lines.**
-  `scripts/uncited-obligations-proof.py` cites the same obligation as `L1700-1703`, and the
-  accept anchor map records `L1700`, which opens on the rule's sentence and closes before
-  its `MUST NOT`. The pin now holds it to the line it addresses, so this is a question about
-  how the anchor was drawn rather than about whether it has rotted, and nothing mechanical
-  settles it: widening it changes a published cell in `vectors/accept/INDEX.md` and wants a
-  reader's judgement first. File: `vectors/accept/gen_valid_vectors.py`
-  (`ACCEPT_SPEC_ANCHORS`).
+- [x] **`L1700` was a one-line anchor on a rule that spans four lines** (2026-09-03) -- the
+  accept anchor map recorded `L1700`, which carries only the rule's subject, while both of
+  the sentence's `MUST NOT`s sit on the two lines below it;
+  `scripts/uncited-obligations-proof.py` had cited the same obligation as `L1700-1703` all
+  along. One of the two had to move and the corpus says which: anchors in the three indexes
+  are ranges far more often than single lines, a single line is used where that line carries
+  the obligation, and suiteRevision 25 records widening four anchors for this exact reading
+  -- a rule enforced while the anchor named a different line. Swept across all three indexes,
+  no other span opened a sentence bearing a normative keyword and closed before the keyword
+  landed. The map now records `L1700-1703`, `vectors/accept/INDEX.md` was regenerated, and
+  both pins in `spec/ANCHOR-PINS.json` now close on `values and MUST NOT compose it by
+  weakest input across records or rows`, which is the ledger's own proof that the span
+  reaches the rule. The proof script is unchanged because it was already right.
+  Files: `vectors/accept/gen_valid_vectors.py`, `vectors/accept/INDEX.md`,
+  `spec/ANCHOR-PINS.json`, `docs/UNCITED-OBLIGATIONS.md`.
 
 ## Recently landed
 

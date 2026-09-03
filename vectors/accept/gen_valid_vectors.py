@@ -2636,12 +2636,24 @@ ACCEPT_INDEX_TAIL: tuple[str, ...] = (
 # retired slug identifiers, so it was compared by a weaker question that passes
 # whenever some unrelated entry happens to cite the same line.
 ACCEPT_SPEC_ANCHORS: dict[str, str] = {
-    # L1700: a verifier MUST NOT rank the values of a producer-defined ordered
-    # axis nor compose it by weakest input. This vector is the instrument, and
-    # until the accept index carried a column there was nowhere to say so: the
-    # obligation was declared `forcible-but-unforced` in spec/READINGS.toml while
-    # the vector that forces it was already shipping.
-    'ok-054-producer-ordered-axis-inert': 'L1700',
+    # L1700-1703: a verifier MUST NOT rank the values of a producer-defined
+    # ordered axis nor compose it by weakest input. This vector is the
+    # instrument, and until the accept index carried a column there was nowhere
+    # to say so: the obligation was declared `forcible-but-unforced` in
+    # spec/READINGS.toml while the vector that forces it was already shipping.
+    #
+    # The span is the whole rule and was once its opening line alone. That line
+    # carries only the sentence's subject -- "A producer that defines an ordered
+    # axis there, meaning any member" -- while both of the sentence's MUST NOTs
+    # sit two and three lines below it, outside the old span. An anchor drawn
+    # that way reads as covering a rule it stops short of, which is the defect
+    # suiteRevision 25 widened four anchors to close: a rule enforced while the
+    # anchor names a different line. Swept across all three indexes when this
+    # was drawn, no other span opened a sentence bearing a normative keyword and
+    # closed before the keyword landed. The lines are named by their words
+    # rather than by their numbers on purpose: a number here is remapped on
+    # every re-vendor, which is why the pin ledger records prose too.
+    'ok-054-producer-ordered-axis-inert': 'L1700-1703',
 }
 
 ACCEPT_INDEX: dict[str, tuple[str, str, str]] = {

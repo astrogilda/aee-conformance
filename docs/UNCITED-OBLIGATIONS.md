@@ -87,7 +87,7 @@ second was `bad-724`, which had been forcing the rule since it was written.
 | L1198 | The substrate observation key MUST NOT be accessible to the subject artifact | **(b) untestable** | A property of key custody in the producer's deployment. Nothing on the wire distinguishes a key held apart from one the artifact could reach: the same bytes, the same signatures, the same tier. The specification places the value of the tier on that separation and leaves the separation to consumer key policy, which is where it can be checked |
 | L1527 | Every site at which the substrate drops an observation rather than emitting it MUST increment `aeeDropCount` | **(b) untestable** | The document rules on this itself two sentences earlier: "Two producer obligations travel with it and neither is checkable by a verifier." A verifier sees the count the producer wrote and never the sites that should have moved it. What IS checkable -- the count against its self-declared bound -- is condition `aee-c-65` and is forced |
 | L1556 | Over-attribution is caught downstream at the row, by the `attackResults` rule that a producer MUST NOT reference a record from a row whose attack the record's committed payload does not evidence | **(c) not normative** | A pointer added under `aeeObservedAttacks` so that a reader meeting the seal first does not finish it believing the seal carries the attribution guarantee. The rule is stated normatively under `attackResults` at L931-934, which is where the corpus addresses it; this sentence imposes nothing of its own, and citing it separately would make one obligation look like two. Of the two halves it names, the `pinned` half is checked by the coverage validity requirement and the `paired` half the document declares outside every gate in the same breath |
-| L1700 | A verifier MUST NOT rank the values of a producer-defined ordered axis and MUST NOT compose it by weakest input | **(a) citation** | Forced by `v7400cd757fd046e9`, which now anchors `L1700` in the accept index's `spec` column. A covering interception payload carries `exampleFidelity: "reconstructed"` beside a signed `aeeMethod` of `intercepted`; a rail that folds the member into the weakest-input method composition reports `method-cap-exceeded` on a statement no requirement refuses. `ok-021` carries producer members too, but content-free ones, so it forces only that such a member does not stop the record covering. The measurement reads the sentence as cited, and the `forcible-but-unforced` declaration that stood in for it is deleted |
+| L1700 | A verifier MUST NOT rank the values of a producer-defined ordered axis and MUST NOT compose it by weakest input | **(a) citation** | Forced by `v7400cd757fd046e9`, which now anchors `L1700-1703` in the accept index's `spec` column -- the whole rule, subject through both `MUST NOT`s, rather than the opening line it was first drawn on. A covering interception payload carries `exampleFidelity: "reconstructed"` beside a signed `aeeMethod` of `intercepted`; a rail that folds the member into the weakest-input method composition reports `method-cap-exceeded` on a statement no requirement refuses. `ok-021` carries producer members too, but content-free ones, so it forces only that such a member does not stop the record covering. The measurement reads the sentence as cited, and the `forcible-but-unforced` declaration that stood in for it is deleted |
 | L1792 | The date-time separator and zone designator MUST be uppercase, and the zone designator MUST be `Z`, `+00:00` or `-00:00` | **(a) citation** | Forced already by six vectors -- `bad-727`, `bad-750`, `bad-751` on `armedAt` and `bad-820`, `bad-821`, `bad-822` on `issuedAt` -- every one of which anchored L1784, the line that names the field. Condition `aee-c-85` now anchors `L1784; L1792-1795` and states the profile rather than only the requirement to carry the field. Proved by `scripts/uncited-obligations-proof.py`: a rail that keeps RFC 3339 and drops the two choices this sentence pins fails exactly those six and no others |
 | L1837 | A consumer MUST pin, out of band, the set of assessment classes it requires, and at consumption MUST compare it against `coverage.assessedClasses` | **(b) untestable** | The document names this as the one obligation in its section "whose value a consumer must derive from what it wants rather than from what a producer published". The pinned set is not in the statement and provably must not be: a demand read out of the producer's own bundle is not a demand. No vector can carry it |
 | L1857 | A consumer that demands no class MUST record that decision explicitly and MUST NOT fold it into the corpus and substrate pins | **(b) untestable** | An obligation about how a consumer records a policy decision. Nothing about it reaches the wire, in either direction |
@@ -173,7 +173,7 @@ why the item is written down rather than done.
 **An accept vector can cite a specification span, and now does.**
 `vectors/accept/INDEX.md` carries a `spec` column on every row, appended after
 `exercises` so that every positional reader of the first four cells is untouched,
-and `v7400cd757fd046e9` anchors `L1700` on it. The measurement counts that
+and `v7400cd757fd046e9` anchors `L1700-1703` on it. The measurement counts that
 sentence as cited, the `forcible-but-unforced` declaration for it has been
 deleted from `spec/READINGS.toml` as no longer true, and the changelog
 restatement at L2304 keeps its own declaration on its own merits rather than as
@@ -191,7 +191,23 @@ anchor map is the source of that cell; putting the index there instead fails,
 because a generated table is checked against the source it was generated from
 and that source was in neither list either. Both are now listed, the map's entry
 is keyed by an owner pattern for its slug, and `spec/ANCHOR-PINS.json` carries
-two new pins for `L1700`.
+two new pins for the span.
+
+The anchor was `L1700` when those pins were first written, and the pin is what
+made the drawing readable: its `closes` excerpt repeated its `opens` excerpt,
+because the span was one line long while the rule it cites runs to four. The
+line names the rule's subject and the sentence's two `MUST NOT`s land below it,
+so the anchor read as covering an obligation it stopped short of. It is
+`L1700-1703` now, and the pin's `closes` carries the second `MUST NOT`, which
+is the shortest available proof that the span reaches the rule. The alternative
+was to narrow `scripts/uncited-obligations-proof.py`, which had cited the whole
+rule all along, and the corpus decides against it: anchors here are ranges far
+more often than single lines, a single line is used where that line carries the
+obligation, and suiteRevision 25 records widening four anchors for exactly this
+reason -- rules enforced while the anchor named a different line, which reads as
+covered and is not. Swept across all three indexes at the time this was drawn,
+no other span opened a sentence bearing a normative keyword and closed before
+the keyword landed.
 
 Two further readers had to be fixed for the pin to mean anything. The vector-row
 selector in the same gate was still spelled `bad-\d` and matched none of the two

@@ -2895,16 +2895,16 @@
       "closes": "do not carry, and its statement is invalid on that ground."
     },
     "vectors/accept/gen_valid_vectors.py::ACCEPT_SPEC_ANCHORS#0": {
-      "anchor": "L1700",
-      "digest": "7225612d06eb0e91a493c6b677195a1edf5c1dce70b7503fd208d31f20e952de",
+      "anchor": "L1700-1703",
+      "digest": "d1bce516ffacdf27b9c0f66c8cef0e6db1f6f311a1f72100e68094df9a70b2ab",
       "opens": "read. A producer that defines an ordered axis there, meaning any member",
-      "closes": "read. A producer that defines an ordered axis there, meaning any member"
+      "closes": "values and MUST NOT compose it by weakest input across records or rows."
     },
     "vectors/accept/gen_valid_vectors.py::ok-054-producer-ordered-axis-inert#0": {
-      "anchor": "L1700",
-      "digest": "7225612d06eb0e91a493c6b677195a1edf5c1dce70b7503fd208d31f20e952de",
+      "anchor": "L1700-1703",
+      "digest": "d1bce516ffacdf27b9c0f66c8cef0e6db1f6f311a1f72100e68094df9a70b2ab",
       "opens": "read. A producer that defines an ordered axis there, meaning any member",
-      "closes": "read. A producer that defines an ordered axis there, meaning any member"
+      "closes": "values and MUST NOT compose it by weakest input across records or rows."
     }
   }
 }

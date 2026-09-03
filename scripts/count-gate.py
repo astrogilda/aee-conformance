@@ -956,6 +956,17 @@ FROZEN: tuple[Frozen, ...] = (
     ),
     Frozen(
         "scripts/uncited-obligations-proof.py",
+        "what the ratchet measured while its row reader was dead",
+        "32 of the 46 cited obligations",
+        "A reading taken of the BROKEN reader, not of the corpus: the row "
+        "selector named identifiers that had stopped matching, so the ratchet "
+        "saw the condition registry alone. The figure records what a run "
+        "produced before the reader was fixed, and rewriting it when the corpus "
+        "grows would restate a past run as a present one. The second half is a "
+        "live quantity the ratchet prints on every run.",
+    ),
+    Frozen(
+        "scripts/uncited-obligations-proof.py",
         "the coverage measurement this work moved",
         "55 obligations cited to 57",
         "A before-and-after reading of obligation coverage. The first figure "

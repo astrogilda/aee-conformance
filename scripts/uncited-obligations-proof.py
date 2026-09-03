@@ -34,7 +34,7 @@ the four names the vectors that force the sentence, and each is proved by
 building a rail that stops enforcing exactly what the sentence says and showing
 that those vectors, and no others, go red. Doing it turned up something the
 citations had understated: every one of the three is forced by more vectors than
-its row named. L625 is forced by ``bad-208`` as well as ``bad-201``, L997 by
+its row named. L625 is forced by ``bad-208`` as well as ``bad-201``, L1031 by
 ``bad-714`` as well as ``bad-106`` and ``bad-107``. Those vectors are named here
 because a proof that pins the count is the only thing that notices when one of
 them quietly stops forcing the rule.
@@ -43,7 +43,7 @@ The two vectors are proved the same way and were first:
 
 ``v3300d78454ab852f`` carries an unresolvable reference on a row
 no gate reads. The rule is quantified over every row that carries the member
-(spec L920-925), and a rail that checks references only where it needs to
+(spec L946-951), and a rail that checks references only where it needs to
 resolve them -- inside the substrate-row walk -- satisfies every other vector in
 the reference family, because every one of them puts the bad index on a
 substrate row.
@@ -51,32 +51,41 @@ substrate row.
 ``v7400cd757fd046e9`` carries a producer-defined member whose
 value is a token this predicate itself orders. Producer territory is inert to a
 verifier and the ordered case is the one a verifier is tempted to read (spec
-L1588-1591). A rail that folds such a member into the weakest-input method
+L1700-1703). A rail that folds such a member into the weakest-input method
 composition refuses a statement no requirement refuses, and every other accept
 vector carrying producer members carries content-free ones, so none of them
 separates the two readings.
 
 Neither vector proves anything by passing, which is the whole reason this file
 exists rather than a line in the index saying the rule is covered. Each is
-proved by building the wrong rail and showing the corpus goes red at the vectors
-named and no others. For the two new vectors the named set is a single id, and
-the argument is the sharp one: a mutation killing two vectors would mean the new
-one is a duplicate, and a mutation killing none would mean it forces nothing.
-For the four citations the named set is every vector that forces the sentence,
-and the count is the load-bearing half -- the mutation proves the sentence is
-forced at all, and pinning the set is what fails the day one of those vectors is
-rewritten into something that no longer forces it. Every rail mutation is hashed
-before and after, because a mutation that leaves the file byte-identical proves
-nothing and a line count cannot see one value swapped for another. Each of the
-two vectors also carries its single-fault control: the same statement differing
-in the one member, landing on the opposite verdict on the rail it is aimed at.
+proved by building the wrong rail and showing the corpus goes red at the
+vectors named and no others. For the two new vectors the named set was a single
+id, and the argument was the sharp one: a mutation killing two vectors would
+mean the new one is a duplicate, and a mutation killing none would mean it
+forces nothing. That argument has since been spent, in the direction it was
+meant to detect. ``scoped_refs`` now kills three, because the corpus gained two
+vectors that force the same sentence in shapes the first cannot reach -- an in-
+range index before the bad one, and a bad index on the row after a fully
+covered substrate row -- and each dies on a scoped reader the others survive. A
+duplicate is what a wider kill set could have meant and is not what it means
+here; the pin is widened with the reason written beside it, which is the whole
+difference between a set that was re-derived and a number that was raised. For
+the four citations the named set is every vector that forces the sentence, and
+the count is the load-bearing half -- the mutation proves the sentence is
+forced at all, and pinning the set is what fails the day one of those vectors
+is rewritten into something that no longer forces it. Every rail mutation is
+hashed before and after, because a mutation that leaves the file byte-identical
+proves nothing and a line count cannot see one value swapped for another. Each
+of the two vectors also carries its single-fault control: the same statement
+differing in the one member, landing on the opposite verdict on the rail it is
+aimed at.
 
 The ratchet is the other half, and it answers the question the mutations cannot.
 A mutation proves that a citation on record is real. It says nothing about a
 citation added tomorrow. So the set of obligation-bearing sentences that vector
 anchors cite is recomputed here from the specification and the two index files,
 and compared against a set committed below: forty-one lines this work inherited,
-plus the four it paid for. A line entering that set without an entry fails the
+plus the five it paid for. A line entering that set without an entry fails the
 proof and is printed with the sentence it would have silently claimed, which is
 what refuses the ``L1725-1748`` anchor above. A line leaving it fails too, since
 a citation deleted by a re-vendor reads exactly like one that was never there.
@@ -84,6 +93,30 @@ The sentence split is the measurement's own, and its two totals are asserted
 rather than trusted: if the specification is re-vendored into a different number
 of normative sentences, every line number below is suspect and this file says so
 instead of comparing sets across two different documents.
+
+That last guard has since fired, on the re-vendor from 237f83b9 to 0dbe10bc,
+and what it cost is the argument for keeping it. The vendored text splits into
+two more normative sentences and one more obligation than the pin named, so
+every line number here was an offset into a document the corpus no longer
+carried, and the file refused rather than compare two sets drawn in different
+frames. Those totals are asserted below and the guard prints both sides when
+they disagree, which is what makes this paragraph checkable rather than
+remembered. The sets were re-derived, not re-pinned: each of the forty-five
+lines on record was matched to its new line by the SENTENCE TEXT, all forty-
+five survive the re-vendor verbatim, and the two sentences the re-vendor added
+are dispositioned rather than absorbed -- L634 is a SHOULD newly cited by
+``vd538496f284b4761``, and L1556 is a pointer to the rule stated normatively at
+L931-934, which the corpus cites. Nothing was lost and nothing was smuggled in.
+
+Reading the corpus is the half that failed silently. The row selector here named
+identifiers -- ``| `bad-`` and ``| `ok-`` -- and both stopped matching: the
+accept index never backticked its first cell, and the reject one became a digest
+of a vector's own bytes. What the ratchet then measured was the condition
+registry alone, 32 of the 46 cited obligations, while printing a total that read
+like all of them. A reader keyed on a name is a reader that goes quiet when names
+change, so the vector table is now found by its HEADER, the way the manifest
+generator and the count gate find it, and an index yielding no vector table is a
+refusal instead of a corpus that cites nothing.
 
 Nothing here writes to the corpus. The mutated rails live in a temporary
 directory and read the corpus through ``--vectors``.
@@ -155,7 +188,7 @@ PRECONDITION_TO = """            if result in RESULT_ORDER and recomputed == res
                 out.add("result-recompute-mismatch")"""
 
 # A rail that reads an uncoverable substrate row as a weaker claim rather than
-# as the invalid statement L997-999 says it makes.
+# as the invalid statement L1031-1033 says it makes.
 UNCOVERABLE_FROM = (
     "        good_arm = self._gate1_clean_arm("
     "st, out, usable, covers_nothing, pinned_posture)\n"
@@ -169,7 +202,7 @@ UNCOVERABLE_TO = (
 ) + UNCOVERABLE_FROM
 
 # A rail that keeps RFC 3339 and drops the two choices the profile pins at
-# L1680-1683: the uppercase designators and the zero-offset spellings.
+# L1792-1795: the uppercase designators and the zero-offset spellings.
 TIMESTAMP_FROM = """    if not isinstance(v, str) or not RFC3339_RE.match(v):
         return False
     key = _rfc3339_key(v)
@@ -181,8 +214,17 @@ TIMESTAMP_TO = """    if not isinstance(v, str) or not RFC3339_RE.match(v.upper(
 
 # name -> (mutation source, mutation replacement, every vector that must go red)
 MUTATIONS: tuple[tuple[str, str, str, list[str]], ...] = (
+    # Three, where this pin named one. The corpus gained two vectors that force
+    # the same sentence in shapes the first does not reach:
+    # vc19ea5aaacc5b72a puts an IN-range index before the out-of-range one, so a
+    # reader that stops at the first index survives v3300d78454ab852f and dies
+    # here; v1a3d0ce04c3f7524 puts the bad index on the artifact row FOLLOWING a
+    # fully covered substrate row, so a reader that walks until its obligations
+    # are discharged survives both of the others. Every one of the three is an
+    # artifact row, which is the whole point: the rule is quantified over every
+    # row carrying the member, and the scoped rail reads only substrate rows.
     ("scoped_refs", SCOPED_REFS_FROM, SCOPED_REFS_TO,
-     ["v3300d78454ab852f"]),
+     ["v3300d78454ab852f", "vc19ea5aaacc5b72a", "v1a3d0ce04c3f7524"]),
     ("ranking_cap", RANKING_CAP_FROM, RANKING_CAP_TO,
      ["v7400cd757fd046e9"]),
     ("precondition", PRECONDITION_FROM, PRECONDITION_TO,
@@ -203,28 +245,56 @@ OBLIGATION = re.compile(r"\b(MUST|REQUIRED|SHALL)\b")
 SENTENCE_END = re.compile(r"(?<!e\.g)(?<!i\.e)(?<!vs)(?<!cf)(?<!No)[.;](?=\s|$)")
 FENCE = re.compile(r"^\s*(```|~~~)")
 ANCHOR = re.compile(r"\bL(\d+)(?:-(\d+))?\b")
+# The header cell that names an index's vector table. Both index files use it.
+VECTOR_TABLE_HEADER = "vector"
 
 # The split is the measurement's, and these are what it yields on the pinned
 # specification. They are asserted because every line number below is an offset
 # into that document and means nothing against a different one.
-NORMATIVE_SENTENCES = 74
-OBLIGATION_SENTENCES = 67
+#
+# Two lower on each axis until the specification was re-vendored from 237f83b9 to
+# 0dbe10bc, 144 lines longer. The guard fired exactly as designed and the sets below were
+# re-derived rather than re-pinned: every one of the forty-five sentences on
+# record survives the re-vendor VERBATIM and maps 1:1 onto its new line, no
+# obligation sentence was lost, and the two normative sentences the re-vendor
+# added are both dispositioned in docs/UNCITED-OBLIGATIONS.md. L634 is a SHOULD,
+# so it is not obligation-bearing and does not move the second total; it is
+# newly cited by `vd538496f284b4761`. L1556 is the obligation, and it is a
+# pointer to the rule stated normatively at L931-934, which the corpus does
+# cite -- dispositioned (c) not normative, class restatement-elsewhere-normative
+# in spec/READINGS.toml, and uncited on purpose.
+NORMATIVE_SENTENCES = 76
+OBLIGATION_SENTENCES = 68
 
-# Obligation-bearing sentences a vector anchor cited before this work.
+# Obligation-bearing sentences a vector anchor cited before this work, in the
+# coordinate frame of the vendored specification. A line here was matched to its
+# pre-re-vendor self by the SENTENCE TEXT, never by arithmetic on the line
+# number: a shift derived from a diff would carry a sentence that changed
+# meaning across as though it had only moved.
 INHERITED: frozenset[int] = frozenset({
-    99, 106, 111, 113, 114, 116, 117, 136, 150, 160, 212, 237, 390, 618, 740,
-    745, 753, 764, 791, 828, 905, 942, 1047, 1059, 1234, 1257, 1280, 1282,
-    1287, 1291, 1294, 1333, 1335, 1368, 1408, 1476, 1507, 1524, 1576, 1583,
-    1664,
+    99, 106, 111, 113, 114, 116, 117, 136, 150, 160, 212, 237, 390, 618, 766,
+    771, 779, 790, 817, 854, 931, 968, 1081, 1093, 1277, 1300, 1323, 1325,
+    1330, 1334, 1337, 1396, 1398, 1431, 1471, 1539, 1619, 1636, 1688, 1695,
+    1776,
 })
 
 # The lines this work added to that set, each against the mutation that pays
 # for it. A line cited by nothing in this table is a claim nobody checked.
+#
+# L1700 is the fifth and was added after the four: a verifier MUST NOT rank the
+# values of a producer-defined ordered axis nor compose it by weakest input.
+# `v7400cd757fd046e9` has forced it since it was written, and the ranking_cap
+# mutation below has proved that since this file was written -- the sentence was
+# uncited only because the accept index carried no anchor column for an
+# obligation whose sole possible instrument is an accept vector. The column
+# exists now, so the citation is real and the mutation that already paid for the
+# vector pays for the citation.
 PAID_FOR: dict[int, str] = {
     625: "precondition",
-    920: "scoped_refs",
-    997: "uncoverable",
-    1680: "timestamp",
+    946: "scoped_refs",
+    1031: "uncoverable",
+    1700: "ranking_cap",
+    1792: "timestamp",
 }
 
 
@@ -396,16 +466,66 @@ def spans_in(text: str) -> list[tuple[int, int]]:
     return found
 
 
-def vector_spans() -> list[tuple[int, int]]:
+def vector_table_rows(text: str) -> list[str]:
+    """The rows of an index's vector table, found by the table's HEADER.
+
+    This reader used to select rows by an identifier prefix: ``| `bad-`` in the
+    reject index and ``| `ok-`` in the accept one. Both selectors are dead. The
+    accept index has never backticked its first cell, so that one matched
+    nothing from the day it was typed; the reject one matched until identifiers
+    became digests of a vector's own bytes, and matched nothing after. What the
+    ratchet then read was the condition registry alone, while announcing a full
+    count -- the failure it exists to catch, wearing the ratchet's own clothes.
+    The figure that reading produced is in this file's module docstring, where
+    it is frozen as history rather than restated as a live quantity.
+
+    So the table is found the way ``vectors/gen_manifest.py`` and the count gate
+    find it, by the header cell that names it, and never by what its rows are
+    called. An index carries other tables (the reject index has a
+    digest-preimage table of 64-hex rows), so the header is the only thing that
+    tells a vector row from another table's row.
+    """
+    rows: list[str] = []
+    inside = False
+    for line in text.splitlines():
+        line = line.strip()
+        if not line.startswith("|"):
+            inside = False
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        first = cells[0] if cells else ""
+        if first == VECTOR_TABLE_HEADER:
+            inside = True
+            continue
+        if not inside or (first and set(first) <= {"-", ":"}):
+            continue
+        rows.append(line)
+    return rows
+
+
+def vector_spans() -> list[tuple[int, int]] | None:
     """Every specification span a vector cites: the condition registry rows and
     the per-vector anchor column of both index files. The registry decisions and
     the unforced cells are deliberately absent -- they record a reading, not a
-    vector, and the question here is only what the corpus FORCES."""
+    vector, and the question here is only what the corpus FORCES.
+
+    None when an index yields no vector table, because a reader that has stopped
+    finding one reports a corpus citing nothing exactly as it reports a corpus
+    that lost every citation, and the second half of this file would then read
+    the loss as a coverage collapse or, worse, read a shrunken corpus as clean.
+    """
     reject = (ROOT / "vectors" / "reject" / "INDEX.md").read_text(encoding="utf-8")
     accept = (ROOT / "vectors" / "accept" / "INDEX.md").read_text(encoding="utf-8")
     rows = [line for line in reject.splitlines()
-            if re.match(r"^\|\s*aee-c-\d+\s*\|", line) or line.startswith("| `bad-")]
-    rows += [line for line in accept.splitlines() if line.startswith("| `ok-")]
+            if re.match(r"^\|\s*aee-c-\d+\s*\|", line)]
+    for name, text in (("reject", reject), ("accept", accept)):
+        found = vector_table_rows(text)
+        if not found:
+            print(f"GUARD: the {name} index yields no vector table, so this file "
+                  "cannot say what the corpus cites. Fix the reader, never the set.",
+                  file=sys.stderr)
+            return None
+        rows += found
     return [span for line in rows for span in spans_in(line)]
 
 
@@ -431,6 +551,8 @@ def coverage_ratchet(proved: set[str]) -> bool:
         return False
 
     spans = vector_spans()
+    if spans is None:
+        return False
     text = {ln: s for ln, s in obligations}
     cited = {ln for ln, _ in obligations if any(a <= ln <= b for a, b in spans)}
     expected = INHERITED | set(PAID_FOR)

@@ -100,20 +100,44 @@ def edit(root: Path, relative: Path, before: str, after: str) -> str | None:
 
 def case_fabricated_anchor(root: Path) -> str | None:
     """The attack itself: a vector about a dropped corpus manifest, cited
-    against two consumer obligations no vector can decide."""
+    against two consumer obligations no vector can decide.
+
+    The span is ``L1837-1860`` where the original attack typed ``L1725-1748``,
+    because the re-vendor moved the two out-of-band class-pinning sentences the
+    attack names. The span is re-derived from those SENTENCES, not shifted by a
+    line delta: a case aimed at a range that no longer covers an uncited
+    obligation mutates bytes, changes no set, and records a refusal nobody made
+    -- which is what this case did until it was re-aimed.
+    """
     return edit(root, REJECT_REL,
-                "| `v03547f8918e0d7dc` | ok-033 | drop corpus.manifest, "
+                "| `v03547f8918e0d7dc` | vc7a74e2cef5586ed | drop corpus.manifest, "
                 "keeping the corpus name, uri and digest | - | aee-c-78 | "
-                "`environment-incomplete` | L757-767 |",
-                "| `v03547f8918e0d7dc` | ok-033 | drop corpus.manifest, "
+                "`environment-incomplete` | L783-793 |",
+                "| `v03547f8918e0d7dc` | vc7a74e2cef5586ed | drop corpus.manifest, "
                 "keeping the corpus name, uri and digest | - | aee-c-78 | "
-                "`environment-incomplete` | L757-767; L1725-1748 |")
+                "`environment-incomplete` | L783-793; L1837-1860 |")
 
 
 def case_widened_anchor(root: Path) -> str | None:
     """The lazier shape of the same thing: widening an anchor already on record
-    until it swallows a sentence nobody proved."""
-    return edit(root, REJECT_REL, "| aee-c-10 | L552 |", "| aee-c-10 | L552-1164 |")
+    until it swallows a sentence nobody proved. L1198 is the nearest uncited
+    obligation above this anchor, so the widened end has to reach past it."""
+    return edit(root, REJECT_REL, "| aee-c-10 | L552 |", "| aee-c-10 | L552-1200 |")
+
+
+def case_unreadable_vector_table(root: Path) -> str | None:
+    """An index whose vector table this reader can no longer find.
+
+    Not hypothetical: the reader selected rows by an identifier prefix, and both
+    prefixes stopped matching -- one at the rename to content-addressed
+    identifiers, one from the day it was written. The ratchet went on comparing
+    a set drawn from the condition registry alone against the full set on
+    record. A reader that has lost a table must refuse, because a corpus that
+    cites nothing and a reader that reads nothing are the same output.
+    """
+    return edit(root, ACCEPT_REL,
+                "| vector | result | conditions (aee-c ids) | exercises | spec |",
+                "| id | result | conditions (aee-c ids) | exercises | spec |")
 
 
 def case_deleted_citation(root: Path) -> str | None:
@@ -121,7 +145,7 @@ def case_deleted_citation(root: Path) -> str | None:
     exactly like one that was never there, which is why the ratchet is a set
     comparison in both directions rather than a floor."""
     return edit(root, REJECT_REL,
-                "| aee-c-85 | L1672; L1680-1683 |", "| aee-c-85 | L1672 |")
+                "| aee-c-85 | L1784; L1792-1795 |", "| aee-c-85 | L1784 |")
 
 
 def case_resplit_spec(root: Path) -> str | None:
@@ -148,6 +172,9 @@ CASES: tuple[tuple[str, Callable[[Path], str | None], str, set[str]], ...] = (
      ALL_PROVED),
     ("deleted_citation", case_deleted_citation,
      "is on record as cited and no vector anchor covers it any more",
+     ALL_PROVED),
+    ("unreadable_table", case_unreadable_vector_table,
+     "yields no vector table, so this file cannot say what the corpus cites",
      ALL_PROVED),
     ("resplit_spec", case_resplit_spec,
      "Every line number in this file is an offset into the pinned document",

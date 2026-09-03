@@ -307,7 +307,7 @@ def narrowed_where_the_passage_changed(root: Path) -> None:
     edit(root, CARRIES_WIDE, WIDE, "L431-436")
 
 
-def unchanged(root: Path) -> None:
+def unchanged(_root: Path) -> None:
     """No mutation: the case is about the arguments, or about the tree as it is."""
 
 

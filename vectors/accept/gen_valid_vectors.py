@@ -502,7 +502,6 @@ def make_statement(  # noqa: C901 -- one guarded branch per independent option f
     with_entropy: bool = True,
     does_not_assert: list[str] | None = None,
     predicate_extra: dict[str, Any] | None = None,
-    binding_for_root: str | None = None,
     posture: dict[str, Any] | None = None,
     subject: dict[str, Any] | None = None,
     substrate: dict[str, Any] | None = None,

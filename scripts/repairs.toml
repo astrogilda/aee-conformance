@@ -1,0 +1,62 @@
+# The repair registry: for every gate that COMPARES a committed artifact against
+# something regenerable, the command that regenerates it.
+#
+# WHY THIS FILE EXISTS. A comparing gate answers "does the committed copy still
+# match what the generator produces". When it refuses, the repair is always the
+# same shape -- re-run the generator -- and until this file existed the operator
+# had to remember which one, and in what order. Ordering matters because repairs
+# are not independent: regenerating the manifest changes the corpus digest that
+# the consumer ledger is compared against, so a fixed point is reached by running
+# to convergence rather than by running each once in a guessed sequence.
+#
+# WHAT BELONGS HERE, AND WHAT DOES NOT. A gate belongs here when its argv carries
+# `--check` or `--verify` EXACTLY. That is a whole-flag match on purpose: a gate
+# invoked with `--check-baseline` or `--check-live` is comparing against a live
+# external state or an allocation decision, not against a regenerable artifact,
+# and "repairing" it would mean overwriting a record of what the world was.
+# `scripts/regen.py --audit` refuses when a comparing gate declares no repair, so
+# a gate added to CI without a row here turns the audit red rather than silently
+# leaving the operator to remember.
+#
+# The `fix` is run from the repository root unless `workdir` says otherwise.
+#
+# EVERY REPAIR BELOW WAS READ OUT OF THE GATE'S OWN SOURCE, NOT GUESSED FROM ITS
+# --help. The first draft of this file declared `--write` for two of the three,
+# because that is the flag such a gate usually has. Neither has it: in this
+# repository `--check` is the READ-ONLY mode and a bare invocation is what
+# writes, which is visible in main() and not in the argument help. A registry of
+# repairs that do not run is worse than no registry, since it converts "I must
+# remember the command" into "I ran the command and nothing happened".
+
+[[gate]]
+ident = "coverage-matrix"
+argv = ["python3", "scripts/coverage-matrix-gate.py", "--check"]
+fix = ["python3", "scripts/coverage-matrix-gate.py"]
+why = """
+The requirement-coverage matrix is generated from the corpus and committed. A
+vector that gains or loses a condition moves a cell, and the gate compares the
+committed table against a fresh derivation.
+"""
+
+[[gate]]
+ident = "condition-forcing"
+argv = ["python3", "scripts/condition-forcing-gate.py", "--check"]
+fix = ["python3", "scripts/condition-forcing-gate.py"]
+why = """
+The published weak-spot figure is derived from the forcing analysis rather than
+typed, and the gate holds the published number to a fresh run.
+"""
+
+[[gate]]
+ident = "consumer-lag"
+argv = ["python3", "scripts/consumer-lag-gate.py", "--check"]
+fix = ["python3", "scripts/consumer-lag-gate.py", "--sync"]
+why = """
+The consumer ledger records the corpus each vendored rail carries, read from that
+rail's own vendor stamp. --sync REQUIRES a --copy id=dir argument per rail, so
+this repair cannot run unattended and the runner reports it as needing the
+operator rather than pretending to have run it. It is declared here so the audit
+can see that the gate has a repair at all, and so nobody has to remember which
+flag it is at the moment the gate is red.
+"""
+needs_operator = true

@@ -490,6 +490,19 @@ jobs:
       # together in the commit that answered it.
       - name: consumers carry the corpus the default branch publishes, and the report says so
         run: python3 scripts/consumer-lag-gate.py --check
+
+      # Every gate above that COMPARES a committed artifact against a regenerable
+      # one has a repair, and the repair is written down rather than remembered.
+      # This step reads the workflow itself and refuses when a comparing gate has
+      # no row in scripts/repairs.toml -- so a gate added here without one turns
+      # the build red instead of leaving the next operator to work out which
+      # generator to run at the moment it goes red.
+      #
+      # It audits and writes nothing. `python3 scripts/regen.py` with no flag is
+      # the repair path, and it runs to a fixed point because the repairs are not
+      # independent: regenerating one artifact can move a figure another derives.
+      - name: every comparing gate declares how to repair it
+        run: python3 scripts/regen.py --audit
       # And the gate is watched to go red, and to go red at the right moment.
       # Measured against the checked-out tree instead of the default branch it
       # refused correctly and too early: a branch adding vectors could not be

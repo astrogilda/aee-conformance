@@ -53,18 +53,19 @@ against what turned out to be sampling noise.
 
 Still open, and the first is the largest thing on this page:
 
-- [ ] **Delete the historical corpus reader when the rename reaches the default branch.**
-  `vectors/gen_manifest.py` carries `historical_corpus_files` and
-  `historical_corpus_digest`, read by `scripts/consumer-lag-gate.py` and by nothing else.
-  They exist because that gate materializes the DEFAULT BRANCH's tree to learn what the
-  consumer rails could actually have vendored, and until this revision lands there, that
-  tree carries the retired per-verdict layout. The reader refuses outright if handed an
-  already-flat tree, so it cannot be reached for this repository's own corpus.
-  **It is NOT a forced red, and that is worth stating rather than implying.** Making the
-  gate refuse a flat default branch would make it fail its own test: those fixtures stage
-  a self-contained repository from this corpus and so are always flat. The dispatch in
-  `consumer-lag-gate.py` is the only place in the repository that reads two layouts, and
-  it dies together with the reader. Removing both is the last step of the rename.
+- [x] **The historical corpus reader is deleted, and the gate that watched for its
+  reason to lapse went with it** (2026-09-04). `historical_corpus_files` and
+  `historical_corpus_digest` existed for one caller: `scripts/consumer-lag-gate.py`
+  materializes the DEFAULT BRANCH's tree to learn what the consumer rails could actually
+  have vendored, and until suiteRevision 28 landed there, that tree carried the retired
+  per-verdict layout. It landed with the push of `2d93dde`, and
+  `scripts/historical-reader-expiry-gate.py` turned red on the very next CI run, which is
+  what it was written to do. **The deletion was forced by a check rather than remembered
+  by a person, and that is the whole point of the row.** Gone in this commit: both
+  reader functions, the `KINDS` tuple that only they used, the two-layout dispatch that
+  was the only place in the repository reading two layouts, the expiry gate itself, and
+  its workflow step. `vectors/CHANGES.md` keeps its suiteRevision 28 entry describing the
+  gate, because that entry was true of that revision and the ledger is not rewritten.
 - [x] **`scripts/uncited-obligations-proof.py` fails its own sentence guard, and did so
   before this work** (2026-09-02). It pinned the specification at a normative/obligation
   sentence split that the vendored text no longer produces, so it refused before any case

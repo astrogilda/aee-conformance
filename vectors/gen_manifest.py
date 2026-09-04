@@ -103,15 +103,6 @@ TIER_EXPECTATIONS = {
 }
 
 
-# Every directory the corpus publishes, and the published content digest is a digest
-# over all of them. Leaving a bucket out of this tuple would be the whole of the cheap
-# option: a set no consumer copy is measured against is a set no consumer has to carry,
-# so it goes stale on the first revision and nothing reddens -- which is the shape of
-# every defect this gate and its siblings were written to close. A new bucket costs a
-# re-vendor exactly as a new vector does.
-KINDS = ("accept", "reject", "indeterminate")
-
-
 def corpus_files(root: str) -> list[tuple[str, str]]:
     """Every vector file the published digest covers, in the order it covers them.
 
@@ -126,53 +117,15 @@ def corpus_files(root: str) -> list[tuple[str, str]]:
         raise SystemExit(
             f"{root} has no statements/ directory. This reads the flat, "
             "content-addressed corpus at suiteRevision 28 and later. A tree "
-            "sorted into a directory per verdict is the retired layout; if it is "
-            "a published tree from before that revision, read it with "
-            "historical_corpus_files, which exists for exactly that and refuses "
-            "anything else."
+            "sorted into a directory per verdict is the retired layout, and "
+            "nothing here reads it: the reader that did was deleted once the "
+            "default branch published the flat corpus, because a published tree "
+            "predating suiteRevision 28 is no longer reachable from any ref a "
+            "consumer rail can fetch."
         )
     return sorted(
         (f"statements/{name}", os.path.join(flat, name))
         for name in os.listdir(flat)
-        if name.endswith(".json")
-    )
-
-
-def historical_corpus_files(root: str) -> list[tuple[str, str]]:
-    """The same digest preimage, over a PUBLISHED tree that predates flattening.
-
-    This exists for exactly one caller: scripts/consumer-lag-gate.py, which
-    materializes the DEFAULT BRANCH's tree to learn what the consumer rails
-    could actually have vendored. Until suiteRevision 28 reaches that branch,
-    that tree carries the retired per-verdict layout -- a published artifact
-    this repository does not control and cannot rewrite, which is the same
-    reason vectors/CHANGES.md is not rewritten either. It is named separately so
-    the historical path is UNREACHABLE for this repository's own corpus rather
-    than merely discouraged.
-
-    IT HAS A DEATH DATE AND REFUSES TO OUTLIVE IT. The moment the default branch
-    carries the flat corpus there is nothing old left to read, this function has
-    no caller, and it becomes precisely the alias that three readers were
-    stripped of in this same revision -- kept alive by nobody noticing it went
-    unused. So being handed an already-flat tree is a hard failure here, which
-    turns the first run after the push red on its own account and makes the
-    deletion forced rather than remembered. Removing this function is the last
-    step of the rename, not an optional tidy.
-    """
-    if os.path.isdir(os.path.join(root, "statements")):
-        raise SystemExit(
-            f"{root} already carries the flat corpus, so this reader's purpose "
-            "has expired. It exists only to read a published tree from before "
-            "suiteRevision 28, and the default branch now has one that is "
-            "flat. DELETE historical_corpus_files and its caller in "
-            "scripts/consumer-lag-gate.py; that removal is the last step of the "
-            "identifier rename."
-        )
-    return sorted(
-        (f"{kind}/{name}", os.path.join(root, kind, name))
-        for kind in KINDS
-        if os.path.isdir(os.path.join(root, kind))
-        for name in os.listdir(os.path.join(root, kind))
         if name.endswith(".json")
     )
 
@@ -187,12 +140,6 @@ def _digest_over(files: list[tuple[str, str]]) -> str:
             h.update(hashlib.sha256(f.read()).hexdigest().encode("ascii"))
         h.update(b"\n")
     return h.hexdigest()
-
-
-def historical_corpus_digest(root: str) -> str:
-    """corpus_digest over a published pre-flattening tree. See
-    historical_corpus_files for why this exists and when it must be deleted."""
-    return _digest_over(historical_corpus_files(root))
 
 
 def corpus_digest(root: str) -> str:

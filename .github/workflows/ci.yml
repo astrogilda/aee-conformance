@@ -120,7 +120,7 @@ jobs:
       - name: sync toolchain
         run: uv sync --extra dev --extra generators
       - name: mypy --strict
-        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/interpretation-registry-gate-test.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-anchor-gate-test.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/code-contract-gate-test.py scripts/consumer-lag-gate.py scripts/consumer-lag-gate-test.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/condition-forcing-gate.py scripts/condition-forcing-gate-test.py scripts/condition-forcing-crosscheck.py scripts/condition-forcing-crosscheck-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py scripts/countcensus.py scripts/count-gate.py scripts/count-gate-test.py scripts/regenerability-gate.py scripts/mutationdiff.py scripts/accept-anchor-gate.py scripts/accept-anchor-gate-test.py scripts/liveness-probe.py scripts/liveness-probe-test.py scripts/citation-metadata-gate.py scripts/citation-metadata-gate-test.py scripts/expectation-slack-gate.py scripts/expectation-slack-gate-test.py scripts/observed-code-closure-gate.py scripts/observed-code-closure-gate-test.py scripts/uncited-crosscheck-gate.py scripts/reading-differential.py scripts/reading-differential-test.py scripts/vendor-remap-test.py scripts/vector-distinctness-gate.py scripts/vector-distinctness-gate-test.py scripts/surface-leakage-gate.py scripts/surface-leakage-gate-test.py scripts/historical-reader-expiry-gate.py
+        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/interpretation-registry-gate-test.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-anchor-gate-test.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/code-contract-gate-test.py scripts/consumer-lag-gate.py scripts/consumer-lag-gate-test.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/condition-forcing-gate.py scripts/condition-forcing-gate-test.py scripts/condition-forcing-crosscheck.py scripts/condition-forcing-crosscheck-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py scripts/countcensus.py scripts/count-gate.py scripts/count-gate-test.py scripts/regenerability-gate.py scripts/mutationdiff.py scripts/accept-anchor-gate.py scripts/accept-anchor-gate-test.py scripts/liveness-probe.py scripts/liveness-probe-test.py scripts/citation-metadata-gate.py scripts/citation-metadata-gate-test.py scripts/expectation-slack-gate.py scripts/expectation-slack-gate-test.py scripts/observed-code-closure-gate.py scripts/observed-code-closure-gate-test.py scripts/uncited-crosscheck-gate.py scripts/reading-differential.py scripts/reading-differential-test.py scripts/vendor-remap-test.py scripts/vector-distinctness-gate.py scripts/vector-distinctness-gate-test.py scripts/surface-leakage-gate.py scripts/surface-leakage-gate-test.py
       # Type-checks by DIRECTORY, which is why it sits beside the pass above
       # rather than replacing it. That one is driven from the list of files
       # written out on the line above, and a list is only accurate on the day it
@@ -474,23 +474,20 @@ jobs:
       # per-rail cells describing what the rails vendor were written at
       # suiteRevision 6 and still said so at 14, and a rail the report named
       # had no row behind it at all.
-      # The historical corpus reader in vectors/gen_manifest.py exists for one
-      # caller and one reason: the gate below materializes the DEFAULT BRANCH's
-      # tree to learn what the rails could actually have vendored, and until the
-      # flattening reaches that branch, that tree carries the retired
-      # per-verdict layout. The reason EXPIRES the moment it lands there, and a
-      # reader kept past its reason is exactly the alias three others were
-      # stripped of in the same revision.
+      # A historical corpus reader in vectors/gen_manifest.py used to sit beside
+      # this gate, for one caller and one reason: the gate materializes the
+      # DEFAULT BRANCH's tree to learn what the rails could actually have
+      # vendored, and until the flattening reached that branch, that tree
+      # carried the retired per-verdict layout. An expiry gate of its own
+      # watched for the reason to lapse, because the obvious placement could not
+      # work -- making this gate refuse a flat default branch would have made it
+      # fail its own fixtures, which stage a self-contained repository from this
+      # corpus and are therefore always flat.
       #
-      # This is a gate of its own rather than a rule inside the lag gate because
-      # the obvious placement cannot work: making that gate refuse a flat
-      # default branch would make it fail its own test, whose fixtures stage a
-      # self-contained repository from this corpus and are therefore always
-      # flat. This one has no fixtures -- one ref, one path -- so there is
-      # nothing for the assertion to collide with, and the first run after the
-      # flattening lands turns it red and names the deletion.
-      - name: the historical corpus reader has not outlived its reason
-        run: python3 scripts/historical-reader-expiry-gate.py
+      # The flattening reached the default branch at suiteRevision 28, the
+      # expiry gate turned red on the first run afterwards exactly as designed,
+      # and the reader, the two-layout dispatch and the gate itself were deleted
+      # together in the commit that answered it.
       - name: consumers carry the corpus the default branch publishes, and the report says so
         run: python3 scripts/consumer-lag-gate.py --check
       # And the gate is watched to go red, and to go red at the right moment.

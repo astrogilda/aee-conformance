@@ -3,15 +3,15 @@
   "copies": [
     {
       "id": "typescript-consumer-rail",
-      "corpusDigest": "9511932915617bfcbd7bafdb4cf6e6b050fec69225ed6fb2883984c0b098008a"
+      "corpusDigest": "8b035678def9e5ac00ba761b8c640e4412c57163134afb9d2c1a90f49d573a52"
     },
     {
       "id": "python-consumer-rail",
-      "corpusDigest": "9511932915617bfcbd7bafdb4cf6e6b050fec69225ed6fb2883984c0b098008a"
+      "corpusDigest": "8b035678def9e5ac00ba761b8c640e4412c57163134afb9d2c1a90f49d573a52"
     },
     {
       "id": "mcp-server-consumer-rail",
-      "corpusDigest": "9511932915617bfcbd7bafdb4cf6e6b050fec69225ed6fb2883984c0b098008a"
+      "corpusDigest": "8b035678def9e5ac00ba761b8c640e4412c57163134afb9d2c1a90f49d573a52"
     }
   ]
 }

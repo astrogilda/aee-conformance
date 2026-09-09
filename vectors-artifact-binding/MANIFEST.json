@@ -1,7 +1,7 @@
 {
   "contract": "artifact-binding/v1",
   "contractSpec": "spec/artifact-binding/v1.md",
-  "corpusDigest": "d58bfcd38069605f5ecfa2244d24775d69a6c698c918a42d2d93988e280c4f6a",
+  "corpusDigest": "e26e5a50267f4f09052f3349388f703d0a332a41cf325a4d248e21414070cbef",
   "counts": {
     "failed": 4,
     "notEstablished": 2,
@@ -20,6 +20,7 @@
         "codes": [
           "atif-document-digest-mismatch"
         ],
+        "messagesDigest": "966ed208787b453df6b013a6e3f10a01fb36b7ae1687cfdf66a19619b68c0f70",
         "verdict": "failed"
       },
       "id": "v21fa0d3af33d010d",
@@ -35,6 +36,7 @@
         "codes": [
           "artifact-absent"
         ],
+        "messagesDigest": "7ea7a7bf83467d5a9b64f52caa6f1f64769633777774e35ab377efc4107d4b4b",
         "verdict": "not-established"
       },
       "id": "v63555b6f69adb453",
@@ -50,6 +52,7 @@
         "codes": [
           "manifest-encoding-not-canonical"
         ],
+        "messagesDigest": "4ff722a03ad55a80cbc6ec6f910ede42083a23d6598d5a6f937a66788184bfee",
         "verdict": "failed"
       },
       "id": "v7020b1fccb496c3b",
@@ -63,6 +66,7 @@
       "cites": "the fourth arm. A second record over the same archive with a different verifier and a different reward; both records validate and the archive digest is shared, so the lineage is checkable",
       "expected": {
         "codes": [],
+        "messagesDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "verdict": "verified"
       },
       "id": "va8f79964b68a610f",
@@ -79,6 +83,7 @@
           "artifact-digest-mismatch",
           "artifact-length-mismatch"
         ],
+        "messagesDigest": "c43f19461487c3a01fe57d85b973391a92df24bbd3762368bf838610d12e1ce9",
         "verdict": "failed"
       },
       "id": "vb8a8df5360bc6f37",
@@ -92,6 +97,7 @@
       "cites": "the whole contract in one case: canonical bytes, a pinned signer, every required role, and every covered file hashing to what the record says",
       "expected": {
         "codes": [],
+        "messagesDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "verdict": "verified"
       },
       "id": "vd05d2e7059332fd5",
@@ -107,6 +113,7 @@
         "codes": [
           "signer-key-mismatch"
         ],
+        "messagesDigest": "0d299d99a61099c603127c21d9157081b90bf1c64b0abd9b9498b23ce0582b54",
         "verdict": "failed"
       },
       "id": "vee1d041fe793404e",
@@ -122,6 +129,7 @@
         "codes": [
           "dependencies-incomplete"
         ],
+        "messagesDigest": "1e91019ec41e8555db4aafb4b8195f22538b26768f060be947936584563828b3",
         "verdict": "not-established"
       },
       "id": "vfa81facc1464c1d6",

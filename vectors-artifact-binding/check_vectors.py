@@ -19,7 +19,9 @@ Exits 0 clean, 1 with one line per divergence.
 
 from __future__ import annotations
 
+import hashlib
 import json
+import pathlib
 import sys
 from pathlib import Path
 
@@ -60,9 +62,34 @@ def check_member(entry: dict[str, object], public_key: bytes) -> None:
         return
     declared = expected.get("codes")
     wanted = set(declared) if isinstance(declared, list) else set()
-    missing = wanted - set(outcome.codes)
+    emitted = set(outcome.codes)
+    missing = wanted - emitted
     if missing:
         fail(f"{identifier}: expected code(s) {sorted(missing)} were not emitted")
+    # And the reverse, which is the half a subset test cannot see. A member that is
+    # ALREADY expected to fail absorbs any second fault silently: mutate a covered file
+    # inside `cases/covered-byte-changed` and the verdict is still `failed`, so a
+    # subset check reports the corpus clean while the committed bytes are not the ones
+    # the generator emitted. Measured on this corpus before this clause existed.
+    declared_digest = expected.get("messagesDigest")
+    if isinstance(declared_digest, str):
+        joined = "\n".join(sorted(outcome.messages))
+        actual_digest = hashlib.sha256(joined.encode("utf-8")).hexdigest()
+        if actual_digest != declared_digest:
+            fail(
+                f"{identifier}: the verifier's messages hash to {actual_digest[:16]} and "
+                f"the manifest declares {declared_digest[:16]}. A member carries exactly "
+                "the faults it names, about exactly the files it names; a second fault of "
+                "the same class is invisible to the code set and shows up here."
+            )
+
+    unexpected = emitted - wanted
+    if unexpected:
+        fail(
+            f"{identifier}: emitted code(s) {sorted(unexpected)} the manifest does not "
+            "declare. A member carries exactly the faults it names; a second fault means "
+            "the bytes moved. Regenerate with gen_vectors.py rather than editing by hand."
+        )
     if outcome.verdict != verify_mod.VERIFIED and not outcome.messages:
         fail(f"{identifier}: a non-verified verdict named nothing")
 
@@ -93,6 +120,36 @@ def check_lineage_member(entry: dict[str, object]) -> None:
                 f"{entry['id']}: the changed verifier produced the same reward, so the "
                 "member does not demonstrate two preserved outcomes"
             )
+
+
+def check_member_identity(entry: dict[str, object]) -> None:
+    """The member's identifier is a function of its own bytes, so re-derive it.
+
+    Without this the corpus has a hole a mutation walks straight through: flip a
+    byte inside a member that is ALREADY expected to fail and the verdict is
+    still `failed`, so a verdict-only checker reports the corpus clean while the
+    committed bytes are not the bytes the generator emitted. Measured on this
+    corpus before the check existed: mutating result.json inside
+    `cases/covered-byte-changed` left the checker exiting 0.
+
+    The identifier is `"v" + sha256(manifest bytes + case name)[:16]`, which is
+    exactly what gen_vectors.vector_id computes, so a member whose record moved
+    gets a new identifier and this refuses it by name.
+    """
+    identifier = str(entry["id"])
+    manifest_path = HERE / str(entry["manifest"])
+    if not manifest_path.is_file():
+        return
+    case_name = pathlib.PurePosixPath(str(entry["case"])).name
+    derived = "v" + hashlib.sha256(
+        manifest_path.read_bytes() + case_name.encode("utf-8")
+    ).hexdigest()[:16]
+    if derived != identifier:
+        fail(
+            f"{identifier}: the member's bytes derive identifier {derived}, so the "
+            "record changed after the corpus was generated. Regenerate with "
+            "gen_vectors.py rather than editing a case by hand."
+        )
 
 
 def check_published_key(vectors: list[dict[str, object]], public_key: bytes) -> None:
@@ -133,6 +190,7 @@ def main() -> int:
     check_published_key(vectors, public_key)
 
     for entry in vectors:
+        check_member_identity(entry)
         check_member(entry, public_key)
         if entry["expected"]["verdict"] == "verified" and "regrade" in entry["case"]:
             check_lineage_member(entry)

@@ -40,6 +40,7 @@ import fixture  # noqa: E402
 import jcs  # noqa: E402
 import manifest as manifest_mod  # noqa: E402
 import sign  # noqa: E402
+import verify as verify_mod  # noqa: E402
 
 TEST_SEED = bytes.fromhex(
     "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60"
@@ -226,6 +227,27 @@ CASES: tuple[tuple[str, Any, str, list[str], str], ...] = (
 )
 
 
+def observed_messages_digest(root: Path) -> str:
+    """SHA-256 over the verifier's own sorted messages for this case.
+
+    Codes alone cannot police a member. A member already expected to fail absorbs a
+    SECOND fault of the same class silently: mutating result.json inside
+    `cases/covered-byte-changed` leaves the verdict `failed` and the code set
+    unchanged, because both faults are `artifact-digest-mismatch`, and the corpus
+    reads clean while its committed bytes are not the ones this generator emitted.
+    The messages name the files, so a digest over them separates the two.
+    """
+    trial = root / "trial"
+    outcome = verify_mod.verify(
+        trial,
+        trial / "binding" / "manifest.json",
+        trial / "binding" / "manifest.sig",
+        sign.public_bytes(TEST_SEED),
+    )
+    joined = "\n".join(sorted(outcome.messages))
+    return hashlib.sha256(joined.encode("utf-8")).hexdigest()
+
+
 def build() -> dict[str, Any]:
     if CASES_DIR.exists():
         shutil.rmtree(CASES_DIR)
@@ -237,6 +259,7 @@ def build() -> dict[str, Any]:
         builder(root)
         manifest_path = root / "trial" / "binding" / "manifest.json"
         identifier = vector_id(manifest_path.read_bytes() + name.encode("utf-8"))
+        messages_digest = observed_messages_digest(root)
         entries.append(
             {
                 "id": identifier,
@@ -245,7 +268,11 @@ def build() -> dict[str, Any]:
                 "trial": f"cases/{name}/trial",
                 "manifest": f"cases/{name}/trial/binding/manifest.json",
                 "signature": f"cases/{name}/trial/binding/manifest.sig",
-                "expected": {"verdict": verdict, "codes": sorted(codes)},
+                "expected": {
+                    "verdict": verdict,
+                    "codes": sorted(codes),
+                    "messagesDigest": messages_digest,
+                },
                 "cites": cites,
             }
         )

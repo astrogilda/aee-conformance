@@ -1703,6 +1703,29 @@
       "question_scope": "",
       "findings": 7,
       "note": ""
+    },
+    {
+      "pass_id": "jury-6538ff217fc8",
+      "source": "jury",
+      "vendor": "openai",
+      "model": "openai/gpt-oss-safeguard-20b",
+      "route": "hpg",
+      "self_reported_vendor": "",
+      "self_reported_model": "",
+      "protocol": "crossvendor-tell-hunt/v3",
+      "prompt_sha256": "f893e8fc212847c4086c0d1aeeba80d0f395993711087af3b0f3efb0b77cde11",
+      "isolation": "document",
+      "bundle_id": "",
+      "src_sha256": "dd016dd44699aa338cb4f376749a9dc6c9620bf9618fa08505bc089e27f6c6b7",
+      "read_sha256": "dd016dd44699aa338cb4f376749a9dc6c9620bf9618fa08505bc089e27f6c6b7",
+      "sent_sha256": "67c766c1a00197406ea010bda5d3c2f3e115a81ba0c58161b2bcc9367c3912a1",
+      "sent_occurrences": 1,
+      "read_probe": "not-asked",
+      "question_shapes": [],
+      "question_count": -1,
+      "question_scope": "",
+      "findings": 0,
+      "note": ""
     }
   ]
 }

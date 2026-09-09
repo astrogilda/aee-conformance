@@ -154,8 +154,10 @@ finishes it, so a green reading on command 4 within a day of a release is not
 the state to wait for.
 
 The release gate runs commands 1 and 2 on every tag. It runs 3 and 4 only behind
-`--with-timestamps`, which defaults off, because those 2 make a network call and
-a gate on every push cannot depend on a third party answering. A proof that fails
+`--with-timestamps`, which defaults off, because command 4 reaches a public
+calendar and a gate on every push cannot depend on a third party answering.
+Command 3 needs no network: the token chains to the root pinned in
+`spec/tsa-roots.pem`, which is why that root is committed rather than fetched. A proof that fails
 to cover this signature is a hard failure at any hour, checked offline. An
 unreachable calendar gets reported and never asserted either way, since a failed
 read and a bad proof look identical from an exit code.

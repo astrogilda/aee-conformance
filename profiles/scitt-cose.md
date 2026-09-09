@@ -38,8 +38,9 @@ restated here, because a copy of a version is a cache that nothing invalidates.
 An observer position is the field that distinguishes such a statement from a log. It
 records where the observation was made: from inside the process it observes, from a host on
 the outside of that process, or from a vantage the observed party could not reach at all. A verifier
-that drops that field still reads a well-formed record of an execution. It has lost the
-one column that says whether the record's own subject could have written it.
+that drops that field still reads a well-formed record of an execution, and it no longer
+has the column a relying party needs in order to decide whether the observation could have
+been produced by the party it describes.
 
 ## 2. The signed statement
 
@@ -71,8 +72,8 @@ Seven parameters are REQUIRED and every one of them sits in the protected bucket
 A producer encodes that map under the Core Deterministic Encoding Requirements of RFC
 8949 Section 4.2.1: shortest-form arguments, keys sorted in bytewise lexicographic order
 of their own deterministic encodings, and each key occurring exactly once in the map. A verifier MUST refuse any
-other encoding. Two encoders must agree on the signed bytes, or the signature means
-nothing beyond the machine that produced it.
+other encoding. The protected header sits inside the Sig_structure, so two encoders that
+serialize one map differently produce two different signatures over one statement.
 
 The algorithm is -19 and not -8 or -7. In RFC 9864 Section 4.2.2 IANA updated both of
 those to "Recommended: Deprecated", and a polymorphic identifier additionally makes a
@@ -123,8 +124,8 @@ names the layer. A boolean, reachableByObserved, states whether the observed par
 reach the observing component.
 
 The boolean is the member that carries weight. Set false, it states that the code under
-observation had no path to the recorder. With no such path, the record cannot have come from its own
-subject, and that is the whole difference between an observation and a self-report. This profile does not define the vocabulary of the vantage string; that
+observation had no path to the recorder, which is the condition a relying party checks when
+it needs to distinguish an observation from a self-report. This profile does not define the vocabulary of the vantage string; that
 belongs to the predicate and to the corpus that tests it.
 
 ## 4. Subject and issuer binding
@@ -156,8 +157,9 @@ associated identity of at least one Issuer of a Receipt."
 The CWT Claims header parameter MUST appear exactly once across the 2 buckets, as RFC
 9597 Section 2 requires. A statement carrying label 15 in both breaks that rule, and a
 verifier MUST refuse it rather than prefer one copy. The reject vector for this condition
-carries two copies that agree with each other, and because they agree, ordinary testing of
-a verifier that prefers one bucket cannot see the preference at all.
+carries two copies that agree with each other, so a verifier that silently prefers one
+bucket returns the same answer as a conforming one and the defect is only observable when
+the copies disagree.
 
 ## 5. The receipt
 
@@ -180,7 +182,8 @@ The payload is detached, and RFC 9942 Section 4.4 asks that of a profile: "The p
 in such definitions SHOULD be detached. Detached payloads force verifiers to recompute
 the root from the proof and protect against implementation errors where the signature is
 verified but the payload is incompatible with the proof." A verifier therefore never
-receives the root; it derives one and checks the signature over what it derived.
+receives the root as an input. It derives the root from the proof and the entry bytes, then
+checks the Receipt signature against that derived value.
 
 ### 5.1 The leaf, which neither document defines
 
@@ -192,8 +195,8 @@ profile states the inverse as a requirement, because verification depends on it.
 The registered entry is the Transparent Statement with label 394 removed from its
 unprotected header. That operation is well defined, since receipts live in the
 unprotected bucket and removing them changes no byte the signature covers. A verifier
-MUST reconstruct the entry that way before applying any inclusion proof. Nothing else
-is checkable.
+MUST reconstruct the entry that way before applying any inclusion proof, since a proof
+applied to any other byte string verifies against a root no transparency service signed.
 
 ## 6. What a consumer must check
 
@@ -248,7 +251,7 @@ does not have to infer any of it from silence.
 
 Non-equivocation. A single inclusion proof does not give an offline holder
 non-equivocation, and detecting a fork needs consistency proofs together with log
-monitoring that this profile specifies nowhere. One proof is not a history. One indeterminate vector carries 2
+monitoring that this profile specifies nowhere. One indeterminate vector carries 2
 receipts from one service at one tree size with different roots. It records that the reading which accepts and the
 reading which detects the fork are both conforming readings of the same two documents.
 
@@ -297,10 +300,9 @@ The checker at `vectors-scitt-cose/check_vectors.py` re-derives every claim from
 bytes on disk, and it states RFC 9162 Section 2.1.3.2 a second time rather than importing
 the generator's tree code. A fault in that code then produces a corpus together with a
 refusal, where an imported checker would produce a corpus and its own agreement with it.
-An implementer replaying this corpus should hold the same rule, and hold it for the same
-reason: a verification routine that shares its arithmetic with the routine that built the
-inputs cannot disagree with them, so a fault common to both produces a clean run and a
-corpus that certifies it.
+An implementer replaying this corpus should hold the same rule for the same reason: a
+verification routine that shares its arithmetic with the routine that built the inputs
+cannot disagree with them, so a fault common to both is invisible to the replay.
 
 ## 10. References
 

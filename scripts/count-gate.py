@@ -986,6 +986,16 @@ DELEGATED: tuple[Delegated, ...] = (
 
 FROZEN: tuple[Frozen, ...] = (
     Frozen(
+        "docs/HELD-OUT-CONFORMANCE.md",
+        "the quoted 19-of-19 lookup-table score from the upstream premortem",
+        "scored 19/19 and exited 0",
+        "A figure inside a verbatim quotation of somebody else's premortem, "
+        "recording what a discard-everything adapter scored against their suite "
+        "on the day they ran it. It is not a count of anything in this "
+        "repository and its denominator is their corpus, so deriving it here "
+        "would restate their past run as our present one.",
+    ),
+    Frozen(
         "vectors/CHANGES.md",
         "the suiteRevision-18 citation remap tally",
         "moved 28 `spec:NNN`",

@@ -50,9 +50,19 @@ type keyFile struct {
 // packaging/run_vectors.py's observe_external returns so the two can be compared
 // field by field.
 type observation struct {
-	ID               string   `json:"id"`
-	Verdict          string   `json:"verdict"`
-	Codes            []string `json:"codes"`
+	ID      string `json:"id"`
+	Verdict string `json:"verdict"`
+	// VerdictWithoutKey is the no-key pass's validity verdict. The harness's
+	// observe_external carries it because validity is byte-pure and the two
+	// passes cannot disagree about it; a fast path that reported only the
+	// pinned-key verdict would differ from the real rail on a field the
+	// evaluator now reads, and the ground-truth gate would stop the run.
+	VerdictWithoutKey string `json:"verdictWithoutKey,omitempty"`
+	// omitempty, matching aee.Report's own tag. The harness reads a missing or
+	// null member as ABSENT and a present empty list as an EMPTY ANSWER, so a
+	// fast path that emitted `"codes": []` where the CLI omits the member
+	// entirely would disagree with it about what the rail established.
+	Codes            []string `json:"codes,omitempty"`
 	PrimaryCode      string   `json:"primaryCode,omitempty"`
 	Result           string   `json:"result,omitempty"`
 	Tiers            []string `json:"tiers,omitempty"`
@@ -191,6 +201,7 @@ func observe(id string, body []byte, policy *aee.ConsumerPolicy) observation {
 		o.Panic = panicked
 		return o
 	}
+	o.VerdictWithoutKey = withoutKey.Verdict
 	o.TiersWithoutKey = tierStrings(withoutKey.Tiers)
 	o.ResultWithoutKey = withoutKey.Result
 	return o

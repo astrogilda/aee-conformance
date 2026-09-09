@@ -107,7 +107,7 @@ import tempfile
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Any, TypeGuard
+from typing import Any, NamedTuple, TypeGuard
 
 AEE_PREDICATE_TYPE = "https://in-toto.io/attestation/adversarial-execution-evidence/v0.7"
 STATEMENT_TYPE = "https://in-toto.io/Statement/v1"
@@ -2706,6 +2706,81 @@ def _external_env(keys_path: str | None) -> dict[str, str]:
     return env
 
 
+# The report members a rail MAY emit, and the ones every comparison in this
+# harness reads back.
+#
+# ABSENT AND EMPTY ARE DIFFERENT ANSWERS, and keeping them apart is the repair
+# this block exists for. A member missing from the report, or present as JSON
+# null, is ABSENT: the rail did not establish it, and a comparison holding an
+# expectation for it has been handed nothing. A member present as an empty list
+# is an ANSWER -- an empty one -- which a comparison can and must fail on its
+# merits. Folding the two together is how a rail that never emitted a tier
+# column passed every tier expectation in the corpus: the evaluator skipped the
+# comparison it was handed nothing for, and a skipped comparison reads exactly
+# like a satisfied one in every report this suite prints.
+REPORT_MEMBERS = ("codes", "result", "tiers", "primaryCode")
+
+# The type each member must have when it is present at all. A rail emitting
+# ``"tiers": "attested"`` has not reported a tier column; it has reported
+# something a comparison would coerce on the way past, so the shape is checked
+# before anything is compared rather than after something has been concluded.
+MEMBER_TYPES: dict[str, type] = {
+    "verdict": str,
+    "codes": list,
+    "result": str,
+    "tiers": list,
+    "primaryCode": str,
+}
+
+
+def absent_members(parsed: dict[str, Any] | None) -> list[str]:
+    """The report members the rail did not establish, missing and null alike."""
+    if parsed is None:
+        return list(REPORT_MEMBERS)
+    return [m for m in REPORT_MEMBERS if parsed.get(m) is None]
+
+
+def member_type_errors(parsed: dict[str, Any], name: str) -> list[str]:
+    """Every present member whose type the rail contract does not allow."""
+    out: list[str] = []
+    for member, want in MEMBER_TYPES.items():
+        value = parsed.get(member)
+        if value is None:
+            continue
+        if not isinstance(value, want):
+            out.append(
+                f"external-output-member-type: {name}: {member} must be "
+                f"{want.__name__}, the rail reported {value!r}"
+            )
+        elif isinstance(value, list) and not all(isinstance(x, str) for x in value):
+            out.append(
+                f"external-output-member-type: {name}: {member} must be a list of "
+                f"strings, the rail reported {value!r}"
+            )
+    return out
+
+
+def external_failure(errors: list[str]) -> dict[str, Any]:
+    """One invocation that produced no usable report.
+
+    The verdict is ``error`` rather than a guess read off the exit status, and
+    the fault is CARRIED rather than printed and dropped. An invocation fault
+    that reaches the evaluator as an absent field is indistinguishable from a
+    rail that answered; carried as an error it fails the vector under its own
+    name, which is the difference between a report saying the rail is broken and
+    one saying the rail disagreed about a result.
+    """
+    return {
+        "verdict": "error",
+        "codes": [],
+        "result": None,
+        "tiers": None,
+        "primaryCode": None,
+        "absent": list(REPORT_MEMBERS),
+        "errors": errors,
+    }
+
+
 def run_external(
     cmd: list[str], vector_path: str, keys_path: str | None, label: str
 ) -> dict[str, Any]:
@@ -2721,94 +2796,122 @@ def run_external(
         # A hung external verifier must not kill the whole suite run: report a
         # non-verdict for this vector so the loop continues.
         print(f"external verifier timed out on {name}", file=sys.stderr)
-        return {
-            "verdict": "error",
-            "codes": ["external-verifier-timeout"],
-            "result": None,
-            "tiers": None,
-            "primaryCode": None,
-        }
+        return external_failure(
+            [f"external-verifier-timeout: {name}: the rail did not terminate"]
+        )
     except OSError as e:
         # Covers a missing, non-executable, or otherwise unrunnable --verifier.
         print(f"external verifier could not run on {name}: {e}", file=sys.stderr)
-        return {
-            "verdict": "error",
-            "codes": ["external-verifier-unrunnable"],
-            "result": None,
-            "tiers": None,
-            "primaryCode": None,
-        }
+        return external_failure([f"external-verifier-unrunnable: {name}: {e}"])
     # Surface the external verifier's own diagnostics rather than swallowing
     # them: captured stderr is otherwise invisible when a run misbehaves.
     stderr_txt = proc.stderr.decode("utf-8", "replace").strip()
     if stderr_txt:
         print(f"external verifier stderr on {name}:\n{stderr_txt}", file=sys.stderr)
-    # The contract puts the verdict in the EXIT STATUS and the codes and the
-    # recomputed result in the JSON. This is that verdict.
-    verdict = "valid" if proc.returncode == 0 else "invalid"
-    exit_verdict = verdict
-    codes: list[str] = []
-    result = None
-    tiers = None
-    primary = None
+    return parse_external(proc, name, keys_path)
+
+
+def parse_external(
+    proc: subprocess.CompletedProcess[bytes], name: str, keys_path: str | None
+) -> dict[str, Any]:
+    """One invocation's stdout, held to the rail contract before it is read.
+
+    The contract puts the verdict in the EXIT STATUS and the codes and the
+    recomputed result in JSON on the last line of stdout. Every refusal below
+    used to be a silent fallback to the exit status, which is the same thing as
+    scoring a rail on a report it never wrote.
+    """
+    exit_verdict = "valid" if proc.returncode == 0 else "invalid"
     lines = [ln for ln in proc.stdout.decode("utf-8", "replace").splitlines() if ln.strip()]
-    if lines:
-        try:
-            parsed = json.loads(lines[-1])
-            if isinstance(parsed, dict):
-                # A rail MAY restate the verdict in its JSON. When no consumer
-                # key policy was supplied, the two channels must agree.
-                #
-                # This line used to read `parsed.get("verdict", verdict)`, which
-                # let the JSON silently overrule the exit status. Nothing then
-                # compared them, so a rail whose exit status is meaningless --
-                # returning zero on every refusal -- scored full marks as long
-                # as its JSON said the right thing, and the suite reported a
-                # conformant checker where it had only ever seen half a
-                # conformant checker. Picking a winner is what hid it.
-                #
-                # WHY THE CHECK IS SCOPED TO THE NO-POLICY CASE, which is a
-                # narrower claim than it first looks and is worth stating
-                # exactly. Two published contracts disagree here. The rail
-                # contract says the verdict is in the exit status. The shipped
-                # CLI documents, in its own source, that WITH a consumer policy
-                # the exit status is the admission result -- deliberately, so a
-                # result-only consumer cannot read a valid-but-not-admitted
-                # statement as admissible -- and binds to validity alone only
-                # when no policy is supplied. Both are internally coherent and
-                # they cannot both hold, which is the same shape as the
-                # `-json`/last-line collision this harness already carries a
-                # gate for. Requiring agreement under a pinned key would fail
-                # two accept vectors for a divergence the CLI documents on
-                # purpose; requiring it nowhere returns to the defect above.
-                # So it is enforced where the contract is unambiguous, and the
-                # contradiction is recorded for a decision rather than settled
-                # here by whichever side this file happens to sit on.
-                reported = parsed.get("verdict")
-                if reported is not None and reported != exit_verdict and keys_path is None:
-                    return {
-                        "verdict": "error",
-                        "codes": ["external-verdict-contradicts-exit-status"],
-                        "result": None,
-                        "tiers": None,
-                        "primaryCode": None,
-                    }
-                verdict = reported if reported is not None else verdict
-                codes = parsed.get("codes") or []
-                result = parsed.get("result")
-                tiers = parsed.get("tiers")
-                # OPTIONAL, and the only field a rail may omit without losing a
-                # comparison: the condition the rail COMMITS to when several
-                # hold. Nothing in the reject contract reads it, because that
-                # contract compares code sets and says so. The indeterminate
-                # families read it, because a rail that reports every condition
-                # has declined to answer the question they ask, and a rail that
-                # names one has answered it.
-                primary = parsed.get("primaryCode")
-        except ValueError:
-            pass
-    return {"verdict": verdict, "codes": codes, "result": result, "tiers": tiers,
-            "primaryCode": primary}
+    if not lines:
+        return external_failure(
+            [
+                f"external-output-absent: {name}: the rail wrote no report line, so "
+                f"only its exit status ({proc.returncode}) said anything and every "
+                "member this suite compares is unestablished"
+            ]
+        )
+    try:
+        parsed = json.loads(lines[-1])
+    except ValueError as e:
+        # This was `except ValueError: pass`. The parse failure then vanished and
+        # the verdict stood on the exit status alone, so a rail emitting broken
+        # JSON was scored as a rail that had answered.
+        return external_failure(
+            [
+                f"external-output-malformed-json: {name}: the last stdout line does "
+                f"not parse as JSON ({e}); the harness reads that line as the whole "
+                "report, so nothing the rail computed was received"
+            ]
+        )
+    if not isinstance(parsed, dict):
+        return external_failure(
+            [
+                f"external-output-not-an-object: {name}: the report line parsed as "
+                f"{type(parsed).__name__}, and a report is an object"
+            ]
+        )
+    type_errors = member_type_errors(parsed, name)
+    if type_errors:
+        return external_failure(type_errors)
+    return external_record(parsed, name, exit_verdict, keys_path)
+
+
+def external_record(
+    parsed: dict[str, Any], name: str, exit_verdict: str, keys_path: str | None
+) -> dict[str, Any]:
+    """The rail's own report, once it has been proven to be one.
+
+    A rail MAY restate the verdict in its JSON. When no consumer key policy was
+    supplied, the two channels must agree.
+
+    This line used to read ``parsed.get("verdict", verdict)``, which let the
+    JSON silently overrule the exit status. Nothing then compared them, so a
+    rail whose exit status is meaningless -- returning zero on every refusal --
+    scored full marks as long as its JSON said the right thing, and the suite
+    reported a conformant checker where it had only ever seen half a conformant
+    checker. Picking a winner is what hid it.
+
+    WHY THE CHECK IS SCOPED TO THE NO-POLICY CASE, which is a narrower claim
+    than it first looks and is worth stating exactly. Two published contracts
+    disagree here. The rail contract says the verdict is in the exit status. The
+    shipped CLI documents, in its own source, that WITH a consumer policy the
+    exit status is the admission result -- deliberately, so a result-only
+    consumer cannot read a valid-but-not-admitted statement as admissible -- and
+    binds to validity alone only when no policy is supplied. Both are internally
+    coherent and they cannot both hold, which is the same shape as the
+    ``-json``/last-line collision this harness already carries a gate for.
+    Requiring agreement under a pinned key would fail two accept vectors for a
+    divergence the CLI documents on purpose; requiring it nowhere returns to the
+    defect above. So it is enforced where the contract is unambiguous, and the
+    contradiction is recorded for a decision rather than settled here by
+    whichever side this file happens to sit on.
+    """
+    reported = parsed.get("verdict")
+    if reported is not None and reported != exit_verdict and keys_path is None:
+        return external_failure(
+            [
+                f"external-verdict-contradicts-exit-status: {name}: the rail "
+                f"reported {reported!r} in its JSON and {exit_verdict!r} in its "
+                "exit status, and with no consumer policy supplied the two "
+                "channels state the same thing"
+            ]
+        )
+    return {
+        "verdict": reported if reported is not None else exit_verdict,
+        "codes": parsed.get("codes") or [],
+        "result": parsed.get("result"),
+        "tiers": parsed.get("tiers"),
+        # OPTIONAL, and the only field a rail may omit without losing a
+        # comparison: the condition the rail COMMITS to when several hold.
+        # Nothing in the reject contract reads it, because that contract compares
+        # code sets and says so. The indeterminate families read it, because a
+        # rail that reports every condition has declined to answer the question
+        # they ask, and a rail that names one has answered it.
+        "primaryCode": parsed.get("primaryCode"),
+        "absent": absent_members(parsed),
+        "errors": [],
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -2959,25 +3062,80 @@ def vector_files_in(directory: str) -> list[str]:
     )
 
 
+class Evaluation(NamedTuple):
+    """One vector's judgement, with the two surfaces kept apart.
+
+    ``reasons`` are NORMATIVE conformance failures: the verdict, the result, the
+    tier columns, the behaviour assertions, the self-check. ``parity`` is the
+    MEASURED reason-code comparison. ``vectors/MANIFEST.json`` says which is
+    which in its own words -- "a rail conforms when its verdict, and for an
+    accepted statement its result token, match this manifest", and of the codes,
+    "a differing code is a reason-parity datum rather than a failure. Report
+    that parity as its own figure."
+
+    Until this split existed the two arrived in one undifferentiated list, so a
+    report could not say the sentence the manifest asks for. A rail with its own
+    reason vocabulary and a perfect verdict record read, in every figure this
+    suite printed, exactly like a rail that admitted statements it should have
+    refused.
+
+    ``ok`` still counts both, and that is deliberate rather than an oversight.
+    The forcing measurement (`scripts/forcing-gate.py`) reads this status to ask
+    what the corpus obliges a rail to implement, and several rules are forced
+    only through the code a rail reports; making parity non-fatal would silently
+    shrink that measurement in the same change that separated the reporting. The
+    separation is in the REPORT, where the manifest asks for it; whether parity
+    also stops binding the exit status is a measurement decision that needs the
+    forcing baseline re-derived beside it, and is recorded rather than taken
+    here.
+    """
+
+    ok: bool
+    gates: dict[str, str]
+    reasons: list[str]
+    parity: list[str]
+
+
 def evaluate_vector(
     kind: str,
     entry: dict[str, Any] | None,
     observed: dict[str, Any],
     self_check_findings: list[str] | None,
 ) -> tuple[bool, dict[str, str], list[str]]:
-    """Return (pass, per-gate status, reasons)."""
+    """Return (pass, per-gate status, reasons), reasons and parity together.
+
+    The three-value shape every caller outside this file uses. Callers that
+    need the two surfaces apart -- the report writer, and anything quoting the
+    manifest's conformance sentence -- call ``evaluate_vector_detailed``.
+    """
+    ev = evaluate_vector_detailed(kind, entry, observed, self_check_findings)
+    return ev.ok, ev.gates, [*ev.reasons, *ev.parity]
+
+
+def evaluate_vector_detailed(
+    kind: str,
+    entry: dict[str, Any] | None,
+    observed: dict[str, Any],
+    self_check_findings: list[str] | None,
+) -> Evaluation:
+    """Score one vector against its manifest entry."""
     reasons: list[str] = []
+    parity: list[str] = []
     gates = {g: "-" for g in GATE_NAMES}
     expected = (entry or {}).get("expected") or {}
     exp_verdict = expected.get("verdict") or ("valid" if kind == "accept" else "invalid")
     obs_verdict = observed["verdict"]
     obs_codes = set(observed.get("codes") or [])
 
+    established = _eval_establishment(observed, exp_verdict, gates, reasons)
     # Cross-check the observed verdict against the manifest's declared verdict
     # (falling back to the directory-derived expectation). This strengthens the
     # per-kind checks below by also catching a manifest whose declared verdict
-    # disagrees with the vector's accept/reject placement.
-    if obs_verdict != exp_verdict:
+    # disagrees with the vector's accept/reject placement. It is skipped when the
+    # verdict was never established, because "the rail said the wrong thing" and
+    # "the rail said nothing this harness could read" are different findings and
+    # the second one is already reported above under its own name.
+    if established and obs_verdict != exp_verdict:
         reasons.append(f"verdict: manifest declares {exp_verdict!r}, observed {obs_verdict!r}")
 
     if kind == "accept":
@@ -2995,10 +3153,52 @@ def evaluate_vector(
             self_check_findings,
             gates,
             reasons,
+            parity,
         )
 
-    ok = not reasons
-    return ok, gates, reasons
+    ok = not (reasons or parity)
+    return Evaluation(ok, gates, reasons, parity)
+
+
+def _eval_establishment(
+    observed: dict[str, Any],
+    exp_verdict: str,
+    gates: dict[str, str],
+    reasons: list[str],
+) -> bool:
+    """The gate that reads no reason code: was there an answer to compare at all?
+
+    Every other check in this file asks whether the rail's answer MATCHES. This
+    one asks whether the rail gave one, and it is deliberately independent of
+    the codes a rail did or did not report, because the defect it closes was
+    exactly a vector passing on the strength of comparisons that never ran.
+
+    Returns whether the verdict was established, so the caller can report a
+    disagreement rather than restating the absence in different words.
+    """
+    for err in observed.get("errors") or []:
+        reasons.append(f"rail invocation: {err}")
+    obs_verdict = observed.get("verdict")
+    established = obs_verdict in ("valid", "invalid")
+    if not established:
+        gates["gate0"] = "FAIL"
+        reasons.append(
+            f"verdict-not-established: the vector expects {exp_verdict!r} and the "
+            f"rail's verdict could not be established (observed {obs_verdict!r}). A "
+            "verdict that cannot be established is never a pass, whatever the rail "
+            "did or did not report alongside it."
+        )
+    obs_without = observed.get("verdict_without_key")
+    if established and obs_without is not None and obs_without != obs_verdict:
+        gates["gate0"] = "FAIL"
+        reasons.append(
+            f"verdictWithoutKey: the rail reports {obs_verdict!r} under the pinned "
+            f"key and {obs_without!r} without one. Validity is byte-pure and never "
+            "consults a consumer key policy, so the two passes cannot disagree "
+            "about it; a rail whose validity moves with the key policy has answered "
+            "a different question from the one this corpus asks."
+        )
+    return established
 
 
 def readings_of(entry: dict[str, Any] | None) -> dict[str, str]:
@@ -3157,6 +3357,13 @@ def _eval_accept(
     for g in ("gate0", "gate1", "recompute", "tier"):
         gates[g] = "PASS"
     if obs_verdict != "valid":
+        # gate0 falls FIRST, before the per-code attribution below, and that
+        # order is the fix rather than a tidy-up. A rail that refuses an accept
+        # vector while reporting no code at all left this loop with nothing to
+        # iterate, so every gate column stayed on the PASS pre-set above while
+        # the vector failed: a row reading PASS PASS PASS PASS beside a FAIL
+        # status, in the table this suite publishes as its evidence.
+        gates["gate0"] = "FAIL"
         for code in obs_codes:
             gates[CODE_STAGE.get(code, "gate0")] = "FAIL"
         reasons.append(f"expected valid, observed invalid with codes {sorted(obs_codes)}")
@@ -3176,24 +3383,74 @@ def _eval_accept_tiers(
     gates: dict[str, str],
     reasons: list[str],
 ) -> None:
+    """The tier columns, and the rule that a tier never moves the result.
+
+    THE DEFECT THIS CLOSES. Both comparisons below used to run only when the
+    rail had reported something to compare -- ``obs_tiers is not None`` on the
+    columns, ``not in (None, result)`` on the assertion. An expectation compared
+    against nothing cannot fail, so a rail that emitted no ``tiers`` member
+    passed all six pinned tier expectations in the corpus, including the only
+    statement the corpus makes of GATE 2's no-TOFU rule, by staying silent. The
+    row printed PASS with no reason under it, which is the strongest thing this
+    report can say and it was being said about a comparison that never happened.
+
+    An ABSENT column is now a failure in its own words, and an EMPTY column is a
+    mismatch in its own words. Those are different findings: a rail that derives
+    an empty tier column has answered and is wrong, a rail that reports no
+    column has not answered, and a reader deciding whether to trust a rail needs
+    to know which.
+    """
+    absent = set(observed.get("absent") or ())
     for field_name, obs_key in (
         ("tierWithPinnedKey", "tiers_with_key"),
         ("tierWithoutKey", "tiers_without_key"),
     ):
         exp_tiers = expected.get(field_name)
+        if exp_tiers is None:
+            continue
+        if obs_key in absent:
+            gates["tier"] = "FAIL"
+            reasons.append(
+                f"{field_name}: not established -- the rail reported no {obs_key} "
+                f"member, so the expectation {list(exp_tiers)} was compared against "
+                "nothing. An unanswered column is a failure and never a skipped check."
+            )
+            continue
         obs_tiers = observed.get(obs_key)
-        if exp_tiers is not None and obs_tiers is not None:
-            if list(exp_tiers) != list(obs_tiers):
-                gates["tier"] = "FAIL"
-                reasons.append(f"{field_name}: expected {exp_tiers}, observed {obs_tiers}")
-    # behavior assertion 1: the tier never alters the result
-    if (
-        observed.get("tiers_with_key") is not None
-        and observed.get("result") is not None
-        and observed.get("result_without_key") not in (None, observed["result"])
-    ):
+        if list(exp_tiers) != list(obs_tiers or []):
+            gates["tier"] = "FAIL"
+            reasons.append(f"{field_name}: expected {exp_tiers}, observed {obs_tiers}")
+    _eval_tier_result_invariance(observed, gates, reasons)
+
+
+def _eval_tier_result_invariance(
+    observed: dict[str, Any],
+    gates: dict[str, str],
+    reasons: list[str],
+) -> None:
+    """Behaviour assertion 1: deriving a tier never alters the result.
+
+    The assertion needs BOTH results to have been reported. Reading a missing
+    no-key result as agreement is how a rail that answers one pass and not the
+    other satisfied an assertion nobody had checked it against.
+    """
+    if observed.get("tiers_with_key") is None or observed.get("result") is None:
+        return
+    if "result_without_key" in set(observed.get("absent") or ()):
         gates["tier"] = "FAIL"
-        reasons.append("tier derivation altered the result")
+        reasons.append(
+            "resultWithoutKey: not established -- the rail reported a result and a "
+            "tier column under the pinned key and no result at all without one, so "
+            "the assertion that tier derivation never alters the result was checked "
+            "against nothing."
+        )
+        return
+    if observed.get("result_without_key") != observed["result"]:
+        gates["tier"] = "FAIL"
+        reasons.append(
+            "tier derivation altered the result: {!r} under the pinned key, {!r} "
+            "without one".format(observed["result"], observed.get("result_without_key"))
+        )
 
 
 def _eval_reject(
@@ -3204,13 +3461,14 @@ def _eval_reject(
     self_check_findings: list[str] | None,
     gates: dict[str, str],
     reasons: list[str],
+    parity: list[str],
 ) -> None:
     exp_codes = set(expected.get("codes") or [])
     if obs_verdict != "invalid":
         gates["gate0"] = gates["gate1"] = gates["recompute"] = "FAIL"
         reasons.append("expected invalid, observed valid")
     else:
-        _eval_reject_stages(exp_codes, obs_codes, gates, reasons)
+        _eval_reject_stages(exp_codes, obs_codes, gates, parity)
         # behavior assertion 2: invalid emits no result and no tiers
         if observed.get("result") is not None or observed.get("tiers_with_key"):
             gates["recompute"] = "FAIL"
@@ -3227,15 +3485,30 @@ def _eval_reject_stages(
     exp_codes: set[Any],
     obs_codes: set[Any],
     gates: dict[str, str],
-    reasons: list[str],
+    parity: list[str],
 ) -> None:
+    """REASON PARITY, which the manifest calls measured and not normative.
+
+    ``vectors/MANIFEST.json`` states the comparison surface itself: a rail
+    conforms on its verdict and, for an accepted statement, its result token,
+    and "the codes on a reject entry are the reference verifier's own
+    vocabulary, not the specification's ... a differing code is a reason-parity
+    datum rather than a failure. Report that parity as its own figure."
+
+    So the finding below goes into ``parity`` and not into ``reasons``, and the
+    report carries the two as separate figures. It still binds the run's exit
+    status -- see ``Evaluation`` for why that is a measurement decision rather
+    than a reporting one -- but a reader can now tell a rail that admitted a
+    statement it should have refused from a rail that refused it and said so in
+    its own words.
+    """
     stage = "gate0"
     if not exp_codes:
         gates[stage] = "PASS"
         return
     hit = exp_codes & obs_codes
     if not hit:
-        reasons.append(
+        parity.append(
             f"no expected code observed: expected {sorted(exp_codes)}, observed {sorted(obs_codes)}"
         )
     # Group expected codes by gate stage; a stage is PASS iff ANY of
@@ -3336,7 +3609,15 @@ def run_suite(args: argparse.Namespace) -> int:
         for row in rows_out:
             if row.get("kind") == "indeterminate":
                 row["status"] = "FAIL"
+                # Coherence is a normative property of the family, so it moves
+                # the conformance column with the status. A row whose status
+                # said FAIL while its conformance column still said PASS would
+                # be the split reporting a contradiction rather than a finding.
+                row["conformance"] = "FAIL"
                 row["reasons"] = [*row["reasons"], *coherence_failures]
+                row["conformanceReasons"] = [
+                    *row["conformanceReasons"], *coherence_failures
+                ]
                 row["gates"]["gate0"] = "FAIL"
         failures += len(coherence_failures)
 
@@ -3379,6 +3660,19 @@ def _run_rail_selection(args: argparse.Namespace) -> tuple[list[str] | None, str
     return parts, probe_note
 
 
+# How one pass's report members are named once the two passes are merged. The
+# no-key pass contributes exactly two members, because exactly two comparisons
+# read it; its codes and its primary code are not consumed by anything, and
+# listing them as unestablished would be noise a reader has to learn to skip.
+WITH_KEY_MEMBER = {
+    "codes": "codes",
+    "result": "result",
+    "tiers": "tiers_with_key",
+    "primaryCode": "primaryCode",
+}
+WITHOUT_KEY_MEMBER = {"tiers": "tiers_without_key", "result": "result_without_key"}
+
+
 def observe_external(external_cmd: list[str], path: str, keys_path: str) -> dict[str, Any]:
     """Drive an external rail over one vector under BOTH key policies.
 
@@ -3395,17 +3689,40 @@ def observe_external(external_cmd: list[str], path: str, keys_path: str) -> dict
     pass. The no-key pass contributes its tier column and its result, which is
     also what puts a third-party rail under the assertion that tier derivation
     never alters ``result``.
+
+    BOTH INVOCATIONS ARE NOW KEPT WHOLE. This function used to take four values
+    out of the two passes and drop everything else, including the no-key pass's
+    verdict and the fact that the invocation had failed at all. A no-key pass
+    that timed out, would not run, or contradicted itself arrived at the
+    evaluator as ``tiers_without_key: None``, and the evaluator skipped a column
+    it was handed nothing for -- so a broken invocation and a rail that answered
+    correctly produced identical rows. The merged record carries every field's
+    ESTABLISHMENT (``absent``) and every invocation fault (``errors``), labelled
+    by the pass that produced it, so an unanswered question fails under its own
+    name instead of vanishing into a skipped comparison.
     """
     with_key = run_external(external_cmd, path, keys_path, "pinned-key")
     without_key = run_external(external_cmd, path, None, "no-key")
+    # Only the members a comparison in this file actually reads are carried
+    # forward per pass: the pinned-key pass supplies the byte-pure facts, and
+    # the no-key pass supplies exactly two -- its tier column and its result.
+    absent = [WITH_KEY_MEMBER[m] for m in with_key["absent"] if m in WITH_KEY_MEMBER]
+    absent += [
+        WITHOUT_KEY_MEMBER[m] for m in without_key["absent"] if m in WITHOUT_KEY_MEMBER
+    ]
+    errors = [f"pinned-key: {e}" for e in with_key["errors"]]
+    errors += [f"no-key: {e}" for e in without_key["errors"]]
     return {
         "verdict": with_key["verdict"],
+        "verdict_without_key": without_key["verdict"],
         "codes": with_key["codes"],
         "primaryCode": with_key["primaryCode"],
         "result": with_key["result"],
         "tiers_with_key": with_key["tiers"],
         "tiers_without_key": without_key["tiers"],
         "result_without_key": without_key["result"],
+        "absent": sorted(absent),
+        "errors": errors,
     }
 
 
@@ -3435,7 +3752,40 @@ def _run_observe(
         "tiers_with_key": o_with.tiers_with_key,
         "tiers_without_key": o_without.tiers_without_key,
         "result_without_key": o_without.result,
+        # This rail is held to the same establishment rule as an external one,
+        # and it is held to it through the same field rather than through an
+        # exemption. It computes every member on every statement, so a None here
+        # means the rail derived nothing -- an invalid statement carries no
+        # result and no tier column -- and that is exactly what "absent" says. A
+        # rail that got its own answers exempted from the check the corpus
+        # applies to everybody else would be measuring the others against a
+        # standard it does not meet.
+        "absent": sorted(_reference_absent(o_with, o_without)),
+        "errors": [],
+        # The no-key pass's verdict, which used to be discarded. Validity is
+        # byte-pure: it does not consult a consumer key policy, so the two
+        # passes cannot disagree about it, and a rail whose validity moves with
+        # the key policy has answered a different question from the one the
+        # corpus asks.
+        "verdict_without_key": o_without.verdict,
     }
+
+
+def _reference_absent(o_with: Outcome, o_without: Outcome) -> list[str]:
+    """The members the reference rail established nothing for on one statement."""
+    absent: list[str] = []
+    if not o_with.codes:
+        absent.append("codes")
+        absent.append("primaryCode")
+    if o_with.result is None:
+        absent.append("result")
+    if o_with.tiers_with_key is None:
+        absent.append("tiers_with_key")
+    if o_without.tiers_without_key is None:
+        absent.append("tiers_without_key")
+    if o_without.result is None:
+        absent.append("result_without_key")
+    return absent
 
 
 def _load_statement(raw: bytes) -> tuple[Any, bool]:
@@ -3520,24 +3870,49 @@ def _run_process_vector(
         exp_codes |= {str(v) for v in (expected.get("readings") or {}).values()}
         self_check = second_fault_absence(stmt, exp_codes)
 
-    ok, gates, reasons = evaluate_vector(kind, entry, observed, self_check)
+    ev = evaluate_vector_detailed(kind, entry, observed, self_check)
     row = {
         "id": vid,
         "file": rel,
         "kind": kind,
-        "status": "PASS" if ok else "FAIL",
-        "gates": gates,
+        "status": "PASS" if ev.ok else "FAIL",
+        # The manifest's own two figures, kept apart. "conformance" is the
+        # sentence the manifest defines -- verdict, and for an accepted
+        # statement its result -- plus the tier columns and behaviour assertions
+        # it states as requirements. "reasonParity" is the measured code
+        # comparison, which is a datum about two vocabularies and not a claim
+        # about conformance. A report carrying only "status" cannot say which of
+        # the two a rail failed, and those are opposite findings.
+        "conformance": "PASS" if not ev.reasons else "FAIL",
+        "reasonParity": _parity_status(kind, ev.parity),
+        "gates": ev.gates,
         "observed": {
             "verdict": observed["verdict"],
+            "verdictWithoutKey": observed.get("verdict_without_key"),
             "codes": observed["codes"],
             "primaryCode": observed.get("primaryCode"),
             "result": observed["result"],
+            # What the rail did NOT establish, which is the field the tier and
+            # result comparisons now key on. Published because a reader deciding
+            # whether to trust a census needs to see how much of it the rail
+            # actually answered.
+            "absent": observed.get("absent") or [],
+            "errors": observed.get("errors") or [],
         },
         "expected": (entry or {}).get("expected"),
         "inManifest": entry is not None,
-        "reasons": reasons,
+        "reasons": [*ev.reasons, *ev.parity],
+        "conformanceReasons": ev.reasons,
+        "reasonParityFindings": ev.parity,
     }
-    return row, (not ok)
+    return row, (not ev.ok)
+
+
+def _parity_status(kind: str, parity: list[str]) -> str:
+    """The parity column: only a reject vector states a code expectation."""
+    if parity:
+        return "FAIL"
+    return "PASS" if kind == "reject" else "-"
 
 
 def _closure_kind_coverage(listed: dict[str, list[str]]) -> list[str]:
@@ -3756,7 +4131,11 @@ def _run_manifest_closure(
         if kind is None or row["kind"] != kind:
             continue
         row["status"] = "FAIL"
+        row["conformance"] = "FAIL"
         row["reasons"] = [*row["reasons"], "no MANIFEST row names this file"]
+        row["conformanceReasons"] = [
+            *row["conformanceReasons"], "no MANIFEST row names this file"
+        ]
         row["gates"]["gate0"] = "FAIL"
     suite_notes.extend(failures)
     return suite_notes, len(failures)
@@ -3782,7 +4161,30 @@ def _run_write_report(
             "vectors": len(rows_out),
             "pass": sum(1 for r in rows_out if r["status"] == "PASS"),
             "fail": sum(1 for r in rows_out if r["status"] == "FAIL"),
+            # The manifest's two figures, reported separately because the
+            # manifest says to: a rail conforms on verdict and result, and a
+            # differing reason code is a parity datum about two vocabularies.
+            # "conform" is therefore the number a rail may quote about itself;
+            # "reasonParityMismatch" is the number that says how far its
+            # vocabulary sits from this corpus's, and neither substitutes for
+            # the other.
+            "conform": sum(1 for r in rows_out if r.get("conformance") == "PASS"),
+            "reasonParityMismatch": sum(
+                1 for r in rows_out if r.get("reasonParity") == "FAIL"
+            ),
             "suiteRefusals": suite_refusals,
+        },
+        "comparisonSurface": {
+            "normative": ["verdict", "result", "tierWithPinnedKey", "tierWithoutKey"],
+            "measured": ["codes"],
+            "note": (
+                "A vector's conformance column is its verdict, its result token "
+                "where the manifest declares one, both tier columns where it "
+                "declares them, and the behaviour assertions. Its reasonParity "
+                "column is the code comparison, which vectors/MANIFEST.json calls "
+                "a datum rather than a failure. The status column still counts "
+                "both, so the exit code has not moved."
+            ),
         },
         "notes": suite_notes,
         "gateColumns": list(GATE_NAMES),
@@ -3823,9 +4225,15 @@ def _run_print_table(
     refusals = ""
     if t.get("suiteRefusals"):
         refusals = f", {t['suiteRefusals']} suite-level refusal(s)"
+    parity = ""
+    if t.get("reasonParityMismatch"):
+        parity = (
+            f"; {t['conform']} of {t['vectors']} conform, "
+            f"{t['reasonParityMismatch']} reason-parity mismatch(es)"
+        )
     print(
-        f"totals: {t['vectors']} vectors, {t['pass']} pass, {t['fail']} fail{refusals}; "
-        f"report written to {os.path.relpath(report_path, report_base)}"
+        f"totals: {t['vectors']} vectors, {t['pass']} pass, {t['fail']} fail{refusals}"
+        f"{parity}; report written to {os.path.relpath(report_path, report_base)}"
     )
 
 

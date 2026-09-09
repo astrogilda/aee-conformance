@@ -296,16 +296,33 @@ def as_observed(line: dict[str, Any]) -> Observation:
     empty result and an empty tier column, so the harness reads None for them, and
     a fast path that reported `[]` would differ from the real rail on a field the
     evaluator branches on.
+
+    `absent` is the same statement made explicitly, and it is derived here by the
+    harness's own rule rather than restated: a member the rail did not emit, or
+    emitted as null, was never established, and the evaluator fails a comparison
+    that has an expectation for it. `errors` is empty because this path runs the
+    rail in process and has no invocation to fail; the ground-truth gate compares
+    both fields against the real CLI, so a divergence stops the run rather than
+    being scored.
     """
-    return {
+    observed: Observation = {
         "verdict": line["verdict"],
+        "verdict_without_key": line.get("verdictWithoutKey") or line["verdict"],
         "codes": line.get("codes") or [],
         "primaryCode": line.get("primaryCode") or None,
         "result": line.get("result") or None,
         "tiers_with_key": line.get("tiers") or None,
         "tiers_without_key": line.get("tiersWithoutKey") or None,
         "result_without_key": line.get("resultWithoutKey") or None,
+        "errors": [],
     }
+    observed["absent"] = sorted(
+        name
+        for name in ("codes", "primaryCode", "result", "tiers_with_key",
+                     "tiers_without_key", "result_without_key")
+        if not observed[name]
+    )
+    return observed
 
 
 def score(

@@ -149,6 +149,20 @@ def main(argv: list[str]) -> int:
         ),
     )
     parser.add_argument(
+        "--expect",
+        help=(
+            "a recorded agreement file. With it the runner becomes a RATCHET: it "
+            "refuses only when a member that agreed in the recording stops "
+            "agreeing, and says nothing about the members already recorded as "
+            "disagreeing. A build gate that demanded full agreement would refuse "
+            "on the day it landed, which is a gate nobody keeps"
+        ),
+    )
+    parser.add_argument(
+        "--write-expect",
+        help="record the current agreement to this file and exit",
+    )
+    parser.add_argument(
         "--json",
         dest="as_json",
         action="store_true",
@@ -173,6 +187,20 @@ def main(argv: list[str]) -> int:
         failures += sum(1 for row in rows if not row["agrees"])
         report[label] = rows
 
+    if args.write_expect:
+        recorded = {
+            label: {row["id"]: bool(row["agrees"]) for row in rows}
+            for label, rows in report.items()
+        }
+        with open(args.write_expect, "w", encoding="utf-8") as handle:
+            json.dump(recorded, handle, indent=2, sort_keys=True)
+            handle.write("\n")
+        print(f"wrote {args.write_expect}")
+        return 0
+
+    if args.expect:
+        return ratchet(report, args.expect)
+
     if args.as_json:
         json.dump(report, sys.stdout, indent=2)
         sys.stdout.write("\n")
@@ -180,6 +208,49 @@ def main(argv: list[str]) -> int:
 
     render(report)
     return 1 if failures else 0
+
+
+def ratchet(report: dict[str, list[dict]], path: str) -> int:
+    """Refuse a member that agreed in the recording and no longer does.
+
+    The corpus does not agree with any published build on every member, so a
+    gate demanding full agreement refuses on the day it lands and gets removed
+    the day after. This one carries a recording instead: it is silent about
+    what already disagreed, and it fires the moment a passing member stops
+    passing. A new member that agrees is recorded on the next run; a new member
+    that does not is reported and does not fail the build, because a corpus
+    growing is not the build breaking.
+    """
+    with open(path, encoding="utf-8") as handle:
+        recorded = json.load(handle)
+    regressions, unrecorded = [], []
+    for label, rows in report.items():
+        known = recorded.get(label)
+        if known is None:
+            print(f"{label}: no recording for this build; nothing to ratchet against")
+            continue
+        for row in rows:
+            was = known.get(row["id"])
+            if was is None:
+                unrecorded.append((label, row))
+            elif was and not row["agrees"]:
+                regressions.append((label, row))
+    for label, row in unrecorded:
+        print(
+            f"   new  {label} {row['id']} {','.join(row['conditions'])}: "
+            f"{'agrees' if row['agrees'] else 'does not agree'}, not in the recording"
+        )
+    for label, row in regressions:
+        print(
+            f"  BROKE {label} {row['id']} {','.join(row['conditions'])}: agreed in the "
+            f"recording, now {row['observedOutcome']} (exit {row['observedExit']}) "
+            f"{row['observedMessage'][:80]}"
+        )
+    if regressions:
+        print(f"\n{len(regressions)} member(s) that agreed no longer agree.")
+        return 1
+    print("ratchet: every member that agreed in the recording still agrees")
+    return 0
 
 
 def score(module, manifest: dict, expect_repo: str, reasons: dict) -> list[dict]:

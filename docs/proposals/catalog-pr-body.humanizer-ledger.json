@@ -5,6 +5,7 @@
   "declared_voice": [],
   "declared_motifs": [],
   "src_sha256": "062bb67641c362765e7a5e72db6dea68fd933604a60e9855aace72bd8292fb82",
+  "sentence_digests": [],
   "document": "docs/proposals/catalog-pr-body.md",
   "rows": [
     {
@@ -620,6 +621,62 @@
       "relocates": null,
       "constrains": null,
       "awaiting_external": null
+    },
+    {
+      "id": "p9-antithesis-density",
+      "source": "jury",
+      "vendor": "anthropic/claude-3-opus",
+      "jury_pass_id": "jury-c207b4b4796e",
+      "pattern_id": "P9",
+      "description": "The text exhibits a high density of antithetical constructions using varied grammatical forms, suggesting they were missed by a deterministic pass that looks for simpler patterns. This creates a pronounced rhetorical cadence throughout the document.",
+      "severity": "medium",
+      "priority": null,
+      "decision": "KEEP",
+      "reason": "The contrasts are the document's verdicts: a ratchet rather than a conformance gate, agreeing rather than disagreeing members, exit 0 rather than exit 1. Each names two measured states, and the deterministic antithesis axis reports this document inside its band.",
+      "justification": "register",
+      "decided_by": null,
+      "hook": {
+        "type": "count_reduction",
+        "pattern": "(?:shape is the thing worth arguing about before the corpus contents are)|(?:ratchet rather than a conformance gate)|(?:agreed stops agreeing)|(?:diff against a named revision rather than a fresh act of trust)|(?:rather that somebody be whoever owns the format than whoever owns the corpus)",
+        "baseline_count": 5,
+        "max_count": 2,
+        "regex": false,
+        "subject": null
+      },
+      "evidence": "1. 'It is a draft because the shape is the thing worth arguing about before the corpus contents are.'\n2. 'The workflow is a ratchet rather than a conformance gate, and that distinction is the whole design.'\n3. 'The job fails only when a member that agreed stops agreeing.'\n4. 'Re-vendoring is then a diff against a named revision rather than a fresh act of trust.'\n5. '...I would rather that somebody be whoever owns the format than whoever owns the corpus.'",
+      "deletes": null,
+      "additive_reason": null,
+      "relocates": null,
+      "constrains": null,
+      "awaiting_external": null
+    },
+    {
+      "id": "p51-tag-name-move",
+      "source": "jury",
+      "vendor": "anthropic/claude-3-opus",
+      "jury_pass_id": "jury-c207b4b4796e",
+      "pattern_id": "P51",
+      "description": "A paragraph about specification pinning closes on a short, general, aphoristic statement that stands out from the technical context: '...a tag is a name that can move.'",
+      "severity": "low",
+      "priority": null,
+      "decision": "KEEP",
+      "reason": "The closing clause states why spec-vendored/ pins ANCHORS_VERIFY.md by sha256, which is the paragraph's whole point: a tag can be moved by its owner and a digest cannot. It is the reason for the design decision the paragraph describes, not an ornament on it.",
+      "justification": "design-necessary",
+      "decided_by": null,
+      "hook": {
+        "type": "grep",
+        "pattern": "a tag is a name that can move",
+        "target_count": 0,
+        "regex": false,
+        "baseline_count": null,
+        "subject": null
+      },
+      "evidence": "And spec-vendored/ holds ANCHORS_VERIFY.md at anchors-verify-v0.4, pinned by sha256. That is the contract text I wrote the members against, and a tag is a name that can move.",
+      "deletes": null,
+      "additive_reason": null,
+      "relocates": null,
+      "constrains": null,
+      "awaiting_external": null
     }
   ],
   "jury": [
@@ -667,6 +724,29 @@
       "question_count": -1,
       "question_scope": "",
       "findings": 0,
+      "note": ""
+    },
+    {
+      "pass_id": "jury-c207b4b4796e",
+      "source": "jury",
+      "vendor": "google",
+      "model": "google/gemini-2.5-pro",
+      "route": "openrouter",
+      "self_reported_vendor": "",
+      "self_reported_model": "",
+      "protocol": "crossvendor-tell-hunt/v3",
+      "prompt_sha256": "f893e8fc212847c4086c0d1aeeba80d0f395993711087af3b0f3efb0b77cde11",
+      "isolation": "document",
+      "bundle_id": "",
+      "src_sha256": "062bb67641c362765e7a5e72db6dea68fd933604a60e9855aace72bd8292fb82",
+      "read_sha256": "062bb67641c362765e7a5e72db6dea68fd933604a60e9855aace72bd8292fb82",
+      "sent_sha256": "2d03346e07d9bb344f66dd004b90f3c1485c3d3b48ce6ef09114d305f121aace",
+      "sent_occurrences": 1,
+      "read_probe": "not-asked",
+      "question_shapes": [],
+      "question_count": -1,
+      "question_scope": "",
+      "findings": 2,
       "note": ""
     }
   ]

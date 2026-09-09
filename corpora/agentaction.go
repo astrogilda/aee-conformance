@@ -27,6 +27,16 @@ func (agentAction) Suite() string { return "ai-agent-action-conformance" }
 // the declared conditions rather than off the identifier's spelling.
 var canonicalBytesConditions = map[string]bool{"aia-c-1": true, "aia-c-3": true, "aia-c-4": true}
 
+// The two conditions whose members carry a structural bound rather than a
+// digest: the extensions-depth pair and the unsafe-integer member. The
+// accepting side of the depth pair sits at the maximum and the rejecting side
+// one past it, which is what makes the pair a boundary rather than a claim.
+const (
+	depthCondition         = "aia-c-12"
+	unsafeIntegerCondition = "aia-c-14"
+	maximumExtensionsDepth = 128
+)
+
 type agentActionManifest struct {
 	PredicateType      string              `json:"predicateType"`
 	SpecUpstreamRepo   string              `json:"specUpstreamRepo"`
@@ -132,64 +142,116 @@ func (a agentAction) judgeMember(dir string, m *agentActionManifest, v agentActi
 		out.Findings = append(out.Findings, "unknown kind "+v.Kind)
 	}
 
+	lines, recordBody, ok := a.readSidecar(dir, v, out)
+	if !ok {
+		return
+	}
+	a.checkChain(v, lines, out)
+
 	// The identifier is a digest over the statement's bytes and, where the
 	// member has one, its record sidecar joined by a NUL. An edit to either
 	// without regenerating leaves a name describing bytes that are no longer
 	// there, and this is what lets a corpus-digest failure NAME a member.
-	identityPayload := append([]byte{}, body...)
-
-	var lines [][]byte
-	if v.Records != "" {
-		if !existsIn(dir, v.Records) {
-			out.Findings = append(out.Findings, "manifest names a records sidecar that does not exist")
-			return
-		}
-		recordBody, err := readIn(dir, v.Records)
-		if err != nil {
-			out.Findings = append(out.Findings, err.Error())
-			return
-		}
-		for _, line := range strings.Split(string(recordBody), "\n") {
-			if line != "" {
-				lines = append(lines, []byte(line))
-			}
-		}
-		identityPayload = append(append(identityPayload, 0x00), recordBody...)
-		a.checkChainMembers(v, lines, out)
-		if v.Expected.ChainHash != "" && len(lines) > 0 {
-			last := lines[len(lines)-1]
-			if v.Kind == "accept" && sha(last) != v.Expected.ChainHash {
-				out.Findings = append(out.Findings,
-					"declared chainHash does not recompute from the last record line")
-			}
-			if v.Kind == "reject" && sha(last) == v.Expected.ChainHash {
-				out.Findings = append(out.Findings,
-					"a reject member's subject digest recomputes cleanly, so nothing is being caught")
-			}
-		}
+	identity := append([]byte{}, body...)
+	if recordBody != nil {
+		identity = append(append(identity, 0x00), recordBody...)
 	}
-
-	if idFromBytes(identityPayload) != v.ID {
+	if idFromBytes(identity) != v.ID {
 		out.Findings = append(out.Findings, "identifier does not recompute from the member's own bytes")
 	}
 
+	a.dispatchDeclaredChecks(v, statement, body, lines, out)
+}
+
+// readSidecar reads a member's record sidecar, where it has one, and returns
+// its lines, its raw bytes and whether the member can be judged further.
+func (agentAction) readSidecar(dir string, v agentActionVector, out *Member) ([][]byte, []byte, bool) {
+	if v.Records == "" {
+		return nil, nil, true
+	}
+	if !existsIn(dir, v.Records) {
+		out.Findings = append(out.Findings, "manifest names a records sidecar that does not exist")
+		return nil, nil, false
+	}
+	body, err := readIn(dir, v.Records)
+	if err != nil {
+		out.Findings = append(out.Findings, err.Error())
+		return nil, nil, false
+	}
+	var lines [][]byte
+	for _, line := range strings.Split(string(body), "\n") {
+		if line != "" {
+			lines = append(lines, []byte(line))
+		}
+	}
+	return lines, body, true
+}
+
+// checkChain asserts the declared chain hash over the last record line: an
+// accept member's must recompute and a reject member's must not.
+func (a agentAction) checkChain(v agentActionVector, lines [][]byte, out *Member) {
+	if len(lines) == 0 {
+		return
+	}
+	a.checkChainMembers(v, lines, out)
+	if v.Expected.ChainHash == "" {
+		return
+	}
+	last := lines[len(lines)-1]
+	if v.Kind == "accept" && sha(last) != v.Expected.ChainHash {
+		out.Findings = append(out.Findings,
+			"declared chainHash does not recompute from the last record line")
+	}
+	if v.Kind == "reject" && sha(last) == v.Expected.ChainHash {
+		out.Findings = append(out.Findings,
+			"a reject member's subject digest recomputes cleanly, so nothing is being caught")
+	}
+}
+
+// dispatchDeclaredChecks selects the member-specific checks from what the
+// member DECLARES, never from how its identifier is spelled.
+//
+// The Python checker this reader replaces dispatched five of its checks on
+// literal identifiers, three of them names like
+// "ok-010-extensions-depth-128", and the corpus later renamed every member
+// after its own bytes. Those five checks then matched nothing and reported the
+// corpus clean in the same words as a run that had made them: 24 Appendix B
+// rows, both member-name-ordering rows, both depth rows and the unsafe-integer
+// row went unchecked. Reading the declared conditions and the declared
+// expectation is the repair that checker had already applied to its
+// canonical-bytes set, applied to the rest of it.
+func (a agentAction) dispatchDeclaredChecks(v agentActionVector, statement map[string]any,
+	body []byte, lines [][]byte, out *Member) {
 	predicate, _ := statement["predicate"].(map[string]any)
-	extensions := predicate["extensions"]
-	switch v.ID {
-	case "ok-010-extensions-depth-128":
-		if measured := jsonDepth(extensions, 1); measured != 128 {
-			out.Findings = append(out.Findings, fmt.Sprintf("claims depth 128, measured %d", measured))
-		}
-	case "bad-114-extensions-depth-129":
-		if measured := jsonDepth(extensions, 1); measured != 129 {
-			out.Findings = append(out.Findings, fmt.Sprintf("claims depth 129, measured %d", measured))
-		}
-	case "bad-115-unsafe-integer-durationms":
+	conditions := map[string]bool{}
+	for _, c := range v.Conditions {
+		conditions[c] = true
+	}
+	if conditions[depthCondition] {
+		a.checkDeclaredDepth(v, predicate["extensions"], out)
+	}
+	if conditions[unsafeIntegerCondition] && v.Kind == "reject" {
 		a.checkUnsafeInteger(body, out)
-	case "ok-013-bmp-extension-member-names", "bad-116-astral-extension-member-name":
+	}
+	if v.Expected.ChainHashCodePoint != nil || v.Expected.ChainHashUtf16 != nil {
 		a.checkMemberNameOrders(v, predicate, lines, out)
 	}
 	a.checkAppendixB(v, predicate, out)
+}
+
+// checkDeclaredDepth measures the extensions object against the bound its
+// condition names: the accepting member sits exactly at the maximum and the
+// rejecting member exactly one past it.
+func (agentAction) checkDeclaredDepth(v agentActionVector, extensions any, out *Member) {
+	want := maximumExtensionsDepth
+	if v.Kind == "reject" {
+		want = maximumExtensionsDepth + 1
+	}
+	if measured := jsonDepth(extensions, 1); measured != want {
+		out.Findings = append(out.Findings, fmt.Sprintf(
+			"cites %s as a %s member, so its extensions must be %d deep, and they measure %d",
+			depthCondition, v.Kind, want, measured))
+	}
 }
 
 // checkUnsafeInteger reads durationMs off the raw statement bytes rather than
@@ -270,7 +332,7 @@ func (agentAction) checkChainMembers(v agentActionVector, lines [][]byte, out *M
 	if v.Kind == "accept" && !allCanonical {
 		out.Findings = append(out.Findings, "an accept member carries a non-canonical log line")
 	}
-	if v.Kind != "reject" || allCanonical == false {
+	if v.Kind != "reject" || !allCanonical {
 		return
 	}
 	for _, condition := range v.Conditions {
@@ -325,6 +387,20 @@ func (agentAction) checkMemberNameOrders(v agentActionVector, predicate map[stri
 		out.Findings = append(out.Findings, "carries no extensions object, so there are no member names to sort")
 		return
 	}
+	diverges := checkMemberNameSides(v, extensions, out)
+	if len(lines) == 0 {
+		out.Findings = append(out.Findings,
+			"declares ordering digests with no record sidecar to recompute them from")
+		return
+	}
+	checkOrderingDigests(v, lines[len(lines)-1], diverges, out)
+}
+
+// checkMemberNameSides asserts each side of the boundary carries what it
+// claims, and returns whether the two orders actually disagree. A pair whose
+// orders happened to coincide would prove nothing while reading exactly the
+// same.
+func checkMemberNameSides(v agentActionVector, extensions map[string]any, out *Member) bool {
 	var names, astral []string
 	for name := range extensions {
 		names = append(names, name)
@@ -339,29 +415,32 @@ func (agentAction) checkMemberNameOrders(v agentActionVector, predicate map[stri
 	sortByUTF16(byUTF16)
 	diverges := strings.Join(byCodePoint, "\x00") != strings.Join(byUTF16, "\x00")
 
-	if v.Kind == "accept" && len(astral) > 0 {
-		out.Findings = append(out.Findings, fmt.Sprintf(
-			"an accept member carries a supplementary-plane member name %v", sortedStrings(astral)))
+	if v.Kind == "accept" {
+		if len(astral) > 0 {
+			out.Findings = append(out.Findings, fmt.Sprintf(
+				"an accept member carries a supplementary-plane member name %v", sortedStrings(astral)))
+		}
+		if diverges {
+			out.Findings = append(out.Findings,
+				"the two sort orders disagree on an accept member, so it is not the admissible "+
+					"side of the boundary")
+		}
+		return diverges
 	}
-	if v.Kind == "reject" && len(astral) == 0 {
+	if len(astral) == 0 {
 		out.Findings = append(out.Findings, "claims a supplementary-plane member name and carries none")
 	}
-	if v.Kind == "accept" && diverges {
-		out.Findings = append(out.Findings,
-			"the two sort orders disagree on an accept member, so it is not the admissible "+
-				"side of the boundary")
-	}
-	if v.Kind == "reject" && !diverges {
+	if !diverges {
 		out.Findings = append(out.Findings,
 			"code-point order and UTF-16 code-unit order agree on these member names, so the "+
 				"member demonstrates no divergence")
 	}
-	if len(lines) == 0 {
-		out.Findings = append(out.Findings,
-			"declares ordering digests with no record sidecar to recompute them from")
-		return
-	}
-	last := lines[len(lines)-1]
+	return diverges
+}
+
+// checkOrderingDigests recomputes both declared digests from the sidecar
+// record and asserts the sidecar itself carries the bytes RFC 8785 requires.
+func checkOrderingDigests(v agentActionVector, last []byte, diverges bool, out *Member) {
 	record, err := decodeJSONNumbers(last)
 	if err != nil {
 		out.Findings = append(out.Findings, "the sidecar record does not parse: "+err.Error())
@@ -381,11 +460,10 @@ func (agentAction) checkMemberNameOrders(v agentActionVector, predicate map[stri
 		{"chainHashCodePoint", v.Expected.ChainHashCodePoint, codePointForm},
 		{"chainHashUtf16", v.Expected.ChainHashUtf16, utf16Form},
 	} {
-		if pair.declared == nil {
+		switch {
+		case pair.declared == nil:
 			out.Findings = append(out.Findings, "declares no "+pair.key)
-			continue
-		}
-		if *pair.declared != sha(pair.form) {
+		case *pair.declared != sha(pair.form):
 			out.Findings = append(out.Findings, pair.key+" does not recompute from the sidecar record")
 		}
 	}
@@ -428,12 +506,19 @@ func sortByUTF16(names []string) {
 // calls it: the declared text is parsed back to a double, and the digest is
 // taken over the declared text directly.
 func (agentAction) checkAppendixB(v agentActionVector, predicate map[string]any, out *Member) {
-	if !strings.Contains(v.ID, "appendix-b") {
+	present := 0
+	for _, field := range []*string{v.Expected.CanonicalNumber, v.Expected.IEEE754, v.Expected.RequestDigest} {
+		if field != nil {
+			present++
+		}
+	}
+	if present == 0 {
 		return
 	}
-	if v.Expected.CanonicalNumber == nil || v.Expected.IEEE754 == nil || v.Expected.RequestDigest == nil {
+	if present != 3 {
 		out.Findings = append(out.Findings,
-			"is an Appendix B row and declares no canonicalNumber, ieee754 or requestDigest")
+			"is an Appendix B row and declares some of canonicalNumber, ieee754 and "+
+				"requestDigest but not all three, so the row cannot be recomputed")
 		return
 	}
 	want, hexPattern, declared := *v.Expected.CanonicalNumber, *v.Expected.IEEE754, *v.Expected.RequestDigest

@@ -55,7 +55,7 @@ implement is itself branch-heavy, not because of tangled structure. The table
 below explains why each one is complex.
 
 The table covers every **non-test** Go function in `aee/`, `aeetest/`, `cmd/`,
-and `witnessattestor/` measured by gocyclo at **18 or above**; below that a
+and `witnessattestor/` and `corpora/` measured by gocyclo at **18 or above**; below that a
 function is ordinary and needs no defence. Functions in `_test.go` files are out
 of scope because their branch count tracks the number of cases they enumerate,
 not the shipped verifier's structure. Every row today happens to live in `aee/`,
@@ -77,6 +77,7 @@ gate will not invent one.
 | `cmd/mutgen/mutate.go` `collect` | 23 | Type dispatch over the AST node kinds that carry a weakening mutation, each with its own small enumeration rule. The branch count is the operator count, which is the published list in the command's own doc comment. |
 | `aee/statement.go` `gate0CoverageIntegrity` | 19 | The coverage-partition invariant across three disjoint sets against the manifest. |
 | `aee/jcs.go` `decodeValue` | 18 | Recursive JSON value dispatch with the I-JSON profile checks. |
+| `corpora/pyjson.go` `encodePythonOpts` | 18 | Type dispatch over every JSON value CPython's `json.dumps` writes, one arm each, all of them trivial. The branch count is the JSON value-kind count plus the two refusals that keep a float from being spelled by guess. Two corpora name a member by the digest of exactly these bytes, so an arm quietly absent from a shorter table-driven form would move a digest rather than fail. |
 | `aee/types.go` `parsePredicate` | 18 | One guarded decode per optional predicate member. Each member must record presence separately from value, because the gates distinguish an absent member from one that is present but malformed, so the branch count is the predicate's member count. |
 
 The Python generators' functions carrying `# noqa: C901` are explained in

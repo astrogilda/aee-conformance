@@ -157,7 +157,7 @@ func (acsCore) checkRequirements(dir string, m *acsManifest) (map[string]bool, [
 				"requirement is a different requirement and this identifier is not reusable for it.")
 			continue
 		}
-		if strings.Index(text[index+1:], row.Sentence) >= 0 {
+		if strings.Contains(text[index+1:], row.Sentence) {
 			findings = append(findings, row.ID+": quotes a sentence that appears more than once, so it identifies nothing")
 		}
 		if line := strings.Count(text[:index], "\n") + 1; line != row.Line {

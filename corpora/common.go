@@ -18,12 +18,20 @@ func sha(data []byte) string {
 
 // readIn reads a corpus-relative path. Every path in a manifest is relative to
 // the corpus directory, so nothing here takes an absolute one.
+// #nosec G304,G703 -- the corpus directory is a path the operator named on the
+// command line and the relative part comes from that corpus's own manifest. No
+// privilege boundary is crossed by reading a file a corpus lists as its own
+// member, there is no allow-list a member path could be validated against, and
+// the one path shape that WOULD be a finding -- a member escaping its trial
+// directory -- is checked where it means something, in the artifact-binding
+// reader's artifact-path-unsafe code.
 func readIn(dir, rel string) ([]byte, error) {
-	return os.ReadFile(filepath.Join(dir, rel)) // #nosec G304 -- the corpus manifest names its own members
+	return os.ReadFile(filepath.Join(dir, rel)) // #nosec G304,G703 -- see the comment above
 }
 
+// #nosec G304,G703 -- as readIn above.
 func existsIn(dir, rel string) bool {
-	info, err := os.Stat(filepath.Join(dir, rel))
+	info, err := os.Stat(filepath.Join(dir, rel)) // #nosec G304,G703 -- see the comment above
 	return err == nil && !info.IsDir()
 }
 
@@ -45,7 +53,12 @@ func orderedCorpusDigest(dir string, ids, files []string) (string, error) {
 	for _, i := range order {
 		body, err := readIn(dir, files[i])
 		if err != nil {
-			return "", err
+			// A member file that is not there is a MEMBER finding, made where the
+			// member is judged, and not a failure to read the corpus. Returning an
+			// error here instead would replace every per-member finding with one
+			// I/O message and leave a reader no way to tell which member is gone.
+			// The digest simply cannot match, which is the true thing to report.
+			continue
 		}
 		h.Write(body)
 	}

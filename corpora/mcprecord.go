@@ -217,21 +217,7 @@ func (mcpRecordContract) checkAgainstCriterion(dir string, v mcpVector, expected
 	// The identifier is a digest over the member's kind, its conditions and the
 	// record itself, so an edit to the record without regenerating leaves a
 	// name describing bytes that are no longer there.
-	recordValue, err := decodeJSONNumbers(body)
-	if err == nil {
-		conditions := make([]any, 0, len(v.Conditions))
-		for _, c := range v.Conditions {
-			conditions = append(conditions, c)
-		}
-		payload, err := pythonCompactJSON(map[string]any{
-			"kind": v.Kind, "conditions": conditions, "payload": recordValue,
-		})
-		if err != nil {
-			out.Findings = append(out.Findings, err.Error())
-		} else if idFromBytes(payload) != v.ID {
-			out.Findings = append(out.Findings, "identifier does not recompute from the member's own bytes")
-		}
-	}
+	checkRunRecordIdentity(body, v, out)
 
 	observed := checkRunRecord(record)
 	reason := strings.Join(append(append([]string{}, observed.Missing...), observed.Notes...), "; ")
@@ -243,7 +229,8 @@ func (mcpRecordContract) checkAgainstCriterion(dir string, v mcpVector, expected
 	}
 	if expected.Recheckable != nil && observed.Recheckable != *expected.Recheckable {
 		out.Findings = append(out.Findings, fmt.Sprintf(
-			"declares recheckable=%t and the checker answers %t. %s", *expected.Recheckable, observed.Recheckable, reason))
+			"declares recheckable=%t and the checker answers %t. %s",
+			*expected.Recheckable, observed.Recheckable, reason))
 	}
 	if expected.FigureMeansWhatItSays != nil && observed.FigureMeansWhatItSays != *expected.FigureMeansWhatItSays {
 		out.Findings = append(out.Findings, fmt.Sprintf(
@@ -257,6 +244,29 @@ func (mcpRecordContract) checkAgainstCriterion(dir string, v mcpVector, expected
 	}
 	if v.Kind == "reject" && len(observed.Missing) == 0 && len(observed.Notes) == 0 {
 		out.Findings = append(out.Findings, "is a reject member the checker had nothing at all to say about")
+	}
+}
+
+// checkRunRecordIdentity recomputes the member's name from its kind, its
+// conditions and the record's own value.
+func checkRunRecordIdentity(body []byte, v mcpVector, out *Member) {
+	value, err := decodeJSONNumbers(body)
+	if err != nil {
+		return
+	}
+	conditions := make([]any, 0, len(v.Conditions))
+	for _, c := range v.Conditions {
+		conditions = append(conditions, c)
+	}
+	payload, err := pythonCompactJSON(map[string]any{
+		"kind": v.Kind, "conditions": conditions, "payload": value,
+	})
+	if err != nil {
+		out.Findings = append(out.Findings, err.Error())
+		return
+	}
+	if idFromBytes(payload) != v.ID {
+		out.Findings = append(out.Findings, "identifier does not recompute from the member's own bytes")
 	}
 }
 

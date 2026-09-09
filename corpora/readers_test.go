@@ -213,7 +213,7 @@ func copyTree(t *testing.T, from, to string) {
 		if info.IsDir() {
 			return os.MkdirAll(target, 0o750)
 		}
-		body, err := os.ReadFile(source) // #nosec G304 -- a test copying its own fixture tree
+		body, err := os.ReadFile(source) // #nosec G304,G122 -- a test copying the repository's own committed fixture tree, which contains no symlink
 		if err != nil {
 			return err
 		}

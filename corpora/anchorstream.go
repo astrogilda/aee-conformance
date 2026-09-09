@@ -114,9 +114,10 @@ func (a anchorStream) Judge(dir string, raw []byte) (*Result, error) {
 		ids, files = append(ids, v.ID), append(files, v.Stream)
 		for _, c := range v.Conditions {
 			used[c] = true
-			if v.Kind == "accept" {
+			switch v.Kind {
+			case "accept":
 				accepted[c] = true
-			} else if v.Kind == "reject" {
+			case "reject":
 				rejected[c] = true
 			}
 		}

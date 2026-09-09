@@ -120,13 +120,22 @@ func (a artifactBinding) Judge(dir string, raw []byte) (*Result, error) {
 		}
 		result.Members = append(result.Members, member)
 	}
+	result.Findings = append(result.Findings, a.checkCorpus(&m, raw, verdicts)...)
+	return result, nil
+}
+
+// checkCorpus asserts the properties that belong to no single member: both
+// outcomes a refusing verifier could not fake, the declared counts, and the
+// digest over the vectors array.
+func (artifactBinding) checkCorpus(m *bindingManifest, raw []byte, verdicts map[string]bool) []string {
+	var findings []string
 	if !verdicts[bindingVerified] {
-		result.Findings = append(result.Findings,
+		findings = append(findings,
 			"the corpus contains no verified member, so a verifier that refuses everything "+
 				"would score full marks")
 	}
 	if !verdicts[bindingNotEstablished] {
-		result.Findings = append(result.Findings,
+		findings = append(findings,
 			"the corpus contains no not-established member, so the third outcome is untested")
 	}
 	measured := map[string]int{"verified": 0, "failed": 0, "notEstablished": 0}
@@ -141,7 +150,7 @@ func (a artifactBinding) Judge(dir string, raw []byte) (*Result, error) {
 		}
 	}
 	if bad := countsDisagree(m.Counts, measured); bad != "" {
-		result.Findings = append(result.Findings, strings.Replace(bad,
+		findings = append(findings, strings.Replace(bad,
 			"counts disagree", "MANIFEST.json declares counts that the entries do not carry", 1))
 	}
 	// The corpus digest is over the canonical bytes of the vectors array as the
@@ -150,17 +159,17 @@ func (a artifactBinding) Judge(dir string, raw []byte) (*Result, error) {
 	var vectorsRaw struct {
 		Vectors json.RawMessage `json:"vectors"`
 	}
-	if err := json.Unmarshal(raw, &vectorsRaw); err == nil {
-		canonical, err := aee.Canonicalize(vectorsRaw.Vectors)
-		switch {
-		case err != nil:
-			result.Findings = append(result.Findings,
-				"the vectors array does not canonicalize: "+err.Error())
-		case aee.SHA256Hex(canonical) != m.CorpusDigest:
-			result.Findings = append(result.Findings, "corpusDigest does not match the vectors it names")
-		}
+	if json.Unmarshal(raw, &vectorsRaw) != nil {
+		return findings
 	}
-	return result, nil
+	canonical, err := aee.Canonicalize(vectorsRaw.Vectors)
+	switch {
+	case err != nil:
+		findings = append(findings, "the vectors array does not canonicalize: "+err.Error())
+	case aee.SHA256Hex(canonical) != m.CorpusDigest:
+		findings = append(findings, "corpusDigest does not match the vectors it names")
+	}
+	return findings
 }
 
 func (a artifactBinding) judgeMember(dir string, v bindingVector, publicKey ed25519.PublicKey, out *Member) {

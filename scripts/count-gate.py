@@ -1237,6 +1237,15 @@ FROZEN: tuple[Frozen, ...] = (
     ),
     Frozen(
         "docs/HELD-OUT-CONFORMANCE.md",
+        "the external-witness-basis measurement quoted from another project's tracker",
+        "puts 132 of 132 enforcement obligations at no external witness basis",
+        "A count of another specification's obligations, measured against that "
+        "specification on the day it was measured. It says nothing about the size "
+        "of any corpus here, and rewriting it when a corpus grows would restate "
+        "somebody else's reading of somebody else's document.",
+    ),
+    Frozen(
+        "docs/HELD-OUT-CONFORMANCE.md",
         "the lookup-table measurement quoted from another project's issue tracker",
         "scored 19 of 19 against a published suite and exited 0",
         "A score another project recorded against its own suite on the day it "

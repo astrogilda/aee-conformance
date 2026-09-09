@@ -113,8 +113,9 @@ what it does not recognize, so this document states the choice outright instead 
 a reader to discover it from the vectors.
 
 Label -70001 falls in the Private Use range of the COSE Header Parameters registry, so the
-field needs no IANA action of its own and cannot collide with a future registration. Section 8
-records the cost of leaving it there.
+field needs no IANA action of its own and cannot collide with a future registration. A
+registered label would change the bytes of every vector in the corpus, which is why Section 8
+holds it open rather than this section settling it.
 
 ## 3. The observer position
 

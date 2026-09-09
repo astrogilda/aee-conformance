@@ -78,6 +78,10 @@ GENERATORS = (
     # rather than single statements, which is a larger surface to hand-place
     # and therefore a larger reason to derive it.
     "vectors-artifact-binding/gen_vectors.py",
+    # The ACI suite. A member is a whole DEPLOYMENT serialised into one file, so
+    # every identifier and the corpus digest are functions of bytes no person
+    # can write into a table by hand.
+    "vectors-aci/gen_vectors.py",
 )
 
 # Every file a generator above is responsible for, as a directory and a glob.
@@ -121,6 +125,8 @@ OWNED = (
     ("vectors-artifact-binding", "MANIFEST.json"),
     ("vectors-artifact-binding", "INDEX.md"),
     ("vectors-artifact-binding", "public.key"),
+    ("vectors-aci/deployment-members", "v*.json"),
+    ("vectors-aci", "MANIFEST.json"),
 )
 
 # Deliberately NOT owned above, for the two reasons the header already gives.

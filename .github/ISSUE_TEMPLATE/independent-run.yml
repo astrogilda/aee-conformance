@@ -1,0 +1,102 @@
+name: Independent run report
+description: Report a run of a corpus in this repository by a verifier this repository did not write.
+title: "run report: <your verifier> at suiteRevision <N>"
+labels: ["independent-run"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A run reported here goes into [`RUNS.md`](../blob/main/RUNS.md) transcribed exactly as you post it,
+        under the label you give it, with your own words quoted. It is never rounded, never restated as a
+        fraction of a different corpus, and never described as unprompted if you call it directed.
+
+        **A disagreement is the interesting result.** If your verifier answered differently from the corpus
+        on any vector, that is worth more here than a clean pass, and it is a defect in one of the two of us
+        without prejudice as to which.
+  - type: input
+    id: implementation
+    attributes:
+      label: The implementation
+      description: Repository, or a name and a link if it is not public.
+      placeholder: "example/my-verifier"
+    validations:
+      required: true
+  - type: dropdown
+    id: corpus
+    attributes:
+      label: Which corpus
+      options:
+        - "vectors/ (adversarial execution evidence)"
+        - "vectors-ai-agent-action/"
+        - "another vectors-* directory"
+    validations:
+      required: true
+  - type: input
+    id: revision
+    attributes:
+      label: suiteRevision
+      description: The head heading of vectors/CHANGES.md at the commit you ran, or the equivalent for the corpus you ran.
+    validations:
+      required: true
+  - type: input
+    id: suite-commit
+    attributes:
+      label: Suite commit
+      description: The commit of this repository you ran against, so a reader can fetch the same bytes.
+    validations:
+      required: true
+  - type: input
+    id: figures
+    attributes:
+      label: The figures, exactly as you would publish them
+      description: Total, and the per-outcome split if you have it.
+      placeholder: "<total>/<total>; accepts <n>/<n>, rejects <n>/<n>, indeterminate <n>/<n>"
+    validations:
+      required: true
+  - type: dropdown
+    id: label
+    attributes:
+      label: Blind or directed
+      description: >
+        Directed if you read the specification diff, the changelog, the rail source, the manifest's
+        expected codes or vectors/interpretation-decisions.json before or during the implementation.
+        Blind if you did not. Only you can answer this and the answer is taken as given.
+      options:
+        - "blind"
+        - "directed"
+        - "part blind, part directed (say which in the notes)"
+    validations:
+      required: true
+  - type: textarea
+    id: disagreements
+    attributes:
+      label: Disagreements
+      description: Every vector where your verifier and the corpus reached different answers, and what your verifier said.
+      placeholder: "bad-0000: we return valid; the corpus expects invalid with code ..."
+    validations:
+      required: false
+  - type: input
+    id: source-digest
+    attributes:
+      label: Source digest of the build that ran
+      description: >
+        The digest of the implementation as it was when it ran. Optional, and its absence is recorded as
+        an absence rather than filled in from a later build.
+    validations:
+      required: false
+  - type: input
+    id: posting
+    attributes:
+      label: Where the run record lives
+      description: A link that resolves to the record itself, not to a summary of it.
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything the figures do not carry
+      description: >
+        Scope the run does not cover, a rule no vector exercised, contamination you want disclosed, a
+        method correction. This is the field that makes a row worth reading a year later.
+    validations:
+      required: false

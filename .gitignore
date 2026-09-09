@@ -39,3 +39,4 @@ __pycache__/
 # holds files no MANIFEST row names, and it is right to -- an unreplayed set
 # and an absent one look identical from inside.
 .build/
+.crosswalk-upstream/

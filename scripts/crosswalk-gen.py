@@ -79,11 +79,17 @@ UPSTREAM_DERIVED_BY = (
     "git -C <ave-checkout> rev-parse HEAD && "
     "ls <ave-checkout>/records/AVE-*.json | wc -l"
 )
+# `suiteRevision` is NOT a key in vectors/MANIFEST.json, and a reader who assumes
+# it is finds nothing and concludes the corpus has no revision. The authority is
+# the FIRST `## suiteRevision N` heading in vectors/CHANGES.md, because that
+# changelog is written newest-first: the first heading is the current revision by
+# construction, where a maximum is only accidentally the same number and would
+# quietly disagree with the file the day a revision was ever written out of order.
 SUITE_DERIVED_BY = (
     "python3 -c \"import json,re,pathlib; "
     "m=json.loads(pathlib.Path('vectors/MANIFEST.json').read_text()); "
-    "r=max(int(n) for n in re.findall(r'^## suiteRevision (\\d+)\\b', "
-    "pathlib.Path('vectors/CHANGES.md').read_text(), re.M)); "
+    "r=re.search(r'^## suiteRevision (\\d+)\\b', "
+    "pathlib.Path('vectors/CHANGES.md').read_text(), re.M).group(1); "
     "print(r, len(m['vectors']), m['counts'])\""
 )
 
@@ -212,6 +218,28 @@ ROWS: tuple[Row, ...] = (
             "weakest input, so a sandbox observation fused with the "
             "component's own stdout degrades to artifact rather than "
             "silently keeping the stronger label."
+        ),
+        list_ave_ids=True,
+    ),
+    Row(
+        ave_field="evidence_basis_engines",
+        ave_value="external_authority",
+        aee_field="basis",
+        aee_value="artifact, with method reconstructed",
+        notes=(
+            "The engine that asks a third party what is true right now: GitHub's "
+            "users API for an owner, a package registry for a name, RDAP for a "
+            "domain. The authority is outside the observed component's control, "
+            "which is the half of substrate that holds, but nothing was watched "
+            "while it ran and the finding is assembled from state afterwards, "
+            "which is why method is reconstructed rather than intercepted. An AEE "
+            "row for this engine has to carry the authority's own answer, because "
+            "a finding that only says the anchor was claimable is a declared "
+            "claim and the reader has no way to recheck it. AVE's own detection "
+            "methodology for the first record carrying this engine already "
+            "requires the degraded case explicitly, a check that could not "
+            "complete must produce silence rather than a claim of compromise, "
+            "which is AEE result degraded and not a missing row."
         ),
         list_ave_ids=True,
     ),
@@ -377,12 +405,12 @@ def suite_figures() -> dict[str, Any]:
     """This repository's own corpus, from the two files count-gate.py reads."""
     manifest = json.loads((REPO / MANIFEST_REL).read_text(encoding="utf-8"))
     changes = (REPO / CHANGES_REL).read_text(encoding="utf-8")
-    revisions = [int(n) for n in REVISION_HEADING.findall(changes)]
-    if not revisions:
+    heading = REVISION_HEADING.search(changes)
+    if heading is None:
         raise SystemExit(f"FAIL: {CHANGES_REL} carries no '## suiteRevision N' heading")
     counts = manifest["counts"]
     return {
-        "revision": max(revisions),
+        "revision": int(heading.group(1)),
         "vectors": len(manifest["vectors"]),
         "accept": counts["accept"],
         "reject": counts["reject"],
@@ -468,6 +496,73 @@ def build(upstream: Upstream, records_read: str) -> dict[str, Any]:
     }
 
 
+SUITE_FIELDS = ("revision", "vectors", "accept", "reject", "indeterminate")
+
+
+def check_local() -> int:
+    """The half of this file that can be checked with no second checkout.
+
+    The generator needs a clean checkout of aveproject/ave, which is why it ran
+    nowhere and why the committed crosswalk drifted three revisions and twenty-two
+    vectors behind its own repository while still reading as current. That drift
+    is entirely on THIS side of the file: `source.conformance_suite` is derived
+    from two files in this tree, so it can be checked on every push, and it is the
+    half a reader is most likely to act on because it says what they will find
+    when they clone.
+
+    The upstream side is deliberately not checked here. A third-party corpus
+    growing is their event and not a fault in the commit being pushed, so it is
+    reported weekly, as an issue, by the `crosswalk-upstream` job. A gate that
+    goes red for something nobody in this repository did is a gate people learn
+    to skip.
+
+    Reads only the working tree. No network, no second checkout, no upstream
+    HEAD. Exit 0 when the committed figures are what this corpus yields, 1 on any
+    divergence.
+    """
+    out = REPO / OUT_REL
+    if not out.exists():
+        raise SystemExit(f"FAIL: {OUT_REL} does not exist, so nothing was compared")
+    try:
+        committed = json.loads(out.read_text(encoding="utf-8"))
+        published = committed["source"]["conformance_suite"]
+    except (json.JSONDecodeError, KeyError, TypeError) as exc:
+        raise SystemExit(
+            f"FAIL: {OUT_REL} does not carry source.conformance_suite ({exc}), so "
+            "nothing was compared. That is not the same as it agreeing."
+        ) from exc
+
+    derived = suite_figures()
+    divergences = [
+        f"  {field}: the crosswalk says {published.get(field)!r}, this corpus "
+        f"yields {derived[field]!r}"
+        for field in SUITE_FIELDS
+        if published.get(field) != derived[field]
+    ]
+    if divergences:
+        print(
+            f"FAIL: {OUT_REL} publishes figures this repository no longer has.",
+            file=sys.stderr,
+        )
+        for line in divergences:
+            print(line, file=sys.stderr)
+        print(
+            "\nRegenerate it against a checkout of aveproject/ave; do not edit it "
+            "by hand:\n"
+            "  git clone https://github.com/aveproject/ave /tmp/ave\n"
+            "  python3 scripts/crosswalk-gen.py --ave-repo /tmp/ave",
+            file=sys.stderr,
+        )
+        return 1
+
+    print(
+        f"ok: {OUT_REL} publishes suiteRevision {derived['revision']}, "
+        f"{derived['vectors']} vectors, {derived['accept']}/{derived['reject']}/"
+        f"{derived['indeterminate']}, which is what this corpus yields"
+    )
+    return 0
+
+
 def render(document: dict[str, Any]) -> str:
     return json.dumps(document, indent=2, ensure_ascii=False) + "\n"
 
@@ -476,9 +571,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--ave-repo",
-        required=True,
         type=Path,
-        help="path to a clean checkout of https://github.com/aveproject/ave",
+        help="path to a clean checkout of https://github.com/aveproject/ave; "
+        "required for every mode except --check-local",
     )
     parser.add_argument(
         "--records-read",
@@ -493,7 +588,28 @@ def main() -> int:
         help="compare against the committed file and exit non-zero on a diff, "
         "writing nothing",
     )
+    parser.add_argument(
+        "--check-local",
+        action="store_true",
+        help="check only the figures derived from this tree, with no upstream "
+        "checkout and no network, and exit non-zero when they have drifted",
+    )
     args = parser.parse_args()
+
+    if args.check_local:
+        if args.ave_repo is not None:
+            raise SystemExit(
+                "FAIL: --check-local reads only this tree, so --ave-repo would be "
+                "ignored. Drop one of them rather than being told which won."
+            )
+        return check_local()
+
+    if args.ave_repo is None:
+        raise SystemExit(
+            "FAIL: --ave-repo is required to generate or fully check the "
+            "crosswalk, because the upstream side is counted out of a real "
+            "checkout. Use --check-local for the half that needs no checkout."
+        )
 
     upstream = load_upstream(args.ave_repo.resolve())
     check_coverage(upstream)

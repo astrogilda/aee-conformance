@@ -695,6 +695,41 @@ def head_row_failures(src: Sources) -> list[str]:
 # --------------------------------------------------------------------------
 
 
+REPLY_DOC = "docs/proposals/catalog-1.md"
+RECORDING = "vectors-anchor-stream/recordings/anchors-verify-v0.10.json"
+
+
+def reply_claims(src: Sources) -> tuple[Claim, ...]:
+    """The two counts the anchor-stream reply publishes, derived from the recording.
+
+    The reply quotes how many corpus members a published verifier agrees with and
+    how many it does not. Both descend from one file: the recording names every
+    member and whether it agreed, so the total and the disagreement count are
+    read off it rather than typed beside each other in prose. A recording
+    refreshed against a new tag moves both numbers in the same commit or this
+    gate refuses.
+    """
+    recorded = json.loads(Path(RECORDING).read_text(encoding="utf-8"))
+    (members,) = recorded.values()
+    agreeing = sum(1 for agrees in members.values() if agrees)
+    return (
+        Claim(
+            REPLY_DOC,
+            "catalog-1 reply: the corpus total",
+            f"{agreeing} of its ",
+            " members agree with v0.10.",
+            str(len(members)),
+        ),
+        Claim(
+            REPLY_DOC,
+            "catalog-1 reply: the members that disagree",
+            " members agree with v0.10. The ",
+            " that do not are the findings above.",
+            str(len(members) - agreeing),
+        ),
+    )
+
+
 def claims(src: Sources) -> tuple[Claim, ...]:
     """Every live count this repository publishes, and what the sources say it is.
 
@@ -703,7 +738,7 @@ def claims(src: Sources) -> tuple[Claim, ...]:
     for it are generated from the registration instead of being typed out a
     fourth time.
     """
-    return declared_claims(src) + tuple(
+    return declared_claims(src) + reply_claims(src) + tuple(
         claim
         for directory, total, accept, reject in src.extra
         for claim in claims_for_corpus(directory, total, accept, reject)

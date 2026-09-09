@@ -51,6 +51,20 @@ def sha(b: bytes) -> str:
     return hashlib.sha256(b).hexdigest()
 
 
+def corpus_digest(manifest, root: str = HERE) -> str:
+    """The digest this corpus publishes, recomputed from the files on disk.
+
+    A function rather than four lines inside the self-check, because a second
+    reader now needs the same number: scripts/release-digests.py writes the
+    signed digest list and must recompute rather than copy what the manifest
+    declares. Two spellings of one preimage is the drift a signature would then
+    certify.
+    """
+    return sha(b"".join(
+        open(os.path.join(root, e["file"]), "rb").read()
+        for e in sorted(manifest["vectors"], key=lambda e: e["id"])))
+
+
 def depth(node, level: int = 1) -> int:
     if isinstance(node, dict):
         return max([level] + [depth(v, level + 1) for v in node.values()])
@@ -270,9 +284,7 @@ def main() -> None:
     if orphan:
         FAILURES.append(f"reject conditions with no accepting twin: {orphan}")
 
-    corpus = sha(b"".join(
-        open(os.path.join(HERE, e["file"]), "rb").read()
-        for e in sorted(manifest["vectors"], key=lambda e: e["id"])))
+    corpus = corpus_digest(manifest, HERE)
     if corpus != manifest["corpusDigest"]:
         FAILURES.append("corpusDigest does not match the files on disk")
 

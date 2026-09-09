@@ -1,0 +1,5 @@
+# One line per corpus: <sha256 corpus digest>  <manifest path>  <suite>  vectors=<n>  <suiteRevision=<n>|no-suiteRevision>
+# Regenerate: python3 scripts/release-digests.py    Check: --check
+# Every digest is recomputed from the vector files on disk, never copied from the manifest.
+7ca4db853dc416774167cfdb9ae5e5d31c11fefe793bbca0938dc79d26a01379  vectors-ai-agent-action/MANIFEST.json  ai-agent-action-conformance  vectors=53  no-suiteRevision
+8b035678def9e5ac00ba761b8c640e4412c57163134afb9d2c1a90f49d573a52  vectors/MANIFEST.json  adversarial-execution-evidence-conformance  vectors=272  suiteRevision=28

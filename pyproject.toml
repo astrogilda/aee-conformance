@@ -16,13 +16,20 @@ dependencies = []
 
 [project.optional-dependencies]
 # Build-time only: the generators sign vectors with real Ed25519 test keys.
-generators = ["cryptography>=43"]
+#
+# pycose builds every COSE_Sign1 in vectors-scitt-cose/, so that corpus is
+# produced by a COSE library and not by bytes written out here. cbor2 is pinned
+# BELOW 6 because pycose 1.1.0 reads a decoded CBOR tag's value as a list and
+# cbor2 6.0.0 returns a tuple, which surfaces as "Bytes cannot be decoded as
+# COSE message" on every well-formed vector. That message reads like a corrupt
+# corpus and is a library incompatibility, so the pin carries the reason.
+generators = ["cryptography>=43", "pycose>=1.1,<2", "cbor2>=5.6,<6"]
 # PyYAML is a checker-and-gate dependency, not a rail dependency: the gate that
 # runs every workflow step reads the workflow YAML, and a type checker that
 # cannot resolve an import reports it as a defect in the importing file. Left
 # undeclared it is indistinguishable from a real unresolved name.
-dev = ["cryptography>=43", "mypy>=1.11", "pyright>=1.1.400", "pyyaml>=6",
-       "ruff>=0.6", "types-PyYAML>=6"]
+dev = ["cryptography>=43", "pycose>=1.1,<2", "cbor2>=5.6,<6", "mypy>=1.11",
+       "pyright>=1.1.400", "pyyaml>=6", "ruff>=0.6", "types-PyYAML>=6"]
 
 [tool.mypy]
 # scripts/code-contract-gate.py imports the reference rail to drive its own
@@ -51,7 +58,8 @@ files = ["packaging", "vectors"]
 # Directories cannot forget. A file added to any of these is checked because it
 # is there, not because it was announced, and scripts/typecheck-gate.py refuses
 # to pass if a Python file exists outside them.
-include = ["packaging", "scripts", "vectors", "vectors-ai-agent-action"]
+include = ["packaging", "scripts", "vectors", "vectors-ai-agent-action",
+           "vectors-scitt-cose"]
 
 # The reference rail is imported by the gates that drive it, and it lives in
 # packaging/ rather than on the default path, so the checker needs the same

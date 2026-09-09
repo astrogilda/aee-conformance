@@ -74,6 +74,10 @@ GENERATORS = (
     # gate ran it, which is the precise claim-nobody-executes this file was
     # written about. It passed only because somebody ran it by hand.
     "vectors-ai-agent-action/gen_vectors.py",
+    # The SCITT/COSE carriage suite. Like the one above it builds its own
+    # manifest and its own index in the same run, so it has no ordering
+    # relationship with anything else and is listed last.
+    "vectors-scitt-cose/gen_vectors.py",
 )
 
 # Every file a generator above is responsible for, as a directory and a glob.
@@ -111,6 +115,14 @@ OWNED = (
     ("vectors-ai-agent-action/statements", "v*.json"),
     ("vectors-ai-agent-action/records", "*.jsonl"),
     ("vectors-ai-agent-action", "MANIFEST.json"),
+    # The SCITT/COSE carriage suite. Its INDEX.md is OWNED here, unlike the
+    # hand-authored indexes above, because that file is emitted from the
+    # manifest: an index a person maintains beside a corpus drifts from it and
+    # both halves keep looking authoritative, which this repository has already
+    # paid for once.
+    ("vectors-scitt-cose/statements", "v*.json"),
+    ("vectors-scitt-cose", "MANIFEST.json"),
+    ("vectors-scitt-cose", "INDEX.md"),
 )
 
 # Deliberately NOT owned above, for the two reasons the header already gives.

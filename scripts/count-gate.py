@@ -187,6 +187,13 @@ MANIFEST_REL = "vectors/MANIFEST.json"
 #: while every check passed. The count was never wrong; the SCOPE was, which is
 #: the same shape as a citation that resolves to the wrong line.
 AGENT_ACTION_MANIFEST_REL = "vectors-ai-agent-action/MANIFEST.json"
+#: The third corpus, registered on the revision that added it rather than on
+#: the revision that noticed the omission. The second corpus arrived unmodelled
+#: and the note above records what that cost: a README sentence that was correct
+#: for the manifest this gate knew and understated the repository, while every
+#: check passed. A corpus this gate does not read is a corpus whose size can be
+#: typed by hand anywhere in the tree.
+SCITT_COSE_MANIFEST_REL = "vectors-scitt-cose/MANIFEST.json"
 CHANGES_REL = "vectors/CHANGES.md"
 BASELINE_REL = "docs/FORCING-BASELINE.json"
 RUNS_REL = "docs/INDEPENDENT-RUNS.json"
@@ -246,6 +253,15 @@ class Sources:
     agent_action_reject: int
     predicate_version: str
     agent_action_predicate_version: str
+    #: The third corpus. Its indeterminate bucket is counted and published,
+    #: unlike the root corpus's, because it is not two: the members that record
+    #: a question the cited documents leave open are the reason this suite is
+    #: worth reading, and a total that hid them would understate the corpus on
+    #: the axis it exists to report.
+    scitt_cose_total: int
+    scitt_cose_accept: int
+    scitt_cose_reject: int
+    scitt_cose_indeterminate: int
 
     def current(self) -> dict[int, str]:
         """The values that must not be typed by hand, and what each one is."""
@@ -265,6 +281,7 @@ class Sources:
             # changelog, and by the three declared claims that publish the corpus
             # as a whole -- so what the exclusion drops is a heuristic that
             # produces only false positives at this magnitude.
+            self.scitt_cose_total: "the SCITT/COSE corpus total",
             self.revision: "the current suiteRevision",
             self.forced: "the count of forced rules",
             self.tolerated: "the count of seen-but-tolerated rules",
@@ -354,6 +371,7 @@ def predicate_version(manifest: dict[str, object]) -> str:
 def load_sources() -> Sources:
     manifest = json.loads(source(MANIFEST_REL).read_text(encoding="utf-8"))
     agent_action = json.loads(source(AGENT_ACTION_MANIFEST_REL).read_text(encoding="utf-8"))
+    scitt_cose = json.loads(source(SCITT_COSE_MANIFEST_REL).read_text(encoding="utf-8"))
     baseline = json.loads(source(BASELINE_REL).read_text(encoding="utf-8"))
     runs = json.loads(source(RUNS_REL).read_text(encoding="utf-8"))
     ledger = revision_ledger()
@@ -379,6 +397,10 @@ def load_sources() -> Sources:
         agent_action_reject=agent_action["counts"]["reject"],
         predicate_version=predicate_version(manifest),
         agent_action_predicate_version=predicate_version(agent_action),
+        scitt_cose_total=len(scitt_cose["vectors"]),
+        scitt_cose_accept=scitt_cose["counts"]["accept"],
+        scitt_cose_reject=scitt_cose["counts"]["reject"],
+        scitt_cose_indeterminate=scitt_cose["counts"]["indeterminate"],
     )
 
 
@@ -626,6 +648,48 @@ def claims(src: Sources) -> tuple[Claim, ...]:
             'alt="',
             ' AI Agent Action conformance vectors"',
             str(src.agent_action_total),
+        ),
+        Claim(
+            "README.md",
+            "the SCITT/COSE vector-count badge, its image",
+            "badge/SCITT%2FCOSE%20vectors-",
+            "-e8951c",
+            str(src.scitt_cose_total),
+        ),
+        Claim(
+            "README.md",
+            "the SCITT/COSE vector-count badge, its alt text",
+            'alt="',
+            ' SCITT/COSE carriage conformance vectors"',
+            str(src.scitt_cose_total),
+        ),
+        Claim(
+            "README.md",
+            "the SCITT/COSE corpus breakdown, in the opening section",
+            "carriage suite is ",
+            " indeterminate.",
+            f"{src.scitt_cose_accept} accept, {src.scitt_cose_reject} reject and "
+            f"{src.scitt_cose_indeterminate}",
+        ),
+        # The profile document publishes the corpus it specifies, so the count in
+        # its opening paragraph descends from the same manifest as the badge.
+        # It arrived unaccounted on the revision that added the profile, which
+        # is the gate doing its job: a corpus total typed into prose in a second
+        # place is a second cache with no invalidation.
+        Claim(
+            "profiles/scitt-cose.md",
+            "the SCITT/COSE corpus total, in the opening paragraph",
+            "carries ",
+            " members, ",
+            str(src.scitt_cose_total),
+        ),
+        Claim(
+            "profiles/scitt-cose.md",
+            "the SCITT/COSE corpus breakdown, in the opening paragraph",
+            " members, ",
+            "\nindeterminate,",
+            f"{src.scitt_cose_accept} accept, {src.scitt_cose_reject} reject and "
+            f"{src.scitt_cose_indeterminate}",
         ),
         Claim(
             "README.md",

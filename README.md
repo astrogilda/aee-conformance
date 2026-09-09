@@ -7,6 +7,7 @@
   <img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="license Apache-2.0">
   <img src="https://img.shields.io/badge/AEE%20vectors-272-e8951c" alt="272 AEE conformance vectors">
   <img src="https://img.shields.io/badge/AI%20Agent%20Action%20vectors-53-e8951c" alt="53 AI Agent Action conformance vectors">
+  <img src="https://img.shields.io/badge/SCITT%2FCOSE%20vectors-27-e8951c" alt="27 SCITT/COSE carriage conformance vectors">
   <img src="https://img.shields.io/badge/rails-Go%20%C2%B7%20Python-546274" alt="Go and Python rails">
   <img src="https://img.shields.io/badge/predicate-in--toto%20AEE%20v0.7-6f57c2" alt="in-toto AEE v0.7 predicate">
 </p>
@@ -16,6 +17,15 @@ A recomputable execution attestation toolkit for two in-toto predicates:
 Action**, predicate version 0.1, proposed in
 [in-toto/attestation#588](https://github.com/in-toto/attestation/pull/588).
 Each has its own corpus, `vectors/` and `vectors-ai-agent-action/`.
+
+A third corpus, `vectors-scitt-cose/`, tests something else: how an adversarial
+execution evidence statement is CARRIED as an IETF SCITT Transparent Statement,
+signed as a COSE_Sign1 and proved by an RFC 9942 Receipt. `profiles/scitt-cose.md`
+is the profile it enforces. The split of that carriage suite is 6 accept,
+17 reject and 4 indeterminate. The indeterminate members are the ones to read
+first: each records a question RFC 9943 and RFC 9942 leave open, and the readings
+a conforming verifier could take, because a corpus that answered them would be
+inventing a rule the standards do not carry.
 
 **The 53 AI Agent Action vectors test proposed strengthening text, not #588 as
 it stands.** Their accept members are conformant under the pull request's own

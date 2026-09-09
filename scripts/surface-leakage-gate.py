@@ -126,7 +126,7 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parent.parent
 BASELINE_REL = "docs/SURFACE-LEAKAGE-BASELINE.json"
 
-CORPORA = ("vectors", "vectors-ai-agent-action")
+CORPORA = ("vectors", "vectors-ai-agent-action", "vectors-scitt-cose")
 
 SURFACES = ("identifier", "file", "shape", "paths", "lexicon", "all")
 

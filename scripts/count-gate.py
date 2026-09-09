@@ -187,6 +187,17 @@ MANIFEST_REL = "vectors/MANIFEST.json"
 #: while every check passed. The count was never wrong; the SCOPE was, which is
 #: the same shape as a citation that resolves to the wrong line.
 AGENT_ACTION_MANIFEST_REL = "vectors-ai-agent-action/MANIFEST.json"
+#: Every further corpus, one line each, naming its directory. A directory listed
+#: here has its three counts read from its own MANIFEST.json and admitted as
+#: derived quantities, and the one sentence its INDEX.md publishes them in is
+#: checked against them. One line is the whole registration on purpose: the two
+#: corpora above are wired in by hand, each in five places, and a third wired the
+#: same way would be a fourth chance to wire one of the five wrong. What a new
+#: corpus owes in exchange is that sentence, in the shape claims_for_corpus below
+#: expects, which is a small price for a count nobody can restate unchecked.
+EXTRA_CORPORA: tuple[str, ...] = (
+    "vectors-acs-core",
+)
 CHANGES_REL = "vectors/CHANGES.md"
 BASELINE_REL = "docs/FORCING-BASELINE.json"
 RUNS_REL = "docs/INDEPENDENT-RUNS.json"
@@ -246,6 +257,8 @@ class Sources:
     agent_action_reject: int
     predicate_version: str
     agent_action_predicate_version: str
+    #: One row per directory in EXTRA_CORPORA: (directory, total, accept, reject).
+    extra: tuple[tuple[str, int, int, int], ...] = ()
 
     def current(self) -> dict[int, str]:
         """The values that must not be typed by hand, and what each one is."""
@@ -272,6 +285,30 @@ class Sources:
             self.unmeasurable: "the count of unmeasurable rules",
             self.sites: "the count of mutation sites",
             self.annotated: "the count of annotated sites",
+            # A registered corpus's counts, and only the ones large enough to
+            # be unambiguous. This is the same exclusion the indeterminate
+            # bucket carries above, for the same measured reason: a count of 8
+            # collides with "Decision 8", a count of 15 with a pinned line
+            # range, and a count of 7 with the ordinal in a sentence about six
+            # diverging vectors, and every one of those sits within the
+            # small-value window of a word in SMALL_VALUE_NOUNS. Admitting them
+            # produced four refusals against prose that claims nothing about
+            # any corpus, on the revision that registered a corpus of that
+            # size. What the exclusion drops is a value heuristic; what still
+            # grounds these counts is stronger than the heuristic was -- the
+            # declared claim against the corpus's own index sentence, checked
+            # here, and that corpus's check_vectors.py grounding the manifest
+            # against its entries and its files before this gate reads it.
+            **{
+                value: f"the {noun} of {directory}"
+                for directory, total, accept, reject in self.extra
+                for value, noun in (
+                    (total, "corpus total"),
+                    (accept, "accept count"),
+                    (reject, "reject count"),
+                )
+                if value >= SMALL_VALUE
+            },
         }
 
     def historical(self) -> dict[int, set[int]]:
@@ -379,6 +416,73 @@ def load_sources() -> Sources:
         agent_action_reject=agent_action["counts"]["reject"],
         predicate_version=predicate_version(manifest),
         agent_action_predicate_version=predicate_version(agent_action),
+        extra=extra_corpora(),
+    )
+
+
+def extra_corpora() -> tuple[tuple[str, int, int, int], ...]:
+    """The three counts each registered corpus publishes, read from its manifest.
+
+    Read rather than declared: the manifest's own counts are checked against its
+    entries by that corpus's check_vectors.py before this gate sees them, so the
+    chain a published total has to satisfy runs sentence, manifest, entries,
+    files, and no link in it is checkable against itself.
+    """
+    rows: list[tuple[str, int, int, int]] = []
+    for directory in EXTRA_CORPORA:
+        payload = json.loads(source(f"{directory}/MANIFEST.json").read_text(encoding="utf-8"))
+        entries = payload["vectors"]
+        accept = sum(1 for entry in entries if entry.get("kind") == "accept")
+        reject = sum(1 for entry in entries if entry.get("kind") == "reject")
+        declared = payload.get("counts", {})
+        if declared.get("accept") != accept or declared.get("reject") != reject:
+            raise SystemExit(
+                f"FAIL: {directory}/MANIFEST.json declares {declared} and carries "
+                f"{{'accept': {accept}, 'reject': {reject}}}. Every count this gate "
+                "publishes for that corpus descends from this field, so it may not "
+                "disagree with the entries it counts."
+            )
+        rows.append((directory, len(entries), accept, reject))
+    return tuple(rows)
+
+
+def claims_for_corpus(directory: str, total: int, accept: int, reject: int) -> tuple[Claim, ...]:
+    """The one sentence a registered corpus publishes its counts in.
+
+    The wording is fixed so that registration stays one line. A corpus whose
+    INDEX.md words it differently fails here, which is the intended cost: three
+    counts in three sentences apart is three places to go stale at three rates,
+    and this repository has already had two documents disagree about the size of
+    one corpus while both looked authoritative.
+
+    The wording says "of which" rather than equating the total to the sum,
+    because a corpus may carry a third bucket for members whose property its
+    specification cannot express, and a sentence asserting an arithmetic that
+    happens to hold today is a sentence that goes false when one arrives.
+    """
+    index = f"{directory}/INDEX.md"
+    return (
+        Claim(
+            index,
+            f"{directory}: the corpus total",
+            "This corpus is ",
+            " vectors, of which ",
+            str(total),
+        ),
+        Claim(
+            index,
+            f"{directory}: the accept count",
+            " vectors, of which ",
+            " a conformant verifier must not fail closed on and ",
+            str(accept),
+        ),
+        Claim(
+            index,
+            f"{directory}: the reject count",
+            "must not fail closed on and ",
+            " it must reject.",
+            str(reject),
+        ),
     )
 
 
@@ -592,7 +696,22 @@ def head_row_failures(src: Sources) -> list[str]:
 
 
 def claims(src: Sources) -> tuple[Claim, ...]:
-    """Every live count this repository publishes, and what the sources say it is."""
+    """Every live count this repository publishes, and what the sources say it is.
+
+    The hand-wired claims below, plus three per directory in EXTRA_CORPORA. A
+    registered corpus publishes its counts in one fixed sentence, so the claims
+    for it are generated from the registration instead of being typed out a
+    fourth time.
+    """
+    return declared_claims(src) + tuple(
+        claim
+        for directory, total, accept, reject in src.extra
+        for claim in claims_for_corpus(directory, total, accept, reject)
+    )
+
+
+def declared_claims(src: Sources) -> tuple[Claim, ...]:
+    """The claim sites written out one at a time, each against its own sentence."""
     rev = src.revision
     corpus = (
         f"{src.total} vectors ({src.accept} accept, {src.reject} reject, "
@@ -867,6 +986,16 @@ DELEGATED: tuple[Delegated, ...] = (
 
 FROZEN: tuple[Frozen, ...] = (
     Frozen(
+        "docs/HELD-OUT-CONFORMANCE.md",
+        "the quoted 19-of-19 lookup-table score from the upstream premortem",
+        "scored 19/19 and exited 0",
+        "A figure inside a verbatim quotation of somebody else's premortem, "
+        "recording what a discard-everything adapter scored against their suite "
+        "on the day they ran it. It is not a count of anything in this "
+        "repository and its denominator is their corpus, so deriving it here "
+        "would restate their past run as our present one.",
+    ),
+    Frozen(
         "vectors/CHANGES.md",
         "the suiteRevision-18 citation remap tally",
         "moved 28 `spec:NNN`",
@@ -1117,6 +1246,44 @@ FROZEN: tuple[Frozen, ...] = (
         "moving either would erase the event that made this gate necessary.",
     ),
     Frozen(
+        "docs/HELD-OUT-CONFORMANCE.md",
+        "the external-witness-basis measurement quoted from another project's tracker",
+        "puts 132 of 132 enforcement obligations at no external witness basis",
+        "A count of another specification's obligations, measured against that "
+        "specification on the day it was measured. It says nothing about the size "
+        "of any corpus here, and rewriting it when a corpus grows would restate "
+        "somebody else's reading of somebody else's document.",
+    ),
+    Frozen(
+        "docs/HELD-OUT-CONFORMANCE.md",
+        "the lookup-table measurement quoted from another project's issue tracker",
+        "scored 19 of 19 against a published suite and exited 0",
+        "A score another project recorded against its own suite on the day it "
+        "ran it. It is quoted as the evidence the design answers, and it is not "
+        "a measurement of anything here; rewriting it when this repository's "
+        "corpus changes size would restate somebody else's past run.",
+    ),
+    Frozen(
+        "scripts/condition-forcing-crosscheck.py",
+        "the reconciliation sentence this gate matches, quoted in its own comment",
+        "316 in the released note + 12 killed only by vectors added",
+        "The reconciliation the crosscheck asserts, quoted so a reader of the "
+        "regex can see the sentence it is matching. Both figures record what one "
+        "campaign found on the day it ran, and one of them collided with the "
+        "accept count of a corpus registered afterwards. Rewriting either when a "
+        "different corpus grows would restate a past run as a present one.",
+    ),
+    Frozen(
+        "TODO.md",
+        "the quantifier-operator entry, the universals LOOP_FIRST found",
+        "found 31 universals this corpus does not force as universals",
+        "What one mutation operator found on the day it was written, in a row "
+        "that is still open for the cases it does not cover. It collided with "
+        "the size of a corpus registered afterwards, which is the collision this "
+        "census exists to surface; rewriting it when a different corpus grows "
+        "would restate a past run as a present one.",
+    ),
+    Frozen(
         "TODO.md",
         "the forcing-measurement entry, what a full replay reported",
         "the suite still reports 186 of 186, exit 0. `cmd/mutgen` enumerates 590 single-site",
@@ -1282,6 +1449,15 @@ MASKS = tuple(
         # because no published count had yet collided with it, which is the
         # false-positive mode this gate's own prose warns about.
         r"\bUTF-\d+\b",
+        # A cron schedule. Every field of one is a clock position and none of
+        # them counts anything: `31 6 * * 2` is minute thirty-one past hour six
+        # on a Tuesday. It stayed invisible only while no published quantity
+        # equalled a field of the two schedules in .github/workflows, and it
+        # became visible the moment a third corpus registered at a size the
+        # minute field happens to hold. This gate's own prose predicted the
+        # shape: a cron minute is the first example it gives of what the
+        # small-value window kept reporting.
+        r"cron:\s*[\"']\s*[-\d,*/\s]+[\"']",
         r"#\d+",  # upstream issue and pull-request numbers
         r"\bv?\d+\.\d+(?:\.\d+)*\b",  # version strings
         r"\bgo\d[\d.]*",  # toolchain versions
@@ -1384,6 +1560,20 @@ EXEMPT_PREFIXES: dict[str, str] = {
         "and every integer inside belongs to the upstream document rather than to "
         "this corpus"
     ),
+    # A registered corpus vendors the text it certifies against, and those bytes
+    # are upstream's. Derived from the registration rather than listed per
+    # corpus, so registering one stays one line: a corpus whose vendored copy
+    # had to be exempted by hand would be a second line that a reader could
+    # forget, and forgetting it reports somebody else's section numbering as an
+    # unaccounted count of ours.
+    **{
+        f"{directory}/spec-vendored/": (
+            "vendored upstream bytes; the corpus manifest's digest owns them, its "
+            "check_vectors.py refuses a copy whose bytes moved, and every integer "
+            "inside belongs to the upstream document rather than to this corpus"
+        )
+        for directory in EXTRA_CORPORA
+    },
 }
 
 # The files whose count-shaped integers are CONTROL DATA rather than claims about

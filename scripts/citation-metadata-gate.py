@@ -294,6 +294,128 @@ def check_version(cff: dict[str, Any]) -> list[str]:
     return []
 
 
+DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
+def _git(root: Path, *arguments: str) -> str | None:
+    """A git read, or None when it did not succeed. Never a value on failure."""
+    done = subprocess.run(
+        ["git", "-C", str(root), *arguments],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if done.returncode != 0:
+        return None
+    return done.stdout.strip()
+
+
+def commit_date(root: Path, ref: str) -> str | None:
+    """The committer date of what `ref` points at, as UTC `YYYY-MM-DD`."""
+    return _git(root, "show", "-s", "--format=%cd", "--date=format-local:%Y-%m-%d", f"{ref}^{{commit}}")
+
+
+def newest_release_tag(root: Path) -> tuple[str, str] | None:
+    """The most recently dated `v*` tag, as (name, date), or None if there is none."""
+    listed = _git(root, "for-each-ref", "--format=%(refname:short)", "refs/tags/v*")
+    if not listed:
+        return None
+    # The COMMIT date of each tag, not the tag object's own creation date. An
+    # annotated tag carries both, they are not the same date, and the field being
+    # checked is about the released contents rather than about when somebody ran
+    # `git tag`. Resolving each one separately costs a handful of git calls over
+    # a handful of tags and removes a whole class of off-by-a-day disagreement.
+    rows = [(name, commit_date(root, name)) for name in listed.split()]
+    dated = [(name, date) for name, date in rows if date]
+    if not dated:
+        return None
+    return max(dated, key=lambda row: row[1])
+
+
+def check_release_date(cff: dict[str, Any]) -> list[str]:
+    """`date-released` is the date of the release it names, and nothing else.
+
+    The defect: the value stood at 2026-08-12 through two version bumps. It was
+    written for 0.7.0, carried unchanged into 0.8.0 and 0.9.0 -- `git diff v0.8.0
+    v0.9.0 -- CITATION.cff` shows one changed line, the version, and the date
+    untouched -- and the tag it then described was cut on 2026-09-02. GitHub's
+    citation panel renders that field verbatim, so the repository told every
+    citer a release date three weeks before the release. `check_version` above
+    tied the two version fields together and said nothing about the date, so a
+    field that moves on exactly the same occasions as the version was checked by
+    nothing.
+
+    The rule has three arms because the field has three honest states, and a
+    two-arm branch over three states approves the one it never named:
+
+    1. The tag `v<version>` EXISTS. Then the date is not a matter of judgement:
+       it is the committer date of that tag's commit, and any other value is a
+       claim about a release that can be checked and is false.
+    2. The tag does not exist yet, and there is at least one earlier `v*` tag.
+       The version is being prepared, so the true release date is not yet
+       knowable. What IS knowable is the window: not earlier than the last
+       release (a date before it is a value carried forward, which is this
+       defect) and not later than the commit being described (a date after it is
+       a release that has not happened). The window only ever grows at the top,
+       so a correct value stays correct as commits land, and arm 1 binds it
+       exactly the moment the tag is cut.
+    3. There are no `v*` tags at all -- a fresh checkout, or the staged copy this
+       gate's own test builds. Then only the upper bound is checkable, and it is
+       checked. What cannot be established is reported as unchecked rather than
+       assumed to hold.
+    """
+    raw = cff.get("date-released")
+    if raw is None:
+        return [
+            "CITATION.cff carries no date-released. GitHub's citation panel renders "
+            "that field, and its absence is not a neutral state: the citation it "
+            "generates then dates the release to nothing."
+        ]
+    released = fold(raw)
+    if not DATE_PATTERN.match(released):
+        return [
+            f"CITATION.cff has date-released {released!r}, which is not a "
+            "YYYY-MM-DD date. A citation quotes it verbatim."
+        ]
+    version = fold(cff.get("version"))
+    tag = f"v{version}"
+    tagged = commit_date(REPO_ROOT, tag)
+    if tagged is not None:
+        if released != tagged:
+            return [
+                f"CITATION.cff dates the release {released} and tag {tag} is on a "
+                f"commit dated {tagged}. The date-released field is the date of the "
+                "release it names; every citer quotes it, and it moves whenever the "
+                "version does."
+            ]
+        return []
+    head = commit_date(REPO_ROOT, "HEAD")
+    if head is None:
+        return [
+            f"no tag {tag!r} resolves and HEAD does not resolve either, so nothing "
+            "here can say what release date would be true. This is reported rather "
+            "than passed over: an unchecked field is not a checked one."
+        ]
+    if released > head:
+        return [
+            f"CITATION.cff dates the release {released} and the commit it describes "
+            f"is dated {head}. A release cannot predate its own contents."
+        ]
+    newest = newest_release_tag(REPO_ROOT)
+    if newest is None:
+        return []
+    name, date = newest
+    if released < date:
+        return [
+            f"CITATION.cff dates version {version} at {released}, which is earlier "
+            f"than tag {name} on {date}. A date-released older than the previous "
+            "release is a value carried forward from it rather than a date of this "
+            f"one; set it no earlier than {date} until {tag} exists, and to that "
+            "tag's commit date once it does."
+        ]
+    return []
+
+
 # --------------------------------------------------------------------------
 # The corpus the deposit describes
 # --------------------------------------------------------------------------
@@ -597,6 +719,7 @@ def main() -> int:
         errors += check_identifiers(zenodo, cff)
         errors += check_agreement(zenodo, cff)
         errors += check_version(cff)
+        errors += check_release_date(cff)
     corpus, corpus_errors = read_corpus(REPO_ROOT)
     errors += corpus_errors
     if corpus is not None:
@@ -624,7 +747,8 @@ def main() -> int:
         return 1
     print(
         "OK: both citation files parse, name the same people, agree on title, "
-        "licence, keywords and source, carry a version the build declares, and "
+        "licence, keywords and source, carry a version the build declares and a "
+        "release date consistent with the tag that holds it, and "
         f"every identifier passes its check digit. {examined} count-shaped "
         "integer(s) across the citation surface are accounted for, and every "
         "count the deposit publishes descends from vectors/MANIFEST.json."

@@ -68,6 +68,57 @@ def stage(destination: Path) -> None:
         shutil.copyfile(source, target)
     for command in (["git", "init", "-q"], ["git", "add", "-A"]):
         subprocess.run(command, cwd=destination, check=True, capture_output=True)
+    # And a COMMIT, because the gate now reads dates off the history: the release
+    # date is checked against the commit being described and against the tags that
+    # exist. A checkout with no HEAD is not a state any real clone is in, and
+    # staging one would have the gate report "nothing here can say", which is a
+    # true statement about an unreal tree.
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "user.email=citation-gate-test@example.invalid",
+            "-c",
+            "user.name=citation gate test",
+            "-c",
+            "commit.gpgsign=false",
+            "commit",
+            "-q",
+            "-m",
+            "staged copy",
+        ],
+        cwd=destination,
+        check=True,
+        capture_output=True,
+    )
+
+
+def tag(root: Path, name: str) -> None:
+    """Tag HEAD in a staged copy. `tag.gpgsign` is off: this machine signs tags
+    by default, and a test that reaches for a signing key fails for the
+    environment rather than for the thing under test."""
+    subprocess.run(
+        ["git", "-c", "tag.gpgsign=false", "tag", name],
+        cwd=root,
+        check=True,
+        capture_output=True,
+    )
+
+
+def head_date(root: Path) -> str:
+    """The committer date of the staged copy's one commit, as UTC YYYY-MM-DD."""
+    done = subprocess.run(
+        ["git", "show", "-s", "--format=%cd", "--date=format-local:%Y-%m-%d", "HEAD"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return done.stdout.strip()
+
+
+def set_release_date(root: Path, value: str) -> None:
+    reword(root, CFF, r'date-released: "[^"]+"', f'date-released: "{value}"')
 
 
 def run(root: Path) -> tuple[int, str]:
@@ -229,8 +280,50 @@ SOURCE_CASES: list[Case] = [
     ),
 ]
 
+# The release date, which moves on exactly the same occasions as the version and
+# was checked by nothing. It stood at 2026-08-12 through two version bumps while
+# the tag it described was cut on 2026-09-02.
+DATE_CASES: list[Case] = [
+    (
+        "the tag exists and the date is not its commit date",
+        lambda root: tag(root, "v0.10.0"),
+        ("tag v0.10.0 is on a commit dated",),
+    ),
+    (
+        "the date is older than the previous release",
+        lambda root: tag(root, "v0.9.0"),
+        ("earlier than tag v0.9.0",),
+    ),
+    (
+        "the date is after the commit it describes",
+        lambda root: set_release_date(root, "2999-01-01"),
+        ("cannot predate its own contents",),
+    ),
+    (
+        "the date is not a date",
+        lambda root: set_release_date(root, "spring"),
+        ("is not a YYYY-MM-DD date",),
+    ),
+    (
+        "there is no date at all",
+        lambda root: reword(root, CFF, r'\ndate-released: "[^"]+"', ""),
+        ("carries no date-released",),
+    ),
+]
+
+def released_at_its_tag(root: Path) -> None:
+    """The state the rule prescribes: a tag, and the date of that tag's commit."""
+    tag(root, "v0.10.0")
+    set_release_date(root, head_date(root))
+
+
 ACCEPT_CASES: list[Case] = [
     ("the repository as it stands", lambda root: None, ("are accounted for",)),
+    (
+        "the version is tagged and the date is that tag's commit date",
+        released_at_its_tag,
+        ("release date consistent with the tag",),
+    ),
     (
         "an ordinary number that stands for nothing about the corpus",
         lambda root: append(root, CFF, "notes: the rail reads a 4096 byte buffer\n"),
@@ -271,12 +364,14 @@ def main() -> int:
         failures.extend(check("census", CENSUS_CASES, True, tmp))
         failures.extend(check("drift", DRIFT_CASES, True, tmp))
         failures.extend(check("source", SOURCE_CASES, True, tmp))
+        failures.extend(check("date", DATE_CASES, True, tmp))
         failures.extend(check("accept", ACCEPT_CASES, False, tmp))
     total = (
         len(STALE_CASES)
         + len(CENSUS_CASES)
         + len(DRIFT_CASES)
         + len(SOURCE_CASES)
+        + len(DATE_CASES)
         + len(ACCEPT_CASES)
     )
     if failures:

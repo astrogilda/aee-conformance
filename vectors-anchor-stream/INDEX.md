@@ -5,8 +5,8 @@ Ground truth: `spec-vendored/anchors-verify-44c40ba.md`, the contract text bundl
 `anchors-verify-v0.4` of `aos-standard/catalog` at `44c40ba`, whose sha256
 `MANIFEST.json` pins as `specDigest`.
 
-This corpus is 32 vectors: 12 a conformant verifier must not fail
-closed on, and 20 it must reject.
+This corpus is 32 vectors, of which 12 a conformant verifier must
+not fail closed on and 20 it must reject.
 
 **What this corpus certifies against, which is not the vendored text alone.**
 Two conditions are required by the contract as vendored, and their reject

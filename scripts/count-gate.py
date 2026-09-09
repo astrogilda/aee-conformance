@@ -439,21 +439,32 @@ def claims_for_corpus(directory: str, total: int, accept: int, reject: int) -> t
     counts in three sentences apart is three places to go stale at three rates,
     and this repository has already had two documents disagree about the size of
     one corpus while both looked authoritative.
+
+    The wording says "of which" rather than equating the total to the sum,
+    because a corpus may carry a third bucket for members whose property its
+    specification cannot express, and a sentence asserting an arithmetic that
+    happens to hold today is a sentence that goes false when one arrives.
     """
     index = f"{directory}/INDEX.md"
     return (
-        Claim(index, f"{directory}: the corpus total", "This corpus is ", " vectors: ", str(total)),
+        Claim(
+            index,
+            f"{directory}: the corpus total",
+            "This corpus is ",
+            " vectors, of which ",
+            str(total),
+        ),
         Claim(
             index,
             f"{directory}: the accept count",
-            " vectors: ",
-            " a conformant verifier must not fail closed on, and ",
+            " vectors, of which ",
+            " a conformant verifier must not fail closed on and ",
             str(accept),
         ),
         Claim(
             index,
             f"{directory}: the reject count",
-            "must not fail closed on, and ",
+            "must not fail closed on and ",
             " it must reject.",
             str(reject),
         ),

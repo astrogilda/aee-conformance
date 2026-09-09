@@ -887,8 +887,8 @@ Ground truth: `{SPEC_VENDORED}`, the contract text bundled with the pinned tag
 `{TARGET_TAG}` of `{TARGET_REPO}` at `{TARGET_COMMIT[:7]}`, whose sha256
 `MANIFEST.json` pins as `specDigest`.
 
-This corpus is {total} vectors: {accept} a conformant verifier must not fail
-closed on, and {reject} it must reject.
+This corpus is {total} vectors, of which {accept} a conformant verifier must
+not fail closed on and {reject} it must reject.
 
 **What this corpus certifies against, which is not the vendored text alone.**
 Two conditions are required by the contract as vendored, and their reject

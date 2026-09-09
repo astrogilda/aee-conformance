@@ -17,24 +17,29 @@ dependencies = []
 [project.optional-dependencies]
 # Build-time only: the generators sign vectors with real Ed25519 test keys.
 generators = ["cryptography>=43"]
+# The artifact-binding tool under tools/artifact-binding/ and its corpus. Its
+# verifier is OFFLINE but not stdlib-only: it signs and verifies Ed25519 with
+# the same library the generators already use. The reference verification RAIL
+# under packaging/ is untouched and stays dependency-free.
+artifact-binding = ["cryptography>=43"]
 # PyYAML is a checker-and-gate dependency, not a rail dependency: the gate that
 # runs every workflow step reads the workflow YAML, and a type checker that
 # cannot resolve an import reports it as a defect in the importing file. Left
 # undeclared it is indistinguishable from a real unresolved name.
-dev = ["cryptography>=43", "mypy>=1.11", "pyright>=1.1.400", "pyyaml>=6",
-       "ruff>=0.6", "types-PyYAML>=6"]
+dev = ["cryptography>=43", "mypy>=1.11", "pyright>=1.1.400", "pytest>=8",
+       "pytest-cov>=5", "pyyaml>=6", "ruff>=0.6", "types-PyYAML>=6"]
 
 [tool.mypy]
 # scripts/code-contract-gate.py imports the reference rail to drive its own
 # evaluator, so the rail's directory has to be importable when that gate is
 # checked on its own rather than alongside packaging/.
-mypy_path = "packaging"
+mypy_path = "packaging:tools/artifact-binding"
 strict = true
 warn_return_any = true
 warn_unused_configs = true
 show_error_codes = true
 python_version = "3.13"
-files = ["packaging", "vectors"]
+files = ["packaging", "vectors", "tools"]
 
 [tool.pyright]
 # Named by DIRECTORY, deliberately, and this is the whole point of the section.
@@ -51,7 +56,8 @@ files = ["packaging", "vectors"]
 # Directories cannot forget. A file added to any of these is checked because it
 # is there, not because it was announced, and scripts/typecheck-gate.py refuses
 # to pass if a Python file exists outside them.
-include = ["packaging", "scripts", "vectors", "vectors-ai-agent-action"]
+include = ["packaging", "scripts", "tools", "vectors", "vectors-ai-agent-action",
+           "vectors-artifact-binding"]
 
 # The reference rail is imported by the gates that drive it, and it lives in
 # packaging/ rather than on the default path, so the checker needs the same
@@ -63,7 +69,8 @@ include = ["packaging", "scripts", "vectors", "vectors-ai-agent-action"]
 # exists to catch. The gate inserts that directory on sys.path at runtime, and
 # a checker that cannot see the same path reports a configuration error for an
 # import that resolves fine when it runs.
-extraPaths = ["packaging", "vectors"]
+extraPaths = ["packaging", "vectors", "tools/artifact-binding",
+              "vectors-artifact-binding"]
 
 # "standard" rather than "strict", chosen rather than defaulted into. Standard
 # carries every rule that describes a script CRASHING -- an undefined name, a

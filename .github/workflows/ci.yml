@@ -559,6 +559,19 @@ jobs:
       # them by hand on the day they landed.
       - name: the agent-action corpus behaves as its manifest claims
         run: python3 vectors-ai-agent-action/check_vectors.py
+      # The artifact-binding corpus, and the tool that produces the records it
+      # is made of. Three steps rather than one because they answer three
+      # questions: whether the corpus behaves as its manifest claims, whether
+      # the tool's own properties hold, and whether the four demonstration arms
+      # still reach the outcomes the contract requires end to end. The last is
+      # the one an outside reader will run first, so a break there has to fail
+      # here rather than in their terminal.
+      - name: the artifact-binding corpus behaves as its manifest claims
+        run: uv run --extra artifact-binding python vectors-artifact-binding/check_vectors.py
+      - name: the artifact-binding tool holds its properties
+        run: uv run --extra dev python -m pytest tools/artifact-binding/tests -q
+      - name: the four-arm demonstration reaches the contract outcomes
+        run: uv run --extra artifact-binding ./demo/four-arms.sh
       # The rail's own oracle, which is a different question from the corpus.
       # A vector states what the rail must decide about bytes on disk; the
       # self-test states what the rail must decide about a statement it builds

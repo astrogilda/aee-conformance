@@ -23,6 +23,7 @@ Exit 0 when every case holds; 1 on the first summary of failures.
 from __future__ import annotations
 
 import base64
+import re
 import shutil
 import subprocess
 import sys
@@ -109,10 +110,24 @@ def public_key_pem(algorithm: str) -> bytes:
 
 
 def edited_digest_list(root: Path) -> None:
+    """Add one to whatever vector count the first corpus line carries.
+
+    Derived rather than typed. Naming the current total here would restate a
+    measured number in a second place where nothing re-measures it, which is the
+    defect scripts/count-gate.py exists to refuse, and it would go stale the next
+    time the corpus grows.
+    """
     path = root / DIGESTS
+    text = path.read_text(encoding="utf-8")
+    found = re.search(r"vectors=(\d+)", text)
+    if found is None:
+        raise SystemExit(
+            "release-gate-test: no vectors= field in the digest list, so this case "
+            "would assert nothing. Fix the case, never the gate."
+        )
+    start, end = found.span(1)
     path.write_text(
-        path.read_text(encoding="utf-8").replace("vectors=272", "vectors=273"),
-        encoding="utf-8",
+        text[:start] + str(int(found.group(1)) + 1) + text[end:], encoding="utf-8"
     )
 
 

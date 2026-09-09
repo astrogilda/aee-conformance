@@ -6,9 +6,11 @@ It stays silent about the 5 that already disagree: those are the findings in the
 
 I checked that it discriminates before proposing it. Pointed at the build it recorded, the ratchet exits 0. Pointed at anchors-verify-v0.4, it exits 1 and names 16 members by identifier, each with the outcome that build now returns, so a change to line splitting, boundary rules or binding arithmetic surfaces in the job that ran it. Nobody on your side has to remember what the last tag did.
 
-Three commands, stdlib only, no network while it runs, and no install step. check_vectors.py asserts the corpus does what its manifest claims, which stops a generator bug shipping a corpus that measures nothing. gen_vectors.py --check asserts the vendored copy is byte-identical to what the generator emits, so nobody can edit a vector locally and have it pass unnoticed.
+Two commands, stdlib only, no network at run time, no install step. gen_vectors.py --check asserts the vendored copy is byte-identical to what the generator emits, so a local edit to any vector cannot pass unnoticed.
 
-The third command is the ratchet. The job borrows the actions/setup-python@v5 at 3.12 that census-diff.yml already uses. Its path filter keeps it off every other push.
+Whether the corpus does what its manifest claims is answered in my repository rather than yours, by a Go verifier that reads every corpus by its manifest and needs nothing from your CI: go build -o aee-verify ./cmd/aee-verify && ./aee-verify vectors-anchor-stream/ exits 0 over 32 members, 12 accept and 20 reject, and exit 1 names the member whose bytes moved.
+
+The second command is the ratchet described above. The job borrows the actions/setup-python@v5 at 3.12 that census-diff.yml already uses. Its path filter keeps it off every other push.
 
 Two things about the vendored copy itself deserve a note. VENDORED.json carries the upstream commit and the corpus digest. Re-vendoring is then a diff against a named revision rather than a fresh act of trust. And spec-vendored/ holds ANCHORS_VERIFY.md at anchors-verify-v0.4, pinned by sha256. That is the contract text I wrote the members against, and a tag is a name that can move.
 

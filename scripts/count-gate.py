@@ -695,38 +695,61 @@ def head_row_failures(src: Sources) -> list[str]:
 # --------------------------------------------------------------------------
 
 
-REPLY_DOC = "docs/proposals/catalog-1.md"
 RECORDING = "vectors-anchor-stream/recordings/anchors-verify-v0.10.json"
+
+#: Every site in the catalog drafts and their generated bodies that publishes a count
+#: descending from the recording: (file, name, prefix, suffix, which figure).
+REPLY_SITES: tuple[tuple[str, str, str, str, str], ...] = (
+    ("docs/proposals/catalog-1-body.md", "reply: corpus total",
+     "27 of its ", " members agree with v0.10.", "total"),
+    ("docs/proposals/catalog-pr-body.md", "pr body: agreeing members",
+     "Today 27 of the ", " members agree with anchors-verify-v0.10.", "total"),
+    ("docs/proposals/catalog-pr-body.md", "pr body: the gate that would be red",
+     "A gate demanding ", " would go red", "total"),
+    ("docs/proposals/catalog-pr-body.md", "pr body: members that disagree",
+     "It stays silent about the ", " that already disagree", "disagree"),
+    ("docs/proposals/catalog-pr-body.md", "pr body: the verifier's member count",
+     "exits 0 over ", " members, 12 accept", "total"),
+    ("docs/proposals/catalog-pr.md", "pr draft: the verifier's member count",
+     "prints `members: ", "`, `accept", "total"),
+    ("docs/proposals/catalog-pr.md", "pr draft: the recording's member count",
+     "anchors-verify-v0.10.json`, ", " members, 27 true", "total"),
+    ("docs/proposals/catalog-pr.md", "pr draft: agreeing members",
+     "Today 27 of the ", " members agree with anchors-verify-v0.10.", "total"),
+    ("docs/proposals/catalog-pr.md", "pr draft: the gate that would be red",
+     "A gate demanding ", " would go red", "total"),
+    ("docs/proposals/catalog-pr.md", "pr draft: members that disagree",
+     "It stays silent about the ", " that already disagree", "disagree"),
+    ("docs/proposals/catalog-pr.md", "pr draft: the verifier's member count in prose",
+     "exits 0 over ", " members, 12 accept", "total"),
+    ("docs/proposals/catalog-pr.md", "pr draft: the agreement ratio",
+     "|\n| ", " members agree with `anchors-verify-v0.10`", "ratio"),
+    ("docs/proposals/catalog-1.md", "reply draft: corpus total",
+     "27 of its ", " members agree with v0.10.", "total"),
+)
 
 
 def reply_claims(src: Sources) -> tuple[Claim, ...]:
-    """The two counts the anchor-stream reply publishes, derived from the recording.
+    """The counts the catalog drafts publish, every one derived from the recording.
 
-    The reply quotes how many corpus members a published verifier agrees with and
-    how many it does not. Both descend from one file: the recording names every
-    member and whether it agreed, so the total and the disagreement count are
-    read off it rather than typed beside each other in prose. A recording
-    refreshed against a new tag moves both numbers in the same commit or this
-    gate refuses.
+    The drafts quote how many corpus members a published verifier agrees with and how
+    many it does not. Both descend from one file: the recording names every member and
+    whether it agreed, so each figure is read off it rather than typed beside the last
+    one. A recording refreshed against a new tag moves every site in the same commit or
+    this gate refuses. The generated bodies carry the same sentences, so they carry the
+    same claims.
     """
     recorded = json.loads(Path(RECORDING).read_text(encoding="utf-8"))
     (members,) = recorded.values()
     agreeing = sum(1 for agrees in members.values() if agrees)
-    return (
-        Claim(
-            REPLY_DOC,
-            "catalog-1 reply: the corpus total",
-            f"{agreeing} of its ",
-            " members agree with v0.10.",
-            str(len(members)),
-        ),
-        Claim(
-            REPLY_DOC,
-            "catalog-1 reply: the members that disagree",
-            " members agree with v0.10. The ",
-            " that do not are the findings above.",
-            str(len(members) - agreeing),
-        ),
+    figures = {
+        "total": str(len(members)),
+        "disagree": str(len(members) - agreeing),
+        "ratio": f"{agreeing} of {len(members)}",
+    }
+    return tuple(
+        Claim(path, name, prefix, suffix, figures[which])
+        for path, name, prefix, suffix, which in REPLY_SITES
     )
 
 

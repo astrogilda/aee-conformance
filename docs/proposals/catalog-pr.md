@@ -18,7 +18,8 @@ register: edelman
 |---|---|---|
 | Their CI is one workflow, path-filtered to `census/**` | `verified_fact`, direct | `.github/workflows/census-diff.yml` in the clone at HEAD `71ad495`; it is the only file in `.github/workflows/` |
 | That workflow already uses `actions/setup-python@v5` at 3.12 on ubuntu-latest | `verified_fact`, direct | same file |
-| The corpus is stdlib-only Python 3 | `verified_fact`, direct | `check_vectors.py`, `run_verifier.py` and `gen_vectors.py` import only `argparse`, `base64`, `copy`, `hashlib`, `importlib`, `inspect`, `json`, `os`, `re`, `sys`, `unicodedata` |
+| The two vendored scripts are stdlib-only Python 3 | `verified_fact`, direct | `run_verifier.py` and `gen_vectors.py` import only `argparse`, `base64`, `copy`, `hashlib`, `importlib`, `inspect`, `json`, `os`, `re`, `sys`, `unicodedata` |
+| The corpus's own integrity check is the Go verifier | `verified_fact`, direct | `go build -o aee-verify ./cmd/aee-verify && ./aee-verify vectors-anchor-stream/` exits 0 and prints `members: 32`, `accept: 12`, `reject: 20` |
 | The ratchet is green on the build it recorded and names 16 broken members against an older one | `verified_fact`, direct | `python3 run_verifier.py --verifier <v0.10> --expect recordings/anchors-verify-v0.10.json` exits 0; the same against v0.4 exits 1 with 16 `BROKE` lines |
 | 27 of 32 members agree with `anchors-verify-v0.10` | `verified_fact`, direct | `recordings/anchors-verify-v0.10.json`, 32 members, 27 true |
 | The vendored digest pins what was reviewed | `proposal` | this file |
@@ -47,7 +48,7 @@ conformance/anchor-stream/
                          implementation's prose
   spec-vendored/         ANCHORS_VERIFY.md at anchors-verify-v0.4, pinned by digest
   recordings/anchors-verify-v0.10.json
-  gen_vectors.py  check_vectors.py  run_verifier.py
+  gen_vectors.py  run_verifier.py
 .github/workflows/anchor-stream.yml
 ```
 
@@ -74,8 +75,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: The corpus does what it claims
-        run: python3 conformance/anchor-stream/check_vectors.py
       - name: The vendored copy is the copy that was reviewed
         run: python3 conformance/anchor-stream/gen_vectors.py --check
       - name: No member that agreed has stopped agreeing
@@ -86,7 +85,7 @@ jobs:
             --expect conformance/anchor-stream/recordings/anchors-verify-v0.10.json
 ```
 
-Stdlib only, no network at run time, no install step, and it borrows the Python setup the census workflow already uses. The whole job is three commands.
+Stdlib only, no network at run time, no install step, and it borrows the Python setup the census workflow already uses. The whole job is two commands.
 
 ---
 
@@ -104,9 +103,11 @@ It stays silent about the 5 that already disagree: those are the findings in the
 
 I checked that it discriminates before proposing it. Pointed at the build it recorded, the ratchet exits 0. Pointed at anchors-verify-v0.4, it exits 1 and names 16 members by identifier, each with the outcome that build now returns, so a change to line splitting, boundary rules or binding arithmetic surfaces in the job that ran it. Nobody on your side has to remember what the last tag did.
 
-Three commands, stdlib only, no network while it runs, and no install step. check_vectors.py asserts the corpus does what its manifest claims, which stops a generator bug shipping a corpus that measures nothing. gen_vectors.py --check asserts the vendored copy is byte-identical to what the generator emits, so nobody can edit a vector locally and have it pass unnoticed.
+Two commands, stdlib only, no network at run time, no install step. gen_vectors.py --check asserts the vendored copy is byte-identical to what the generator emits, so a local edit to any vector cannot pass unnoticed.
 
-The third command is the ratchet. The job borrows the actions/setup-python@v5 at 3.12 that census-diff.yml already uses. Its path filter keeps it off every other push.
+Whether the corpus does what its manifest claims is answered in my repository rather than yours, by a Go verifier that reads every corpus by its manifest and needs nothing from your CI: go build -o aee-verify ./cmd/aee-verify && ./aee-verify vectors-anchor-stream/ exits 0 over 32 members, 12 accept and 20 reject, and exit 1 names the member whose bytes moved.
+
+The second command is the ratchet described above. The job borrows the actions/setup-python@v5 at 3.12 that census-diff.yml already uses. Its path filter keeps it off every other push.
 
 Two things about the vendored copy itself deserve a note. VENDORED.json carries the upstream commit and the corpus digest. Re-vendoring is then a diff against a named revision rather than a fresh act of trust. And spec-vendored/ holds ANCHORS_VERIFY.md at anchors-verify-v0.4, pinned by sha256. That is the contract text I wrote the members against, and a tag is a name that can move.
 

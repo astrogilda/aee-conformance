@@ -200,6 +200,13 @@ EXTRA_CORPORA: tuple[str, ...] = (
     "vectors-anchor-stream",
     "vectors-mcp-record-contract",
 )
+#: The third corpus, for the artifact-binding contract beside the predicate. It
+#: is modelled here from the day it lands rather than after a count in the README
+#: goes stale, which is the sequence the note above records for the second one.
+#: Its counts are keyed by VERDICT rather than by accept and reject, because that
+#: corpus answers three outcomes and a two-bucket model of it would have to drop
+#: one -- the not-established bucket, which is the only one it exists to test.
+BINDING_MANIFEST_REL = "vectors-artifact-binding/MANIFEST.json"
 CHANGES_REL = "vectors/CHANGES.md"
 BASELINE_REL = "docs/FORCING-BASELINE.json"
 RUNS_REL = "docs/INDEPENDENT-RUNS.json"
@@ -257,6 +264,16 @@ class Sources:
     agent_action_total: int
     agent_action_accept: int
     agent_action_reject: int
+    #: The artifact-binding corpus, counted by verdict. ``binding_verified`` and
+    #: the two beside it are deliberately NOT added to ``current()`` below: every
+    #: one of them is a single-digit value that collides with ordinary prose, and
+    #: the census's VALUE rule at that magnitude produces false positives only.
+    #: They are grounded by the declared claims instead, exactly as the second
+    #: corpus's counts are.
+    binding_total: int
+    binding_verified: int
+    binding_failed: int
+    binding_not_established: int
     predicate_version: str
     agent_action_predicate_version: str
     #: One row per directory in EXTRA_CORPORA: (directory, total, accept, reject).
@@ -393,6 +410,7 @@ def predicate_version(manifest: dict[str, object]) -> str:
 def load_sources() -> Sources:
     manifest = json.loads(source(MANIFEST_REL).read_text(encoding="utf-8"))
     agent_action = json.loads(source(AGENT_ACTION_MANIFEST_REL).read_text(encoding="utf-8"))
+    binding = json.loads(source(BINDING_MANIFEST_REL).read_text(encoding="utf-8"))
     baseline = json.loads(source(BASELINE_REL).read_text(encoding="utf-8"))
     runs = json.loads(source(RUNS_REL).read_text(encoding="utf-8"))
     ledger = revision_ledger()
@@ -416,6 +434,10 @@ def load_sources() -> Sources:
         agent_action_total=len(agent_action["vectors"]),
         agent_action_accept=agent_action["counts"]["accept"],
         agent_action_reject=agent_action["counts"]["reject"],
+        binding_total=len(binding["vectors"]),
+        binding_verified=binding["counts"]["verified"],
+        binding_failed=binding["counts"]["failed"],
+        binding_not_established=binding["counts"]["notEstablished"],
         predicate_version=predicate_version(manifest),
         agent_action_predicate_version=predicate_version(agent_action),
         extra=extra_corpora(),
@@ -782,6 +804,20 @@ def declared_claims(src: Sources) -> tuple[Claim, ...]:
             'alt="',
             ' AI Agent Action conformance vectors"',
             str(src.agent_action_total),
+        ),
+        Claim(
+            "README.md",
+            "the artifact-binding vector-count badge, its image",
+            "badge/artifact--binding%20vectors-",
+            "-e8951c",
+            str(src.binding_total),
+        ),
+        Claim(
+            "README.md",
+            "the artifact-binding vector-count badge, its alt text",
+            'alt="',
+            ' artifact-binding conformance vectors"',
+            str(src.binding_total),
         ),
         Claim(
             "README.md",

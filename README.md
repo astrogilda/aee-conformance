@@ -7,6 +7,7 @@
   <img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="license Apache-2.0">
   <img src="https://img.shields.io/badge/AEE%20vectors-272-e8951c" alt="272 AEE conformance vectors">
   <img src="https://img.shields.io/badge/AI%20Agent%20Action%20vectors-53-e8951c" alt="53 AI Agent Action conformance vectors">
+  <img src="https://img.shields.io/badge/artifact--binding%20vectors-8-e8951c" alt="8 artifact-binding conformance vectors">
   <img src="https://img.shields.io/badge/rails-Go%20%C2%B7%20Python-546274" alt="Go and Python rails">
   <img src="https://img.shields.io/badge/predicate-in--toto%20AEE%20v0.7-6f57c2" alt="in-toto AEE v0.7 predicate">
 </p>
@@ -36,6 +37,20 @@ suite reached release v0.8.0 by adding a second corpus while still implementing
 predicate v0.7, so those two numbers disagreeing is the normal state rather
 than a defect. A bare number cannot tell you which axis you are reading, which
 is why none is written bare.
+
+A third corpus sits beside those two and is not a predicate at all.
+`vectors-artifact-binding/` tests the contract in
+[`spec/artifact-binding/v1.md`](spec/artifact-binding/v1.md), which binds an
+agent-evaluation result to the saved artifacts and grading inputs it names so
+that a regrade is auditable rather than merely repeatable. It is versioned
+separately from both predicates because the AEE specification puts downstream
+verdicts out of its own scope, and folding an evaluation record into it would
+put a verdict inside a predicate designed to carry observations. That corpus
+answers three verdicts rather than two: `verified`, `failed`, and
+`not-established` for a record that cannot be checked to a conclusion because
+something required was never captured. The tool that produces and checks those
+records is `tools/artifact-binding/`, and `demo/four-arms.sh` runs the four
+demonstrations end to end from a fresh clone.
 
 Neither predicate version above is typed by hand. Both are derived from the
 `predicateType` each corpus manifest declares, and `scripts/count-gate.py`

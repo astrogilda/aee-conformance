@@ -700,4 +700,29 @@ go build -o aee-verify ./cmd/aee-verify
 python3 packaging/run_vectors.py --verifier "$PWD/aee-verify -json"
 ```
 
+## One harness judges every corpus here
+
+`aee-verify` takes a corpus directory as well as a statement. The directory's
+`MANIFEST.json` publishes a `suite`, the suite selects a reader, and the reader
+judges every member: an intact corpus exits 0 and prints the member counts by
+verdict, a member whose bytes moved exits 1 and is named, and a suite this
+binary does not know is refused by name rather than skipped, because a skipped
+corpus and a clean one otherwise print the same zero.
+
+```
+heavy-queue heavy-run --name go-build --timeout 3600 -- go build -o aee-verify ./cmd/aee-verify
+for corpus in vectors*/; do ./aee-verify "${corpus%/}"; done
+```
+
+Every corpus used to carry a Python self-check beside its vectors, so the
+command a reader was told to run differed per corpus and three of the six were
+wired into no workflow at all. Two Python files remain and answer different
+questions: `vectors-anchor-stream/run_verifier.py` runs this corpus against a
+third party's `anchors_verify.py`, which is a measurement of that build rather
+than of the corpus, and `vectors-mcp-record-contract/check_run_record.py` is the
+interoperability criterion as a standalone tool for a record of your own. The
+SCITT/COSE corpus keeps its own checker until a reader for it lands; the binary
+refuses that suite by name and says what judging it would need.
+
+
 [aee-checker]: https://github.com/Rul1an/aee-checker/tree/f8bd3a787ef0b4610e96054ee1f167368f2ccdc2

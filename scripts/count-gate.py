@@ -285,6 +285,20 @@ class Sources:
             self.unmeasurable: "the count of unmeasurable rules",
             self.sites: "the count of mutation sites",
             self.annotated: "the count of annotated sites",
+            # A registered corpus's counts, and only the ones large enough to
+            # be unambiguous. This is the same exclusion the indeterminate
+            # bucket carries above, for the same measured reason: a count of 8
+            # collides with "Decision 8", a count of 15 with a pinned line
+            # range, and a count of 7 with the ordinal in a sentence about six
+            # diverging vectors, and every one of those sits within the
+            # small-value window of a word in SMALL_VALUE_NOUNS. Admitting them
+            # produced four refusals against prose that claims nothing about
+            # any corpus, on the revision that registered a corpus of that
+            # size. What the exclusion drops is a value heuristic; what still
+            # grounds these counts is stronger than the heuristic was -- the
+            # declared claim against the corpus's own index sentence, checked
+            # here, and that corpus's check_vectors.py grounding the manifest
+            # against its entries and its files before this gate reads it.
             **{
                 value: f"the {noun} of {directory}"
                 for directory, total, accept, reject in self.extra
@@ -293,6 +307,7 @@ class Sources:
                     (accept, "accept count"),
                     (reject, "reject count"),
                 )
+                if value >= SMALL_VALUE
             },
         }
 

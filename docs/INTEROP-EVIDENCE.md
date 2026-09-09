@@ -2,7 +2,7 @@
 
 register: edelman
 
-Status: proposal, and a checker. The rule below is implemented in `vectors-mcp-record-contract/check_run_record.py` and measured against `vectors-mcp-record-contract/`, so it is not a rule anyone has to take on trust.
+Status: proposal, and a checker. The rule below is implemented in `vectors-mcp-record-contract/check_run_record.py` and measured against vectors-mcp-record-contract/, so it is not a rule anyone has to take on trust.
 
 ## The rule
 
@@ -18,23 +18,23 @@ The result, published, with a digest. A digest turns a re-run into a comparison.
 
 ## Two declarations that decide what the number means
 
-These do not decide whether a reader can get the result. They decide what it says, so a checker reports them apart and never folds them into one verdict.
+These do not decide whether a reader can get the result. The counting rule and the independence declaration decide what a result says, so a checker reports each apart from the verdict and never folds them into it.
 
-The counting rule. A figure states what its denominator counts, and how it counts a member the runner did not score. A figure written as N of N is read as N passes, and the author of one such figure wrote the honest form himself, one line down: "24 vectors, 0 hard failures". The same run is honestly describable as N members with no failures when some were deliberately not scored, and those are different claims. A record can enumerate its unscored members by name one line down and still publish a headline with a whole numerator, and the headline is likely the half a reader quotes. That case is a member of the corpus, and it is the one that separates a checker reading the record from a checker reading the summary.
+The counting rule. A figure states what its denominator counts, and how it counts a member the runner did not score. A figure written as N of N is read as N passes, and the author of one such figure wrote the honest form himself, one line down: "24 vectors, 0 hard failures". The same run is honestly describable as N members with no failures when some were deliberately not scored, and those are different claims. A record can enumerate its unscored members by name one line down and still publish a headline with a whole numerator, and the headline is likely the half a reader quotes. That case is a member of the corpus, and it is the one that separates a checker reading the record from a checker reading the summary; [What a checker answers](#what-a-checker-answers) gives the three columns it turns on.
 
-Independence. One of three: independent, self-report, or undeclared. A run of somebody else's vectors by their author is worth publishing and is not independent evidence. Only the third value is a defect. A declared self-report tells a reader exactly what it is; an undeclared record leaves the reader guessing; and a checker that failed self-reports would probably push records towards dropping the declaration.
+Independence. One of three: independent, self-report, or undeclared. A run of somebody else's vectors by their author is worth publishing and is not independent evidence. Only the third value is a defect. A declared self-report tells a reader what it is; an undeclared record leaves the reader guessing; and a checker that failed self-reports would probably push records towards dropping the declaration.
 
 The environment is noted and does not fail a record. A result that turns out not to depend on the runtime is a stronger result, and nobody can establish that from a record that never named one. The environment therefore appears in the report and never in the verdict.
 
 ## What a checker answers
 
-Three answers, and keeping them apart is the point:
+Fold these three together and a self-report reads as a reproduction:
 
 | answer | question |
 |---|---|
-| `recheckable` | can a third party get the same result from what is published |
-| `figureMeansWhatItSays` | does the headline agree with its own counting rule |
-| `independence` | independent, self-report, or undeclared |
+| recheckable | can a third party get the same result from what is published |
+| figureMeansWhatItSays | does the headline agree with its own counting rule |
+| independence | independent, self-report, or undeclared |
 
 A record can be fully re-checkable, carry a figure nobody should quote, and be a declared self-report. Folding those into one pass is how each of them disappears.
 
@@ -52,13 +52,13 @@ Neither half of that is dishonest. As best I can tell both follow from a table w
 
 The conformance suite for this protocol takes a test case as two artifacts, and a vector family for a record contract seems no exception. Its own guide puts the constraint plainly: "fewer scenarios, more checks", because each scenario spins its own server in continuous integration for every implementation.
 
-A requirement row per rule goes in the suite's per-proposal traceability file, `src/seps/sep-<NNNN>.yaml`. Each row carries either a `check:` slug that an emitted check must match exactly, or an `excluded:` reason naming why the rule is "not observable at the protocol level".
+A requirement row per rule, one per rule in [The rule](#the-rule), goes in the suite's per-proposal traceability file, src/seps/sep-<NNNN>.yaml. Each row carries either a check: slug that an emitted check must match exactly, or an excluded: reason naming why the rule is "not observable at the protocol level".
 
-One scenario class per family lives in `src/scenarios/server/` and emits many checks rather than many scenarios.
+One scenario class per family lives in src/scenarios/server/ and emits many checks rather than many scenarios.
 
-I would register the class in `src/scenarios/index.ts`, the suite's registry and the only place a scenario becomes reachable.
+I would register the class in src/scenarios/index.ts, the suite's registry and the only place a scenario becomes reachable.
 
-I would add an entry to `requirements/<spec-version>.yaml` only where a revision requires the family to be scored.
+I would add an entry to requirements/<spec-version>.yaml only where a revision requires the family to be scored.
 
 The contribution rules ask for an issue first and a run against a real implementation before a pull request, and they say to "reuse the CLI runner" rather than add a second entry point. Nothing here proposes one: the checker in this repository is a reference for the rule, and the upstream shape is a scenario emitting one check per rule above.
 

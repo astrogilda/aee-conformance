@@ -1236,6 +1236,15 @@ FROZEN: tuple[Frozen, ...] = (
         "moving either would erase the event that made this gate necessary.",
     ),
     Frozen(
+        "docs/INTEROP-EVIDENCE.md",
+        "the honest form of a figure, quoted verbatim from the record that published it",
+        '"24 vectors, 0 hard failures"',
+        "Another project's own sentence about its own run, quoted because the "
+        "criterion turns on the difference between that wording and the whole "
+        "numerator a table carried instead. Both figures belong to that record "
+        "and to the day it ran; neither counts anything here.",
+    ),
+    Frozen(
         "scripts/condition-forcing-crosscheck.py",
         "the reconciliation sentence this gate matches, quoted in its own comment",
         "316 in the released note + 12 killed only by vectors added",

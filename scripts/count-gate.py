@@ -1517,6 +1517,20 @@ EXEMPT_PREFIXES: dict[str, str] = {
         "and every integer inside belongs to the upstream document rather than to "
         "this corpus"
     ),
+    # A registered corpus vendors the text it certifies against, and those bytes
+    # are upstream's. Derived from the registration rather than listed per
+    # corpus, so registering one stays one line: a corpus whose vendored copy
+    # had to be exempted by hand would be a second line that a reader could
+    # forget, and forgetting it reports somebody else's section numbering as an
+    # unaccounted count of ours.
+    **{
+        f"{directory}/spec-vendored/": (
+            "vendored upstream bytes; the corpus manifest's digest owns them, its "
+            "check_vectors.py refuses a copy whose bytes moved, and every integer "
+            "inside belongs to the upstream document rather than to this corpus"
+        )
+        for directory in EXTRA_CORPORA
+    },
 }
 
 # The files whose count-shaped integers are CONTROL DATA rather than claims about

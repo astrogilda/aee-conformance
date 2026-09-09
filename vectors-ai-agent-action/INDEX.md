@@ -5,6 +5,17 @@ Ground truth: in-toto/attestation#588, `spec/predicates/ai-agent-action.md`
 at `8783c6b`, type URI
 `https://in-toto.io/attestation/ai-agent-action/v0.1`.
 
+**What the table tests, which is not #588 as it stands.** Every accept member
+is conformant under the pull request's own text. Every reject member is
+rejectable under the **proposed** canonicalization text this project offers
+into that pull request (`../docs/ai-agent-action-canonicalization.md`), and
+not under #588 as it stands: the text as written leaves those divergences
+open, which is why the strengthening is proposed at all. So a row below
+reading `invalid` states what the proposed text would require, never what the
+pull request already requires today. `MANIFEST.json` says the same in its
+`note` and names the proposal in `proposedText`; a reader quoting this table
+carries that sentence with the number.
+
 That commit is not an address. The pull request is opened from
 `add-ai-agent-action-predicate` on the fork `elang2/attestation`, so the
 commit was never in the review venue, and that branch has since been

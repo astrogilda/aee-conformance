@@ -38,6 +38,17 @@ Re-run the suite to get current results.
 Conformance vectors for the AI Agent Action predicate proposed in
 in-toto/attestation#588, tracked at `8783c6b`.
 
+**These vectors test proposed strengthening text, not #588 as it stands.**
+The accept members are conformant under the pull request's own text. The
+reject members are rejectable under the proposed canonicalization text this
+project offers into that pull request
+(`../docs/ai-agent-action-canonicalization.md`); the text as it stands leaves
+those divergences open, which is the reason the strengthening is proposed.
+Any table, badge or count quoted out of this directory carries that sentence
+with it: the vector count describes a suite measuring a proposal, and reading
+it as a suite measuring the pull request today overstates what the pull
+request currently requires.
+
 That commit no longer resolves anywhere. It lived on
 `add-ai-agent-action-predicate` in the fork `elang2/attestation`, which the pull
 request is opened from and which has since been rewritten past it, so a plain
@@ -52,7 +63,9 @@ intermediary, and the records form a hash chain whose genesis hash serves as the
 subject digest, so a policy can target a whole audit chain. It shipped without
 conformance vectors. This suite is offered into that pull request rather than
 alongside it: the vectors certify its predicate, use its type URI, and are built
-from its own worked example.
+from its own worked example. What they certify against is the pull request's
+text plus the proposed canonicalization strengthening, never the pull request's
+text alone, for the reason given at the top of this file.
 
 ## Layout
 

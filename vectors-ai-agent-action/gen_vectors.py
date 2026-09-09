@@ -568,8 +568,11 @@ SPEC_VENDORED_REL = f"spec-vendored/ai-agent-action-{UPSTREAM_COMMIT[:7]}.md"
 def spec_digest() -> str:
     """The digest of the vendored specification copy.
 
-    The suite certifies against #588 as it read at UPSTREAM_COMMIT, and the
-    vendored file is the only evidence on disk of what that text said. Pinning
+    The suite certifies against #588 as it read at UPSTREAM_COMMIT plus the
+    proposed canonicalization strengthening, never against #588 as it stands
+    alone: the reject members are rejectable under the proposal and not under
+    the pull request's current text. The vendored file is the only evidence on
+    disk of what that upstream text said. Pinning
     its bytes here is what lets check_vectors.py refuse a copy edited in place:
     without the pin the manifest names a commit, which anyone can write, rather
     than the bytes, which they cannot.

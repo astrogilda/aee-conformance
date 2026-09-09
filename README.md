@@ -17,6 +17,16 @@ Action**, predicate version 0.1, proposed in
 [in-toto/attestation#588](https://github.com/in-toto/attestation/pull/588).
 Each has its own corpus, `vectors/` and `vectors-ai-agent-action/`.
 
+**The 53 AI Agent Action vectors test proposed strengthening text, not #588 as
+it stands.** Their accept members are conformant under the pull request's own
+text; their reject members are rejectable under the canonicalization
+strengthening this project offers into that pull request
+([`docs/ai-agent-action-canonicalization.md`](docs/ai-agent-action-canonicalization.md)),
+because the text as it stands leaves those divergences open. The badge above
+counts that suite, so the count travels with this sentence: read as a
+measurement of the pull request today, it claims more than the pull request
+currently requires.
+
 **Three different numbers on this page are called a version, so every one of
 them names its axis.** A *predicate* version belongs to a specification in
 in-toto and changes when that specification changes; there are two of them here

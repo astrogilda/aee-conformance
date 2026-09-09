@@ -276,10 +276,14 @@ def main() -> None:
     if corpus != manifest["corpusDigest"]:
         FAILURES.append("corpusDigest does not match the files on disk")
 
-    # The vendored specification copy, against its pinned digest. The suite's
-    # whole claim is that it certifies against #588 as that text read at the
-    # recorded commit, and this file is the only evidence on disk of what it
-    # said. A commit id in the manifest is a name anyone can write; the digest
+    # The vendored specification copy, against its pinned digest. The suite
+    # certifies against that text as it read at the recorded commit PLUS the
+    # proposed canonicalization strengthening (docs/ai-agent-action-
+    # canonicalization.md): the accept members are conformant under #588 as it
+    # stands, the reject members are rejectable only under the proposal, and a
+    # claim of "certifies against #588" without that half overstates what the
+    # pull request requires today. This file is the only evidence on disk of
+    # what the upstream text said. A commit id in the manifest is a name anyone can write; the digest
     # is the thing an edit in place cannot survive.
     # The provenance half. The digest below is the pin a verifier acts on; these
     # fields are what lets a reader find the text upstream, and they were not

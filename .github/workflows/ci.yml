@@ -54,6 +54,25 @@ jobs:
       - name: the shipped CLI clears the published corpus as an external rail
         run: python3 scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py
 
+      # One binary judges every corpus in this repository. Each corpus used to
+      # ship a Python runner beside its vectors, so the command a third party
+      # was told to run was a different command per corpus and three of the six
+      # runners were wired into no workflow at all. This step walks every
+      # vectors* directory that carries a MANIFEST.json and hands each to
+      # aee-verify. A directory whose suite names no reader exits non-zero and
+      # is named, so a corpus can never stop being checked quietly.
+      - name: one harness judges every corpus
+        run: |
+          set -euo pipefail
+          go build -o /tmp/aee-verify ./cmd/aee-verify
+          status=0
+          for dir in vectors*/; do
+            [ -f "${dir}MANIFEST.json" ] || continue
+            echo "== ${dir%/}"
+            /tmp/aee-verify "${dir%/}" || status=1
+          done
+          exit "$status"
+
       # No workflow referenced this proof at all. It had been refusing since the
       # specification was re-vendored under it -- its pinned sentence split no
       # longer matched the vendored text -- and nothing was there to hear it,

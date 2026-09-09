@@ -82,6 +82,15 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 
+	// A directory argument is a CORPUS, not a statement. One binary judges
+	// every corpus in the repository: the directory's MANIFEST.json publishes a
+	// suite, the suite selects a reader, and a suite no reader answers for is
+	// refused by name. Before this, each corpus shipped a Python runner beside
+	// its vectors and every outward command was a different command.
+	if info, err := os.Stat(fs.Arg(0)); err == nil && info.IsDir() {
+		return runCorpus(fs.Arg(0), *jsonOut, stdout, stderr)
+	}
+
 	resolvedKeys := *keysPath
 	if resolvedKeys == "" {
 		resolvedKeys = os.Getenv(EnvSubstrateKeys)

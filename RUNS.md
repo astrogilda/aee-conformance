@@ -54,8 +54,11 @@ What the run is evidence of, in his words:
 
 And what it is not evidence of, also his:
 
-> This is *not* a determinacy result. The figure that bears on whether the text
-> is determinate from a cold start is still the blind 179/232
+> This is not a determinacy result. The figure that bears on whether the text is
+> determinate from a cold start is still the blind 179/232
+
+Both quotations are transcribed with the posting's markdown emphasis removed and
+nothing else changed.
 
 Three things in that posting belong in this file rather than in a summary of it.
 The first is a disclosure its author made before any figure: an unregistered

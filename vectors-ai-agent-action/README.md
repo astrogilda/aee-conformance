@@ -54,7 +54,7 @@ That commit no longer resolves anywhere. It lived on
 request is opened from and which has since been rewritten past it, so a plain
 clone of that fork, of `in-toto/attestation`, or of this project's own fork all
 exit 128 on it. The corpus does not depend on it: `spec-vendored/` carries the
-text, `MANIFEST.json` pins its sha256, and `check_vectors.py` recomputes that
+text, `MANIFEST.json` pins its sha256, and `aee-verify` recomputes that
 digest on every run. A commit id names bytes nobody can fetch; the digest names
 bytes in this directory.
 
@@ -78,7 +78,6 @@ text alone, for the reason given at the top of this file.
 | `spec-vendored/` | the specification text the corpus certifies against, and the only surviving copy of it |
 | `MANIFEST.json` | machine-readable expectations, counts and corpus digest |
 | `gen_vectors.py` | regenerates the corpus byte-identically |
-| `check_vectors.py` | self-check; exit non-zero when a member does not do what it claims |
 
 The canonicalization text the reject members are rejectable under is
 `docs/ai-agent-action-canonicalization.md`, adapted from in-toto/attestation#570.
@@ -107,10 +106,10 @@ injective, and one sentence fixes it.
 
 ```
 python3 gen_vectors.py     # regenerate, byte-identically
-python3 check_vectors.py   # self-check
+aee-verify vectors-ai-agent-action/   # self-check, from the repository root
 python3 attacks/run_attacks.py
 ```
 
-`check_vectors.py` refuses to pass a corpus in which a reject condition has no
+`aee-verify` refuses to pass a corpus in which a reject condition has no
 accepting twin. A suite of rejections alone awards full marks to a verifier that
 rejects every input, which is the one verifier that certifies nothing.

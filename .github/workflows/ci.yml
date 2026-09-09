@@ -563,30 +563,19 @@ jobs:
       # produces fails on the push that adds it.
       - name: every generated file regenerates byte-identically
         run: python3 scripts/regenerability-gate.py
-      # The AI Agent Action suite's own mutation check, which asks a different
-      # question from the gate above it. Regenerability asks whether the
-      # committed bytes are the bytes the generator emits; this asks whether
-      # those bytes behave as the manifest claims -- that a member claiming a
-      # chain-hash divergence actually diverges, that every reject condition has
-      # an accepting twin, and that the vendored specification still matches the
-      # digest pinned beside it. A corpus of rejections alone gives full marks
-      # to a verifier that rejects everything, so the twin rule is the property
-      # that makes the suite worth running at all.
+      # Whether every corpus BEHAVES as its manifest claims is a different
+      # question from whether its bytes regenerate, and it is asked once for
+      # all six corpora by the "one harness judges every corpus" step in the Go
+      # job. It used to be asked here, per corpus, by a Python runner that
+      # shipped beside each vector set -- and only two of the six were ever
+      # wired into this file, so four of them passed because somebody ran them
+      # by hand on the day they landed.
       #
-      # It shipped with the corpus and nothing ran it, which is how the
-      # generator above it also arrived: both passed only because somebody ran
-      # them by hand on the day they landed.
-      - name: the agent-action corpus behaves as its manifest claims
-        run: python3 vectors-ai-agent-action/check_vectors.py
-      # The artifact-binding corpus, and the tool that produces the records it
-      # is made of. Three steps rather than one because they answer three
-      # questions: whether the corpus behaves as its manifest claims, whether
-      # the tool's own properties hold, and whether the four demonstration arms
-      # still reach the outcomes the contract requires end to end. The last is
-      # the one an outside reader will run first, so a break there has to fail
-      # here rather than in their terminal.
-      - name: the artifact-binding corpus behaves as its manifest claims
-        run: uv run --extra artifact-binding python vectors-artifact-binding/check_vectors.py
+      # The artifact-binding tool that produces those records still has its own
+      # properties to hold, and the four demonstration arms still have to reach
+      # the outcomes the contract requires end to end. The last is the one an
+      # outside reader runs first, so a break there fails here rather than in
+      # their terminal.
       - name: the artifact-binding tool holds its properties
         run: uv run --extra dev python -m pytest tools/artifact-binding/tests -q
       - name: the four-arm demonstration reaches the contract outcomes

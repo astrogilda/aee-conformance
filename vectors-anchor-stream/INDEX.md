@@ -42,7 +42,7 @@ expectation lives in `MANIFEST.json`. A verifier could otherwise certify
 against this corpus without opening a stream.
 
 Regenerate byte-identically: `python3 gen_vectors.py`.
-Self-check: `python3 check_vectors.py`.
+Self-check: `aee-verify vectors-anchor-stream/` from the repository root.
 Run a verifier: `python3 run_verifier.py --verifier <path-to-anchors_verify.py>`.
 
 ## Conditions

@@ -35,7 +35,7 @@ folding them into passes would hide the gap. 1 member carries
 that verdict today.
 
 Regenerate byte-identically: `python3 gen_vectors.py`.
-Self-check: `python3 check_vectors.py`.
+Self-check: `aee-verify vectors-acs-core/` from the repository root.
 
 ## Requirements
 

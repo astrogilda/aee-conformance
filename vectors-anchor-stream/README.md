@@ -53,7 +53,7 @@ carried its verdict twice, once in a filename prefix and once in the directory
 around it, and a classifier over the identifier alone predicted accept or
 reject with a separability of 1.0000 against a permutation null of 0.5879: a
 verifier could have certified against that suite without opening a file.
-`check_vectors.py` recomputes each identifier from the bytes it names, so an
+`aee-verify` recomputes each identifier from the bytes it names, so an
 edit that does not regenerate leaves a name describing bytes that are gone.
 
 ## Layout
@@ -69,22 +69,28 @@ edit that does not regenerate leaves a name describing bytes that are gone.
 | `MANIFEST.json` | machine-readable expectations, conditions, counts and corpus digest |
 | `INDEX.md` | every member in one table |
 | `gen_vectors.py` | regenerates the corpus byte-identically |
-| `check_vectors.py` | self-check; refuses a member that does not do what it claims |
 | `run_verifier.py` | runs the corpus against a verifier and reports outcome and stop reason |
 
 ## Running it
 
 ```
+aee-verify vectors-anchor-stream/  # self-check, from the repository root
 python3 gen_vectors.py             # regenerate, byte-identically
 python3 gen_vectors.py --check     # refuse a tree the generator does not emit
-python3 check_vectors.py           # self-check
 python3 run_verifier.py --verifier /path/to/anchors_verify.py
 ```
+
+`aee-verify` is the one harness for every corpus in this repository. It reads
+the `suite` field of a `MANIFEST.json`, judges the members that suite declares,
+and refuses by name a suite it does not know. Each corpus used to carry a
+Python self-check of its own, so the command a reader was told to run differed
+per corpus and three of the six were wired into no workflow at all. Build it
+with `go build -o aee-verify ./cmd/aee-verify`.
 
 `run_verifier.py` takes `--verifier` more than once with a matching `--label`,
 which is how one run reports every published tag side by side.
 
-`check_vectors.py` refuses a corpus in which a reject condition has no
+`aee-verify` refuses a corpus in which a reject condition has no
 accepting twin. A suite of rejections alone awards full marks to a verifier
 that rejects every input, and that is the one verifier certifying nothing.
 

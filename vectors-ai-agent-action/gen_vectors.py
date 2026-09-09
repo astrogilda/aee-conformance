@@ -42,7 +42,7 @@ UPSTREAM_COMMIT = "8783c6b800247f2ffe34714a32a9b722e438d851"
 #
 # THE DIGEST IS THEREFORE THE PIN, AND THE COMMIT IS ONLY PROVENANCE. A commit
 # id names bytes nobody can fetch; `specDigest` names bytes that are in this
-# directory, and `check_vectors.py` refuses a copy whose bytes moved. That
+# directory, and `aee-verify` refuses a copy whose bytes moved. That
 # refusal is what keeps the corpus honest about what it certifies against, and
 # it is why losing the commit costs the suite nothing.
 SPEC_UPSTREAM_REPO = "elang2/attestation"
@@ -573,7 +573,7 @@ def spec_digest() -> str:
     alone: the reject members are rejectable under the proposal and not under
     the pull request's current text. The vendored file is the only evidence on
     disk of what that upstream text said. Pinning
-    its bytes here is what lets check_vectors.py refuse a copy edited in place:
+    its bytes here is what lets aee-verify refuse a copy edited in place:
     without the pin the manifest names a commit, which anyone can write, rather
     than the bytes, which they cannot.
     """
@@ -810,7 +810,7 @@ def main() -> None:
             "orphaned and a plain clone of any of the three repositories "
             "exits 128 on it. The pin a verifier acts on is specDigest over "
             "specVendored, which is in this directory and which "
-            "check_vectors.py recomputes on every run.",
+            "aee-verify recomputes on every run.",
         "specVendored": SPEC_VENDORED_REL,
         "specDigest": spec_digest(),
         "proposedText": "docs/ai-agent-action-canonicalization.md",

@@ -582,7 +582,7 @@ nobody should quote, and be a declared self-report, and folding those into one
 verdict is how each of them disappears.
 
 Regenerate byte-identically: `python3 gen_vectors.py`.
-Self-check: `python3 check_vectors.py`.
+Self-check: `aee-verify vectors-mcp-record-contract/` from the repository root.
 Check a record: `python3 check_run_record.py records/<id>.json`.
 
 ## Conditions

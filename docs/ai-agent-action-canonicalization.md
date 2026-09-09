@@ -7,7 +7,7 @@ canonicalization and bounds text in in-toto/attestation#570, which fought the sa
 question out over several rounds and settled it.
 
 The conformance members that exercise every rule below live in
-`vectors-ai-agent-action/`, and `check_vectors.py` refuses to pass a corpus in which
+`vectors-ai-agent-action/`, and `aee-verify` refuses to pass a corpus in which
 any rejecting member lacks an accepting twin.
 
 What changed in adapting #570's text to #588:

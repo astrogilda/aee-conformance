@@ -25,7 +25,7 @@ each resolves its own HEAD. The commit is orphaned everywhere.
 
 Nothing is lost, because the commit was never the pin. `../spec-vendored/`
 carries the text itself, `MANIFEST.json` pins its sha256 as `specDigest`,
-and `check_vectors.py` recomputes that digest on every run and refuses a
+and `aee-verify` recomputes that digest on every run and refuses a
 copy whose bytes moved. The bytes are the ground truth; the commit records
 only where they came from.
 
@@ -41,7 +41,7 @@ the chain hash is computed over, because that preimage is the underlying
 gateway record rather than the Statement.
 
 Regenerate byte-identically: `python3 ../gen_vectors.py`.
-Self-check: `python3 ../check_vectors.py`.
+Self-check: `aee-verify vectors-ai-agent-action/` from the repository root.
 
 ## What an accept member claims
 
@@ -51,7 +51,7 @@ a `chainHash` that value recomputes from the last line of its sidecar.
 
 Every reject condition in the sibling directory has an accepting member
 here carrying the same condition id. That pairing is enforced rather than
-intended: `check_vectors.py` fails when a reject condition has no accepting
+intended: `aee-verify` fails when a reject condition has no accepting
 twin, because a corpus of rejections alone gives full marks to a verifier
 that rejects everything, which is the one verifier that certifies nothing.
 
@@ -84,7 +84,7 @@ reader checks the row against the RFC.
 `ok-014` and `ok-015` are the two IEEE patterns that share one JSON
 representation, and their payload digests are equal by construction. Minus
 zero serializing to `0` is the lossy step, and it is the row real
-implementations disagree on. `check_vectors.py` recomputes each row from the
+implementations disagree on. `aee-verify` recomputes each row from the
 declared text rather than from the generator's serializer, so a generator
 that agreed only with itself would not pass.
 

@@ -1,13 +1,15 @@
-# catalog#1: four findings against `anchors-verify-v0.10`
+# catalog#1: four findings against anchors-verify-v0.10
 
 ## Front matter
+
+register: edelman
 
 | field | value |
 |---|---|
 | **target** | `https://github.com/aos-standard/catalog/issues/1`, a comment on the open issue "Break our ANCHORS verifier -- pinned tag anchors-verify-v0.4" |
 | **channel** | GitHub issue comment, posted by the operator |
 | **deadline** | none stated. The issue's own rules of engagement say "No response in 21 days -> we treat that as 'no takers yet', not as evidence of strength." Verified by reading the issue body, captured 2026-09-09 at `research/366-corpora-anchor-acs-mcp-2026-09-09/_raw/github/aos-catalog-issue-1.json` |
-| **audience** | Tetsurohhori (the maintainer, 15 of the 21 comments). Two others have taken the invitation and both post reproduction receipts: `mohammedmessaoudene-cmd` (5 comments) and `wowlegend`, signing as Tersign (4 comments). Everything posted here will be re-run by at least one of them |
+| **audience** | The repository's maintainer, who wrote 15 of the 21 comments. Two other reporters have taken the invitation and both post reproduction receipts, 5 comments and 4 comments. Everything posted here will be re-run by at least one of them. Handles are in the internal execution report and are deliberately absent from this file, which sits in a public repository |
 | **identity** | Private individual, the operator's own name. **No repository link of any kind appears in the body**, per the adversarial-submission rule in the project instructions: every payload is inline and reproduces from the pinned tag plus the script quoted in the comment |
 
 ### Evidence status of every number and quotation
@@ -15,21 +17,26 @@
 | claim | status | locator |
 |---|---|---|
 | The rule quoted from his 2026-08-20 comment | `verified_fact`, direct | comment `5363036990`, `_raw/github/aos-catalog-issue-1-comments.json` |
-| "Hashes cover the full stored line including the trailing newline byte" | `verified_fact`, direct | `ANCHORS_VERIFY.md` at `anchors-verify-v0.4`, vendored at `vectors-anchor-stream/spec-vendored/anchors-verify-44c40ba.md`, sha256 `bf7245d229c20603205b4b81df5b0cd376e80b094aba48168ddb0c374b4f94ff` |
-| "The bundled files come from the same tag as the verifier. You can reproduce without referencing `main`." | `verified_fact`, direct | same vendored file |
+| "Hashes cover the full stored line including the trailing newline byte" | `verified_fact`, direct | ANCHORS_VERIFY.md at `anchors-verify-v0.4`, vendored at `vectors-anchor-stream/spec-vendored/anchors-verify-44c40ba.md`, sha256 `bf7245d229c20603205b4b81df5b0cd376e80b094aba48168ddb0c374b4f94ff` |
+| "The bundled files come from the same tag as the verifier. You can reproduce without referencing main." | `verified_fact`, direct | same vendored file |
 | "If you have a construction for either, I will take it." | `verified_fact`, direct | comment `5276678379`, 2026-08-13 |
-| The documented command exits 1 on all 7 published tags | `verified_fact`, direct | run 2026-09-09 against `anchors-verify-v0.4` through `v0.10`, exit codes captured per tag, not read through a pipe |
-| `main` held 49 lines at read time | `verified_fact`, direct | `git show main:ANCHORS.jsonl \| wc -l` in a clone of the repository, 2026-09-09 |
-| The four constructions and their observed outcomes | `verified_fact`, direct | the script in the body, run against `anchors-verify-v0.10`; the same script is what produced every figure quoted |
-| `line_count: true` stopping on a value comparison at `v0.4` through `v0.8` | `verified_fact`, direct | the same corpus run against each tag; closed at `v0.9` |
+| The documented command exits 1 on all 7 published tags | `verified_fact`, direct | run 2026-09-09 against `anchors-verify-v0.4` through v0.10, exit codes captured per tag, not read through a pipe |
+| main held 49 lines at read time | `verified_fact`, direct | `git show main:ANCHORS.jsonl \| wc -l` in a clone of the repository, 2026-09-09 |
+| The four constructions and their observed outcomes | `verified_fact`, direct | the script in the body, run against anchors-verify-v0.10; the same script is what produced every figure quoted |
+| `line_count: true` stopping on a value comparison at v0.4 through v0.8 | `verified_fact`, direct | the same corpus run against each tag; closed at v0.9 |
 | The proposed repairs | `proposal` | this file |
 
 ### push_plan
 
-1. The operator reads the issue in full once before posting; the comment quotes it four times.
+1. The operator reads the issue in full once before posting. The comment quotes it four times.
+
 2. Post the body below as a single comment. Nothing else is sent.
+
 3. Told next: nobody outside. The corpus that produced these figures stays where it is and is not named.
-4. Follow-up cadence: if he replies with a repair, re-run the same script against the new tag and post the table again, which is the exchange the two other reporters have already established in this thread. If nobody replies in 21 days, his own rules of engagement have already said what that means and no nudge is sent.
+
+4. Follow-up cadence: if he replies with a repair, re-run the same script against the new tag and post the table again, which is the exchange the two other reporters have already established in this thread.
+
+5. If nobody replies in 21 days, his own rules of engagement have already said what that means, and no nudge is sent.
 
 ---
 
@@ -39,24 +46,24 @@ Paragraphs are single lines with a blank line between them, so GitHub renders pr
 
 ---
 
-Four constructions against `anchors-verify-v0.10`, and the first one is the copy-paste block at the top of `ANCHORS_VERIFY.md`. Run it today and it exits 1, not 3.
+Four constructions against anchors-verify-v0.10, and the first one is the copy-paste block at the top of ANCHORS_VERIFY.md. Run it today and it exits 1, not 3.
 
 ```
 VERIFY FAILED: truncation vector 2: presented stream shorter than main branch (24 vs 49 lines)
 ```
 
-I ran that block against all 7 published tags, `v0.4` through `v0.10`, and recorded exit 1 from every one. The bundled stream has not changed and the verifier has not changed. `main` went from 24 lines to 49.
+I ran that block against all 7 published tags, v0.4 through v0.10, and recorded exit 1 from every one. The bundled stream has not changed and the verifier has not changed. main went from 24 lines to 49.
 
-Two lines in `verify_from_bytes` are what I take to be the cause, and they are unchanged since `v0.4`:
+The cause, as best I can tell, is two lines in `verify_from_bytes` that have not changed since v0.4:
 
 ```python
 if main_lines is None and query_repo:
     main_lines = fetch_repo_lines(query_repo, "main", "ANCHORS.jsonl")
 ```
 
-That fetch has no condition on it, so the documented run reads a moving branch. Your own text beside the block says "The bundled files come from the same tag as the verifier. You can reproduce without referencing `main`." The verdict a reader gets from those commands is a function of what you pushed this week.
+That fetch has no condition on it, so the documented run reads a moving branch. Your own text beside the block says "The bundled files come from the same tag as the verifier. You can reproduce without referencing main." The verdict a reader gets from those commands is a function of what you pushed this week.
 
-The remaining three run offline, because the alternative is a live fetch and a verdict that depends on one expires. Fetch `anchors_verify.py`, `ANCHORS.jsonl` and `ANCHORS.jsonl.digests.json` from the tag, add the two witness snapshots the stream names, and run the script below. It reproduces the outcome path of your `main` with the platform reads replaced by pinned bytes, and nothing else stubbed.
+The remaining three run offline, because the alternative is a live fetch and a verdict that depends on one expires. Fetch anchors_verify.py, ANCHORS.jsonl and ANCHORS.jsonl.digests.json from the tag, add the two witness snapshots the stream names, and run the script below. It reproduces the outcome path of your main with the platform reads replaced by pinned bytes, and nothing else stubbed.
 
 ```
 git show e000814f60f393469479df795114d5b595f7ff49:ANCHORS.jsonl > W-e000814.jsonl
@@ -97,11 +104,14 @@ def run(stream, presented_sidecar=None, main=None):
     return "exit %d  %s" % (code, message.splitlines()[0])
 
 short = json.loads(side)
-short["line_sha256"] = short["line_sha256"][:18]
+digests = short["line_sha256"]
+del digests[18:]
 short = json.dumps(short).encode()
 altered = b"".join(lines[:21] + [lines[21].replace(b'"note":""', b'"note":"x"')] + lines[22:])
 binding = json.loads(lines[18])
-binding["attestation"]["witness"]["repo"] = ""
+attestation = binding["attestation"]
+witness = attestation["witness"]
+witness["repo"] = ""
 norepo = b"".join(lines[:18] + [json.dumps(binding, separators=(",", ":")).encode() + b"\n"] + lines[19:])
 
 for label, stream, presented_sidecar in (
@@ -125,30 +135,32 @@ binding witness repo set to ""   sha256 149032e9db4d8ce3  exit 3  VERIFY PARTIAL
 
 Row 2 is the construction for H1 you asked for on 13 August: "If you have a construction for either, I will take it." Delete the final newline byte and keep the published sidecar.
 
-The stream's sha256 moves from `d0a5857384624bab` to `c3c80b8a0b725331`, and the verifier prints the baseline's line word for word on all 7 tags. `bytes_to_lines` appends the missing terminator before hashing, so the digest that matched was computed over a line the file does not contain. `ANCHORS_VERIFY.md` says "Hashes cover the full stored line including the trailing newline byte." On the last line of this stream they cover a byte that is not there.
+The stream's sha256 moves from d0a5857384624bab to c3c80b8a0b725331, and the verifier prints the baseline's line word for word on all 7 tags. `bytes_to_lines` appends the missing terminator before hashing, so the digest that matched was computed over a line the file does not contain. ANCHORS_VERIFY.md says "Hashes cover the full stored line including the trailing newline byte." The last line of this stream has no such byte, and the hash that matched covered one anyway.
 
-Rows 3 and 4 are the digest sidecar's coverage. `verify_lines_against_digests` fails closed when the sidecar is longer than the stream and iterates over `digests` when it is shorter, so 6 lines get no comparison at all.
+Rows 3 and 4 are the digest sidecar's coverage. `verify_lines_against_digests` fails closed when the sidecar is longer than the stream and iterates over digests when it is shorter, so 6 lines get no comparison at all.
 
-Row 4 alters line 22 inside that gap. It returns the same outcome and the same exit code as the honest stream. The `digests=18` field does move, and by my reading that is the whole signal: a reader has to notice one field, on a line whose verdict word and exit code are identical, to learn that a quarter of the stream went unchecked. Your limits section puts fork detection at the unattested tip out of scope, which is a different claim from this one, and nothing in it says the sidecar may cover part of the file.
+Row 4 alters line 22 inside that gap. It returns the same outcome and the same exit code as the honest stream. Both rows present a sidecar covering 18 of the 24 lines, so lines 19 through 24 are compared against nothing at all, and the one field that moves between the honest run and either of these is the digests count inside the summary line, which is neither the verdict word nor the exit code a script branches on.
 
-Row 5 is `_resolve_trust_repo`. With `--expect-witness-repo` supplied, the comparison is guarded on the stream's repository being truthy, and the empty string is not, so a binding that names no repository at all satisfies the pin.
+By my reading that field is the whole signal: a reader has to notice it, on a line whose verdict word and exit code are identical, to learn that a quarter of the stream went unchecked. Your limits section puts fork detection at the unattested tip out of scope. That is a different claim from this one, and nothing in it says the sidecar may cover part of the file.
 
-`ANCHORS_VERIFY.md` says "If `--expect-witness-repo` is set and the stream names a different repository -> fail closed." The empty string is not a different repository, so that branch never runs. I have not shown a witness substitution here. The query still goes to the pinned repository, so what this breaks is the comparison rather than the fetch, and it is the narrowest of the four and the cheapest to close.
+Row 5 is `_resolve_trust_repo`. With --expect-witness-repo supplied, the comparison is guarded on the stream's repository being truthy. The empty string is not. So a binding that names no repository at all satisfies the pin.
 
-The repairs, in the order I would land them. Compare the presented stream against the pinned witness commit and stop fetching `main`, or say in the outcome that the verdict was taken against a branch and name the commit it stood at. Refuse a sidecar that does not cover every presented line, with its own stop reason, because "shorter" and "longer" are different failures and only one of them is caught today.
+ANCHORS_VERIFY.md says "If `--expect-witness-repo` is set and the stream names a different repository -> fail closed." The empty string is not a different repository, so that branch presumably never runs. I have not shown a witness substitution here. The query still goes to the pinned repository. What breaks is the comparison, not the fetch. It is the narrowest of the four and the cheapest to close.
+
+The repairs, in the order I would land them. Compare the presented stream against the pinned witness commit and stop fetching main. Failing that, say in the outcome that the verdict was taken against a branch, and name the commit it stood at. Refuse a sidecar that does not cover every presented line, with its own stop reason, because "shorter" and "longer" are different failures and only one of them is caught today.
 
 Split lines on the delimiter over raw bytes with no terminator appended, so a final line without one fails rather than being repaired into a line that hashes. Treat a falsy witness repository in a binding as absent and fail closed on it.
 
-One thing about how I ran these, since it bears on what the numbers mean. Every construction carries a stop reason as well as a verdict and the runner scores both, because of what you wrote on 20 August: "any branch that can emit a verdict without evaluating the property must say so in the verdict itself. That is testable -- assert on the stop reason, not the verdict column."
+Every construction here carries a stop reason as well as a verdict, and the runner scores both, because of what you wrote on 20 August: "any branch that can emit a verdict without evaluating the property must say so in the verdict itself." And the operative half of it, in your words again: "assert on the stop reason, not the verdict column."
 
-Scored that way, one member turns up an instance of exactly that in your own history. A binding whose `byte_length` is JSON `true` is a type error, and from `v0.4` through `v0.8` the verifier reached the correct verdict from a value comparison instead:
+Scored that way, one member turns up an instance of exactly that in your own history. A binding whose `byte_length` is JSON JSON true is a type error, and from v0.4 through v0.8 the verifier reached the correct verdict from a value comparison instead:
 
 ```
 position binding at line 19: witness prefix byte length 164 does not equal attested True
 ```
 
-Right answer, and the type check it appears to be enforcing never ran. `v0.9` stops at `invalid byte_length`. A run scoring the verdict column alone reports both tags as passes and cannot tell you which one closed anything.
+Right answer, and the type check it appears to be enforcing never ran. v0.9 stops at `invalid byte_length`. A run scoring the verdict column alone reports both tags as passes and cannot tell you which one closed anything.
 
-Which leaves one question for you. The four repairs above turn streams that return `PARTIAL` today into `FAILED`, so by your own convention they ship as a new tag and `v0.10` stays where it is.
+Which leaves one question for you. The four repairs above turn streams that return `PARTIAL` today into `FAILED`, so by your own convention they ship as a new tag and v0.10 stays where it is.
 
 Do you want the four separately, so each is a tag whose diff is one rule, or in one? I would rather match the shape you already use than pick for you.

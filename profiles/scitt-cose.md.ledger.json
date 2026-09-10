@@ -4,7 +4,7 @@
  "extras_channel": "jaccard+e5",
  "declared_voice": [],
  "declared_motifs": [],
- "src_sha256": "25775e22dfa31faee3bc23a73bd1e14f8a30f00461f8fcb9e1dc087bab01970b",
+ "src_sha256": "2f4782173a701286bb388fc08dab1e3a9819f238b6745a88160fdd53f4789284",
  "sentence_digests": [
   "492c118f3aab5700f7ea2925b3471d6db6716efebc83fe57b3286e75abeedc5d",
   "1f55d8c9d87a97a7d1b7c0c0a13ff2c50487e5282c68ee9e442acc8b90f813ce",
@@ -53,7 +53,7 @@
   "769e1745343e8fdba34aa4d98eaa0c7a5b1ae54b3ac5fed5cf9c493e2339007c",
   "58b351a1cdb894d39f34ac7d10dc4e92b470cf96e033226c9f5f4132d6ebe3fa",
   "689b84ccde057bfd1a1f6b7671ef919d9f3881efdf80ba0b0f167723ba9bee6f",
-  "8b3e160c60e253028e20ee89da0c67fbf004094d33de8bd12d15546c759f1e06",
+  "4a75878f73e92ce0681c7242d0801a8794a6f665e8747cd61ca35a0a90d4d6cb",
   "08257a0af6e84abb0a9d1151a162b51133857c95f5b2e3ea750b2a5a4ee7f8a1",
   "26733f20d075695fdd44b12aee8ed028f04768988e4827b9ebde03b7ae5df444",
   "c3544f3d1c2212dbca765b34f1c423170583f9cd41c7c45f889a4049456c9a91",
@@ -88,7 +88,6 @@
   "4d939abf8543e16cab50c206e7ce6c8f835272cf129aeb0ad12619697315b7e4",
   "b7834fa8bb26af0087e9d34b403ce1f83295472db5768e9b119cfb74b246b8c3",
   "97c3bde941225278a9da332cb14fafc4c9f30de51542c24c6cc8ec9ba75aceae",
-  "f787a80b0f97bf46772f01147312b432053b691119187f7eb369b28439b3fb03",
   "5232f2c8936225b8b2f615f936f1ca4bdef0c599f009a8fb43c0ba15f35c8e35",
   "0711aa5de8daee49b7fb099c5f7dfd937d5bca785110a67b67d32b423ed2e8b2",
   "4202de5a029bf819757e19420819533606ba551fdf4b21765e1dee5b838b5402",
@@ -126,7 +125,7 @@
   "dd31ffbdb9b2b02799e65d7a8d823692e4e2d65f9279e7042eb919554772e513",
   "2e04c48b5a128ef2f81a55e2b0ad8caec29cbfd3de9bf3ac35bf2d7614751370",
   "7091d2144ee593d78fc0bf952d4c51d22c8248347b27ed88f1d6567b75a84d2c",
-  "edb7877bc13257621ec3721d493cc477e6fbf6f506fc6eda4c02c540c9a79f74",
+  "db6b9fbbef59f606ecf4bd35f5e13205e42d6ee82363cd8da985ebcb101a9871",
   "c7eb7f6f47662616b4969c9889fb839a1ffa4a83b9662126ca03323000a6ce8e",
   "45dea21196acf3dd3a7112891ed84b30fcb345737036bd3583416da414ab0f90",
   "9855dfcad1c397fa38e6739d8b5d29282a24919eb832f957e0ebe6ab707c21be",
@@ -181,9 +180,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 87-96: 'Statement'",
    "deletes": null,
@@ -198,7 +197,7 @@
    "vendor": null,
    "jury_pass_id": null,
    "pattern_id": "P56",
-   "description": "section-signpost-density: 'Section 6' — section cross-reference / signpost density 11.9/1k words (35 cross-references; academic ceiling 4.0/1k). Dense self-signposting reads as an LLM-maintained navig",
+   "description": "section-signpost-density: 'Section 6' — section cross-reference / signpost density 12.1/1k words (35 cross-references; academic ceiling 4.0/1k). Dense self-signposting reads as an LLM-maintained navig",
    "severity": "high",
    "priority": null,
    "decision": "KEEP",
@@ -235,9 +234,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 228-232: 'this'",
    "deletes": null,
@@ -262,9 +261,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 452-456: 'This'",
    "deletes": null,
@@ -289,9 +288,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P59",
-    "max_findings": 13,
+    "max_findings": 12,
     "lint_register": "auto",
-    "baseline_findings": 14
+    "baseline_findings": 13
    },
    "evidence": "chars 452-470: 'This specification'",
    "deletes": null,
@@ -316,9 +315,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 586-591: 'their'",
    "deletes": null,
@@ -343,9 +342,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P59",
-    "max_findings": 13,
+    "max_findings": 12,
     "lint_register": "auto",
-    "baseline_findings": 14
+    "baseline_findings": 13
    },
    "evidence": "chars 617-630: 'That openness'",
    "deletes": null,
@@ -397,9 +396,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 737-742: 'while'",
    "deletes": null,
@@ -424,9 +423,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 743-747: 'both'",
    "deletes": null,
@@ -451,9 +450,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P59",
-    "max_findings": 13,
+    "max_findings": 12,
     "lint_register": "auto",
-    "baseline_findings": 14
+    "baseline_findings": 13
    },
    "evidence": "chars 854-865: 'the payload'",
    "deletes": null,
@@ -478,9 +477,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 914-918: 'This'",
    "deletes": null,
@@ -505,9 +504,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 1058-1067: 'Statement'",
    "deletes": null,
@@ -559,9 +558,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 1482-1487: 'their'",
    "deletes": null,
@@ -586,9 +585,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 1601-1610: 'statement'",
    "deletes": null,
@@ -613,9 +612,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 1629-1633: 'this'",
    "deletes": null,
@@ -640,9 +639,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 1669-1678: 'statement'",
    "deletes": null,
@@ -667,9 +666,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 2033-2042: 'statement'",
    "deletes": null,
@@ -694,9 +693,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P59",
-    "max_findings": 13,
+    "max_findings": 12,
     "lint_register": "auto",
-    "baseline_findings": 14
+    "baseline_findings": 13
    },
    "evidence": "chars 2072-2087: 'the observation'",
    "deletes": null,
@@ -721,9 +720,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 2201-2209: 'observed'",
    "deletes": null,
@@ -775,9 +774,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 2490-2499: 'statement'",
    "deletes": null,
@@ -802,9 +801,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 2510-2519: 'Statement'",
    "deletes": null,
@@ -829,9 +828,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 2526-2530: 'this'",
    "deletes": null,
@@ -856,9 +855,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 2605-2614: 'Statement'",
    "deletes": null,
@@ -883,9 +882,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 2719-2728: 'Statement'",
    "deletes": null,
@@ -937,9 +936,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 2804-2809: 'these'",
    "deletes": null,
@@ -964,9 +963,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 2819-2828: 'Statement'",
    "deletes": null,
@@ -991,9 +990,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P59",
-    "max_findings": 13,
+    "max_findings": 12,
     "lint_register": "auto",
-    "baseline_findings": 14
+    "baseline_findings": 13
    },
    "evidence": "chars 2938-2951: 'the signature'",
    "deletes": null,
@@ -1018,9 +1017,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 3127-3131: 'into'",
    "deletes": null,
@@ -1045,9 +1044,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 3382-3391: 'statement'",
    "deletes": null,
@@ -1099,9 +1098,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 3536-3540: 'this'",
    "deletes": null,
@@ -1126,9 +1125,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 3709-3718: 'statement'",
    "deletes": null,
@@ -1153,9 +1152,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 4211-4216: 'their'",
    "deletes": null,
@@ -1207,9 +1206,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 4482-4491: 'statement'",
    "deletes": null,
@@ -1234,9 +1233,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 4572-4576: 'both'",
    "deletes": null,
@@ -1261,9 +1260,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 4645-4657: 'additionally'",
    "deletes": null,
@@ -1288,9 +1287,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P59",
-    "max_findings": 13,
+    "max_findings": 12,
     "lint_register": "auto",
-    "baseline_findings": 14
+    "baseline_findings": 13
    },
    "evidence": "chars 4681-4690: 'the curve'",
    "deletes": null,
@@ -1369,9 +1368,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 4948-4952: 'this'",
    "deletes": null,
@@ -1396,9 +1395,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 5175-5180: 'their'",
    "deletes": null,
@@ -1423,9 +1422,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 5241-5246: 'their'",
    "deletes": null,
@@ -1450,9 +1449,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 5286-5290: 'this'",
    "deletes": null,
@@ -1504,9 +1503,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 5479-5483: 'this'",
    "deletes": null,
@@ -1531,9 +1530,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 5657-5661: 'This'",
    "deletes": null,
@@ -1558,9 +1557,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 6057-6061: 'into'",
    "deletes": null,
@@ -1585,9 +1584,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 6108-6112: 'this'",
    "deletes": null,
@@ -1612,9 +1611,9 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
    "evidence": "chars 6294-6299: 'while'",
    "deletes": null,
@@ -1643,7 +1642,7 @@
     "lint_register": "auto",
     "baseline_findings": 13
    },
-   "evidence": "chars 6876-6881: 'every'",
+   "evidence": "chars 6809-6814: 'every'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -1666,11 +1665,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 6927-6932: 'holds'",
+   "evidence": "chars 6860-6865: 'holds'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -1693,11 +1692,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 6953-6957: 'this'",
+   "evidence": "chars 6886-6890: 'this'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -1720,11 +1719,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 7038-7042: 'this'",
+   "evidence": "chars 6971-6975: 'this'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -1747,11 +1746,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P59",
-    "max_findings": 13,
+    "max_findings": 12,
     "lint_register": "auto",
-    "baseline_findings": 14
+    "baseline_findings": 13
    },
-   "evidence": "chars 7038-7051: 'this revision'",
+   "evidence": "chars 6971-6984: 'this revision'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -1774,11 +1773,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P59",
-    "max_findings": 13,
+    "max_findings": 12,
     "lint_register": "auto",
-    "baseline_findings": 14
+    "baseline_findings": 13
    },
-   "evidence": "chars 7185-7194: 'the layer'",
+   "evidence": "chars 7118-7127: 'the layer'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -1801,11 +1800,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 7247-7255: 'observed'",
+   "evidence": "chars 7180-7188: 'observed'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -1828,11 +1827,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 7539-7543: 'This'",
+   "evidence": "chars 7472-7476: 'This'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -1855,11 +1854,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 7772-7778: 'within'",
+   "evidence": "chars 7705-7711: 'within'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -1882,11 +1881,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 7850-7859: 'Statement'",
+   "evidence": "chars 7783-7792: 'Statement'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -1909,11 +1908,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 8093-8097: 'This'",
+   "evidence": "chars 8026-8030: 'This'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -1936,11 +1935,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 8197-8206: 'statement'",
+   "evidence": "chars 8130-8139: 'statement'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -1963,11 +1962,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 8303-8312: 'statement'",
+   "evidence": "chars 8236-8245: 'statement'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -1990,11 +1989,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 8482-8491: 'statement'",
+   "evidence": "chars 8415-8424: 'statement'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2017,11 +2016,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 8569-8573: 'this'",
+   "evidence": "chars 8502-8506: 'this'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2044,11 +2043,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 8629-8633: 'need'",
+   "evidence": "chars 8562-8566: 'need'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2071,11 +2070,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 8659-8663: 'Hold'",
+   "evidence": "chars 8592-8596: 'Hold'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2098,11 +2097,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 8676-8685: 'alongside'",
+   "evidence": "chars 8609-8618: 'alongside'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2125,11 +2124,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 8717-8726: 'statement'",
+   "evidence": "chars 8650-8659: 'statement'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2156,7 +2155,7 @@
     "lint_register": "auto",
     "baseline_findings": 4
    },
-   "evidence": "chars 9055-9062: 'exactly'",
+   "evidence": "chars 8988-8995: 'exactly'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2179,11 +2178,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 9068-9074: 'across'",
+   "evidence": "chars 9001-9007: 'across'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2206,11 +2205,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 9124-9133: 'statement'",
+   "evidence": "chars 9057-9066: 'statement'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2233,11 +2232,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 9155-9159: 'both'",
+   "evidence": "chars 9088-9092: 'both'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2260,11 +2259,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 9259-9263: 'this'",
+   "evidence": "chars 9192-9196: 'this'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2287,11 +2286,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P59",
-    "max_findings": 13,
+    "max_findings": 12,
     "lint_register": "auto",
-    "baseline_findings": 14
+    "baseline_findings": 13
    },
-   "evidence": "chars 9416-9426: 'the defect'",
+   "evidence": "chars 9349-9359: 'the defect'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2314,11 +2313,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 9579-9588: 'Statement'",
+   "evidence": "chars 9512-9521: 'Statement'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2341,11 +2340,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 9638-9647: 'Statement'",
+   "evidence": "chars 9571-9580: 'Statement'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2368,11 +2367,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 9710-9719: 'Statement'",
+   "evidence": "chars 9643-9652: 'Statement'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2395,11 +2394,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 9739-9743: 'this'",
+   "evidence": "chars 9672-9676: 'this'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2426,7 +2425,7 @@
     "lint_register": "auto",
     "baseline_findings": 13
    },
-   "evidence": "chars 9976-9979: 'all'",
+   "evidence": "chars 9909-9912: 'all'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2453,7 +2452,7 @@
     "lint_register": "auto",
     "baseline_findings": 8
    },
-   "evidence": "chars 10391-10398: 'confirm'",
+   "evidence": "chars 10324-10331: 'confirm'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2476,11 +2475,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 10487-10491: 'this'",
+   "evidence": "chars 10420-10424: 'this'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2503,11 +2502,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P59",
-    "max_findings": 13,
+    "max_findings": 12,
     "lint_register": "auto",
-    "baseline_findings": 14
+    "baseline_findings": 13
    },
-   "evidence": "chars 10683-10691: 'the root'",
+   "evidence": "chars 10616-10624: 'the root'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2534,7 +2533,7 @@
     "lint_register": "auto",
     "baseline_findings": 13
    },
-   "evidence": "chars 10851-10856: 'never'",
+   "evidence": "chars 10784-10789: 'never'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2557,11 +2556,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 11071-11080: 'Statement'",
+   "evidence": "chars 11004-11013: 'Statement'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2588,7 +2587,7 @@
     "lint_register": "auto",
     "baseline_findings": 2
    },
-   "evidence": "chars 11123-11128: 'could'",
+   "evidence": "chars 11056-11061: 'could'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2611,11 +2610,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 11254-11263: 'Statement'",
+   "evidence": "chars 11187-11196: 'Statement'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2638,65 +2637,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 11278-11287: 'Statement'",
-   "deletes": null,
-   "additive_reason": null,
-   "relocates": null,
-   "constrains": null,
-   "awaiting_external": null
-  },
-  {
-   "id": "lint-p7-d5ae8bfec4c5",
-   "source": "lint",
-   "vendor": null,
-   "jury_pass_id": null,
-   "pattern_id": "P7",
-   "description": "ai-vocabulary: 'This' — Kobak excess-vocabulary token; doc excess ratio 33.8/1k words (>28 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
-   "severity": "medium",
-   "priority": null,
-   "decision": "KEEP",
-   "reason": "A closed-class English function word from the Kobak style list, which carries between, both, during, into, their, these, this, through, were and while as blind-annotated rows. The humanizer skill states those must not be deleted. The bound is the re-measuring hook on this pattern rather than this sentence.",
-   "justification": null,
-   "decided_by": null,
-   "hook": {
-    "type": "lint_recheck",
-    "pattern_id": "P7",
-    "max_findings": 99,
-    "lint_register": "auto",
-    "baseline_findings": 100
-   },
-   "evidence": "chars 11312-11316: 'This'",
-   "deletes": null,
-   "additive_reason": null,
-   "relocates": null,
-   "constrains": null,
-   "awaiting_external": null
-  },
-  {
-   "id": "lint-p59-09195b0d6093",
-   "source": "lint",
-   "vendor": null,
-   "jury_pass_id": null,
-   "pattern_id": "P59",
-   "description": "unintroduced-referent: 'the inverse' — ADVISORY: 'the inverse' presupposes a referent this document never introduces — no indefinite, bare, possessive, numeral or descriptive mention of 'inverse' app",
-   "severity": "high",
-   "priority": null,
-   "decision": "KEEP",
-   "reason": "A bridging definite reference licensed by the sentence before it, in a document whose Sections 2.1, 5 and 5.1 introduce every header parameter, the payload, the receipt and the leaf in that order before any later section refers back to one. Several of the flagged phrases sit inside verbatim RFC 9052 and RFC 9942 quotations, where the referent is the quoted document's and not this one's.",
-   "justification": null,
-   "decided_by": null,
-   "hook": {
-    "type": "lint_recheck",
-    "pattern_id": "P59",
-    "max_findings": 13,
-    "lint_register": "auto",
-    "baseline_findings": 14
-   },
-   "evidence": "chars 11332-11343: 'the inverse'",
+   "evidence": "chars 11211-11220: 'Statement'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2719,11 +2664,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 11439-11448: 'Statement'",
+   "evidence": "chars 11286-11295: 'Statement'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2746,11 +2691,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P59",
-    "max_findings": 13,
+    "max_findings": 12,
     "lint_register": "auto",
-    "baseline_findings": 14
+    "baseline_findings": 13
    },
-   "evidence": "chars 11501-11515: 'That operation'",
+   "evidence": "chars 11348-11362: 'That operation'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2773,11 +2718,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 11766-11774: 'verifies'",
+   "evidence": "chars 11613-11621: 'verifies'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2804,7 +2749,34 @@
     "lint_register": "auto",
     "baseline_findings": 8
    },
-   "evidence": "chars 12073-12080: 'Confirm'",
+   "evidence": "chars 11920-11927: 'Confirm'",
+   "deletes": null,
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "lint-p7-d5ae8bfec4c5",
+   "source": "lint",
+   "vendor": null,
+   "jury_pass_id": null,
+   "pattern_id": "P7",
+   "description": "ai-vocabulary: 'this' — Kobak excess-vocabulary token; doc excess ratio 33.8/1k words (>28 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
+   "severity": "medium",
+   "priority": null,
+   "decision": "KEEP",
+   "reason": "A closed-class English function word from the Kobak style list, which carries between, both, during, into, their, these, this, through, were and while as blind-annotated rows. The humanizer skill states those must not be deleted. The bound is the re-measuring hook on this pattern rather than this sentence.",
+   "justification": null,
+   "decided_by": null,
+   "hook": {
+    "type": "lint_recheck",
+    "pattern_id": "P7",
+    "max_findings": 98,
+    "lint_register": "auto",
+    "baseline_findings": 99
+   },
+   "evidence": "chars 12282-12286: 'this'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2827,38 +2799,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 12435-12439: 'this'",
-   "deletes": null,
-   "additive_reason": null,
-   "relocates": null,
-   "constrains": null,
-   "awaiting_external": null
-  },
-  {
-   "id": "lint-p7-3a3addfae957",
-   "source": "lint",
-   "vendor": null,
-   "jury_pass_id": null,
-   "pattern_id": "P7",
-   "description": "ai-vocabulary: 'this' — Kobak excess-vocabulary token; doc excess ratio 33.8/1k words (>28 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
-   "severity": "medium",
-   "priority": null,
-   "decision": "KEEP",
-   "reason": "A closed-class English function word from the Kobak style list, which carries between, both, during, into, their, these, this, through, were and while as blind-annotated rows. The humanizer skill states those must not be deleted. The bound is the re-measuring hook on this pattern rather than this sentence.",
-   "justification": null,
-   "decided_by": null,
-   "hook": {
-    "type": "lint_recheck",
-    "pattern_id": "P7",
-    "max_findings": 99,
-    "lint_register": "auto",
-    "baseline_findings": 100
-   },
-   "evidence": "chars 12517-12521: 'this'",
+   "evidence": "chars 12364-12368: 'this'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2885,7 +2830,7 @@
     "lint_register": "auto",
     "baseline_findings": 8
    },
-   "evidence": "chars 12626-12633: 'Confirm'",
+   "evidence": "chars 12473-12480: 'Confirm'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2908,11 +2853,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 12853-12861: 'verifies'",
+   "evidence": "chars 12700-12708: 'verifies'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2939,7 +2884,7 @@
     "lint_register": "auto",
     "baseline_findings": 3
    },
-   "evidence": "chars 13040-13047: 'Confirm'",
+   "evidence": "chars 12887-12894: 'Confirm'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2966,7 +2911,7 @@
     "lint_register": "auto",
     "baseline_findings": 8
    },
-   "evidence": "chars 13040-13047: 'Confirm'",
+   "evidence": "chars 12887-12894: 'Confirm'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -2993,7 +2938,7 @@
     "lint_register": "auto",
     "baseline_findings": 4
    },
-   "evidence": "chars 13080-13087: 'exactly'",
+   "evidence": "chars 12927-12934: 'exactly'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3016,11 +2961,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 13103-13107: 'both'",
+   "evidence": "chars 12950-12954: 'both'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3047,7 +2992,7 @@
     "lint_register": "auto",
     "baseline_findings": 8
    },
-   "evidence": "chars 13575-13582: 'confirm'",
+   "evidence": "chars 13422-13429: 'confirm'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3070,11 +3015,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 14176-14185: 'Statement'",
+   "evidence": "chars 14023-14032: 'Statement'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3082,7 +3027,7 @@
    "awaiting_external": null
   },
   {
-   "id": "lint-p7-e512543bb5ca",
+   "id": "lint-p7-3a3addfae957",
    "source": "lint",
    "vendor": null,
    "jury_pass_id": null,
@@ -3097,11 +3042,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 14244-14248: 'This'",
+   "evidence": "chars 14091-14095: 'This'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3124,11 +3069,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 14447-14456: 'Statement'",
+   "evidence": "chars 14294-14303: 'Statement'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3151,11 +3096,38 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 14516-14525: 'statement'",
+   "evidence": "chars 14363-14372: 'statement'",
+   "deletes": null,
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "lint-p7-e512543bb5ca",
+   "source": "lint",
+   "vendor": null,
+   "jury_pass_id": null,
+   "pattern_id": "P7",
+   "description": "ai-vocabulary: 'this' — Kobak excess-vocabulary token; doc excess ratio 33.8/1k words (>28 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
+   "severity": "medium",
+   "priority": null,
+   "decision": "KEEP",
+   "reason": "A closed-class English function word from the Kobak style list, which carries between, both, during, into, their, these, this, through, were and while as blind-annotated rows. The humanizer skill states those must not be deleted. The bound is the re-measuring hook on this pattern rather than this sentence.",
+   "justification": null,
+   "decided_by": null,
+   "hook": {
+    "type": "lint_recheck",
+    "pattern_id": "P7",
+    "max_findings": 98,
+    "lint_register": "auto",
+    "baseline_findings": 99
+   },
+   "evidence": "chars 14480-14484: 'this'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3178,38 +3150,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 14633-14637: 'this'",
-   "deletes": null,
-   "additive_reason": null,
-   "relocates": null,
-   "constrains": null,
-   "awaiting_external": null
-  },
-  {
-   "id": "lint-p7-f60093b6d8bd",
-   "source": "lint",
-   "vendor": null,
-   "jury_pass_id": null,
-   "pattern_id": "P7",
-   "description": "ai-vocabulary: 'this' — Kobak excess-vocabulary token; doc excess ratio 33.8/1k words (>28 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
-   "severity": "medium",
-   "priority": null,
-   "decision": "KEEP",
-   "reason": "A closed-class English function word from the Kobak style list, which carries between, both, during, into, their, these, this, through, were and while as blind-annotated rows. The humanizer skill states those must not be deleted. The bound is the re-measuring hook on this pattern rather than this sentence.",
-   "justification": null,
-   "decided_by": null,
-   "hook": {
-    "type": "lint_recheck",
-    "pattern_id": "P7",
-    "max_findings": 99,
-    "lint_register": "auto",
-    "baseline_findings": 100
-   },
-   "evidence": "chars 14659-14663: 'this'",
+   "evidence": "chars 14506-14510: 'this'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3232,11 +3177,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 14942-14950: 'verifies'",
+   "evidence": "chars 14789-14797: 'verifies'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3263,7 +3208,34 @@
     "lint_register": "auto",
     "baseline_findings": 13
    },
-   "evidence": "chars 14993-14998: 'never'",
+   "evidence": "chars 14840-14845: 'never'",
+   "deletes": null,
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "lint-p7-f60093b6d8bd",
+   "source": "lint",
+   "vendor": null,
+   "jury_pass_id": null,
+   "pattern_id": "P7",
+   "description": "ai-vocabulary: 'this' — Kobak excess-vocabulary token; doc excess ratio 33.8/1k words (>28 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
+   "severity": "medium",
+   "priority": null,
+   "decision": "KEEP",
+   "reason": "A closed-class English function word from the Kobak style list, which carries between, both, during, into, their, these, this, through, were and while as blind-annotated rows. The humanizer skill states those must not be deleted. The bound is the re-measuring hook on this pattern rather than this sentence.",
+   "justification": null,
+   "decided_by": null,
+   "hook": {
+    "type": "lint_recheck",
+    "pattern_id": "P7",
+    "max_findings": 98,
+    "lint_register": "auto",
+    "baseline_findings": 99
+   },
+   "evidence": "chars 14955-14959: 'this'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3286,38 +3258,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 15108-15112: 'this'",
-   "deletes": null,
-   "additive_reason": null,
-   "relocates": null,
-   "constrains": null,
-   "awaiting_external": null
-  },
-  {
-   "id": "lint-p7-37704b2e5605",
-   "source": "lint",
-   "vendor": null,
-   "jury_pass_id": null,
-   "pattern_id": "P7",
-   "description": "ai-vocabulary: 'this' — Kobak excess-vocabulary token; doc excess ratio 33.8/1k words (>28 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
-   "severity": "medium",
-   "priority": null,
-   "decision": "KEEP",
-   "reason": "A closed-class English function word from the Kobak style list, which carries between, both, during, into, their, these, this, through, were and while as blind-annotated rows. The humanizer skill states those must not be deleted. The bound is the re-measuring hook on this pattern rather than this sentence.",
-   "justification": null,
-   "decided_by": null,
-   "hook": {
-    "type": "lint_recheck",
-    "pattern_id": "P7",
-    "max_findings": 99,
-    "lint_register": "auto",
-    "baseline_findings": 100
-   },
-   "evidence": "chars 15368-15372: 'this'",
+   "evidence": "chars 15177-15181: 'this'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3340,11 +3285,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 15585-15589: 'both'",
+   "evidence": "chars 15394-15398: 'both'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3367,11 +3312,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P59",
-    "max_findings": 13,
+    "max_findings": 12,
     "lint_register": "auto",
-    "baseline_findings": 14
+    "baseline_findings": 13
    },
-   "evidence": "chars 15719-15732: 'the timestamp'",
+   "evidence": "chars 15528-15541: 'the timestamp'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3394,11 +3339,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 15762-15771: 'Statement'",
+   "evidence": "chars 15571-15580: 'Statement'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3421,11 +3366,38 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 15784-15789: 'while'",
+   "evidence": "chars 15593-15598: 'while'",
+   "deletes": null,
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "lint-p7-37704b2e5605",
+   "source": "lint",
+   "vendor": null,
+   "jury_pass_id": null,
+   "pattern_id": "P7",
+   "description": "ai-vocabulary: 'this' — Kobak excess-vocabulary token; doc excess ratio 33.8/1k words (>28 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
+   "severity": "medium",
+   "priority": null,
+   "decision": "KEEP",
+   "reason": "A closed-class English function word from the Kobak style list, which carries between, both, during, into, their, these, this, through, were and while as blind-annotated rows. The humanizer skill states those must not be deleted. The bound is the re-measuring hook on this pattern rather than this sentence.",
+   "justification": null,
+   "decided_by": null,
+   "hook": {
+    "type": "lint_recheck",
+    "pattern_id": "P7",
+    "max_findings": 98,
+    "lint_register": "auto",
+    "baseline_findings": 99
+   },
+   "evidence": "chars 15740-15744: 'this'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3448,38 +3420,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 15931-15935: 'this'",
-   "deletes": null,
-   "additive_reason": null,
-   "relocates": null,
-   "constrains": null,
-   "awaiting_external": null
-  },
-  {
-   "id": "lint-p7-cfc560b4ac1e",
-   "source": "lint",
-   "vendor": null,
-   "jury_pass_id": null,
-   "pattern_id": "P7",
-   "description": "ai-vocabulary: 'this' — Kobak excess-vocabulary token; doc excess ratio 33.8/1k words (>28 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
-   "severity": "medium",
-   "priority": null,
-   "decision": "KEEP",
-   "reason": "A closed-class English function word from the Kobak style list, which carries between, both, during, into, their, these, this, through, were and while as blind-annotated rows. The humanizer skill states those must not be deleted. The bound is the re-measuring hook on this pattern rather than this sentence.",
-   "justification": null,
-   "decided_by": null,
-   "hook": {
-    "type": "lint_recheck",
-    "pattern_id": "P7",
-    "max_findings": 99,
-    "lint_register": "auto",
-    "baseline_findings": 100
-   },
-   "evidence": "chars 15989-15993: 'this'",
+   "evidence": "chars 15798-15802: 'this'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3502,11 +3447,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 16194-16199: 'their'",
+   "evidence": "chars 16003-16008: 'their'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3514,7 +3459,7 @@
    "awaiting_external": null
   },
   {
-   "id": "lint-p7-f31eadd53335",
+   "id": "lint-p7-cfc560b4ac1e",
    "source": "lint",
    "vendor": null,
    "jury_pass_id": null,
@@ -3529,11 +3474,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 16273-16277: 'this'",
+   "evidence": "chars 16082-16086: 'this'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3541,7 +3486,7 @@
    "awaiting_external": null
   },
   {
-   "id": "lint-p7-4b6c49f5914a",
+   "id": "lint-p7-f31eadd53335",
    "source": "lint",
    "vendor": null,
    "jury_pass_id": null,
@@ -3556,11 +3501,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 16289-16293: 'This'",
+   "evidence": "chars 16098-16102: 'This'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3568,7 +3513,7 @@
    "awaiting_external": null
   },
   {
-   "id": "lint-p7-92fce725e17a",
+   "id": "lint-p7-4b6c49f5914a",
    "source": "lint",
    "vendor": null,
    "jury_pass_id": null,
@@ -3583,11 +3528,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 16386-16390: 'this'",
+   "evidence": "chars 16195-16199: 'this'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3610,11 +3555,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 16465-16474: 'statement'",
+   "evidence": "chars 16274-16283: 'statement'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3641,7 +3586,7 @@
     "lint_register": "auto",
     "baseline_findings": 3
    },
-   "evidence": "chars 16475-16486: 'establishes'",
+   "evidence": "chars 16284-16295: 'establishes'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3668,7 +3613,7 @@
     "lint_register": "auto",
     "baseline_findings": 8
    },
-   "evidence": "chars 16475-16486: 'establishes'",
+   "evidence": "chars 16284-16295: 'establishes'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3695,7 +3640,7 @@
     "lint_register": "auto",
     "baseline_findings": 3
    },
-   "evidence": "chars 16583-16594: 'establishes'",
+   "evidence": "chars 16392-16403: 'establishes'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3722,7 +3667,7 @@
     "lint_register": "auto",
     "baseline_findings": 8
    },
-   "evidence": "chars 16583-16594: 'establishes'",
+   "evidence": "chars 16392-16403: 'establishes'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3730,7 +3675,7 @@
    "awaiting_external": null
   },
   {
-   "id": "lint-p7-605b605b2a76",
+   "id": "lint-p7-92fce725e17a",
    "source": "lint",
    "vendor": null,
    "jury_pass_id": null,
@@ -3745,11 +3690,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 16867-16871: 'This'",
+   "evidence": "chars 16676-16680: 'This'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3776,7 +3721,7 @@
     "lint_register": "auto",
     "baseline_findings": 13
    },
-   "evidence": "chars 17380-17385: 'every'",
+   "evidence": "chars 17189-17194: 'every'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3799,11 +3744,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 17419-17428: 'alongside'",
+   "evidence": "chars 17228-17237: 'alongside'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3830,7 +3775,7 @@
     "lint_register": "auto",
     "baseline_findings": 8
    },
-   "evidence": "chars 17459-17470: 'establishes'",
+   "evidence": "chars 17268-17279: 'establishes'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3838,7 +3783,7 @@
    "awaiting_external": null
   },
   {
-   "id": "lint-p7-01cdc368f685",
+   "id": "lint-p7-605b605b2a76",
    "source": "lint",
    "vendor": null,
    "jury_pass_id": null,
@@ -3853,11 +3798,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 17472-17476: 'This'",
+   "evidence": "chars 17281-17285: 'This'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3865,7 +3810,7 @@
    "awaiting_external": null
   },
   {
-   "id": "lint-p7-decbd5341982",
+   "id": "lint-p7-01cdc368f685",
    "source": "lint",
    "vendor": null,
    "jury_pass_id": null,
@@ -3880,11 +3825,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 17589-17593: 'this'",
+   "evidence": "chars 17398-17402: 'this'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3911,7 +3856,7 @@
     "lint_register": "auto",
     "baseline_findings": 13
    },
-   "evidence": "chars 17604-17609: 'Every'",
+   "evidence": "chars 17413-17418: 'Every'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3938,7 +3883,7 @@
     "lint_register": "auto",
     "baseline_findings": 13
    },
-   "evidence": "chars 17701-17706: 'every'",
+   "evidence": "chars 17510-17515: 'every'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3965,7 +3910,7 @@
     "lint_register": "auto",
     "baseline_findings": 13
    },
-   "evidence": "chars 17746-17751: 'Every'",
+   "evidence": "chars 17555-17560: 'Every'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -3988,11 +3933,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 17877-17884: 'between'",
+   "evidence": "chars 17686-17693: 'between'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -4019,7 +3964,7 @@
     "lint_register": "auto",
     "baseline_findings": 13
    },
-   "evidence": "chars 18025-18030: 'every'",
+   "evidence": "chars 17834-17839: 'every'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -4042,11 +3987,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P59",
-    "max_findings": 13,
+    "max_findings": 12,
     "lint_register": "auto",
-    "baseline_findings": 14
+    "baseline_findings": 13
    },
-   "evidence": "chars 18136-18149: 'the generator'",
+   "evidence": "chars 17945-17958: 'the generator'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -4054,7 +3999,7 @@
    "awaiting_external": null
   },
   {
-   "id": "lint-p7-d5567c5fe907",
+   "id": "lint-p7-decbd5341982",
    "source": "lint",
    "vendor": null,
    "jury_pass_id": null,
@@ -4069,11 +4014,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 18337-18341: 'this'",
+   "evidence": "chars 18146-18150: 'this'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -4096,11 +4041,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 18356-18360: 'hold'",
+   "evidence": "chars 18165-18169: 'hold'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -4123,11 +4068,11 @@
    "hook": {
     "type": "lint_recheck",
     "pattern_id": "P7",
-    "max_findings": 99,
+    "max_findings": 98,
     "lint_register": "auto",
-    "baseline_findings": 100
+    "baseline_findings": 99
    },
-   "evidence": "chars 18533-18537: 'both'",
+   "evidence": "chars 18342-18346: 'both'",
    "deletes": null,
    "additive_reason": null,
    "relocates": null,
@@ -4294,6 +4239,534 @@
    },
    "evidence": "sec 2.2: 'It also inverts the more common profile rule, which tells a verifier to ignore what it does not recognize, so this document states the choice outright instead of leaving a reader to discover it from the vectors.'; sec 7: 'The rest of this section is what falls outside the profile, written out so that a reader does not have to infer any of it from silence.'; sec 9: 'An implementer replaying this corpus should hold the same rule for the same reason: a verification routine that shares its arithmetic... cannot disagree with them'",
    "deletes": "the reader-narrating half of the two clauses this row and reader-management-frames both quote",
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "p50-must-refuse-repetition",
+   "source": "jury",
+   "vendor": "openai/gpt-4o via openrouter",
+   "jury_pass_id": "jury-43474dc842b5",
+   "pattern_id": "P50",
+   "description": "The phrase \"MUST refuse\" recurs multiple times across sections, indicating motif repetition.",
+   "severity": "medium",
+   "priority": null,
+   "decision": "KEEP",
+   "reason": "A carriage profile states each refusal at the point a verifier reaches it, and RFC 2119 keywords are repeated in every IETF profile for the same reason: a reader who arrives at Section 6 must not have to remember a MUST from Section 2. The repetition is the requirement appearing wherever it binds.",
+   "justification": "design-necessary",
+   "decided_by": "openai/gpt-oss-120b",
+   "hook": {
+    "type": "grep",
+    "pattern": "MUST refuse",
+    "target_count": 4,
+    "regex": false,
+    "baseline_count": null,
+    "subject": null
+   },
+   "evidence": "Section 2.1: \"A verifier MUST refuse any other encoding.\"; Section 2.1: \"A verifier MUST refuse -8 and -7 by identifier before touching the signature.\"; Section 4: \"A verifier MUST refuse any other encoding.\"; Section 4: \"A verifier MUST refuse -8 and -7\".",
+   "deletes": null,
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "p52-paragraph-length-band",
+   "source": "jury",
+   "vendor": "openai/gpt-4o via openrouter",
+   "jury_pass_id": "jury-43474dc842b5",
+   "pattern_id": "P52",
+   "description": "Most substantive paragraphs fall into a narrow word‑count band (~150‑180 words), suggesting engineered length uniformity.",
+   "severity": "low",
+   "priority": null,
+   "decision": "KEEP",
+   "reason": "The reader claimed a 300-word paragraph band and the ledger re-baselined it against the document at 0. The three paragraphs it cited are each present once, and none of them is the length the finding asserts.",
+   "justification": "refuted",
+   "decided_by": "openai/gpt-oss-120b",
+   "hook": {
+    "type": "count_reduction",
+    "pattern": "paragraph_word_count",
+    "baseline_count": 0,
+    "max_count": 200,
+    "regex": false,
+    "subject": null
+   },
+   "evidence": "Section 2.1 paragraph (\"A producer encodes that map under the Core Deterministic Encoding Requirements…\") – ~165 words; Section 3 paragraph (\"The value is a CBOR map, and this revision fixes three members…\") – ~158 words; Section 4 paragraph (\"RFC 9943 Section 6 says of the two claims…\") – ~162 words.",
+   "deletes": null,
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "p59-provenance-leak",
+   "source": "jury",
+   "vendor": "openai/gpt-4o via openrouter",
+   "jury_pass_id": "jury-43474dc842b5",
+   "pattern_id": null,
+   "description": "The document discloses internal testing details about the vector corpus, leaking provenance information.",
+   "severity": "medium",
+   "priority": null,
+   "decision": "KEEP",
+   "reason": "Section 9 is the conformance section and the corpus is what an implementer runs. A conformance section that hides the size of its suite and the reason its checker re-derives the tree arithmetic leaves a replayer unable to tell a covered run from a partial one. The second reader raised the same span and it is closed on the same ground.",
+   "justification": "design-necessary",
+   "decided_by": "openai/gpt-oss-120b",
+   "hook": {
+    "type": "manual_attest",
+    "attested_by": "",
+    "note": ""
+   },
+   "evidence": "Section 9: \"The corpus in `vectors-scitt-cose/` is the executable form of this document.\"; Section 9: \"A fault in that code then produces a corpus together with a refusal, where an imported checker would produce a corpus and its own agreement with it.\"",
+   "deletes": null,
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "prov-leak-test-corpus",
+   "source": "jury",
+   "vendor": "openai/gpt-4o",
+   "jury_pass_id": "jury-1346c4dcbac5",
+   "pattern_id": null,
+   "description": "The document leaks the exact counts and mutation rules of its synthetic test corpus, exposing its evaluation framework directly in the specification text.",
+   "severity": "high",
+   "priority": null,
+   "decision": "KEEP",
+   "reason": "Section 9 is the conformance section and the corpus is the thing an implementer runs, so its size, its verdict split and its accept-twin scoring rule are what tell a replayer whether a run covered the suite. This is the third reading to raise the span and the second vendor to do so; the ground is the same each time and it is recorded rather than acted on, because deleting the counts would leave the section unable to say what conformance means here.",
+   "justification": "design-necessary",
+   "decided_by": "google/gemini-3.1-pro-preview",
+   "hook": {
+    "type": "grep",
+    "pattern": "27 members, 6 accept",
+    "target_count": 1,
+    "regex": false,
+    "baseline_count": null,
+    "subject": null
+   },
+   "evidence": "Intro: 'The corpus in `vectors-scitt-cose/` carries 27 members, 6 accept, 17 reject and 4 indeterminate'; sec 9: 'Every reject member declares the accept member it is 1 mutation from, so a verifier that refuses every input scores 0 rather than full marks.'",
+   "deletes": null,
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "motif-rather-than",
+   "source": "jury",
+   "vendor": "openai/gpt-4o",
+   "jury_pass_id": "jury-1346c4dcbac5",
+   "pattern_id": "P9",
+   "description": "The document heavily overuses the antithetical 'X rather than Y' construction to articulate nearly all of its negative bounds and constraints.",
+   "severity": "medium",
+   "priority": null,
+   "decision": "KEEP",
+   "reason": "Ten occurrences across a document that draws a boundary in almost every section: this profile is built on saying which of two readings a verifier takes, and the connective naming the rejected alternative is what the argument needs. The row keeps its count_reduction hook, so the motif cannot grow past its measured baseline without re-opening.",
+   "justification": "register",
+   "decided_by": "google/gemini-3.1-pro-preview",
+   "hook": {
+    "type": "count_reduction",
+    "pattern": "rather than",
+    "baseline_count": 10,
+    "max_count": 2,
+    "regex": false,
+    "subject": null
+   },
+   "evidence": "sec 2: 'hold it open rather than this section settling it'; sec 4: 'derived from the payload rather than asserted beside it', 'refuse it rather than prefer one copy'; sec 6: 'a refusal rather than a skip', 'narrows that permission rather than contradicting it'; sec 7: 'stated rather than left to inference'; sec 8: 'records the fork rather than resolving it'; sec 9: 'scores 0 rather than full marks', 'a refusal, where an imported checker would produce a corpus'",
+   "deletes": null,
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "aphoristic-staccato-closers",
+   "source": "jury",
+   "vendor": "openai/gpt-4o",
+   "jury_pass_id": "jury-1346c4dcbac5",
+   "pattern_id": "P51",
+   "description": "Paragraphs frequently snap shut on dramatic, short staccato sentences (copula negations and definitive zero-actions) to create an authoritative 'mic-drop' effect.",
+   "severity": "low",
+   "priority": null,
+   "decision": "KEEP",
+   "reason": "A normative paragraph ends on the requirement it establishes, and a requirement is short. The three closers the reader quoted each state a refusal or a consequence that the paragraph above them argued for, so the brevity is the claim arriving rather than a cadence applied to it.",
+   "justification": "register",
+   "decided_by": "google/gemini-3.1-pro-preview",
+   "hook": {
+    "type": "grep",
+    "pattern": "settle nothing about the statement",
+    "target_count": 1,
+    "regex": false,
+    "baseline_count": null,
+    "subject": null
+   },
+   "evidence": "sec 2: 'They settle nothing about the statement.'; sec 7: 'This profile adds no status mechanism.'; sec 8: 'This revision does not specify it.'",
+   "deletes": null,
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "p59-vectors-referent",
+   "source": "jury",
+   "vendor": "moonshotai/kimi-k2.5",
+   "jury_pass_id": "jury-b0fe92a6f0cc",
+   "pattern_id": "P59",
+   "description": "Section 1 uses unintroduced shorthand 'vectors/' for corpus location while document consistently uses 'vectors-scitt-cose/' elsewhere, creating unresolved referent",
+   "severity": "low",
+   "priority": null,
+   "decision": "KEEP",
+   "reason": "The two paths name two different corpora and both directories exist in this repository. 'vectors/' holds the AEE predicate's own conformance corpus, whose manifest carries the predicate-type field this section points at, and 'vectors-scitt-cose/' holds the carriage corpus this profile defines. Collapsing them would send an implementer to the wrong manifest.",
+   "justification": "refuted",
+   "decided_by": "moonshotai/kimi-k2.5",
+   "hook": {
+    "type": "grep",
+    "pattern": "vectors/",
+    "target_count": 1,
+    "regex": false,
+    "baseline_count": null,
+    "subject": null
+   },
+   "evidence": "Intro: 'vectors-scitt-cose/'; Section 1: 'live in `vectors/`'; Section 9: 'vectors-scitt-cose/check_vectors.py'",
+   "deletes": null,
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "p51-aphoristic-closer-2-2",
+   "source": "jury",
+   "vendor": "moonshotai/kimi-k2.5",
+   "jury_pass_id": "jury-b0fe92a6f0cc",
+   "pattern_id": "P51",
+   "description": "Section 2.2 closes on antithetical epigram: 'Neither one silently accepts an execution record while ignoring the column that says who saw it'",
+   "severity": "low",
+   "priority": null,
+   "decision": "KEEP",
+   "reason": "The sentence states the property both verifier behaviours share, which is the point the two preceding sentences were establishing separately. A profile that leaves the shared consequence unstated leaves an implementer to infer it from two cases.",
+   "justification": "register",
+   "decided_by": "moonshotai/kimi-k2.5",
+   "hook": {
+    "type": "grep",
+    "pattern": "Neither one silently accepts",
+    "target_count": 1,
+    "regex": false,
+    "baseline_count": null,
+    "subject": null
+   },
+   "evidence": "Section 2.2 final sentence: 'Neither one silently accepts an execution record while ignoring the column that says who saw it.'",
+   "deletes": null,
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "p53-section-symmetry-789",
+   "source": "jury",
+   "vendor": "moonshotai/kimi-k2.5",
+   "jury_pass_id": "jury-b0fe92a6f0cc",
+   "pattern_id": "P53",
+   "description": "Sections 7-9 exhibit template symmetry: each opens with scope framing, lists exclusions via parallel negative constructions ('This profile specifies nowhere', 'This profile adds no', 'This profile registers no'), and closes with forward-looking revision notes",
+   "severity": "low",
+   "priority": null,
+   "decision": "KEEP",
+   "reason": "Sections 7, 8 and 9 each state what this profile does not do in one of three registers: what it leaves out of scope, what it declines to register, and what its corpus does not decide. The parallel construction is the same question asked of three different surfaces, and varying the phrasing would hide that they are the same question.",
+   "justification": "design-necessary",
+   "decided_by": "moonshotai/kimi-k2.5",
+   "hook": {
+    "type": "grep",
+    "pattern": "This profile (specifies|adds|registers) no",
+    "target_count": 4,
+    "regex": true,
+    "baseline_count": null,
+    "subject": null
+   },
+   "evidence": "Section 7: 'The rest of this section is what falls outside the profile...' / 'This profile specifies nowhere...' / 'This profile adds no...'; Section 8: 'This profile registers no...'; Section 9: 'The corpus... is the executable form...'",
+   "deletes": null,
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "p54-absolutes-indeterminate",
+   "source": "jury",
+   "vendor": "moonshotai/kimi-k2.5",
+   "jury_pass_id": "jury-b0fe92a6f0cc",
+   "pattern_id": "P54",
+   "description": "Absolute prescriptive language in Section 6 ('A failure at any stage is a refusal') creates tension with Section 7's acknowledgment of 'indeterminate' vectors where both acceptance and rejection are conforming",
+   "severity": "low",
+   "priority": null,
+   "decision": "KEEP",
+   "reason": "There is no tension between the two. Section 6 states what a verifier does when a stage fails, and an indeterminate corpus member states that the cited documents license more than one verifier. A vector recording two permitted readings does not make either reading a partial refusal.",
+   "justification": "refuted",
+   "decided_by": "moonshotai/kimi-k2.5",
+   "hook": {
+    "type": "grep",
+    "pattern": "indeterminate",
+    "target_count": 3,
+    "regex": false,
+    "baseline_count": null,
+    "subject": null
+   },
+   "evidence": "Section 6: 'A failure at any stage is a refusal, and a stage a verifier cannot evaluate is a refusal rather than a skip.'; Section 7: 'One indeterminate vector carries 2 receipts... the reading which accepts and the reading which detects the fork are both conforming readings'",
+   "deletes": null,
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "structural-announcement-7",
+   "source": "jury",
+   "vendor": "moonshotai/kimi-k2.5",
+   "jury_pass_id": "jury-b0fe92a6f0cc",
+   "pattern_id": null,
+   "description": "Section 7 opens with structural announcement of content organization: 'The rest of this section is what falls outside the profile, stated rather than left to inference'",
+   "severity": "info",
+   "priority": null,
+   "decision": "FIX",
+   "reason": null,
+   "justification": null,
+   "decided_by": null,
+   "hook": {
+    "type": "grep",
+    "pattern": "stated rather than left to inference",
+    "target_count": 0,
+    "regex": false,
+    "baseline_count": 0,
+    "subject": null
+   },
+   "evidence": "Section 7: 'The rest of this section is what falls outside the profile, stated rather than left to inference.'",
+   "deletes": "the clause that announced the section's own organization: 'stated rather than left to inference'",
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "axis5-justification-density-2-2",
+   "source": "jury",
+   "vendor": "moonshotai/kimi-k2.5",
+   "jury_pass_id": "jury-b0fe92a6f0cc",
+   "pattern_id": null,
+   "description": "High justification density in Section 2.2 defending 'crit' parameter choice against 'more common profile rule' with extended argumentative exposition",
+   "severity": "medium",
+   "priority": null,
+   "decision": "FIX",
+   "reason": null,
+   "justification": null,
+   "decided_by": null,
+   "hook": {
+    "type": "grep",
+    "pattern": "the choice is stated here",
+    "target_count": 0,
+    "regex": false,
+    "baseline_count": 0,
+    "subject": null
+   },
+   "evidence": "Section 2.2: 'That behaviour follows from the base standard and needs no extension to anyone's document. It also inverts the more common profile rule, which tells a verifier to ignore what it does not recognize, so the choice is stated here and not left implicit in the vectors.'",
+   "deletes": "the clause commenting on the document's own move: 'so the choice is stated here and not left implicit in the vectors'",
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "axis5-justification-density-2-1-alg",
+   "source": "jury",
+   "vendor": "moonshotai/kimi-k2.5",
+   "jury_pass_id": "jury-b0fe92a6f0cc",
+   "pattern_id": null,
+   "description": "Defensive justification for algorithm choice explaining why not to copy 'architecture's own figures' and citing deprecation status",
+   "severity": "low",
+   "priority": null,
+   "decision": "KEEP",
+   "reason": "Every worked example in RFC 9943 and RFC 9942 carries -7, so a producer copying the architecture's own figures emits an identifier RFC 9864 Section 4.2.2 marks deprecated. An implementer who is not told that will copy the example.",
+   "justification": "design-necessary",
+   "decided_by": "moonshotai/kimi-k2.5",
+   "hook": {
+    "type": "grep",
+    "pattern": "algorithm is -19 and not",
+    "target_count": 1,
+    "regex": false,
+    "baseline_count": null,
+    "subject": null
+   },
+   "evidence": "Section 2.1: 'The algorithm is -19 and not -8 or -7... Every worked example in RFC 9943 and RFC 9942 carries the value -7, so a producer copying the architecture's own figures emits a deprecated identifier.'",
+   "deletes": null,
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "axis5-justification-density-5-1",
+   "source": "jury",
+   "vendor": "moonshotai/kimi-k2.5",
+   "jury_pass_id": "jury-b0fe92a6f0cc",
+   "pattern_id": null,
+   "description": "Meta-commentary justifying textual organization: 'This profile states the inverse as a requirement, because verification depends on it'",
+   "severity": "low",
+   "priority": null,
+   "decision": "FIX",
+   "reason": null,
+   "justification": null,
+   "decided_by": null,
+   "hook": {
+    "type": "grep",
+    "pattern": "states the inverse as a requirement",
+    "target_count": 0,
+    "regex": false,
+    "baseline_count": 0,
+    "subject": null
+   },
+   "evidence": "Section 5.1: 'This profile states the inverse as a requirement, because verification depends on it.'",
+   "deletes": "the sentence announcing what the profile states: 'This profile states the inverse as a requirement, because verification depends on it.'",
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "axis5-provenance-leakage-9",
+   "source": "jury",
+   "vendor": "moonshotai/kimi-k2.5",
+   "jury_pass_id": "jury-b0fe92a6f0cc",
+   "pattern_id": null,
+   "description": "Section 9 leaks authoring provenance describing checker script implementation ('vectors-scitt-cose/check_vectors.py'), generator avoidance rationale, and corpus construction methodology",
+   "severity": "high",
+   "priority": null,
+   "decision": "KEEP",
+   "reason": "Section 9 is the conformance section and the checker is what an implementer runs. That it re-derives RFC 9162 Section 2.1.3.2 rather than importing the generator's tree code is the reason a fault produces a refusal instead of the corpus agreeing with itself, which is the property a replayer is entitled to check. This is the fourth reading of the span across three vendors and the ground has not moved.",
+   "justification": "design-necessary",
+   "decided_by": "moonshotai/kimi-k2.5",
+   "hook": {
+    "type": "grep",
+    "pattern": "check_vectors.py",
+    "target_count": 1,
+    "regex": false,
+    "baseline_count": null,
+    "subject": null
+   },
+   "evidence": "Section 9: 'The checker at vectors-scitt-cose/check_vectors.py re-derives every claim from the bytes on disk, and it states RFC 9162 Section 2.1.3.2 a second time rather than importing the generator's tree code. A fault in that code then produces a corpus together with a refusal...'",
+   "deletes": null,
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "axis5-provenance-leakage-8",
+   "source": "jury",
+   "vendor": "moonshotai/kimi-k2.5",
+   "jury_pass_id": "jury-b0fe92a6f0cc",
+   "pattern_id": null,
+   "description": "Section 8 contains authoring-provenance leakage describing test vector intent ('A vector records the fork rather than resolving it')",
+   "severity": "medium",
+   "priority": null,
+   "decision": "KEEP",
+   "reason": "Section 8 lists the questions the cited documents leave open, and saying that a vector records the fork rather than resolving it is what stops a reader taking the corpus as an answer to a question the standards have not settled.",
+   "justification": "design-necessary",
+   "decided_by": "moonshotai/kimi-k2.5",
+   "hook": {
+    "type": "grep",
+    "pattern": "vector records the fork",
+    "target_count": 1,
+    "regex": false,
+    "baseline_count": null,
+    "subject": null
+   },
+   "evidence": "Section 8: 'A vector records the fork rather than resolving it.'",
+   "deletes": null,
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "axis5-provenance-leakage-7",
+   "source": "jury",
+   "vendor": "moonshotai/kimi-k2.5",
+   "jury_pass_id": "jury-b0fe92a6f0cc",
+   "pattern_id": null,
+   "description": "Section 7 discusses specific test vector composition ('One indeterminate vector carries 2 receipts...') revealing corpus construction details",
+   "severity": "medium",
+   "priority": null,
+   "decision": "KEEP",
+   "reason": "The composition of that member is the definition of the non-equivocation limit being described. Two receipts from one service at one tree size with different roots is what an offline holder cannot detect, and stating the shape is stating the limit.",
+   "justification": "design-necessary",
+   "decided_by": "moonshotai/kimi-k2.5",
+   "hook": {
+    "type": "grep",
+    "pattern": "indeterminate vector carries",
+    "target_count": 1,
+    "regex": false,
+    "baseline_count": null,
+    "subject": null
+   },
+   "evidence": "Section 7: 'One indeterminate vector carries 2 receipts from one service at one tree size with different roots.'",
+   "deletes": null,
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "axis5-genre-mismatch-intro",
+   "source": "jury",
+   "vendor": "moonshotai/kimi-k2.5",
+   "jury_pass_id": "jury-b0fe92a6f0cc",
+   "pattern_id": null,
+   "description": "Opening paragraph employs narrative essay register ('That openness leaves 14 questions unsettled', '2 implementations can answer all 14 differently') inconsistent with technical specification genre",
+   "severity": "low",
+   "priority": null,
+   "decision": "KEEP",
+   "reason": "Both figures are counted from the cited documents and each is the reason this profile exists: 14 questions RFC 9943 leaves open for execution evidence, and two conforming implementations that can answer them differently. A profile that opened without the count would be asserting a gap it never measured.",
+   "justification": "register",
+   "decided_by": "moonshotai/kimi-k2.5",
+   "hook": {
+    "type": "grep",
+    "pattern": "14 questions unsettled",
+    "target_count": 1,
+    "regex": false,
+    "baseline_count": null,
+    "subject": null
+   },
+   "evidence": "Paragraph 2: 'That openness leaves 14 questions unsettled for execution evidence, and 2 implementations can answer all 14 differently while both conform to RFC 9943.'",
+   "deletes": null,
+   "additive_reason": null,
+   "relocates": null,
+   "constrains": null,
+   "awaiting_external": null
+  },
+  {
+   "id": "lint-p7-d5567c5fe907",
+   "source": "lint",
+   "vendor": null,
+   "jury_pass_id": null,
+   "pattern_id": "P7",
+   "description": "ai-vocabulary: 'this' — Kobak excess-vocabulary token; doc excess ratio 33.8/1k words (>28 gate). Density tell, not presence — verify it is decorative, not the field's own term.",
+   "severity": "medium",
+   "priority": null,
+   "decision": "KEEP",
+   "reason": "A closed-class English function word from the Kobak style list, which carries between, both, during, into, their, these, this, through, were and while as blind-annotated rows. The humanizer skill states those must not be deleted. The bound is the re-measuring hook on this pattern rather than this sentence.",
+   "justification": null,
+   "decided_by": null,
+   "hook": {
+    "type": "lint_recheck",
+    "pattern_id": "P7",
+    "max_findings": 99,
+    "lint_register": "auto",
+    "baseline_findings": 100
+   },
+   "evidence": "chars 18337-18341: 'this'",
+   "deletes": null,
    "additive_reason": null,
    "relocates": null,
    "constrains": null,
@@ -5306,171 +5779,6 @@
    "relocates": null,
    "constrains": null,
    "awaiting_external": null
-  },
-  {
-   "id": "p50-must-refuse-repetition",
-   "source": "jury",
-   "vendor": "openai/gpt-4o via openrouter",
-   "jury_pass_id": "jury-43474dc842b5",
-   "pattern_id": "P50",
-   "description": "The phrase \"MUST refuse\" recurs multiple times across sections, indicating motif repetition.",
-   "severity": "medium",
-   "priority": null,
-   "decision": "KEEP",
-   "reason": "A carriage profile states each refusal at the point a verifier reaches it, and RFC 2119 keywords are repeated in every IETF profile for the same reason: a reader who arrives at Section 6 must not have to remember a MUST from Section 2. The repetition is the requirement appearing wherever it binds.",
-   "justification": "design-necessary",
-   "decided_by": "openai/gpt-oss-120b",
-   "hook": {
-    "type": "grep",
-    "pattern": "MUST refuse",
-    "target_count": 4,
-    "regex": false,
-    "baseline_count": null,
-    "subject": null
-   },
-   "evidence": "Section 2.1: \"A verifier MUST refuse any other encoding.\"; Section 2.1: \"A verifier MUST refuse -8 and -7 by identifier before touching the signature.\"; Section 4: \"A verifier MUST refuse any other encoding.\"; Section 4: \"A verifier MUST refuse -8 and -7\".",
-   "deletes": null,
-   "additive_reason": null,
-   "relocates": null,
-   "constrains": null,
-   "awaiting_external": null
-  },
-  {
-   "id": "p52-paragraph-length-band",
-   "source": "jury",
-   "vendor": "openai/gpt-4o via openrouter",
-   "jury_pass_id": "jury-43474dc842b5",
-   "pattern_id": "P52",
-   "description": "Most substantive paragraphs fall into a narrow word‑count band (~150‑180 words), suggesting engineered length uniformity.",
-   "severity": "low",
-   "priority": null,
-   "decision": "KEEP",
-   "reason": "The reader claimed a 300-word paragraph band and the ledger re-baselined it against the document at 0. The three paragraphs it cited are each present once, and none of them is the length the finding asserts.",
-   "justification": "refuted",
-   "decided_by": "openai/gpt-oss-120b",
-   "hook": {
-    "type": "count_reduction",
-    "pattern": "paragraph_word_count",
-    "baseline_count": 0,
-    "max_count": 200,
-    "regex": false,
-    "subject": null
-   },
-   "evidence": "Section 2.1 paragraph (\"A producer encodes that map under the Core Deterministic Encoding Requirements…\") – ~165 words; Section 3 paragraph (\"The value is a CBOR map, and this revision fixes three members…\") – ~158 words; Section 4 paragraph (\"RFC 9943 Section 6 says of the two claims…\") – ~162 words.",
-   "deletes": null,
-   "additive_reason": null,
-   "relocates": null,
-   "constrains": null,
-   "awaiting_external": null
-  },
-  {
-   "id": "p59-provenance-leak",
-   "source": "jury",
-   "vendor": "openai/gpt-4o via openrouter",
-   "jury_pass_id": "jury-43474dc842b5",
-   "pattern_id": null,
-   "description": "The document discloses internal testing details about the vector corpus, leaking provenance information.",
-   "severity": "medium",
-   "priority": null,
-   "decision": "KEEP",
-   "reason": "Section 9 is the conformance section and the corpus is what an implementer runs. A conformance section that hides the size of its suite and the reason its checker re-derives the tree arithmetic leaves a replayer unable to tell a covered run from a partial one. The second reader raised the same span and it is closed on the same ground.",
-   "justification": "design-necessary",
-   "decided_by": "openai/gpt-oss-120b",
-   "hook": {
-    "type": "manual_attest",
-    "attested_by": "",
-    "note": ""
-   },
-   "evidence": "Section 9: \"The corpus in `vectors-scitt-cose/` is the executable form of this document.\"; Section 9: \"A fault in that code then produces a corpus together with a refusal, where an imported checker would produce a corpus and its own agreement with it.\"",
-   "deletes": null,
-   "additive_reason": null,
-   "relocates": null,
-   "constrains": null,
-   "awaiting_external": null
-  },
-  {
-   "id": "prov-leak-test-corpus",
-   "source": "jury",
-   "vendor": "openai/gpt-4o",
-   "jury_pass_id": "jury-1346c4dcbac5",
-   "pattern_id": null,
-   "description": "The document leaks the exact counts and mutation rules of its synthetic test corpus, exposing its evaluation framework directly in the specification text.",
-   "severity": "high",
-   "priority": null,
-   "decision": "KEEP",
-   "reason": "Section 9 is the conformance section and the corpus is the thing an implementer runs, so its size, its verdict split and its accept-twin scoring rule are what tell a replayer whether a run covered the suite. This is the third reading to raise the span and the second vendor to do so; the ground is the same each time and it is recorded rather than acted on, because deleting the counts would leave the section unable to say what conformance means here.",
-   "justification": "design-necessary",
-   "decided_by": "google/gemini-3.1-pro-preview",
-   "hook": {
-    "type": "grep",
-    "pattern": "27 members, 6 accept",
-    "target_count": 1,
-    "regex": false,
-    "baseline_count": null,
-    "subject": null
-   },
-   "evidence": "Intro: 'The corpus in `vectors-scitt-cose/` carries 27 members, 6 accept, 17 reject and 4 indeterminate'; sec 9: 'Every reject member declares the accept member it is 1 mutation from, so a verifier that refuses every input scores 0 rather than full marks.'",
-   "deletes": null,
-   "additive_reason": null,
-   "relocates": null,
-   "constrains": null,
-   "awaiting_external": null
-  },
-  {
-   "id": "motif-rather-than",
-   "source": "jury",
-   "vendor": "openai/gpt-4o",
-   "jury_pass_id": "jury-1346c4dcbac5",
-   "pattern_id": "P9",
-   "description": "The document heavily overuses the antithetical 'X rather than Y' construction to articulate nearly all of its negative bounds and constraints.",
-   "severity": "medium",
-   "priority": null,
-   "decision": "KEEP",
-   "reason": "Ten occurrences across a document that draws a boundary in almost every section: this profile is built on saying which of two readings a verifier takes, and the connective naming the rejected alternative is what the argument needs. The row keeps its count_reduction hook, so the motif cannot grow past its measured baseline without re-opening.",
-   "justification": "register",
-   "decided_by": "google/gemini-3.1-pro-preview",
-   "hook": {
-    "type": "count_reduction",
-    "pattern": "rather than",
-    "baseline_count": 10,
-    "max_count": 2,
-    "regex": false,
-    "subject": null
-   },
-   "evidence": "sec 2: 'hold it open rather than this section settling it'; sec 4: 'derived from the payload rather than asserted beside it', 'refuse it rather than prefer one copy'; sec 6: 'a refusal rather than a skip', 'narrows that permission rather than contradicting it'; sec 7: 'stated rather than left to inference'; sec 8: 'records the fork rather than resolving it'; sec 9: 'scores 0 rather than full marks', 'a refusal, where an imported checker would produce a corpus'",
-   "deletes": null,
-   "additive_reason": null,
-   "relocates": null,
-   "constrains": null,
-   "awaiting_external": null
-  },
-  {
-   "id": "aphoristic-staccato-closers",
-   "source": "jury",
-   "vendor": "openai/gpt-4o",
-   "jury_pass_id": "jury-1346c4dcbac5",
-   "pattern_id": "P51",
-   "description": "Paragraphs frequently snap shut on dramatic, short staccato sentences (copula negations and definitive zero-actions) to create an authoritative 'mic-drop' effect.",
-   "severity": "low",
-   "priority": null,
-   "decision": "KEEP",
-   "reason": "A normative paragraph ends on the requirement it establishes, and a requirement is short. The three closers the reader quoted each state a refusal or a consequence that the paragraph above them argued for, so the brevity is the claim arriving rather than a cadence applied to it.",
-   "justification": "register",
-   "decided_by": "google/gemini-3.1-pro-preview",
-   "hook": {
-    "type": "grep",
-    "pattern": "settle nothing about the statement",
-    "target_count": 1,
-    "regex": false,
-    "baseline_count": null,
-    "subject": null
-   },
-   "evidence": "sec 2: 'They settle nothing about the statement.'; sec 7: 'This profile adds no status mechanism.'; sec 8: 'This revision does not specify it.'",
-   "deletes": null,
-   "additive_reason": null,
-   "relocates": null,
-   "constrains": null,
-   "awaiting_external": null
   }
  ],
  "jury": [
@@ -5623,6 +5931,29 @@
    "question_scope": "",
    "findings": 3,
    "note": "Second vendor on the final bytes. SIGN-4: 3 of 3 grounded. The DeepSeek seat was fired in the same pass and returned an empty completion, one attempt, no retry. evidence grounding: 3 of 3 finding(s) quote these bytes, 0 quote something else, 0 quote nothing."
+  },
+  {
+   "pass_id": "jury-b0fe92a6f0cc",
+   "source": "jury",
+   "vendor": "moonshotai",
+   "model": "moonshotai/kimi-k2.5",
+   "route": "openrouter",
+   "self_reported_vendor": "",
+   "self_reported_model": "",
+   "protocol": "crossvendor-tell-hunt/v3",
+   "prompt_sha256": "f893e8fc212847c4086c0d1aeeba80d0f395993711087af3b0f3efb0b77cde11",
+   "isolation": "document",
+   "bundle_id": "",
+   "src_sha256": "25775e22dfa31faee3bc23a73bd1e14f8a30f00461f8fcb9e1dc087bab01970b",
+   "read_sha256": "25775e22dfa31faee3bc23a73bd1e14f8a30f00461f8fcb9e1dc087bab01970b",
+   "sent_sha256": "387971dc9bcbd2bf39727a2eff87a5f5953803af35d38c6ee18dd8b5e128b54b",
+   "sent_occurrences": 1,
+   "read_probe": "not-asked",
+   "question_shapes": [],
+   "question_count": -1,
+   "question_scope": "",
+   "findings": 12,
+   "note": "Third reader, substituted for the DeepSeek seat after it returned an empty completion. SIGN-4: 10 of 12 grounded by script, both candidates hand-grepped and present once each. It named itself accurately, the only reader in this panel that did. evidence grounding: 10 of 12 finding(s) quote these bytes, 2 quote something else, 0 quote nothing."
   }
  ]
 }

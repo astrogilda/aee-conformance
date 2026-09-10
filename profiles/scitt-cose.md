@@ -111,8 +111,7 @@ profile calls that behaviour fail-closed.
 
 That behaviour follows from the base standard and needs no extension to anyone's
 document. It also inverts the more common profile rule, which tells a verifier to ignore
-what it does not recognize, so the choice is stated here and not left implicit in the
-vectors.
+what it does not recognize.
 
 Label -70001 falls in the Private Use range of the COSE Header Parameters registry, so the
 field needs no IANA action of its own and cannot collide with a future registration. A
@@ -192,8 +191,7 @@ checks the Receipt signature against that derived value.
 
 A Transparent Statement contains its own receipts, so no verifier could check a proof
 taken over its bytes. RFC 9943 Section 7 makes the construction obvious in one direction
-only: the Transparent Statement is the Signed Statement with the Receipt added. This
-profile states the inverse as a requirement, because verification depends on it.
+only: the Transparent Statement is the Signed Statement with the Receipt added.
 
 The registered entry is the Transparent Statement with label 394 removed from its
 unprotected header. That operation is well defined, since receipts live in the
@@ -249,8 +247,7 @@ structure that value names. Its signature verifies over the root the verifier re
 and never over a root it received. And its key is a transparency-service key the verifier
 already trusts.
 
-The rest of this section is what falls outside the profile, stated rather than left to
-inference.
+The rest of this section is what falls outside the profile.
 
 Non-equivocation. A single inclusion proof does not give an offline holder
 non-equivocation, and detecting a fork needs consistency proofs together with log

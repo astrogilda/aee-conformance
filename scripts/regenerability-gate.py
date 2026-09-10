@@ -74,6 +74,10 @@ GENERATORS = (
     # gate ran it, which is the precise claim-nobody-executes this file was
     # written about. It passed only because somebody ran it by hand.
     "vectors-ai-agent-action/gen_vectors.py",
+    # The artifact-binding corpus. Its members are whole trial DIRECTORIES
+    # rather than single statements, which is a larger surface to hand-place
+    # and therefore a larger reason to derive it.
+    "vectors-artifact-binding/gen_vectors.py",
 )
 
 # Every file a generator above is responsible for, as a directory and a glob.
@@ -111,6 +115,12 @@ OWNED = (
     ("vectors-ai-agent-action/statements", "v*.json"),
     ("vectors-ai-agent-action/records", "*.jsonl"),
     ("vectors-ai-agent-action", "MANIFEST.json"),
+    # The artifact-binding corpus. INDEX.md is emitted here rather than authored
+    # by hand, unlike its siblings, because every row restates an identifier
+    # that is a function of the bytes it names.
+    ("vectors-artifact-binding", "MANIFEST.json"),
+    ("vectors-artifact-binding", "INDEX.md"),
+    ("vectors-artifact-binding", "public.key"),
 )
 
 # Deliberately NOT owned above, for the two reasons the header already gives.

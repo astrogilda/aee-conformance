@@ -4,9 +4,11 @@
     python3 gen_body.py            # write <proposal>-body.md beside each proposal
     python3 gen_body.py --check    # refuse when a body on disk is not what this emits
 
-The proposal file carries two things a reader must not confuse: front matter
-for the operator, which never leaves this repository, and the body, which is
-pasted verbatim into somebody else's thread. Every gate that measures a
+The packet under packets/ carries two things a reader must not confuse: front
+matter for the operator, which never leaves this repository, and the body,
+which is pasted verbatim into somebody else's thread. The body is written out
+beside the packets directory rather than inside it, so a file that ships and a
+file that explains never sit in the same directory. Every gate that measures a
 document binds to a path, so a gate pointed at the proposal measures the front
 matter too, and a jury pointed at it reads instructions the recipient will
 never see.
@@ -23,6 +25,7 @@ import os
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+PACKETS = os.path.join(HERE, "packets")
 
 #: The line the body starts after. It sits at the end of the paste-ready
 #: preamble in every proposal here, and a proposal that does not carry it is
@@ -36,16 +39,16 @@ MARKER = (
 
 def bodies() -> dict[str, bytes]:
     out: dict[str, bytes] = {}
-    for name in sorted(os.listdir(HERE)):
-        if not name.endswith(".md") or name.endswith("-body.md"):
+    for name in sorted(os.listdir(PACKETS)):
+        if not name.endswith(".md"):
             continue
-        with open(os.path.join(HERE, name), encoding="utf-8") as handle:
+        with open(os.path.join(PACKETS, name), encoding="utf-8") as handle:
             text = handle.read()
         if MARKER not in text:
             raise SystemExit(
                 f"FAIL: {name} carries no paste-ready marker, so this script "
                 "cannot tell which half of it ships. Add the marker or move the "
-                "file out of docs/proposals/."
+                "file out of docs/proposals/packets/."
             )
         body = text.split(MARKER, 1)[1].lstrip("\n")
         out[name[:-3] + "-body.md"] = body.encode("utf-8")

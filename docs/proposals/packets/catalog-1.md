@@ -3,6 +3,8 @@
 ## Front matter
 
 register: edelman
+packet: true
+ships: ../catalog-1-body.md
 
 | field | value |
 |---|---|

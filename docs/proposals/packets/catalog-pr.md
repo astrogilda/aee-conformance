@@ -1,6 +1,8 @@
 # aos-standard/catalog: vendor the anchor-stream corpus and run it in CI
 
 register: edelman
+packet: true
+ships: ../catalog-pr-body.md
 
 ## Front matter
 

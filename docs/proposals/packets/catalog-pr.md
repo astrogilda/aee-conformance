@@ -97,7 +97,7 @@ Paragraphs are single lines with a blank line between them, so GitHub renders pr
 
 ---
 
-This vendors the reject corpus from the issue-1 comment into `conformance/anchor-stream/`. One workflow runs it against anchors_verify.py on every push that touches either. It is a draft because the shape is the thing worth arguing about before the corpus contents are.
+This vendors the reject corpus from the issue-1 comment into `conformance/anchor-stream/`. One workflow runs it against anchors_verify.py on every push that touches either. It is a draft because the shape needs agreement before the corpus contents do.
 
 The workflow is a ratchet rather than a conformance gate, and that distinction is the whole design. Today 27 of the 32 members agree with anchors-verify-v0.10. A gate demanding 32 would go red the moment it landed. A gate that goes red on arrival lasts a week. So the recording in recordings/anchors-verify-v0.10.json names which members agree right now. The job fails only when a member that agreed stops agreeing.
 
@@ -115,6 +115,6 @@ Two things about the vendored copy itself deserve a note. VENDORED.json carries 
 
 That text, as written, requires two of the ten conditions. The other eight are corrections the corpus proposes, and every member carries a contractBasis field saying which: nothing here reads as a conformance failure against what you have actually published.
 
-reason-map/ is the part I would most like you to push back on. Every reject member declares a stop reason as well as an outcome, and the runner scores both. That is your own rule from 20 August, turned on your own verifier. Scoring a reason means matching your prose, because the stream format publishes no reason codes: that file is a per-implementation map, and it goes stale the moment you reword a message. A reason code in the format deletes the file. Until there is one, somebody maintains it, and I would rather that somebody be whoever owns the format than whoever owns the corpus.
+reason-map/ is the contested part. Every reject member declares a stop reason as well as an outcome, and the runner scores both. That is your own rule from 20 August, turned on your own verifier. Scoring a reason means matching your prose, because the stream format publishes no reason codes: that file is a per-implementation map, and it goes stale the moment you reword a message. A reason code in the format deletes the file. Until there is one, somebody maintains it, and that somebody belongs with the format, not with the corpus.
 
 If you would rather not carry a directory, say so and I will close this. The corpus stays where it is. The run command in the comment still works against any tag, and nothing about the findings depends on whether this lands.

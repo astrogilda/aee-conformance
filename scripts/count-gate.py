@@ -206,6 +206,7 @@ BINDING_MANIFEST_REL = "vectors-artifact-binding/MANIFEST.json"
 #: expects, which is a small price for a count nobody can restate unchecked.
 EXTRA_CORPORA: tuple[str, ...] = (
     "vectors-anchor-stream",
+    "vectors-acs-core",
 )
 CHANGES_REL = "vectors/CHANGES.md"
 BASELINE_REL = "docs/FORCING-BASELINE.json"
@@ -1104,6 +1105,16 @@ DELEGATED: tuple[Delegated, ...] = (
 
 FROZEN: tuple[Frozen, ...] = (
     Frozen(
+        "docs/HELD-OUT-CONFORMANCE.md",
+        "the quoted 19-of-19 lookup-table score from the upstream premortem",
+        "scored 19/19 and exited 0",
+        "A figure inside a verbatim quotation of somebody else's premortem, "
+        "recording what a discard-everything adapter scored against their suite "
+        "on the day they ran it. It is not a count of anything in this "
+        "repository and its denominator is their corpus, so deriving it here "
+        "would restate their past run as our present one.",
+    ),
+    Frozen(
         "vectors/CHANGES.md",
         "the suiteRevision-18 citation remap tally",
         "moved 28 `spec:NNN`",
@@ -1352,6 +1363,24 @@ FROZEN: tuple[Frozen, ...] = (
         "two rails sat at 140 vectors while this repository",
         "The lag as it was measured. Both figures are sizes this corpus has had, and "
         "moving either would erase the event that made this gate necessary.",
+    ),
+    Frozen(
+        "docs/HELD-OUT-CONFORMANCE.md",
+        "the external-witness-basis measurement quoted from another project's tracker",
+        "puts 132 of 132 enforcement obligations at no external witness basis",
+        "A count of another specification's obligations, measured against that "
+        "specification on the day it was measured. It says nothing about the size "
+        "of any corpus here, and rewriting it when a corpus grows would restate "
+        "somebody else's reading of somebody else's document.",
+    ),
+    Frozen(
+        "docs/HELD-OUT-CONFORMANCE.md",
+        "the lookup-table measurement quoted from another project's issue tracker",
+        "scored 19 of 19 against a published suite and exited 0",
+        "A score another project recorded against its own suite on the day it "
+        "ran it. It is quoted as the evidence the design answers, and it is not "
+        "a measurement of anything here; rewriting it when this repository's "
+        "corpus changes size would restate somebody else's past run.",
     ),
     Frozen(
         "scripts/condition-forcing-crosscheck.py",

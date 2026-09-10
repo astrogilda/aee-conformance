@@ -6,7 +6,7 @@
   "specUpstreamRepo": "elang2/attestation",
   "specUpstreamRef": "add-ai-agent-action-predicate",
   "specAuthority": "specDigest",
-  "specProvenanceNote": "tracksUpstream names where the predicate is REVIEWED. specUpstreamRepo and specUpstreamRef name the fork branch the pull request is opened from, which is where specUpstreamCommit lived; that branch has since been rewritten, so the commit is orphaned and a plain clone of any of the three repositories exits 128 on it. The pin a verifier acts on is specDigest over specVendored, which is in this directory and which check_vectors.py recomputes on every run.",
+  "specProvenanceNote": "tracksUpstream names where the predicate is REVIEWED. specUpstreamRepo and specUpstreamRef name the fork branch the pull request is opened from, which is where specUpstreamCommit lived; that branch has since been rewritten, so the commit is orphaned and a plain clone of any of the three repositories exits 128 on it. The pin a verifier acts on is specDigest over specVendored, which is in this directory and which aee-verify recomputes on every run.",
   "specVendored": "spec-vendored/ai-agent-action-8783c6b.md",
   "specDigest": "273eb3475d11610b5f868661abb7b5538546c482a1a7d589a07a635ef2a79c02",
   "proposedText": "docs/ai-agent-action-canonicalization.md",

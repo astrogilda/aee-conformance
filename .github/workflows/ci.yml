@@ -40,7 +40,7 @@ jobs:
           (cd witnessattestor && go vet ./...)
       - name: test (race)
         run: |
-          go test ./aee/... ./cmd/... -race -count=1
+          go test ./aee/... ./cmd/... ./corpora/... -race -count=1
           (cd witnessattestor && go test ./... -race -count=1)
       # The README advertises cmd/aee-verify as a consumer implementation and
       # separately tells a third party how to wire a rail into the harness.
@@ -53,6 +53,25 @@ jobs:
       # absent.
       - name: the shipped CLI clears the published corpus as an external rail
         run: python3 scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py
+
+      # One binary judges every corpus in this repository. Each corpus used to
+      # ship a Python runner beside its vectors, so the command a third party
+      # was told to run was a different command per corpus and three of the six
+      # runners were wired into no workflow at all. This step walks every
+      # vectors* directory that carries a MANIFEST.json and hands each to
+      # aee-verify. A directory whose suite names no reader exits non-zero and
+      # is named, so a corpus can never stop being checked quietly.
+      - name: one harness judges every corpus
+        run: |
+          set -euo pipefail
+          go build -o /tmp/aee-verify ./cmd/aee-verify
+          status=0
+          for dir in vectors*/; do
+            [ -f "${dir}MANIFEST.json" ] || continue
+            echo "== ${dir%/}"
+            /tmp/aee-verify "${dir%/}" || status=1
+          done
+          exit "$status"
 
       # No workflow referenced this proof at all. It had been refusing since the
       # specification was re-vendored under it -- its pinned sentence split no
@@ -68,7 +87,7 @@ jobs:
 
       - name: coverage (per-file 80% minimum)
         run: |
-          go test ./aee/... ./cmd/... -coverprofile=core.cov -count=1
+          go test ./aee/... ./cmd/... ./corpora/... -coverprofile=core.cov -count=1
           (cd witnessattestor && go test ./... -coverprofile=../wa.cov -count=1)
           # The aee-witness-demo command is a runnable library-mode example; its
           # attest lifecycle is covered by the attestor tests, so it is excluded.
@@ -77,7 +96,7 @@ jobs:
       - name: staticcheck
         run: |
           go install honnef.co/go/tools/cmd/staticcheck@latest
-          "$(go env GOPATH)/bin/staticcheck" ./aee/... ./cmd/...
+          "$(go env GOPATH)/bin/staticcheck" ./aee/... ./cmd/... ./corpora/...
           (cd witnessattestor && "$(go env GOPATH)/bin/staticcheck" ./...)
       # The accepted-complexity table in docs/architecture/DESIGN_DECISIONS.md
       # names each branch-heavy Go function and its measured complexity. This
@@ -548,30 +567,19 @@ jobs:
       # `generators` extra was synced into.
       - name: every generated file regenerates byte-identically
         run: uv run python scripts/regenerability-gate.py
-      # The AI Agent Action suite's own mutation check, which asks a different
-      # question from the gate above it. Regenerability asks whether the
-      # committed bytes are the bytes the generator emits; this asks whether
-      # those bytes behave as the manifest claims -- that a member claiming a
-      # chain-hash divergence actually diverges, that every reject condition has
-      # an accepting twin, and that the vendored specification still matches the
-      # digest pinned beside it. A corpus of rejections alone gives full marks
-      # to a verifier that rejects everything, so the twin rule is the property
-      # that makes the suite worth running at all.
+      # Whether every corpus BEHAVES as its manifest claims is a different
+      # question from whether its bytes regenerate, and it is asked once for
+      # all six corpora by the "one harness judges every corpus" step in the Go
+      # job. It used to be asked here, per corpus, by a Python runner that
+      # shipped beside each vector set -- and only two of the six were ever
+      # wired into this file, so four of them passed because somebody ran them
+      # by hand on the day they landed.
       #
-      # It shipped with the corpus and nothing ran it, which is how the
-      # generator above it also arrived: both passed only because somebody ran
-      # them by hand on the day they landed.
-      - name: the agent-action corpus behaves as its manifest claims
-        run: python3 vectors-ai-agent-action/check_vectors.py
-      # The artifact-binding corpus, and the tool that produces the records it
-      # is made of. Three steps rather than one because they answer three
-      # questions: whether the corpus behaves as its manifest claims, whether
-      # the tool's own properties hold, and whether the four demonstration arms
-      # still reach the outcomes the contract requires end to end. The last is
-      # the one an outside reader will run first, so a break there has to fail
-      # here rather than in their terminal.
-      - name: the artifact-binding corpus behaves as its manifest claims
-        run: uv run --extra artifact-binding python vectors-artifact-binding/check_vectors.py
+      # The artifact-binding tool that produces those records still has its own
+      # properties to hold, and the four demonstration arms still have to reach
+      # the outcomes the contract requires end to end. The last is the one an
+      # outside reader runs first, so a break there fails here rather than in
+      # their terminal.
       - name: the artifact-binding tool holds its properties
         run: uv run --extra dev python -m pytest tools/artifact-binding/tests -q
       - name: the four-arm demonstration reaches the contract outcomes
@@ -590,6 +598,19 @@ jobs:
       # a broken corpus.
       - name: the SCITT/COSE corpus behaves as its manifest claims
         run: uv run python vectors-scitt-cose/check_vectors.py
+      # The artifact-binding corpus keeps a Python checker after the other five
+      # were deleted, and the reason is one check the Go reader cannot make. A
+      # member already expected to fail absorbs a second fault of the same class
+      # in silence, because both faults raise the same code and the member
+      # identifier covers the record rather than the files the record names. The
+      # generator therefore records a digest over the reference verifier's own
+      # sorted message list and this checker recomputes it. That digest is
+      # implementation-pinned by construction: it hashes one verifier's message
+      # prose, so a second implementation cannot satisfy it without copying the
+      # wording, which is why the check stayed here rather than moving into
+      # corpora/artifactbinding.go with the rest of the corpus's rules.
+      - name: the artifact-binding corpus carries exactly the faults it names
+        run: uv run --extra artifact-binding python vectors-artifact-binding/check_vectors.py
       # The rail's own oracle, which is a different question from the corpus.
       # A vector states what the rail must decide about bytes on disk; the
       # self-test states what the rail must decide about a statement it builds

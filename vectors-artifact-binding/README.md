@@ -8,7 +8,7 @@ the verdict an implementation must reach.
 Run it:
 
 ```bash
-python3 vectors-artifact-binding/check_vectors.py     # behaviour
+aee-verify vectors-artifact-binding/                  # behaviour
 python3 vectors-artifact-binding/gen_vectors.py       # regenerate, byte-identically
 ```
 
@@ -29,7 +29,7 @@ it into either neighbour scores zero on them rather than passing by accident.
 
 The same structural rule the sibling corpora use applies here: a suite of
 failures alone gives full marks to a verifier that refuses everything, so
-`check_vectors.py` refuses a corpus with no passing member.
+`aee-verify` refuses a corpus with no passing member.
 
 ## The members
 

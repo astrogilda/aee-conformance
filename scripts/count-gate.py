@@ -340,7 +340,7 @@ class Sources:
             # size. What the exclusion drops is a value heuristic; what still
             # grounds these counts is stronger than the heuristic was -- the
             # declared claim against the corpus's own index sentence, checked
-            # here, and that corpus's check_vectors.py grounding the manifest
+            # here, and that corpus is grounded in the manifest
             # against its entries and its files before this gate reads it.
             *(
                 (value, f"the {noun} of {directory}")
@@ -472,7 +472,7 @@ def extra_corpora() -> tuple[tuple[str, int, int, int], ...]:
     """The three counts each registered corpus publishes, read from its manifest.
 
     Read rather than declared: the manifest's own counts are checked against its
-    entries by that corpus's check_vectors.py before this gate sees them, so the
+    entries by aee-verify before this gate sees them, so the
     chain a published total has to satisfy runs sentence, manifest, entries,
     files, and no link in it is checkable against itself.
     """
@@ -1685,7 +1685,7 @@ EXEMPT_PREFIXES: dict[str, str] = {
     ),
     "vectors-ai-agent-action/spec-vendored/": (
         "vendored upstream bytes; the manifest's specDigest owns them, "
-        "vectors-ai-agent-action/check_vectors.py refuses a copy whose bytes moved, "
+        "aee-verify refuses a copy whose bytes moved, "
         "and every integer inside belongs to the upstream document rather than to "
         "this corpus"
     ),
@@ -1698,7 +1698,7 @@ EXEMPT_PREFIXES: dict[str, str] = {
     **{
         f"{directory}/spec-vendored/": (
             "vendored upstream bytes; the corpus manifest's digest owns them, its "
-            "check_vectors.py refuses a copy whose bytes moved, and every integer "
+            "aee-verify refuses a copy whose bytes moved, and every integer "
             "inside belongs to the upstream document rather than to this corpus"
         )
         for directory in EXTRA_CORPORA

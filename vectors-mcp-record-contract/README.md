@@ -6,7 +6,7 @@ implementations agree.
 
 The rule is in `../docs/INTEROP-EVIDENCE.md` and `check_run_record.py` is that
 rule as code. This corpus is the checker's own conformance suite, so the rule
-is measured rather than asserted beside itself. `check_vectors.py` runs the
+is measured rather than asserted beside itself. `aee-verify` runs the
 checker over every member and refuses when an answer differs from the one the
 member declares.
 
@@ -36,7 +36,7 @@ no party is named anywhere in this directory. The shape is the thing under
 test, and a corpus that named parties would be an accusation with a schema.
 
 A reject member differs from an accepting twin in exactly one field, and its
-condition says which axis it fails. `check_vectors.py` refuses a reject member
+condition says which axis it fails. `aee-verify` refuses a reject member
 declaring failures on two axes, because a member failing two cannot tell you
 which rule caught it.
 
@@ -49,14 +49,14 @@ which rule caught it.
 | `INDEX.md` | every member in one table |
 | `check_run_record.py` | the criterion, as a checker; usable on any record, not only these |
 | `gen_vectors.py` | regenerates the corpus byte-identically |
-| `check_vectors.py` | self-check, and the criterion run against every member |
+| `check_run_record.py` | the criterion as a standalone tool, for a record of your own |
 
 ## Running it
 
 ```
 python3 gen_vectors.py                       # regenerate, byte-identically
 python3 gen_vectors.py --check               # refuse a tree the generator does not emit
-python3 check_vectors.py                     # self-check, including the criterion
+aee-verify vectors-mcp-record-contract/      # self-check, including the criterion
 python3 check_run_record.py records/*.json   # the criterion on its own
 ```
 

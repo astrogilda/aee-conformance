@@ -11,7 +11,7 @@ vectors cite are vendored in `spec-vendored/` and pinned by sha256 in
 There is no reference adapter in the specification's repository at the pinned
 commit, and the two pull requests that carried one are closed. So this corpus
 ships with a self-check and with no observed results. `MANIFEST.json` carries
-an empty `observedRuns` array and `check_vectors.py` refuses a non-empty one,
+an empty `observedRuns` array and `aee-verify` refuses a non-empty one,
 because a run row is added by whoever ran it, naming what they ran and what
 they ran it against. The counts here describe inputs with declared
 expectations. They are not a score, and nothing in this directory is evidence
@@ -34,7 +34,7 @@ section number names a position, and a position is the thing that moves.
 ## A verdict is a code, never prose
 
 Every member asserting a refusal names a value from the specification's own
-fixed error registry, and `check_vectors.py` refuses a member that invents one.
+fixed error registry, and `aee-verify` refuses a member that invents one.
 Substring matching against operator messages fails a correct implementation
 that words a refusal differently and passes a wrong one that words the right
 cause, which are the two errors that matter in opposite directions.
@@ -57,7 +57,7 @@ self-check refuses one that does not.
 
 ## Every rejecting family accepts something
 
-`check_vectors.py` refuses a corpus in which a family rejects and never
+`aee-verify` refuses a corpus in which a family rejects and never
 accepts. A suite of rejections alone awards full marks to a deployment that
 denies every input, and that deployment governs nothing. The sequenced family
 carries a sequenced control for the same reason: a single-step positive
@@ -90,15 +90,21 @@ separate them scores a deployment on what it says about itself.
 | `MANIFEST.json` | the requirement table, the families, the scope-away list, counts and corpus digest |
 | `INDEX.md` | every requirement and every member in one table |
 | `gen_vectors.py` | regenerates the corpus byte-identically |
-| `check_vectors.py` | self-check; refuses a member that does not do what it claims |
 
 ## Running it
 
 ```
+aee-verify vectors-acs-core/       # self-check, from the repository root
 python3 gen_vectors.py             # regenerate, byte-identically
 python3 gen_vectors.py --check     # refuse a tree the generator does not emit
-python3 check_vectors.py           # self-check
 ```
+
+`aee-verify` is the one harness for every corpus in this repository. It reads
+the `suite` field of a `MANIFEST.json`, judges the members that suite declares,
+and refuses by name a suite it does not know. Each corpus used to carry a
+Python self-check of its own, so the command a reader was told to run differed
+per corpus and three of the six were wired into no workflow at all. Build it
+with `go build -o aee-verify ./cmd/aee-verify`.
 
 ## What is deliberately absent
 

@@ -542,8 +542,12 @@ jobs:
       # committed manifest, and both had been written by hand. This gate
       # regenerates everything into a copy and diffs, so a file no generator
       # produces fails on the push that adds it.
+      # `uv run` since the SCITT/COSE generator joined the set this gate drives:
+      # it shells each generator with sys.executable, and that corpus is built
+      # with pycose, so the interpreter running the gate has to be the one the
+      # `generators` extra was synced into.
       - name: every generated file regenerates byte-identically
-        run: python3 scripts/regenerability-gate.py
+        run: uv run python scripts/regenerability-gate.py
       # The AI Agent Action suite's own mutation check, which asks a different
       # question from the gate above it. Regenerability asks whether the
       # committed bytes are the bytes the generator emits; this asks whether
@@ -572,6 +576,20 @@ jobs:
         run: uv run --extra dev python -m pytest tools/artifact-binding/tests -q
       - name: the four-arm demonstration reaches the contract outcomes
         run: uv run --extra artifact-binding ./demo/four-arms.sh
+      # The SCITT/COSE carriage suite's own mutation check. Same question as the
+      # step above and a different subject: whether a member claiming a root
+      # divergence actually diverges, whether every accept member's signature
+      # and inclusion proof actually verify, and whether each reject member
+      # carries the specific fault it names rather than some other one.
+      #
+      # `uv run` and not bare `python3`, unlike its two neighbours, because this
+      # corpus is COSE and CBOR is not in the standard library. The checker
+      # decodes with cbor2 and verifies through pycose, both declared in the
+      # `generators` extra this job already synced. A bare python3 here would
+      # find neither and the step would die on an ImportError, which reads like
+      # a broken corpus.
+      - name: the SCITT/COSE corpus behaves as its manifest claims
+        run: uv run python vectors-scitt-cose/check_vectors.py
       # The rail's own oracle, which is a different question from the corpus.
       # A vector states what the rail must decide about bytes on disk; the
       # self-test states what the rail must decide about a statement it builds

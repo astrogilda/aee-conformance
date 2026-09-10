@@ -78,6 +78,10 @@ GENERATORS = (
     # rather than single statements, which is a larger surface to hand-place
     # and therefore a larger reason to derive it.
     "vectors-artifact-binding/gen_vectors.py",
+    # The SCITT/COSE carriage suite. Like the one above it builds its own
+    # manifest and its own index in the same run, so it has no ordering
+    # relationship with anything else and is listed last.
+    "vectors-scitt-cose/gen_vectors.py",
 )
 
 # Every file a generator above is responsible for, as a directory and a glob.
@@ -121,6 +125,14 @@ OWNED = (
     ("vectors-artifact-binding", "MANIFEST.json"),
     ("vectors-artifact-binding", "INDEX.md"),
     ("vectors-artifact-binding", "public.key"),
+    # The SCITT/COSE carriage suite. Its INDEX.md is OWNED here, unlike the
+    # hand-authored indexes above, because that file is emitted from the
+    # manifest: an index a person maintains beside a corpus drifts from it and
+    # both halves keep looking authoritative, which this repository has already
+    # paid for once.
+    ("vectors-scitt-cose/statements", "v*.json"),
+    ("vectors-scitt-cose", "MANIFEST.json"),
+    ("vectors-scitt-cose", "INDEX.md"),
 )
 
 # Deliberately NOT owned above, for the two reasons the header already gives.

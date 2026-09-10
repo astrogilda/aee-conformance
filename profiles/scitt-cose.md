@@ -53,7 +53,9 @@ be made over the hash of a payload rather than the full payload bytes." Where th
 form detaches it, the signature still covers the payload in full, because RFC 9052 Section
 4.4 field 5 puts "The payload to be signed ... The full payload is used here, independent
 of how it is transported" into the Sig_structure that the signer signs. A verifier therefore
-needs the payload bytes out of band before it can check anything.
+needs the payload bytes out of band before it can verify the signature. The header checks
+in Section 6 run before that one. They screen the protected header. They settle nothing about the
+statement.
 
 ### 2.1 The protected header
 
@@ -109,8 +111,8 @@ profile calls that behaviour fail-closed.
 
 That behaviour follows from the base standard and needs no extension to anyone's
 document. It also inverts the more common profile rule, which tells a verifier to ignore
-what it does not recognize, so this document states the choice outright instead of leaving
-a reader to discover it from the vectors.
+what it does not recognize, so the choice is stated here and not left implicit in the
+vectors.
 
 Label -70001 falls in the Private Use range of the COSE Header Parameters registry, so the
 field needs no IANA action of its own and cannot collide with a future registration. A
@@ -247,8 +249,8 @@ structure that value names. Its signature verifies over the root the verifier re
 and never over a root it received. And its key is a transparency-service key the verifier
 already trusts.
 
-The rest of this section is what falls outside the profile, written out so that a reader
-does not have to infer any of it from silence.
+The rest of this section is what falls outside the profile, stated rather than left to
+inference.
 
 Non-equivocation. A single inclusion proof does not give an offline holder
 non-equivocation, and detecting a fork needs consistency proofs together with log

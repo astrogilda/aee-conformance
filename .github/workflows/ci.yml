@@ -69,7 +69,26 @@ jobs:
           for dir in vectors*/; do
             [ -f "${dir}MANIFEST.json" ] || continue
             echo "== ${dir%/}"
-            /tmp/aee-verify "${dir%/}" || status=1
+            rc=0
+            /tmp/aee-verify "${dir%/}" || rc=$?
+            case "$rc" in
+              0) ;;
+              # 2 is the reader saying it cannot judge this suite yet, and it says
+              # so rather than reporting a corpus nothing read as clean. That is
+              # only acceptable while the corpus is judged by its own checker, so
+              # the absence of one is a failure here: it is the state where a
+              # corpus is covered by nothing at all and every exit status still
+              # looks fine.
+              2)
+                if [ -f "${dir}check_vectors.py" ]; then
+                  echo "   no Go reader yet; ${dir}check_vectors.py judges this corpus and runs in the python job"
+                else
+                  echo "   no Go reader and no ${dir}check_vectors.py: this corpus is judged by nothing" >&2
+                  status=1
+                fi
+                ;;
+              *) status=1 ;;
+            esac
           done
           exit "$status"
 

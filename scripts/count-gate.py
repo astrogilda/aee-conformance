@@ -207,6 +207,7 @@ BINDING_MANIFEST_REL = "vectors-artifact-binding/MANIFEST.json"
 EXTRA_CORPORA: tuple[str, ...] = (
     "vectors-anchor-stream",
     "vectors-acs-core",
+    "vectors-mcp-record-contract",
 )
 CHANGES_REL = "vectors/CHANGES.md"
 BASELINE_REL = "docs/FORCING-BASELINE.json"
@@ -1381,6 +1382,15 @@ FROZEN: tuple[Frozen, ...] = (
         "ran it. It is quoted as the evidence the design answers, and it is not "
         "a measurement of anything here; rewriting it when this repository's "
         "corpus changes size would restate somebody else's past run.",
+    ),
+    Frozen(
+        "docs/INTEROP-EVIDENCE.md",
+        "the honest form of a figure, quoted verbatim from the record that published it",
+        '"24 vectors, 0 hard failures"',
+        "Another project's own sentence about its own run, quoted because the "
+        "criterion turns on the difference between that wording and the whole "
+        "numerator a table carried instead. Both figures belong to that record "
+        "and to the day it ran; neither counts anything here.",
     ),
     Frozen(
         "scripts/condition-forcing-crosscheck.py",

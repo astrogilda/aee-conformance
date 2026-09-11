@@ -285,18 +285,40 @@ SOURCE_CASES: list[Case] = [
     ),
 ]
 
+def dated_tag(name: str) -> Mutation:
+    """Set a known-wrong release date, then tag the staged copy.
+
+    A named function rather than a lambda pairing two calls: both helpers return
+    None, so a tuple expression would give the case a Mutation returning
+    tuple[None, None] and every type checker in this repository refuses it.
+    """
+
+    def mutate(root: Path) -> None:
+        set_release_date(root, "2026-01-01")
+        tag(root, name)
+
+    return mutate
+
+
 # The release date, which moves on exactly the same occasions as the version and
 # was checked by nothing. It stood at 2026-08-12 through two version bumps while
 # the tag it described was cut on 2026-09-02.
 DATE_CASES: list[Case] = [
+    # Each of these two SETS the date it needs rather than relying on the
+    # committed one being wrong. They used to tag the staged copy and let the
+    # repository's own stale value supply the disagreement, which worked only
+    # while that value was stale: the staged copy's single commit is made today,
+    # so the moment date-released became today's date -- which is exactly what
+    # cutting a release makes it -- neither case could construct its mutation
+    # and both reported that the gate had accepted a defect it was never shown.
     (
         "the tag exists and the date is not its commit date",
-        lambda root: tag(root, "v0.10.0"),
+        dated_tag("v0.10.0"),
         ("tag v0.10.0 is on a commit dated",),
     ),
     (
         "the date is older than the previous release",
-        lambda root: tag(root, "v0.9.0"),
+        dated_tag("v0.9.0"),
         ("earlier than tag v0.9.0",),
     ),
     (

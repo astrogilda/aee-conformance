@@ -166,6 +166,21 @@ SOURCES = (
 )
 
 
+def corpus_digest(manifest: dict, root: Path = HERE) -> str:
+    """The digest this corpus publishes, recomputed from the files on disk.
+
+    It lives with the GENERATOR because the generator owns the preimage. Its
+    one caller besides this file is scripts/release-digests.py, which loads it
+    by path rather than restating the concatenation: a second spelling of one
+    preimage drifts from the first, and a release signature over a drifted
+    digest certifies the drift instead of the corpus.
+    """
+    digest = hashlib.sha256()
+    for entry in sorted(manifest["vectors"], key=lambda entry: entry["id"]):
+        digest.update((Path(root) / entry["file"]).read_bytes())
+    return digest.hexdigest()
+
+
 def member_payload(source: Path) -> bytes:
     """One deployment, serialised as the corpus member's own bytes."""
     files = {}

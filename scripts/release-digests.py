@@ -101,16 +101,43 @@ def _recompute_aee(root: Path, manifest: dict[str, Any]) -> str:
 
 
 def _recompute_agent_action(root: Path, manifest: dict[str, Any]) -> str:
-    """The AI Agent Action corpus digest, from that suite's own self-check."""
-    module = _load(root / "check_vectors.py")
+    """The AI Agent Action corpus digest, from the generator that publishes it.
+
+    It used to come from that corpus's check_vectors.py, which was deleted with
+    the four other per-corpus runners once the Go harness covered what they
+    checked. The digest was never the runner's to own: the generator writes the
+    bytes, so the generator answers for them, which is also where the AEE corpus
+    above is read from.
+    """
+    module = _load(root / "gen_vectors.py")
     return str(module.corpus_digest(manifest, str(root)))
 
 
 #: Corpus directory -> the routine that OWNS that corpus's preimage. Imported,
 #: never restated: a second spelling of a preimage is a digest that drifts.
+def _recompute_from_generator(root: Path, manifest: dict[str, Any]) -> str:
+    """Every other corpus, through the corpus_digest its generator exports.
+
+    One routine rather than one per corpus, because after the five per-corpus
+    runners were deleted each generator gained the same entry point and the
+    difference between the corpora lives inside it: identifier order for some,
+    manifest order for others, canonical entries for the one whose members are
+    whole directories. A wrapper per corpus here would be five more places to
+    get a preimage wrong and nothing to gain.
+    """
+    module = _load(root / "gen_vectors.py")
+    return str(module.corpus_digest(manifest, str(root)))
+
+
 RECOMPUTERS: dict[str, Callable[[Path, dict[str, Any]], str]] = {
     "vectors": _recompute_aee,
     "vectors-ai-agent-action": _recompute_agent_action,
+    "vectors-aci": _recompute_from_generator,
+    "vectors-acs-core": _recompute_from_generator,
+    "vectors-anchor-stream": _recompute_from_generator,
+    "vectors-artifact-binding": _recompute_from_generator,
+    "vectors-mcp-record-contract": _recompute_from_generator,
+    "vectors-scitt-cose": _recompute_from_generator,
 }
 
 

@@ -196,6 +196,24 @@ def h(b: bytes) -> str:
     return hashlib.sha256(b).hexdigest()
 
 
+def corpus_digest(manifest: dict, root: str = HERE) -> str:
+    """The digest this corpus publishes, recomputed from the files on disk.
+
+    It lives with the GENERATOR because the generator owns the preimage: this
+    corpus is whatever gen_vectors.py emitted, and the digest is a function of
+    those bytes in identifier order. scripts/release-digests.py loads this by
+    path and calls it rather than restating the concatenation, for the reason
+    that script gives about every corpus it covers: a second spelling of one
+    preimage is drift, and a signature over a drifted digest certifies the
+    drift. The AEE corpus is already read this way, through corpus_digest in
+    vectors/gen_manifest.py, so both corpora now answer the same question from
+    the same kind of place.
+    """
+    return h(b"".join(
+        open(os.path.join(root, entry["file"]), "rb").read()
+        for entry in sorted(manifest["vectors"], key=lambda entry: entry["id"])))
+
+
 def chain_hash(record: dict) -> str:
     return h(jcs(record))
 
@@ -791,9 +809,7 @@ def main() -> None:
     emit()
     counts = {"accept": sum(1 for m in MANIFEST if m["kind"] == "accept"),
               "reject": sum(1 for m in MANIFEST if m["kind"] == "reject")}
-    corpus = h(b"".join(
-        open(os.path.join(HERE, m["file"]), "rb").read()
-        for m in sorted(MANIFEST, key=lambda m: m["id"])))
+    corpus = corpus_digest({"vectors": MANIFEST}, HERE)
     manifest = {
         "suite": "ai-agent-action-conformance",
         "predicateType": PREDICATE_TYPE,

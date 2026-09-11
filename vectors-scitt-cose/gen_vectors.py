@@ -165,6 +165,20 @@ class EdDSADeprecated(EdDSA):
 # ---------------------------------------------------------------------------
 # Keys. Fixed seeds, because the corpus has to regenerate byte-identically.
 # ---------------------------------------------------------------------------
+def corpus_digest(manifest: dict, root: str = HERE) -> str:
+    """The digest this corpus publishes, recomputed from the files on disk.
+
+    It lives with the GENERATOR because the generator owns the preimage. Its
+    one caller besides this file is scripts/release-digests.py, which loads it
+    by path rather than restating the concatenation: a second spelling of one
+    preimage drifts from the first, and a release signature over a drifted
+    digest certifies the drift instead of the corpus.
+    """
+    return hashlib.sha256(b"".join(
+        open(os.path.join(root, entry["file"]), "rb").read()
+        for entry in sorted(manifest["vectors"], key=lambda entry: entry["id"]))).hexdigest()
+
+
 def key_from_seed(seed: bytes) -> OKPKey:
     from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 

@@ -51,6 +51,19 @@ BASELINE_WITNESS_ACTIVE = "baseline/witness-0eb69bf.jsonl"
 
 def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
+def corpus_digest(manifest: dict, root: str = str(HERE)) -> str:
+    """The digest this corpus publishes, recomputed from the files on disk.
+
+    It lives with the GENERATOR because the generator owns the preimage. Its
+    one caller besides this file is scripts/release-digests.py, which loads it
+    by path rather than restating the concatenation: a second spelling of one
+    preimage drifts from the first, and a release signature over a drifted
+    digest certifies the drift instead of the corpus.
+    """
+    return sha(b"".join(
+        open(os.path.join(root, entry["stream"]), "rb").read()
+        for entry in manifest["vectors"]))
+
 
 
 def read(rel: str) -> bytes:

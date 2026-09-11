@@ -260,8 +260,13 @@ DRIFT_CASES: list[Case] = [
     ),
     (
         "the two files carry different titles",
-        lambda root: reword(root, CFF, r"\n  adversarial-execution-evidence predicate",
-                            "\n  adversarial execution evidence predicate"),
+        # Pinned to the title as it stands. It was pinned to the previous title
+        # and the rename removed that line, so this case refused to run rather
+        # than assert nothing, which is the design working: a case whose
+        # mutation cannot be built is a case that proves nothing, and it says so
+        # instead of passing.
+        lambda root: reword(root, CFF, r" for agent execution evidence",
+                            " for agent-execution-evidence"),
         ("titles disagree",),
     ),
     (

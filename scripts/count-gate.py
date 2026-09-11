@@ -1106,6 +1106,33 @@ DELEGATED: tuple[Delegated, ...] = (
 
 FROZEN: tuple[Frozen, ...] = (
     Frozen(
+        "vectors-aci/FINDINGS.md",
+        "the compliance score the ACI specification asks a reference implementation for",
+        "Pass ACI Validator checks with a score of 100/100",
+        "A figure inside a verbatim quotation of another specification's own "
+        "conformance requirement. Its denominator is that specification's "
+        "scoring scheme, which no section of it defines, and that missing "
+        "definition is the finding the sentence exists to report. Deriving it "
+        "from anything here would make their unstated arithmetic look like ours.",
+    ),
+    Frozen(
+        "vectors-aci/FINDINGS.md",
+        "the line range where the ACI validator's undocumented arithmetic lives",
+        "238-258 for a manifest and 304-311 for the deployment",
+        "A line-range citation into another project's source file, not a count. "
+        "The second endpoint happens to equal a rule tally here, which is what "
+        "brought it to the census; it names a position in somebody else's code "
+        "and tracks their file rather than any quantity of ours.",
+    ),
+    Frozen(
+        "vectors-aci/FINDINGS.md",
+        "the ACI example manifests a strict date reading rejects",
+        "rejects 18 of 18",
+        "A measurement of another repository's example files, taken on the day "
+        "they were read. Their example count is theirs to change, and rewriting "
+        "this when a corpus here grows would restate their tree as ours.",
+    ),
+    Frozen(
         "docs/HELD-OUT-CONFORMANCE.md",
         "the quoted 19-of-19 lookup-table score from the upstream premortem",
         "scored 19/19 and exited 0",

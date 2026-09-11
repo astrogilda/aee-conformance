@@ -265,6 +265,24 @@ under suiteRevision 17.
 
 ## Known gaps in the gates
 
+- [ ] **`messagesDigest` pins one implementation's message prose, and the property it
+  stands for does not** — `vectors-artifact-binding/MANIFEST.json` gives every member a
+  digest over the reference verifier's own sorted message list, and
+  `vectors-artifact-binding/check_vectors.py` recomputes it. It exists for a real hole,
+  measured: a member already expected to fail absorbs a second fault of the same class
+  in silence, because both faults raise the same code and the member identifier covers
+  the record rather than the files the record names. What it hashes, though, is English.
+  Porting the check into `corpora/artifactbinding.go` verbatim failed two of eight
+  unmutated members, because the Go reader words its findings differently, so the digest
+  as specified cannot be satisfied by a second implementation without copying the first
+  one's wording. That is why this corpus keeps a Python checker after the other five were
+  deleted, and why the Go reader carries only the implementation-independent half of the
+  same fix (the emitted code set must equal the declared one, not merely contain it).
+  Replacing the digest with an invariant any implementation can meet, over the set of
+  FILE PATHS the findings name rather than their prose, would let the check move into the
+  Go reader and the Python checker go the way of its five siblings. The operator's call;
+  nothing is broken while it stands.
+
 - [x] **The corpus cannot be regenerated from the sources it declares** — CLOSED at
   suiteRevision 16. Both generators now build all seven vectors, both index tables carry their
   rows, `python3 vectors/gen_manifest.py` exits 0 and is idempotent, and the heading check in

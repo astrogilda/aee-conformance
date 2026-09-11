@@ -265,6 +265,21 @@ under suiteRevision 17.
 
 ## Known gaps in the gates
 
+- [ ] **The pre-push gate reads the revision it was handed and the push sends whatever
+  the ref points at when it connects** — observed 2026-09-11. The hook was handed
+  `7c0349d` on stdin, printed `running every workflow shell step against 7c0349d`, ran
+  the full mirror for eighty-nine minutes, and passed. During those eighty-nine minutes a
+  commit landed on `main`. The push then reported `6c2fa6c..7c0349d`, and
+  `gh api repos/.../git/ref/heads/main` came back `7aaf147` -- a commit the gate never
+  read. It went green on the remote, so nothing was lost this time, and that is exactly
+  what makes it worth a row: the hook's own header names the FALSE PASS (fix a file,
+  do not commit it, and the gate reads the repaired tree while the push carries the
+  broken commit) and this is the same false pass arriving through a different door,
+  opened by the mirror being slow enough for the tree to move underneath it. The fix is
+  for the hook to re-read the ref after the gate returns and REFUSE when it no longer
+  matches the revision gated, naming both. Do not close this by making the mirror
+  faster; a shorter window is still a window.
+
 - [ ] **`messagesDigest` pins one implementation's message prose, and the property it
   stands for does not** — `vectors-artifact-binding/MANIFEST.json` gives every member a
   digest over the reference verifier's own sorted message list, and

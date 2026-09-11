@@ -195,6 +195,29 @@ the field publishes, with the command that re-derives it and a positive control.
 That page makes an absence claim, and an absence claim is the easiest kind to get
 wrong.
 
+## Arriving from somewhere else
+
+Two files carry what a reader who did not come from here needs, and neither one
+of them is a summary of this page.
+
+- [`DISTRIBUTION.md`](DISTRIBUTION.md) is the inbound page: the tag to cite, the
+  module path, the release-verification recipe above, how to cite a corpus so
+  the citation still resolves to the same bytes next year, and what a sibling
+  `vectors-*` directory of your own has to carry. It is deliberately inbound
+  only and records nothing about where this suite has been sent.
+- [`RUNS.md`](RUNS.md) is the scoreboard for runs by implementations this
+  repository did not write: one row per posted run, in the reporter's own words,
+  under the label its own author gave it, with blind and directed kept apart
+  rather than added together. The form at
+  [`.github/ISSUE_TEMPLATE/independent-run.yml`](.github/ISSUE_TEMPLATE/independent-run.yml)
+  is the whole reporting path, and a run that disagreed with the corpus is the
+  row worth having.
+
+`scripts/distribution-gate.py` holds the inbound page to this repository: the
+recipe there is byte-identical to the one above, every tag it names is the one
+`CITATION.cff` calls released, and its corpora table and that form both hold
+exactly the tracked corpus set.
+
 ## Layout
 
 ```

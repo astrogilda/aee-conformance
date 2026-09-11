@@ -158,7 +158,7 @@ jobs:
       - name: sync toolchain
         run: uv sync --extra dev --extra generators
       - name: mypy --strict
-        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/interpretation-registry-gate-test.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-anchor-gate-test.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/code-contract-gate-test.py scripts/consumer-lag-gate.py scripts/consumer-lag-gate-test.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/condition-forcing-gate.py scripts/condition-forcing-gate-test.py scripts/condition-forcing-crosscheck.py scripts/condition-forcing-crosscheck-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py scripts/countcensus.py scripts/count-gate.py scripts/count-gate-test.py scripts/regenerability-gate.py scripts/mutationdiff.py scripts/accept-anchor-gate.py scripts/accept-anchor-gate-test.py scripts/liveness-probe.py scripts/liveness-probe-test.py scripts/citation-metadata-gate.py scripts/citation-metadata-gate-test.py scripts/expectation-slack-gate.py scripts/expectation-slack-gate-test.py scripts/observed-code-closure-gate.py scripts/observed-code-closure-gate-test.py scripts/uncited-crosscheck-gate.py scripts/reading-differential.py scripts/reading-differential-test.py scripts/vendor-remap-test.py scripts/vector-distinctness-gate.py scripts/vector-distinctness-gate-test.py scripts/surface-leakage-gate.py scripts/surface-leakage-gate-test.py scripts/harness-output-contract-test.py
+        run: uv run mypy packaging/run_vectors.py vectors/reject/gen_invalid_vectors.py vectors/accept/gen_valid_vectors.py vectors/gen_manifest.py scripts/spec-drift-gate.py scripts/interpretation-registry-gate.py scripts/interpretation-registry-gate-test.py scripts/coverage-matrix-gate.py scripts/complexity-table-gate.py scripts/specpins.py scripts/spec-anchor-gate.py scripts/spec-anchor-gate-test.py scripts/spec-citation-gate.py scripts/code-contract-gate.py scripts/code-contract-gate-test.py scripts/consumer-lag-gate.py scripts/consumer-lag-gate-test.py scripts/independent-runs-gate.py scripts/condition-registry-gate.py scripts/condition-registry-gate-test.py scripts/condition-forcing-gate.py scripts/condition-forcing-gate-test.py scripts/condition-forcing-crosscheck.py scripts/condition-forcing-crosscheck-test.py scripts/external-rail-gate.py scripts/forcing-gate.py scripts/forcing-gate-test.py scripts/countcensus.py scripts/count-gate.py scripts/count-gate-test.py scripts/distribution-gate.py scripts/distribution-gate-test.py scripts/regenerability-gate.py scripts/mutationdiff.py scripts/accept-anchor-gate.py scripts/accept-anchor-gate-test.py scripts/liveness-probe.py scripts/liveness-probe-test.py scripts/citation-metadata-gate.py scripts/citation-metadata-gate-test.py scripts/expectation-slack-gate.py scripts/expectation-slack-gate-test.py scripts/observed-code-closure-gate.py scripts/observed-code-closure-gate-test.py scripts/uncited-crosscheck-gate.py scripts/reading-differential.py scripts/reading-differential-test.py scripts/vendor-remap-test.py scripts/vector-distinctness-gate.py scripts/vector-distinctness-gate-test.py scripts/surface-leakage-gate.py scripts/surface-leakage-gate-test.py scripts/harness-output-contract-test.py
       # Type-checks by DIRECTORY, which is why it sits beside the pass above
       # rather than replacing it. That one is driven from the list of files
       # written out on the line above, and a list is only accurate on the day it
@@ -570,6 +570,17 @@ jobs:
         run: |
           python3 scripts/count-gate.py
           python3 scripts/count-gate-test.py
+      # The inbound page is the one document whose reader has already decided to
+      # trust nobody here, and everything on it is a copy of something the
+      # repository states elsewhere: the verification recipe is the README's, the
+      # tag is CITATION.cff's, the corpora table and the run form's dropdown are
+      # the tracked corpus set. Nothing ran a markdown fence, so a command fixed
+      # in the README and not in the copy would fail in exactly that reader's
+      # hands and nowhere else.
+      - name: the inbound page still describes the repository it ships with
+        run: |
+          python3 scripts/distribution-gate.py
+          python3 scripts/distribution-gate-test.py
       # The pre-push mirror runs every step of every workflow locally, and it
       # ran them under a plain bash while Actions runs them under `bash -e`.
       # A step with one command cannot tell the two apart; a step with several

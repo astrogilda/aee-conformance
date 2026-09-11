@@ -26,9 +26,14 @@ body:
     attributes:
       label: Which corpus
       options:
-        - "vectors/ (adversarial execution evidence)"
+        - "vectors/"
+        - "vectors-aci/"
+        - "vectors-acs-core/"
         - "vectors-ai-agent-action/"
-        - "another vectors-* directory"
+        - "vectors-anchor-stream/"
+        - "vectors-artifact-binding/"
+        - "vectors-mcp-record-contract/"
+        - "vectors-scitt-cose/"
     validations:
       required: true
   - type: input
@@ -48,9 +53,12 @@ body:
   - type: input
     id: figures
     attributes:
-      label: The figures, exactly as you would publish them
-      description: Total, and the per-outcome split if you have it.
-      placeholder: "<total>/<total>; accepts <n>/<n>, rejects <n>/<n>, indeterminate <n>/<n>"
+      label: The headline figure, exactly as you would publish it
+      description: >
+        In your own wording and your own arithmetic. It is transcribed here as you write it, never
+        rounded and never restated as a fraction of a different corpus, so write the one you would
+        stand behind in your own repository.
+      placeholder: "<total>/<total>"
     validations:
       required: true
   - type: dropdown
@@ -67,12 +75,28 @@ body:
         - "part blind, part directed (say which in the notes)"
     validations:
       required: true
+  - type: input
+    id: verdict-counts
+    attributes:
+      label: Verdict counts for the corpus you ran
+      description: >
+        Per outcome, in that corpus's own vocabulary. Two corpora here answer over three verdicts
+        rather than accept and reject, and collapsing one of those into two buckets drops the
+        bucket the corpus exists to test.
+      placeholder: "accepts <n>/<n>, rejects <n>/<n>, indeterminate <n>/<n>; or verified/failed/notEstablished"
+    validations:
+      required: true
   - type: textarea
     id: disagreements
     attributes:
-      label: Disagreements
-      description: Every vector where your verifier and the corpus reached different answers, and what your verifier said.
-      placeholder: "bad-0000: we return valid; the corpus expects invalid with code ..."
+      label: Disagreements, as bug reports
+      description: >
+        Every vector where your verifier and the corpus reached different answers. One entry per
+        vector, written as a defect report rather than a tally: the vector id, what the corpus
+        expects, what your verifier answered, and the reason it answered that. Each entry is
+        triaged against the specification text on its own, and whichever side is wrong it becomes
+        a row in DISPOSITIONS.md under a permanent identifier, in your frame.
+      placeholder: "bad-0000: the corpus expects invalid with code X; we return valid, because ..."
     validations:
       required: false
   - type: input

@@ -271,7 +271,13 @@ DRIFT_CASES: list[Case] = [
     ),
     (
         "the cited version names a release the build does not declare",
-        lambda root: retype(root, CFF, r"\nversion: 0\.(\d+)\.0"),
+        # The patch component is `\d+` and not `0`. It was `0`, which made the
+        # pattern match only releases whose patch number happened to be zero, so
+        # the first patch release turned this case into one that could not build
+        # its mutation. It refused rather than assert nothing, which is the
+        # design, but the shape it is pinned to is a version and not a version
+        # ending in zero.
+        lambda root: retype(root, CFF, r"\nversion: 0\.(\d+)\.\d+"),
         ("cites version",),
     ),
 ]
@@ -284,6 +290,29 @@ SOURCE_CASES: list[Case] = [
         ("it declares",),
     ),
 ]
+
+def declared_version_tag() -> Mutation:
+    """Set a known-wrong date, then tag the staged copy at the version it declares.
+
+    Arm 1 of the gate's rule binds date-released to the commit date of the tag
+    named `v<version>`, so the case has to tag whatever version the file carries
+    rather than a version somebody wrote down when the case was added.
+    """
+
+    def mutate(root: Path) -> None:
+        set_release_date(root, "2026-01-01")
+        text = (root / CFF).read_text(encoding="utf-8")
+        found = re.search(r"\nversion: (\S+)", text)
+        if found is None:
+            raise SystemExit(
+                "test setup: CITATION.cff in the staged copy declares no version, so "
+                "this case cannot know which tag to create and would assert nothing. "
+                "Fix the case, never the gate."
+            )
+        tag(root, f"v{found.group(1)}")
+
+    return mutate
+
 
 def dated_tag(name: str) -> Mutation:
     """Set a known-wrong release date, then tag the staged copy.
@@ -313,8 +342,14 @@ DATE_CASES: list[Case] = [
     # and both reported that the gate had accepted a defect it was never shown.
     (
         "the tag exists and the date is not its commit date",
-        dated_tag("v0.10.0"),
-        ("tag v0.10.0 is on a commit dated",),
+        declared_version_tag(),
+        # The version is not named here. It used to be, as "tag v0.10.0", and the
+        # first patch release moved the file out from under the case: the gate
+        # looks for the tag matching the version the file declares, found no
+        # v0.10.1, and answered from a different arm of its rule. The phrase
+        # below belongs to arm 1 and to no other, which is what the case is
+        # actually asserting.
+        ("is on a commit dated",),
     ),
     (
         "the date is older than the previous release",

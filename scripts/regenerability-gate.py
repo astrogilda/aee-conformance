@@ -82,6 +82,10 @@ GENERATORS = (
     # manifest and its own index in the same run, so it has no ordering
     # relationship with anything else and is listed last.
     "vectors-scitt-cose/gen_vectors.py",
+    # The ACI suite. A member is a whole DEPLOYMENT serialised into one file, so
+    # every identifier and the corpus digest are functions of bytes no person
+    # can write into a table by hand.
+    "vectors-aci/gen_vectors.py",
 )
 
 # Every file a generator above is responsible for, as a directory and a glob.
@@ -133,6 +137,8 @@ OWNED = (
     ("vectors-scitt-cose/statements", "v*.json"),
     ("vectors-scitt-cose", "MANIFEST.json"),
     ("vectors-scitt-cose", "INDEX.md"),
+    ("vectors-aci/deployment-members", "v*.json"),
+    ("vectors-aci", "MANIFEST.json"),
 )
 
 # Deliberately NOT owned above, for the two reasons the header already gives.

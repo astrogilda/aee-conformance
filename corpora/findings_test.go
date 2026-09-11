@@ -149,9 +149,13 @@ func writeFile(t *testing.T, dir, rel, body string) {
 }
 
 func TestEveryFindingIsReachable(t *testing.T) {
-	for _, tc := range append(append(append(append(append(
-		anchorFindings(), acsFindings()...), mcpFindings()...),
-		bindingFindings()...), agentActionFindings()...), aeeFindings()...) {
+	cases := append(anchorFindings(), acsFindings()...)
+	cases = append(cases, mcpFindings()...)
+	cases = append(cases, bindingFindings()...)
+	cases = append(cases, agentActionFindings()...)
+	cases = append(cases, aeeFindings()...)
+	cases = append(cases, aciFindings()...)
+	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			dir := stage(t, tc.dir)
 			tc.mutate(t, dir)
@@ -753,5 +757,158 @@ func aeeFindings() []findingCase {
 				}
 			})
 		}, "predicted by no declared reading"},
+	}
+}
+
+// aciFindings: one case per sentence the ACI reader can report. Writing these
+// is what found the split severity of ACI-DIS-002, where publishing the
+// discovery file is a SHOULD and the three fields it must then carry are a
+// MUST, so the same code is a warning in one member and a refusal in another.
+func aciFindings() []findingCase {
+	const dir = "vectors-aci"
+	return []findingCase{
+		{"aci/counts", dir, func(t *testing.T, d string) {
+			editManifest(t, d, func(m map[string]any) {
+				m["counts"] = map[string]any{"accept": 1.0, "reject": 1.0}
+			})
+		}, "counts disagree"},
+		{"aci/corpus-digest", dir, func(t *testing.T, d string) {
+			editManifest(t, d, func(m map[string]any) { m["corpusDigest"] = strings.Repeat("0", 64) })
+		}, "corpusDigest does not match the members on disk"},
+		{"aci/spec-version", dir, func(t *testing.T, d string) {
+			editManifest(t, d, func(m map[string]any) { delete(m, "specVersion") })
+		}, "declares no specVersion"},
+		{"aci/spec-commit", dir, func(t *testing.T, d string) {
+			editManifest(t, d, func(m map[string]any) { delete(m, "specCommit") })
+		}, "declares no specCommit"},
+		{"aci/check-missing-from-manifest", dir, func(t *testing.T, d string) {
+			editManifest(t, d, func(m map[string]any) {
+				checks, _ := m["checks"].(map[string]any)
+				delete(checks, "ACI-SER-001")
+			})
+		}, "the reader carries check ACI-SER-001 and the manifest does not declare it"},
+		{"aci/check-section-disagrees", dir, func(t *testing.T, d string) {
+			editManifest(t, d, func(m map[string]any) {
+				checks, _ := m["checks"].(map[string]any)
+				checks["ACI-SER-001"] = "99.9"
+			})
+		}, "cites section"},
+		{"aci/check-unknown-to-reader", dir, func(t *testing.T, d string) {
+			editManifest(t, d, func(m map[string]any) {
+				checks, _ := m["checks"].(map[string]any)
+				checks["ACI-NOPE-001"] = "1.1"
+			})
+		}, "and no reader here carries it"},
+		{"aci/check-never-forced", dir, func(t *testing.T, d string) {
+			editManifest(t, d, func(m map[string]any) {
+				aciDropCode(m, "ACI-IDF-003")
+			})
+		}, "so that check is named and never forced"},
+		{"aci/duplicate-identifier", dir, func(t *testing.T, d string) {
+			editManifest(t, d, func(m map[string]any) {
+				vectors, _ := m["vectors"].([]any)
+				first, _ := vectors[0].(map[string]any)
+				second, _ := vectors[1].(map[string]any)
+				second["id"] = first["id"]
+			})
+		}, "duplicate identifier"},
+		{"aci/identifier-does-not-recompute", dir, func(t *testing.T, d string) {
+			editManifest(t, d, func(m map[string]any) {
+				vectors, _ := m["vectors"].([]any)
+				first, _ := vectors[0].(map[string]any)
+				first["id"] = "v" + strings.Repeat("0", 16)
+			})
+		}, "identifier does not recompute from the member's own bytes"},
+		{"aci/unreadable-member", dir, func(t *testing.T, d string) {
+			editManifest(t, d, func(m map[string]any) {
+				vectors, _ := m["vectors"].([]any)
+				first, _ := vectors[0].(map[string]any)
+				first["file"] = "deployment-members/gone.json"
+			})
+		}, "is unreadable"},
+		{"aci/unknown-kind", dir, func(t *testing.T, d string) {
+			editManifest(t, d, func(m map[string]any) {
+				vectors, _ := m["vectors"].([]any)
+				first, _ := vectors[0].(map[string]any)
+				first["kind"] = "maybe"
+			})
+		}, "is not one this corpus judges"},
+		{"aci/level-out-of-range", dir, func(t *testing.T, d string) {
+			editManifest(t, d, func(m map[string]any) {
+				vectors, _ := m["vectors"].([]any)
+				first, _ := vectors[0].(map[string]any)
+				first["level"] = 9.0
+			})
+		}, "is outside the three the specification defines"},
+		{"aci/expects-unknown-code", dir, func(t *testing.T, d string) {
+			editManifest(t, d, func(m map[string]any) {
+				vectors, _ := m["vectors"].([]any)
+				first, _ := vectors[0].(map[string]any)
+				expected, _ := first["expected"].(map[string]any)
+				expected["codes"] = []any{"ACI-NOPE-002"}
+			})
+		}, "which is not one of the nineteen checks"},
+		{"aci/declared-code-does-not-fire", dir, func(t *testing.T, d string) {
+			editManifest(t, d, func(m map[string]any) {
+				aciAddCodeTo(m, "ACI-IDF-003")
+			})
+		}, "and the checks do not emit it at level"},
+		{"aci/fired-code-undeclared", dir, func(t *testing.T, d string) {
+			editManifest(t, d, func(m map[string]any) {
+				aciDropCode(m, "ACI-SER-001")
+			})
+		}, "and the member does not declare it"},
+		{"aci/member-not-a-deployment", dir, func(t *testing.T, d string) {
+			body, err := os.ReadFile(filepath.Join(d, corpora.ManifestName))
+			if err != nil {
+				t.Fatal(err)
+			}
+			var m map[string]any
+			if err := json.Unmarshal(body, &m); err != nil {
+				t.Fatal(err)
+			}
+			vectors, _ := m["vectors"].([]any)
+			first, _ := vectors[0].(map[string]any)
+			rel, _ := first["file"].(string)
+			if err := os.WriteFile(filepath.Join(d, rel), []byte("[]\n"), 0o600); err != nil {
+				t.Fatal(err)
+			}
+		}, "does not parse as a deployment"},
+	}
+}
+
+// aciDropCode removes one code from whichever member declares it, so the
+// corpus-level "named and never forced" check and the per-member "the checks
+// emit it and the member does not declare it" check are both reachable.
+func aciDropCode(m map[string]any, code string) {
+	vectors, _ := m["vectors"].([]any)
+	for _, raw := range vectors {
+		vector, _ := raw.(map[string]any)
+		expected, _ := vector["expected"].(map[string]any)
+		codes, _ := expected["codes"].([]any)
+		kept := make([]any, 0, len(codes))
+		for _, value := range codes {
+			if text, ok := value.(string); ok && text == code {
+				continue
+			}
+			kept = append(kept, value)
+		}
+		expected["codes"] = kept
+	}
+}
+
+// aciAddCodeTo declares a code on the accept member, which by construction
+// fires nothing, so the declared-but-not-emitted sentence is reachable.
+func aciAddCodeTo(m map[string]any, code string) {
+	vectors, _ := m["vectors"].([]any)
+	for _, raw := range vectors {
+		vector, _ := raw.(map[string]any)
+		if kind, _ := vector["kind"].(string); kind != "accept" {
+			continue
+		}
+		expected, _ := vector["expected"].(map[string]any)
+		codes, _ := expected["codes"].([]any)
+		expected["codes"] = append(codes, code)
+		return
 	}
 }

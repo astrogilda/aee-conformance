@@ -46,6 +46,7 @@ Exit 0 when every case holds; 1 on the first summary of failures.
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 import shutil
 import subprocess
@@ -97,6 +98,128 @@ SPEC = "spec/predicates/adversarial-execution-evidence.md"
 INSIDE = "and a `degraded` whose clean rows are all `artifact` carry the same token."
 
 
+# Every staged checkout is configured with these before anything is committed
+# into it, and this is the WRITER half of the 2026-09-11 teardown failure. The
+# reporting half is `discard` below; that one makes the next occurrence name its
+# leftovers, this one removes the thing that leaves them.
+#
+# What the remote saw, and this workstation never has: the OK lines printed, and
+# then cleanup died with
+#
+#     OSError: [Errno 39] Directory not empty: 'aimaccept3'
+#
+# on the LAST directory staged, which is the one whose background work had the
+# least time to finish. The writer is git. `git commit` runs
+# `git maintenance run --auto`, which reaches the gc task and daemonizes, and on
+# a staged copy of this repository that was measured directly: at the moment
+# cleanup began, `git gc --auto`, `git repack` and `git pack-objects` were all
+# still alive, the last of them writing `.git/objects/pack/.tmp-<pid>-pack`.
+# Cleanup empties the staged root, a surviving child then recreates a path under
+# `.git`, and the rmdir of the root fails. Which of the two finishes first is the
+# whole difference between red and green, which is why a two-core runner under
+# load sees it and a fast workstation does not.
+#
+# The remedy is to have no background child at all, rather than to wait for one
+# or to swallow the error. Waiting measures this machine; swallowing (`rmtree`
+# with the error discarded, `TemporaryDirectory(ignore_cleanup_errors=True)`)
+# converts a loud fault into a silent leak of a full repository copy per run.
+QUIESCENT = {
+    # The only thing `git commit` spawns. False here means nothing is spawned,
+    # on any git version, whatever its auto thresholds happen to be.
+    "maintenance.auto": "false",
+    # Belt and braces for a direct `git gc --auto` from any future step here,
+    # and for a git old enough to reach gc by a route other than maintenance.
+    "gc.auto": "0",
+    "gc.autoDetach": "false",
+}
+
+
+def background_children(root: Path) -> list[str]:
+    """Every child process a commit in a staged repository spawns.
+
+    Empty is the property this file needs, and it is a statement about the
+    configuration `stage` writes rather than about timing: a child that exits
+    quickly is still a child that can outlive the commit, and a test that waited
+    for one would only be measuring this machine.
+    """
+    (root / "quiescence-probe.txt").write_text("probe\n", encoding="utf-8")
+    subprocess.run(
+        ["git", "add", "quiescence-probe.txt"], cwd=root, check=True, capture_output=True
+    )
+    proc = subprocess.run(
+        [
+            "git",
+            "-c",
+            "user.email=gate@example.invalid",
+            "-c",
+            "user.name=gate",
+            "commit",
+            "-q",
+            "-m",
+            "probe",
+        ],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
+        env={**os.environ, "GIT_TRACE": "1"},
+    )
+    return [line.strip() for line in proc.stderr.splitlines() if "run_command:" in line]
+
+
+# The artefacts a background gc leaves in a repository it worked on. Their
+# absence across every staged root is the second half of the quiescence check,
+# and it is the half that would still catch a git reaching gc by a route
+# `maintenance.auto` does not cover.
+GC_ARTEFACTS = ("gc.pid", "gc.log", "gc.log.lock", "maintenance.lock")
+
+
+def gc_artefacts(root: Path) -> list[str]:
+    """Paths in a staged repository that only a background gc writes."""
+    git_dir = root / ".git"
+    found = [name for name in GC_ARTEFACTS if (git_dir / name).exists()]
+    found.extend(p.name for p in sorted((git_dir / "objects" / "pack").glob(".tmp-*")))
+    return found
+
+
+def quiescent(tmp: Path) -> list[str]:
+    """Assert a staged tree has nothing left running in it when a case ends.
+
+    This is the regression test for the teardown failure described above, and it
+    deliberately does not try to reproduce the race. A race reproduces on the
+    machine that loses it, so a timing test would have been green here on every
+    run while the remote stayed red -- the exact asymmetry that let this reach
+    CI. It asserts the PROPERTY the fix establishes instead: a commit in a staged
+    repository spawns no child process, so nothing can outlive the case that made
+    it, so there is nothing to leave a directory non-empty.
+
+    Measured both ways before it was written. With `stage`'s configuration, git
+    spawns nothing. Remove `QUIESCENT` and the same probe reports
+    `run_command: git maintenance run --auto`, which is the process that
+    daemonizes into gc.
+    """
+    root = tmp / "quiescence"
+    root.mkdir()
+    stage(root)
+    faults = []
+    spawned = background_children(root)
+    if spawned:
+        faults.append(
+            "a commit in a staged repository spawned "
+            f"{len(spawned)} child process(es), which can outlive the case that "
+            "made them and write into the tree after it is torn down: "
+            f"{spawned}. stage() is meant to configure that away."
+        )
+    artefacts = gc_artefacts(root)
+    if artefacts:
+        faults.append(
+            f"a background gc ran in {root.name} and left {artefacts}. Nothing "
+            "should be collecting garbage in a tree that lives for one case."
+        )
+    faults.extend(discard(root))
+    return faults
+
+
 def stage(destination: Path) -> None:
     """Copy the tracked tree into a fresh git checkout, and commit it.
 
@@ -142,6 +265,7 @@ def stage(destination: Path) -> None:
         shutil.copyfile(build, target)
     for command in (
         ["git", "init", "-q"],
+        *[["git", "config", key, value] for key, value in QUIESCENT.items()],
         ["git", "add", "-A"],
         [
             "git",
@@ -712,6 +836,7 @@ def main(argv: list[str]) -> int:
             case_failures, case_residue = check(group, cases, want_refusal, tmp)
             failures.extend(case_failures)
             residue.extend(case_residue)
+        residue.extend(quiescent(tmp))
     finally:
         residue.extend(discard(tmp))
     refusals = len(REFUSALS_RUN) + len(AIM_REFUSALS_RUN)

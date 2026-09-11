@@ -24,6 +24,17 @@ who trusts neither of us to fetch the bytes and recompute the answer.
 - [ ] **The digest is derived, never typed.** It is produced by regenerating the
       manifest, and `python3 vectors/gen_manifest.py` or the corpus's own
       equivalent reproduces it byte for byte.
+- [ ] **The digest routine runs for somebody who installed nothing.** If your
+      generator imports anything that is not in the standard library, the
+      preimage moves into a `digest.py` beside it that imports nothing, exporting
+      `corpus_digest(manifest, root)`. Generation may depend on whatever it
+      needs; verification may not. `v0.10.0` shipped with a corpus whose preimage
+      sat inside a generator importing `cbor2` and `pycose`, so the first command
+      the README gives a stranger died with `ModuleNotFoundError` in a fresh
+      clone, and `v0.10.1` is that fix. `scripts/scitt-digest-isolation-test.py`
+      asserts it from a subprocess that cannot see installed packages, because
+      every environment that runs CI has the extras and would pass a check a
+      fresh clone fails.
 - [ ] **A generator produces every vector file.** No vector is hand-written;
       `scripts/regenerability-gate.py` refuses a committed file no generator
       emits, and it refuses it on the push that adds it.
@@ -42,12 +53,22 @@ who trusts neither of us to fetch the bytes and recompute the answer.
       `python3 scripts/count-gate.py` passes. A count in prose is a cache with
       no invalidation unless it is declared, delegated, frozen, or attributed to
       a revision in the sentence around it.
+- [ ] **The corpus is registered in the three places that enumerate corpora**,
+      each of which refuses an unregistered one rather than skipping it:
+      `EXTRA_CORPORA` in `scripts/count-gate.py`, which then reads your three
+      counts from your manifest and checks the one sentence your `INDEX.md`
+      publishes them in; `RECOMPUTERS` in `scripts/release-digests.py`, so your
+      digest joins the signed list a release covers; and the corpora table in
+      [`DISTRIBUTION.md`](../../DISTRIBUTION.md), which `scripts/distribution-gate.py`
+      holds equal to the tracked corpus set in both directions.
 - [ ] **Provenance names you.** Your name is on the commits, and the manifest's
       provenance fields say whose specification text this corpus tracks and who
       authored the corpus. Co-authorship is the normal shape here, not an
       exception.
 - [ ] **The full local gate run passes:**
-      `uv run --with pyyaml python scripts/workflow-steps-gate.py`.
+      `uv run --with pyyaml python scripts/workflow-steps-gate.py`. It runs every
+      shell step of every workflow in file and step order, and it is loud about
+      the steps it cannot run here rather than passing over them.
 
 ## What happens next
 

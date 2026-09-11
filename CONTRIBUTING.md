@@ -202,9 +202,20 @@ specification pinned by digest with a field saying whether those bytes are
 upstream's or a proposal, and your name on the commits and in the manifest's
 provenance.
 
+Two items on that checklist are easy to miss and both fail in a stranger's hands
+rather than in yours. The digest routine has to run for somebody who installed
+nothing, so a generator that imports a third-party library moves its preimage
+into a `digest.py` beside it that imports none; a release shipped without that
+once, and the first command the README gives a reader died in a fresh clone. And
+the corpus has to be registered in the places that enumerate corpora: the count
+gate, the release digest list, the corpora table on the inbound page and the
+corpus dropdown on the run form. Each of those refuses an unregistered corpus
+rather than passing it over, which is the point.
+
 Co-authorship is the normal shape for one of these, not an exception. Where the
 whole distribution story lives, for a reader arriving from somewhere else, is
-[`DISTRIBUTION.md`](DISTRIBUTION.md).
+[`DISTRIBUTION.md`](DISTRIBUTION.md), and every run posted against any of these
+corpora gets its row in [`RUNS.md`](RUNS.md).
 
 ## Raising an objection
 

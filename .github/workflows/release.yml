@@ -1,0 +1,79 @@
+name: release
+
+# What a tag has to survive before anyone can cite it.
+#
+# This workflow VERIFIES and never signs. The private half of the corpus signing
+# key is in the maintainer's keyring and the signature is made locally, at tag
+# time, by scripts/release-sign.sh. Putting the key in an Actions secret would
+# make it readable by every workflow that ever runs here and by anyone who can
+# land a workflow change, which is a worse posture than a key on one machine
+# behind one login. So the division is: the maintainer commits, and CI refuses.
+#
+# It is a separate workflow rather than another job in ci.yml because it answers
+# a separate question. ci.yml asks whether the corpus and the rails are correct.
+# This asks whether the bytes a stranger will fetch by tag name are the bytes the
+# maintainer signed. A red run here says the release cannot be cited, not that
+# the code is broken, and a reader should be able to tell those apart from the
+# job name alone.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      # Full history and tags, because scripts/release-gate.py --tag compares the
+      # tag being cut against HEAD. A shallow, tagless checkout would have the
+      # gate report that the tag does not resolve, which is a true statement about
+      # a tree no consumer will ever see.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v5
+      - uses: sigstore/cosign-installer@v3
+
+      - name: sync toolchain
+        run: uv sync --extra dev
+
+      # The offline half, and the half that decides the run: the digest list is
+      # what the corpora on disk produce, the published key is the shape the
+      # README tells a stranger to expect, the signature verifies against that
+      # key, and the release surface is committed at the tag.
+      #
+      # GITHUB_REF_NAME is empty when this step is run by
+      # scripts/workflow-steps-gate.py, which executes every shell step in this
+      # directory before a push. In that case the tag checks are the ones that
+      # cannot apply, so they are omitted by not passing --tag rather than by
+      # passing an empty one: a gate handed an empty tag name reports that the
+      # empty string does not resolve, which reads like a broken release.
+      - name: the signed digest list verifies, and the tag holds it
+        run: |
+          if [ -n "${GITHUB_REF_NAME:-}" ]; then
+            uv run python scripts/release-gate.py --tag "${GITHUB_REF_NAME}"
+          else
+            uv run python scripts/release-gate.py
+          fi
+
+      # The time evidence, which reaches the network and therefore decides
+      # nothing on its own. What it enforces is offline and absolute: the RFC
+      # 3161 token chains to the root pinned in spec/tsa-roots.pem and is over
+      # the imprint of this signature, and the OpenTimestamps proof carries this
+      # signature's digest. What it REPORTS is the Bitcoin attestation state,
+      # because an unreachable calendar and a bad proof are indistinguishable
+      # from a non-zero exit, and a fresh proof is legitimately pending for about
+      # a day. ots-upgrade.yml is what moves it from pending to attested.
+      - name: the time evidence covers this signature
+        run: |
+          command -v ots >/dev/null || python3 -m pip install --quiet opentimestamps-client
+          uv run python scripts/release-gate.py --with-timestamps
+
+      - name: what a citer will verify
+        run: |
+          cat release/CORPUS-DIGESTS.txt
+          openssl x509 -in spec/tsa-roots.pem -noout -subject -fingerprint -sha256

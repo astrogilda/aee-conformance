@@ -121,6 +121,6 @@ python3 run_verifier.py --verifier /path/to/anchors_verify.py --label v0.10
 
 27 of its 32 members agree with v0.10. The 5 that do not are the findings above. It also carries a ratchet: --expect recordings/anchors-verify-v0.10.json refuses only when a member that agreed stops agreeing, and stays silent about the members already recorded as disagreeing, so it can sit in a build without going red on arrival. I have a draft pull request that vendors the directory into conformance/anchor-stream/ with one path-filtered workflow, borrowing the Python setup census-diff.yml already uses, so your own CI tells you when a change to anchors_verify.py breaks a member. Say the word and I will open it; say no and nothing above depends on it.
 
-Which leaves one question for you. The four repairs turn streams that return PARTIAL today into FAILED, so by your own convention they ship as a new tag and v0.10 stays where it is.
+The four repairs turn streams that return PARTIAL today into FAILED, so by your own convention they ship as a new tag and v0.10 stays where it is.
 
-Do you want the four separately, so each is a tag whose diff is one rule, or in one? I would rather match the shape you already use than pick for you.
+Do you want the four separately, so each is a tag whose diff is one rule, or in one?

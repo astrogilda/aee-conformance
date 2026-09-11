@@ -30,6 +30,7 @@ Exit 0 when every case holds; 1 on a summary of failures.
 
 from __future__ import annotations
 
+import contextlib
 import importlib.util
 import pathlib
 import sys
@@ -51,6 +52,25 @@ def load_gate() -> object:
 
 GATE = load_gate()
 FAILURES: list[str] = []
+
+
+@contextlib.contextmanager
+def installed(version: str):
+    """Answer the version probe with `version` for the duration of the block.
+
+    The three golangci-lint branches are decided by what is on PATH, and PATH is
+    not the same on a runner as on a workstation: CI runs this file in a job that
+    installs no Go linter, so a case that read the real binary would assert one
+    thing here and the opposite there. Substituting the probe tests the branch
+    the gate actually takes, in both places, and an empty string is the honest
+    spelling of "no binary".
+    """
+    original = GATE.installed_golangci_version  # type: ignore[attr-defined]
+    GATE.installed_golangci_version = lambda: version  # type: ignore[attr-defined]
+    try:
+        yield
+    finally:
+        GATE.installed_golangci_version = original  # type: ignore[attr-defined]
 
 
 def check(name: str, fn: Callable[[], None]) -> None:
@@ -115,19 +135,92 @@ def pipefail_is_not_set() -> None:
     )
 
 
+def an_unclassified_action_is_a_fault() -> None:
+    """An action nobody has classified must not drop out of coverage quietly.
+
+    This is the second hole, found the same way as the first: a marketplace step
+    was printed SKIP and passed over, so `golangci-lint (core module)` was never
+    run here and the remote failed it on three pushes in a row. Silence about a
+    step is now reserved for steps somebody wrote down a reason for.
+    """
+    local = GATE.local_equivalent("some/brand-new-action@v1", {})  # type: ignore[attr-defined]
+    assert local.run is None, "an unknown action must not resolve to something runnable"
+    assert local.fault, (
+        "an unclassified action was reported as an ordinary NOT RUN. Adding an "
+        "action to a workflow would then remove it from local coverage without "
+        "anyone being told, which is the defect this gate exists to prevent."
+    )
+
+
+def a_runner_only_action_names_its_reason() -> None:
+    """NOT RUN is only honest when it says what the runner does that we cannot."""
+    local = GATE.local_equivalent("actions/checkout@v4", {})  # type: ignore[attr-defined]
+    assert local.run is None, "checkout must not be mirrored; this gate runs inside a checkout"
+    assert not local.fault, "checkout is classified, so it is not a fault"
+    assert "actions/checkout" in local.reason and len(local.reason) > 30, (
+        f"the reason does not describe the step: {local.reason!r}"
+    )
+
+
+def the_pinned_linter_is_mirrored() -> None:
+    """The step the remote caught and this gate used to skip."""
+    with installed("2.11.4"):
+        local = GATE.local_equivalent(  # type: ignore[attr-defined]
+            "golangci/golangci-lint-action@v7",
+            {"version": "v2.11.4", "working-directory": "witnessattestor"},
+        )
+    assert local.run is not None, f"the pinned linter did not resolve to a command: {local.reason}"
+    assert "golangci-lint run" in local.run, local.run
+    assert "witnessattestor" in local.run, (
+        f"working-directory was dropped, so the wrong module would be linted: {local.run!r}"
+    )
+
+
+def a_version_mismatch_is_not_run_rather_than_a_pass() -> None:
+    """A different version is a different set of linters, so its silence is worthless."""
+    with installed("2.10.0"):
+        local = GATE.local_equivalent(  # type: ignore[attr-defined]
+            "golangci/golangci-lint-action@v7", {"version": "v2.11.4"}
+        )
+    assert local.run is None, (
+        "a version this workstation does not have resolved to a command anyway. "
+        "The mirror would then report on a different tool than the remote runs."
+    )
+    assert "2.11.4" in local.reason and "2.10.0" in local.reason, (
+        f"the refusal must name both versions so the reader can fix it: {local.reason!r}"
+    )
+
+
+def an_absent_linter_is_not_run_rather_than_a_pass() -> None:
+    """No binary is NOT RUN. It must never read as a clean lint."""
+    with installed(""):
+        local = GATE.local_equivalent(  # type: ignore[attr-defined]
+            "golangci/golangci-lint-action@v7", {"version": "v2.11.4"}
+        )
+    assert local.run is None, "a missing golangci-lint resolved to a command anyway"
+    assert "not on PATH" in local.reason, (
+        f"the reason does not say the binary is missing: {local.reason!r}"
+    )
+
+
 def main() -> int:
     check("a failing first command is caught", first_command_failing_is_caught)
     check("a failing middle command is caught", middle_command_failing_is_caught)
     check("a failure stops the block", failure_stops_the_block)
     check("an all-succeeding block passes", a_passing_block_still_passes)
     check("pipefail is not set", pipefail_is_not_set)
+    check("an unclassified action is a fault", an_unclassified_action_is_a_fault)
+    check("a runner-only action names its reason", a_runner_only_action_names_its_reason)
+    check("the pinned linter is mirrored", the_pinned_linter_is_mirrored)
+    check("a version mismatch is not run", a_version_mismatch_is_not_run_rather_than_a_pass)
+    check("an absent linter is not run", an_absent_linter_is_not_run_rather_than_a_pass)
 
     if FAILURES:
         print(f"FAIL: {len(FAILURES)} case(s) do not hold:")
         for line in FAILURES:
             print(f"  {line}")
         return 1
-    print("OK: 5 case(s); the local mirror runs steps the way GitHub Actions does.")
+    print("OK: 10 case(s); the local mirror runs steps the way GitHub Actions does.")
     return 0
 
 

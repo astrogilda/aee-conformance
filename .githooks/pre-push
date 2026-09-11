@@ -264,3 +264,9 @@ for sha in $pushed_shas; do
 done
 
 echo "pre-push: workflow steps passed."
+echo "pre-push: this covers the steps the gate listed as run, and NOT the ones it"
+echo "pre-push: listed NOT RUN. The push is not finished until the remote run for the"
+echo "pre-push: pushed commit has concluded:"
+echo "pre-push:"
+echo "pre-push:   gh run list --commit <the pushed sha>"
+echo "pre-push:   gh run watch <run-id>"

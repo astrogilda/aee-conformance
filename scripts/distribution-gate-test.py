@@ -166,6 +166,27 @@ def case_phantom_option(root: Path) -> str:
     return "offers `vectors-withdrawn/`"
 
 
+def case_stale_tag_in_prose(root: Path) -> str:
+    """A version token in an ordinary sentence, left behind by a release.
+
+    The three tag claims are each found by their own regex, so a tag named in a
+    sentence none of them describes -- the reference-consumer line names one, and
+    it is about a different repository -- would be owned by nothing. This breaks
+    that token and nothing else, so it fails only if the shape-based sweep is
+    doing the work.
+    """
+    _edit(
+        root,
+        PAGE_REL,
+        lambda text: text.replace(
+            "holding them to `v0.10.1` of this corpus",
+            "holding them to `v0.9.0` of this corpus",
+            1,
+        ),
+    )
+    return "the backticked version token `v0.9.0`"
+
+
 def case_phantom_row(root: Path) -> str:
     """A row outlives the corpus it advertises."""
     _edit(
@@ -207,6 +228,7 @@ def case_heading_renamed(root: Path) -> str:
 CASES: tuple[tuple[str, Callable[[Path], str]], ...] = (
     ("a command fixed in one copy of the recipe and not the other", case_recipe_drift),
     ("the citation file released ahead of the prose", case_tag_behind),
+    ("a version token in prose left behind by a release", case_stale_tag_in_prose),
     ("a tracked corpus with no row on the inbound page", case_untabled_corpus),
     ("a tracked corpus the run form does not offer", case_unoffered_corpus),
     ("a run-form option for a corpus that is not tracked", case_phantom_option),

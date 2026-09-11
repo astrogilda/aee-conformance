@@ -164,6 +164,16 @@ def tags_claimed(page: str, recipe: str) -> dict[str, str]:
             "The tag a citation should name is the first thing an arriving reader needs."
         )
     claims["the tag-to-cite section"] = heading.group(1)
+
+    # Every remaining backticked version token on the page, found by shape
+    # rather than by a pattern per sentence. The three claims above each needed
+    # their own regex, so each new sentence that names a tag would need a fourth
+    # and a fifth, and the one nobody wrote is the one that goes stale. The page
+    # is inbound and cites the current release, so a version token on it that is
+    # not the released one is wrong by construction -- including inside a
+    # sentence about some other repository, which is where the next one landed.
+    for token in sorted(set(re.findall(r"`(v\d+\.\d+\.\d+)`", page))):
+        claims.setdefault(f"the backticked version token `{token}`", token)
     return claims
 
 

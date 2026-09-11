@@ -40,6 +40,14 @@ stdout carrying the condition codes and the recomputed result, and a key policy
 read from `AEE_SUBSTRATE_KEYS`. Any verifier that speaks it can be driven the
 same way, and that is the point of the contract existing at all.
 
+A reference consumer is public at
+[`astrogilda/agent-evidence-admission`](https://github.com/astrogilda/agent-evidence-admission):
+admission rails on four policy engines, each declaring per obligation what it
+enforces, what it only approximates and what it cannot reach, with its CI
+holding them to `v0.10.1` of this corpus pinned by tag and by the commit that
+tag resolved to. It is what a consumer side of this contract looks like when
+somebody has written one down.
+
 **A disagreement is the interesting outcome.** If your verifier and this corpus
 answer differently on a vector, open an issue. It is a defect in one of the two
 of them and it does not matter which; the corpus has been corrected by an

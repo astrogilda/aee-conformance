@@ -21,7 +21,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/astrogilda/aee-conformance/corpora"
+	"github.com/astrogilda/agent-evidence-vectors/corpora"
 )
 
 // findingCase is one mutation and the sentence the reader owes for it.

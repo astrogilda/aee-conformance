@@ -60,8 +60,8 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/astrogilda/aee-conformance/aee"
-	"github.com/astrogilda/aee-conformance/aeetest"
+	"github.com/astrogilda/agent-evidence-vectors/aee"
+	"github.com/astrogilda/agent-evidence-vectors/aeetest"
 )
 
 // Synthetic pre-images, each a committed one-liner, mirroring aeetest's

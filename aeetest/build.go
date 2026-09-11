@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/astrogilda/aee-conformance/aee"
+	"github.com/astrogilda/agent-evidence-vectors/aee"
 )
 
 // Published test-key roles.

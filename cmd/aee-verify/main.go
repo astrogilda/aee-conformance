@@ -37,7 +37,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/astrogilda/aee-conformance/aee"
+	"github.com/astrogilda/agent-evidence-vectors/aee"
 )
 
 // EnvSubstrateKeys names the environment variable carrying a key policy path

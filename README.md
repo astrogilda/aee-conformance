@@ -1,9 +1,9 @@
 <p align="center">
-  <img src=".github/assets/banner.svg" alt="aee-conformance" width="820">
+  <img src=".github/assets/banner.svg" alt="agent-evidence-vectors" width="820">
 </p>
 
 <p align="center">
-  <a href="https://github.com/astrogilda/aee-conformance/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/astrogilda/aee-conformance/ci.yml?branch=main&label=build" alt="build status"></a>
+  <a href="https://github.com/astrogilda/agent-evidence-vectors/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/astrogilda/agent-evidence-vectors/ci.yml?branch=main&label=build" alt="build status"></a>
   <img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="license Apache-2.0">
   <img src="https://img.shields.io/badge/AEE%20vectors-272-e8951c" alt="272 AEE conformance vectors">
   <img src="https://img.shields.io/badge/AI%20Agent%20Action%20vectors-53-e8951c" alt="53 AI Agent Action conformance vectors">
@@ -131,7 +131,7 @@ has to work out which bytes that claim covers: without taking a maintainer's wor
 for it, and without taking this page's word. Four commands settle it.
 
 ```bash
-git clone https://github.com/astrogilda/aee-conformance && cd aee-conformance
+git clone https://github.com/astrogilda/agent-evidence-vectors && cd agent-evidence-vectors
 git checkout v0.10.0
 
 # 1. the digest list is what the vector files on disk hash to, recomputed

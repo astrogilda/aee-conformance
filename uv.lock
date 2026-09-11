@@ -7,7 +7,7 @@ resolution-markers = [
 ]
 
 [[package]]
-name = "aee-conformance"
+name = "agent-evidence-vectors"
 version = "0.10.0"
 source = { virtual = "." }
 

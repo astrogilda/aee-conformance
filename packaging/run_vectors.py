@@ -3582,7 +3582,7 @@ def run_suite(args: argparse.Namespace) -> int:
 
     rows_out: list[dict[str, Any]] = []
     failures = 0
-    with tempfile.TemporaryDirectory(prefix="aee-conformance-keys-") as tmp:
+    with tempfile.TemporaryDirectory(prefix="agent-evidence-vectors-keys-") as tmp:
         keys_path = write_pinned_key_policy(keys, tmp)
         for kind, path in vectors:
             row, failed = _run_process_vector(

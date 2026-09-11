@@ -220,7 +220,7 @@ gate_revision() {
 	sha="$(git -C "$src_root" rev-parse "${sha}^{commit}")"
 
 	iso_base="$(mktemp -d "${TMPDIR:-/tmp}/aee-prepush.XXXXXXXX")"
-	iso="$iso_base/aee-conformance"
+	iso="$iso_base/agent-evidence-vectors"
 	git -C "$src_root" worktree add --detach --quiet "$iso" "$sha"
 
 	# Prove the isolated tree is what it is believed to be. Everything after

@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/astrogilda/aee-conformance/aeetest"
+	"github.com/astrogilda/agent-evidence-vectors/aeetest"
 )
 
 func writeTemp(t *testing.T, body []byte) string {

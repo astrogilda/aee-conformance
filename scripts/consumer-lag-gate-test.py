@@ -364,7 +364,7 @@ def main() -> int:
     failures: list[str] = []
     for name, publish, tree, ref, must_pass, needles in CASES:
         with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp) / "aee-conformance"
+            root = Path(tmp) / "agent-evidence-vectors"
             root.mkdir()
             stage(root, publish, tree)
             code, output = run(root, ref)

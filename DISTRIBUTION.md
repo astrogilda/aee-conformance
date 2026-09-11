@@ -12,9 +12,9 @@ distribution heading, and it would tell a reader nothing they can check.
 ## The one-command run
 
 ```bash
-go install github.com/astrogilda/aee-conformance/cmd/aee-verify@latest
-git clone https://github.com/astrogilda/aee-conformance
-cd aee-conformance
+go install github.com/astrogilda/agent-evidence-vectors/cmd/aee-verify@latest
+git clone https://github.com/astrogilda/agent-evidence-vectors
+cd agent-evidence-vectors
 python3 packaging/run_vectors.py --verifier "aee-verify --json"
 ```
 
@@ -34,7 +34,7 @@ external contract is written down.
 
 | Surface | Identifier | State |
 | --- | --- | --- |
-| Source of record | `github.com/astrogilda/aee-conformance` | live |
+| Source of record | `github.com/astrogilda/agent-evidence-vectors` | live |
 | Releases | git tags `v0.6.0` onward, with a GitHub Release object per tag | live |
 | Corpus digest, AEE corpus | `corpusDigest` in `vectors/MANIFEST.json` | live, derived |
 | Corpus digest, agent-action corpus | `corpusDigest` in `vectors-ai-agent-action/MANIFEST.json` | live, derived |

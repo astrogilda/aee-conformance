@@ -1,4 +1,4 @@
-# aee-conformance — roadmap
+# agent-evidence-vectors — roadmap
 
 Open work for the conformance-vector suite and reference verifier of the in-toto
 Adversarial Execution Evidence (AEE) predicate. Contributions welcome.
@@ -232,7 +232,7 @@ under suiteRevision 17.
   ```
   git -C ~/Documents/git-clones/attestation tag -a vendored/aee-0dbe10bc \
       0dbe10bcc959b63dc42370a5db09812c9476f59a \
-      -m "Specification revision the aee-conformance corpus certifies against"
+      -m "Specification revision the agent-evidence-vectors corpus certifies against"
   git -C ~/Documents/git-clones/attestation push fork vendored/aee-0dbe10bc
   ```
 

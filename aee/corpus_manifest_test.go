@@ -24,7 +24,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/astrogilda/aee-conformance/aee"
+	"github.com/astrogilda/agent-evidence-vectors/aee"
 )
 
 // Fabricated digests. Each is a syntactically canonical lowercase 64-hex

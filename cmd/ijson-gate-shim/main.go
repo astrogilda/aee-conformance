@@ -29,7 +29,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/astrogilda/aee-conformance/aee"
+	"github.com/astrogilda/agent-evidence-vectors/aee"
 )
 
 type request struct {

@@ -1,7 +1,6 @@
 cff-version: 1.2.0
 title: >-
-  aee-conformance: conformance vectors and a reference verifier for the
-  adversarial-execution-evidence predicate
+  agent-evidence-vectors: conformance vectors for agent execution evidence
 message: >-
   This is software. It implements and tests the adversarial-execution-evidence
   predicate; the normative artifact is that predicate's own text, which is
@@ -19,7 +18,7 @@ authors:
     given-names: Sankalp
     email: sankalp.gilda@gmail.com
     orcid: 'https://orcid.org/0000-0002-3645-4501'
-repository-code: https://github.com/astrogilda/aee-conformance
+repository-code: https://github.com/astrogilda/agent-evidence-vectors
 abstract: >-
   A recomputable execution attestation toolkit for the in-toto adversarial
   execution evidence predicate. The predicate's model is execute-and-attest

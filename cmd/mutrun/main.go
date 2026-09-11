@@ -36,7 +36,7 @@ import (
 	"path/filepath"
 	"sort"
 
-	"github.com/astrogilda/aee-conformance/aee"
+	"github.com/astrogilda/agent-evidence-vectors/aee"
 )
 
 type keyFile struct {

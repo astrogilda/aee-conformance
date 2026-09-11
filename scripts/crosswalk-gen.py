@@ -467,7 +467,7 @@ def build(upstream: Upstream, records_read: str) -> dict[str, Any]:
             "predicateType": (
                 "https://in-toto.io/attestation/adversarial-execution-evidence/v0.7"
             ),
-            "url": "https://github.com/astrogilda/aee-conformance",
+            "url": "https://github.com/astrogilda/agent-evidence-vectors",
             "upstream": "https://github.com/in-toto/attestation/pull/570",
             "conformance_suite": suite_figures(),
         },

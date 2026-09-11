@@ -1,4 +1,4 @@
-# aee-conformance Python tooling.
+# agent-evidence-vectors Python tooling.
 #
 # The reference verification RAIL (packaging/run_vectors.py) is deliberately
 # stdlib-only (zero third-party dependency) so a relying party can run the
@@ -7,7 +7,7 @@
 # only at build time. Do not add a runtime dependency to the rail.
 
 [project]
-name = "aee-conformance"
+name = "agent-evidence-vectors"
 version = "0.10.0"
 description = "Conformance vectors and reference verifier for the in-toto Adversarial Execution Evidence predicate"
 requires-python = ">=3.13"

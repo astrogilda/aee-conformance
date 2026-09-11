@@ -22,7 +22,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/astrogilda/aee-conformance/corpora"
+	"github.com/astrogilda/agent-evidence-vectors/corpora"
 )
 
 // corpusCase is one registered reader, the directory it judges, and the member

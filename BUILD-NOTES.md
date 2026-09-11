@@ -7,8 +7,8 @@ what is needed to reproduce it.
 
 | module | path | deps | builds with |
 |---|---|---|---|
-| core (`./`) | `github.com/astrogilda/aee-conformance` | stdlib only (enforced by `aee/imports_test.go`) | plain `go build ./...` / `go test ./...`, no workspace, no network |
-| attestor (`./witnessattestor`) | `github.com/astrogilda/aee-conformance/witnessattestor` | `github.com/in-toto/go-witness`, `github.com/invopop/jsonschema`, the core | a Go workspace (below) plus module downloads |
+| core (`./`) | `github.com/astrogilda/agent-evidence-vectors` | stdlib only (enforced by `aee/imports_test.go`) | plain `go build ./...` / `go test ./...`, no workspace, no network |
+| attestor (`./witnessattestor`) | `github.com/astrogilda/agent-evidence-vectors/witnessattestor` | `github.com/in-toto/go-witness`, `github.com/invopop/jsonschema`, the core | a Go workspace (below) plus module downloads |
 
 No `replace` directive is committed in any `go.mod`, so the cross-module
 link is workspace-resolved. The attestor `go.mod` deliberately carries no

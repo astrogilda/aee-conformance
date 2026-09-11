@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/astrogilda/aee-conformance/aeetest"
+	"github.com/astrogilda/agent-evidence-vectors/aeetest"
 )
 
 func writeKeys(t *testing.T, dir string, pub ed25519.PublicKey) string {

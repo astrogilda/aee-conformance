@@ -64,8 +64,10 @@ files = ["packaging", "vectors", "tools"]
 # Directories cannot forget. A file added to any of these is checked because it
 # is there, not because it was announced, and scripts/typecheck-gate.py refuses
 # to pass if a Python file exists outside them.
-include = ["packaging", "scripts", "tools", "vectors", "vectors-ai-agent-action",
-           "vectors-artifact-binding", "vectors-scitt-cose"]
+include = ["docs/proposals", "packaging", "scripts", "tools", "vectors",
+           "vectors-aci", "vectors-acs-core", "vectors-ai-agent-action",
+           "vectors-anchor-stream", "vectors-artifact-binding",
+           "vectors-mcp-record-contract", "vectors-scitt-cose"]
 
 # The reference rail is imported by the gates that drive it, and it lives in
 # packaging/ rather than on the default path, so the checker needs the same

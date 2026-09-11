@@ -51,6 +51,7 @@ Exit 0 when every case holds; 1 on the first summary of failures.
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
 import shutil
 import subprocess
@@ -63,7 +64,22 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parent.parent
 GATE = REPO_ROOT / "scripts" / "surface-leakage-gate.py"
 BASELINE_REL = "docs/SURFACE-LEAKAGE-BASELINE.json"
-STAGED = ("vectors/", "vectors-ai-agent-action/", BASELINE_REL)
+#: The corpora the fixture must carry, DERIVED from the gate rather than
+#: restated. They were two separate lists and they drifted: the gate gained
+#: vectors-scitt-cose and this list did not, so every case staged a tree with
+#: that corpus missing and the gate died on the absent MANIFEST.json instead of
+#: refusing the defect the case had built. Fourteen of fourteen cases failed
+#: for one reason that had nothing to do with any of them.
+def _staged() -> tuple[str, ...]:
+    spec = importlib.util.spec_from_file_location("surface_leakage_gate", GATE)
+    if spec is None or spec.loader is None:  # pragma: no cover - import plumbing
+        raise SystemExit(f"test setup: {GATE} could not be loaded to read CORPORA")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return tuple(f"{corpus}/" for corpus in module.CORPORA) + (BASELINE_REL,)
+
+
+STAGED = _staged()
 
 Mutation = Callable[[Path], None]
 Case = tuple[str, Mutation, tuple[str, ...]]

@@ -616,8 +616,47 @@ AIM_ACCEPTS: list[Case] = [
 ]
 
 
-def check(group: str, cases: list[Case], want_refusal: bool, tmp: Path) -> list[str]:
+def discard(root: Path) -> list[str]:
+    """Remove one staged tree, and name what is still in it when that fails.
+
+    Every case tree used to stand until the whole run ended, inside a
+    TemporaryDirectory whose cleanup removed all of them at once. On 2026-09-11
+    that cleanup died with ``OSError: [Errno 39] Directory not empty:
+    'aimaccept3'`` on the last case's directory, which can only mean something
+    wrote into a tree after the case using it had finished. Two separate things
+    were wrong, and the second is the worse one.
+
+    The trees stood far longer than any case needed them, so the window in
+    which a late writer could do this covered the whole run rather than one
+    case. A tree now goes away as soon as its case is done, which is the only
+    moment anything is expected to be touching it.
+
+    And the crash landed at the close of the ``with`` block, BEFORE the verdict
+    was printed, so a teardown fault destroyed the report: that run said a
+    directory was not empty and never said whether any of the 31 cases held. A
+    removal that fails is now a reported fault carrying the leftover entries by
+    name and modification time, so the next occurrence identifies its writer
+    instead of printing an error that names nothing. Nothing is suppressed; a
+    tree that will not go away still fails the run.
+    """
+    shutil.rmtree(root, ignore_errors=True)
+    if not root.exists():
+        return []
+    leftover = sorted(
+        f"{item.relative_to(root)} (mtime_ns {item.stat().st_mtime_ns})"
+        for item in root.rglob("*")
+    )
+    return [
+        f"{root}: the staged tree could not be removed, so something wrote into "
+        f"it after the case using it had finished. Still present: {leftover}"
+    ]
+
+
+def check(
+    group: str, cases: list[Case], want_refusal: bool, tmp: Path
+) -> tuple[list[str], list[str]]:
     failures: list[str] = []
+    residue: list[str] = []
     for index, (name, mutate, arguments, phrases) in enumerate(cases):
         root = tmp / f"{group}{index}"
         root.mkdir()
@@ -626,18 +665,18 @@ def check(group: str, cases: list[Case], want_refusal: bool, tmp: Path) -> list[
         code, output = run(root, arguments)
         if want_refusal and code == 0:
             failures.append(f"{name}: the gate accepted it:\n{output}")
-            continue
-        if not want_refusal and code != 0:
+        elif not want_refusal and code != 0:
             failures.append(f"{name}: the gate refused it:\n{output}")
-            continue
-        missing = [phrase for phrase in phrases if phrase not in output]
-        if missing:
-            failures.append(
-                f"{name}: the right exit status, and the output does not carry "
-                f"{missing!r}. A refusal that names the wrong thing sends the "
-                f"next person to the wrong file.\n{output}"
-            )
-    return failures
+        else:
+            missing = [phrase for phrase in phrases if phrase not in output]
+            if missing:
+                failures.append(
+                    f"{name}: the right exit status, and the output does not carry "
+                    f"{missing!r}. A refusal that names the wrong thing sends the "
+                    f"next person to the wrong file.\n{output}"
+                )
+        residue.extend(discard(root))
+    return failures, residue
 
 
 def main(argv: list[str]) -> int:
@@ -661,25 +700,38 @@ def main(argv: list[str]) -> int:
     AIM_REFUSALS_RUN = AIM_REFUSALS if aim else []
     AIM_ACCEPTS_RUN = AIM_ACCEPTS if aim else []
     failures: list[str] = []
-    with tempfile.TemporaryDirectory() as raw:
-        tmp = Path(raw)
-        failures.extend(check("refuse", REFUSALS_RUN, True, tmp))
-        failures.extend(check("accept", ACCEPTS_RUN, False, tmp))
-        failures.extend(check("aimrefuse", AIM_REFUSALS_RUN, True, tmp))
-        failures.extend(check("aimaccept", AIM_ACCEPTS_RUN, False, tmp))
+    residue: list[str] = []
+    tmp = Path(tempfile.mkdtemp())
+    try:
+        for group, cases, want_refusal in (
+            ("refuse", REFUSALS_RUN, True),
+            ("accept", ACCEPTS_RUN, False),
+            ("aimrefuse", AIM_REFUSALS_RUN, True),
+            ("aimaccept", AIM_ACCEPTS_RUN, False),
+        ):
+            case_failures, case_residue = check(group, cases, want_refusal, tmp)
+            failures.extend(case_failures)
+            residue.extend(case_residue)
+    finally:
+        residue.extend(discard(tmp))
     refusals = len(REFUSALS_RUN) + len(AIM_REFUSALS_RUN)
     accepts = len(ACCEPTS_RUN) + len(AIM_ACCEPTS_RUN)
     total = refusals + accepts
+    # The verdict prints before the residue, and that order is the point. A
+    # teardown fault used to preempt the report entirely; it is now reported
+    # after the answer the run exists to give, and it still fails the run.
     if failures:
         print(f"FAIL: {len(failures)} of {total} case(s) do not hold:", file=sys.stderr)
         for failure in failures:
             print(f"  {failure}", file=sys.stderr)
-        return 1
-    print(
-        f"OK: {total} case(s), of which {refusals} assert a refusal the gate "
-        f"makes and {accepts} a move it must not block."
-    )
-    return 0
+    else:
+        print(
+            f"OK: {total} case(s), of which {refusals} assert a refusal the gate "
+            f"makes and {accepts} a move it must not block."
+        )
+    for leftover in residue:
+        print(f"FAIL: {leftover}", file=sys.stderr)
+    return 1 if failures or residue else 0
 
 
 if __name__ == "__main__":

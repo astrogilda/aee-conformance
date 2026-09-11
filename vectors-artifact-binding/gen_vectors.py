@@ -38,6 +38,11 @@ sys.path.insert(0, str(TOOLS))
 
 import fixture  # noqa: E402
 import jcs  # noqa: E402
+
+# The preimage lives in digest.py beside this file, which imports only the
+# standard library, so scripts/release-digests.py can reach it without loading
+# the signing stack above. Imported rather than restated: one spelling.
+from digest import corpus_digest  # noqa: E402
 import manifest as manifest_mod  # noqa: E402
 import sign  # noqa: E402
 import verify as verify_mod  # noqa: E402
@@ -48,21 +53,6 @@ TEST_SEED = bytes.fromhex(
 RECORDED_AT = "2026-01-01T00:00:00Z"
 CASES_DIR = HERE / "cases"
 ID_HEX = 16
-
-
-def corpus_digest(manifest: dict, root: Any = None) -> str:
-    """The digest this corpus publishes, recomputed from the manifest entries.
-
-    It lives with the GENERATOR because the generator owns the preimage. Unlike
-    its siblings this one hashes the canonical form of the ENTRIES rather than
-    the member files, which is the preimage this corpus has always used: a
-    member here is a whole trial directory, so the entry is where the member's
-    own per-file digests are gathered into one object. `root` is accepted and
-    unused so every corpus answers scripts/release-digests.py through one
-    signature.
-    """
-    del root
-    return jcs.digest(cast("jcs.JSONValue", manifest["vectors"]))
 
 
 def vector_id(payload: bytes) -> str:
@@ -317,7 +307,7 @@ def build() -> dict[str, Any]:
         ),
         "vectors": entries,
     }
-    manifest["corpusDigest"] = jcs.digest(cast("jcs.JSONValue", entries))
+    manifest["corpusDigest"] = corpus_digest({"vectors": entries})
     (HERE / "MANIFEST.json").write_text(
         json.dumps(manifest, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
         encoding="utf-8",

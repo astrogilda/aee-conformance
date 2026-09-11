@@ -57,6 +57,11 @@ import json
 import os
 from typing import Any
 
+# The preimage lives in a standard-library-only module beside this one so that
+# scripts/release-digests.py can reach it without importing the COSE stack below.
+# Imported rather than restated: one preimage, one spelling.
+from digest import corpus_digest
+
 import cbor2
 from pycose.algorithms import CoseAlgorithm, EdDSA
 from pycose.keys.okp import OKPKey
@@ -165,20 +170,6 @@ class EdDSADeprecated(EdDSA):
 # ---------------------------------------------------------------------------
 # Keys. Fixed seeds, because the corpus has to regenerate byte-identically.
 # ---------------------------------------------------------------------------
-def corpus_digest(manifest: dict, root: str = HERE) -> str:
-    """The digest this corpus publishes, recomputed from the files on disk.
-
-    It lives with the GENERATOR because the generator owns the preimage. Its
-    one caller besides this file is scripts/release-digests.py, which loads it
-    by path rather than restating the concatenation: a second spelling of one
-    preimage drifts from the first, and a release signature over a drifted
-    digest certifies the drift instead of the corpus.
-    """
-    return hashlib.sha256(b"".join(
-        open(os.path.join(root, entry["file"]), "rb").read()
-        for entry in sorted(manifest["vectors"], key=lambda entry: entry["id"]))).hexdigest()
-
-
 def key_from_seed(seed: bytes) -> OKPKey:
     from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
@@ -1554,12 +1545,7 @@ def main() -> None:
         kind: sum(1 for entry in MANIFEST if entry["kind"] == kind)
         for kind in ("accept", "reject", "indeterminate")
     }
-    corpus = hashlib.sha256(
-        b"".join(
-            open(os.path.join(HERE, entry["file"]), "rb").read()
-            for entry in sorted(MANIFEST, key=lambda e: e["id"])
-        )
-    ).hexdigest()
+    corpus = corpus_digest({"vectors": MANIFEST}, HERE)
     manifest = {
         "suite": SUITE,
         "profile": PROFILE,

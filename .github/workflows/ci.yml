@@ -559,6 +559,13 @@ jobs:
       # source, and then takes a census: a count-shaped integer that nothing
       # declares fails, so the next one typed into a new paragraph fails on the
       # push that adds it rather than on the revision that outdates it.
+      # The one path a reader walks with nothing installed. It is asserted from
+      # outside, in a subprocess that cannot see site-packages, because every
+      # environment that runs this workflow has the generator extras and would
+      # therefore pass a check that a fresh clone fails. v0.10.0 shipped exactly
+      # that way.
+      - name: the digest check runs with no third-party package
+        run: python3 scripts/scitt-digest-isolation-test.py
       - name: every published count is derived, and no new one is hand-written
         run: |
           python3 scripts/count-gate.py

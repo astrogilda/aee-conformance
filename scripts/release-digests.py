@@ -93,6 +93,21 @@ def _load(path: Path) -> Any:
     return module
 
 
+def _owner(root: Path) -> Path:
+    """The module that owns this corpus's preimage.
+
+    digest.py when the corpus ships one, gen_vectors.py otherwise. A corpus
+    whose generator needs third-party libraries would otherwise put them on this
+    path, and this path has to run for somebody who installed nothing: v0.10.0
+    shipped with the SCITT preimage inside a generator that imports cbor2 and
+    pycose at module scope, and the first command the README tells a reader to
+    run failed in a fresh clone with ModuleNotFoundError. Generation may depend
+    on whatever it needs. Verification may not.
+    """
+    shipped = root / "digest.py"
+    return shipped if shipped.exists() else root / "gen_vectors.py"
+
+
 def _recompute_aee(root: Path, manifest: dict[str, Any]) -> str:
     """The AEE corpus digest, from the generator that publishes it."""
     del manifest
@@ -109,7 +124,7 @@ def _recompute_agent_action(root: Path, manifest: dict[str, Any]) -> str:
     bytes, so the generator answers for them, which is also where the AEE corpus
     above is read from.
     """
-    module = _load(root / "gen_vectors.py")
+    module = _load(_owner(root))
     return str(module.corpus_digest(manifest, str(root)))
 
 
@@ -125,7 +140,7 @@ def _recompute_from_generator(root: Path, manifest: dict[str, Any]) -> str:
     whole directories. A wrapper per corpus here would be five more places to
     get a preimage wrong and nothing to gain.
     """
-    module = _load(root / "gen_vectors.py")
+    module = _load(_owner(root))
     return str(module.corpus_digest(manifest, str(root)))
 
 

@@ -132,7 +132,7 @@ for it, and without taking this page's word. Four commands settle it.
 
 ```bash
 git clone https://github.com/astrogilda/agent-evidence-vectors && cd agent-evidence-vectors
-git checkout v0.10.0
+git checkout v0.10.1
 
 # 1. the digest list is what the vector files on disk hash to, recomputed
 python3 scripts/release-digests.py --check

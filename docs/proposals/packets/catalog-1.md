@@ -5,6 +5,8 @@
 register: edelman
 packet: true
 ships: ../catalog-1-body.md
+inline_code_spans: 1
+inline_code_spans_are: verify_from_bytes
 
 | field | value |
 |---|---|

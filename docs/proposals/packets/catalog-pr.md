@@ -3,6 +3,8 @@
 register: edelman
 packet: true
 ships: ../catalog-pr-body.md
+inline_code_spans: 1
+inline_code_spans_are: conformance/anchor-stream/
 
 ## Front matter
 

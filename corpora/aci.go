@@ -389,7 +389,7 @@ func aciRun(files map[string]string, level int) map[string]string {
 
 	aciCheckIdentifiers(decoded, required, fire)
 	aciCheckConsistency(decoded, required, fire)
-	aciCheckDiscovery(files, decoded, level, fire)
+	aciCheckDiscovery(files, level, fire)
 	aciCheckBlocks(decoded, level, fire)
 	aciCheckLifecycle(decoded, required, fire)
 	if level >= 3 {
@@ -561,7 +561,7 @@ func aciCheckConsistency(decoded map[string]map[string]any, required []string, f
 // question the specification does not answer, so a relative link that names the
 // right file is accepted here and the ambiguity is reported in the corpus
 // README rather than decided silently in a check.
-func aciCheckDiscovery(files map[string]string, decoded map[string]map[string]any, level int, fire func(string, string)) {
+func aciCheckDiscovery(files map[string]string, level int, fire func(string, string)) {
 	llms, ok := files["llms.txt"]
 	if !ok {
 		fire("ACI-DIS-001", aciViolation)

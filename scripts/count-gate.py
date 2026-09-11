@@ -1105,6 +1105,40 @@ DELEGATED: tuple[Delegated, ...] = (
 
 
 FROZEN: tuple[Frozen, ...] = (
+    # ---- the figures a posted outside run carried, transcribed into RUNS.md.
+    # A run figure records what somebody else's build answered on the day it
+    # ran, against the corpus as it then stood. It must NOT track this corpus:
+    # rewriting one when the corpus grows would describe a rerun nobody
+    # performed, and the whole value of the independence column is that it says
+    # what was actually posted. docs/INDEPENDENT-RUNS.json is the gated ledger
+    # for the same runs; these declarations cover the reader-facing scoreboard.
+    Frozen(
+        "RUNS.md",
+        "the revision-27 run's per-outcome figures, as posted",
+        "61/61 accepts, 209/209 rejects, 2/2 indeterminate",
+        "The outcome split an outside verifier posted against suiteRevision 27 "
+        "at Rul1an/aee-checker#21. Frozen to that run: the accept and reject "
+        "totals equal the corpus's own at the time, which is the collision this "
+        "census exists to surface, and restating either against a later corpus "
+        "would attribute a run to bytes it never saw.",
+    ),
+    Frozen(
+        "RUNS.md",
+        "the revision-27 run's reason-parity figure, as posted",
+        "80/209",
+        "A reason-parity figure its own author reports and declines to promote. "
+        "It is not verdict parity and not a corpus size; it is one measurement "
+        "of one build against one revision.",
+    ),
+    Frozen(
+        "RUNS.md",
+        "the reporter's own sentence about what the frozen build spanned",
+        "250 \u2192 272 vectors",
+        "A quotation, transcribed verbatim from the posting. The corpus sizes "
+        "in it are the endpoints of the advance he measured across, not a claim "
+        "about the corpus as it now stands, and editing a quoted sentence to "
+        "track a later corpus would misquote him.",
+    ),
     Frozen(
         "vectors-aci/FINDINGS.md",
         "the compliance score the ACI specification asks a reference implementation for",

@@ -181,6 +181,31 @@ Post a run with the source digest that produced it and it goes into
 as posted — never rounded, never restated as a fraction of a different corpus, and
 never described as unprompted if you called it directed.
 
+The reporting path is one form:
+[`.github/ISSUE_TEMPLATE/independent-run.yml`](.github/ISSUE_TEMPLATE/independent-run.yml).
+It asks for the corpus, the revision, the suite commit, the figures as you would
+publish them, the label you give the run, and a link to a record that resolves.
+Every posted run also gets a row in [`RUNS.md`](RUNS.md), in your own words.
+
+**A run that disagreed with the corpus is worth more here than one that agreed**,
+and nothing in the form asks you to have agreed. Two rules in this corpus exist
+because an outside reader answered differently and was right.
+
+## Adding a corpus of your own
+
+A corpus against a different specification lands here as a sibling
+`vectors-<name>/` directory, on the pattern `vectors-ai-agent-action/` already
+sets, rather than as a new repository. The contract is in
+[`.github/PULL_REQUEST_TEMPLATE/vectors-directory.md`](.github/PULL_REQUEST_TEMPLATE/vectors-directory.md):
+a manifest with a derived digest, a generator that reproduces every byte, the
+specification pinned by digest with a field saying whether those bytes are
+upstream's or a proposal, and your name on the commits and in the manifest's
+provenance.
+
+Co-authorship is the normal shape for one of these, not an exception. Where the
+whole distribution story lives, for a reader arriving from somewhere else, is
+[`DISTRIBUTION.md`](DISTRIBUTION.md).
+
 ## Raising an objection
 
 Open an issue. State what you think is wrong and, if you can, what you think it
